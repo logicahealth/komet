@@ -59,13 +59,13 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public class EditCoordinateImpl
          implements EditCoordinate {
    /** The author sequence. */
-   int authorSequence;
+   int authorNid;
 
    /** The module sequence. */
-   int moduleSequence;
+   int moduleNid;
 
    /** The path sequence. */
-   int pathSequence;
+   int pathNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -77,12 +77,9 @@ public class EditCoordinateImpl
     * @param pathId the path id
     */
    public EditCoordinateImpl(int authorId, int moduleId, int pathId) {
-      this.authorSequence = Get.identifierService()
-                               .getConceptSequence(authorId);
-      this.moduleSequence = Get.identifierService()
-                               .getConceptSequence(moduleId);
-      this.pathSequence   = Get.identifierService()
-                               .getConceptSequence(pathId);
+      this.authorNid = authorId;
+      this.moduleNid = moduleId;
+      this.pathNid   = pathId;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -105,15 +102,15 @@ public class EditCoordinateImpl
 
       final EditCoordinateImpl other = (EditCoordinateImpl) obj;
 
-      if (this.authorSequence != other.authorSequence) {
+      if (this.authorNid != other.authorNid) {
          return false;
       }
 
-      if (this.moduleSequence != other.moduleSequence) {
+      if (this.moduleNid != other.moduleNid) {
          return false;
       }
 
-      if (this.pathSequence != other.pathSequence) {
+      if (this.pathNid != other.pathNid) {
          return false;
       }
 
@@ -129,9 +126,9 @@ public class EditCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 97 * hash + this.authorSequence;
-      hash = 97 * hash + this.moduleSequence;
-      hash = 97 * hash + this.pathSequence;
+      hash = 97 * hash + this.authorNid;
+      hash = 97 * hash + this.moduleNid;
+      hash = 97 * hash + this.pathNid;
       return hash;
    }
 
@@ -142,9 +139,9 @@ public class EditCoordinateImpl
     */
    @Override
    public String toString() {
-      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorSequence) + ", m: " +
-             Get.conceptDescriptionText(this.moduleSequence) + ", p: " +
-             Get.conceptDescriptionText(this.pathSequence) + '}';
+      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorNid) + ", m: " +
+             Get.conceptDescriptionText(this.moduleNid) + ", p: " +
+             Get.conceptDescriptionText(this.pathNid) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -155,8 +152,8 @@ public class EditCoordinateImpl
     * @return the author sequence
     */
    @Override
-   public int getAuthorSequence() {
-      return this.authorSequence;
+   public int getAuthorNid() {
+      return this.authorNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -166,9 +163,8 @@ public class EditCoordinateImpl
     *
     * @param authorId the new author sequence
     */
-   public void setAuthorSequence(int authorId) {
-      this.authorSequence = Get.identifierService()
-                               .getConceptSequence(authorId);
+   public void setAuthorNid(int authorId) {
+      this.authorNid = authorId;
    }
 
    /**
@@ -177,11 +173,11 @@ public class EditCoordinateImpl
     * @param authorSequenceProperty the author sequence property
     * @return the change listener
     */
-   public ChangeListener<Number> setAuthorSequenceProperty(IntegerProperty authorSequenceProperty) {
+   public ChangeListener<Number> setAuthorNidProperty(IntegerProperty authorSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.authorSequence = newValue.intValue();
+               this.authorNid = newValue.intValue();
             };
 
       authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -196,8 +192,8 @@ public class EditCoordinateImpl
     * @return the module sequence
     */
    @Override
-   public int getModuleSequence() {
-      return this.moduleSequence;
+   public int getModuleNid() {
+      return this.moduleNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -207,9 +203,8 @@ public class EditCoordinateImpl
     *
     * @param moduleId the new module sequence
     */
-   public void setModuleSequence(int moduleId) {
-      this.moduleSequence = Get.identifierService()
-                               .getConceptSequence(moduleId);
+   public void setModuleNid(int moduleId) {
+      this.moduleNid = moduleId;
    }
 
    /**
@@ -218,11 +213,11 @@ public class EditCoordinateImpl
     * @param moduleSequenceProperty the module sequence property
     * @return the change listener
     */
-   public ChangeListener<Number> setModuleSequenceProperty(IntegerProperty moduleSequenceProperty) {
+   public ChangeListener<Number> setModuleNidProperty(IntegerProperty moduleSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.moduleSequence = newValue.intValue();
+               this.moduleNid = newValue.intValue();
             };
 
       moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -237,8 +232,8 @@ public class EditCoordinateImpl
     * @return the path sequence
     */
    @Override
-   public int getPathSequence() {
-      return this.pathSequence;
+   public int getPathNid() {
+      return this.pathNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -248,9 +243,8 @@ public class EditCoordinateImpl
     *
     * @param pathId the new path sequence
     */
-   public void setPathSequence(int pathId) {
-      this.pathSequence = Get.identifierService()
-                             .getConceptSequence(pathId);
+   public void setPathNid(int pathId) {
+      this.pathNid = pathId;
    }
 
    /**
@@ -259,11 +253,11 @@ public class EditCoordinateImpl
     * @param pathSequenceProperty the path sequence property
     * @return the change listener
     */
-   public ChangeListener<Number> setPathSequenceProperty(IntegerProperty pathSequenceProperty) {
+   public ChangeListener<Number> setPathNidProperty(IntegerProperty pathSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.pathSequence = newValue.intValue();
+               this.pathNid = newValue.intValue();
             };
 
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -272,7 +266,7 @@ public class EditCoordinateImpl
 
    @Override
    public EditCoordinate deepClone() {
-      EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorSequence, moduleSequence, pathSequence);
+      EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorNid, moduleNid, pathNid);
       return newCoordinate;
    }
 }

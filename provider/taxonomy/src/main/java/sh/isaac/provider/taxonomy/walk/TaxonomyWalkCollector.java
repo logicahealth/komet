@@ -131,7 +131,7 @@ public class TaxonomyWalkCollector
          try {
             final int[] parentSequences = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
                     
-                    .getTaxonomyParentSequences(conceptSequence);
+                    .getTaxonomyParentNids(conceptSequence);
             final int parentCount = parentSequences.length;
             
             if (parentCount == 0) {

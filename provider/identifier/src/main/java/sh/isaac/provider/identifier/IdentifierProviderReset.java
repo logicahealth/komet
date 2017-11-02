@@ -41,31 +41,12 @@ package sh.isaac.provider.identifier;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.OchreCache;
-
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class IdentifierProviderReset.
  *
  * @author kec
  */
-@Service
-@Singleton
 public class IdentifierProviderReset
-         implements OchreCache {
-   /**
-    * Reset.
-    */
-   @Override
-   public void reset() {
-      IdentifierProvider.reset();
+          {
    }
-}
 

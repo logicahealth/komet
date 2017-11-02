@@ -56,8 +56,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
@@ -86,16 +85,16 @@ public class CommitTask
    //~--- fields --------------------------------------------------------------
 
    /** The concepts to commit. */
-   final ConceptSequenceSet conceptsToCommit = new ConceptSequenceSet();
+   final NidSet conceptsToCommit = new NidSet();
 
    /** The concepts to check. */
-   final ConceptSequenceSet conceptsToCheck = new ConceptSequenceSet();
+   final NidSet conceptsToCheck = new NidSet();
 
    /** The semantics to commit. */
-   final SemanticSequenceSet semanticsToCommit = new SemanticSequenceSet();
+   final NidSet semanticsToCommit = new NidSet();
 
    /** The semantics to check. */
-   final SemanticSequenceSet semanticsToCheck = new SemanticSequenceSet();
+   final NidSet semanticsToCheck = new NidSet();
 
    /** The commit comment. */
    final String commitComment;
@@ -121,10 +120,10 @@ public class CommitTask
     * Instantiates a new commit task.
     *
     * @param commitComment the commit comment
-    * @param uncommittedConceptsWithChecksSequenceSet the uncommitted concepts with checks sequence set
-    * @param uncommittedConceptsNoChecksSequenceSet the uncommitted concepts no checks sequence set
-    * @param uncommittedSememesWithChecksSequenceSet the uncommitted sememes with checks sequence set
-    * @param uncommittedSememesNoChecksSequenceSet the uncommitted sememes no checks sequence set
+    * @param uncommittedConceptsWithChecksNidSet the uncommitted concepts with checks sequence set
+    * @param uncommittedConceptsNoChecksNidSet the uncommitted concepts no checks sequence set
+    * @param uncommittedSememesWithChecksNidSet the uncommitted sememes with checks sequence set
+    * @param uncommittedSememesNoChecksNidSet the uncommitted sememes no checks sequence set
     * @param lastCommit the last commit
     * @param checkers the checkers
     * @param alertCollection the alert collection
@@ -132,10 +131,10 @@ public class CommitTask
     * @param commitProvider the commit provider
     */
    private CommitTask(String commitComment,
-                      ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
-                      ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet,
-                      SemanticSequenceSet uncommittedSememesWithChecksSequenceSet,
-                      SemanticSequenceSet uncommittedSememesNoChecksSequenceSet,
+                      NidSet uncommittedConceptsWithChecksNidSet,
+                      NidSet uncommittedConceptsNoChecksNidSet,
+                      NidSet uncommittedSememesWithChecksNidSet,
+                      NidSet uncommittedSememesNoChecksNidSet,
                       long lastCommit,
                       ConcurrentSkipListSet<ChangeChecker> checkers,
                       Map<UncommittedStamp, Integer> pendingStampsForCommit,
@@ -144,16 +143,16 @@ public class CommitTask
                    .get()
                    .add(this);
       this.commitComment = commitComment;
-      this.conceptsToCommit.or(uncommittedConceptsNoChecksSequenceSet);
-      this.conceptsToCommit.or(uncommittedConceptsWithChecksSequenceSet);
-      this.conceptsToCheck.or(uncommittedConceptsWithChecksSequenceSet);
-      this.semanticsToCommit.or(uncommittedSememesNoChecksSequenceSet);
-      this.semanticsToCommit.or(uncommittedSememesWithChecksSequenceSet);
-      this.semanticsToCheck.or(uncommittedSememesWithChecksSequenceSet);
-      uncommittedConceptsNoChecksSequenceSet.clear();
-      uncommittedConceptsWithChecksSequenceSet.clear();
-      uncommittedSememesNoChecksSequenceSet.clear();
-      uncommittedSememesWithChecksSequenceSet.clear();
+      this.conceptsToCommit.or(uncommittedConceptsNoChecksNidSet);
+      this.conceptsToCommit.or(uncommittedConceptsWithChecksNidSet);
+      this.conceptsToCheck.or(uncommittedConceptsWithChecksNidSet);
+      this.semanticsToCommit.or(uncommittedSememesNoChecksNidSet);
+      this.semanticsToCommit.or(uncommittedSememesWithChecksNidSet);
+      this.semanticsToCheck.or(uncommittedSememesWithChecksNidSet);
+      uncommittedConceptsNoChecksNidSet.clear();
+      uncommittedConceptsWithChecksNidSet.clear();
+      uncommittedSememesNoChecksNidSet.clear();
+      uncommittedSememesWithChecksNidSet.clear();
       this.lastCommit             = lastCommit;
       this.checkers               = checkers;
       this.pendingStampsForCommit = pendingStampsForCommit;
@@ -185,11 +184,11 @@ public class CommitTask
          // }
          this.conceptsToCommit.stream()
                               .forEach(
-                                  (conceptSequence) -> {
+                                  (conceptNid) -> {
                                      final ConceptChronology c = Get.conceptService()
-                                                                    .getConceptChronology(conceptSequence);
+                                                                    .getConceptChronology(conceptNid);
 
-                                     if (this.conceptsToCheck.contains(conceptSequence)) {
+                                     if (this.conceptsToCheck.contains(conceptNid)) {
                                         this.checkers.stream()
                                               .forEach(
                                                   (check) -> {
@@ -201,11 +200,11 @@ public class CommitTask
                                   });
          this.semanticsToCommit.stream()
                                .forEach(
-                                   (sememeSequence) -> {
+                                   (semanticNid) -> {
                                       final SemanticChronology sc = Get.assemblageService()
-                                                                       .getSemanticChronology(sememeSequence);
+                                                                       .getSemanticChronology(semanticNid);
 
-                                      if (this.semanticsToCheck.contains(sememeSequence)) {
+                                      if (this.semanticsToCheck.contains(semanticNid)) {
                                          this.checkers.stream()
                                                .forEach(
                                                      (check) -> {
@@ -241,9 +240,9 @@ public class CommitTask
                                            final Stamp stamp = new Stamp(
                                                                    entry.getKey().status,
                                                                          commitTime,
-                                                                         uncommittedStamp.authorSequence,
-                                                                         uncommittedStamp.moduleSequence,
-                                                                         uncommittedStamp.pathSequence);
+                                                                         uncommittedStamp.authorNid,
+                                                                         uncommittedStamp.moduleNid,
+                                                                         uncommittedStamp.pathNid);
 
                                            this.stampProvider.addStamp(stamp, stampSequence);
                                         });
@@ -258,9 +257,9 @@ public class CommitTask
                                                   Instant.ofEpochMilli(commitTime),
                                                         stampSequenceSet,
                                                         new OpenIntIntHashMap(),
-                                                        ConceptSequenceSet.of(
+                                                        NidSet.of(
                                                               this.conceptsToCheck).or(this.conceptsToCommit),
-                                                        SemanticSequenceSet.of(
+                                                        NidSet.of(
                                                               this.semanticsToCheck).or(this.semanticsToCommit),
                                                         this.commitComment);
 
@@ -303,10 +302,10 @@ public class CommitTask
     * added to the activeTasks service.
     */
    public static CommitTask get(String commitComment,
-                                ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
-                                ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet,
-                                SemanticSequenceSet uncommittedSemanticsWithChecksSequenceSet,
-                                SemanticSequenceSet uncommittedSemanticsNoChecksSequenceSet,
+                                NidSet uncommittedConceptsWithChecksSequenceSet,
+                                NidSet uncommittedConceptsNoChecksSequenceSet,
+                                NidSet uncommittedSemanticsWithChecksSequenceSet,
+                                NidSet uncommittedSemanticsNoChecksSequenceSet,
                                 long lastCommit,
                                 ConcurrentSkipListSet<ChangeChecker> checkers,
                                 Map<UncommittedStamp, Integer> pendingStampsForCommit,

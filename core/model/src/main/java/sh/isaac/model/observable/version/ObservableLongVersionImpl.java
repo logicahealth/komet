@@ -95,7 +95,7 @@ public class ObservableLongVersionImpl
       if (this.longProperty == null) {
          this.longProperty = new CommitAwareLongProperty(
              this,
-             ObservableFields.LONG_VALUE_FOR_SEMEME.toExternalString(),
+             ObservableFields.LONG_VALUE_FOR_SEMANTIC.toExternalString(),
              getLongValue());
          this.longProperty.addListener(
              (observable, oldValue, newValue) -> {

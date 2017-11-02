@@ -57,7 +57,7 @@ import au.csiro.snorocket.core.SnorocketReasoner;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -100,7 +100,7 @@ public class ClassifierData
    IReasoner reasoner = new SnorocketReasoner();
 
    /** The loaded concepts. */
-   ConceptSequenceSet loadedConcepts = new ConceptSequenceSet();
+   NidSet loadedConcepts = new NidSet();
 
    /** The last classify instant. */
    Instant lastClassifyInstant;
@@ -179,7 +179,7 @@ public class ClassifierData
     */
    @Override
    public void handleChange(SemanticChronology sc) {
-      if (sc.getAssemblageSequence() == this.logicCoordinate.getStatedAssemblageSequence()) {
+      if (sc.getAssemblageNid() == this.logicCoordinate.getStatedAssemblageNid()) {
          log.info("Stated form change: " + sc);
 
          // only process if incremental is a possibility.
@@ -281,8 +281,8 @@ public class ClassifierData
     *
     * @return the affected concept sequence set
     */
-   public ConceptSequenceSet getAffectedConceptSequenceSet() {
-      final ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
+   public NidSet getAffectedConceptSequenceSet() {
+      final NidSet affectedConceptSequences = new NidSet();
 
       if (this.lastClassifyType == ClassificationType.INCREMENTAL) {
          // not returning loaded concepts here, because incremental classification

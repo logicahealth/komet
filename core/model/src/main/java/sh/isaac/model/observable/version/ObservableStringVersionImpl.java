@@ -106,7 +106,7 @@ public class ObservableStringVersionImpl
       if (this.stringProperty == null) {
          this.stringProperty = new CommitAwareStringProperty(
              this,
-             ObservableFields.STRING_VALUE_FOR_SEMEME.toExternalString(),
+             ObservableFields.STRING_VALUE_FOR_SEMANTIC.toExternalString(),
              getString());
       }
 

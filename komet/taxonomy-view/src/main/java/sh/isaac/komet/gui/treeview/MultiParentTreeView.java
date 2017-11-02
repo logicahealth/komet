@@ -64,7 +64,6 @@ import javafx.collections.ObservableList;
 
 import javafx.concurrent.Task;
 
-import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -91,7 +90,6 @@ import com.lmax.disruptor.EventHandler;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.alert.Alert;
-import sh.isaac.api.alert.AlertAction;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.alert.AlertObject;
@@ -287,9 +285,9 @@ public class MultiParentTreeView
                // Look for an IS_A relationship to origin.
                boolean found = false;
 
-               for (int parent: getTaxonomyTree().getParentSequences(concept.getConceptSequence())) {
+               for (int parent: getTaxonomyTree().getParentNids(concept.getNid())) {
                   current = Get.identifierService()
-                               .getUuidPrimordialFromConceptId(parent)
+                               .getUuidPrimordialForNid(parent)
                                .get();
                   pathToRoot.add(current);
                   found = true;

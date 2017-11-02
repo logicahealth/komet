@@ -123,14 +123,13 @@ public class ExtractAxioms
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 
-      sememeSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
+      sememeSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
-                                final int conceptSequence = Get.identifierService()
-                                                               .getConceptSequence(lgs.getReferencedComponentNid());
+                                final int conceptNid = lgs.getReferencedComponentNid();
 
                                 if (Get.conceptService()
-                                       .isConceptActive(conceptSequence, stampCoordinate)) {
+                                       .isConceptActive(conceptNid, stampCoordinate)) {
                                    cd.translate(lgs);
                                    logicGraphMembers.incrementAndGet();
                                 }

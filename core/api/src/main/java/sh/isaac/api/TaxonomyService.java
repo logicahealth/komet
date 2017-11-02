@@ -41,17 +41,18 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javafx.concurrent.Task;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.collections.IntSet;
 
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.tree.Tree;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -98,7 +99,7 @@ public interface TaxonomyService
     * @param typeSequenceSet the type sequence set
     * @return the all relationship origin sequences of type
     */
-   IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
+   IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet);
 
    /**
     * Gets the snapshot.
@@ -123,5 +124,13 @@ public interface TaxonomyService
     * @return the taxonomy parent sequences
     */
    IntStream getTaxonomyParentSequences(int childId);
+   
+   /**
+    * 
+    * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
+    * where created within.  
+    * @return an unprocessed TreeNodeVisitData object. 
+    */
+   Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid);
 }
 

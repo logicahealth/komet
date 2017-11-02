@@ -138,7 +138,7 @@ public class TreeTableGeneralCell
       this.setContentDisplay(ContentDisplay.TEXT_ONLY);
 
       Text assemblageNameText = new Text(
-              manifold.getPreferredDescriptionText(sememeVersion.getAssemblageSequence()) + "\n");
+              manifold.getPreferredDescriptionText(sememeVersion.getAssemblageNid()) + "\n");
 
       assemblageNameText.getStyleClass()
               .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
@@ -151,7 +151,7 @@ public class TreeTableGeneralCell
                       sememeVersion.getReferencedComponentNid()));
 
       switch (Get.identifierService()
-              .getChronologyTypeForNid(sememeVersion.getReferencedComponentNid())) {
+              .getOldChronologyTypeForNid(sememeVersion.getReferencedComponentNid())) {
          case CONCEPT:
             referencedComponentText.getStyleClass()
                     .add(StyleClasses.CONCEPT_COMPONENT_REFERENCE.toString());
@@ -195,7 +195,7 @@ public class TreeTableGeneralCell
             ComponentNidVersion componentNidVersion = version.unwrap();
 
             switch (Get.identifierService()
-                    .getChronologyTypeForNid(componentNidVersion.getComponentNid())) {
+                    .getOldChronologyTypeForNid(componentNidVersion.getComponentNid())) {
                case CONCEPT:
                   Text conceptText = new Text(manifold.getPreferredDescriptionText(componentNidVersion.getComponentNid()));
 

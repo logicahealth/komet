@@ -84,7 +84,7 @@ public class CursorSequenceSpliterator implements Spliterator.OfInt, AutoCloseab
 
    @Override
    public long estimateSize() {
-      return currentId - maxId;
+      return maxId - currentId;
    }
 
    @Override

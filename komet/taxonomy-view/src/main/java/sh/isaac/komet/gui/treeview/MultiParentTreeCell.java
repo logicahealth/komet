@@ -166,7 +166,7 @@ final public class MultiParentTreeCell
                ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().getManifold().getConceptSnapshotService();
 
             if (concept != null) {
-               if (conceptSnapshotService.isConceptActive(concept.getConceptSequence())) {
+               if (conceptSnapshotService.isConceptActive(concept.getNid())) {
                   setFont(Font.font(getFont().getFamily(), FontPosture.REGULAR, getFont().getSize()));
                } else {
                   setFont(Font.font(getFont().getFamily(), FontPosture.ITALIC, getFont().getSize()));
@@ -257,11 +257,11 @@ final public class MultiParentTreeCell
          } else {
             int[] allParents = treeItem.getTreeView()
                                        .getTaxonomyTree()
-                                       .getParentSequences(value.getConceptSequence());
+                                       .getParentNids(value.getNid());
             ArrayList<MultiParentTreeItem> secondaryParentItems = new ArrayList<>();
 
             for (int parentSequence: allParents) {
-               if ((allParents.length == 1) || (parentSequence != parentItem.getValue().getConceptSequence())) {
+               if ((allParents.length == 1) || (parentSequence != parentItem.getValue().getNid())) {
                   MultiParentTreeItem extraParentItem = new MultiParentTreeItem(parentSequence, treeItem.getTreeView());
 
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);

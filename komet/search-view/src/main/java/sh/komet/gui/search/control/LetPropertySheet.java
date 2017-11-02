@@ -158,10 +158,10 @@ public class LetPropertySheet {
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
        try {
           Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-          ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
+          ConceptChronology concept = Get.concept(conceptSpecification);
           
           TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
-          for (int i: taxonomySnapshot.getTaxonomyChildSequences(concept.getNid())) {
+          for (int i: taxonomySnapshot.getTaxonomyChildNids(concept.getNid())) {
              ConceptForControlWrapper propertySheetItemConceptWrapper =
                      new ConceptForControlWrapper(this.manifoldForDisplay, i);
              collection.add(propertySheetItemConceptWrapper);
@@ -183,16 +183,16 @@ public class LetPropertySheet {
         this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
                 .stampPositionProperty().get().timeProperty()));
         this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get(),
+                this.manifoldForModification.getStampCoordinate().moduleNidProperty().get(),
                 MODULE,
                 this.manifoldForModification));
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 PATH,
-                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
+                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathNidProperty()
         ));
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 LANGUAGE,
-                this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
+                this.manifoldForModification.getLanguageCoordinate().languageConceptNidProperty()
         ));
         this.items.add(new PropertySheetItemListViewWrapper(
                 this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
@@ -204,11 +204,11 @@ public class LetPropertySheet {
                 this.manifoldForDisplay));
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 CLASSIFIER,
-                this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
+                this.manifoldForModification.getLogicCoordinate().classifierNidProperty()
         ));
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 DESCRIPTION_LOGIC,
-                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty()
+                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileNidProperty()
         ));
     }
 
@@ -222,12 +222,12 @@ public class LetPropertySheet {
 
     private void buildAndSetModulesForMultiSelect(){
 
-        if(this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().size() == 0) {
+        if(this.manifoldForModification.getStampCoordinate().moduleNidProperty().get().size() == 0) {
            try {
               ArrayList<Integer> moduleNIDs = new ArrayList<>();
               ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
               TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
-              for (int i: taxonomySnapshot.getTaxonomyChildSequences(MetaData.MODULE____SOLOR.getNid())) {
+              for (int i: taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
                  moduleNIDs.add(i);
               }
               int[] iArray = new int[moduleNIDs.size()];
@@ -235,7 +235,7 @@ public class LetPropertySheet {
                  iArray[i] = moduleNIDs.get(i);
               }
               moduleIntegerArray.addAll(iArray, 0, moduleNIDs.size());
-              this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().set(moduleIntegerArray);
+              this.manifoldForModification.getStampCoordinate().moduleNidProperty().set(moduleIntegerArray);
            } catch (InterruptedException | ExecutionException ex) {
               throw new RuntimeException(ex);
            }

@@ -137,9 +137,9 @@ public class ConceptSnapshotImpl
     * @return the author sequence
     */
    @Override
-   public int getAuthorSequence() {
+   public int getAuthorNid() {
       return this.snapshotVersion.get()
-                                 .getAuthorSequence();
+                                 .getAuthorNid();
    }
 
    /**
@@ -171,16 +171,6 @@ public class ConceptSnapshotImpl
    @Override
    public String getFullySpecifiedConceptDescriptionText() {
       return getDescription().getText();
-   }
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   @Override
-   public int getConceptSequence() {
-      return this.conceptChronology.getConceptSequence();
    }
 
    /**
@@ -239,9 +229,9 @@ public class ConceptSnapshotImpl
     * @return the module sequence
     */
    @Override
-   public int getModuleSequence() {
+   public int getModuleNid() {
       return this.snapshotVersion.get()
-                                 .getModuleSequence();
+                                 .getModuleNid();
    }
 
    /**
@@ -261,9 +251,9 @@ public class ConceptSnapshotImpl
     * @return the path sequence
     */
    @Override
-   public int getPathSequence() {
+   public int getPathNid() {
       return this.snapshotVersion.get()
-                                 .getPathSequence();
+                                 .getPathNid();
    }
 
    /**
@@ -337,7 +327,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public Optional<String> getPreferedConceptDescriptionText() {
-     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getConceptSequence()));
+     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getNid()));
    }
 
    @Override
@@ -346,8 +336,8 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public int getIsaConceptSequence() {
-      return this.manifoldCoordinate.getIsaConceptSequence();
+   public int getIsaConceptNid() {
+      return this.manifoldCoordinate.getIsaConceptNid();
    }
 
    @Override

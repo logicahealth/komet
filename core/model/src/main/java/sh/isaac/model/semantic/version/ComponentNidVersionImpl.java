@@ -104,9 +104,9 @@ public class ComponentNidVersionImpl
                                    .getStampSequence(
                                        this.getState(),
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       this.getModuleNid(),
+                                       ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence);
 
@@ -129,7 +129,7 @@ public class ComponentNidVersionImpl
       sb.append("{Component Nid≤");
 
       switch (Get.identifierService()
-                 .getChronologyTypeForNid(this.componentNid)) {
+                 .getOldChronologyTypeForNid(this.componentNid)) {
       case CONCEPT:
          sb.append(Get.conceptDescriptionText(this.componentNid));
          break;
@@ -151,7 +151,7 @@ public class ComponentNidVersionImpl
 
       default:
          sb.append(Get.identifierService()
-                      .getChronologyTypeForNid(this.componentNid))
+                      .getOldChronologyTypeForNid(this.componentNid))
            .append(" ")
            .append(this.componentNid)
            .append(" ");

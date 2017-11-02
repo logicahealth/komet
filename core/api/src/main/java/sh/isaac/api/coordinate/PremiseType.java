@@ -81,10 +81,10 @@ public enum PremiseType {
    }
    
    public static PremiseType fromConcept(ConceptSpecification conceptSpecification) {
-      if (conceptSpecification.getConceptSequence() == TermAux.INFERRED_PREMISE_TYPE.getConceptSequence()) {
+      if (conceptSpecification.getNid() == TermAux.INFERRED_PREMISE_TYPE.getNid()) {
          return INFERRED;
       }
-      if (conceptSpecification.getConceptSequence() == TermAux.STATED_PREMISE_TYPE.getConceptSequence()) {
+      if (conceptSpecification.getNid() == TermAux.STATED_PREMISE_TYPE.getNid()) {
          return STATED;
       }
       throw new IllegalStateException("PremiseType.fromConcept can't handle: " + conceptSpecification);

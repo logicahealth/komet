@@ -277,7 +277,7 @@ public class WorkflowAccessor {
          LanguageCoordinate langCoord)
             throws Exception {
       final ObjectChronologyType oct = Get.identifierService()
-                                          .getChronologyTypeForNid(nid);
+                                          .getOldChronologyTypeForNid(nid);
 
       if (null == oct) {
          throw new Exception("Unsupported Object Chronology Type: " + oct);
@@ -300,7 +300,7 @@ public class WorkflowAccessor {
             case DYNAMIC:
                final LatestVersion<DynamicVersion> dynSem = ((SemanticChronology) sememe).getLatestVersion(stampCoord);
                final int                          assemblageSeq = dynSem.get()
-                                                                        .getAssemblageSequence();
+                                                                        .getAssemblageNid();
 
                Get.conceptService()
                   .getConceptChronology(assemblageSeq);
@@ -565,11 +565,11 @@ public class WorkflowAccessor {
       final long timeLaunched = proc.getTimeCreated();
       Chronology objChron;
 
-      if (null == Get.identifierService().getChronologyTypeForNid(compNid)) {
+      if (null == Get.identifierService().getOldChronologyTypeForNid(compNid)) {
          throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
       } else {
          switch (Get.identifierService()
-                    .getChronologyTypeForNid(compNid)) {
+                    .getOldChronologyTypeForNid(compNid)) {
          case CONCEPT:
             objChron = Get.conceptService()
                           .getConceptChronology(compNid);

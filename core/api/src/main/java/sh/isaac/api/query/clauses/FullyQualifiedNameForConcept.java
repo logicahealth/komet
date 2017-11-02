@@ -51,7 +51,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -106,7 +105,7 @@ public class FullyQualifiedNameForConcept
       for (final Clause childClause: getChildren()) {
          final NidSet             childPossibleComponentNids =
             childClause.computePossibleComponents(incomingComponents);
-         final ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
+         final NidSet conceptSequenceSet         = NidSet.of(childPossibleComponentNids);
 
          Get.conceptService()
             .getConceptChronologyStream(conceptSequenceSet)

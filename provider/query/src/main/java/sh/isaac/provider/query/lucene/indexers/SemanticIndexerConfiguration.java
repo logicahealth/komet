@@ -114,7 +114,7 @@ public class SemanticIndexerConfiguration {
    /**
     * Builds the and configure columns to index.
     *
-    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param assemblageNid the assemblage nid or sequence
     * @param columnsToIndex the columns to index
     * @param skipReindex the skip reindex
     * @return the SemanticChronology
@@ -124,7 +124,7 @@ public class SemanticIndexerConfiguration {
     */
    @SuppressWarnings("unchecked")
    public static SemanticChronology buildAndConfigureColumnsToIndex(
-           int assemblageNidOrSequence,
+           int assemblageNid,
            Integer[] columnsToIndex,
            boolean skipReindex)
             throws RuntimeException,
@@ -143,8 +143,7 @@ public class SemanticIndexerConfiguration {
       });
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConceptChronology(
-                                                                                                assemblageNidOrSequence);
+                                                                                             .getConceptChronology(assemblageNid);
 
       LOG.info("Configuring index for dynamic assemblage '" + referencedAssemblageConceptC.toUserString() +
                "' on columns " + Arrays.deepToString(columnsToIndex));
@@ -166,9 +165,7 @@ public class SemanticIndexerConfiguration {
       }
 
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
-                                                                                          .getDynamicBuilder(Get.identifierService()
-                                                                                                   .getConceptNid(
-                                                                                                      assemblageNidOrSequence),
+                                                                                          .getDynamicBuilder(assemblageNid,
                                                                                                    DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                                                                                          .getNid(),
                                                                                                    data);
@@ -189,7 +186,7 @@ public class SemanticIndexerConfiguration {
     * for the given assemblage sequence, which columns should be indexed - note - columnsToIndex must be provided
     * it doesn't make any sense to index sememes any longer in ochre without indexing column content.
     *
-    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param assemblageNid the assemblage nid or sequence
     * @param columnsToIndex the columns to index
     * @param skipReindex - if true - does not do a full DB reindex (useful if you are enabling an index on a new that has never been used)
     * otherwise - leave false - so that a full reindex occurs (on this thread) and the index becomes valid.
@@ -198,7 +195,7 @@ public class SemanticIndexerConfiguration {
     * @throws ExecutionException the execution exception
     */
    @SuppressWarnings("unchecked")
-   public static void configureColumnsToIndex(int assemblageNidOrSequence,
+   public static void configureColumnsToIndex(int assemblageNid,
          Integer[] columnsToIndex,
          boolean skipReindex)
             throws RuntimeException,
@@ -217,8 +214,7 @@ public class SemanticIndexerConfiguration {
       }
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConceptChronology(
-                                                                                                assemblageNidOrSequence);
+                                                                                             .getConceptChronology(assemblageNid);
 
       LOG.info("Configuring index for assemblage '" + referencedAssemblageConceptC.toUserString() +
                "' on columns " + Arrays.deepToString(columnsToIndex));
@@ -240,9 +236,7 @@ public class SemanticIndexerConfiguration {
       }
 
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
-                                                                                          .getDynamicBuilder(Get.identifierService()
-                                                                                                   .getConceptNid(
-                                                                                                      assemblageNidOrSequence),
+                                                                                          .getDynamicBuilder(assemblageNid,
                                                                                                    DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                                                                                          .getNid(),
                                                                                                    data);
@@ -355,10 +349,9 @@ public class SemanticIndexerConfiguration {
                                                                 StampCoordinates.getDevelopmentLatest());
       @SuppressWarnings("rawtypes")
       final Stream<LatestVersion<DynamicVersion>> sememes =
-         sss.getLatestSemanticVersionsForComponentFromAssemblage(Get.identifierService()
-                                                                  .getConceptNid(indexedSememeId),
+         sss.getLatestSemanticVersionsForComponentFromAssemblage(indexedSememeId,
                                                                DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                     .getSequence());
+                                                                     .getNid());
       @SuppressWarnings("rawtypes")
       final Optional<LatestVersion<DynamicVersion>> ds = sememes.findAny();
 
@@ -386,7 +379,7 @@ public class SemanticIndexerConfiguration {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
                   final Stream<SemanticChronology> sememeCs = Get.assemblageService()
                                                                                            .getSemanticChronologyStreamFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                                                    .getSequence());
+                                                                                                    .getNid());
 
                   sememeCs.forEach(sememeC -> {
                                       if (sememeC.getVersionType() == VersionType.DYNAMIC) {
@@ -395,9 +388,8 @@ public class SemanticIndexerConfiguration {
                                             ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
                                          if (dsv.isPresent() && (dsv.get().getState() == State.ACTIVE)) {
-                                            final int assemblageToIndex = Get.identifierService()
-                                                                             .getConceptSequence(dsv.get()
-                                                                                   .getReferencedComponentNid());
+                                            final int assemblageToIndex = dsv.get()
+                                                                                   .getReferencedComponentNid();
                                             Integer[]                 finalCols = new Integer[] {};
                                             final DynamicData[] data      = dsv.get()
                                                                                      .getData();

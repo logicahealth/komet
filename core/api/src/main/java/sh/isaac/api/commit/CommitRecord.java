@@ -52,9 +52,8 @@ import java.time.Instant;
 
 import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import sh.isaac.api.collections.NidSet;
 
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
 
 //~--- classes ----------------------------------------------------------------
@@ -77,10 +76,10 @@ public class CommitRecord {
    protected String commitComment;
 
    /** The concepts in commit. */
-   protected ConceptSequenceSet conceptSequencesInCommit;
+   protected NidSet conceptSequencesInCommit;
 
    /** The semantic sequences in a commit. */
-   protected SemanticSequenceSet semanticSequencesInCommit;
+   protected NidSet semanticSequencesInCommit;
 
    //~--- constructors --------------------------------------------------------
 
@@ -102,14 +101,14 @@ public class CommitRecord {
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
-                       ConceptSequenceSet conceptSequencesInCommit,
-                       SemanticSequenceSet semanticSequencesInCommit,
+                       NidSet conceptSequencesInCommit,
+                       NidSet semanticSequencesInCommit,
                        String commitComment) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
       this.stampAliases     = stampAliases.copy();
-      this.conceptSequencesInCommit = ConceptSequenceSet.of(conceptSequencesInCommit);
-      this.semanticSequencesInCommit  = SemanticSequenceSet.of(semanticSequencesInCommit);
+      this.conceptSequencesInCommit = NidSet.of(conceptSequencesInCommit);
+      this.semanticSequencesInCommit  = NidSet.of(semanticSequencesInCommit);
       this.commitComment    = commitComment;
    }
 
@@ -152,7 +151,7 @@ public class CommitRecord {
     *
     * @return the concepts in commit
     */
-   public ConceptSequenceSet getConceptsInCommit() {
+   public NidSet getConceptsInCommit() {
       return this.conceptSequencesInCommit;
    }
 
@@ -161,7 +160,7 @@ public class CommitRecord {
     *
     * @return the semantic sequences in commit
     */
-   public SemanticSequenceSet getSemanticSequencesInCommit() {
+   public NidSet getSemanticNidsInCommit() {
       return this.semanticSequencesInCommit;
    }
 

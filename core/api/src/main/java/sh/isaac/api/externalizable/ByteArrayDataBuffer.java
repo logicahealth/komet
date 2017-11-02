@@ -301,24 +301,6 @@ public class ByteArrayDataBuffer {
    }
 
    /**
-    * Put concept sequence.
-    *
-    * @param conceptSequence the concept sequence
-    */
-   public void putConceptSequence(int conceptSequence) {
-      if (this.externalData) {
-         final UUID uuid =
-            this.identifierService.getUuidPrimordialForNid(this.identifierService.getConceptNid(conceptSequence))
-                                  .get();
-
-         putLong(uuid.getMostSignificantBits());
-         putLong(uuid.getLeastSignificantBits());
-      } else {
-         putInt(conceptSequence);
-      }
-   }
-
-   /**
     * Put double.
     *
     * @param d the d
@@ -451,24 +433,6 @@ public class ByteArrayDataBuffer {
          }
       } else {
          putInt(nid);
-      }
-   }
-
-   /**
-    * Put sememe sequence.
-    *
-    * @param sememeSequence the sememe sequence
-    */
-   public void putSememeSequence(int sememeSequence) {
-      if (this.externalData) {
-         final UUID uuid =
-            this.identifierService.getUuidPrimordialForNid(this.identifierService.getSemanticNid(sememeSequence))
-                                  .get();
-
-         putLong(uuid.getMostSignificantBits());
-         putLong(uuid.getLeastSignificantBits());
-      } else {
-         putInt(sememeSequence);
       }
    }
 
@@ -923,19 +887,6 @@ public class ByteArrayDataBuffer {
    }
 
    /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   public int getConceptSequence() {
-      if (this.externalData) {
-         return this.identifierService.getConceptSequenceForUuids(new UUID(getLong(), getLong()));
-      }
-
-      return getInt();
-   }
-
-   /**
     * Gets the data.
     *
     * @return the byte[] that backs this buffer.
@@ -1245,19 +1196,6 @@ public class ByteArrayDataBuffer {
     */
    public int getPositionStart() {
       return this.positionStart;
-   }
-
-   /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   public int getSememeSequence() {
-      if (this.externalData) {
-         return this.identifierService.getSemanticSequenceForUuids(new UUID(getLong(), getLong()));
-      }
-
-      return getInt();
    }
 
    /**

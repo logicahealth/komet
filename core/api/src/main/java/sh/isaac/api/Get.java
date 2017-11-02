@@ -74,7 +74,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
@@ -375,6 +375,9 @@ public class Get
     *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptId) {
+     if (conceptId >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
+      }
       final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(
              conceptId);
@@ -393,7 +396,7 @@ public class Get
     * @param conceptIds the concept ids
     * @return the string
     */
-   public static String conceptDescriptionTextList(ConceptSequenceSet conceptIds) {
+   public static String conceptDescriptionTextList(IntSet conceptIds) {
       return conceptDescriptionTextList(conceptIds.asArray());
    }
 
@@ -450,12 +453,14 @@ public class Get
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
     * into the concept service.
-    * @param id either a nid or a concept sequence.
+    * @param nid a concept nid
     * @return A concept specification for the corresponding identifier
     */
-   public static ConceptSpecification conceptSpecification(int id) {
-      id = identifierService().getConceptNid(id);
-      return new ConceptProxy(conceptDescriptionText(id), identifierService().getUuidArrayForNid(id));
+   public static ConceptSpecification conceptSpecification(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be < 0: " + nid);
+      }
+      return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
    }
 
    /**
@@ -542,16 +547,18 @@ public class Get
    /**
     * Inferred definition chronology.
     *
-    * @param conceptId either a concept nid or sequence.
+    * @param nid  a concept nid.
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SemanticChronology> inferredDefinitionChronology(int conceptId) {
-      conceptId = identifierService().getConceptNid(conceptId);
+   public static Optional<SemanticChronology> inferredDefinitionChronology(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be < 0: " + nid);
+      }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
-          conceptId,
+          nid,
           configurationService().getDefaultLogicCoordinate()
-                                .getInferredAssemblageSequence())
+                                .getInferredAssemblageNid())
                                 .findAny();
    }
 
@@ -764,16 +771,18 @@ public class Get
    /**
     * Stated definition chronology.
     *
-    * @param conceptId either a concept nid or sequence.
+    * @param nid a concept nid.
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SemanticChronology> statedDefinitionChronology(int conceptId) {
-      conceptId = identifierService().getConceptNid(conceptId);
+   public static Optional<SemanticChronology> statedDefinitionChronology(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be < 0: " + nid);
+      }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
-          conceptId,
+          nid,
           configurationService().getDefaultLogicCoordinate()
-                                .getStatedAssemblageSequence())
+                                .getStatedAssemblageNid())
                                 .findAny();
    }
 

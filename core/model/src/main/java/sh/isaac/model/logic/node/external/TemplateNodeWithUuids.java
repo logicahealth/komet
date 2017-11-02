@@ -46,8 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.UUID;
 
@@ -61,7 +59,7 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
+import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,13 +86,13 @@ public class TemplateNodeWithUuids
     *
     * @param internalForm the internal form
     */
-   public TemplateNodeWithUuids(TemplateNodeWithSequences internalForm) {
+   public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
       super(internalForm);
       this.templateConceptUuid = Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(internalForm.getTemplateConceptSequence())
+                                    .getUuidPrimordialForNid(internalForm.getTemplateConceptNid())
                                     .get();
       this.assemblageConceptUuid = Get.identifierService()
-                                      .getUuidPrimordialFromConceptId(internalForm.getAssemblageConceptSequence())
+                                      .getUuidPrimordialForNid(internalForm.getAssemblageConceptNid())
                                       .get();
    }
 
@@ -226,7 +224,7 @@ public class TemplateNodeWithUuids
          break;
 
       case INTERNAL:
-         final TemplateNodeWithSequences internalForm = new TemplateNodeWithSequences(this);
+         final TemplateNodeWithNids internalForm = new TemplateNodeWithNids(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;

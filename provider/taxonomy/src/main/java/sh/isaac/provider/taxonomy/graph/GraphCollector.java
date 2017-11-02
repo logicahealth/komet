@@ -47,7 +47,6 @@ package sh.isaac.provider.taxonomy.graph;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
 
@@ -55,13 +54,12 @@ import java.util.function.ObjIntConsumer;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.provider.taxonomy.TaxonomyFlag;
 import sh.isaac.provider.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.taxonomy.TaxonomyRecord;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,13 +72,10 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
    /** The isa concept sequence. */
-   private final int ISA_CONCEPT_SEQUENCE = TermAux.IS_A.getConceptSequence();
+   private final int ISA_CONCEPT_SEQUENCE = TermAux.IS_A.getNid();
 
    /** The origin sequence being processed. */
    int originSequenceBeingProcessed = -1;
-
-   /** The watch list. */
-   ConceptSequenceSet watchList = new ConceptSequenceSet();
 
    /** The taxonomy map. */
    final CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap;
@@ -135,10 +130,6 @@ public class GraphCollector
       final Optional<TaxonomyRecordPrimitive> isaacPrimitiveTaxonomyRecord = this.taxonomyMap.get(originSequence);
 
       if (isaacPrimitiveTaxonomyRecord.isPresent()) {
-         // For debugging.
-         if (this.watchList.contains(originSequence)) {
-            System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
-         }
 
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
                                                                                            .getTaxonomyRecordUnpacked();
@@ -152,18 +143,6 @@ public class GraphCollector
       }
 
       this.originSequenceBeingProcessed = -1;
-   }
-
-   /**
-    * Adds the to watch list.
-    *
-    * @param uuid the uuid
-    * @throws RuntimeException the runtime exception
-    */
-   public final void addToWatchList(String uuid)
-            throws RuntimeException {
-      this.watchList.add(Get.identifierService()
-                            .getConceptSequenceForUuids(UUID.fromString(uuid)));
    }
 
    /**

@@ -79,6 +79,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 public class ConceptChronologyImpl
         extends ChronologyImpl
          implements ConceptChronology, IsaacExternalizable {
+
    /**
     * Instantiates a new concept chronology impl.
     */
@@ -89,14 +90,13 @@ public class ConceptChronologyImpl
     *
     * @param primordialUuid the primordial uuid
     * @param nid the nid
-    * @param containerSequence the container sequence
+    * @param assemblageNid the container sequence
     */
-   public ConceptChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {
-      super(primordialUuid, nid, containerSequence);
+   public ConceptChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
+      super(primordialUuid, nid, assemblageNid);
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Contains description.
     *
@@ -106,13 +106,13 @@ public class ConceptChronologyImpl
    @Override
    public boolean containsDescription(String descriptionText) {
       return Get.assemblageService()
-                .getDescriptionsForComponent(getNid())
-                .anyMatch(
-                    (desc) -> desc.getVersionList()
-                                  .stream()
-                                  .anyMatch(
+              .getDescriptionsForComponent(getNid())
+              .anyMatch(
+                      (desc) -> desc.getVersionList()
+                              .stream()
+                              .anyMatch(
                                       (version) -> ((DescriptionVersion) version).getText()
-                                            .equals(descriptionText)));
+                                              .equals(descriptionText)));
    }
 
    /**
@@ -159,9 +159,9 @@ public class ConceptChronologyImpl
                                    .getStampSequence(
                                        state,
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       ec.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       ec.getModuleNid(),
+                                       ec.getPathNid());
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
 
       addVersion(newVersion);
@@ -195,7 +195,7 @@ public class ConceptChronologyImpl
       builder.append("ConceptChronologyImpl{");
       builder.append(toUserString());
       builder.append(" <");
-      builder.append(getConceptSequence());
+      builder.append(getNid());
       builder.append("> \n");
       toString(builder, true);
       return builder.toString();
@@ -211,7 +211,7 @@ public class ConceptChronologyImpl
       final List<SemanticChronology> descList = getConceptDescriptionList();
 
       if (descList.isEmpty()) {
-         return "no description for concept: " + getUuidList() + " " + getConceptSequence() + " " + getNid();
+         return "no description for concept: " + getUuidList() + " " + getNid();
       }
 
       return ((DescriptionVersion) descList.get(0)
@@ -294,16 +294,6 @@ public class ConceptChronologyImpl
    }
 
    /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   @Override
-   public int getConceptSequence() {
-      return getContainerSequence();
-   }
-
-   /**
     * Gets the concept description text.
     *
     * @return the concept description text
@@ -341,9 +331,9 @@ public class ConceptChronologyImpl
       int assemblageSequence;
 
       if (premiseType == PremiseType.INFERRED) {
-         assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
+         assemblageSequence = logicCoordinate.getInferredAssemblageNid();
       } else {
-         assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
+         assemblageSequence = logicCoordinate.getStatedAssemblageNid();
       }
 
       return Get.assemblageService()
@@ -367,9 +357,9 @@ public class ConceptChronologyImpl
       int assemblageSequence;
 
       if (premiseType == PremiseType.INFERRED) {
-         assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
+         assemblageSequence = logicCoordinate.getInferredAssemblageNid();
       } else {
-         assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
+         assemblageSequence = logicCoordinate.getStatedAssemblageNid();
       }
 
       final Optional<SemanticChronology> definitionChronologyOptional = Get.assemblageService()
@@ -442,7 +432,7 @@ public class ConceptChronologyImpl
    @Override
    public Optional<String> getPreferedConceptDescriptionText() {
       return Optional.ofNullable(Get.defaultCoordinate()
-                                    .getPreferredDescriptionText(this.getConceptSequence()));
+                                    .getPreferredDescriptionText(this.getNid()));
    }
 
    /**

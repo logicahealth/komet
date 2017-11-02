@@ -65,7 +65,7 @@ public class ConceptBuilderProvider
    private ConceptSpecification defaultLanguageForDescriptions =
       TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService()
                                                             .getDefaultLanguageCoordinate()
-                                                            .getLanguageConceptSequence());
+                                                            .getLanguageConceptNid());
 
    /** The default dialect assemblage for descriptions. */
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;

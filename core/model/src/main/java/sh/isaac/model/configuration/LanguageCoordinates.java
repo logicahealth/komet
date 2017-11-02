@@ -65,7 +65,7 @@ public class LanguageCoordinates {
     * @return the int
     */
    public static int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
-      return TermAux.caseSignificanceToConceptSequence(initialCaseSignificant);
+      return TermAux.caseSignificanceToConceptNid(initialCaseSignificant);
    }
 
    /**
@@ -86,8 +86,7 @@ public class LanguageCoordinates {
     */
    public static String conceptNidToIso639(int nid) {
       if (nid >= 0) {
-         nid = Get.identifierService()
-                  .getConceptNid(nid);
+         throw new IllegalStateException("Nids must be negative: " + nid);
       }
 
       if (TermAux.ENGLISH_LANGUAGE.getNid() == nid) {
@@ -186,59 +185,6 @@ public class LanguageCoordinates {
       }
    }
 
-   /**
-    * Iso 639 to concept sequence.
-    *
-    * @param iso639text the iso 639 text
-    * @return the int
-    */
-   public static int iso639toConceptSequence(String iso639text) {
-      switch (iso639text.toLowerCase(Locale.ENGLISH)) {
-      case "en":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.ENGLISH_LANGUAGE.getUuids());
-
-      case "es":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.SPANISH_LANGUAGE.getUuids());
-
-      case "fr":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.FRENCH_LANGUAGE.getUuids());
-
-      case "da":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.DANISH_LANGUAGE.getUuids());
-
-      case "pl":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.POLISH_LANGUAGE.getUuids());
-
-      case "nl":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.DUTCH_LANGUAGE.getUuids());
-
-      case "lt":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.LITHUANIAN_LANGUAGE.getUuids());
-
-      case "zh":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.CHINESE_LANGUAGE.getUuids());
-
-      case "ja":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.JAPANESE_LANGUAGE.getUuids());
-
-      case "sv":
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
-
-      default:
-         throw new UnsupportedOperationException("t Can't handle: " + iso639text);
-      }
-   }
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -247,12 +193,12 @@ public class LanguageCoordinates {
     * @return the gb english language fully specified name coordinate
     */
    public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                                TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
+                                                                TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
       final int[] descriptionTypePreferenceList = new int[] {
-                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence() };
+                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
+                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
@@ -265,11 +211,11 @@ public class LanguageCoordinates {
     * @return the gb english language preferred term coordinate
     */
    public static LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                                TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence(),
-                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
+                                                                TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
+      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
+                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
@@ -282,12 +228,12 @@ public class LanguageCoordinates {
     * @return the us english language fully specified name coordinate
     */
    public static LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
       final int[] descriptionTypePreferenceList = new int[] {
-                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence() };
+                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
+                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
@@ -300,11 +246,11 @@ public class LanguageCoordinates {
     * @return the us english language preferred term coordinate
     */
    public static LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence(),
-                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
+      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
+                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,

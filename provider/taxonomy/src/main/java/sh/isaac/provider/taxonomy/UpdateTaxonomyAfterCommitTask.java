@@ -132,7 +132,7 @@ public class UpdateTaxonomyAfterCommitTask
                               this.workDone++;
                               this.updateProgress(this.workDone, this.totalWork);
 
-                              if (this.commitRecord.getSemanticSequencesInCommit()
+                              if (this.commitRecord.getSemanticNidsInCommit()
                                     .contains(sememeSequence)) {
                                  this.updateMessage("Updating taxonomy for: " + sememeSequence);
                                  this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()

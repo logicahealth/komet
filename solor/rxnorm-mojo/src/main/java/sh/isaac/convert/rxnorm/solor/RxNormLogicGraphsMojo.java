@@ -86,9 +86,9 @@ import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeFloat;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.rxnorm.rrf.RXNCONSO;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
@@ -301,19 +301,19 @@ public class RxNormLogicGraphsMojo
 //                                                                 {
 //                                                                         if (n.getChildren().length == 1 && n.getChildren()[0].getNodeSemantic() == NodeSemantic.AND)
 //                                                                         {
-//                                                                                 FeatureNodeWithSequences feature = new FeatureNodeWithSequences(
+//                                                                                 FeatureNodeWithNids feature = new FeatureNodeWithNids(
 //                                                                                                 (LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.HAS_STRENGTH.getConceptSequence(), 
 //                                                                                                 new LiteralNodeFloat((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences unitRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
+//                                                                                 RoleNodeSomeWithNids unitRole = new RoleNodeSomeWithNids((LogicalExpressionImpl)existing, 
 //                                                                                                 unitConcept.getConceptSequence(), 
-//                                                                                                 new ConceptNodeWithSequences((LogicalExpressionImpl)existing, 
+//                                                                                                 new ConceptNodeWithNids((LogicalExpressionImpl)existing, 
 //                                                                                                                 Get.identifierService().getConceptSequenceForUuids(parsed.getValue().getConceptUUID())));
 //                                                                                 
 //                                                                                 AndNode andNode = new AndNode((LogicalExpressionImpl)existing, feature, unitRole);
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences groupingRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
+//                                                                                 RoleNodeSomeWithNids groupingRole = new RoleNodeSomeWithNids((LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.ROLE_GROUP.getConceptSequence(), andNode);
 //                                                                                 
 //                                                                                 n.getChildren()[0].addChildren(groupingRole);

@@ -69,7 +69,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -113,6 +112,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
@@ -219,8 +219,8 @@ public class IBDFCreationUtility {
       LookupService.startupIsaac();
 
       // Initialize after starting up isaac...
-      this.authorSeq          = MetaData.USER____SOLOR.getConceptSequence();
-      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH____SOLOR.getConceptSequence();
+      this.authorSeq          = MetaData.USER____SOLOR.getNid();
+      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH____SOLOR.getNid();
 
       // TODO automate this somehow....
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
@@ -279,12 +279,12 @@ public class IBDFCreationUtility {
 
       final StampPosition stampPosition = new StampPositionImpl(
                                               Long.MAX_VALUE,
-                                                    MetaData.DEVELOPMENT_PATH____SOLOR.getConceptSequence());
+                                                    MetaData.DEVELOPMENT_PATH____SOLOR.getNid());
 
       readBackStamp = new StampCoordinateImpl(
           StampPrecedence.PATH,
           stampPosition,
-          ConceptSequenceSet.EMPTY,
+          new NidSet(),
           State.makeAnyStateSet());
 
       final UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(
@@ -317,7 +317,7 @@ public class IBDFCreationUtility {
              preExistingModule.get()
                               .getPrimordialUuid(),
              preExistingModule.get()
-                              .getConceptSequence());
+                              .getNid());
       }
 
       ConsoleUtil.println(
@@ -444,7 +444,7 @@ public class IBDFCreationUtility {
       final SemanticBuilder sb = this.sememeBuilderService.getDynamicBuilder(
                                    referencedComponent.getNid(),
                                    Get.identifierService()
-                                      .getConceptSequenceForUuids(refexDynamicTypeUuid),
+                                      .getNidForUuids(refexDynamicTypeUuid),
                                    values);
 
       if (uuidForCreatedAnnotation == null) {
@@ -658,14 +658,14 @@ public class IBDFCreationUtility {
       final SemanticBuilder<? extends SemanticChronology> descBuilder =
          this.sememeBuilderService.getDescriptionBuilder(
              Get.identifierService()
-                .getConceptSequenceForUuids(
+                .getNidForUuids(
                     (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid()
             : caseSignificant),
              Get.identifierService()
-                .getConceptSequenceForUuids(
+                .getNidForUuids(
                     languageCode),
              wbDescriptionType.getConceptSpec()
-                              .getConceptSequence(),
+                              .getNid(),
              descriptionValue,
              concept.getNid());
 
@@ -688,7 +688,7 @@ public class IBDFCreationUtility {
                : TermAux.ACCEPTABLE.getNid(),
                                                                      newDescription.getNid(),
                                                                      Get.identifierService()
-                                                                           .getConceptSequenceForUuids(dialect));
+                                                                           .getNidForUuids(dialect));
          final UUID acceptabilityTypePrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(
                                                           descriptionPrimordialUUID.toString(),
                                                                 dialect.toString());
@@ -743,7 +743,7 @@ public class IBDFCreationUtility {
             : TermAux.ACCEPTABLE.getNid(),
                                    description.getNid(),
                                    Get.identifierService()
-                                      .getConceptSequenceForUuids(dialectRefset));
+                                      .getNidForUuids(dialectRefset));
 
       if (acceptabilityPrimordialUUID == null) {
          // TODO not sure if preferred should be part of UUID
@@ -932,7 +932,7 @@ public class IBDFCreationUtility {
 
       for (int i = 0; i < targetUuid.length; i++) {
          cas[i] = ConceptAssertion(Get.identifierService()
-                                      .getConceptSequenceForUuids(targetUuid[i]), leb);
+                                      .getNidForUuids(targetUuid[i]), leb);
       }
 
       NecessarySet(And(cas));
@@ -943,7 +943,7 @@ public class IBDFCreationUtility {
                                    logicalExpression,
                                    concept.getNid(),
                                    this.conceptBuilderService.getDefaultLogicCoordinate()
-                                         .getStatedAssemblageSequence());
+                                         .getStatedAssemblageNid());
 
       sb.setPrimordialUuid(
           (relPrimordialUuid != null) ? relPrimordialUuid
@@ -1051,9 +1051,9 @@ public class IBDFCreationUtility {
                                    logicalExpression,
                                    concept.getNid(),
                                    stated ? this.conceptBuilderService.getDefaultLogicCoordinate()
-                                         .getStatedAssemblageSequence()
+                                         .getStatedAssemblageNid()
             : this.conceptBuilderService.getDefaultLogicCoordinate()
-                                        .getInferredAssemblageSequence());
+                                        .getInferredAssemblageNid());
 
       // Build a LogicGraph UUID seed based on concept & logicExpression.getData(EXTERNAL)
       final StringBuilder byteString = new StringBuilder();
@@ -1108,7 +1108,7 @@ public class IBDFCreationUtility {
                                    annotationValue,
                                    referencedComponent.getNid(),
                                    Get.identifierService()
-                                      .getConceptSequenceForUuids(refsetUuid));
+                                      .getNidForUuids(refsetUuid));
       final StringBuilder temp = new StringBuilder();
 
       temp.append(annotationValue);
@@ -1535,14 +1535,14 @@ public class IBDFCreationUtility {
       if (secondParent == null) {
          NecessarySet(
              And(ConceptAssertion(Get.identifierService()
-                                     .getConceptSequenceForUuids(relParentPrimordial), leb)));
+                                     .getNidForUuids(relParentPrimordial), leb)));
       } else {
          NecessarySet(
              And(
                  ConceptAssertion(Get.identifierService()
-                                     .getConceptSequenceForUuids(relParentPrimordial), leb),
+                                     .getNidForUuids(relParentPrimordial), leb),
                  ConceptAssertion(Get.identifierService()
-                                     .getConceptSequenceForUuids(secondParent), leb)));
+                                     .getNidForUuids(secondParent), leb)));
       }
 
       final LogicalExpression logicalExpression = leb.build();
@@ -1648,7 +1648,7 @@ public class IBDFCreationUtility {
                     this.authorSeq,
                     ((module == null) ? this.module.getSequence()
                                       : Get.identifierService()
-                                            .getConceptSequenceForUuids(module)),
+                                            .getNidForUuids(module)),
                     this.terminologyPathSeq);
    }
 

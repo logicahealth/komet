@@ -299,23 +299,23 @@ public abstract class LuceneIndexer
                   return;
                }
 
-               final int size = commitRecord.getSemanticSequencesInCommit()
+               final int size = commitRecord.getSemanticNidsInCommit()
                                             .size();
 
                if (size < 100) {
-                  LOG.info("submitting sememes " + commitRecord.getSemanticSequencesInCommit().toString() + " to indexer " +
+                  LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " +
                            getIndexerName() + " due to commit");
                } else {
                   LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
                }
 
-               commitRecord.getSemanticSequencesInCommit().stream().forEach(sememeId -> {
+               commitRecord.getSemanticNidsInCommit().stream().forEach(sememeId -> {
                                        final SemanticChronology sc = Get.assemblageService()
                                                                          .getSemanticChronology(sememeId);
 
                                        index(sc);
                                     });
-                  LOG.info("Indexing " + size + " sememes for " + getIndexerName() + " complete");
+                  LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
             }
             @Override
             public void handleChange(SemanticChronology sc) {
@@ -475,7 +475,7 @@ public abstract class LuceneIndexer
                return findConcept(((SemanticChronology) c.get()).getReferencedComponentNid());
 
             case CONCEPT:
-               return ((ConceptChronology) c.get()).getConceptSequence();
+               return ((ConceptChronology) c.get()).getNid();
 
             default:
                LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());

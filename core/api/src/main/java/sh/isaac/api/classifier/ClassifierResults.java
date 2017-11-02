@@ -43,10 +43,11 @@ package sh.isaac.api.classifier;
 
 import java.util.Optional;
 import java.util.Set;
+import sh.isaac.api.collections.IntSet;
+import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.commit.CommitRecord;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,10 +59,10 @@ import sh.isaac.api.commit.CommitRecord;
  */
 public class ClassifierResults {
    /** The affected concepts. */
-   final ConceptSequenceSet affectedConcepts;
+   final NidSet affectedConcepts;
 
    /** The equivalent sets. */
-   final Set<ConceptSequenceSet> equivalentSets;
+   final Set<NidSet> equivalentSets;
 
    /** The commit record. */
    final Optional<CommitRecord> commitRecord;
@@ -75,8 +76,8 @@ public class ClassifierResults {
     * @param equivalentSets the equivalent sets
     * @param commitRecord the commit record
     */
-   public ClassifierResults(ConceptSequenceSet affectedConcepts,
-                            Set<ConceptSequenceSet> equivalentSets,
+   public ClassifierResults(NidSet affectedConcepts,
+                            Set<NidSet> equivalentSets,
                             Optional<CommitRecord> commitRecord) {
       this.affectedConcepts = affectedConcepts;
       this.equivalentSets   = equivalentSets;
@@ -103,7 +104,7 @@ public class ClassifierResults {
     *
     * @return the affected concepts
     */
-   public ConceptSequenceSet getAffectedConcepts() {
+   public IntSet getAffectedConcepts() {
       return this.affectedConcepts;
    }
 
@@ -121,7 +122,7 @@ public class ClassifierResults {
     *
     * @return the equivalent sets
     */
-   public Set<ConceptSequenceSet> getEquivalentSets() {
+   public Set<NidSet> getEquivalentSets() {
       return this.equivalentSets;
    }
 }

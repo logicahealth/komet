@@ -63,14 +63,14 @@ public class AddAttachmentMenuItems {
          try {
             SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
                     this.categorizedVersion.getNid(),
-                    assemblageSpecification.getConceptSequence());
+                    assemblageSpecification.getNid());
             
             OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
             
             // this step does an add uncommitted...
             SemanticChronology newChronology = buildTask.get();
             
-            ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getSemanticSequence());
+            ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getNid());
             CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = newObservableChronology.getCategorizedVersions(manifold);
             ObservableStringVersion newStringVersion = (ObservableStringVersion) categorizedVersions.getUncommittedVersions().get(0).getObservableVersion();
 

@@ -100,7 +100,7 @@ public class Writers {
          output.write("\",");
          mainWriter.newLine();
          output.write("\"conceptSequence\":\"");
-         output.write(cc.getConceptSequence() + "");
+         output.write(cc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
          output.write("\"uuidList\":[");
@@ -157,8 +157,6 @@ public class Writers {
          output.write(sc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
-         output.write("\"sememeSequence\":\"");
-         output.write(sc.getSemanticSequence() + "");
          output.write("\",");
          mainWriter.newLine();
          output.write("\"uuidList\":[");
@@ -181,8 +179,8 @@ public class Writers {
          mainWriter.tabOut();
          output.write("],");
          mainWriter.newLine();
-         output.write("\"assemblageSequence\":\"");
-         output.write(sc.getAssemblageSequence() + "");
+         output.write("\"assemblageNid\":\"");
+         output.write(sc.getAssemblageNid() + "");
          output.write("\",");
          mainWriter.newLine();
          output.write("\"referencedComponentNid\":\"");
@@ -221,15 +219,15 @@ public class Writers {
                final DescriptionVersion ds = (DescriptionVersion) sv;
 
                output.write("\"caseSignificanceSequence\":\"");
-               output.write(ds.getCaseSignificanceConceptSequence() + "");
+               output.write(ds.getCaseSignificanceConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
                output.write("\"languageConceptSequence\":\"");
-               output.write(ds.getLanguageConceptSequence() + "");
+               output.write(ds.getLanguageConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
                output.write("\"descriptionTypeConceptSequence\":\"");
-               output.write(ds.getDescriptionTypeConceptSequence() + "");
+               output.write(ds.getDescriptionTypeConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
                output.write("\"text\":\"");

@@ -121,7 +121,7 @@ public final class ComponentPanel
                             }
                       });
       observableVersion.getChronology()
-              .getObservableSememeList()
+              .getObservableSemanticList()
               .forEach(
                       (osc) -> {
                          switch (osc.getVersionType()) {

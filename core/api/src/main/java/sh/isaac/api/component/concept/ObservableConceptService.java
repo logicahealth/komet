@@ -20,13 +20,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import javafx.collections.ObservableList;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
@@ -91,11 +88,11 @@ public interface ObservableConceptService
    /**
     * Gets the concept chronology stream.
     *
-    * @param conceptSequences the concept sequences
+    * @param conceptNids the concept sequences
     * @return the concept chronology stream
     */
    Stream<ConceptChronology> getConceptChronologyStream(
-           ConceptSequenceSet conceptSequences);
+           IntSet conceptNids);
 
    /**
     * Gets the concept count.
@@ -117,13 +114,6 @@ public interface ObservableConceptService
     * @return the concept key stream
     */
    IntStream getConceptKeyStream();
-
-   /**
-    * Return the UUID that was generated for this datastore when the concept store was first created.
-    *
-    * @return the data store id
-    */
-   public UUID getDataStoreId();
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
@@ -151,11 +141,11 @@ public interface ObservableConceptService
    /**
     * Gets the parallel concept chronology stream.
     *
-    * @param conceptSequences the concept sequences
+    * @param conceptNids the concept sequences
     * @return the parallel concept chronology stream
     */
    Stream<ConceptChronology> getParallelConceptChronologyStream(
-           ConceptSequenceSet conceptSequences);
+           IntSet conceptNids);
 
    /**
     * Gets the snapshot.

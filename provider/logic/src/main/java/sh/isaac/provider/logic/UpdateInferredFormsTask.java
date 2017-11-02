@@ -163,7 +163,7 @@ public class UpdateInferredFormsTask
                                               updateValue(this.processedCount.get());
                                               sememeSnapshot.getLatestSemanticVersionsForComponentFromAssemblage(
                                                   conceptSequence,
-                                                  this.logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphVersion> latestLogicGraph) -> {
+                                                  this.logicCoordinate.getInferredAssemblageNid()).forEach((LatestVersion<LogicGraphVersion> latestLogicGraph) -> {
                         processLogicGraphSememe(latestLogicGraph);
                      });
                                            }

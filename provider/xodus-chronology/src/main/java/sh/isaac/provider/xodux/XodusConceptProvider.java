@@ -26,7 +26,6 @@ import javax.annotation.PreDestroy;
 import jetbrains.exodus.ArrayByteIterable;
 import jetbrains.exodus.ByteIterable;
 import jetbrains.exodus.bindings.IntegerBinding;
-import jetbrains.exodus.env.Cursor;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.Store;
@@ -36,7 +35,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -53,7 +51,7 @@ import sh.isaac.model.waitfree.CasSequenceObjectMap;
 @Service
 @RunLevel(value = 1)
 
-public class XodusConceptProvider 
+public abstract class XodusConceptProvider 
          implements ConceptService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -85,7 +83,7 @@ public class XodusConceptProvider
          Store store = environment.openStore(CONCEPT_STORE, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
          
          ConceptChronologyImpl conceptImpl = (ConceptChronologyImpl) concept;
-         ArrayByteIterable key = IntegerBinding.intToEntry(concept.getConceptSequence());
+         ArrayByteIterable key = IntegerBinding.intToEntry(concept.getNid());
          ByteIterable oldValue = store.get(txn, key);
          if (oldValue != null) {
             int writeSequence = CasSequenceObjectMap.getWriteSequence(oldValue.getBytesUnsafe());
@@ -127,10 +125,6 @@ public class XodusConceptProvider
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
-   @Override
-   public boolean hasConcept(int conceptId) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
 
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
@@ -143,22 +137,12 @@ public class XodusConceptProvider
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
    public int getConceptCount() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntStream getConceptKeyParallelStream() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public IntStream getConceptKeyStream() {
+   public IntStream getConceptNidStream() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
@@ -177,15 +161,7 @@ public class XodusConceptProvider
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
 
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
 
    @Override
    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {

@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -239,8 +239,7 @@ public interface Chronology
       return versions.get(0).getVersionType();
    }
    
-   SemanticSequenceSet getRecursiveSemanticSequences();
-
+   NidSet getRecursiveSemanticNids();
 
 }
 

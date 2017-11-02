@@ -61,6 +61,7 @@ import org.jvnet.hk2.annotations.Service;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
@@ -68,7 +69,7 @@ import javax.annotation.PreDestroy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -81,6 +82,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 
@@ -97,7 +99,6 @@ public class BdbConceptProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-   private Database database;
 
    @Override
    public void clearDatabaseValidityValue() {
@@ -120,7 +121,6 @@ public class BdbConceptProvider
    private void startMe() {
       LOG.info("Starting concept provider.");
       bdb = Get.service(BdbProvider.class);
-      database = bdb.getConceptDatabase();
    }
 
    /**
@@ -133,22 +133,19 @@ public class BdbConceptProvider
 
    @Override
    public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
-      return getConceptChronology(conceptSpecification.getConceptSequence());
+      return getConceptChronology(conceptSpecification.getNid());
    }
 
    @Override
    public void writeConcept(ConceptChronology concept) {
       Get.conceptActiveService().updateStatus(concept);
-      BdbProvider.writeChronologyData(database, (ChronologyImpl) concept);
+      bdb.writeChronologyData((ChronologyImpl) concept);
    }
 
    @Override
    public ConceptChronologyImpl getConceptChronology(int conceptId) {
-      if (conceptId < 0) {
-         conceptId = Get.identifierService()
-                        .getConceptSequence(conceptId);
-      }
-      Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(database, conceptId);
+      Optional<ByteArrayDataBuffer> optionalByteBuffer = 
+              bdb.getChronologyData(conceptId);
       if (optionalByteBuffer.isPresent()) {
          ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
          IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
@@ -159,13 +156,8 @@ public class BdbConceptProvider
 
    @Override
    public ConceptChronology getConceptChronology(UUID... conceptUuids) {
-      int conceptSequence = Get.identifierService().getConceptSequenceForUuids(conceptUuids);
-      return BdbConceptProvider.this.getConceptChronology(conceptSequence);
-   }
-
-   @Override
-   public boolean hasConcept(int conceptId) {
-     return BdbProvider.hasKey(database, conceptId);
+      int nid = Get.identifierService().getNidForUuids(conceptUuids);
+         return BdbConceptProvider.this.getConceptChronology(nid);
    }
 
    @Override
@@ -174,9 +166,11 @@ public class BdbConceptProvider
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream() {
+   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid) {
+      int maxSequence = Get.identifierService().getNidsForAssemblage(assemblageNid).max().getAsInt();
+      Database database = bdb.getChronologyDatabase(assemblageNid);
       return StreamSupport.stream(new CursorChronologySpliterator(database, 
-              Get.identifierService().getMaxConceptSequence()), false)
+              maxSequence), false)
               .map((byteBuffer) -> { 
                  IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
                  return ConceptChronologyImpl.make(byteBuffer); 
@@ -184,24 +178,32 @@ public class BdbConceptProvider
     }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      return conceptSequences.stream().mapToObj((sequence) -> getConceptChronology(sequence));
+   public Stream<ConceptChronology> getConceptChronologyStream() {
+      return ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).mapToObj((nid) -> {
+         return getConceptChronology(nid); 
+      });
    }
 
    @Override
    public int getConceptCount() {
-      return (int) getConceptKeyParallelStream().count(); 
+      return (int) ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).parallel().count();
    }
 
    @Override
-   public IntStream getConceptKeyParallelStream() {
-      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxConceptSequence()),
-              true);
+   public IntStream getConceptNidStream() {
+      return ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT);
    }
 
    @Override
-   public IntStream getConceptKeyStream() {
-      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxConceptSequence()),
+   public int getConceptCount(int assemblageNid) {
+      return (int) getConceptNidStream(assemblageNid).parallel().count(); 
+   }
+
+   @Override
+   public IntStream getConceptNidStream(int assemblageNid) {
+      int maxSequence = Get.identifierService().getNidsForAssemblage(assemblageNid).max().getAsInt();
+      Database database = bdb.getChronologyDatabase(assemblageNid);
+      return StreamSupport.intStream(new CursorSequenceSpliterator(database, maxSequence),
               false);
    }
 
@@ -211,40 +213,38 @@ public class BdbConceptProvider
    }
 
    @Override
-   public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
-      if (hasConcept(conceptId)) {
-         return Optional.of(getConceptChronology(conceptId));
+   public Optional<? extends ConceptChronology> getOptionalConcept(int conceptNid) {
+      OptionalInt optionalAssemblageNid = Get.identifierService().getAssemblageNid(conceptNid);
+      if (optionalAssemblageNid.isPresent()) {
+         int assemblageNid = optionalAssemblageNid.getAsInt();
+         return Optional.of(getConceptChronology(conceptNid));
       }
       return Optional.empty();
    }
 
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
-      if (hasConcept(Get.identifierService().getConceptSequenceForUuids(conceptUuids))) {
-         return Optional.of(getConceptChronology(conceptUuids));
+      int nid = Get.identifierService().getNidForUuids(conceptUuids);
+      OptionalInt optionalAssemblageNid = Get.identifierService().getAssemblageNid(nid);
+      if (optionalAssemblageNid.isPresent()) {
+         int assemblageNid = optionalAssemblageNid.getAsInt();
+         return Optional.of(getConceptChronology(nid));
       }
       return Optional.empty();
-   }
-
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
-     return StreamSupport.stream(new CursorChronologySpliterator(database, 
-              Get.identifierService().getMaxConceptSequence()), true)
-              .map((byteBuffer) -> { 
-                 IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
-                 return ConceptChronologyImpl.make(byteBuffer); 
-              });
-    }
-
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      return conceptSequences.stream().mapToObj((sequence) -> getConceptChronology(sequence));
    }
 
    @Override
    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
       return new ConceptSnapshotProvider(manifoldCoordinate);
    }
+
+   @Override
+   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
+      return conceptNids.stream().mapToObj((nid) -> {
+         return getConceptChronology(nid);
+      });
+   }
+
 
    /**
     * The Class ConceptSnapshotProvider.
@@ -325,11 +325,11 @@ public class BdbConceptProvider
        * @param conceptId the concept id
        * @return the description list
        */
-      private List<SemanticChronology> getDescriptionList(int conceptId) {
-         final int conceptNid = Get.identifierService()
-                                   .getConceptNid(conceptId);
-
-         return Get.assemblageService()
+      private List<SemanticChronology> getDescriptionList(int conceptNid) {
+     if (conceptNid >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
+      }
+          return Get.assemblageService()
                    .getDescriptionsForComponent(conceptNid)
                    .collect(Collectors.toList());
       }
@@ -342,6 +342,9 @@ public class BdbConceptProvider
        */
       @Override
       public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
+     if (conceptId >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
+      }
          return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
       }
 
@@ -379,7 +382,7 @@ public class BdbConceptProvider
 
       @Override
       public ConceptSnapshot getConceptSnapshot(ConceptSpecification conceptSpecification) {
-         return getConceptSnapshot(conceptSpecification.getConceptSequence());
+         return getConceptSnapshot(conceptSpecification.getNid());
       }
    }   
 }

@@ -58,8 +58,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
@@ -77,6 +75,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -142,8 +141,8 @@ public class ProcessClassificationResults
     * @param affectedConcepts the affected concepts
     * @return the classifier results
     */
-   private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
-      final HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
+   private ClassifierResults collectResults(Ontology classifiedResult, NidSet affectedConcepts) {
+      final HashSet<NidSet> equivalentSets = new HashSet<>();
 
       affectedConcepts.parallelStream().forEach((conceptSequence) -> {
          final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
@@ -156,20 +155,20 @@ public class ProcessClassificationResults
 
          if (node.getEquivalentConcepts()
                  .size() > 1) {
-            final ConceptSequenceSet equivalentSet = new ConceptSequenceSet();
+            final NidSet equivalentSet = new NidSet();
 
             equivalentSets.add(equivalentSet);
-            equivalentConcepts.forEach((equivalentConceptSequence) -> {
-               equivalentSet.add(Integer.parseInt(equivalentConceptSequence));
-               affectedConcepts.add(Integer.parseInt(equivalentConceptSequence));
+            equivalentConcepts.forEach((equivalentConceptNid) -> {
+               equivalentSet.add(Integer.parseInt(equivalentConceptNid));
+               affectedConcepts.add(Integer.parseInt(equivalentConceptNid));
             });
          } else {
-            equivalentConcepts.forEach((equivalentConceptSequence) -> {
+            equivalentConcepts.forEach((equivalentConceptNid) -> {
                try {
-                  affectedConcepts.add(Integer.parseInt(equivalentConceptSequence));
+                  affectedConcepts.add(Integer.parseInt(equivalentConceptNid));
                } catch (final NumberFormatException numberFormatException) {
-                  if (equivalentConceptSequence.equals("_BOTTOM_")
-                          || equivalentConceptSequence.equals("_TOP_")) {
+                  if (equivalentConceptNid.equals("_BOTTOM_")
+                          || equivalentConceptNid.equals("_TOP_")) {
                      // do nothing.
                   } else {
                      throw numberFormatException;
@@ -192,9 +191,9 @@ public class ProcessClassificationResults
     * @param sememeService the sememe service
     * @throws IllegalStateException the illegal state exception
     */
-   private void testForProperSetSize(SemanticSequenceSet inferredSememeSequences,
+   private void testForProperSetSize(NidSet inferredSememeSequences,
            int conceptSequence,
-           SemanticSequenceSet statedSememeSequences,
+           NidSet statedSememeSequences,
            AssemblageService sememeService)
            throws IllegalStateException {
       if (inferredSememeSequences.size() > 1) {
@@ -243,7 +242,7 @@ public class ProcessClassificationResults
     * @param affectedConcepts the affected concepts
     * @return the optional
     */
-   private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
+   private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, NidSet affectedConcepts) {
       final AssemblageService sememeService = Get.assemblageService();
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
@@ -254,21 +253,19 @@ public class ProcessClassificationResults
       // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
       // JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
-      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
+      affectedConcepts.parallelStream().forEach((conceptNid) -> {
          try {
-            final SemanticSequenceSet inferredSememeSequences
-                    = sememeService.getSemanticChronologySequencesForComponentFromAssemblage(
-                            idService.getConceptNid(conceptSequence),
-                            this.logicCoordinate.getInferredAssemblageSequence());
-            final SemanticSequenceSet statedSememeSequences
-                    = sememeService.getSemanticChronologySequencesForComponentFromAssemblage(
-                            idService.getConceptNid(conceptSequence),
-                            this.logicCoordinate.getStatedAssemblageSequence());
+            final NidSet inferredSememeSequences
+                    = sememeService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+                            this.logicCoordinate.getInferredAssemblageNid());
+            final NidSet statedSememeSequences
+                    = sememeService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+                            this.logicCoordinate.getStatedAssemblageNid());
 
             // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
             // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
             testForProperSetSize(inferredSememeSequences,
-                    conceptSequence,
+                    conceptNid,
                     statedSememeSequences,
                     sememeService);
 
@@ -300,7 +297,7 @@ public class ProcessClassificationResults
 
                // Need to construct the necessary set from classifier results.
                final Node inferredNode
-                       = inferredAxioms.getNode(Integer.toString(conceptSequence));
+                       = inferredAxioms.getNode(Integer.toString(conceptNid));
                final List<ConceptAssertion> parentList = new ArrayList<>();
 
                inferredNode.getParents().forEach((parent) -> {
@@ -326,10 +323,9 @@ public class ProcessClassificationResults
 
                   if (inferredSememeSequences.isEmpty()) {
                      final SemanticBuilder builder
-                             = sememeBuilderService.getLogicalExpressionBuilder(
-                                     inferredExpression,
-                                     idService.getConceptNid(conceptSequence),
-                                     this.logicCoordinate.getInferredAssemblageSequence());
+                             = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
+                                     conceptNid,
+                                     this.logicCoordinate.getInferredAssemblageNid());
 
                      // get classifier edit coordinate...
                      builder.build(EditCoordinates.getClassifierSolorOverlay(),

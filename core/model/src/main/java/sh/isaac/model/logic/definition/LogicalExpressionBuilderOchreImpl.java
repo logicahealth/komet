@@ -100,11 +100,11 @@ import sh.isaac.model.logic.node.SubstitutionNodeFloat;
 import sh.isaac.model.logic.node.SubstitutionNodeInstant;
 import sh.isaac.model.logic.node.SubstitutionNodeInteger;
 import sh.isaac.model.logic.node.SubstitutionNodeString;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
-import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -746,13 +746,13 @@ public class LogicalExpressionBuilderOchreImpl
 
          if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
             return definition.Concept(
-                ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence());
+                ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid());
          }
 
          final ConceptChronology conceptSpecification =
             (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
-         return definition.Concept(conceptSpecification.getConceptSequence());
+         return definition.Concept(conceptSpecification.getNid());
 
       case ROLE_ALL:
          if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
@@ -803,15 +803,15 @@ public class LogicalExpressionBuilderOchreImpl
             final ConceptSpecification assemblageToPopulateTemplateConceptSpecification =
                (ConceptSpecification) params[1];
 
-            return definition.Template(templateConceptSpecification.getConceptSequence(),
-                                       assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
+            return definition.Template(templateConceptSpecification.getNid(),
+                                       assemblageToPopulateTemplateConceptSpecification.getNid());
          }
 
          final ConceptChronology templateConceptSpecification                     = (ConceptChronology) params[0];
          final ConceptChronology assemblageToPopulateTemplateConceptSpecification = (ConceptChronology) params[1];
 
-         return definition.Template(templateConceptSpecification.getConceptSequence(),
-                                    assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
+         return definition.Template(templateConceptSpecification.getNid(),
+                                    assemblageToPopulateTemplateConceptSpecification.getNid());
 
       case DISJOINT_WITH:
          if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
@@ -821,13 +821,13 @@ public class LogicalExpressionBuilderOchreImpl
          if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
             return definition.DisjointWith(
                 definition.Concept(
-                    ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence()));
+                    ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid()));
          }
 
          final ConceptChronology disjointConceptSpecification =
             (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
-         return definition.DisjointWith(definition.Concept(disjointConceptSpecification.getConceptSequence()));
+         return definition.DisjointWith(definition.Concept(disjointConceptSpecification.getNid()));
 
       case LITERAL_BOOLEAN:
          final boolean booleanLiteral = (Boolean) this.axiomParameters.get(axiom.getIndex());
@@ -972,24 +972,24 @@ public class LogicalExpressionBuilderOchreImpl
          break;
 
       case ROLE_ALL:
-         final RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) logicNode;
+         final RoleNodeAllWithNids allRoleNode = (RoleNodeAllWithNids) logicNode;
 
-         return allRole(allRoleNode.getTypeConceptSequence(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
+         return allRole(allRoleNode.getTypeConceptNid(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
 
       case ROLE_SOME:
-         final RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) logicNode;
+         final RoleNodeSomeWithNids someRoleNode = (RoleNodeSomeWithNids) logicNode;
 
-         return someRole(someRoleNode.getTypeConceptSequence(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
+         return someRole(someRoleNode.getTypeConceptNid(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
 
       case CONCEPT:
-         final ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
+         final ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
 
-         return conceptAssertion(conceptNode.getConceptSequence());
+         return conceptAssertion(conceptNode.getConceptNid());
 
       case FEATURE:
-         final FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) logicNode;
+         final FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
 
-         return feature(featureNode.getTypeConceptSequence(),
+         return feature(featureNode.getTypeConceptNid(),
                         (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()));
 
       case LITERAL_BOOLEAN:
@@ -1018,9 +1018,9 @@ public class LogicalExpressionBuilderOchreImpl
          return stringLiteral(literalNodeString.getLiteralValue());
 
       case TEMPLATE:
-         final TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) logicNode;
+         final TemplateNodeWithNids templateNode = (TemplateNodeWithNids) logicNode;
 
-         return template(templateNode.getTemplateConceptSequence(), templateNode.getAssemblageConceptSequence());
+         return template(templateNode.getTemplateConceptNid(), templateNode.getAssemblageConceptNid());
 
       case SUBSTITUTION_CONCEPT:
          final SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) logicNode;

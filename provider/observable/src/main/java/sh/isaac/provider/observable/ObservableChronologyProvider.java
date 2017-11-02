@@ -67,7 +67,7 @@ import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
-import sh.isaac.model.observable.ObservableSememeChronologyWeakRefImpl;
+import sh.isaac.model.observable.ObservableSemanticChronologyWeakRefImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
@@ -151,7 +151,7 @@ public class ObservableChronologyProvider
             osc.handleChange(sc);
          }
 
-         final ObservableConceptChronology assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
+         final ObservableConceptChronology assemblageOcc = this.observableConceptMap.get(sc.getAssemblageNid());
 
          if (assemblageOcc != null) {
             assemblageOcc.handleChange(sc);
@@ -160,7 +160,7 @@ public class ObservableChronologyProvider
          // handle referenced component
          // Concept, description, or sememe
          final ObjectChronologyType oct = Get.identifierService()
-                 .getChronologyTypeForNid(sc.getReferencedComponentNid());
+                 .getOldChronologyTypeForNid(sc.getReferencedComponentNid());
          ChronologyChangeListener referencedComponent = null;
 
          switch (oct) {
@@ -191,16 +191,14 @@ public class ObservableChronologyProvider
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       IdentifierService identifierService = Get.identifierService();
-      commitRecord.getConceptsInCommit().stream().forEach((conceptSequence) -> {
-         int nid = identifierService.getConceptNid(conceptSequence);
-         if (this.observableConceptMap.containsKey(nid)) {
-            handleChange(Get.concept(nid));
+      commitRecord.getConceptsInCommit().stream().forEach((conceptNid) -> {
+         if (this.observableConceptMap.containsKey(conceptNid)) {
+            handleChange(Get.concept(conceptNid));
          }
       });
-      commitRecord.getSemanticSequencesInCommit().stream().forEach((sememeSequence) -> {
-         int nid = identifierService.getSemanticNid(sememeSequence);
-         if (this.observableSememeMap.containsKey(nid)) {
-            handleChange(Get.assemblageService().getSemanticChronology(nid));
+      commitRecord.getSemanticNidsInCommit().stream().forEach((semanticNid) -> {
+         if (this.observableSememeMap.containsKey(semanticNid)) {
+            handleChange(Get.assemblageService().getSemanticChronology(semanticNid));
          }
       });
       LOG.info("ObservableChronologyProvider handled commit");
@@ -244,10 +242,6 @@ public class ObservableChronologyProvider
    @Override
    public ObservableConceptChronology getObservableConceptChronology(int id) {
       //TODO consider implementing weak reference for concepts like done for observable sememe...
-      if (id >= 0) {
-         id = Get.identifierService()
-                 .getConceptNid(id);
-      }
 
       ObservableConceptChronology observableConceptChronology = this.observableConceptMap.get(id);
 
@@ -269,7 +263,7 @@ public class ObservableChronologyProvider
     */
    @Override
    public ObservableSemanticChronology getObservableSememeChronology(int id) {
-      return new ObservableSememeChronologyWeakRefImpl(id, concreteProvider);
+      return new ObservableSemanticChronologyWeakRefImpl(id, concreteProvider);
    }
 
    @Override
@@ -304,10 +298,6 @@ public class ObservableChronologyProvider
 
       @Override
       public ObservableConceptChronology getObservableConceptChronology(int id) {
-         if (id >= 0) {
-            id = Get.identifierService()
-                    .getConceptNid(id);
-         }
 
          ObservableConceptChronology observableConceptChronology = ObservableChronologyProvider.this.observableConceptMap.get(id);
 
@@ -323,11 +313,7 @@ public class ObservableChronologyProvider
 
       @Override
       public ObservableSemanticChronology getObservableSememeChronology(int id) {
-         if (id >= 0) {
-            id = Get.identifierService()
-                    .getSemanticNid(id);
-         }
-
+ 
          ObservableSemanticChronology observableSememeChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
 
          if (observableSememeChronology != null) {

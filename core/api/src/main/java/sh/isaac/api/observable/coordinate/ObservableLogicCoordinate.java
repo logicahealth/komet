@@ -55,32 +55,39 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 public interface ObservableLogicCoordinate
         extends LogicCoordinate {
    /**
-    * Classifier sequence property.
+    * Classifier nid property.
     *
     * @return the integer property
     */
-   IntegerProperty classifierSequenceProperty();
+   IntegerProperty classifierNidProperty();
 
    /**
-    * Description logic profile sequence property.
+    * Concept assemblage nid property.
     *
     * @return the integer property
     */
-   IntegerProperty descriptionLogicProfileSequenceProperty();
+   IntegerProperty conceptAssemblageNidProperty();
 
    /**
-    * Inferred assemblage sequence property.
+    * Description logic profile nid property.
     *
     * @return the integer property
     */
-   IntegerProperty inferredAssemblageSequenceProperty();
+   IntegerProperty descriptionLogicProfileNidProperty();
 
    /**
-    * Stated assemblage sequence property.
+    * Inferred assemblage nid property.
     *
     * @return the integer property
     */
-   IntegerProperty statedAssemblageSequenceProperty();
+   IntegerProperty inferredAssemblageNidProperty();
+
+   /**
+    * Stated assemblage nid property.
+    *
+    * @return the integer property
+    */
+   IntegerProperty statedAssemblageNidProperty();
    
    @Override
    public ObservableLogicCoordinate deepClone();

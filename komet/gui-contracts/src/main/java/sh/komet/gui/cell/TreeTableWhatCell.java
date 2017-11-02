@@ -43,12 +43,12 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
         switch (sememeVersion.getChronology().getVersionType()) {
            case DESCRIPTION:
               DescriptionVersion description = cellValue.unwrap();
-              int descriptionType = description.getDescriptionTypeConceptSequence();
-              if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+              int descriptionType = description.getDescriptionTypeConceptNid();
+              if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("FQN");
-              } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+              } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("SYN");
-              } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+              } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
               } else {
                  setText(manifold.getPreferredDescriptionText(descriptionType));

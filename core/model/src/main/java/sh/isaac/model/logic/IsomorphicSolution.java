@@ -206,8 +206,8 @@ public class IsomorphicSolution
                usedNodeIds.add(this.solution[i]);
             }
 
-            final int      referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
-            final int      siblingGroup          = referenceTreeVisitData.getSiblingGroupForSequence(i);
+            final int      referenceParentNodeId = referenceTreeVisitData.getPredecessorNid(i);
+            final int      siblingGroup          = referenceTreeVisitData.getSiblingGroupForNid(i);
             OpenIntHashSet nodesInSiblingGroup   = siblingGroupToNodeSequenceMap.get(siblingGroup);
 
             if (nodesInSiblingGroup == null) {
@@ -237,10 +237,10 @@ public class IsomorphicSolution
          for (final int groupMember: groupMembers.keys()
                .elements()) {
             if (comparisonSiblingGroup == -1) {
-               comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForSequence(this.solution[groupMember]);
+               comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForNid(this.solution[groupMember]);
             } else {
                if (comparisonSiblingGroup !=
-                     comparisonTreeVisitData.getSiblingGroupForSequence(this.solution[groupMember])) {
+                     comparisonTreeVisitData.getSiblingGroupForNid(this.solution[groupMember])) {
                   this.legal = false;
                   this.score = -2;
                   return;

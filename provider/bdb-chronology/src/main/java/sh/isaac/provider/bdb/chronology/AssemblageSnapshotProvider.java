@@ -52,7 +52,7 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.stream.VersionStream;
@@ -84,7 +84,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    /**
     * The sememe provider.
     */
-   AssemblageService sememeProvider;
+   AssemblageService semanticProvider;
 
    /**
     * The calculator.
@@ -105,7 +105,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
                                      AssemblageService sememeProvider) {
       this.versionType     = versionType;
       this.stampCoordinate = stampCoordinate;
-      this.sememeProvider  = sememeProvider;
+      this.semanticProvider  = sememeProvider;
       this.calculator      = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
@@ -119,11 +119,9 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     */
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(
-          this.sememeProvider.getSemanticChronologySequencesForComponent(componentNid)
+      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponent(componentNid)
                              .parallelStream()
-                             .filter(
-                                 sememeSequence -> (this.sememeProvider.getSemanticChronology(sememeSequence)
+                             .filter(sememeSequence -> (this.semanticProvider.getSemanticChronology(sememeSequence)
                                        .getVersionType() == VersionType.DESCRIPTION)));
    }
 
@@ -135,7 +133,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     */
    @Override
    public LatestVersion<V> getLatestSemanticVersion(int sememeSequenceOrNid) {
-      final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.sememeProvider.getSemanticChronology(sememeSequenceOrNid);
+      final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(sememeSequenceOrNid);
       final int[]            stampSequences  = sc.getVersionStampSequences();
       final int[]     latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
@@ -171,7 +169,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private VersionStream<V> getLatestSememeVersions(SemanticSequenceSet sememeSequenceSet,
+   private VersionStream<V> getLatestSememeVersions(NidSet sememeSequenceSet,
          ProgressTracker... progressTrackers) {
       Arrays.stream(progressTrackers)
             .forEach(
@@ -189,7 +187,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     */
    @Override
    public VersionStream<V> getLatestSemanticVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.sememeProvider.getSemanticChronologySequencesForComponent(componentNid));
+      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponent(componentNid));
    }
 
    /**
@@ -202,8 +200,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public VersionStream<V> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
-      return getLatestSememeVersions(
-          this.sememeProvider.getSemanticChronologySequencesForComponentFromAssemblage(componentNid, assemblageConceptSequence));
+      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponentFromAssemblage(componentNid, assemblageConceptSequence));
    }
 
    /**
@@ -216,8 +213,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptSequence,
          ProgressTracker... progressTrackers) {
-      return getLatestSememeVersions(
-          this.sememeProvider.getSemanticChronologySequencesFromAssemblage(assemblageConceptSequence),
+      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptSequence),
           progressTrackers);
    }
 
@@ -225,7 +221,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
          ProgressTracker... progressTrackers) {
       return sememeSequenceStream.mapToObj((int sememeSequence) -> {
              try {
-                final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.sememeProvider.getSemanticChronology(sememeSequence);
+                final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(sememeSequence);
                 final int[]                stampSequences = sc.getVersionStampSequences();
                 final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                                                                   stampSequences);

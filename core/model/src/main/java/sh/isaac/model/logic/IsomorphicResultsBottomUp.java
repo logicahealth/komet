@@ -63,6 +63,7 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.tree.TreeNodeVisitDataImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -138,9 +139,9 @@ public class IsomorphicResultsBottomUp
    public IsomorphicResultsBottomUp(LogicalExpression referenceExpression, LogicalExpression comparisonExpression) {
       this.referenceExpression  = (LogicalExpressionImpl) referenceExpression;
       this.comparisonExpression = (LogicalExpressionImpl) comparisonExpression;
-      this.referenceVisitData   = new TreeNodeVisitData(referenceExpression.getNodeCount());
+      this.referenceVisitData   = new TreeNodeVisitDataImpl(referenceExpression.getNodeCount());
       this.referenceExpression.depthFirstVisit(null, this.referenceExpression.getRoot(), this.referenceVisitData, 0);
-      this.comparisonVisitData = new TreeNodeVisitData(comparisonExpression.getNodeCount());
+      this.comparisonVisitData = new TreeNodeVisitDataImpl(comparisonExpression.getNodeCount());
       this.comparisonExpression.depthFirstVisit(null, comparisonExpression.getRoot(), this.comparisonVisitData, 0);
       this.referenceExpressionToMergedNodeIdMap = new int[referenceExpression.getNodeCount()];
       Arrays.fill(this.referenceExpressionToMergedNodeIdMap, -1);
@@ -196,7 +197,7 @@ public class IsomorphicResultsBottomUp
       // Add the deletions
       getDeletedRelationshipRoots().forEach((deletionRoot) -> {
          // deleted relationships roots come from the comparison expression.
-         int predecessorSequence = this.comparisonVisitData.getPredecessorSequence(deletionRoot.getNodeIndex());
+         int predecessorSequence = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
          int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorSequence];
          if (comparisonExpressionToReferenceNodeId >= 0) {
                final int rootToAddParentSequence =
@@ -262,10 +263,10 @@ public class IsomorphicResultsBottomUp
       final StringBuilder builder = new StringBuilder();
 
       builder.append("Isomorphic Analysis for:")
-             .append(Get.conceptDescriptionText(this.referenceExpression.conceptSequence))
+             .append(Get.conceptDescriptionText(this.referenceExpression.conceptNid))
              .append("\n     ")
              .append(Get.identifierService()
-                        .getUuidPrimordialFromConceptId(this.referenceExpression.conceptSequence))
+                        .getUuidPrimordialForNid(this.referenceExpression.conceptNid))
              .append("\n\n");
       builder.append("Reference expression:\n\n ");
       builder.append(this.referenceExpression.toString("r"));
@@ -425,8 +426,8 @@ public class IsomorphicResultsBottomUp
 
                                     while (
                                        nodesNotInSolution.contains(
-                                           this.referenceVisitData.getPredecessorSequence(additionRoot))) {
-                                       additionRoot = this.referenceVisitData.getPredecessorSequence(additionRoot);
+                                           this.referenceVisitData.getPredecessorNid(additionRoot))) {
+                                       additionRoot = this.referenceVisitData.getPredecessorNid(additionRoot);
                                     }
 
                                     this.referenceAdditionRoots.add(additionRoot);
@@ -457,8 +458,8 @@ public class IsomorphicResultsBottomUp
                int deletedRoot = deletedNode;
 
                while (
-                  comparisonNodesNotInSolution.contains(this.comparisonVisitData.getPredecessorSequence(deletedRoot))) {
-                  deletedRoot = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
+                  comparisonNodesNotInSolution.contains(this.comparisonVisitData.getPredecessorNid(deletedRoot))) {
+                  deletedRoot = this.comparisonVisitData.getPredecessorNid(deletedRoot);
                }
 
                this.comparisonDeletionRoots.add(deletedRoot);
@@ -585,12 +586,12 @@ public class IsomorphicResultsBottomUp
          final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
 
          nodesToTry.forEachKey((referenceNodeId) -> {
-                               final int predecessorSequence = this.referenceVisitData.getPredecessorSequence(
+                               final int predecessorSequence = this.referenceVisitData.getPredecessorNid(
                                                                   referenceNodeId);  // only add if the node matches. ?
 
                                if (predecessorSequence >= 0) {
                                   if (!nodesProcessed.contains(predecessorSequence)) {
-                                     nextSetToTry.add(this.referenceVisitData.getPredecessorSequence(referenceNodeId));
+                                     nextSetToTry.add(this.referenceVisitData.getPredecessorNid(referenceNodeId));
                                      nodesProcessed.add(predecessorSequence);
                                   }
                                }

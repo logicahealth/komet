@@ -57,22 +57,12 @@
                </dependency>
                <dependency>
                   <groupId>sh.isaac.provider</groupId>
-                  <artifactId>concept</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>sh.isaac.provider</groupId>
-                  <artifactId>assemblage</artifactId>
+                  <artifactId>bdb-chronology</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
                   <groupId>sh.isaac.provider</groupId>
                   <artifactId>path</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>sh.isaac.provider</groupId>
-                  <artifactId>taxonomy</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>

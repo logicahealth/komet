@@ -61,7 +61,7 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -82,10 +82,10 @@ public class ConceptNodeWithUuids
     *
     * @param internalForm the internal form
     */
-   public ConceptNodeWithUuids(ConceptNodeWithSequences internalForm) {
+   public ConceptNodeWithUuids(ConceptNodeWithNids internalForm) {
       super(internalForm);
       this.conceptUuid = Get.identifierService()
-                            .getUuidPrimordialFromConceptId(internalForm.getConceptSequence())
+                            .getUuidPrimordialForNid(internalForm.getConceptNid())
                             .get();
    }
 
@@ -204,7 +204,7 @@ public class ConceptNodeWithUuids
          break;
 
       case INTERNAL:
-         final ConceptNodeWithSequences internalForm = new ConceptNodeWithSequences(this);
+         final ConceptNodeWithNids internalForm = new ConceptNodeWithNids(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;

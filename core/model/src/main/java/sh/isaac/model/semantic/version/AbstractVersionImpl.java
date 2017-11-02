@@ -59,13 +59,13 @@ public abstract class AbstractVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the assemblage sequence.
+    * Gets the assemblage nid.
     *
-    * @return the assemblage sequence
+    * @return the assemblage nid
     */
    @Override
-   public final int getAssemblageSequence() {
-      return getChronology().getAssemblageSequence();
+   public final int getAssemblageNid() {
+      return getChronology().getAssemblageNid();
    }
 
    /**
@@ -86,16 +86,6 @@ public abstract class AbstractVersionImpl
    @Override
    public final int getReferencedComponentNid() {
       return getChronology().getReferencedComponentNid();
-   }
-
-   /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   @Override
-   public final int getSemanticSequence() {
-      return getChronology().getSemanticSequence();
    }
 
    @Override

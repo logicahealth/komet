@@ -59,7 +59,7 @@ public class OchreExternalizableStatsTestFilter
    AtomicInteger concepts = new AtomicInteger(0);
 
    /** The sememe count. */
-   AtomicInteger sememes = new AtomicInteger(0);
+   AtomicInteger semantics = new AtomicInteger(0);
 
    /** The stamp aliases count. */
    AtomicInteger stampAliases = new AtomicInteger(0);
@@ -94,7 +94,7 @@ public class OchreExternalizableStatsTestFilter
          return false;
       }
 
-      if (this.sememes.get() != that.sememes.get()) {
+      if (this.semantics.get() != that.semantics.get()) {
          return false;
       }
 
@@ -118,7 +118,7 @@ public class OchreExternalizableStatsTestFilter
    public int hashCode() {
       int result = this.concepts.hashCode();
 
-      result = 31 * result + this.sememes.hashCode();
+      result = 31 * result + this.semantics.hashCode();
       result = 31 * result + this.stampAliases.hashCode();
       result = 31 * result + this.stampComments.hashCode();
       return result;
@@ -138,7 +138,7 @@ public class OchreExternalizableStatsTestFilter
          break;
 
       case SEMANTIC:
-         this.sememes.incrementAndGet();
+         this.semantics.incrementAndGet();
          break;
 
       case STAMP_ALIAS:
@@ -168,7 +168,7 @@ public class OchreExternalizableStatsTestFilter
     */
    @Override
    public String toString() {
-      return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", sememes=" + this.sememes +
+      return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", semantics=" + this.semantics +
              ", stampAliases=" + this.stampAliases + ", stampComments=" + this.stampComments + 
               ", stamps=" + this.stamps + '}';
    }

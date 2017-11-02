@@ -110,15 +110,15 @@ public class CategorizedVersion
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public int getAuthorSequence() {
-      return delegate.getAuthorSequence();
+   public int getAuthorNid() {
+      return delegate.getAuthorNid();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setAuthorSequence(int authorSequence) {
-      delegate.setAuthorSequence(authorSequence);
+   public void setAuthorNid(int authorSequence) {
+      delegate.setAuthorNid(authorSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -134,15 +134,15 @@ public class CategorizedVersion
    }
 
    @Override
-   public int getModuleSequence() {
-      return delegate.getModuleSequence();
+   public int getModuleNid() {
+      return delegate.getModuleNid();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setModuleSequence(int moduleSequence) {
-      delegate.setModuleSequence(moduleSequence);
+   public void setModuleNid(int moduleSequence) {
+      delegate.setModuleNid(moduleSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -153,15 +153,15 @@ public class CategorizedVersion
    }
 
    @Override
-   public int getPathSequence() {
-      return delegate.getPathSequence();
+   public int getPathNid() {
+      return delegate.getPathNid();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setPathSequence(int pathSequence) {
-      delegate.setPathSequence(pathSequence);
+   public void setPathNid(int pathSequence) {
+      delegate.setPathNid(pathSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -227,5 +227,10 @@ public class CategorizedVersion
    public CategorizedVersions getCategorizedVersions() {
       return categorizedVersions;
    }   
+
+   @Override
+   public int getAssemblageNid() {
+      return delegate.getAssemblageNid();
+   }
 }
 

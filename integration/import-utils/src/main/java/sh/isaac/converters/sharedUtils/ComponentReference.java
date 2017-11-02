@@ -131,8 +131,7 @@ public class ComponentReference {
 
       if (object instanceof SemanticChronology) {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
-                                     () -> Get.identifierService()
-                                           .getSemanticSequence(object.getNid()));
+                                     () -> object.getNid());
          cr.typeLabelSupplier = () -> {
                                     if (((SemanticChronology) object).getVersionType() == VersionType.DESCRIPTION) {
                                        return "Description";
@@ -144,8 +143,7 @@ public class ComponentReference {
                                  };
       } else if (object instanceof ConceptChronology) {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
-                                     () -> Get.identifierService()
-                                           .getConceptSequence(object.getNid()),
+                                     () -> object.getNid(),
                                      () -> "Concept");
       } else {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
@@ -178,7 +176,7 @@ public class ComponentReference {
     */
    public static ComponentReference fromConcept(ConceptChronology concept) {
       final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
-                                                           () -> concept.getConceptSequence(),
+                                                           () -> concept.getNid(),
                                                            () -> "Concept");
 
       cr.nidProvider  = () -> concept.getNid();
@@ -202,7 +200,7 @@ public class ComponentReference {
    public static ComponentReference fromConcept(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
-                                          .getConceptSequenceForUuids(uuid),
+                                          .getNidForUuids(uuid),
                                     () -> "Concept");
    }
 
@@ -226,7 +224,7 @@ public class ComponentReference {
    public static ComponentReference fromSememe(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
-                                          .getSemanticSequenceForUuids(uuid),
+                                          .getNidForUuids(uuid),
                                     () -> "Sememe");
    }
 

@@ -1,12 +1,8 @@
 package sh.komet.gui.control;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
-import javafx.scene.control.ListView;
 import org.controlsfx.control.PropertySheet;
 import sh.komet.gui.manifold.Manifold;
 
@@ -36,8 +32,9 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
 
     public void addDragAndDropListener(){
         this.simpleListProperty.addListener(this.listChangeListener = c -> {
-            for(int i = 0; i < c.getList().size(); i++)
-                this.observableIntegerArray.set(i, c.getList().get(i).getConceptSequence());
+            for(int i = 0; i < c.getList().size(); i++) {
+               this.observableIntegerArray.set(i, c.getList().get(i).getNid());
+            }
         });
     }
 
@@ -47,8 +44,9 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
             this.observableIntegerArray.clear();
             if(c.getList().size() > 0) {
                 int[] iArray = new int[c.getList().size()];
-                for (int i = 0; i < iArray.length; i++)
-                    iArray[i] = c.getList().get(i).getConceptSequence();
+                for (int i = 0; i < iArray.length; i++) {
+                   iArray[i] = c.getList().get(i).getNid();
+                }
                 this.observableIntegerArray.addAll(iArray, 0, iArray.length);
             }
         });

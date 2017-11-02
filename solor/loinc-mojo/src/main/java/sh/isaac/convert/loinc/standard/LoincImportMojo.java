@@ -568,7 +568,7 @@ public class LoincImportMojo
 
                for (final UUID parent: parents) {
                   assertions[i++] = ConceptAssertion(Get.identifierService()
-                        .getConceptSequenceForUuids(parent), leb);
+                        .getNidForUuids(parent), leb);
                }
 
                NecessarySet(And(assertions));

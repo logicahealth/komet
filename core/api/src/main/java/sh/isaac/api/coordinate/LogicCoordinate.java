@@ -50,14 +50,14 @@ public interface LogicCoordinate extends Coordinate {
     *
     * @return concept sequence for the classifier for this coordinate.
     */
-   int getClassifierSequence();
+   int getClassifierNid();
 
    /**
     * Gets the description logic profile sequence.
     *
     * @return concept sequence for the description-logic profile for this coordinate.
     */
-   int getDescriptionLogicProfileSequence();
+   int getDescriptionLogicProfileNid();
 
    /**
     * Gets the inferred assemblage sequence.
@@ -65,7 +65,7 @@ public interface LogicCoordinate extends Coordinate {
     * @return concept sequence for the assemblage where the inferred logical form
     * of concept definition graphs are stored.
     */
-   int getInferredAssemblageSequence();
+   int getInferredAssemblageNid();
 
    /**
     * Gets the stated assemblage sequence.
@@ -73,13 +73,17 @@ public interface LogicCoordinate extends Coordinate {
     * @return concept sequence for the assemblage where the stated logical form
     * of concept definition graphs are stored.
     */
-   int getStatedAssemblageSequence();
+   int getStatedAssemblageNid();
    
 
    @Override
    public LogicCoordinate deepClone();
    
-   
+   /**
+    * 
+    * @return the nid for the assemblage within which the concepts to be classified are defined within. 
+    */
+   int getConceptAssemblageNid();
    
 }
 

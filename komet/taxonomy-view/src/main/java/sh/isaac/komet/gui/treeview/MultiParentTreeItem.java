@@ -113,7 +113,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
 
             Tree tree = treeView.getTaxonomyTree();
             if (tree != null) {
-               for (int childSequence : tree.getChildrenSequences(conceptChronology.getConceptSequence())) {
+               for (int childSequence : tree.getChildNids(conceptChronology.getNid())) {
                   MultiParentTreeItem childItem = new MultiParentTreeItem(childSequence, treeView);
                   if (childItem.shouldDisplay()) {
                      childrenToAdd.add(childItem);
@@ -161,7 +161,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
                }
                if (((MultiParentTreeItem) child).shouldDisplay()) {
                   if (child.getChildren().isEmpty() && (child.getValue() != null)) {
-                     if (treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence()).length == 0) {
+                     if (treeView.getTaxonomyTree().getChildNids(child.getValue().getNid()).length == 0) {
                         ConceptChronology value = child.getValue();
                         child.setValue(null);
                         MultiParentTreeItem noChildItem = (MultiParentTreeItem) child;
@@ -171,11 +171,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
                         ArrayList<MultiParentTreeItem> grandChildrenToAdd = new ArrayList<>();
                         ((MultiParentTreeItem) child).childLoadStarts();
 
-                        for (int childSequence : treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence())) {
+                        for (int childNid : treeView.getTaxonomyTree().getChildNids(child.getValue().getNid())) {
                            if (cancelLookup) {
                               return;
                            }
-                           MultiParentTreeItem grandChildItem = new MultiParentTreeItem(childSequence, treeView);
+                           MultiParentTreeItem grandChildItem = new MultiParentTreeItem(childNid, treeView);
 
                            if (grandChildItem.shouldDisplay()) {
                               grandChildrenToProcess.add(new GetMultiParentTreeItemConceptCallable(grandChildItem));

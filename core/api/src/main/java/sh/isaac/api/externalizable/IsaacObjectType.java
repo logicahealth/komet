@@ -59,7 +59,7 @@ import java.io.IOException;
 public enum IsaacObjectType {
    /**
     * A concept. An identifier with status. Descriptions and definitions of concepts
-    * are provided as SEMEMEs.
+    * are provided as SEMANTICs.
     */
    CONCEPT((byte) 1, (byte) 1),
 
@@ -86,7 +86,12 @@ public enum IsaacObjectType {
    /**
     * A logical expression.
     */
-   LOGICAL_EXPRESSION((byte) 7, (byte) 1);
+   LOGICAL_EXPRESSION((byte) 7, (byte) 1),
+
+   /**
+    * A logical expression.
+    */
+   UNKNOWN((byte) 128, (byte) 0);
 
    /** The token. */
    private final byte token;

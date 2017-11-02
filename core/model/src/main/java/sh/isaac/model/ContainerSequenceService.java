@@ -17,17 +17,59 @@
 package sh.isaac.model;
 
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.IdentifierService2;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 /**
  *
  * @author kec
  */
 @Contract
-public interface ContainerSequenceService extends IdentifierService2 {
+public interface ContainerSequenceService extends IdentifierService {
    
-   long getContainerSequenceForNid(int nid, int assemblageNid);
    
-   int getNidForContainerSequence(long containerSequence);
+   /**
+    * This object type is normally set when the first object is written to the assemblage, so there 
+    * is no need for calling this method directly. 
+    * @param nid
+    * @param assemblageNid
+    * @param objectType 
+    */
+   void setupNid(int nid, int assemblageNid, IsaacObjectType objectType);
+
+   
+   /**
+    * A sequence for the semantic chronology, that is only unique within the 
+    * particular assemblage. 
+    * @param nid
+    * @param assemblageNid
+    * @return 
+    */
+   int getElementSequenceForNid(int nid, int assemblageNid);
+   
+   
+   /**
+    * A sequence for the semantic chronology, that is only unique within the 
+    * particular assemblage. 
+    * @param nid
+    * @return 
+    */
+   int getElementSequenceForNid(int nid);
+   
+   /**
+    * Returns the nid for the concept defining the assemblage that the nid's 
+    * chronology is defined within. 
+    * @param nid
+    * @return the nid for the assemblage the chronicle is defined within of. 
+    */
+   int getAssemblageNidForNid(int nid);
+   
+   /**
+    * 
+    * @param semanticSequence the sequence of the semantic chronology
+    * @param assemblageNid
+    * @return the nid for the associated chronology specified by the assemblageSequence within the assemblage identified by the Nid
+    */
+   int getNidForElementSequence(int semanticSequence, int assemblageNid);
    
 }

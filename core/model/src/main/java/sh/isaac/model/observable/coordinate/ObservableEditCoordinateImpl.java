@@ -93,9 +93,9 @@ public class ObservableEditCoordinateImpl
    public IntegerProperty authorSequenceProperty() {
       if (this.authorSequenceProperty == null) {
          this.authorSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(),
-               getAuthorSequence());
-         addListenerReference(this.editCoordinate.setAuthorSequenceProperty(this.authorSequenceProperty));
+               ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
+               getAuthorNid());
+         addListenerReference(this.editCoordinate.setAuthorNidProperty(this.authorSequenceProperty));
       }
 
       return this.authorSequenceProperty;
@@ -110,9 +110,9 @@ public class ObservableEditCoordinateImpl
    public IntegerProperty moduleSequenceProperty() {
       if (this.moduleSequenceProperty == null) {
          this.moduleSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.MODULE_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(),
-               getModuleSequence());
-         addListenerReference(this.editCoordinate.setModuleSequenceProperty(this.moduleSequenceProperty));
+               ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+               getModuleNid());
+         addListenerReference(this.editCoordinate.setModuleNidProperty(this.moduleSequenceProperty));
       }
 
       return this.moduleSequenceProperty;
@@ -127,9 +127,9 @@ public class ObservableEditCoordinateImpl
    public IntegerProperty pathSequenceProperty() {
       if (this.pathSequenceProperty == null) {
          this.pathSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.PATH_SEQUENCE_FOR_EDIT_CORDINATE.toExternalString(),
-               getPathSequence());
-         addListenerReference(this.editCoordinate.setPathSequenceProperty(pathSequenceProperty()));
+               ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
+               getPathNid());
+         addListenerReference(this.editCoordinate.setPathNidProperty(pathSequenceProperty()));
       }
 
       return this.pathSequenceProperty;
@@ -153,12 +153,12 @@ public class ObservableEditCoordinateImpl
     * @return the author sequence
     */
    @Override
-   public int getAuthorSequence() {
+   public int getAuthorNid() {
       if (this.authorSequenceProperty != null) {
          return this.authorSequenceProperty.get();
       }
 
-      return this.editCoordinate.getAuthorSequence();
+      return this.editCoordinate.getAuthorNid();
    }
 
    /**
@@ -167,12 +167,12 @@ public class ObservableEditCoordinateImpl
     * @return the module sequence
     */
    @Override
-   public int getModuleSequence() {
+   public int getModuleNid() {
       if (this.moduleSequenceProperty != null) {
          return this.moduleSequenceProperty.get();
       }
 
-      return this.editCoordinate.getModuleSequence();
+      return this.editCoordinate.getModuleNid();
    }
 
    /**
@@ -181,12 +181,12 @@ public class ObservableEditCoordinateImpl
     * @return the path sequence
     */
    @Override
-   public int getPathSequence() {
+   public int getPathNid() {
       if (this.pathSequenceProperty != null) {
          return this.pathSequenceProperty.get();
       }
 
-      return this.editCoordinate.getPathSequence();
+      return this.editCoordinate.getPathNid();
    }
 
    @Override

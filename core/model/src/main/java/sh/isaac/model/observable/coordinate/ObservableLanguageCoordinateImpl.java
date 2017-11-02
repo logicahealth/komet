@@ -138,7 +138,7 @@ public final class ObservableLanguageCoordinateImpl
    public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
       if (this.descriptionTypePreferenceListProperty == null) {
          this.descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
+               ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
          addListenerReference(
              ((LanguageCoordinateImpl) this.languageCoordinate).setDescriptionTypePreferenceListProperty(
@@ -157,7 +157,7 @@ public final class ObservableLanguageCoordinateImpl
    public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
       if (this.dialectAssemblagePreferenceListProperty == null) {
          this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
+               ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
          
          if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
@@ -182,19 +182,19 @@ public final class ObservableLanguageCoordinateImpl
     * @return the integer property
     */
    @Override
-   public IntegerProperty languageConceptSequenceProperty() {
+   public IntegerProperty languageConceptNidProperty() {
       if (this.languageConceptSequenceProperty == null) {
          this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE.toExternalString(),
-               getLanguageConceptSequence());
+               ObservableFields.LANGUAGE_NID_FOR_LANGUAGE_COORDINATE.toExternalString(),
+               getLanguageConceptNid());
          if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
             addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptSequenceProperty(
+             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptNidProperty(
                  this.languageConceptSequenceProperty));
          } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
             LanguageCoordinateImpl languageCoordinateImpl = 
                     (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
-            languageCoordinateImpl.setLanguageConceptSequenceProperty(
+            languageCoordinateImpl.setLanguageConceptNidProperty(
                  this.languageConceptSequenceProperty);
          }
       }
@@ -277,12 +277,12 @@ public final class ObservableLanguageCoordinateImpl
     * @return the language concept sequence
     */
    @Override
-   public int getLanguageConceptSequence() {
+   public int getLanguageConceptNid() {
       if (this.languageConceptSequenceProperty != null) {
          return this.languageConceptSequenceProperty.get();
       }
 
-      return this.languageCoordinate.getLanguageConceptSequence();
+      return this.languageCoordinate.getLanguageConceptNid();
    }
 
    /**

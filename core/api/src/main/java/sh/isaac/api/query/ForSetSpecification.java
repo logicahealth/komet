@@ -59,9 +59,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -112,17 +111,16 @@ public class ForSetSpecification {
       for (final ComponentCollectionTypes collection: this.forCollectionTypes) {
          switch (collection) {
          case ALL_COMPONENTS:
-            forSet.or(NidSet.ofAllComponentNids());
+            forSet.addAll(Get.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC));
+            forSet.addAll(Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT));
             break;
 
          case ALL_CONCEPTS:
-            forSet.or(NidSet.of(ConceptSequenceSet.of(Get.identifierService()
-                  .getConceptSequenceStream())));
+            forSet.or(NidSet.of(Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT)));
             break;
 
          case ALL_SEMANTICS:
-            forSet.or(NidSet.of(SemanticSequenceSet.of(Get.identifierService()
-                  .getSemanticSequenceStream())));
+            forSet.or(NidSet.of(Get.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC)));
             break;
 
          case CUSTOM_SET:

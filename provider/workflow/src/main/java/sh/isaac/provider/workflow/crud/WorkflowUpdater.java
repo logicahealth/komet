@@ -142,15 +142,13 @@ public class WorkflowUpdater {
       if (commitRecord.isPresent()) {
          final ProcessDetail detail = this.workflowProvider.getProcessDetailStore()
                                                             .get(processId);
-         final OfInt conceptItr = Get.identifierService()
-                                     .getConceptNidsForConceptSequences(commitRecord.get()
+         final OfInt conceptItr = commitRecord.get()
                                            .getConceptsInCommit()
-                                           .parallelStream())
+                                           .parallelStream()
                                      .iterator();
-         final OfInt sememeItr = Get.identifierService()
-                                    .getSemanticNidsForSemanticSequences(commitRecord.get()
-                                          .getSemanticSequencesInCommit()
-                                          .parallelStream())
+         final OfInt sememeItr = commitRecord.get()
+                                          .getSemanticNidsInCommit()
+                                          .parallelStream()
                                     .iterator();
 
          while (conceptItr.hasNext()) {
@@ -201,11 +199,11 @@ public class WorkflowUpdater {
          final long  time           = Get.stampService()
                                          .getTimeForStamp(stampSeq);
          final int   author         = Get.stampService()
-                                         .getAuthorSequenceForStamp(stampSeq);
+                                         .getAuthorNidForStamp(stampSeq);
          final int   module         = Get.stampService()
-                                         .getModuleSequenceForStamp(stampSeq);
+                                         .getModuleNidForStamp(stampSeq);
          final int   path           = Get.stampService()
-                                         .getPathSequenceForStamp(stampSeq);
+                                         .getPathNidForStamp(stampSeq);
          final Stamp componentStamp = new Stamp(status, time, author, module, path);
 
          process.getComponentToInitialEditMap()
@@ -383,7 +381,7 @@ public class WorkflowUpdater {
             // add new version identical to version associated with
             // actualStampSeq
             if (Get.identifierService()
-                   .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
+                   .getOldChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
                final ConceptChronology conceptChron = Get.conceptService()
                                                             .getConceptChronology(compNid);
 
@@ -399,7 +397,7 @@ public class WorkflowUpdater {
                Get.commitService()
                   .commit(Get.configurationService().getDefaultEditCoordinate(), "Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
-                          .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMANTIC) {
+                          .getOldChronologyTypeForNid(compNid) == ObjectChronologyType.SEMANTIC) {
                final SemanticChronology semChron = Get.assemblageService()
                                                        .getSemanticChronology(compNid);
 
@@ -450,9 +448,9 @@ public class WorkflowUpdater {
 
       case DESCRIPTION:
          ((MutableDescriptionVersion) newVer).setText(((DescriptionVersion) originalVersion).getText());
-         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptSequence(((DescriptionVersion) originalVersion).getDescriptionTypeConceptSequence());
-         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptSequence(((DescriptionVersion) originalVersion).getCaseSignificanceConceptSequence());
-         ((MutableDescriptionVersion) newVer).setLanguageConceptSequence(((DescriptionVersion) originalVersion).getLanguageConceptSequence());
+         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptNid(((DescriptionVersion) originalVersion).getDescriptionTypeConceptNid());
+         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptNid(((DescriptionVersion) originalVersion).getCaseSignificanceConceptNid());
+         ((MutableDescriptionVersion) newVer).setLanguageConceptNid(((DescriptionVersion) originalVersion).getLanguageConceptNid());
          return newVer;
 
       case DYNAMIC:

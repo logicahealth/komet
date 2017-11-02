@@ -55,8 +55,8 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default int getLanguageConceptSequence() {
-      return getLanguageCoordinate().getLanguageConceptSequence();
+   public default int getLanguageConceptNid() {
+      return getLanguageCoordinate().getLanguageConceptNid();
    }
 
    @Override

@@ -35,8 +35,8 @@ public class TreeTableModulePathCell extends KometTreeTableCell<ObservableCatego
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
-        setText(manifold.getPreferredDescriptionText(cellValue.getModuleSequence()) + "\n" +
-                manifold.getPreferredDescriptionText(cellValue.getPathSequence())
+        setText(manifold.getPreferredDescriptionText(cellValue.getModuleNid()) + "\n" +
+                manifold.getPreferredDescriptionText(cellValue.getPathNid())
         );
    }
    

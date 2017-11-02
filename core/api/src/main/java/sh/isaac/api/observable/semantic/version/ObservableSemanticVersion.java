@@ -64,7 +64,7 @@ public interface ObservableSemanticVersion
    @Override
    ObservableSemanticChronology getChronology();
    
-   ReadOnlyIntegerProperty assemblageSequenceProperty();
+   ReadOnlyIntegerProperty assemblageNidProperty();
    
    ReadOnlyIntegerProperty referencedComponentNidProperty();
 }

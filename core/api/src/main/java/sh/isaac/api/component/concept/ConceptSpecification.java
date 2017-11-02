@@ -42,7 +42,6 @@ package sh.isaac.api.component.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.util.Optional;
-import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
 
 //~--- interfaces -------------------------------------------------------------
@@ -93,17 +92,7 @@ public interface ConceptSpecification
     *
     * @return a text description for the specified concept.
     */
-   Optional<String> getPreferedConceptDescriptionText();
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the sequence of the specified concept. Sequences are contiguously
-    * assigned identifiers >= 0;
-    */
-   default int getConceptSequence() {
-      return Get.identifierService()
-                .getConceptSequenceForUuids(getUuidList());
-   }
+   Optional<String> getPreferedConceptDescriptionText();   
+   
 }
 

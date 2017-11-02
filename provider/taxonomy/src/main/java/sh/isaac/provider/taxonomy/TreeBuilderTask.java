@@ -51,7 +51,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder; 
+import sh.isaac.provider.bdb.taxonomy.tree.HashTreeBuilder; 
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.provider.taxonomy.graph.GraphCollector;
 

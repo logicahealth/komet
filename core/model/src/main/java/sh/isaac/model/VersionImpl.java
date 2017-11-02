@@ -160,15 +160,15 @@ public abstract class VersionImpl
       if (this.getTime() != other.getTime()) {
          editDistance++;
       }
-      if (this.getAuthorSequence() != other.getAuthorSequence()) {
+      if (this.getAuthorNid() != other.getAuthorNid()) {
          // weight author to overwhelm all others... 
          editDistance = editDistance + 1000;
       }
-      if (this.getModuleSequence() != other.getModuleSequence()) {
+      if (this.getModuleNid() != other.getModuleNid()) {
          // weight module to overwhelm all except author... 
          editDistance = editDistance + 100;
       }
-      if (this.getPathSequence() != other.getPathSequence()) {
+      if (this.getPathNid() != other.getPathNid()) {
          // weight path... 
          editDistance = editDistance + 10;
       }
@@ -243,7 +243,7 @@ public abstract class VersionImpl
    protected void writeVersionData(ByteArrayDataBuffer data) {
       data.putStampSequence(this.stampSequence);
       // legacy version sequence...
-      data.putShort((byte) 0);
+      data.putShort((short) 0);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -253,9 +253,9 @@ public abstract class VersionImpl
     * @return the author sequence
     */
    @Override
-   public int getAuthorSequence() {
+   public int getAuthorNid() {
       return Get.stampService()
-              .getAuthorSequenceForStamp(this.stampSequence);
+              .getAuthorNidForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -265,7 +265,7 @@ public abstract class VersionImpl
     * @param authorSequence the new author sequence
     */
    @Override
-   public void setAuthorSequence(int authorSequence) {
+   public void setAuthorNid(int authorSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
@@ -273,8 +273,8 @@ public abstract class VersionImpl
                  .getStampSequence(getState(),
                          getTime(),
                          authorSequence,
-                         getModuleSequence(),
-                         getPathSequence());
+                         getModuleNid(),
+                         getPathNid());
          this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
@@ -300,9 +300,9 @@ public abstract class VersionImpl
     * @return the module sequence
     */
    @Override
-   public int getModuleSequence() {
+   public int getModuleNid() {
       return Get.stampService()
-              .getModuleSequenceForStamp(this.stampSequence);
+              .getModuleNidForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -312,16 +312,16 @@ public abstract class VersionImpl
     * @param moduleSequence the new module sequence
     */
    @Override
-   public void setModuleSequence(int moduleSequence) {
+   public void setModuleNid(int moduleSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          getTime(),
-                         getAuthorSequence(),
+                         getAuthorNid(),
                          moduleSequence,
-                         getPathSequence());
+                         getPathNid());
          this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
@@ -339,9 +339,9 @@ public abstract class VersionImpl
          this.stampSequence = Get.stampService()
                  .getStampSequence(state,
                          getTime(),
-                         getAuthorSequence(),
-                         getModuleSequence(),
-                         getPathSequence());
+                         getAuthorNid(),
+                         getModuleNid(),
+                         getPathNid());
          this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
@@ -363,9 +363,9 @@ public abstract class VersionImpl
     * @return the path sequence
     */
    @Override
-   public int getPathSequence() {
+   public int getPathNid() {
       return Get.stampService()
-              .getPathSequenceForStamp(this.stampSequence);
+              .getPathNidForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -375,15 +375,15 @@ public abstract class VersionImpl
     * @param pathSequence the new path sequence
     */
    @Override
-   public void setPathSequence(int pathSequence) {
+   public void setPathNid(int pathSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          getTime(),
-                         getAuthorSequence(),
-                         getModuleSequence(),
+                         getAuthorNid(),
+                         getModuleNid(),
                          pathSequence);
          this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
@@ -446,9 +446,9 @@ public abstract class VersionImpl
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          time,
-                         getAuthorSequence(),
-                         getModuleSequence(),
-                         getPathSequence());
+                         getAuthorNid(),
+                         getModuleNid(),
+                         getPathNid());
          this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }

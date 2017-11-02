@@ -97,7 +97,7 @@ public class ObservableLogicGraphVersionImpl
       if (this.graphProperty == null) {
          this.graphProperty = new CommitAwareObjectProperty(
              this,
-             ObservableFields.LOGIC_GRAPH_FOR_SEMEME.toExternalString(),
+             ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC.toExternalString(),
              getGraphData());
          this.graphProperty.addListener(
              (observable, oldValue, newValue) -> {

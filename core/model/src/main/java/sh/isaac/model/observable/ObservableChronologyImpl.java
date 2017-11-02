@@ -51,7 +51,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -73,8 +72,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
@@ -144,6 +142,8 @@ public abstract class ObservableChronologyImpl
     * The chronicled object local.
     */
    protected Chronology chronicledObjectLocal;
+   /** The entry sequence property. */
+   protected IntegerProperty entrySequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -282,17 +282,17 @@ public abstract class ObservableChronologyImpl
     * @return the list property< observable sememe chronology<? extends observable sememe version<?>>>
     */
    @Override
-   public final ListProperty<ObservableSemanticChronology> sememeListProperty() {
+   public final ListProperty<ObservableSemanticChronology> semanticListProperty() {
       if (this.sememeListProperty == null) {
          final ObservableList<ObservableSemanticChronology> sememeList = FXCollections.observableArrayList();
 
          Get.assemblageService()
-            .getSemanticChronologySequencesForComponent(getNid())
+            .getSemanticNidsForComponent(getNid())
             .stream()
             .forEach((sememeSequence) -> sememeList.add(ocs.getObservableSememeChronology(sememeSequence)));
          this.sememeListProperty = new SimpleListProperty(
              this,
-             ObservableFields.SEMEME_LIST_FOR_CHRONICLE.toExternalString(),
+             ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE.toExternalString(),
              sememeList);
       }
 
@@ -505,19 +505,17 @@ public abstract class ObservableChronologyImpl
       this.chronicledObjectLocal = chronology;
 
       if (this.sememeListProperty != null) {
-         SemanticSequenceSet updatedSememeSequenceSet = Get.assemblageService()
-                                                         .getSemanticChronologySequencesForComponent(chronology.getNid());
+         NidSet updatedSemanticNidSet = Get.assemblageService()
+                                                         .getSemanticNidsForComponent(chronology.getNid());
 
-         this.sememeListProperty.forEach(
-             (sememe) -> {
-                updatedSememeSequenceSet.remove(sememe.getSemanticSequence());
+         this.sememeListProperty.forEach((semantic) -> {
+                updatedSemanticNidSet.remove(semantic.getNid());
              });
-         updatedSememeSequenceSet.stream()
+         updatedSemanticNidSet.stream()
                                  .forEach(
-                                     (sememeSequence) -> {
-                                        this.sememeListProperty.add(
-                                            Get.observableChronologyService()
-                                               .getObservableSememeChronology(sememeSequence));
+                                     (semanticNid) -> {
+                                        this.sememeListProperty.add(Get.observableChronologyService()
+                                               .getObservableSememeChronology(semanticNid));
                                      });
       }
    }
@@ -537,7 +535,7 @@ public abstract class ObservableChronologyImpl
          alignmentMap.put(oldVersion, alignmentSet);
          newSet.forEach((newVersionWrapper) -> {
             VersionImpl newVersion = newVersionWrapper.getVersion();
-            if (newVersion.getAuthorSequence() == oldVersion.getAuthorSequence()) {
+            if (newVersion.getAuthorNid() == oldVersion.getAuthorNid()) {
                alignmentSet.add(new VersionWithScoreWrapper(newVersion, newVersion.editDistance(oldVersion)));
             }
          });
@@ -614,8 +612,8 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list
     */
    @Override
-   public final ObservableList<ObservableSemanticChronology> getObservableSememeList() {
-      return sememeListProperty().get();
+   public final ObservableList<ObservableSemanticChronology> getObservableSemanticList() {
+      return semanticListProperty().get();
    }
 
    /**
@@ -625,7 +623,7 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list from assemblage
     */
    @Override
-   public ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblage(int assemblageSequence) {
+   public ObservableList<ObservableSemanticChronology> getObservableSemanticListFromAssemblage(int assemblageSequence) {
       return getSemanticChronologyListFromAssemblage(assemblageSequence);
    }
 
@@ -658,20 +656,19 @@ public abstract class ObservableChronologyImpl
     */
    @Override
    public final ObservableList<ObservableSemanticChronology> getSemanticChronologyList() {
-      return sememeListProperty().get();
+      return semanticListProperty().get();
    }
 
    /**
     * Gets the sememe list from assemblage.
     *
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageNid the assemblage sequence
     * @return the sememe list from assemblage
     */
    @Override
-   public ObservableList<ObservableSemanticChronology> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
-      return getSemanticChronologyList().filtered(
-          (observableSememeChronology) -> {
-             return observableSememeChronology.getAssemblageSequence() == assemblageSequence;
+   public ObservableList<ObservableSemanticChronology> getSemanticChronologyListFromAssemblage(int assemblageNid) {
+      return getSemanticChronologyList().filtered((observableSememeChronology) -> {
+             return observableSememeChronology.getAssemblageNid() == assemblageNid;
           });
    }
 
@@ -719,6 +716,32 @@ public abstract class ObservableChronologyImpl
    public Chronology getWrappedChronology() {
       return chronicledObjectLocal;
    }
+
+   //~--- methods -------------------------------------------------------------
+   /**
+    * Concept sequence property.
+    *
+    * @return the integer property
+    */
+   public final IntegerProperty entrySequenceProperty() {
+      if (this.entrySequenceProperty == null) {
+         this.entrySequenceProperty = new CommitAwareIntegerProperty(this, ObservableFields.ENTRY_SEQUENCE_FOR_CHRONICLE.toExternalString(), getEntrySequence());
+      }
+      return this.entrySequenceProperty;
+   }
+
+   //~--- get methods ---------------------------------------------------------
+   /**
+    * Gets the concept sequence.
+    *
+    * @return the concept sequence
+    */
+   public final int getEntrySequence() {
+      if (this.entrySequenceProperty != null) {
+         return this.entrySequenceProperty.get();
+      }
+      return ((ChronologyImpl) chronicledObjectLocal).getElementSequence();
+   }
    
    private static class ScoredNewOldVersion implements Comparable<ScoredNewOldVersion> {
       final VersionImpl oldVersion;
@@ -761,8 +784,8 @@ public abstract class ObservableChronologyImpl
    }
    
       @Override
-   public SemanticSequenceSet getRecursiveSemanticSequences() {
-      return chronicledObjectLocal.getRecursiveSemanticSequences();
+   public NidSet getRecursiveSemanticNids() {
+      return chronicledObjectLocal.getRecursiveSemanticNids();
    }
 
 }

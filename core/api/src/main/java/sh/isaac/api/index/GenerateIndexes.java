@@ -148,19 +148,17 @@ public class GenerateIndexes
               .add(this);
 
       try {
-         // We only need to indexes sememes now
+         // We only need to indexe semantics now
          // In the future, there may be a need for indexing Concepts from the concept service - for instance, if we wanted to index the concepts
          // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
          // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
-         final long semanticCount = (int) Get.identifierService()
-                 .getSemanticSequenceStream()
-                 .count();
+         final long semanticCount = (int) Get.assemblageService().getSemanticCount();
 
          LOG.info("Semantic elements to index: " + semanticCount);
          this.componentCount = semanticCount;
 
          Get.assemblageService()
-                 .getParallelSemanticChronologyStream().forEach((SemanticChronology semantic) -> {
+                 .getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
                     for (final IndexService i : this.indexers) {
                        try {
                           if (semantic == null) {

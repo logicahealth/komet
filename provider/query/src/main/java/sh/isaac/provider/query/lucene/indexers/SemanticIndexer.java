@@ -71,16 +71,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import org.glassfish.hk2.runlevel.RunLevel;
-
-import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
@@ -106,6 +99,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -333,13 +327,13 @@ public class SemanticIndexer
       final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
-                            sememeChronology.getAssemblageSequence() + "",
+                            sememeChronology.getAssemblageNid() + "",
                             Field.Store.NO));
 
       for (final Object sv: sememeChronology.getVersionList()) {
          if (sv instanceof DynamicVersion) {
             final DynamicVersion dsv     = (DynamicVersion) sv;
-            final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageSequence());
+            final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageNid());
 
             if (columns != null) {
                final int dataColCount = dsv.getData().length;
@@ -380,7 +374,7 @@ public class SemanticIndexer
                                       logicNode.addConceptsReferencedByNode(css);
                                    });
             css.forEachKey(sequence -> {
-                           handleType(doc, new DynamicNidImpl(Get.identifierService().getConceptNid(sequence)), -1);
+                           handleType(doc, new DynamicNidImpl(sequence), -1);
                            return true;
                         });
          } else {

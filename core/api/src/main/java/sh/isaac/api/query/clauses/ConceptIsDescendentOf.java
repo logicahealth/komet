@@ -43,8 +43,6 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -55,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -126,7 +123,7 @@ public class ConceptIsDescendentOf
                  .get(this.descendentOfSpecKey);
          final int parentNid = descendentOfSpec.getNid();
          final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                 .getTaxonomyChildSequences(parentNid);
+                 .getTaxonomyChildNids(parentNid);
          getResultsCache().or(NidSet.of(descendentOfSequenceSet));
          return getResultsCache();
       } catch (InterruptedException | ExecutionException ex) {
@@ -150,7 +147,6 @@ public class ConceptIsDescendentOf
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

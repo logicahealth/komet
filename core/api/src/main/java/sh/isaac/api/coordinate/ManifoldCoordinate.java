@@ -71,7 +71,7 @@ public interface ManifoldCoordinate
     * Convenience method, buffers concept sequence in a cache-sensitive manner.
     * @return the concept sequence that defines the is-a relationship type.
     */
-   int getIsaConceptSequence();
+   int getIsaConceptNid();
 
    /**
     * Gets the taxonomy type.
@@ -122,7 +122,7 @@ public interface ManifoldCoordinate
     * @return preferred description. 
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getConceptSequence(), 
+      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    /**
@@ -141,7 +141,7 @@ public interface ManifoldCoordinate
     * @return preferred description text. 
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getConceptSequence(), 
+      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    
@@ -164,7 +164,7 @@ public interface ManifoldCoordinate
     * @return preferred description.
     */
    default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getConceptSequence(), getStampCoordinate());
+      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getNid(), getStampCoordinate());
    }
 
   /**
@@ -183,12 +183,16 @@ public interface ManifoldCoordinate
     * @return preferred description text.
     */
    default String getFullySpecifiedDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getConceptSequence(), getStampCoordinate());
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getNid(), getStampCoordinate());
    }
 
    @Override
    public ManifoldCoordinate deepClone();
-   
+
+   @Override
+   default int getConceptAssemblageNid() {
+      return getLogicCoordinate().getConceptAssemblageNid();
+   }
    
 
 }

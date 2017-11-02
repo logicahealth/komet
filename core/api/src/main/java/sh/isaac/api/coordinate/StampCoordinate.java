@@ -42,13 +42,11 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.collections.NidSet;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -83,17 +81,7 @@ public interface StampCoordinate
     * @return the set of module sequences to include in results based on this
     * stamp coordinate.
     */
-   ConceptSequenceSet getModuleSequences();
-
-   /**
-    * Gets the module specification list.
-    *
-    * @return A list of {@code ConceptSpecification} that represent the modules to include in version computations
-    * based on this stamp coordinate.
-    */
-   default List<ConceptSpecification> getModuleSpecificationList() {
-      return getModuleSequences().toConceptSpecificationList();
-   }
+   NidSet getModuleNids();
 
    /**
     * Gets the stamp position.

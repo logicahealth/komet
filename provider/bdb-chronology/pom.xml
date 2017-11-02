@@ -93,15 +93,15 @@
          <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
-      <!-- Metadata -->
+<!--       Metadata 
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
          <version>${project.parent.version}</version>
          <classifier>all</classifier>
          <type>ibdf.zip</type>
-         <optional>true</optional> <!-- Not needed at runtime / transitively -->
-      </dependency>
+         <optional>true</optional>  Not needed at runtime / transitively 
+      </dependency>-->
    </dependencies>
   
    <build>

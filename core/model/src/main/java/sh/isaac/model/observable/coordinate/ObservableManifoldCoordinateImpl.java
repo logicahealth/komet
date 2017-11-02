@@ -248,8 +248,8 @@ public class ObservableManifoldCoordinateImpl
     * @return the isa concept sequence
     */
    @Override
-   public int getIsaConceptSequence() {
-      return this.manifoldCoordinate.getIsaConceptSequence();
+   public int getIsaConceptNid() {
+      return this.manifoldCoordinate.getIsaConceptNid();
    }
 
    /**

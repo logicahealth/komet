@@ -60,7 +60,7 @@ public interface ObservableSemanticChronology
     *
     * @return the integer property
     */
-   IntegerProperty assemblageSequenceProperty();
+   IntegerProperty assemblageNidProperty();
 
    /**
     * Referenced component nid property.
@@ -74,7 +74,7 @@ public interface ObservableSemanticChronology
     *
     * @return the integer property
     */
-   IntegerProperty semanticSequenceProperty();
+   IntegerProperty entrySequenceProperty();
 
    
 }

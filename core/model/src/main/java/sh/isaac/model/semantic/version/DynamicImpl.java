@@ -131,12 +131,12 @@ public class DynamicImpl
 
                this.data[i] = DynamicTypeToClassUtility.typeToClass(dt,
                      new DynamicNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
-                     getAssemblageSequence(),
+                     getAssemblageNid(),
                      i);
             } else {
                this.data[i] = DynamicTypeToClassUtility.typeToClass(dt,
                      data.getByteArrayField(),
-                     getAssemblageSequence(),
+                     getAssemblageNid(),
                      i);
             }
          }
@@ -154,9 +154,9 @@ public class DynamicImpl
                                    .getStampSequence(
                                        this.getState(),
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       this.getModuleNid(),
+                                       ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
 
@@ -193,7 +193,7 @@ public class DynamicImpl
       // make sure the column numbers are set, so lookups can happen for column names.
       for (int i = 0; i < dynamicData.length; i++) {
          if (dynamicData[i] != null) {
-            dynamicData[i].configureNameProvider(getAssemblageSequence(), i);
+            dynamicData[i].configureNameProvider(getAssemblageNid(), i);
          }
       }
 
@@ -302,7 +302,7 @@ public class DynamicImpl
       // TODO while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
       // The column-specific validators will have to be fired during commit.
       if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
-         final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageSequence());
+         final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
 
          LookupService.get()
                       .getService(DynamicUtility.class)
@@ -322,7 +322,7 @@ public class DynamicImpl
     */
    @Override
    public DynamicUsageDescription getDynamicUsageDescription() {
-      return DynamicUsageDescriptionImpl.read(this.getAssemblageSequence());
+      return DynamicUsageDescriptionImpl.read(this.getAssemblageNid());
    }
 
    /**

@@ -140,7 +140,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the author sequence for stamp
     */
-   int getAuthorSequenceForStamp(int stampSequence);
+   int getAuthorNidForStamp(int stampSequence);
 
    /**
     * Gets the instant for stamp.
@@ -158,7 +158,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the module sequence for stamp
     */
-   int getModuleSequenceForStamp(int stampSequence);
+   int getModuleNidForStamp(int stampSequence);
 
    /**
     * Checks if not canceled.
@@ -174,7 +174,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the path sequence for stamp
     */
-   int getPathSequenceForStamp(int stampSequence);
+   int getPathNidForStamp(int stampSequence);
 
    /**
     * Used by the commit manager to get the pending stamps, so that there is a

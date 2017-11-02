@@ -64,10 +64,10 @@ public class ObservableSemanticVersionImpl
         extends ObservableVersionImpl
          implements ObservableSemanticVersion {
 
-   /** The author sequence property. */
-   ReadOnlyIntegerProperty assemblageSequenceProperty;
+   /** The assemblage nid property. */
+   ReadOnlyIntegerProperty assemblageNidProperty;
 
-   /** The module sequence property. */
+   /** The referenced component nid property. */
    ReadOnlyIntegerProperty referencedComponentNidProperty;
 
    /**
@@ -92,24 +92,24 @@ public class ObservableSemanticVersionImpl
 
 
    /**
-    * Module sequence property.
+    * assemblage nid property.
     *
     * @return the integer property
     */
    @Override
-   public final ReadOnlyIntegerProperty assemblageSequenceProperty() {
-      if (this.assemblageSequenceProperty == null) {
-         this.assemblageSequenceProperty = 
+   public final ReadOnlyIntegerProperty assemblageNidProperty() {
+      if (this.assemblageNidProperty == null) {
+         this.assemblageNidProperty = 
             ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
-               getAssemblageSequence()));
+               ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
+               getAssemblageNid()));
       }
 
-      return this.assemblageSequenceProperty;
+      return this.assemblageNidProperty;
    }
 
    /**
-    * Path sequence property.
+    * referenced component nid property.
     *
     * @return the integer property
     */
@@ -118,7 +118,7 @@ public class ObservableSemanticVersionImpl
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = 
             ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
                getReferencedComponentNid()));
       }
       return this.referencedComponentNidProperty;
@@ -126,7 +126,7 @@ public class ObservableSemanticVersionImpl
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       List<ReadOnlyProperty<?>> properties = super.getProperties();
-      properties.add(assemblageSequenceProperty());
+      properties.add(assemblageNidProperty());
       properties.add(referencedComponentNidProperty());
       return properties;
    }
@@ -139,8 +139,8 @@ public class ObservableSemanticVersionImpl
     * @return the assemblage sequence
     */
    @Override
-   public int getAssemblageSequence() {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageSequence();
+   public int getAssemblageNid() {
+      return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
    }
 
    /**
@@ -163,15 +163,6 @@ public class ObservableSemanticVersionImpl
       return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
    }
 
-   /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   @Override
-   public int getSemanticSequence() {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getSemanticSequence();
-   }
    @Override
    protected void updateVersion() {
       // nothing to update

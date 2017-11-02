@@ -165,9 +165,7 @@ public abstract class MetadataConceptConstant
     */
    @Override
    public int getNid() {
-      return Get.conceptService()
-                .getConceptChronology(getUUID())
-                .getNid();
+      return Get.identifierService().getNidForUuids(getUUID());
    }
 
    /**
@@ -210,17 +208,6 @@ public abstract class MetadataConceptConstant
    @Override
    public UUID getPrimordialUuid() {
       return getUUID();
-   }
-
-   /**
-    * Gets the sequence.
-    *
-    * @return The concept sequence for the concept.
-    */
-   public int getSequence() {
-      return Get.conceptService()
-                .getConceptChronology(getUUID())
-                .getConceptSequence();
    }
 
    /**

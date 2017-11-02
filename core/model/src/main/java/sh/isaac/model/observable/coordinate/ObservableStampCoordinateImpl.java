@@ -55,7 +55,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
 
 import sh.isaac.api.State;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
@@ -83,7 +83,7 @@ public class ObservableStampCoordinateImpl
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
 
    /** The module sequences property. */
-   ObjectProperty<ObservableIntegerArray> moduleSequencesProperty;
+   ObjectProperty<ObservableIntegerArray> moduleNidsProperty;
 
    /** The allowed states. */
    SetProperty<State> allowedStates;
@@ -154,15 +154,15 @@ public class ObservableStampCoordinateImpl
     * @return the object property
     */
    @Override
-   public ObjectProperty<ObservableIntegerArray> moduleSequencesProperty() {
-      if (this.moduleSequencesProperty == null) {
-         this.moduleSequencesProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
-               FXCollections.observableIntegerArray(getModuleSequences().asArray()));
-         addListenerReference(this.stampCoordinate.setModuleSequencesProperty(this.moduleSequencesProperty));
+   public ObjectProperty<ObservableIntegerArray> moduleNidProperty() {
+      if (this.moduleNidsProperty == null) {
+         this.moduleNidsProperty = new SimpleObjectProperty<>(this,
+               ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
+               FXCollections.observableIntegerArray(getModuleNids().asArray()));
+         addListenerReference(this.stampCoordinate.setModuleSequencesProperty(this.moduleNidsProperty));
       }
 
-      return this.moduleSequencesProperty;
+      return this.moduleNidsProperty;
    }
 
    /**
@@ -222,18 +222,18 @@ public class ObservableStampCoordinateImpl
    }
 
    /**
-    * Gets the module sequences.
+    * Gets the module nids.
     *
-    * @return the module sequences
+    * @return the module nids
     */
    @Override
-   public ConceptSequenceSet getModuleSequences() {
-      if (this.moduleSequencesProperty != null) {
-         return ConceptSequenceSet.of(this.moduleSequencesProperty.get()
+   public NidSet getModuleNids() {
+      if (this.moduleNidsProperty != null) {
+         return NidSet.of(this.moduleNidsProperty.get()
                .toArray(new int[0]));
       }
 
-      return this.stampCoordinate.getModuleSequences();
+      return this.stampCoordinate.getModuleNids();
    }
 
    /**

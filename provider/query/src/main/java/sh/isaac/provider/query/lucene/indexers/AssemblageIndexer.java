@@ -114,7 +114,7 @@ public class AssemblageIndexer extends LuceneIndexer
          final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
          incrementIndexedItemCount("Assemblage");
          // Field component nid was already added by calling method. Just need to add additional fields. 
-         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageSequence(), sememeChronology.getReferencedComponentNid()));
+         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageNid(), sememeChronology.getReferencedComponentNid()));
          
 
          if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
@@ -136,13 +136,13 @@ public class AssemblageIndexer extends LuceneIndexer
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence(),
+               this.sequenceTypeMap.put(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
                                         LuceneDescriptionType.FULLY_QUALIFIED_NAME.name());
-               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.REGULAR_NAME.name());
+               this.sequenceTypeMap.put(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), LuceneDescriptionType.REGULAR_NAME.name());
                this.descExtendedTypeSequence = DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
-                     .getConceptSequence();
+                     .getNid();
             }
 
             SEQUENCES_SETUP.set(true);
@@ -160,7 +160,7 @@ public class AssemblageIndexer extends LuceneIndexer
     */
    private void indexDescription(Document doc,
                                  SemanticChronology sememeChronology) {
-      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
+      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageNid()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
@@ -169,7 +169,7 @@ public class AssemblageIndexer extends LuceneIndexer
       for (final StampedVersion stampedVersion:
             sememeChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
-         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
+         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptNid());
 
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) ||

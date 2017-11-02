@@ -88,17 +88,17 @@ public abstract class ObservableVersionImpl
    /**
     * The author sequence property.
     */
-   IntegerProperty authorSequenceProperty;
+   IntegerProperty authorNidProperty;
 
    /**
     * The module sequence property.
     */
-   IntegerProperty moduleSequenceProperty;
+   IntegerProperty moduleNidProperty;
 
    /**
     * The path sequence property.
     */
-   IntegerProperty pathSequenceProperty;
+   IntegerProperty pathNidProperty;
 
    /**
     * The commit state property.
@@ -141,20 +141,20 @@ public abstract class ObservableVersionImpl
 
    //~--- methods -------------------------------------------------------------
    /**
-    * Author sequence property.
+    * Author nid property.
     *
     * @return the integer property
     */
    @Override
-   public final IntegerProperty authorSequenceProperty() {
-      if (this.authorSequenceProperty == null) {
-         this.authorSequenceProperty = new CommitAwareIntegerProperty(
+   public final IntegerProperty authorNidProperty() {
+      if (this.authorNidProperty == null) {
+         this.authorNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
-                 getAuthorSequence());
-         this.authorSequenceProperty.addListener(
+                 ObservableFields.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                 getAuthorNid());
+         this.authorNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setAuthorSequence(newValue.intValue());
+                    this.stampedVersionProperty.get().setAuthorNid(newValue.intValue());
 
                     if (this.stampSequenceProperty != null) {
                        this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
@@ -162,7 +162,7 @@ public abstract class ObservableVersionImpl
                  });
       }
 
-      return this.authorSequenceProperty;
+      return this.authorNidProperty;
    }
 
    /**
@@ -222,15 +222,15 @@ public abstract class ObservableVersionImpl
     * @return the integer property
     */
    @Override
-   public final IntegerProperty moduleSequenceProperty() {
-      if (this.moduleSequenceProperty == null) {
-         this.moduleSequenceProperty = new CommitAwareIntegerProperty(
+   public final IntegerProperty moduleNidProperty() {
+      if (this.moduleNidProperty == null) {
+         this.moduleNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
-                 getModuleSequence());
-         this.moduleSequenceProperty.addListener(
+                 ObservableFields.MODULE_NID_FOR_VERSION.toExternalString(),
+                 getModuleNid());
+         this.moduleNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setModuleSequence(newValue.intValue());
+                    this.stampedVersionProperty.get().setModuleNid(newValue.intValue());
 
                     if (this.stampSequenceProperty != null) {
                        this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
@@ -238,24 +238,24 @@ public abstract class ObservableVersionImpl
                  });
       }
 
-      return this.moduleSequenceProperty;
+      return this.moduleNidProperty;
    }
 
    /**
-    * Path sequence property.
+    * Path nid property.
     *
     * @return the integer property
     */
    @Override
-   public final IntegerProperty pathSequenceProperty() {
-      if (this.pathSequenceProperty == null) {
-         this.pathSequenceProperty = new CommitAwareIntegerProperty(
+   public final IntegerProperty pathNidProperty() {
+      if (this.pathNidProperty == null) {
+         this.pathNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
-                 getPathSequence());
-         this.pathSequenceProperty.addListener(
+                 ObservableFields.PATH_NID_FOR_VERSION.toExternalString(),
+                 getPathNid());
+         this.pathNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setPathSequence(newValue.intValue());
+                    this.stampedVersionProperty.get().setPathNid(newValue.intValue());
 
                     if (this.stampSequenceProperty != null) {
                        this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
@@ -263,7 +263,7 @@ public abstract class ObservableVersionImpl
                  });
       }
 
-      return this.pathSequenceProperty;
+      return this.pathNidProperty;
    }
 
    /**
@@ -286,9 +286,9 @@ public abstract class ObservableVersionImpl
                     }
                  });
          stateProperty();
-         authorSequenceProperty();
-         moduleSequenceProperty();
-         pathSequenceProperty();
+         authorNidProperty();
+         moduleNidProperty();
+         pathNidProperty();
          stateProperty();
          timeProperty();
       }
@@ -397,19 +397,19 @@ public abstract class ObservableVersionImpl
          this.stateProperty.set(stampedVersion.getState());
       }
 
-      if ((this.authorSequenceProperty != null)
-              && (this.authorSequenceProperty.get() != stampedVersion.getAuthorSequence())) {
-         this.authorSequenceProperty.set(stampedVersion.getAuthorSequence());
+      if ((this.authorNidProperty != null)
+              && (this.authorNidProperty.get() != stampedVersion.getAuthorNid())) {
+         this.authorNidProperty.set(stampedVersion.getAuthorNid());
       }
 
-      if ((this.moduleSequenceProperty != null)
-              && (this.moduleSequenceProperty.get() != stampedVersion.getModuleSequence())) {
-         this.moduleSequenceProperty.set(stampedVersion.getModuleSequence());
+      if ((this.moduleNidProperty != null)
+              && (this.moduleNidProperty.get() != stampedVersion.getModuleNid())) {
+         this.moduleNidProperty.set(stampedVersion.getModuleNid());
       }
 
-      if ((this.pathSequenceProperty != null)
-              && (this.pathSequenceProperty.get() != stampedVersion.getPathSequence())) {
-         this.pathSequenceProperty.set(stampedVersion.getPathSequence());
+      if ((this.pathNidProperty != null)
+              && (this.pathNidProperty.get() != stampedVersion.getPathNid())) {
+         this.pathNidProperty.set(stampedVersion.getPathNid());
       }
 
       if ((this.timeProperty != null)
@@ -427,12 +427,12 @@ public abstract class ObservableVersionImpl
     * @return the author sequence
     */
    @Override
-   public final int getAuthorSequence() {
-      if (this.authorSequenceProperty != null) {
-         return this.authorSequenceProperty.get();
+   public final int getAuthorNid() {
+      if (this.authorNidProperty != null) {
+         return this.authorNidProperty.get();
       }
 
-      return this.stampedVersionProperty.get().getAuthorSequence();
+      return this.stampedVersionProperty.get().getAuthorNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -442,12 +442,12 @@ public abstract class ObservableVersionImpl
     * @param authorSequence the new author sequence
     */
    @Override
-   public void setAuthorSequence(int authorSequence) {
-      if (this.authorSequenceProperty != null) {
-         this.authorSequenceProperty.set(authorSequence);
+   public void setAuthorNid(int authorSequence) {
+      if (this.authorNidProperty != null) {
+         this.authorNidProperty.set(authorSequence);
       }
 
-      this.stampedVersionProperty.get().setAuthorSequence(authorSequence);
+      this.stampedVersionProperty.get().setAuthorNid(authorSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -489,12 +489,12 @@ public abstract class ObservableVersionImpl
     * @return the module sequence
     */
    @Override
-   public final int getModuleSequence() {
-      if (this.moduleSequenceProperty != null) {
-         return this.moduleSequenceProperty.get();
+   public final int getModuleNid() {
+      if (this.moduleNidProperty != null) {
+         return this.moduleNidProperty.get();
       }
 
-      return this.stampedVersionProperty.get().getModuleSequence();
+      return this.stampedVersionProperty.get().getModuleNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -504,12 +504,12 @@ public abstract class ObservableVersionImpl
     * @param moduleSequence the new module sequence
     */
    @Override
-   public void setModuleSequence(int moduleSequence) {
-      if (this.moduleSequenceProperty != null) {
-         this.moduleSequenceProperty.set(moduleSequence);
+   public void setModuleNid(int moduleSequence) {
+      if (this.moduleNidProperty != null) {
+         this.moduleNidProperty.set(moduleSequence);
       }
 
-      this.stampedVersionProperty.get().setModuleSequence(moduleSequence);
+      this.stampedVersionProperty.get().setModuleNid(moduleSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -529,12 +529,12 @@ public abstract class ObservableVersionImpl
     * @return the path sequence
     */
    @Override
-   public final int getPathSequence() {
-      if (this.pathSequenceProperty != null) {
-         return this.pathSequenceProperty.get();
+   public final int getPathNid() {
+      if (this.pathNidProperty != null) {
+         return this.pathNidProperty.get();
       }
 
-      return stampedVersionProperty.get().getPathSequence();
+      return stampedVersionProperty.get().getPathNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -544,12 +544,12 @@ public abstract class ObservableVersionImpl
     * @param pathSequence the new path sequence
     */
    @Override
-   public void setPathSequence(int pathSequence) {
-      if (this.pathSequenceProperty != null) {
-         this.pathSequenceProperty.set(pathSequence);
+   public void setPathNid(int pathSequence) {
+      if (this.pathNidProperty != null) {
+         this.pathNidProperty.set(pathSequence);
       }
 
-      this.stampedVersionProperty.get().setPathSequence(pathSequence);
+      this.stampedVersionProperty.get().setPathNid(pathSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -566,9 +566,8 @@ public abstract class ObservableVersionImpl
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       return new ArrayList(
-              Arrays.asList(
-                      new Property[]{
-                         stateProperty(), timeProperty(), authorSequenceProperty(), moduleSequenceProperty(), pathSequenceProperty(),
+              Arrays.asList(new Property[]{
+                         stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
                          commitStateProperty(), stampSequenceProperty(),}));
    }
 

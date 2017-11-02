@@ -109,7 +109,7 @@ public class WriteAndCheckSemanticChronology
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write, check, and notify for sememe change");
-      updateMessage("write: " + sc.getVersionType() + " " + sc.getSemanticSequence());
+      updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -130,10 +130,10 @@ public class WriteAndCheckSemanticChronology
       try {
          Get.assemblageService()
             .writeSemanticChronology(this.sc);
-         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getSemanticSequence());
+         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
          this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);
-         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getSemanticSequence());
+         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid());
 
          if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
             this.checkers.stream().forEach((check) -> {
@@ -142,7 +142,7 @@ public class WriteAndCheckSemanticChronology
          }
 
          updateProgress(2, 3);
-         updateMessage("notifying: " + this.sc.getVersionType() + " " + this.sc.getSemanticSequence());
+         updateMessage("notifying: " + this.sc.getVersionType() + " " + this.sc.getNid());
          this.changeListeners.forEach((listenerRef) -> {
             try {
                final ChronologyChangeListener listener = listenerRef.get();
@@ -157,7 +157,7 @@ public class WriteAndCheckSemanticChronology
             }
                                       });
          updateProgress(3, 3);
-         updateMessage("completed change: " + this.sc.getVersionType() + " " + this.sc.getSemanticSequence());
+         updateMessage("completed change: " + this.sc.getVersionType() + " " + this.sc.getNid());
          return null;
       } finally {
          this.writeSemaphore.release();

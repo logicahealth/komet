@@ -166,7 +166,7 @@ public interface DynamicUtility {
             (dsud.getReferencedComponentTypeRestriction() != ObjectChronologyType.UNKNOWN_NID)) {
          final ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
          final ObjectChronologyType foundType = Get.identifierService()
-                                                   .getChronologyTypeForNid(referencedComponentNid);
+                                                   .getOldChronologyTypeForNid(referencedComponentNid);
 
          if (requiredType != foundType) {
             throw new IllegalArgumentException("The referenced component must be of type " + requiredType +

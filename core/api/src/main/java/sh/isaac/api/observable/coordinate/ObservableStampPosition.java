@@ -60,7 +60,7 @@ public interface ObservableStampPosition
     *
     * @return the integer property
     */
-   IntegerProperty stampPathSequenceProperty();
+   IntegerProperty stampPathNidProperty();
 
    /**
     * Time property.

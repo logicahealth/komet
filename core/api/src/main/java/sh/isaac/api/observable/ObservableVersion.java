@@ -71,7 +71,7 @@ public interface ObservableVersion
     *
     * @return the integer property
     */
-   IntegerProperty authorSequenceProperty();
+   IntegerProperty authorNidProperty();
 
    /**
     * Commit state property.
@@ -85,14 +85,14 @@ public interface ObservableVersion
     *
     * @return the integer property
     */
-   IntegerProperty moduleSequenceProperty();
+   IntegerProperty moduleNidProperty();
 
    /**
     * Path sequence property.
     *
     * @return the integer property
     */
-   IntegerProperty pathSequenceProperty();
+   IntegerProperty pathNidProperty();
 
    /**
     * Stamp sequence property.

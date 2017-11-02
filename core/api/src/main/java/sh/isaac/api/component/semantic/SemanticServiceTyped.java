@@ -42,11 +42,11 @@ package sh.isaac.api.component.semantic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.stream.Stream;
+import sh.isaac.api.collections.IntSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.StampPosition;
 
 //~--- interfaces -------------------------------------------------------------
@@ -88,7 +88,7 @@ public interface SemanticServiceTyped {
     * @param componentNid the component nid
     * @return the semantic sequences for component
     */
-   SemanticSequenceSet getSemanticSequencesForComponent(int componentNid);
+   IntSet getSemanticSequencesForComponent(int componentNid);
 
    /**
     * Gets the semantic sequences for component from assemblage.
@@ -97,7 +97,7 @@ public interface SemanticServiceTyped {
     * @param assemblageSequence the assemblage sequence
     * @return the semantic sequences for component from assemblage
     */
-   SemanticSequenceSet getSemanticSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+   IntSet getSemanticSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
 
    /**
     * Gets the semantic sequences for components from assemblage.
@@ -106,7 +106,7 @@ public interface SemanticServiceTyped {
     * @param assemblageSequence the assemblage sequence
     * @return the semantic sequences for components from assemblage
     */
-   SemanticSequenceSet getSemanticSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
+   IntSet getSemanticSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
 
    /**
     * Gets the semantic sequences for components from assemblage modified after position.
@@ -116,7 +116,7 @@ public interface SemanticServiceTyped {
     * @param position the position
     * @return the semantic sequences for components from assemblage modified after position
     */
-   SemanticSequenceSet getSemanticSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
+   IntSet getSemanticSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
          int assemblageSequence,
          StampPosition position);
 
@@ -126,7 +126,7 @@ public interface SemanticServiceTyped {
     * @param assemblageSequence the assemblage sequence
     * @return the semantic sequences from assemblage
     */
-   SemanticSequenceSet getSemanticSequencesFromAssemblage(int assemblageSequence);
+   IntSet getSemanticSequencesFromAssemblage(int assemblageSequence);
 
    /**
     * Gets the semantic sequences from assemblage modified after position.
@@ -135,7 +135,7 @@ public interface SemanticServiceTyped {
     * @param position the position
     * @return the semantic sequences from assemblage modified after position
     */
-   SemanticSequenceSet getSemanticSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
+   IntSet getSemanticSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
          StampPosition position);
 
    /**

@@ -728,11 +728,11 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
+            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getNid(),
                                            true,
                                            false);
 
-         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getNid());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 

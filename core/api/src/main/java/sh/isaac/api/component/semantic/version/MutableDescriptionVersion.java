@@ -49,23 +49,23 @@ public interface MutableDescriptionVersion
    /**
     * Sets the case significance concept sequence.
     *
-    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    * @param caseSignificanceConceptNid the new case significance concept sequence
     */
-   void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
+   void setCaseSignificanceConceptNid(int caseSignificanceConceptNid);
 
    /**
     * Sets the description type concept sequence.
     *
-    * @param descriptionTypeConceptSequence the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept sequence
     */
-   void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
+   void setDescriptionTypeConceptNid(int descriptionTypeConceptNid);
 
    /**
     * Sets the language concept sequence.
     *
-    * @param languageConceptSequence the new language concept sequence
+    * @param languageConceptNid the new language concept sequence
     */
-   void setLanguageConceptSequence(int languageConceptSequence);
+   void setLanguageConceptNid(int languageConceptNid);
 
    /**
     * Sets the text.

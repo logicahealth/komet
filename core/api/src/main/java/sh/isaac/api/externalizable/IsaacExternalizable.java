@@ -59,5 +59,6 @@ public interface IsaacExternalizable {
     * @return the type of the object.
     */
    IsaacObjectType getIsaacObjectType();
+   
 }
 

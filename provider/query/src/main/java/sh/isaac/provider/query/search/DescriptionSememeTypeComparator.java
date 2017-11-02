@@ -73,11 +73,11 @@ public class DescriptionSememeTypeComparator
    @Override
    public int compare(DescriptionVersion o1, DescriptionVersion o2) {
       final String o1matchingComponentType = Get.conceptService()
-                                                .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
+                                                .getOptionalConcept(o1.getDescriptionTypeConceptNid())
                                                 .get()
                                                 .getFullySpecifiedConceptDescriptionText();
       final String o2matchingComponentType = Get.conceptService()
-                                                .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
+                                                .getOptionalConcept(o2.getDescriptionTypeConceptNid())
                                                 .get()
                                                 .getFullySpecifiedConceptDescriptionText();
 

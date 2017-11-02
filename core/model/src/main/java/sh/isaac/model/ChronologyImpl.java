@@ -63,9 +63,10 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.collections.IntSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
@@ -74,7 +75,6 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -91,14 +91,14 @@ public abstract class ChronologyImpl
     * The Constant STAMPED_LOCKS.
     */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
-   
+
    //~--- static initializers -------------------------------------------------
    static {
       for (int i = 0; i < STAMPED_LOCKS.length; i++) {
          STAMPED_LOCKS[i] = new StampedLock();
       }
    }
-  
+
    //~--- fields --------------------------------------------------------------
    /**
     * Position in the data where chronicle data ends, and version data starts.
@@ -134,9 +134,14 @@ public abstract class ChronologyImpl
    private int nid;
 
    /**
-    * Concept sequence if a concept. Semantic sequence otherwise.
+    * Native identifier of the assemblage concept that defines this chronology.
     */
-   private int containerSequence;
+   private int assemblageNid;
+
+   /**
+    * Sequence of this chronology within the assemblage that defines it.
+    */
+   private int elementSequence;
 
    /**
     * Data previously persisted. Used for lazy instantiation of versions and objects that are part of this chronicle.
@@ -163,20 +168,30 @@ public abstract class ChronologyImpl
    protected ChronologyImpl() {
    }
 
+   @Override
+   public final int getAssemblageNid() {
+      return assemblageNid;
+   }
+
+   public final int getElementSequence() {
+      return elementSequence;
+   }
+
    /**
     * For constructing an object for the first time.
     *
     * @param primordialUuid A unique external identifier for this chronicle
     * @param nid A unique internal identifier, that is only valid within this database
-    * @param containerSequence Either a concept sequence or a semantic sequence depending on the ofType of the underlying
-    * object.
+    * @param assemblageNid The identifier for the concept that defines what assemblage this element is defined within.
     */
-   protected ChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {
+   protected ChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
       this.writeSequence = Integer.MIN_VALUE;
       this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
       this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
       this.nid = nid;
-      this.containerSequence = containerSequence;
+      this.assemblageNid = assemblageNid;
+      this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
+      ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -325,14 +340,13 @@ public abstract class ChronologyImpl
       return builder.toString();
    }
 
- 
    public void toString(StringBuilder builder, boolean addAttachments) {
       getUuidList().forEach((uuid) -> builder
               .append(" uuid: ").append(uuid).append("\n"));
       builder.append(" nid: ")
               .append(this.nid)
               .append("\n container: ")
-              .append(this.containerSequence)
+              .append(this.elementSequence)
               .append(",\n versions[");
       getVersionList().forEach(
               (version) -> {
@@ -352,8 +366,8 @@ public abstract class ChronologyImpl
          Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((sememe) -> {
             builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                     .append(":\n  ");
-            ((SemanticChronologyImpl)sememe).toString(builder, false);
-          });
+            ((SemanticChronologyImpl) sememe).toString(builder, false);
+         });
          builder.append("]]\n");
       }
       builder.append("\n");
@@ -510,6 +524,8 @@ public abstract class ChronologyImpl
       this.primordialUuidLsb = data.getLong();
       getAdditionalUuids(data);
 
+      this.assemblageNid = data.getNid();
+      
       if (data.isExternalData()) {
          this.nid = Get.identifierService()
                  .getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
@@ -518,37 +534,26 @@ public abstract class ChronologyImpl
                     Get.identifierService()
                             .addUuidForNid(uuid, this.nid);
                  });
-
-         if (this instanceof ConceptChronologyImpl) {
-            this.containerSequence = Get.identifierService()
-                    .getConceptSequence(this.nid);
-         } else if (this instanceof SemanticChronologyImpl) {
-            this.containerSequence = Get.identifierService()
-                    .getSemanticSequence(this.nid);
-         } else {
-            throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
-         }
-
+         ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
+         this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
          setAdditionalChronicleFieldsFromBuffer(data);
          readVersionList(data);
       } else {
          this.nid = data.getNid();
-         this.containerSequence = data.getInt();
-         // read legacy version sequence. 
-         data.getShort();
+         this.elementSequence = data.getInt();
          setAdditionalChronicleFieldsFromBuffer(data);
          constructorEnd(data);
          // find if there are any uncommitted versions in the written data...
-         
-         for (int stamp: getVersionStampSequences()) {
+
+         for (int stamp : getVersionStampSequences()) {
             if (Get.stampService().isUncommitted(stamp)) {
-            this.unwrittenData = new ConcurrentSkipListMap<>();
-            this.versionListReference = null;
-            getVersionList().forEach((version) -> {
-               this.unwrittenData.put(version.getStampSequence(), version);
-            });
-            this.writtenData = null;
-            break;
+               this.unwrittenData = new ConcurrentSkipListMap<>();
+               this.versionListReference = null;
+               getVersionList().forEach((version) -> {
+                  this.unwrittenData.put(version.getStampSequence(), version);
+               });
+               this.writtenData = null;
+               break;
             }
          }
       }
@@ -586,7 +591,7 @@ public abstract class ChronologyImpl
    protected void writeChronicleData(ByteArrayDataBuffer data) {
       IsaacObjectType isaacObjectType = getIsaacObjectType();
       isaacObjectType.writeTypeVersionHeader(data);
-      
+
       if (!data.isExternalData()) {
          data.putInt(this.writeSequence);
       }
@@ -601,12 +606,12 @@ public abstract class ChronologyImpl
          LongStream.of(this.additionalUuidParts)
                  .forEach((uuidPart) -> data.putLong(uuidPart));
       }
+      
+      data.putNid(this.assemblageNid);
 
       if (!data.isExternalData()) {
          data.putInt(this.nid);
-         data.putInt(this.containerSequence);
-         // legacy version sequence. 
-         data.putShort((short) 0);
+         data.putInt(this.elementSequence);
       }
 
       putAdditionalChronicleFields(data);
@@ -627,7 +632,7 @@ public abstract class ChronologyImpl
       data.getLong();   // this.primordialUuidLsb =
       skipAdditionalUuids(data);
       data.getNid();    // this.nid =
-      data.getInt();    // this.containerSequence =
+      data.getInt();    // this.elementSequence =
       data.getShort();  // this.versionSequence =
       skipAdditionalChronicleFields(data);
    }
@@ -751,23 +756,14 @@ public abstract class ChronologyImpl
     */
    @Override
    public CommitStates getCommitState() {
-      for(int stampSequence: getVersionStampSequences()) {
+      for (int stampSequence : getVersionStampSequences()) {
          if (Get.stampService()
-              .isUncommitted(stampSequence)) {
+                 .isUncommitted(stampSequence)) {
             return CommitStates.UNCOMMITTED;
          }
       }
 
       return CommitStates.COMMITTED;
-   }
-
-   /**
-    * Gets the concept sequence if a concept. Sememe sequence otherwise.
-    *
-    * @return the concept sequence if a concept
-    */
-   public int getContainerSequence() {
-      return this.containerSequence;
    }
 
    /**
@@ -780,51 +776,50 @@ public abstract class ChronologyImpl
    }
 
    /**
-    * Get the data as a list of immutable byte arrays. With an append only data model,
-    * these records are safe for concurrent writes without destroying data per the duplicate data
-    * model in Berkley DB and Xodus. 
-    * 
-    * The chronology record starts with an integer of 0 to differentiate from version records, and then
-    * is followed by a byte for the object type, and a byte for the data format version... The object
-    * type byte is always > 0, and the version byte is always > 0...
-    * 
-    * Each byte[] for a version starts with an integer length of the version data. The minimum size
-    * of a version is 4 bytes (an integer stamp sequence).
-    * 
-    * @return 
+    * Get the data as a list of immutable byte arrays. With an append only data model, these records are safe for
+    * concurrent writes without destroying data per the duplicate data model in Berkley DB and Xodus.
+    *
+    * The chronology record starts with an integer of 0 to differentiate from version records, and then is followed by a
+    * byte for the object type, and a byte for the data format version... The object type byte is always > 0, and the
+    * version byte is always > 0...
+    *
+    * Each byte[] for a version starts with an integer length of the version data. The minimum size of a version is 4
+    * bytes (an integer stamp sequence).
+    *
+    * @return
     */
    public List<byte[]> getDataList() {
-      
+
       List<byte[]> dataArray = new ArrayList();
-      
+
       byte[] dataToSplit = getDataToWrite();
       if (versionStartPosition < 0) {
          throw new IllegalStateException("versionStartPosition is not set");
       }
-      byte[] chronicleBytes = new byte[versionStartPosition+4]; // +4 for the zero integer to start.
+      byte[] chronicleBytes = new byte[versionStartPosition + 4]; // +4 for the zero integer to start.
       for (int i = 0; i < chronicleBytes.length; i++) {
          if (i < 4) {
             chronicleBytes[i] = 0;
          } else {
-            chronicleBytes[i] = dataToSplit[i-4];
+            chronicleBytes[i] = dataToSplit[i - 4];
          }
       }
       dataArray.add(chronicleBytes);
-      
+
       int versionStart = versionStartPosition;
       int versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-                    | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+              | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
 
       while (versionSize != 0) {
          dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionStart + versionSize));
          versionStart = versionStart + versionSize;
          versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-                    | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+                 | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
       }
-      
-      
+
       return dataArray;
    }
+
    /**
     * Get data to write to datastore. Set the write sequence to the specified value
     *
@@ -937,8 +932,8 @@ public abstract class ChronologyImpl
                       State.CANCELED,
                       State.PRIMORDIAL));
       final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
-      
-      for (int stampSequence: latestStampSequences) {
+
+      for (int stampSequence : latestStampSequences) {
          if (Get.stampService().getStatusForStamp(stampSequence) == State.ACTIVE) {
             return true;
          }
@@ -1096,7 +1091,7 @@ public abstract class ChronologyImpl
       getVersionList().<V>forEach(
               (version) -> {
                  final StampPath path = Get.pathService()
-                         .getStampPath(version.getPathSequence());
+                         .getStampPath(version.getPathNid());
                  TreeSet<V> versionSet = versionMap.get(path);
 
                  if (versionSet == null) {
@@ -1215,8 +1210,7 @@ public abstract class ChronologyImpl
          this.unwrittenData.keySet()
                  .forEach((stamp) -> builder.add(stamp));
       }
-      
-      
+
       return builder.keys().elements();
    }
 
@@ -1273,7 +1267,7 @@ public abstract class ChronologyImpl
     */
    private <V extends StampedVersion> List<V> getVersionsForStamps(int[] stampSequences) {
       final List<V> versions = new ArrayList<>(stampSequences.length);
-      for (int stampSequence: stampSequences) {
+      for (int stampSequence : stampSequences) {
          versions.add((V) getVersionForStamp(stampSequence).get());
       }
       return versions;
@@ -1360,16 +1354,15 @@ public abstract class ChronologyImpl
    }
 
    @Override
-   public SemanticSequenceSet getRecursiveSemanticSequences() {
-      SemanticSequenceSet sequenceSet = Get.assemblageService().getSemanticChronologySequencesForComponent(this.getNid());
+   public NidSet getRecursiveSemanticNids() {
+      NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
       sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
 
       return sequenceSet;
    }
 
-   private void addRecursiveSequences(SemanticSequenceSet sememeSequenceSet, int sememeSequence) {
-      int sememeNid = Get.identifierService().getSemanticNid(sememeSequence);
-      SemanticSequenceSet sequenceSet = Get.assemblageService().getSemanticChronologySequencesForComponent(sememeNid);
+   private void addRecursiveSequences(IntSet sememeSequenceSet, int semanticNid) {
+      IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
       sequenceSet.stream().forEach((sequence) -> {
          sememeSequenceSet.add(sequence);
          addRecursiveSequences(sememeSequenceSet, sequence);

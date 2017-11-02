@@ -61,7 +61,7 @@ import sh.komet.gui.manifold.Manifold;
 public class ConceptForControlWrapper
          implements ConceptSpecification {
    private final Manifold manifold;
-   private final int      conceptSequence;
+   private final int      conceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -70,51 +70,49 @@ public class ConceptForControlWrapper
          throw new IllegalStateException("Integer.MAX_VALUE for concept sequence.");
       }
       this.manifold        = manifold;
-      this.conceptSequence = conceptSequence;
+      this.conceptNid = conceptSequence;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public String toString() {
-      if (this.conceptSequence > 0) {
          Optional<String> description = getPreferedConceptDescriptionText();
 
          if (description.isPresent()) {
             return description.get();
          }
-      }
 
-      return "No description for: " + conceptSequence;
+      return "No description for: " + conceptNid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public int getConceptSequence() {
-      return conceptSequence;
+   public int getNid() {
+      return conceptNid;
    }
 
    @Override
    public String getFullySpecifiedConceptDescriptionText() {
-      return this.manifold.getFullySpecifiedDescriptionText(this.conceptSequence);
+      return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
    }
 
    @Override
    public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.of(manifold.getPreferredDescriptionText(this.conceptSequence));
+      return Optional.of(manifold.getPreferredDescriptionText(this.conceptNid));
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return Get.concept(conceptSequence)
+      return Get.concept(conceptNid)
                 .getUuidList();
    }
 
    @Override
    public boolean equals(Object obj) {
       if (obj instanceof ConceptSpecification) {
-         return this.conceptSequence == ((ConceptSpecification) obj).getConceptSequence();
+         return this.conceptNid == ((ConceptSpecification) obj).getNid();
       }
       return false;
    }

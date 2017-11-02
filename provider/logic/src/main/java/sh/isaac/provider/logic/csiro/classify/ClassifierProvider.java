@@ -34,23 +34,19 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.logic.csiro.classify;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -58,40 +54,45 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder;
-import sh.isaac.api.tree.hashtree.HashTreeWithBitSets;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.tree.HashTreeBuilder;
+import sh.isaac.model.tree.HashTreeWithBitSets;
+import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
+import sh.isaac.provider.bdb.taxonomy.GraphCollector;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
-import sh.isaac.provider.taxonomy.TaxonomyProvider;
-import sh.isaac.provider.taxonomy.graph.GraphCollector;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ClassifierProvider.
  *
  * @author kec
  */
 public class ClassifierProvider
-         implements ClassifierService {
-   /** The Constant log. */
+        implements ClassifierService {
+
+   /**
+    * The Constant log.
+    */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
-
-   /** The stamp coordinate. */
+   /**
+    * The stamp coordinate.
+    */
    StampCoordinate stampCoordinate;
 
-   /** The logic coordinate. */
+   /**
+    * The logic coordinate.
+    */
    LogicCoordinate logicCoordinate;
 
-   /** The edit coordinate. */
+   /**
+    * The edit coordinate.
+    */
    EditCoordinate editCoordinate;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new classifier provider.
     *
@@ -100,15 +101,14 @@ public class ClassifierProvider
     * @param editCoordinate the edit coordinate
     */
    public ClassifierProvider(StampCoordinate stampCoordinate,
-                             LogicCoordinate logicCoordinate,
-                             EditCoordinate editCoordinate) {
+           LogicCoordinate logicCoordinate,
+           EditCoordinate editCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
-      this.editCoordinate  = editCoordinate;
+      this.editCoordinate = editCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Classify.
     *
@@ -120,7 +120,6 @@ public class ClassifierProvider
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the concept sequence for expression.
     *
@@ -130,7 +129,7 @@ public class ClassifierProvider
     */
    @Override
    public Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
-      return GetConceptSequenceForExpressionTask.create(expression, this, editCoordinate);
+      return GetConceptNidForExpressionTask.create(expression, this, editCoordinate);
    }
 
    /**
@@ -139,18 +138,18 @@ public class ClassifierProvider
     * @return the inferred taxonomy graph
     */
    protected HashTreeWithBitSets getInferredTaxonomyGraph() {
-      final IntStream conceptSequenceStream = Get.identifierService()
-                                                 .getParallelConceptSequenceStream();
+      final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getInferredManifoldCoordinate(
-                                StampCoordinates.getDevelopmentLatestActiveOnly(),
-                                Get.configurationService().getDefaultLanguageCoordinate());
-      final GraphCollector collector =
-         new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            manifoldCoordinate);
-      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
-                                                                             collector,
-                                                                             collector);
-      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraph();
+              StampCoordinates.getDevelopmentLatestActiveOnly(),
+              Get.configurationService().getDefaultLanguageCoordinate());
+      final GraphCollector collector
+              = new GraphCollector(((BdbTaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
+                      manifoldCoordinate);
+      final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(()
+              -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
+              collector,
+              collector);
+      final HashTreeWithBitSets resultGraph = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }
@@ -161,20 +160,19 @@ public class ClassifierProvider
     * @return the stated taxonomy graph
     */
    protected HashTreeWithBitSets getStatedTaxonomyGraph() {
-      final IntStream conceptSequenceStream = Get.identifierService()
-                                                 .getParallelConceptSequenceStream();
+      final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(
-                                StampCoordinates.getDevelopmentLatestActiveOnly(),
-                                Get.configurationService().getDefaultLanguageCoordinate());
-      final GraphCollector collector =
-         new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            manifoldCoordinate);
-      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
-                                                                             collector,
-                                                                             collector);
-      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraph();
+              StampCoordinates.getDevelopmentLatestActiveOnly(),
+              Get.configurationService().getDefaultLanguageCoordinate());
+      final GraphCollector collector
+              = new GraphCollector(((BdbTaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
+                      manifoldCoordinate);
+      final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(() 
+              -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
+              collector,
+              collector);
+      final HashTreeWithBitSets resultGraph = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }
 }
-

@@ -149,15 +149,15 @@ public class RelativePositionCalculator
       final long ss1Time           = getStampService()
                                         .getTimeForStamp(stampSequence1);
       final int  ss1ModuleSequence = getStampService()
-                                        .getModuleSequenceForStamp(stampSequence1);
+                                        .getModuleNidForStamp(stampSequence1);
       final int  ss1PathSequence   = getStampService()
-                                        .getPathSequenceForStamp(stampSequence1);
+                                        .getPathNidForStamp(stampSequence1);
       final long ss2Time           = getStampService()
                                         .getTimeForStamp(stampSequence2);
       final int  ss2ModuleSequence = getStampService()
-                                        .getModuleSequenceForStamp(stampSequence2);
+                                        .getModuleNidForStamp(stampSequence2);
       final int  ss2PathSequence   = getStampService()
-                                        .getPathSequenceForStamp(stampSequence2);
+                                        .getPathNidForStamp(stampSequence2);
 
       if (ss1PathSequence == ss2PathSequence) {
          final Segment seg = this.pathSequenceSegmentMap.get(ss1PathSequence);
@@ -228,8 +228,8 @@ public class RelativePositionCalculator
    public RelativePosition fastRelativePosition(StampedVersion v1,
          StampedVersion v2,
          StampPrecedence precedencePolicy) {
-      if (v1.getPathSequence() == v2.getPathSequence()) {
-         final Segment seg = this.pathSequenceSegmentMap.get(v1.getPathSequence());
+      if (v1.getPathNid() == v2.getPathNid()) {
+         final Segment seg = this.pathSequenceSegmentMap.get(v1.getPathNid());
 
          if (seg == null) {
             final StringBuilder builder = new StringBuilder();
@@ -244,8 +244,8 @@ public class RelativePositionCalculator
             throw new IllegalStateException(builder.toString());
          }
 
-         if (seg.containsPosition(v1.getPathSequence(), v1.getModuleSequence(), v1.getTime()) &&
-               seg.containsPosition(v2.getPathSequence(), v2.getModuleSequence(), v2.getTime())) {
+         if (seg.containsPosition(v1.getPathNid(), v1.getModuleNid(), v1.getTime()) &&
+               seg.containsPosition(v2.getPathNid(), v2.getModuleNid(), v2.getTime())) {
             if (v1.getTime() < v2.getTime()) {
                return RelativePosition.BEFORE;
             }
@@ -262,15 +262,15 @@ public class RelativePositionCalculator
          return RelativePosition.UNREACHABLE;
       }
 
-      final Segment seg1 = this.pathSequenceSegmentMap.get(v1.getPathSequence());
-      final Segment seg2 = this.pathSequenceSegmentMap.get(v2.getPathSequence());
+      final Segment seg1 = this.pathSequenceSegmentMap.get(v1.getPathNid());
+      final Segment seg2 = this.pathSequenceSegmentMap.get(v2.getPathNid());
 
       if ((seg1 == null) || (seg2 == null)) {
          return RelativePosition.UNREACHABLE;
       }
 
-      if (!(seg1.containsPosition(v1.getPathSequence(), v1.getModuleSequence(), v1.getTime()) &&
-            seg2.containsPosition(v2.getPathSequence(), v2.getModuleSequence(), v2.getTime()))) {
+      if (!(seg1.containsPosition(v1.getPathNid(), v1.getModuleNid(), v1.getTime()) &&
+            seg2.containsPosition(v2.getPathNid(), v2.getModuleNid(), v2.getTime()))) {
          return RelativePosition.UNREACHABLE;
       }
 
@@ -309,14 +309,14 @@ public class RelativePositionCalculator
          return stampOnRoute.get(stampSequence);
       }
       final Segment seg = this.pathSequenceSegmentMap.get(getStampService()
-                                                             .getPathSequenceForStamp(stampSequence));
+                                                             .getPathNidForStamp(stampSequence));
       boolean returnValue = false;
       if (seg != null) {
          returnValue = seg.containsPosition(
              getStampService()
-                .getPathSequenceForStamp(stampSequence),
+                .getPathNidForStamp(stampSequence),
              getStampService()
-                .getModuleSequenceForStamp(stampSequence),
+                .getModuleNidForStamp(stampSequence),
              getStampService()
                 .getTimeForStamp(stampSequence));
       }
@@ -332,10 +332,10 @@ public class RelativePositionCalculator
     * @return true, if successful
     */
    public <V extends StampedVersion> boolean onRoute(V version) {
-      final Segment seg = this.pathSequenceSegmentMap.get(version.getPathSequence());
+      final Segment seg = this.pathSequenceSegmentMap.get(version.getPathNid());
 
       if (seg != null) {
-         return seg.containsPosition(version.getPathSequence(), version.getModuleSequence(), version.getTime());
+         return seg.containsPosition(version.getPathNid(), version.getModuleNid(), version.getTime());
       }
 
       return false;
@@ -898,8 +898,8 @@ public class RelativePositionCalculator
        * @return true, if successful
        */
       private boolean containsPosition(int pathConceptSequence, int moduleConceptSequence, long time) {
-         if (RelativePositionCalculator.this.coordinate.getModuleSequences().isEmpty() ||
-               RelativePositionCalculator.this.coordinate.getModuleSequences().contains(moduleConceptSequence)) {
+         if (RelativePositionCalculator.this.coordinate.getModuleNids().isEmpty() ||
+               RelativePositionCalculator.this.coordinate.getModuleNids().contains(moduleConceptSequence)) {
             if ((this.pathConceptSequence == pathConceptSequence) && (time != Long.MIN_VALUE)) {
                return time <= this.endTime;
             }

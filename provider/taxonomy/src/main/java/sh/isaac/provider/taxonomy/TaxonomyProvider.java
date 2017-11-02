@@ -111,8 +111,8 @@ import sh.isaac.api.tree.Tree;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -297,7 +297,7 @@ public class TaxonomyProvider
    @Override
    public void handleChange(SemanticChronology sc) {
       if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-         this.semanticSequencesForUnhandledChanges.add(sc.getSemanticSequence());
+         this.semanticSequencesForUnhandledChanges.add(sc.getNid());
       }
    }
 
@@ -364,7 +364,7 @@ public class TaxonomyProvider
 
       TaxonomyFlag taxonomyFlags;
 
-      if (logicGraphChronology.getAssemblageSequence() == this.logicCoordinate.getInferredAssemblageSequence()) {
+      if (logicGraphChronology.getAssemblageSequence() == this.logicCoordinate.getInferredAssemblageNid()) {
          taxonomyFlags = TaxonomyFlag.INFERRED;
       } else {
          taxonomyFlags = TaxonomyFlag.STATED;
@@ -589,8 +589,7 @@ public class TaxonomyProvider
          LogicalExpression comparisonExpression) {
       switch (logicalLogicNode.getNodeSemantic()) {
       case CONCEPT:
-         updateIsaRel(
-             (ConceptNodeWithSequences) logicalLogicNode,
+         updateIsaRel((ConceptNodeWithNids) logicalLogicNode,
              parentTaxonomyRecord,
              taxonomyFlags,
              stampSequence,
@@ -598,8 +597,7 @@ public class TaxonomyProvider
          break;
 
       case ROLE_SOME:
-         updateSomeRole(
-             (RoleNodeSomeWithSequences) logicalLogicNode,
+         updateSomeRole((RoleNodeSomeWithNids) logicalLogicNode,
              parentTaxonomyRecord,
              taxonomyFlags,
              stampSequence,
@@ -849,19 +847,19 @@ public class TaxonomyProvider
     * @param stampSequence the stamp sequence
     * @param originSequence the origin sequence
     */
-   private void updateIsaRel(ConceptNodeWithSequences conceptNode,
+   private void updateIsaRel(ConceptNodeWithNids conceptNode,
                              TaxonomyRecordPrimitive parentTaxonomyRecord,
                              TaxonomyFlag taxonomyFlags,
                              int stampSequence,
                              int originSequence) {
       parentTaxonomyRecord.getTaxonomyRecordUnpacked()
                           .addStampRecord(
-                              conceptNode.getConceptSequence(),
+                              conceptNode.getConceptNid(),
                               this.isaSequence,
                               stampSequence,
                               taxonomyFlags.bits);
       this.destinationOriginRecordSet.add(
-          new DestinationOriginRecord(conceptNode.getConceptSequence(), originSequence));
+          new DestinationOriginRecord(conceptNode.getConceptNid(), originSequence));
    }
 
    /**
@@ -873,20 +871,18 @@ public class TaxonomyProvider
     * @param stampSequence the stamp sequence
     * @param originSequence the origin sequence
     */
-   private void updateSomeRole(RoleNodeSomeWithSequences someNode,
+   private void updateSomeRole(RoleNodeSomeWithNids someNode,
                                TaxonomyRecordPrimitive parentTaxonomyRecord,
                                TaxonomyFlag taxonomyFlags,
                                int stampSequence,
                                int originSequence) {
-      if (someNode.getTypeConceptSequence() == this.roleGroupSequence) {
+      if (someNode.getTypeConceptNid() == this.roleGroupSequence) {
          final AndNode andNode = (AndNode) someNode.getOnlyChild();
 
          andNode.getChildStream()
-                .forEach(
-                    (roleGroupSomeNode) -> {
-                       if (roleGroupSomeNode instanceof RoleNodeSomeWithSequences) {
-                          updateSomeRole(
-                              (RoleNodeSomeWithSequences) roleGroupSomeNode,
+                .forEach((roleGroupSomeNode) -> {
+                       if (roleGroupSomeNode instanceof RoleNodeSomeWithNids) {
+                          updateSomeRole((RoleNodeSomeWithNids) roleGroupSomeNode,
                               parentTaxonomyRecord,
                               taxonomyFlags,
                               stampSequence,
@@ -897,17 +893,17 @@ public class TaxonomyProvider
                        }
                     });
       } else {
-         if (someNode.getOnlyChild() instanceof ConceptNodeWithSequences) {
-            final ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();
+         if (someNode.getOnlyChild() instanceof ConceptNodeWithNids) {
+            final ConceptNodeWithNids restrictionNode = (ConceptNodeWithNids) someNode.getOnlyChild();
 
             parentTaxonomyRecord.getTaxonomyRecordUnpacked()
                                 .addStampRecord(
-                                    restrictionNode.getConceptSequence(),
-                                    someNode.getTypeConceptSequence(),
+                                    restrictionNode.getConceptNid(),
+                                    someNode.getTypeConceptNid(),
                                     stampSequence,
                                     taxonomyFlags.bits);
             this.destinationOriginRecordSet.add(
-                new DestinationOriginRecord(restrictionNode.getConceptSequence(), originSequence));
+                new DestinationOriginRecord(restrictionNode.getConceptNid(), originSequence));
          } else {
             // TODO dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
          }
@@ -1232,7 +1228,7 @@ public class TaxonomyProvider
        */
       @Override
       public ConceptSequenceSet getKindOfSequenceSet(int rootId) {
-         ConceptSequenceSet kindOfSet = this.treeSnapshot.getDescendentSequenceSet(rootId);
+         ConceptSequenceSet kindOfSet = this.treeSnapshot.getDescendentNidSet(rootId);
          kindOfSet.add(rootId);
          return kindOfSet;
       }
@@ -1249,7 +1245,7 @@ public class TaxonomyProvider
        */
       @Override
       public int[] getRoots() {
-         return treeSnapshot.getRootSequences();
+         return treeSnapshot.getRootNids();
       }
 
       /**
@@ -1259,8 +1255,8 @@ public class TaxonomyProvider
        * @return the taxonomy child sequences
        */
       @Override
-      public int[] getTaxonomyChildSequences(int parentId) {
-         return this.treeSnapshot.getChildrenSequenceStream(parentId).toArray();
+      public int[] getTaxonomyChildNids(int parentId) {
+         return this.treeSnapshot.getChildNidStream(parentId).toArray();
       }
 
       /**
@@ -1270,8 +1266,8 @@ public class TaxonomyProvider
        * @return the taxonomy parent sequences
        */
       @Override
-      public int[] getTaxonomyParentSequences(int childId) {
-         return this.treeSnapshot.getParentSequences(childId);
+      public int[] getTaxonomyParentNids(int childId) {
+         return this.treeSnapshot.getParentNids(childId);
       }
 
       /**

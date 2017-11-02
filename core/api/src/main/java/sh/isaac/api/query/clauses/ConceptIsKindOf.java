@@ -43,8 +43,6 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,7 +52,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -123,10 +120,10 @@ public class ConceptIsKindOf
          final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                  .get(this.kindOfSpecKey);
          final int                parentNid         = kindOfSpec.getNid();
-         final ConceptSequenceSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).get()
+         final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).get()
                  .getKindOfSequenceSet(parentNid);
          
-         getResultsCache().or(NidSet.of(kindOfSequenceSet));
+         getResultsCache().or(kindOfSequenceSet);
          return getResultsCache();
       } catch (InterruptedException | ExecutionException ex) {
          throw new RuntimeException(ex);

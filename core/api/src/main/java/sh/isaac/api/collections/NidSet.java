@@ -48,8 +48,6 @@ import java.util.stream.IntStream;
 
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -92,6 +90,10 @@ public class NidSet
       super(members);
    }
 
+   public NidSet(Concurrency concurrency) {
+      super(concurrency);
+   }
+
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -107,23 +109,14 @@ public class NidSet
    /**
     * Of.
     *
-    * @param conceptSequenceSet the concept sequence set
-    * @return the nid set
-    */
-   public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
-      final IdentifierService sp = Get.identifierService();
-
-      return new NidSet(conceptSequenceSet.stream().map((sequence) -> sp.getConceptNid(sequence)));
-   }
-
-   /**
-    * Of.
-    *
     * @param members the members
     * @return the nid set
     */
    public static NidSet of(int... members) {
       return new NidSet(members);
+   }
+   public static NidSet concurrent() {
+      return new NidSet(Concurrency.THREAD_SAFE);
    }
 
    /**
@@ -139,35 +132,22 @@ public class NidSet
    /**
     * Of.
     *
+    * @param another the other NidSet
+    * @return the nid set
+    */
+   public static NidSet of(NidSet another) {
+      return new NidSet(another.stream());
+   }
+
+   /**
+    * Of.
+    *
     * @param members the members
     * @return the nid set
     */
    public static NidSet of(OpenIntHashSet members) {
       return new NidSet(members);
    }
-
-   /**
-    * Of.
-    *
-    * @param semanticSequenceSet the semantic sequence set
-    * @return the nid set
-    */
-   public static NidSet of(SemanticSequenceSet semanticSequenceSet) {
-      final IdentifierService sp = Get.identifierService();
-
-      return new NidSet(semanticSequenceSet.stream().map((sequence) -> sp.getSemanticNid(sequence)));
-   }
-
-   /**
-    * Of all component nids.
-    *
-    * @return the nid set
-    */
-   public static NidSet ofAllComponentNids() {
-      return new NidSet(IntStream.rangeClosed(IdentifierService.FIRST_NID, Get.identifierService().getMaxNid()));
-   }
-
-   ;
 
    //~--- methods -------------------------------------------------------------
 

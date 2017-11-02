@@ -94,6 +94,9 @@ public enum VersionType {
    
    /** A concept version */
    CONCEPT((byte) 9, "Concept", "CONCEPT"),
+   
+   /** An RF2 relationship for backwards compatibility. */
+   RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
 
    /** An unknown type of version. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");

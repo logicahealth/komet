@@ -93,7 +93,8 @@ public class IsaacExternalizableUnparsed {
    public IsaacExternalizable parse() {
       switch (this.type) {
       case CONCEPT:
-         return ConceptChronologyImpl.make(this.data);
+         ConceptChronologyImpl temp = ConceptChronologyImpl.make(this.data);
+         return temp;
 
       case SEMANTIC:
          return SemanticChronologyImpl.make(this.data);

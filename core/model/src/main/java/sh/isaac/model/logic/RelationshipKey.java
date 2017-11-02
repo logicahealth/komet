@@ -41,9 +41,7 @@ package sh.isaac.model.logic;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.PrimitiveIterator;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.LogicNode;
 
 //~--- classes ----------------------------------------------------------------

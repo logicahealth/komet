@@ -454,7 +454,7 @@ public class TaxonomyRecordPrimitive
     * @return the parent sequences
     */
    public int[] getParentSequences(ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getConceptSequencesForType(tc.getIsaConceptSequence(), tc);
+      return getTaxonomyRecordUnpacked().getConceptSequencesForType(tc.getIsaConceptNid(), tc);
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -73,21 +73,25 @@ public class ObservableLogicCoordinateImpl
    /** The logic coordinate. */
    LogicCoordinateImpl logicCoordinate;
 
-   /** The stated assemblage sequence property. */
+   /** The stated assemblage nid property. */
    @XmlTransient
-   IntegerProperty statedAssemblageSequenceProperty;
+   IntegerProperty statedAssemblageNidProperty;
 
-   /** The inferred assemblage sequence property. */
+   /** The inferred assemblage nid property. */
    @XmlTransient
-   IntegerProperty inferredAssemblageSequenceProperty;
+   IntegerProperty inferredAssemblageNidProperty;
 
-   /** The description logic profile sequence property. */
+   /** The description logic profile nid property. */
    @XmlTransient
-   IntegerProperty descriptionLogicProfileSequenceProperty;
+   IntegerProperty descriptionLogicProfileNidProperty;
 
-   /** The classifier sequence property. */
+   /** The classifier nid property. */
    @XmlTransient
-   IntegerProperty classifierSequenceProperty;
+   IntegerProperty classifierNidProperty;
+
+   /** The concept assemblage nid property. */
+   @XmlTransient
+   IntegerProperty conceptAssemblageNidProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -114,39 +118,49 @@ public class ObservableLogicCoordinateImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Classifier sequence property.
+    * Classifier nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty classifierSequenceProperty() {
-      if (this.classifierSequenceProperty == null) {
-         this.classifierSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
-               getClassifierSequence());
-         addListenerReference(this.logicCoordinate.setClassifierSequenceProperty(this.classifierSequenceProperty));
+   public IntegerProperty classifierNidProperty() {
+      if (this.classifierNidProperty == null) {
+         this.classifierNidProperty = new SimpleIntegerProperty(this,
+               ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               getClassifierNid());
+         addListenerReference(this.logicCoordinate.setClassifierNidProperty(this.classifierNidProperty));
       }
 
-      return this.classifierSequenceProperty;
+      return this.classifierNidProperty;
+   }
+
+   @Override
+   public IntegerProperty conceptAssemblageNidProperty() {
+      if (this.conceptAssemblageNidProperty == null) {
+         this.conceptAssemblageNidProperty = new SimpleIntegerProperty(this,
+               ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               getClassifierNid());
+         addListenerReference(this.logicCoordinate.setConceptAssemblageNidProperty(this.conceptAssemblageNidProperty));
+      }
+
+      return this.classifierNidProperty;
    }
 
    /**
-    * Description logic profile sequence property.
+    * Description logic profile nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty descriptionLogicProfileSequenceProperty() {
-      if (this.descriptionLogicProfileSequenceProperty == null) {
-         this.descriptionLogicProfileSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
-               getDescriptionLogicProfileSequence());
-         addListenerReference(
-             this.logicCoordinate.setDescriptionLogicProfileSequenceProperty(
-                 this.descriptionLogicProfileSequenceProperty));
+   public IntegerProperty descriptionLogicProfileNidProperty() {
+      if (this.descriptionLogicProfileNidProperty == null) {
+         this.descriptionLogicProfileNidProperty = new SimpleIntegerProperty(this,
+               ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               getDescriptionLogicProfileNid());
+         addListenerReference(this.logicCoordinate.setDescriptionLogicProfileNidProperty(this.descriptionLogicProfileNidProperty));
       }
 
-      return this.descriptionLogicProfileSequenceProperty;
+      return this.descriptionLogicProfileNidProperty;
    }
 
    /**
@@ -157,6 +171,9 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public boolean equals(Object obj) {
+      if (!this.getClass().isAssignableFrom(obj.getClass())) {
+         throw new IllegalStateException("Object: " + obj + " is not assignable from: " + this.getClass());
+      }
       return this.logicCoordinate.equals(obj);
    }
 
@@ -171,39 +188,37 @@ public class ObservableLogicCoordinateImpl
    }
 
    /**
-    * Inferred assemblage sequence property.
+    * Inferred assemblage nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty inferredAssemblageSequenceProperty() {
-      if (this.inferredAssemblageSequenceProperty == null) {
-         this.inferredAssemblageSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
-               getInferredAssemblageSequence());
+   public IntegerProperty inferredAssemblageNidProperty() {
+      if (this.inferredAssemblageNidProperty == null) {
+         this.inferredAssemblageNidProperty = new SimpleIntegerProperty(this,
+               ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               getInferredAssemblageNid());
       }
 
-      addListenerReference(
-          this.logicCoordinate.setInferredAssemblageSequenceProperty(this.inferredAssemblageSequenceProperty));
-      return this.inferredAssemblageSequenceProperty;
+      addListenerReference(this.logicCoordinate.setInferredAssemblageNidProperty(this.inferredAssemblageNidProperty));
+      return this.inferredAssemblageNidProperty;
    }
 
    /**
-    * Stated assemblage sequence property.
+    * Stated assemblage nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty statedAssemblageSequenceProperty() {
-      if (this.statedAssemblageSequenceProperty == null) {
-         this.statedAssemblageSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
-               getStatedAssemblageSequence());
-         addListenerReference(
-             this.logicCoordinate.setStatedAssemblageSequenceProperty(this.statedAssemblageSequenceProperty));
+   public IntegerProperty statedAssemblageNidProperty() {
+      if (this.statedAssemblageNidProperty == null) {
+         this.statedAssemblageNidProperty = new SimpleIntegerProperty(this,
+               ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               getStatedAssemblageNid());
+         addListenerReference(this.logicCoordinate.setStatedAssemblageNidProperty(this.statedAssemblageNidProperty));
       }
 
-      return this.statedAssemblageSequenceProperty;
+      return this.statedAssemblageNidProperty;
    }
 
    /**
@@ -219,59 +234,72 @@ public class ObservableLogicCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the classifier sequence.
+    * Gets the classifier nid.
     *
-    * @return the classifier sequence
+    * @return the classifier nid
     */
    @Override
-   public int getClassifierSequence() {
-      if (this.classifierSequenceProperty != null) {
-         return this.classifierSequenceProperty.get();
+   public int getClassifierNid() {
+      if (this.classifierNidProperty != null) {
+         return this.classifierNidProperty.get();
       }
 
-      return this.logicCoordinate.getClassifierSequence();
+      return this.logicCoordinate.getClassifierNid();
+   }
+  /**
+    * Gets the concept assemblage nid.
+    *
+    * @return the classifier nid
+    */
+   @Override
+   public int getConceptAssemblageNid() {
+      if (this.conceptAssemblageNidProperty != null) {
+         return this.conceptAssemblageNidProperty.get();
+      }
+
+      return this.logicCoordinate.getConceptAssemblageNid();
    }
 
    /**
-    * Gets the description logic profile sequence.
+    * Gets the description logic profile nid.
     *
-    * @return the description logic profile sequence
+    * @return the description logic profile nid
     */
    @Override
-   public int getDescriptionLogicProfileSequence() {
-      if (this.descriptionLogicProfileSequenceProperty != null) {
-         return this.descriptionLogicProfileSequenceProperty.get();
+   public int getDescriptionLogicProfileNid() {
+      if (this.descriptionLogicProfileNidProperty != null) {
+         return this.descriptionLogicProfileNidProperty.get();
       }
 
-      return this.logicCoordinate.getDescriptionLogicProfileSequence();
+      return this.logicCoordinate.getDescriptionLogicProfileNid();
    }
 
    /**
-    * Gets the inferred assemblage sequence.
+    * Gets the inferred assemblage nid.
     *
-    * @return the inferred assemblage sequence
+    * @return the inferred assemblage nid
     */
    @Override
-   public int getInferredAssemblageSequence() {
-      if (this.inferredAssemblageSequenceProperty != null) {
-         return this.inferredAssemblageSequenceProperty.get();
+   public int getInferredAssemblageNid() {
+      if (this.inferredAssemblageNidProperty != null) {
+         return this.inferredAssemblageNidProperty.get();
       }
 
-      return this.logicCoordinate.getInferredAssemblageSequence();
+      return this.logicCoordinate.getInferredAssemblageNid();
    }
 
    /**
-    * Gets the stated assemblage sequence.
+    * Gets the stated assemblage nid.
     *
-    * @return the stated assemblage sequence
+    * @return the stated assemblage nid
     */
    @Override
-   public int getStatedAssemblageSequence() {
-      if (this.statedAssemblageSequenceProperty != null) {
-         return this.statedAssemblageSequenceProperty.get();
+   public int getStatedAssemblageNid() {
+      if (this.statedAssemblageNidProperty != null) {
+         return this.statedAssemblageNidProperty.get();
       }
 
-      return this.logicCoordinate.getStatedAssemblageSequence();
+      return this.logicCoordinate.getStatedAssemblageNid();
    }
    
    

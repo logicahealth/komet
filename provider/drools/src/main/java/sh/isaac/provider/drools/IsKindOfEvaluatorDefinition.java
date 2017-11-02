@@ -17,8 +17,6 @@
 package sh.isaac.provider.drools;
 
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.drools.core.base.BaseEvaluator;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
@@ -80,8 +78,8 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
               ManifoldCoordinate manifoldCoordinate = parentKind;
               
               return this.getOperator().isNegated()
-                      ^ (Get.taxonomyService().getSnapshot(manifoldCoordinate).get().isKindOf(possibleKind.getConceptSequence(),
-                              parentKind.getConceptSequence()));
+                      ^ (Get.taxonomyService().getSnapshot(manifoldCoordinate).get().isKindOf(possibleKind.getNid(),
+                              parentKind.getNid()));
            } catch (InterruptedException | ExecutionException ex) {
               throw new RuntimeException(ex);
            }

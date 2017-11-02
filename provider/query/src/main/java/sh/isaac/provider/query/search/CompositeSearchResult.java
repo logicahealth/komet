@@ -321,7 +321,7 @@ public class CompositeSearchResult {
     */
    private Optional<ConceptSnapshot> locateContainingConcept(int componentNid) {
       final ObjectChronologyType type = Get.identifierService()
-                                           .getChronologyTypeForNid(componentNid);
+                                           .getOldChronologyTypeForNid(componentNid);
 
       if (null == type) {
          throw new RuntimeException("oops");

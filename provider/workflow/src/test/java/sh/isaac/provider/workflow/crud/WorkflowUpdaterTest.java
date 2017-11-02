@@ -126,7 +126,7 @@ public class WorkflowUpdaterTest
       Assert.assertFalse(details.getComponentToInitialEditMap()
                                 .keySet()
                                 .contains(firstConceptNid));
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
@@ -138,15 +138,15 @@ public class WorkflowUpdaterTest
       Assert.assertTrue(details.getComponentToInitialEditMap()
                                .keySet()
                                .contains(secondConceptNid));
-      Assert.assertEquals(RoleConfigurator.getFirstTestUserSeq(),
+      Assert.assertEquals(RoleConfigurator.getFirstTestUserNid(),
                           details.getComponentToInitialEditMap()
                                  .get(firstConceptNid)
-                                 .getAuthorSequence());
-      Assert.assertEquals(RoleConfigurator.getFirstTestUserSeq(),
+                                 .getAuthorNid());
+      Assert.assertEquals(RoleConfigurator.getFirstTestUserNid(),
                           details.getComponentToInitialEditMap()
                                  .get(secondConceptNid)
-                                 .getAuthorSequence());
-      addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserSeq(), State.ACTIVE);
+                                 .getAuthorNid());
+      addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserNid(), State.ACTIVE);
       details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
@@ -158,14 +158,14 @@ public class WorkflowUpdaterTest
       Assert.assertTrue(details.getComponentToInitialEditMap()
                                .keySet()
                                .contains(secondConceptNid));
-      Assert.assertEquals(RoleConfigurator.getSecondTestUserSeq(),
+      Assert.assertEquals(RoleConfigurator.getSecondTestUserNid(),
                           details.getComponentToInitialEditMap()
                                  .get(firstConceptNid)
-                                 .getAuthorSequence());
-      Assert.assertEquals(RoleConfigurator.getSecondTestUserSeq(),
+                                 .getAuthorNid());
+      Assert.assertEquals(RoleConfigurator.getSecondTestUserNid(),
                           details.getComponentToInitialEditMap()
                                  .get(secondConceptNid)
-                                 .getAuthorSequence());
+                                 .getAuthorNid());
    }
 
    /**
@@ -181,7 +181,7 @@ public class WorkflowUpdaterTest
             throws Exception {
       final UUID processId = createFirstWorkflowProcess(mainDefinitionId);
 
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       executeLaunchWorkflow(processId);
 
       // Process in Ready to Edit state: Can execute action "Edit" by
@@ -242,8 +242,8 @@ public class WorkflowUpdaterTest
       Assert.assertEquals(0, details.getComponentToInitialEditMap()
                                     .keySet()
                                     .size());
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
-      addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserNid(), State.ACTIVE);
       details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()

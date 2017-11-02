@@ -1898,7 +1898,7 @@ public class RxNormMojo
    private void prepareSCTMaps()
             throws SQLException {
       Get.assemblageService()
-         .getSemanticChronologySequencesFromAssemblage(MetaData.SCTID____SOLOR.getConceptSequence())
+         .getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid())
          .stream()
          .forEach(sememe -> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })

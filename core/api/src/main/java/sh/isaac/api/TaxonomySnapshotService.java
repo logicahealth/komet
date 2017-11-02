@@ -44,7 +44,8 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
 
@@ -81,7 +82,7 @@ public interface TaxonomySnapshotService {
     * @param rootId the root id
     * @return the kind of sequence set
     */
-   ConceptSequenceSet getKindOfSequenceSet(int rootId);
+   NidSet getKindOfSequenceSet(int rootId);
 
    /**
     * Gets the roots.
@@ -96,7 +97,7 @@ public interface TaxonomySnapshotService {
     * @param parentId the parent id
     * @return the taxonomy child sequences
     */
-   int[] getTaxonomyChildSequences(int parentId);
+   int[] getTaxonomyChildNids(int parentId);
 
    /**
     * Gets the taxonomy parent sequences.
@@ -104,7 +105,7 @@ public interface TaxonomySnapshotService {
     * @param childId the child id
     * @return the taxonomy parent sequences
     */
-   int[] getTaxonomyParentSequences(int childId);
+   int[] getTaxonomyParentNids(int childId);
 
    /**
     * Gets the taxonomy tree.

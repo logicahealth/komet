@@ -172,7 +172,7 @@ public class IsaacTaxonomy {
       try {
          final ConceptBuilder cb = createConcept(cc.getPrimaryName(),
                  (cc.getParent() != null) ? cc.getParent()
-                 .getConceptSequence()
+                 .getNid()
                  : null,
                  null);
 
@@ -274,9 +274,9 @@ public class IsaacTaxonomy {
       final int stampSequence = Get.stampService()
               .getStampSequence(State.ACTIVE,
                       exportTime,
-                      this.authorSpec.getConceptSequence(),
-                      this.moduleSpec.getConceptSequence(),
-                      this.pathSpec.getConceptSequence());
+                      this.authorSpec.getNid(),
+                      this.moduleSpec.getNid(),
+                      this.pathSpec.getNid());
       final CommitService commitService = Get.commitService();
       final AssemblageService assemblageService = Get.assemblageService();
       final ConceptService conceptService = Get.conceptService();
@@ -294,9 +294,9 @@ public class IsaacTaxonomy {
       final int stampAliasForPromotion = Get.stampService()
               .getStampSequence(State.ACTIVE,
                       exportTime + (1000 * 60),
-                      this.authorSpec.getConceptSequence(),
-                      this.moduleSpec.getConceptSequence(),
-                      this.pathSpec.getConceptSequence());
+                      this.authorSpec.getNid(),
+                      this.moduleSpec.getNid(),
+                      this.pathSpec.getNid());
 
       commitService.addAlias(stampSequence, stampAliasForPromotion, "promoted by maven");
 
@@ -397,7 +397,7 @@ public class IsaacTaxonomy {
    protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
       this.semanticBuilders.add(Get.semanticBuilderService()
               .getMembershipSemanticBuilder(pathConcept.getNid(),
-                      pathAssemblageConcept.getConceptSequence()));
+                      pathAssemblageConcept.getNid()));
    }
 
    /**
@@ -596,6 +596,10 @@ public class IsaacTaxonomy {
          if (builtObject instanceof ConceptChronology) {
             conceptService.writeConcept(
                     (ConceptChronology) builtObject);
+            ConceptChronology restored = conceptService.getConceptChronology(((ConceptChronology) builtObject).getNid());
+            if (restored.getAssemblageNid() >= 0) {
+               System.out.println("Bad restore of: " + restored);
+            }
          } else if (builtObject instanceof SemanticChronology) {
             assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
          } else {

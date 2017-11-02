@@ -43,8 +43,6 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -55,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -91,7 +88,7 @@ public class RelationshipIsCircular
    String relTypeSubsumptionKey;
 
    /** The rel type set. */
-   ConceptSequenceSet relTypeSet;
+   NidSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
@@ -141,13 +138,13 @@ public class RelationshipIsCircular
          relTypeSubsumption = true;
       }
 
-      this.relTypeSet = new ConceptSequenceSet();
-      this.relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new NidSet();
+      this.relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
          try {
             this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                    .getKindOfSequenceSet(relType.getConceptSequence()));
+                    .getKindOfSequenceSet(relType.getNid()));
          } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
          }
@@ -172,7 +169,6 @@ public class RelationshipIsCircular
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

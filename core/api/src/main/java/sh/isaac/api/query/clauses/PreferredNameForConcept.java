@@ -42,7 +42,6 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -53,7 +52,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -106,7 +104,7 @@ public class PreferredNameForConcept
       final StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
       final NidSet             outgoingPreferredNids = new NidSet();
 
-      getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> ConceptSequenceSet.of(childPossibleComponentNids)).forEach((conceptSequenceSet) -> {
+      getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptSequenceSet) -> {
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptSequenceSet)
                                   .forEach((conceptChronology) -> {

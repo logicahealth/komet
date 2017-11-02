@@ -85,9 +85,9 @@ public class FullClassification
          EditCoordinate        editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
          final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
 
-         editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierSequence(),
-               editCoordinate.getModuleSequence(),
-               editCoordinate.getModuleSequence());
+         editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierNid(),
+               editCoordinate.getModuleNid(),
+               editCoordinate.getModuleNid());
 
          final Task<ClassifierResults> classifyTask =
             logicService.getClassifierService(StampCoordinates.getDevelopmentLatest(),

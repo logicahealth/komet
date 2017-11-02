@@ -94,14 +94,6 @@ public interface LanguageCoordinateService {
     */
    int iso639toConceptNid(String iso639text);
 
-   /**
-    * Iso 639 to concept sequence.
-    *
-    * @param iso639text the iso 639 text
-    * @return the int
-    */
-   int iso639toConceptSequence(String iso639text);
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -109,14 +101,14 @@ public interface LanguageCoordinateService {
     *
     * @return the acceptable concept sequence
     */
-   int getAcceptableConceptSequence();
+   int getAcceptableConceptNid();
 
    /**
     * Gets the fully specified concept sequence.
     *
     * @return the fully specified concept sequence
     */
-   int getFullySpecifiedConceptSequence();
+   int getFullySpecifiedConceptNid();
 
    /**
     * Gets the gb english language preferred term coordinate.
@@ -130,7 +122,7 @@ public interface LanguageCoordinateService {
     *
     * @return the preferred concept sequence
     */
-   int getPreferredConceptSequence();
+   int getPreferredConceptNid();
 
    /**
     * Gets the specified description.
@@ -163,7 +155,7 @@ public interface LanguageCoordinateService {
     *
     * @return the synonym concept sequence
     */
-   int getSynonymConceptSequence();
+   int getSynonymConceptNid();
 
    /**
     * Gets the us english language fully specified name coordinate.

@@ -39,7 +39,7 @@ public class TreeTableAuthorTimeCell extends KometTreeTableCell<ObservableCatego
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
-        setText(manifold.getPreferredDescriptionText(version.getAuthorSequence()) + "\n" +
+        setText(manifold.getPreferredDescriptionText(version.getAuthorNid()) + "\n" +
                 formatter.format(Instant.ofEpochMilli(version.getTime()).atZone(ZoneOffset.UTC))
         );
    }

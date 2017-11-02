@@ -59,7 +59,6 @@ import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 
 //~--- classes ----------------------------------------------------------------
@@ -248,7 +247,7 @@ public class ConcurrentSequenceIntMap {
     * @param conceptSequenceSet the concept sequence set
     * @return the component nids for concept nids
     */
-   public NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet) {
+   public NidSet getComponentNidsForConceptNids(NidSet conceptSequenceSet) {
       final NidSet conceptNids   = NidSet.of(conceptSequenceSet);
       final NidSet results       = new NidSet();
       final int    componentSize = this.size.get();

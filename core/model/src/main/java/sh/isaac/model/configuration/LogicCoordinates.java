@@ -62,7 +62,9 @@ public class LogicCoordinates {
       return new LogicCoordinateLazyBinding(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
             TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
             TermAux.EL_PLUS_PLUS_LOGIC_PROFILE,
-            TermAux.SNOROCKET_CLASSIFIER);
+            TermAux.SNOROCKET_CLASSIFIER,
+            TermAux.SOLOR_CONCEPT_ASSEMBLAGE
+      );
    }
 }
 

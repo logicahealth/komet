@@ -91,7 +91,7 @@ import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.StampService;
@@ -212,11 +212,11 @@ public class ConceptDetailPanelNode
       if (conceptDetailManifold.getFocusedConcept() != null) {
          ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept();
          ConceptChronology    focusedConcept     = Get.concept(focusedConceptSpec);
-         SemanticSequenceSet    recursiveSemantics   = focusedConcept.getRecursiveSemanticSequences();
+         NidSet    recursiveSemantics   = focusedConcept.getRecursiveSemanticNids();
 
          if (commitRecord.getConceptsInCommit()
                          .contains(conceptDetailManifold.getFocusedConcept()
-                               .getConceptSequence())) {
+                               .getNid())) {
             Platform.runLater(
                 () -> {
                    setConcept(
@@ -225,7 +225,7 @@ public class ConceptDetailPanelNode
                        conceptDetailManifold.focusedConceptProperty()
                                             .get());
                 });
-         } else if (!recursiveSemantics.and(commitRecord.getSemanticSequencesInCommit())
+         } else if (!recursiveSemantics.and(commitRecord.getSemanticNidsInCommit())
                                      .isEmpty()) {
             Platform.runLater(
                 () -> {
@@ -314,7 +314,7 @@ public class ConceptDetailPanelNode
 
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                                                                       .getObservableConceptChronology(
-                                                                            newValue.getConceptSequence());
+                                                                            newValue.getNid());
          final ParallelTransition parallelTransition = new ParallelTransition();
 
          addChronology(observableConceptChronology, parallelTransition);
@@ -328,7 +328,7 @@ public class ConceptDetailPanelNode
                            .add(addNode(descriptionHeader));
 
          // Sort them...
-         observableConceptChronology.getObservableSememeList()
+         observableConceptChronology.getObservableSemanticList()
                                     .filtered((sememeChronology) -> {
                                            switch (sememeChronology.getVersionType()) {
                                            case DESCRIPTION:
@@ -359,13 +359,13 @@ public class ConceptDetailPanelNode
                                                  DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList()
                                                                                                  .get(0);
 
-                                                 if (dv1.getDescriptionTypeConceptSequence() ==
-                                                     dv2.getDescriptionTypeConceptSequence()) {
+                                                 if (dv1.getDescriptionTypeConceptNid() ==
+                                                     dv2.getDescriptionTypeConceptNid()) {
                                                     return 0;
                                                  }
 
-                                                 if (dv1.getDescriptionTypeConceptSequence() ==
-                                                     MetaData.FULLY_QUALIFIED_NAME____SOLOR.getConceptSequence()) {
+                                                 if (dv1.getDescriptionTypeConceptNid() ==
+                                                     MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid()) {
                                                     return -1;
                                                  }
 
@@ -376,12 +376,12 @@ public class ConceptDetailPanelNode
 
                                            case LOGIC_GRAPH:
                                               if (o2.getVersionType() == VersionType.LOGIC_GRAPH) {
-                                                 if (o1.getAssemblageSequence() == o2.getAssemblageSequence()) {
+                                                 if (o1.getAssemblageNid() == o2.getAssemblageNid()) {
                                                     return 0;
                                                  }
 
-                                                 if (o1.getAssemblageSequence() ==
-                                                     conceptDetailManifold.getInferredAssemblageSequence()) {
+                                                 if (o1.getAssemblageNid() ==
+                                                     conceptDetailManifold.getInferredAssemblageNid()) {
                                                     return -1;
                                                  }
 

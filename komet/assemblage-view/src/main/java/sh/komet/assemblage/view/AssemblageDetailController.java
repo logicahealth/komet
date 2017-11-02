@@ -139,7 +139,7 @@ public class AssemblageDetailController {
                        .add(historicTreeItem);
             }
             if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSememeList(), addSememes);
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
             }
          }
       }
@@ -153,7 +153,7 @@ public class AssemblageDetailController {
       } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                  .getObservableConceptChronology(
-                         newValue.getConceptSequence());
+                         newValue.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
                          manifold);
@@ -161,7 +161,7 @@ public class AssemblageDetailController {
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          ObservableList<ObservableSemanticChronology> children = FXCollections.observableArrayList();
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-         Get.assemblageService().getSemanticChronologySequencesFromAssemblage(observableConceptChronology.getNid())
+         Get.assemblageService().getSemanticNidsFromAssemblage(observableConceptChronology.getNid())
                  .stream().forEach((sememeId) -> 
                  children.add(observableChronologyService.getObservableSememeChronology(sememeId)));
          addChildren(assemblageRoot, children, true);

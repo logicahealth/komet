@@ -50,21 +50,21 @@ public interface EditCoordinate extends Coordinate {
     *
     * @return the author sequence
     */
-   int getAuthorSequence();
+   int getAuthorNid();
 
    /**
     * Gets the module sequence.
     *
     * @return the module sequence
     */
-   int getModuleSequence();
+   int getModuleNid();
 
    /**
     * Gets the path sequence.
     *
     * @return the path sequence
     */
-   int getPathSequence();
+   int getPathNid();
 
    @Override
    public EditCoordinate deepClone();

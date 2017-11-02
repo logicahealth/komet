@@ -70,7 +70,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -97,7 +97,7 @@ public class StampCoordinateImpl
 
    /** The module sequences. */
    @XmlJavaTypeAdapter(ConceptSequenceSetAdapter.class)
-   ConceptSequenceSet moduleSequences;
+   NidSet moduleSequences;
 
    /** The allowed states. */
    @XmlJavaTypeAdapter(EnumSetAdapter.class)
@@ -122,7 +122,7 @@ public class StampCoordinateImpl
     */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
-                              ConceptSequenceSet moduleSequences,
+                              NidSet moduleSequences,
                               EnumSet<State> allowedStates) {
       this.stampPrecedence = stampPrecedence;
       this.stampPosition   = stampPosition;
@@ -130,7 +130,7 @@ public class StampCoordinateImpl
       this.allowedStates   = allowedStates;
 
       if (this.moduleSequences == null) {
-         this.moduleSequences = new ConceptSequenceSet();
+         this.moduleSequences = new NidSet();
       }
    }
 
@@ -148,8 +148,8 @@ public class StampCoordinateImpl
                               EnumSet<State> allowedStates) {
       this(stampPrecedence,
            stampPosition,
-           ConceptSequenceSet.of(moduleSpecifications.stream()
-                 .mapToInt((spec) -> spec.getConceptSequence())),
+           NidSet.of(moduleSpecifications.stream()
+                 .mapToInt((spec) -> spec.getNid())),
            allowedStates);
    }
 
@@ -303,7 +303,7 @@ public class StampCoordinateImpl
     * @return the module sequences
     */
    @Override
-   public ConceptSequenceSet getModuleSequences() {
+   public NidSet getModuleNids() {
       return this.moduleSequences;
    }
 
@@ -321,7 +321,7 @@ public class StampCoordinateImpl
                                                                     boolean sizeChanged,
                                                                     int from,
                                                                     int to) -> {
-               this.moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
+               this.moduleSequences = NidSet.of(observableArray.toArray(new int[observableArray.size()]));
             };
 
       moduleSequencesProperty.getValue()
@@ -395,7 +395,7 @@ public class StampCoordinateImpl
     * The Class ConceptSequenceSetAdapter.
     */
    private static class ConceptSequenceSetAdapter
-           extends XmlAdapter<int[], ConceptSequenceSet> {
+           extends XmlAdapter<int[], NidSet> {
       /**
        * Marshal.
        *
@@ -403,7 +403,7 @@ public class StampCoordinateImpl
        * @return the int[]
        */
       @Override
-      public int[] marshal(ConceptSequenceSet c) {
+      public int[] marshal(NidSet c) {
          return c.asArray();
       }
 
@@ -415,9 +415,9 @@ public class StampCoordinateImpl
        * @throws Exception the exception
        */
       @Override
-      public ConceptSequenceSet unmarshal(int[] v)
+      public NidSet unmarshal(int[] v)
                throws Exception {
-         return ConceptSequenceSet.of(v);
+         return NidSet.of(v);
       }
    }
 
@@ -459,7 +459,7 @@ public class StampCoordinateImpl
    public StampCoordinateImpl deepClone() {
       StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
                               stampPosition.deepClone(),
-                              new ConceptSequenceSet(moduleSequences.stream()),
+                              NidSet.of(moduleSequences.stream()),
                               EnumSet.copyOf(allowedStates));
       return newCoordinate;
    }

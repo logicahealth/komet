@@ -67,8 +67,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
@@ -192,17 +191,17 @@ public class ChangeSetWriterHandler
                                try {
                                   if ((commitRecord.getConceptsInCommit() != null) &&
                                       (commitRecord.getConceptsInCommit().size() > 0)) {
-                                     sequenceSetChange(commitRecord.getConceptsInCommit());
+                                     conceptNidSetChange(commitRecord.getConceptsInCommit());
                                      LOG.debug("handle Post Commit: {} concepts",
                                                commitRecord.getConceptsInCommit()
                                                      .size());
                                   }
 
-                                  if ((commitRecord.getSemanticSequencesInCommit() != null) &&
-                                      (commitRecord.getSemanticSequencesInCommit().size() > 0)) {
-                                     sequenceSetChange(commitRecord.getSemanticSequencesInCommit());
+                                  if ((commitRecord.getSemanticNidsInCommit() != null) &&
+                                      (commitRecord.getSemanticNidsInCommit().size() > 0)) {
+                                     semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
                                      LOG.debug("handle Post Commit: {} sememes",
-                                               commitRecord.getSemanticSequencesInCommit()
+                                               commitRecord.getSemanticNidsInCommit()
                                                      .size());
                                   }
                                } catch (final Exception e) {
@@ -251,7 +250,7 @@ public class ChangeSetWriterHandler
 
    /*
     */
-   private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
+   private void conceptNidSetChange(NidSet conceptSequenceSet) {
       conceptSequenceSet.stream().forEach((conceptSequence) -> {
                                     final ConceptChronology concept = Get.conceptService()
                                                                                                       .getConceptChronology(
@@ -273,7 +272,7 @@ public class ChangeSetWriterHandler
 
    /*
     */
-   private void sequenceSetChange(SemanticSequenceSet sememeSequenceSet) {
+   private void semanticNidSetChange(NidSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
                                    final SemanticChronology sememe = Get.assemblageService()
                                                                                                   .getSemanticChronology(

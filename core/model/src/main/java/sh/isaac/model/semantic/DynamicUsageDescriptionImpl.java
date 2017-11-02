@@ -92,7 +92,7 @@ public class DynamicUsageDescriptionImpl
    //~--- fields --------------------------------------------------------------
 
    /** The refex usage descriptor sequence. */
-   int refexUsageDescriptorSequence;
+   int refexUsageDescriptorNid;
 
    /** The sememe usage description. */
    String sememeUsageDescription;
@@ -131,7 +131,7 @@ public class DynamicUsageDescriptionImpl
       final ConceptChronology assemblageConcept = Get.conceptService()
                                                         .getConceptChronology(refexUsageDescriptorId);
 
-      this.refexUsageDescriptorSequence = assemblageConcept.getConceptSequence();
+      this.refexUsageDescriptorNid = assemblageConcept.getNid();
 
       final TreeMap<Integer, DynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
 
@@ -145,11 +145,11 @@ public class DynamicUsageDescriptionImpl
             @SuppressWarnings("rawtypes")
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
 
-            if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+            if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                final Optional<SemanticChronology> nestesdSememe = Get.assemblageService()
                                                                                                .getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(),
                                                                                                         DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
-                                                                                                              .getSequence())
+                                                                                                              .getNid())
                                                                                                .findAny();
 
                if (nestesdSememe.isPresent()) {
@@ -158,8 +158,8 @@ public class DynamicUsageDescriptionImpl
                ;
             }
 
-            if (ds.getDescriptionTypeConceptSequence() ==
-                  TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+            if (ds.getDescriptionTypeConceptNid() ==
+                  TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                this.name = ds.getText();
             }
 
@@ -190,8 +190,8 @@ public class DynamicUsageDescriptionImpl
                            final DynamicVersion       ds                  = sememeVersion.get();
                            final DynamicData[] refexDefinitionData = ds.getData();
 
-                           if (sememe.getAssemblageSequence() ==
-                               DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getSequence()) {
+                           if (sememe.getAssemblageNid()==
+                               DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid()) {
                               if ((refexDefinitionData == null) ||
                                   (refexDefinitionData.length < 3) ||
                                   (refexDefinitionData.length > 7)) {
@@ -294,8 +294,8 @@ public class DynamicUsageDescriptionImpl
                                  "a DynamicSememeData Refex Type.  The first column must have a data type of integer, and the third column must be a string " +
                                  "that is parseable as a DynamicSememeDataType");
                               }
-                           } else if (sememe.getAssemblageSequence() ==
-                           DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence()) {
+                           } else if (sememe.getAssemblageNid() ==
+                           DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
                               if ((refexDefinitionData == null) || (refexDefinitionData.length < 1)) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
@@ -388,7 +388,7 @@ public class DynamicUsageDescriptionImpl
 
       final DynamicUsageDescriptionImpl other = (DynamicUsageDescriptionImpl) obj;
 
-      if (this.refexUsageDescriptorSequence != other.refexUsageDescriptorSequence) {
+      if (this.refexUsageDescriptorNid != other.refexUsageDescriptorNid) {
          return false;
       }
 
@@ -406,7 +406,7 @@ public class DynamicUsageDescriptionImpl
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + this.refexUsageDescriptorSequence;
+      result = prime * result + this.refexUsageDescriptorNid;
       return result;
    }
 
@@ -421,17 +421,17 @@ public class DynamicUsageDescriptionImpl
    public static DynamicUsageDescription mockOrRead(SemanticChronology sememe) {
       final DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
 
-      dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());
+      dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageNid());
       dsud.referencedComponentTypeRestriction    = null;
       dsud.referencedComponentTypeSubRestriction = null;
-      dsud.refexUsageDescriptorSequence          = sememe.getAssemblageSequence();
+      dsud.refexUsageDescriptorNid          = sememe.getAssemblageNid();
       dsud.sememeUsageDescription                = "-";
 
       switch (sememe.getVersionType()) {
       case COMPONENT_NID:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
                 DynamicDataType.NID,
@@ -445,7 +445,7 @@ public class DynamicUsageDescriptionImpl
       case LONG:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_LONG.getPrimordialUuid(),
                 DynamicDataType.LONG,
@@ -461,7 +461,7 @@ public class DynamicUsageDescriptionImpl
       case LOGIC_GRAPH:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(),
                 DynamicDataType.STRING,
@@ -477,7 +477,7 @@ public class DynamicUsageDescriptionImpl
          break;
 
       case DYNAMIC:
-         return read(sememe.getAssemblageSequence());
+         return read(sememe.getAssemblageNid());
 
       case UNKNOWN:
       default:
@@ -490,21 +490,19 @@ public class DynamicUsageDescriptionImpl
    /**
     * Read.
     *
-    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param assemblageNid the assemblage nid or sequence
     * @return the dynamic element usage description
     */
-   public static DynamicUsageDescription read(int assemblageNidOrSequence) {
+   public static DynamicUsageDescription read(int assemblageNid) {
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
       // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic element.  Perhaps
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
-      final int                         sequence = Get.identifierService()
-                                                      .getConceptSequence(assemblageNidOrSequence);
-      DynamicUsageDescriptionImpl temp     = cache.get(sequence);
+      DynamicUsageDescriptionImpl temp     = cache.get(assemblageNid);
 
       if (temp == null) {
          logger.log(Level.FINEST, "Cache miss on DynamicSememeUsageDescription Cache");
-         temp = new DynamicUsageDescriptionImpl(sequence);
-         cache.put(sequence, temp);
+         temp = new DynamicUsageDescriptionImpl(assemblageNid);
+         cache.put(assemblageNid, temp);
       }
 
       return temp;
@@ -533,22 +531,16 @@ public class DynamicUsageDescriptionImpl
    /**
     * Test if dyn sememe.
     *
-    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param assemblageNid the assemblage nid 
     * @return true, if dynamic element
     */
-   public static boolean isDynamicSememe(int assemblageNidOrSequence) {
-      if ((assemblageNidOrSequence >= 0) ||
-            (Get.identifierService().getChronologyTypeForNid(assemblageNidOrSequence) ==
-             ObjectChronologyType.CONCEPT)) {
+   public static boolean isDynamicSememe(int assemblageNid) {
          try {
-            read(assemblageNidOrSequence);
+            read(assemblageNid);
             return true;
          } catch (final Exception e) {
             return false;
          }
-      } else {
-         return false;
-      }
    }
 
    /**
@@ -590,7 +582,7 @@ public class DynamicUsageDescriptionImpl
     */
    @Override
    public int getDynamicUsageDescriptorSequence() {
-      return this.refexUsageDescriptorSequence;
+      return this.refexUsageDescriptorNid;
    }
 
    /**

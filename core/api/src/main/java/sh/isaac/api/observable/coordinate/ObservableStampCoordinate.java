@@ -71,7 +71,7 @@ public interface ObservableStampCoordinate
     *
     * @return the object property
     */
-   ObjectProperty<ObservableIntegerArray> moduleSequencesProperty();
+   ObjectProperty<ObservableIntegerArray> moduleNidProperty();
 
    /**
     * Stamp position property.

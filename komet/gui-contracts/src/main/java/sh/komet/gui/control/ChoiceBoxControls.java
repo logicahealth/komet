@@ -41,7 +41,7 @@ public class ChoiceBoxControls {
 
       ObservableList<ConceptSpecification> choiceList = FXCollections.observableArrayList();
       for (ConceptSpecification choice: choices) {
-         choiceList.add(new ConceptForControlWrapper(manifold, choice.getConceptSequence()));
+         choiceList.add(new ConceptForControlWrapper(manifold, choice.getNid()));
       }
       ChoiceBox<ConceptSpecification> choiceBox = new ChoiceBox<>(choiceList);
       choiceBox.setValue(choiceList.get(0));

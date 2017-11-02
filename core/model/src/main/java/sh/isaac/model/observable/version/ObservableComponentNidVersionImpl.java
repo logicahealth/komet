@@ -74,7 +74,7 @@ public class ObservableComponentNidVersionImpl
    public IntegerProperty componentNidProperty() {
       if (this.componentNidProperty == null) {
          this.componentNidProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.COMPONENT_NID_FOR_SEMEME.toExternalString(),
+               ObservableFields.COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                getComponentNid());
          this.componentNidProperty.addListener((observable, oldValue, newValue) -> {
             ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(newValue.intValue());

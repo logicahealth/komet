@@ -16,7 +16,6 @@
  */
 package sh.isaac.provider.bdb.chronology;
 
-import com.sleepycat.je.Database;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -24,7 +23,6 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +33,7 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SemanticSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -44,6 +42,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
@@ -56,7 +55,6 @@ public class BdbSemanticProvider implements AssemblageService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-   private Database database;
 
    @Override
    public void clearDatabaseValidityValue() {
@@ -80,7 +78,6 @@ public class BdbSemanticProvider implements AssemblageService {
    private void startMe() {
       LOG.info("Starting semantic provider.");
       bdb = Get.service(BdbProvider.class);
-      this.database = bdb.getSemanticDatabase();
    }
 
    /**
@@ -93,14 +90,18 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public void writeSemanticChronology(SemanticChronology semanticChronicle) {
-      BdbProvider.writeChronologyData(this.database, (ChronologyImpl) semanticChronicle);
+      bdb.writeChronologyData((ChronologyImpl) semanticChronicle);
    }
 
    @Override
    public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
-         final SemanticSequenceSet sequences = getSemanticChronologySequencesForComponentFromAssemblage(
+     if (componentNid >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
+      }
+      
+      final NidSet sequences = getSemanticNidsForComponentFromAssemblage(
                                                 componentNid,
-                                                      TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+                                                      TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid());
       final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(
                                                          sememeSequence);
 
@@ -116,31 +117,17 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticId) {
-      if (hasSemantic(semanticId)) {
-         return Optional.of(getSemanticChronology(semanticId));
+   public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticNid) {
+      if (Get.identifierService().getAssemblageNid(semanticNid).isPresent()) {
+         return Optional.of(getSemanticChronology(semanticNid));
       }
       return Optional.empty();
    }
 
    @Override
-   public Stream<SemanticChronology> getParallelSemanticChronologyStream() {
-      return StreamSupport.stream(new CursorChronologySpliterator(database, 
-              Get.identifierService().getMaxSemanticSequence()), true)
-              .map((byteBuffer) -> { 
-                 IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
-                 return SemanticChronologyImpl.make(byteBuffer); 
-              }
-              );
-   }
-
-   @Override
    public SemanticChronology getSemanticChronology(int semanticId) {
-      if (semanticId < 0) {
-         semanticId = Get.identifierService()
-                        .getSemanticSequence(semanticId);
-      }
-      Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(this.database, semanticId);
+       Optional<ByteArrayDataBuffer> optionalByteBuffer = 
+              bdb.getChronologyData(semanticId);
       if (optionalByteBuffer.isPresent()) {
          ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
          IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
@@ -150,72 +137,61 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public boolean hasSemantic(int semanticId) {
-      return BdbProvider.hasKey(this.database, semanticId);
-   }
-
-   @Override
    public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return StreamSupport.stream(new CursorChronologySpliterator(database, 
-              Get.identifierService().getMaxSemanticSequence()), false)
-               .map((byteBuffer) -> { 
-                 IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
-                 return SemanticChronologyImpl.make(byteBuffer); 
-              });
+      return getSemanticNidStream().mapToObj((value) -> {
+         return getSemanticChronology(value); 
+      });
   }
 
    @Override
-   public int getSemanticChronologyCount() {
-      return (int) getSemanticChronologyKeyParallelStream().count(); 
+   public IntStream getSemanticNidStream() {
+      return ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC);
    }
 
    @Override
-   public IntStream getSemanticChronologyKeyParallelStream() {
-       return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxSemanticSequence()),
-              true);
-  }
-
-   @Override
-   public IntStream getSemanticChronologyKeyStream() {
-      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxSemanticSequence()),
-              false);
-   }
-
-   @Override
-   public SemanticSequenceSet getSemanticChronologySequencesForComponent(int componentNid) {
+   public NidSet getSemanticNidsForComponent(int componentNid) {
       AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
 
-      return SemanticSequenceSet.of(indexService.getAttachmentNidsForComponent(componentNid));
+      return NidSet.of(indexService.getAttachmentNidsForComponent(componentNid));
    }
 
    @Override
-   public SemanticSequenceSet getSemanticChronologySequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
+   public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
      if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-
-      assemblageConceptSequence = Get.identifierService()
-                                     .getConceptSequence(assemblageConceptSequence);
-
+     if (assemblageNid >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
+      }
       AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
 
-      return SemanticSequenceSet.of(
-          indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageConceptSequence));
+      return NidSet.of(
+          indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageNid));
    }
 
    @Override
-   public SemanticSequenceSet getSemanticChronologySequencesFromAssemblage(int assemblageConceptSequence) {
-      assemblageConceptSequence = Get.identifierService()
-                                     .getConceptSequence(assemblageConceptSequence);
+   public NidSet getSemanticNidsFromAssemblage(int assemblageNid) {
+      return NidSet.of(ModelGet.identifierService().getNidsForAssemblage(assemblageNid));
+   }
 
-      AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
+   @Override
+   public IntStream getSemanticNidStream(int assemblageNid) {
+      return ModelGet.identifierService().getNidsForAssemblage(assemblageNid);
+   }
 
-      return SemanticSequenceSet.of(indexService.getAttachmentNidsInAssemblage(assemblageConceptSequence));
+   @Override
+   public int getSemanticCount() {
+      return (int) ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC).count();
+   }
+
+   @Override
+   public int getSemanticCount(int assemblageNid) {
+      return (int) ModelGet.identifierService().getNidsForAssemblage(assemblageNid).count();
    }
 
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-      return getSemanticChronologySequencesForComponent(componentNid).stream()
+      return getSemanticNidsForComponent(componentNid).stream()
             .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
    }
 
@@ -225,12 +201,7 @@ public class BdbSemanticProvider implements AssemblageService {
          throw new UnsupportedOperationException("Can't substitute a sequence for a nid: " + componentNid);
       }
 
-      if (assemblageConceptSequence < 0) {
-         assemblageConceptSequence = Get.identifierService()
-                                        .getConceptSequence(assemblageConceptSequence);
-      }
-
-      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesForComponentFromAssemblage(
+      final NidSet sememeSequences = getSemanticNidsForComponentFromAssemblage(
                                                       componentNid,
                                                             assemblageConceptSequence);
 
@@ -240,7 +211,7 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
-      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesFromAssemblage(
+      final NidSet sememeSequences = getSemanticNidsFromAssemblage(
                                                       assemblageConceptSequence);
 
       return sememeSequences.stream()

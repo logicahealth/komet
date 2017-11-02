@@ -389,6 +389,12 @@ public class TermAux {
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
    public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
   
+   public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "concepts", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
+   public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR oncept assemblage", "SOLOR concepts", UUID.fromString("6559ac67-6d85-4166-b311-b5b13a7f1502"));
+   public static ConceptSpecification SNOMED_CONCEPT_ASSEMBLAGE = new ConceptProxy("SNOMED concept assemblage", "SNOMED concepts", UUID.fromString("aece2344-ee28-4b69-86cf-ffd33e6c1852"));
+   public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("9b576b97-cf3b-4388-832b-0dddc9d51d5f"));
+   public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("1486a8ad-adbc-4494-bfc5-1ef2ec3b2936"));
+   public static ConceptSpecification RF2_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 relationship assemblage", "RF2 relationships", UUID.fromString("7daba83d-40d1-4d55-8e83-3e2dd7c0bd29"));
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -397,25 +403,22 @@ public class TermAux {
     * @param initialCaseSignificant the initial case significant
     * @return the int
     */
-   public static int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
+   public static int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
       if (initialCaseSignificant) {
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.DESCRIPTION_CASE_SENSITIVE.getUuids());
-      }
+         return Get.identifierService().getNidForUuids(TermAux.DESCRIPTION_CASE_SENSITIVE.getUuids());
+       }
 
       return Get.identifierService()
-                .getConceptSequenceForUuids(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getUuids());
+                .getNidForUuids(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getUuids());
    }
 
    /**
     * Concept id to case significance.
     *
-    * @param id the id
+    * @param nid the id
     * @return true, if successful
     */
-   public static boolean conceptIdToCaseSignificance(int id) {
-      final int nid = Get.identifierService()
-                         .getConceptNid(id);
+   public static boolean conceptIdToCaseSignificance(int nid) {
 
       return TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid() == nid;
    }
@@ -425,102 +428,102 @@ public class TermAux {
    /**
     * Gets the concept specification for language sequence.
     *
-    * @param languageConceptSequence the language concept sequence
+    * @param languageConceptNid the language concept sequence
     * @return the concept specification for language sequence
     */
-   public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptSequence) {
-      if (languageConceptSequence == ENGLISH_LANGUAGE.getConceptSequence()) {
+   public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptNid) {
+      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
          return ENGLISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == SPANISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
          return SPANISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == FRENCH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == FRENCH_LANGUAGE.getNid()) {
          return FRENCH_LANGUAGE;
       }
 
-      if (languageConceptSequence == DANISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == DANISH_LANGUAGE.getNid()) {
          return DANISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == POLISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == POLISH_LANGUAGE.getNid()) {
          return POLISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == DUTCH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == DUTCH_LANGUAGE.getNid()) {
          return DUTCH_LANGUAGE;
       }
 
-      if (languageConceptSequence == LITHUANIAN_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == LITHUANIAN_LANGUAGE.getNid()) {
          return LITHUANIAN_LANGUAGE;
       }
 
-      if (languageConceptSequence == CHINESE_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == CHINESE_LANGUAGE.getNid()) {
          return CHINESE_LANGUAGE;
       }
 
-      if (languageConceptSequence == JAPANESE_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == JAPANESE_LANGUAGE.getNid()) {
          return JAPANESE_LANGUAGE;
       }
 
-      if (languageConceptSequence == SWEDISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == SWEDISH_LANGUAGE.getNid()) {
          return SWEDISH_LANGUAGE;
       }
 
-      return Get.conceptSpecification(languageConceptSequence);
+      return Get.conceptSpecification(languageConceptNid);
    }
 
    /**
     * Gets the description assemblage concept sequence.
     *
-    * @param languageConceptSequence the language concept sequence
+    * @param languageConceptNid the language concept sequence
     * @return the description assemblage concept sequence
     */
-   public static int getDescriptionAssemblageConceptSequence(int languageConceptSequence) {
-      if (languageConceptSequence == ENGLISH_LANGUAGE.getConceptSequence()) {
-         return ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+   public static int getDescriptionAssemblageConceptSequence(int languageConceptNid) {
+      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
+         return ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == SPANISH_LANGUAGE.getConceptSequence()) {
-         return SPANISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
+         return SPANISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == FRENCH_LANGUAGE.getConceptSequence()) {
-         return FRENCH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == FRENCH_LANGUAGE.getNid()) {
+         return FRENCH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == DANISH_LANGUAGE.getConceptSequence()) {
-         return DANISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == DANISH_LANGUAGE.getNid()) {
+         return DANISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == POLISH_LANGUAGE.getConceptSequence()) {
-         return POLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == POLISH_LANGUAGE.getNid()) {
+         return POLISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == DUTCH_LANGUAGE.getConceptSequence()) {
-         return DUTCH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == DUTCH_LANGUAGE.getNid()) {
+         return DUTCH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == LITHUANIAN_LANGUAGE.getConceptSequence()) {
-         return LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == LITHUANIAN_LANGUAGE.getNid()) {
+         return LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == CHINESE_LANGUAGE.getConceptSequence()) {
-         return CHINESE_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == CHINESE_LANGUAGE.getNid()) {
+         return CHINESE_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == JAPANESE_LANGUAGE.getConceptSequence()) {
-         return JAPANESE_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == JAPANESE_LANGUAGE.getNid()) {
+         return JAPANESE_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == SWEDISH_LANGUAGE.getConceptSequence()) {
-         return SWEDISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == SWEDISH_LANGUAGE.getNid()) {
+         return SWEDISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
       throw new RuntimeException("No description assemblage for: " +
-                                 Get.conceptDescriptionText(languageConceptSequence));
+                                 Get.conceptDescriptionText(languageConceptNid));
    }
 }
 

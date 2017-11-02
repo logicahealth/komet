@@ -77,9 +77,12 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
 import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.model.collections.SpinedIntObjectMap;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -90,6 +93,10 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.ModelGet;
+import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
+import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -199,15 +206,15 @@ public class ImportExportTest {
 
          if (exportStats.concepts.get() != this.importStats.concepts.get()) {
             Get.conceptService()
-               .getConceptChronologyStream()
+               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid())
                .forEach((conceptChronology) -> LOG.info(conceptChronology));
          }
 
          Assert.assertEquals(exportStats.concepts.get(), this.importStats.concepts.get());
 
          // One new sememe for every concept except the root concept from classification...
-         Assert.assertEquals(exportStats.sememes.get(),
-                             this.importStats.sememes.get() + exportStats.concepts.get() - 1);
+         Assert.assertEquals(exportStats.semantics.get(),
+                             this.importStats.semantics.get() + exportStats.concepts.get() - 1);
 
          // One new stamp comment for the classify writeback
          Assert.assertEquals(exportStats.stampComments.get(), this.importStats.stampComments.get() + 1);
@@ -288,14 +295,29 @@ public class ImportExportTest {
          Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
          TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
          
+        
          final int[] roots = taxonomySnapshotService.getRoots();
-         
+         final NidSet rootAssemblages = new NidSet();
+         for (int rootNid: roots) {
+            rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
+         }
          StringBuilder rootsMessage = new StringBuilder();
+         SpinedIntObjectMap<int[]> map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
          for (int root: roots) {
             rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+            
+            int[] elementTaxonomyData = map.get(ModelGet.identifierService().getElementSequenceForNid(root));
+            TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
+            rootsMessage.append(" ");
+            rootsMessage.append(record);
+            rootsMessage.append("\n");
+         }
+         String message = rootsMessage.toString();
+         if (roots.length != 1) {
+            LOG.warn(message);
          }
          
-         Assert.assertEquals(roots.length, 1, rootsMessage.toString());
+         Assert.assertEquals(roots.length, 1, message);
          
          final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
          final AtomicInteger taxonomyCount = new AtomicInteger(0);
@@ -304,7 +326,7 @@ public class ImportExportTest {
                  (TreeNodeVisitData t,
                          int conceptSequence) -> {
                     taxonomyCount.incrementAndGet();
-                 });
+                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
          Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
          logTree(roots[0], taxonomyTree);
       } catch (InterruptedException ex) {
@@ -320,6 +342,10 @@ public class ImportExportTest {
    @Test(groups = { "load" })
    public void testLoad() {
       LOG.info("Testing load");
+      
+      int descriptionAssemblageNid = TermAux.DESCRIPTION_ASSEMBLAGE.getNid();
+      int chroniclePropertiesNid = MetaData.CHRONICLE_PROPERTIES____SOLOR.getNid();
+      int statedAssemblageNid = MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid();
 
       try {
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
@@ -331,13 +357,23 @@ public class ImportExportTest {
          reader.getStream()
                .filter(this.importStats)
                .forEach((object) -> {
+                  if (object instanceof SemanticChronology) {
+                     SemanticChronology sc = (SemanticChronology) object;
+                     if (sc.getReferencedComponentNid() == chroniclePropertiesNid || sc.getReferencedComponentNid() == descriptionAssemblageNid) {
+                        if (sc.getAssemblageNid() == statedAssemblageNid) {
+                           LOG.info("Found watch def: " + sc);
+                        }
+                        
+                     }
+                  }
                            commitService.importNoChecks(object);
                         });
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
-         this.importStats.sememes.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
+         this.importStats.semantics.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          this.importStats.stampComments.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          LOG.info("Loaded components: " + this.importStats);
+         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
       } catch (final FileNotFoundException e) {
          Assert.fail("File not found", e);
       } catch (InterruptedException ex) {
@@ -361,16 +397,50 @@ public class ImportExportTest {
          final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
                  .getDefaultManifoldCoordinate()
                  .makeCoordinateAnalog(PremiseType.STATED);
+         LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
          Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
          TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
          
          final int[] roots = taxonomySnapshotService.getRoots();
+         final NidSet rootAssemblages = new NidSet();
+         for (int rootNid: roots) {
+            rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
+         }
          StringBuilder rootsMessage = new StringBuilder();
-         for (int root: roots) {
-            rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+         int conceptAssemblageNid = rootAssemblages.findFirst().getAsInt();
+         SpinedIntObjectMap<int[]> map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(conceptAssemblageNid);
+         
+         int[] nids = Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).toArray();
+         for (int nid: nids) {
+            int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid);
+            int roundTripNid = ModelGet.identifierService().getNidForElementSequence(elementSequence, conceptAssemblageNid);
+            if (roundTripNid != nid) {
+               LOG.error("Round trip failed: " + nid + ", " + elementSequence + ", " + roundTripNid);
+            }
+ 
+            int[] elementTaxonomyData = map.get(elementSequence);
+            if (!Arrays.stream(elementTaxonomyData).anyMatch((value) -> value == nid)) {
+               TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
+               LOG.error("\n\nRecord does not contain status for self: " + Get.conceptDescriptionText(nid) + 
+                       " <" + nid + ">, " 
+                       + elementSequence + ", " + roundTripNid + " \n\n" + record + "\n");
+            }
          }
          
-         Assert.assertEquals(roots.length, 1, rootsMessage.toString());
+         for (int root: roots) {
+            rootsMessage.append("Entry for: ").append(Get.conceptDescriptionText(root)).append(" <").append(root).append("> is: ");
+            int[] elementTaxonomyData = map.get(ModelGet.identifierService().getElementSequenceForNid(root));
+            TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
+            rootsMessage.append(" ");
+            rootsMessage.append(record);
+            rootsMessage.append("\n");
+         }
+         String message = rootsMessage.toString();
+         if (roots.length != 1) {
+            LOG.warn(message);
+         }
+         
+         Assert.assertEquals(roots.length, 1, message);
          
          final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
          final AtomicInteger taxonomyCount = new AtomicInteger(0);
@@ -379,7 +449,7 @@ public class ImportExportTest {
                  (TreeNodeVisitData t,
                          int conceptSequence) -> {
                     taxonomyCount.incrementAndGet();
-                 });
+                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
          logTree(roots[0], taxonomyTree);
          Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
       } catch (InterruptedException ex) {
@@ -404,7 +474,7 @@ public class ImportExportTest {
 
                                         Arrays.fill(padding, ' ');
                                         LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
-                                     });
+                                     }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
    }
 }
 

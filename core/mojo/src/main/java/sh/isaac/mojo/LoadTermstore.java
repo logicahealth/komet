@@ -76,7 +76,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
@@ -86,6 +85,7 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
@@ -164,8 +164,8 @@ public class LoadTermstore
       Get.configurationService()
          .setDBBuildMode();
 
-      final int statedSequence = Get.identifierService()
-                                    .getConceptSequenceForUuids(
+      final int statedNid = Get.identifierService()
+                                    .getNidForUuids(
                                         TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
       final long loadTime = System.currentTimeMillis();
 
@@ -268,11 +268,10 @@ public class LoadTermstore
                         case SEMANTIC:
                            SemanticChronology sc = (SemanticChronology) object;
 
-                           if (sc.getAssemblageSequence() == statedSequence) {
-                              final SemanticSequenceSet sequences = Get.assemblageService()
-                                                                     .getSemanticChronologySequencesForComponentFromAssemblage(
-                                                                        sc.getReferencedComponentNid(),
-                                                                              statedSequence);
+                           if (sc.getAssemblageNid() == statedNid) {
+                              final NidSet sequences = Get.assemblageService()
+                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
+                                                                              statedNid);
 
                               if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
                                  duplicateCount++;
@@ -310,9 +309,9 @@ public class LoadTermstore
                                  final int stampSequence = Get.stampService()
                                                               .getStampSequence(State.ACTIVE,
                                                                     loadTime,
-                                                                    userProxy.getConceptSequence(),
-                                                                    moduleProxy.getConceptSequence(),
-                                                                    pathProxy.getConceptSequence());
+                                                                    userProxy.getNid(),
+                                                                    moduleProxy.getNid(),
+                                                                    pathProxy.getNid());
                                  final MutableLogicGraphVersion newVersion =
                                     (MutableLogicGraphVersion) existingChronology.createMutableVersion(
                                         stampSequence);
@@ -418,7 +417,7 @@ public class LoadTermstore
 
          for (final int nid: deferredActionNids) {
             if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
-                  .getChronologyTypeForNid(nid))) {
+                  .getOldChronologyTypeForNid(nid))) {
                final SemanticChronology sc = Get.assemblageService()
                                               .getSemanticChronology(nid);
 
@@ -435,8 +434,8 @@ public class LoadTermstore
 
          if (this.skippedAny) {
             // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
-            Get.identifierService()
-               .clearUnusedIds();
+//            Get.identifierService()
+//               .clearUnusedIds();
          }
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +

@@ -76,7 +76,7 @@ public interface ObservableLanguageCoordinate
     *
     * @return the integer property
     */
-   IntegerProperty languageConceptSequenceProperty();
+   IntegerProperty languageConceptNidProperty();
    
    @Override
    public ObservableLanguageCoordinate deepClone();

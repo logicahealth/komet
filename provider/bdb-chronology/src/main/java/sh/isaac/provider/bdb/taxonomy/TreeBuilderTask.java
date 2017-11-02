@@ -48,11 +48,11 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.SpinedIntObjectMap;
+import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder; 
+import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -62,12 +62,13 @@ import sh.isaac.api.tree.hashtree.HashTreeBuilder;
  */
 public class TreeBuilderTask
         extends TimedTaskWithProgressTracker<Tree> {
-   private final AtomicInteger                                 conceptsProcessed = new AtomicInteger();
-   private final int                                           conceptCount;
-   private final StampedLock                                   stampedLock;
+   private final AtomicInteger             conceptsProcessed = new AtomicInteger();
+   private String                          message           = "setting up taxonomy collection";
+   private final int                       conceptCount;
+   private final StampedLock               stampedLock;
    private final SpinedIntObjectMap<int[]> originDestinationTaxonomyRecordMap;
-   private final ManifoldCoordinate                            manifoldCoordinate;
-   private String message = "setting up taxonomy collection";
+   private final ManifoldCoordinate        manifoldCoordinate;
+   private final int                       conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -76,21 +77,25 @@ public class TreeBuilderTask
                           StampedLock stampedLock) {
       this.originDestinationTaxonomyRecordMap = originDestinationTaxonomyRecordMap;
       this.manifoldCoordinate                 = manifoldCoordinate;
-      this.conceptCount                       = Get.identifierService()
-            .getMaxConceptSequence();
+      this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
+            .getConceptAssemblageNid();
+      this.conceptCount = (int) Get.identifierService()
+                                   .getNidsForAssemblage(conceptAssemblageNid)
+                                   .count();
       this.stampedLock                        = stampedLock;
       this.addToTotalWork(conceptCount);
-      this.addToTotalWork(conceptCount/10); // adding a buffer for the DFS with cycle detection at the end... 
+      this.addToTotalWork(conceptCount / 10);  // adding a buffer for the DFS with cycle detection at the end...
       this.updateTitle("Generating taxonomy snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
-                updateMessage(message);
+             updateMessage(message);
           });
       setCompleteMessageGenerator(
           (task) -> {
              updateMessage(getState() + " in " + getFormattedDuration());
           });
-      Get.activeTasks().add(this);
+      Get.activeTasks()
+         .add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -100,42 +105,49 @@ public class TreeBuilderTask
             throws Exception {
       try {
          long stamp = this.stampedLock.tryOptimisticRead();
-         Tree tree = compute();
-         
+         Tree tree  = compute();
+
          if (this.stampedLock.validate(stamp)) {
             return tree;
          }
-         
+
          stamp = this.stampedLock.readLock();
          this.addToTotalWork(conceptCount);
+
          try {
             return compute();
          } finally {
             this.stampedLock.unlock(stamp);
          }
       } finally {
-         Get.activeTasks().remove(this);
+         Get.activeTasks()
+            .remove(this);
       }
    }
 
    private Tree compute() {
       GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
-      IntStream       conceptSequenceStream = Get.identifierService().getParallelConceptSequenceStream();
-      HashTreeBuilder graphBuilder          = conceptSequenceStream.filter(
-                                                  (conceptSequence) -> {
+      IntStream       conceptNidStream = Get.identifierService()
+                                            .getNidsForAssemblage(conceptAssemblageNid)
+                                            .parallel();
+      HashTreeBuilder graphBuilder     = conceptNidStream.filter(
+                                             (conceptNid) -> {
                completedUnitOfWork();
                return true;
             })
-                                                                   .collect(
-                                                                         () -> new HashTreeBuilder(
-                                                                               this.manifoldCoordinate),
-                                                                               collector,
-                                                                               collector);
+                                                         .collect(
+                                                               () -> new HashTreeBuilder(
+                                                                     this.manifoldCoordinate,
+                                                                           this.conceptAssemblageNid),
+                                                                     collector,
+                                                                     collector);
 
       message = "searching for redundancies and cycles";
+
       Tree tree = graphBuilder.getSimpleDirectedGraph();
+
       message = "complete";
-      completedUnitsOfWork(conceptCount/10);
+      completedUnitsOfWork(conceptCount / 10);
       return tree;
    }
 }

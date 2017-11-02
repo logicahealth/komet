@@ -40,12 +40,11 @@ package sh.isaac.provider.bdb.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
-import java.util.stream.IntStream;
+import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SpinedIntObjectMap;
+import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
@@ -100,100 +99,100 @@ public class TaxonomyRecordPrimitive {
    /**
     * Adds the concept sequence stamp record.
     *
-    * @param conceptSequenceStampRecord the concept sequence stamp record
+    * @param conceptNidStampRecord the concept sequence stamp record
     */
-   public void addConceptSequenceStampRecord(int[] conceptSequenceStampRecord) {
-      conceptSequenceStampRecord[0] = conceptSequenceStampRecord[0] + (conceptSequenceStampRecord.length << 24);
+   public void addConceptNidStampRecord(int[] conceptNidStampRecord) {
+      conceptNidStampRecord[0] = conceptNidStampRecord[0] + (conceptNidStampRecord.length << 24);
    }
 
    /**
     * Concept satisfies stamp.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept nid
     * @param stampCoordinate the stamp coordinate
     * @return true, if successful
     */
-   public boolean conceptSatisfiesStamp(int conceptSequence, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptSequence, stampCoordinate);
+   public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
+      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
    }
 
    /**
-    * Contains sequence via type.
+    * Contains nid via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequenceSet the type sequence set
+    * @param conceptNid the concept nid
+    * @param typeNidSet the type nid set
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence, ConceptSequenceSet typeSequenceSet, int flags) {
-      return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequenceSet, flags);
+   public boolean containsNidViaType(int conceptNid, NidSet typeNidSet, int flags) {
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, flags);
    }
 
    /**
-    * Contains sequence via type.
+    * Contains nid via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequenceSet the type sequence set
+    * @param conceptNid the concept nid
+    * @param typeNidSet the type nid set
     * @param tc the tc
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence,
-         ConceptSequenceSet typeSequenceSet,
+   public boolean containsNidViaType(int conceptNid,
+         NidSet typeNidSet,
          ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequenceSet, tc);
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, tc);
    }
 
    /**
-    * Contains sequence via type.
+    * Contains nid via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequence the type sequence
+    * @param conceptNid the concept nid
+    * @param typeNid the type nid
     * @param tc the tc
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequence, tc);
+   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc) {
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, tc);
    }
 
    /**
-    * Contains sequence via type.
+    * Contains nid via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequenceSet the type sequence set
+    * @param conceptNid the concept nid
+    * @param typeNidSet the type nid set
     * @param tc the tc
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence,
-         ConceptSequenceSet typeSequenceSet,
+   public boolean containsNidViaType(int conceptNid,
+         NidSet typeNidSet,
          ManifoldCoordinate tc,
          int flags) {
-      return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequenceSet, tc, flags);
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, tc, flags);
    }
 
    /**
-    * Contains sequence via type.
+    * Contains nid via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequence the type sequence
+    * @param conceptNid the concept nid
+    * @param typeNid the type nid
     * @param tc the tc
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, ManifoldCoordinate tc, int flags) {
-      return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequence, tc, flags);
+   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc, int flags) {
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, tc, flags);
    }
 
    /**
-    * Contains sequence via type with flags.
+    * Contains nid via type with flags.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequence the type sequence
+    * @param conceptNid the concept nid
+    * @param typeNid the type nid
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsSequenceViaTypeWithFlags(int conceptSequence, int typeSequence, int flags) {
-      return getTaxonomyRecordUnpacked().containsSequenceViaTypeWithFlags(conceptSequence, typeSequence, flags);
+   public boolean containsNidViaTypeWithFlags(int conceptNid, int typeNid, int flags) {
+      return getTaxonomyRecordUnpacked().containsNidViaTypeWithFlags(conceptNid, typeNid, flags);
    }
 
    /**
@@ -263,29 +262,29 @@ public class TaxonomyRecordPrimitive {
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept nid
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
-   public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptSequence, stampCoordinate);
+   public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
+      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
    }
 
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept nid
     * @param taxonomyMap the taxonomy map
     * @param sc the sc
     * @return true, if concept active
     */
-   public static boolean isConceptActive(int conceptSequence,
+   public static boolean isConceptActive(int conceptNid,
          SpinedIntObjectMap<int[]> taxonomyMap,
          StampCoordinate sc) {
-      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
-         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptSequence, sc)) {
+         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, sc)) {
             return true;
          }
       }
@@ -294,34 +293,34 @@ public class TaxonomyRecordPrimitive {
    }
 
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
     * @param index the index
-    * @return the concept sequence
+    * @return the concept nid
     */
-   public int getConceptSequence(int index) {
+   public int getConceptNid(int index) {
       return this.taxonomyData[index] & SEQUENCE_BIT_MASK;
    }
 
    /**
-    * Gets the concept sequence index.
+    * Gets the concept nid index.
     *
-    * @param conceptSequence the concept sequence
-    * @return the concept sequence index
+    * @param conceptNid the concept nid
+    * @return the concept nid index
     */
-   public int getConceptSequenceIndex(int conceptSequence) {
+   public int getConceptNidIndex(int conceptNid) {
       throw new UnsupportedOperationException();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set concept sequence stamp record length.
+    * Set concept nid stamp record length.
     *
     * @param index the index
     * @param length the length
     */
-   public void setConceptSequenceStampRecordLength(int index, int length) {
+   public void setConceptNidStampRecordLength(int index, int length) {
       this.taxonomyData[index] = this.taxonomyData[index] & SEQUENCE_BIT_MASK;
       length                   = length << 24;
       this.taxonomyData[index] = this.taxonomyData[index] + length;
@@ -330,66 +329,47 @@ public class TaxonomyRecordPrimitive {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the destination sequences.
+    * Gets the destination nids not of type.
     *
-    * @return the destination sequences
-    */
-   public IntStream getDestinationSequences() {
-      return getTaxonomyRecordUnpacked().getDestinationConceptSequences();
-   }
-
-   /**
-    * Gets the destination sequences not of type.
-    *
-    * @param typeSequenceSet the type sequence set
+    * @param typeNidSet the type nid set
     * @param tc the tc
-    * @return the destination sequences not of type
+    * @return the destination nids not of type
     */
-   public int[] getDestinationSequencesNotOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getDestinationConceptSequencesNotOfType(typeSequenceSet, tc);
+   public int[] getDestinationNidsNotOfType(NidSet typeNidSet, ManifoldCoordinate tc) {
+      return getTaxonomyRecordUnpacked().getDestinationConceptNidsNotOfType(typeNidSet, tc);
    }
 
    /**
-    * Gets the destination sequences of type.
+    * Gets the destination nids of type.
     *
-    * @param typeSequenceSet the type sequence set
-    * @return the destination sequences of type
-    */
-   public IntStream getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet) {
-      return getTaxonomyRecordUnpacked().getDestinationConceptSequencesOfType(typeSequenceSet);
-   }
-
-   /**
-    * Gets the destination sequences of type.
-    *
-    * @param typeSequenceSet the type sequence set
+    * @param typeNidSet the type nid set
     * @param tc the tc
-    * @return the destination sequences of type
+    * @return the destination nids of type
     */
-   public int[] getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getDestinationConceptSequencesOfType(typeSequenceSet, tc);
+   public int[] getDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate tc) {
+      return getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(typeNidSet, tc);
    }
 
    /**
     * Gets the if active via type.
     *
-    * @param conceptSequence the concept sequence
-    * @param typeSequence the type sequence
+    * @param conceptNid the concept nid
+    * @param typeNid the type nid
     * @param taxonomyMap the taxonomy map
     * @param vp the vp
     * @param flags the flags
     * @return the if active via type
     */
-   public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptSequence,
-         int typeSequence,
+   public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptNid,
+         int typeNid,
          SpinedIntObjectMap<int[]> taxonomyMap,
          ManifoldCoordinate vp,
          int flags) {
-      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
-         if (record.containsSequenceViaType(conceptSequence, typeSequence, vp, flags)) {
+         if (record.containsNidViaType(conceptNid, typeNid, vp, flags)) {
             return Optional.of(record);
          }
       }
@@ -400,19 +380,19 @@ public class TaxonomyRecordPrimitive {
    /**
     * Gets the if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept nid
     * @param taxonomyMap the taxonomy map
     * @param vp the vp
     * @return the if concept active
     */
-   public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptSequence,
+   public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptNid,
          SpinedIntObjectMap<int[]> taxonomyMap,
          ManifoldCoordinate vp) {
-      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
-         if (record.containsSequenceViaType(conceptSequence, conceptSequence, vp, TaxonomyFlag.CONCEPT_STATUS.bits)) {
+         if (record.containsNidViaType(conceptNid, conceptNid, vp, TaxonomyFlag.CONCEPT_STATUS.bits)) {
             return Optional.of(record);
          }
       }
@@ -421,34 +401,25 @@ public class TaxonomyRecordPrimitive {
    }
 
    /**
-    * Gets the parent sequences.
-    *
-    * @return the parent sequences
-    */
-   public IntStream getParentSequences() {
-      return getTaxonomyRecordUnpacked().getParentConceptSequences();
-   }
-
-   /**
-    * Gets the parent sequences.
+    * Gets the parent nids.
     *
     * @param tc the tc
-    * @return the parent sequences
+    * @return the parent nids
     */
-   public int[] getParentSequences(ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getConceptSequencesForType(tc.getIsaConceptSequence(), tc);
+   public int[] getParentNids(ManifoldCoordinate tc) {
+      return getTaxonomyRecordUnpacked().getConceptNidsForType(tc.getIsaConceptNid(), tc);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set sequence.
+    * Set nid.
     *
     * @param index the index
-    * @param sequence the sequence
+    * @param nid the nid
     */
-   public void setSequence(int index, int sequence) {
-      this.taxonomyData[index] = sequence;
+   public void setNid(int index, int nid) {
+      this.taxonomyData[index] = nid;
    }
 
    //~--- get methods ---------------------------------------------------------

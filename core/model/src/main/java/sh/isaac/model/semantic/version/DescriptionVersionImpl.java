@@ -61,16 +61,16 @@ public class DescriptionVersionImpl
         extends AbstractVersionImpl
          implements MutableDescriptionVersion {
    /** The case significance concept sequence. */
-   protected int caseSignificanceConceptSequence;
+   protected int caseSignificanceConceptNid;
 
    /** The language concept sequence. */
-   protected int languageConceptSequence;
+   protected int languageConceptNid;
 
    /** The text. */
    protected String text;
 
    /** The description type concept sequence. */
-   protected int descriptionTypeConceptSequence;
+   protected int descriptionTypeConceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -96,17 +96,17 @@ public class DescriptionVersionImpl
                                 int stampSequence,
                                 ByteArrayDataBuffer data) {
       super(chronicle, stampSequence);
-      this.caseSignificanceConceptSequence = data.getConceptSequence();
-      this.languageConceptSequence         = data.getConceptSequence();
+      this.caseSignificanceConceptNid = data.getNid();
+      this.languageConceptNid         = data.getNid();
       this.text                            = data.readUTF();
-      this.descriptionTypeConceptSequence  = data.getConceptSequence();
+      this.descriptionTypeConceptNid  = data.getNid();
    }
    private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
-      this.caseSignificanceConceptSequence = other.caseSignificanceConceptSequence;
-      this.languageConceptSequence         = other.languageConceptSequence;
+      this.caseSignificanceConceptNid = other.caseSignificanceConceptNid;
+      this.languageConceptNid         = other.languageConceptNid;
       this.text                            = other.text;
-      this.descriptionTypeConceptSequence  = other.descriptionTypeConceptSequence;
+      this.descriptionTypeConceptNid  = other.descriptionTypeConceptNid;
    }
 
    @Override
@@ -115,9 +115,9 @@ public class DescriptionVersionImpl
                                    .getStampSequence(
                                        this.getState(),
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       this.getModuleNid(),
+                                       ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
 
@@ -141,21 +141,18 @@ public class DescriptionVersionImpl
         .append(this.text)
         .append(", rc: ")
         .append(getReferencedComponentNid())
+        .append(" ")
+        .append(Get.conceptDescriptionText(this.caseSignificanceConceptNid))
         .append(" <")
-        .append(Get.identifierService()
-                   .getConceptSequence(getReferencedComponentNid()))
+        .append(this.caseSignificanceConceptNid)
         .append(">, ")
-        .append(Get.conceptDescriptionText(this.caseSignificanceConceptSequence))
+        .append(Get.conceptDescriptionText(this.languageConceptNid))
         .append(" <")
-        .append(this.caseSignificanceConceptSequence)
+        .append(this.languageConceptNid)
         .append(">, ")
-        .append(Get.conceptDescriptionText(this.languageConceptSequence))
+        .append(Get.conceptDescriptionText(this.descriptionTypeConceptNid))
         .append(" <")
-        .append(this.languageConceptSequence)
-        .append(">, ")
-        .append(Get.conceptDescriptionText(this.descriptionTypeConceptSequence))
-        .append(" <")
-        .append(this.descriptionTypeConceptSequence)
+        .append(this.descriptionTypeConceptNid)
         .append(">");
       toString(sb);
       sb.append("≥D}");
@@ -170,10 +167,10 @@ public class DescriptionVersionImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putConceptSequence(this.caseSignificanceConceptSequence);
-      data.putConceptSequence(this.languageConceptSequence);
+      data.putNid(this.caseSignificanceConceptNid);
+      data.putNid(this.languageConceptNid);
       data.putUTF(this.text);
-      data.putConceptSequence(this.descriptionTypeConceptSequence);
+      data.putNid(this.descriptionTypeConceptNid);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -184,8 +181,8 @@ public class DescriptionVersionImpl
     * @return the case significance concept sequence
     */
    @Override
-   public int getCaseSignificanceConceptSequence() {
-      return this.caseSignificanceConceptSequence;
+   public int getCaseSignificanceConceptNid() {
+      return this.caseSignificanceConceptNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -193,11 +190,11 @@ public class DescriptionVersionImpl
    /**
     * Sets the case significance concept sequence.
     *
-    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    * @param caseSignificanceConceptNid the new case significance concept sequence
     */
    @Override
-   public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
-      this.caseSignificanceConceptSequence = caseSignificanceConceptSequence;
+   public void setCaseSignificanceConceptNid(int caseSignificanceConceptNid) {
+      this.caseSignificanceConceptNid = caseSignificanceConceptNid;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -208,8 +205,8 @@ public class DescriptionVersionImpl
     * @return the description type concept sequence
     */
    @Override
-   public int getDescriptionTypeConceptSequence() {
-      return this.descriptionTypeConceptSequence;
+   public int getDescriptionTypeConceptNid() {
+      return this.descriptionTypeConceptNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -217,11 +214,11 @@ public class DescriptionVersionImpl
    /**
     * Sets the description type concept sequence.
     *
-    * @param descriptionTypeConceptSequence the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept sequence
     */
    @Override
-   public void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence) {
-      this.descriptionTypeConceptSequence = descriptionTypeConceptSequence;
+   public void setDescriptionTypeConceptNid(int descriptionTypeConceptNid) {
+      this.descriptionTypeConceptNid = descriptionTypeConceptNid;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -232,8 +229,8 @@ public class DescriptionVersionImpl
     * @return the language concept sequence
     */
    @Override
-   public int getLanguageConceptSequence() {
-      return this.languageConceptSequence;
+   public int getLanguageConceptNid() {
+      return this.languageConceptNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -241,11 +238,11 @@ public class DescriptionVersionImpl
    /**
     * Sets the language concept sequence.
     *
-    * @param languageConceptSequence the new language concept sequence
+    * @param languageConceptNid the new language concept sequence
     */
    @Override
-   public void setLanguageConceptSequence(int languageConceptSequence) {
-      this.languageConceptSequence = languageConceptSequence;
+   public void setLanguageConceptNid(int languageConceptNid) {
+      this.languageConceptNid = languageConceptNid;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -284,13 +281,13 @@ public class DescriptionVersionImpl
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
-      if (this.caseSignificanceConceptSequence != otherImpl.caseSignificanceConceptSequence) {
+      if (this.caseSignificanceConceptNid != otherImpl.caseSignificanceConceptNid) {
          editDistance++;
       }
-      if (this.descriptionTypeConceptSequence != otherImpl.descriptionTypeConceptSequence) {
+      if (this.descriptionTypeConceptNid != otherImpl.descriptionTypeConceptNid) {
          editDistance++;
       }
-      if (this.languageConceptSequence != otherImpl.languageConceptSequence) {
+      if (this.languageConceptNid != otherImpl.languageConceptNid) {
          editDistance++;
       }
       if (!this.text.equals(otherImpl.text)) {
@@ -305,13 +302,13 @@ public class DescriptionVersionImpl
          return false;
       }
       DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
-      if (this.caseSignificanceConceptSequence != otherImpl.caseSignificanceConceptSequence) {
+      if (this.caseSignificanceConceptNid != otherImpl.caseSignificanceConceptNid) {
          return false;
       }
-      if (this.descriptionTypeConceptSequence != otherImpl.descriptionTypeConceptSequence) {
+      if (this.descriptionTypeConceptNid != otherImpl.descriptionTypeConceptNid) {
          return false;
       }
-      if (this.languageConceptSequence != otherImpl.languageConceptSequence) {
+      if (this.languageConceptNid != otherImpl.languageConceptNid) {
          return false;
       }
       return this.text.equals(otherImpl.text);

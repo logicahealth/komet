@@ -40,6 +40,7 @@ package sh.isaac.model.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
@@ -257,8 +258,15 @@ public class ConceptBuilderImpl
    public ConceptChronology build(int stampCoordinate,
            List<Chronology> builtObjects)
            throws IllegalStateException {
-      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConceptChronology(getUuids());
+      
+      
+      UUID[] uuids = getUuids();
+      int nid = Get.identifierService().getNidForUuids(uuids);
+      // TODO handle assemblage nid properly, by adding it to the builder. 
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      for (int i = 1; i < uuids.length; i++) {
+         conceptChronology.addAdditionalUuids(uuids[i]);
+      }
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
@@ -285,13 +293,13 @@ public class ConceptBuilderImpl
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
          this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
          this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       this.sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
@@ -313,8 +321,13 @@ public class ConceptBuilderImpl
            List<Chronology> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConceptChronology(getUuids());
+      // TODO handle assemblage nid properly, by adding it to the builder. 
+      UUID[] uuids = getUuids();
+      int nid = Get.identifierService().getNidForUuids(uuids);
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      for (int i = 1; i < uuids.length; i++) {
+         conceptChronology.addAdditionalUuids(uuids[i]);
+      }
 
       conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);
@@ -343,13 +356,13 @@ public class ConceptBuilderImpl
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
          this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
          this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,

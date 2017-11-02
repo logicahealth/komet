@@ -52,12 +52,6 @@ import sh.isaac.api.commit.CommittableComponent;
  */
 public interface SemanticComponent
         extends CommittableComponent {
-   /**
-    * Gets the assemblage sequence.
-    *
-    * @return concept sequence for the concept that identifies this assemblage.
-    */
-   int getAssemblageSequence();
 
    /**
     * Gets the referenced component nid.
@@ -68,11 +62,5 @@ public interface SemanticComponent
     */
    int getReferencedComponentNid();
 
-   /**
-    * Gets the semantic sequence.
-    *
-    * @return unique sequential identifier >= 0 for this sememe.
-    */
-   int getSemanticSequence();
 }
 

@@ -50,7 +50,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -108,9 +107,9 @@ public class Not
       this.forSet = this.enclosingQuery.getForSet();
       assert this.forSet != null;
 
-      final ConceptSequenceSet activeSet = new ConceptSequenceSet();
+      final NidSet activeSet = new NidSet();
 
-      Get.conceptService().getConceptChronologyStream(ConceptSequenceSet.of(incomingComponents)).forEach((ConceptChronology cc) -> {
+      Get.conceptService().getConceptChronologyStream(incomingComponents).forEach((ConceptChronology cc) -> {
                      final LatestVersion<ConceptVersion> latestVersion =
                         cc.getLatestVersion(getEnclosingQuery().getStampCoordinate());
 

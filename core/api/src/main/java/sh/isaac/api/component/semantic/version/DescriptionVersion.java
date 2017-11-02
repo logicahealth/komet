@@ -55,21 +55,21 @@ public interface DescriptionVersion
     *
     * @return the case significance concept sequence
     */
-   int getCaseSignificanceConceptSequence();
+   int getCaseSignificanceConceptNid();
 
    /**
     * Gets the description type concept sequence.
     *
     * @return the description type concept sequence
     */
-   int getDescriptionTypeConceptSequence();
+   int getDescriptionTypeConceptNid();
 
    /**
     * Gets the language concept sequence.
     *
     * @return the language concept sequence
     */
-   int getLanguageConceptSequence();
+   int getLanguageConceptNid();
 
    /**
     * Gets the text.

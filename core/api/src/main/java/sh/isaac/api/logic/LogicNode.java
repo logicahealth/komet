@@ -49,7 +49,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;

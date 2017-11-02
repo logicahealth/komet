@@ -87,7 +87,7 @@ public interface LanguageCoordinate extends Coordinate {
    public default boolean isFQNPreferred() {
       for (final int descType : getDescriptionTypePreferenceList()) {
          if (descType
-                 == Get.identifierService().getConceptSequenceForUuids(
+                 == Get.identifierService().getNidForUuids(
                          TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getPrimordialUuid())) {
             return true;
          }
@@ -146,7 +146,7 @@ public interface LanguageCoordinate extends Coordinate {
     *
     * @return the language concept sequence
     */
-   int getLanguageConceptSequence();
+   int getLanguageConceptNid();
 
    /**
     * Gets the preferred latestDescription.
@@ -183,7 +183,7 @@ public interface LanguageCoordinate extends Coordinate {
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
-         switch (Get.identifierService().getChronologyTypeForNid(conceptId)) {
+         switch (Get.identifierService().getOldChronologyTypeForNid(conceptId)) {
             case CONCEPT:
                // returned below
                break;

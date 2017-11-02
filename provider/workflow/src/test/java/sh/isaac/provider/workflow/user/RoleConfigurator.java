@@ -48,6 +48,7 @@ import java.util.UUID;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserRole;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -57,11 +58,6 @@ import sh.isaac.api.UserRole;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class RoleConfigurator {
-   /** The Constant firstUserId (for Unit Testing). */
-   private static final UUID firstUserId = UUID.randomUUID();
-
-   /** The Constant secondUserId (for Unit Testing). */
-   private static final UUID secondUserId = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
 
@@ -82,10 +78,10 @@ public class RoleConfigurator {
 
       roles.add(UserRole.EDITOR);
       roles.add(UserRole.APPROVER);
-      rolesService.addUser(firstUserId, roles);
+      rolesService.addUser(TermAux.USER.getUuids()[0], roles);
       roles = new HashSet<>();
       roles.add(UserRole.REVIEWER);
-      rolesService.addUser(secondUserId, roles);
+      rolesService.addUser(TermAux.IHTSDO_CLASSIFIER.getUuids()[0], roles);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -96,7 +92,7 @@ public class RoleConfigurator {
     * @return the first test user
     */
    public static UUID getFirstTestUser() {
-      return firstUserId;
+      return TermAux.USER.getUuids()[0];
    }
 
    /**
@@ -104,8 +100,8 @@ public class RoleConfigurator {
     *
     * @return the first test user seq
     */
-   public static int getFirstTestUserSeq() {
-      return 1;
+   public static int getFirstTestUserNid() {
+      return TermAux.USER.getNid();
    }
 
    /**
@@ -114,7 +110,7 @@ public class RoleConfigurator {
     * @return the second test user
     */
    public static UUID getSecondTestUser() {
-      return secondUserId;
+      return TermAux.IHTSDO_CLASSIFIER.getUuids()[0];
    }
 
    /**
@@ -122,8 +118,8 @@ public class RoleConfigurator {
     *
     * @return the second test user seq
     */
-   public static int getSecondTestUserSeq() {
-      return 2;
+   public static int getSecondTestUserNid() {
+      return TermAux.IHTSDO_CLASSIFIER.getNid();
    }
 }
 

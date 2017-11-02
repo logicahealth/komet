@@ -83,14 +83,9 @@ public class ObservableSemanticChronologyImpl
    private static final Logger LOG = LogManager.getLogger();
 
    /**
-    * The sequence property.
+    * The assemblage nid property.
     */
-   private IntegerProperty semanticSequenceProperty;
-
-   /**
-    * The assemblage sequence property.
-    */
-   private IntegerProperty assemblageSequenceProperty;
+   private IntegerProperty assemblageNidProperty;
 
    /**
     * The referenced component nid property.
@@ -118,14 +113,14 @@ public class ObservableSemanticChronologyImpl
     * @return the integer property
     */
    @Override
-   public IntegerProperty assemblageSequenceProperty() {
-      if (this.assemblageSequenceProperty == null) {
-         this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
-                 getAssemblageSequence());
+   public IntegerProperty assemblageNidProperty() {
+      if (this.assemblageNidProperty == null) {
+         this.assemblageNidProperty = new CommitAwareIntegerProperty(this,
+                 ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
+                 getAssemblageNid());
       }
 
-      return this.assemblageSequenceProperty;
+      return this.assemblageNidProperty;
    }
 
    /**
@@ -160,27 +155,11 @@ public class ObservableSemanticChronologyImpl
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
+                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
                  getReferencedComponentNid());
       }
 
       return this.referencedComponentNidProperty;
-   }
-
-   /**
-    * Sememe sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty semanticSequenceProperty() {
-      if (this.semanticSequenceProperty == null) {
-         this.semanticSequenceProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
-                 getSemanticSequence());
-      }
-
-      return this.semanticSequenceProperty;
    }
 
    @Override
@@ -224,17 +203,17 @@ public class ObservableSemanticChronologyImpl
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the assemblage sequence.
+    * Gets the assemblage nid.
     *
-    * @return the assemblage sequence
+    * @return the assemblage nid
     */
    @Override
-   public int getAssemblageSequence() {
-      if (this.assemblageSequenceProperty != null) {
-         return this.assemblageSequenceProperty.get();
+   public int getAssemblageNid() {
+      if (this.assemblageNidProperty != null) {
+         return this.assemblageNidProperty.get();
       }
 
-      return getSemanticChronology().getAssemblageSequence();
+      return getSemanticChronology().getAssemblageNid();
    }
 
    /**
@@ -267,20 +246,6 @@ public class ObservableSemanticChronologyImpl
       }
 
       return getSemanticChronology().getReferencedComponentNid();
-   }
-
-   /**
-    * Gets the sequence.
-    *
-    * @return the sequence
-    */
-   @Override
-   public int getSemanticSequence() {
-      if (this.semanticSequenceProperty != null) {
-         return this.semanticSequenceProperty.get();
-      }
-
-      return getSemanticChronology().getSemanticSequence();
    }
 
    /**

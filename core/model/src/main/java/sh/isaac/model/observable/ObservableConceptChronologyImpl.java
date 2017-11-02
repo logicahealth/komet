@@ -82,8 +82,6 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl
          implements ObservableConceptChronology {
-   /** The concept sequence property. */
-   private IntegerProperty conceptSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,23 +98,6 @@ public class ObservableConceptChronologyImpl
       return (ConceptChronology) this.chronicledObjectLocal;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Concept sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty conceptSequenceProperty() {
-      if (this.conceptSequenceProperty == null) {
-         this.conceptSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.CONCEPT_SEQUENCE_FOR_CHRONICLE.toExternalString(),
-               getConceptSequence());
-      }
-
-      return this.conceptSequenceProperty;
-   }
 
    /**
     * Contains active description.
@@ -171,21 +152,6 @@ public class ObservableConceptChronologyImpl
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   @Override
-   public int getConceptSequence() {
-      if (this.conceptSequenceProperty != null) {
-         return this.conceptSequenceProperty.get();
-      }
-
-      return this.getConceptChronology().getConceptSequence();
-   }
 
    /**
     * Gets the fully specified description.

@@ -47,10 +47,11 @@ import java.util.function.ObjIntConsumer;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SpinedIntObjectMap;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.model.collections.SpinedIntObjectMap;
+import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,10 +66,10 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
    /** The isa concept sequence. */
-   private final int ISA_CONCEPT_SEQUENCE = TermAux.IS_A.getConceptSequence();
+   private final int ISA_CONCEPT_NID = TermAux.IS_A.getNid();
 
    /** The watch list. */
-   ConceptSequenceSet watchList = new ConceptSequenceSet();
+   NidSet watchList = new NidSet();
 
    /** The taxonomy map. */
    final SpinedIntObjectMap<int[]> taxonomyMap;
@@ -114,26 +115,26 @@ public class GraphCollector
     * Accept.
     *
     * @param graphBuilder the graph builder
-    * @param originSequence the origin sequence
+    * @param originNid the origin sequence
     */
    @Override
-   public void accept(HashTreeBuilder graphBuilder, int originSequence) {
+   public void accept(HashTreeBuilder graphBuilder, int originNid) {
+      int originSequence = ModelGet.identifierService().getElementSequenceForNid(originNid);
       final int[] taxonomyData = this.taxonomyMap.get(originSequence);
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
          // For debugging.
-         if (this.watchList.contains(originSequence)) {
+         if (this.watchList.contains(originNid)) {
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
-
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
          final int[] destinationStream =
-            taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
+            taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
                                                               this.manifoldCoordinate);
 
          for (int destinationSequence: destinationStream) {
-            graphBuilder.add(destinationSequence, originSequence);
+            graphBuilder.add(destinationSequence, originNid);
          }
       }
    }
@@ -147,7 +148,7 @@ public class GraphCollector
    public final void addToWatchList(String uuid)
             throws RuntimeException {
       this.watchList.add(Get.identifierService()
-                            .getConceptSequenceForUuids(UUID.fromString(uuid)));
+                            .getNidForUuids(UUID.fromString(uuid)));
    }
 
    /**

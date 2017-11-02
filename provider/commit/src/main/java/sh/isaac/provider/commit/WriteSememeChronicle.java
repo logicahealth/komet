@@ -100,7 +100,7 @@ public class WriteSememeChronicle
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and notify sememe change");
-      updateMessage("write: " + sc.getVersionType() + " " + sc.getSemanticSequence());
+      updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -121,10 +121,10 @@ public class WriteSememeChronicle
       try {
          Get.assemblageService()
             .writeSemanticChronology(this.sc);
-         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getSemanticSequence());
+         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + this.sc.getAssemblageSequence());
+         updateMessage("notifying: " + this.sc.getAssemblageNid());
          this.changeListeners.forEach((listenerRef) -> {
             try {
                final ChronologyChangeListener listener = listenerRef.get();
@@ -139,7 +139,7 @@ public class WriteSememeChronicle
             }
                                       });
          updateProgress(2, 2);
-         updateMessage("complete: " + this.sc.getVersionType() + " " + this.sc.getSemanticSequence());
+         updateMessage("complete: " + this.sc.getVersionType() + " " + this.sc.getNid());
          return null;
       } finally {
          this.writeSemaphore.release();

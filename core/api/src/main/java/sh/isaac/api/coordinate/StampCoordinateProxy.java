@@ -18,7 +18,7 @@ package sh.isaac.api.coordinate;
 
 import java.util.EnumSet;
 import sh.isaac.api.State;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 
 /**
  *
@@ -40,8 +40,8 @@ public interface StampCoordinateProxy extends StampCoordinate {
    }
 
    @Override
-   public default ConceptSequenceSet getModuleSequences() {
-      return getStampCoordinate().getModuleSequences();
+   public default NidSet getModuleNids() {
+      return getStampCoordinate().getModuleNids();
    }
 
    @Override

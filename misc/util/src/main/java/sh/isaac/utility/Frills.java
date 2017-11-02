@@ -55,10 +55,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.inject.Singleton;
 
@@ -77,7 +74,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
@@ -89,13 +85,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -123,8 +119,6 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.DynamicImpl;
@@ -334,7 +328,7 @@ public class Frills
             Get.semanticBuilderService()
                .getDynamicBuilder(definitionSememe.getNid(),
                    DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
-                                         .getSequence(),
+                                         .getNid(),
                    null)
                .build(localEditCoord, ChangeCheckerMode.ACTIVE)
                .getNoThrow();
@@ -351,7 +345,7 @@ public class Frills
                Get.semanticBuilderService()
                   .getDynamicBuilder(newCon.getNid(),
                       DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
-                                            .getSequence(),
+                                            .getNid(),
                       data)
                   .build(localEditCoord, ChangeCheckerMode.ACTIVE)
                   .getNoThrow();
@@ -367,7 +361,7 @@ public class Frills
             Get.semanticBuilderService()
                .getDynamicBuilder(newCon.getNid(),
                    DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
-                                         .getSequence(),
+                                         .getNid(),
                    data)
                .build(localEditCoord, ChangeCheckerMode.ACTIVE)
                .getNoThrow();
@@ -494,10 +488,9 @@ public class Frills
       }
 
       final boolean temp = Get.assemblageService()
-                              .getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService()
-                                     .getConceptNid(conceptSequence),
+                              .getSemanticChronologyStreamForComponentFromAssemblage(conceptSequence,
                                   DynamicConstants.get().DYNAMIC_ASSOCIATION
-                                        .getConceptSequence())
+                                        .getNid())
                               .anyMatch(sememe -> true);
 
       IS_ASSOCIATION_CLASS.put(conceptSequence, temp);
@@ -527,10 +520,9 @@ public class Frills
 
       final boolean temp = Get.assemblageService()
                               .getSemanticChronologyStreamForComponentFromAssemblage(
-                                  Get.identifierService()
-                                     .getConceptNid(conceptSequence),
+                                  conceptSequence,
                                   IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
-                                        .getConceptSequence())
+                                        .getNid())
                               .anyMatch(sememe -> true);
 
       IS_MAPPING_CLASS.put(conceptSequence, temp);
@@ -575,7 +567,7 @@ public class Frills
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
-      final ConceptSequenceSet moduleSequenceSet = new ConceptSequenceSet();
+      final NidSet moduleSequenceSet = new NidSet();
 
       moduleSequenceSet.add(requiredModuleSequence);
 
@@ -635,18 +627,18 @@ public class Frills
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
 
-               if (d.getDescriptionTypeConceptSequence() ==
-                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+               if (d.getDescriptionTypeConceptNid() ==
+                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                   fqn = d.getText();
-               } else if (d.getDescriptionTypeConceptSequence() ==
-                          TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+               } else if (d.getDescriptionTypeConceptNid() ==
+                          TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnName = d.getText();
                   } else {
                      acceptableSynonym = d.getText();
                   }
-               } else if (d.getDescriptionTypeConceptSequence() ==
-                          TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+               } else if (d.getDescriptionTypeConceptNid() ==
+                          TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnDescription = d.getText();
                   } else {
@@ -708,9 +700,9 @@ public class Frills
    public static String toString(StampedVersion version) {
       return version.getClass()
                     .getSimpleName() + " STAMP=" + version.getStampSequence() + "{state=" + version.getState() +
-                                       ", time=" + version.getTime() + ", author=" + version.getAuthorSequence() +
-                                       ", module=" + version.getModuleSequence() + ", path=" +
-                                       version.getPathSequence() + "}";
+                                       ", time=" + version.getTime() + ", author=" + version.getAuthorNid() +
+                                       ", module=" + version.getModuleNid() + ", path=" +
+                                       version.getPathNid() + "}";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -736,7 +728,7 @@ public class Frills
          .getSemanticChronologyStreamForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
                 if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
-                   final int dialectSequence = nestedSememe.getAssemblageSequence();
+                   final int dialectSequence = nestedSememe.getAssemblageNid();
                    @SuppressWarnings({ "rawtypes", "unchecked" })
                    final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe).getLatestVersion(
                                                                          (stamp == null)
@@ -812,7 +804,7 @@ public class Frills
       final Set<Integer> moduleSequences = new HashSet<>();
 
       for (final StampedVersion version: chronology.getVersionList()) {
-         moduleSequences.add(version.getModuleSequence());
+         moduleSequences.add(version.getModuleNid());
       }
 
       return Collections.unmodifiableSet(moduleSequences);
@@ -832,18 +824,17 @@ public class Frills
          StampCoordinate stamp) {
       try {
          final Optional<UUID> assemblageConceptUuid = Get.identifierService()
-                                                         .getUuidPrimordialFromConceptId(assemblageConceptId);
+                                                         .getUuidPrimordialForNid(assemblageConceptId);
 
          if (!assemblageConceptUuid.isPresent()) {
             throw new RuntimeException(
                 "getUuidPrimordialFromConceptId() return empty UUID for assemblageConceptId " + assemblageConceptId);
          }
 
-         final int               componentNid = Get.identifierService()
-                                                   .getConceptNid(componentId);
+         final int               componentNid = componentId;
          final ArrayList<String> values       = new ArrayList<>(1);
          final int assemblageConceptSequence = Get.identifierService()
-                                                  .getConceptSequenceForUuids(assemblageConceptUuid.get());
+                                                  .getNidForUuids(assemblageConceptUuid.get());
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
@@ -908,7 +899,7 @@ public class Frills
     * @return true, if association
     */
    public static boolean isAssociation(SemanticChronology sc) {
-      return definesAssociation(sc.getAssemblageSequence());
+      return definesAssociation(sc.getAssemblageNid());
    }
 
    /**
@@ -938,9 +929,9 @@ public class Frills
                                                                                   conceptNid,
                                                                                         (stated
                                                                                          ? LogicCoordinates.getStandardElProfile()
-                                                                                               .getStatedAssemblageSequence()
+                                                                                               .getStatedAssemblageNid()
             : LogicCoordinates.getStandardElProfile()
-                              .getInferredAssemblageSequence()))
+                              .getInferredAssemblageNid()))
                                                                             .findAny();
 
       if (sememe.isPresent()) {
@@ -976,7 +967,7 @@ public class Frills
                          .getDefaultManifoldCoordinate()
                   : manifoldCoordinate)
                    .getConceptSnapshot(c.get()
-                                        .getConceptSequence()));
+                                        .getNid()));
          } catch (final Exception e) {
             // TODO defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
@@ -1091,7 +1082,7 @@ public class Frills
                    if (latest.isPresent()) {
                       final DescriptionVersion ds = latest.get();
 
-                      if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
+                      if (ds.getDescriptionTypeConceptNid() == descriptionType.getNid()) {
                          results.add(ds);
                       }
                    }
@@ -1174,17 +1165,15 @@ public class Frills
             // id interpreted as the id of the referenced component
             if (intId.get() > 0) {
                seq = intId.get();
-               nid = Get.identifierService()
-                        .getConceptNid(seq);
+               nid = seq;
             } else if (intId.get() < 0) {
                nid = intId.get();
-               seq = Get.identifierService()
-                        .getConceptSequence(intId.get());
+               seq = intId.get();
             }
 
             if (nid != null) {
                typeOfPassedId = Get.identifierService()
-                                   .getChronologyTypeForNid(nid);
+                                   .getOldChronologyTypeForNid(nid);
                uuids          = Get.identifierService()
                                    .getUuidArrayForNid(nid);
             }
@@ -1196,18 +1185,18 @@ public class Frills
                nid            = Get.identifierService()
                                    .getNidForUuids(uuidId.get());
                typeOfPassedId = Get.identifierService()
-                                   .getChronologyTypeForNid(nid);
+                                   .getOldChronologyTypeForNid(nid);
 
                switch (typeOfPassedId) {
                case CONCEPT: {
                   seq = Get.identifierService()
-                           .getConceptSequenceForUuids(uuidId.get());
+                           .getNidForUuids(uuidId.get());
                   break;
                }
 
                case SEMANTIC: {
                   seq = Get.identifierService()
-                           .getSemanticSequenceForUuids(uuidId.get());
+                           .getNidForUuids(uuidId.get());
                   break;
                }
 
@@ -1270,10 +1259,8 @@ public class Frills
     */
    public static Optional<SemanticChronology> getInferredDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
-      conceptId = Get.identifierService()
-                     .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid())
                 .findAny();
    }
 
@@ -1387,7 +1374,7 @@ public class Frills
     * @return true, if mapping
     */
    public static boolean isMapping(SemanticChronology sc) {
-      return definesMapping(sc.getAssemblageSequence());
+      return definesMapping(sc.getAssemblageNid());
    }
 
    /**
@@ -1416,7 +1403,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____SOLOR.getConceptSequence() },
+                                                     new Integer[] { MetaData.SCTID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1448,7 +1435,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____SOLOR.getConceptSequence() },
+                                                     new Integer[] { MetaData.VUID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1482,7 +1469,7 @@ public class Frills
                : stamp)
                                                            .getLatestSemanticVersionsForComponentFromAssemblage(
                                                                  componentNid,
-                                                                       MetaData.SCTID____SOLOR.getConceptSequence())
+                                                                       MetaData.SCTID____SOLOR.getNid())
                                                            .findFirstVersion();
 
          if (sememe.isPresent()) {
@@ -1514,17 +1501,17 @@ public class Frills
 
       final StampPosition stampPosition = new StampPositionImpl(
                                               stampCoordinate.getStampPosition().getTime(),
-                                                    editCoordinate.getPathSequence());
+                                                    editCoordinate.getPathNid());
       final StampCoordinateImpl temp = new StampCoordinateImpl(
                                            stampCoordinate.getStampPrecedence(),
                                                  stampPosition,
-                                                 stampCoordinate.getModuleSequences(),
+                                                 stampCoordinate.getModuleNids(),
                                                  stampCoordinate.getAllowedStates());
 
-      if (temp.getModuleSequences()
+      if (temp.getModuleNids()
               .size() > 0) {
-         temp.getModuleSequences()
-             .add(editCoordinate.getModuleSequence());
+         temp.getModuleNids()
+             .add(editCoordinate.getModuleNid());
       }
 
       return temp;
@@ -1554,11 +1541,11 @@ public class Frills
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
-      final StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathSequence());
+      final StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathNid());
       final StampCoordinate stampCoordinate = new StampCoordinateImpl(
                                                   precedence,
                                                         stampPosition,
-                                                        ConceptSequenceSet.of(stamp.getModuleSequence()),
+                                                        NidSet.of(stamp.getModuleNid()),
                                                         EnumSet.of(stamp.getStatus()));
 
       LOG.debug("Created StampCoordinate from Stamp: " + stamp + ": " + stampCoordinate);
@@ -1591,11 +1578,11 @@ public class Frills
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
-      final StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathSequence());
+      final StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathNid());
       final StampCoordinate stampCoordinate = new StampCoordinateImpl(
                                                   precedence,
                                                         stampPosition,
-                                                        ConceptSequenceSet.of(version.getModuleSequence()),
+                                                        NidSet.of(version.getModuleNid()),
                                                         EnumSet.of(version.getState()));
 
       LOG.debug("Created StampCoordinate from StampedVersion: " + toString(version) + ": " + stampCoordinate);
@@ -1612,10 +1599,8 @@ public class Frills
     */
    public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
-      conceptId = Get.identifierService()
-                     .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid())
                 .findAny();
    }
 
@@ -1706,7 +1691,7 @@ public class Frills
                                 : stamp)
             .getLatestSemanticVersionsForComponentFromAssemblage(
                 componentNid,
-                MetaData.VUID____SOLOR.getConceptSequence())
+                MetaData.VUID____SOLOR.getNid())
             .forEach(latestSememe -> {
             // expected path
                    if (latestSememe.get()

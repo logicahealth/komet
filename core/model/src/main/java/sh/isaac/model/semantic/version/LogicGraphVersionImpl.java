@@ -131,9 +131,9 @@ public class LogicGraphVersionImpl
                                    .getStampSequence(
                                        this.getState(),
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       this.getModuleNid(),
+                                       ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence);
 
@@ -157,8 +157,7 @@ public class LogicGraphVersionImpl
 
       final LogicalExpressionImpl lg = new LogicalExpressionImpl(this.graphData,
                                                                            DataSource.INTERNAL,
-                                                                           Get.identifierService().getConceptSequence(
-                                                                              getReferencedComponentNid()));
+                                                                              getReferencedComponentNid());
 
       sb.append("\n ");
       sb.append(lg.toString());

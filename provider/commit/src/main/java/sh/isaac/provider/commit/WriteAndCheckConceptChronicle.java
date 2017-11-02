@@ -109,7 +109,7 @@ public class WriteAndCheckConceptChronicle
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and check concept");
 
-      updateMessage("writing " + Get.conceptDescriptionText(cc.getConceptSequence()));
+      updateMessage("writing " + Get.conceptDescriptionText(cc.getNid()));
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -131,11 +131,11 @@ public class WriteAndCheckConceptChronicle
          Get.conceptService()
             .writeConcept(this.cc);
          // get any updates that may have occured during merge write...
-         this.cc = Get.conceptService().getConceptChronology(this.cc.getConceptSequence());
+         this.cc = Get.conceptService().getConceptChronology(this.cc.getNid());
          this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 
-         updateMessage("checking: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
+         updateMessage("checking: " + Get.conceptDescriptionText(cc.getNid()));  
 
          if (this.cc.isUncommitted()) {
             this.checkers.stream().forEach((check) -> {
@@ -145,7 +145,7 @@ public class WriteAndCheckConceptChronicle
 
          updateProgress(2, 3);
 
-         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
+         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getNid()));  
          this.changeListeners.forEach((listenerRef) -> {
                                          final ChronologyChangeListener listener = listenerRef.get();
 
@@ -157,7 +157,7 @@ public class WriteAndCheckConceptChronicle
                                       });
          updateProgress(3, 3);
 
-         updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getConceptSequence())); 
+         updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getNid())); 
          return null;
       } finally {
          this.writeSemaphore.release();

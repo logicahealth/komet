@@ -86,9 +86,9 @@ public class ConceptVersionImpl
                                    .getStampSequence(
                                        this.getState(),
                                        Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+                                       ec.getAuthorNid(),
+                                       this.getModuleNid(),
+                                       ec.getPathNid());
       ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
 

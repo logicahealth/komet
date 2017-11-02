@@ -98,9 +98,9 @@ public class StringVersionImpl
               .getStampSequence(
                       this.getState(),
                       Long.MAX_VALUE,
-                      ec.getAuthorSequence(),
-                      this.getModuleSequence(),
-                      ec.getPathSequence());
+                      ec.getAuthorNid(),
+                      this.getModuleNid(),
+                      ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
 

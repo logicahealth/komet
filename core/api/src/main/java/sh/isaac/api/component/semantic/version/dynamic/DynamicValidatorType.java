@@ -396,7 +396,7 @@ public enum DynamicValidatorType {
                ((DynamicArray<DynamicString>) validatorDefinitionData).getDataArray();
             final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
             final ObjectChronologyType component  = Get.identifierService()
-                                                       .getChronologyTypeForNid(nid);
+                                                       .getOldChronologyTypeForNid(nid);
 
             if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
                throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");

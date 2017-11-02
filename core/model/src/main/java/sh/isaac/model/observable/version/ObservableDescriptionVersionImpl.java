@@ -115,11 +115,11 @@ public class ObservableDescriptionVersionImpl
       if (this.caseSignificanceConceptSequenceProperty == null) {
          this.caseSignificanceConceptSequenceProperty = new CommitAwareIntegerProperty(
              this,
-             ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
-             getCaseSignificanceConceptSequence());
+             ObservableFields.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION.toExternalString(),
+             getCaseSignificanceConceptNid());
          this.caseSignificanceConceptSequenceProperty.addListener(
              (observable, oldValue, newValue) -> {
-                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setCaseSignificanceConceptSequence(newValue.intValue());
+                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setCaseSignificanceConceptNid(newValue.intValue());
              });
       }
 
@@ -137,10 +137,10 @@ public class ObservableDescriptionVersionImpl
          this.descriptionTypeConceptSequenceProperty = new CommitAwareIntegerProperty(
              this,
              ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION.toExternalString(),
-             getDescriptionTypeConceptSequence());
+             getDescriptionTypeConceptNid());
          this.descriptionTypeConceptSequenceProperty.addListener(
              (observable, oldValue, newValue) -> {
-                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setDescriptionTypeConceptSequence(newValue.intValue());
+                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setDescriptionTypeConceptNid(newValue.intValue());
              });
       }
 
@@ -157,11 +157,11 @@ public class ObservableDescriptionVersionImpl
       if (this.languageConceptSequenceProperty == null) {
          this.languageConceptSequenceProperty = new CommitAwareIntegerProperty(
              this,
-             ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
-             getLanguageConceptSequence());
+             ObservableFields.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION.toExternalString(),
+             getLanguageConceptNid());
          this.languageConceptSequenceProperty.addListener(
              (observable, oldValue, newValue) -> {
-                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setLanguageConceptSequence(newValue.intValue());
+                ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setLanguageConceptNid(newValue.intValue());
              });
       }
 
@@ -204,9 +204,9 @@ public class ObservableDescriptionVersionImpl
    @Override
    public String toString() {
       return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(
-          getCaseSignificanceConceptSequence()) + ", language:" + Get.conceptDescriptionText(
-              getLanguageConceptSequence()) + ", type: " + Get.conceptDescriptionText(
-                  getDescriptionTypeConceptSequence()) + " " + Get.stampService().describeStampSequence(
+          getCaseSignificanceConceptNid()) + ", language:" + Get.conceptDescriptionText(
+              getLanguageConceptNid()) + ", type: " + Get.conceptDescriptionText(
+                  getDescriptionTypeConceptNid()) + " " + Get.stampService().describeStampSequence(
                       getStampSequence()) + '}';
    }
 
@@ -219,21 +219,21 @@ public class ObservableDescriptionVersionImpl
       }
 
       if (this.caseSignificanceConceptSequenceProperty != null && 
-              this.caseSignificanceConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptSequence()) {
+              this.caseSignificanceConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptNid()) {
          this.caseSignificanceConceptSequenceProperty.set(
-             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptSequence());
+             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptNid());
       }
 
       if (this.languageConceptSequenceProperty != null &&
-              this.languageConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptSequence()) {
+              this.languageConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptNid()) {
          this.languageConceptSequenceProperty.set(
-             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptSequence());
+             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptNid());
       }
 
       if (this.descriptionTypeConceptSequenceProperty != null &&
-              this.descriptionTypeConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptSequence()) {
+              this.descriptionTypeConceptSequenceProperty.get() != ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptNid()) {
          this.descriptionTypeConceptSequenceProperty.set(
-             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptSequence());
+             ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptNid());
       }
    }
 
@@ -245,12 +245,12 @@ public class ObservableDescriptionVersionImpl
     * @return the case significance concept sequence
     */
    @Override
-   public int getCaseSignificanceConceptSequence() {
+   public int getCaseSignificanceConceptNid() {
       if (this.caseSignificanceConceptSequenceProperty != null) {
          return this.caseSignificanceConceptSequenceProperty.get();
       }
 
-      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -266,7 +266,7 @@ public class ObservableDescriptionVersionImpl
          this.caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
       }
 
-      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setCaseSignificanceConceptSequence(
+      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setCaseSignificanceConceptNid(
           caseSignificanceConceptSequence);
    }
 
@@ -278,12 +278,12 @@ public class ObservableDescriptionVersionImpl
     * @return the description type concept sequence
     */
    @Override
-   public int getDescriptionTypeConceptSequence() {
+   public int getDescriptionTypeConceptNid() {
       if (this.descriptionTypeConceptSequenceProperty != null) {
          return this.descriptionTypeConceptSequenceProperty.get();
       }
 
-      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -299,7 +299,7 @@ public class ObservableDescriptionVersionImpl
          this.descriptionTypeConceptSequenceProperty.set(descriptionTypeConceptSequence);
       }
 
-      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
+      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setDescriptionTypeConceptNid(descriptionTypeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -310,12 +310,12 @@ public class ObservableDescriptionVersionImpl
     * @return the language concept sequence
     */
    @Override
-   public int getLanguageConceptSequence() {
+   public int getLanguageConceptNid() {
       if (this.languageConceptSequenceProperty != null) {
          return this.languageConceptSequenceProperty.get();
       }
 
-      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -331,7 +331,7 @@ public class ObservableDescriptionVersionImpl
          this.languageConceptSequenceProperty.set(languageConceptSequence);
       }
 
-      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setLanguageConceptSequence(languageConceptSequence);
+      ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setLanguageConceptNid(languageConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -60,7 +60,7 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
+import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +76,7 @@ public class RoleNodeAllWithUuids
     *
     * @param internalFrom the internal from
     */
-   public RoleNodeAllWithUuids(RoleNodeAllWithSequences internalFrom) {
+   public RoleNodeAllWithUuids(RoleNodeAllWithNids internalFrom) {
       super(internalFrom);
    }
 

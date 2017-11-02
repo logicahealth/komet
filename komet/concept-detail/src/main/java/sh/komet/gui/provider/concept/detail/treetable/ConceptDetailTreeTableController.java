@@ -164,7 +164,7 @@ public class ConceptDetailTreeTableController {
                        .add(historicTreeItem);
             }
             if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSememeList(), addSememes);
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
             }
          }
       }
@@ -179,13 +179,13 @@ public class ConceptDetailTreeTableController {
       } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                  .getObservableConceptChronology(
-                         newValue.getConceptSequence());
+                         newValue.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
                          manifold);
           if (categorizedVersions.getLatestVersion().isPresent()) {
             TreeItem<ObservableCategorizedVersion> conceptRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-            addChildren(conceptRoot, observableConceptChronology.getObservableSememeList(), true);
+            addChildren(conceptRoot, observableConceptChronology.getObservableSemanticList(), true);
             conceptExtensionTreeTable.setRoot(conceptRoot);
           } else {
              throw new IllegalStateException("Latest version is null: " + categorizedVersions);

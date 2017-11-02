@@ -53,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -98,10 +97,10 @@ public class RelRestriction
    String relTypeSubsumptionKey;
 
    /** The destination set. */
-   ConceptSequenceSet destinationSet;
+   NidSet destinationSet;
 
    /** The rel type set. */
-   ConceptSequenceSet relTypeSet;
+   NidSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
@@ -165,25 +164,25 @@ public class RelRestriction
          destinationSubsumption = true;
       }
 
-      this.relTypeSet = new ConceptSequenceSet();
-      this.relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new NidSet();
+      this.relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
          try {
             this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                    .getKindOfSequenceSet(relType.getConceptSequence()));
+                    .getKindOfSequenceSet(relType.getNid()));
          } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
          }
       }
 
-      this.destinationSet = new ConceptSequenceSet();
-      this.destinationSet.add(destinationSpec.getConceptSequence());
+      this.destinationSet = new NidSet();
+      this.destinationSet.add(destinationSpec.getNid());
 
       if (destinationSubsumption) {
          try {
             this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                    .getKindOfSequenceSet(destinationSpec.getConceptSequence()));
+                    .getKindOfSequenceSet(destinationSpec.getNid()));
          } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
          }

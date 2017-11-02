@@ -75,11 +75,9 @@ import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
  */
 public class SemanticChronologyImpl extends ChronologyImpl
          implements  SemanticChronology, IsaacExternalizable {
-   /** The sememe type token. */
-   byte sememeTypeToken = -1;
+   /** The semantic type token. */
+   byte semanticTypeToken = -1;
 
-   /** The assemblage sequence. */
-   int assemblageSequence = -1;
 
    /** The referenced component nid. */
    int referencedComponentNid = Integer.MAX_VALUE;
@@ -97,19 +95,16 @@ public class SemanticChronologyImpl extends ChronologyImpl
     * @param sememeType the sememe type
     * @param primordialUuid the primordial uuid
     * @param nid the nid
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageNid the assemblage sequence
     * @param referencedComponentNid the referenced component nid
-    * @param containerSequence the container sequence
     */
    public SemanticChronologyImpl(VersionType sememeType,
                                UUID primordialUuid,
                                int nid,
-                               int assemblageSequence,
-                               int referencedComponentNid,
-                               int containerSequence) {
-      super(primordialUuid, nid, containerSequence);
-      this.sememeTypeToken        = sememeType.getVersionTypeToken();
-      this.assemblageSequence     = assemblageSequence;
+                               int assemblageNid,
+                               int referencedComponentNid) {
+      super(primordialUuid, nid, assemblageNid);
+      this.semanticTypeToken        = sememeType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
    }
 
@@ -142,9 +137,9 @@ public class SemanticChronologyImpl extends ChronologyImpl
       final int stampSequence = Get.stampService()
                                    .getStampSequence(status,
                                          Long.MAX_VALUE,
-                                         ec.getAuthorSequence(),
-                                         ec.getModuleSequence(),
-                                         ec.getPathSequence());
+                                         ec.getAuthorNid(),
+                                         ec.getModuleNid(),
+                                         ec.getPathNid());
       final V version = createMutableVersionInternal(stampSequence);
 
       addVersion(version);
@@ -238,42 +233,42 @@ public class SemanticChronologyImpl extends ChronologyImpl
       
       builder.append("SememeChronology{");
 
-      if (this.sememeTypeToken == -1) {
+      if (this.semanticTypeToken == -1) {
          builder.append("SememeType token not initialized");
       } else {
-         builder.append(VersionType.getFromToken(this.sememeTypeToken));
+         builder.append(VersionType.getFromToken(this.semanticTypeToken));
       }
 
       builder.append("\n assemblage:")
-              .append(Get.conceptDescriptionText(this.assemblageSequence))
+              .append(Get.conceptDescriptionText(getAssemblageNid()))
               .append(" <")
-              .append(this.assemblageSequence)
+              .append(getAssemblageNid())
               .append(">\n rc:");
       
       switch (Get.identifierService()
-              .getChronologyTypeForNid(this.referencedComponentNid)) {
+              .getOldChronologyTypeForNid(this.referencedComponentNid)) {
          case CONCEPT:
             builder.append("CONCEPT: ")
                     .append(Get.conceptDescriptionText(this.referencedComponentNid));
             break;
             
          case SEMANTIC:
-            SemanticChronology sememeChronicle = Get.assemblageService()
+            SemanticChronologyImpl semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
                     .getSemanticChronology(this.referencedComponentNid);
-            builder.append("SEMEME: ")
-                    .append(sememeChronicle.getVersionType()).append(" <")
-                    .append(sememeChronicle.getSemanticSequence())
+            builder.append("SEMANTIC: ")
+                    .append(semanticChronicle.getVersionType()).append(" <")
+                    .append(semanticChronicle.getElementSequence())
                     .append(">\n from assemblage:")
-                    .append(Get.conceptDescriptionText(sememeChronicle.getAssemblageSequence()))
+                    .append(Get.conceptDescriptionText(semanticChronicle.getAssemblageNid()))
                     .append(" <")
-                    .append(sememeChronicle.getAssemblageSequence())
+                    .append(semanticChronicle.getAssemblageNid())
                     .append(">\n");
             
             break;
             
          default:
             builder.append(Get.identifierService()
-                    .getChronologyTypeForNid(this.referencedComponentNid))
+                    .getOldChronologyTypeForNid(this.referencedComponentNid))
                     .append(" ")
                     .append(this.referencedComponentNid);
       }
@@ -347,7 +342,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
    protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
       // consume legacy version sequence. 
       db.getShort();
-      return (V) createSememe(this.sememeTypeToken, this, stampSequence, db);
+      return (V) createSememe(this.semanticTypeToken, this, stampSequence, db);
    }
 
    /**
@@ -357,8 +352,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     */
    @Override
    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
-      out.putByte(this.sememeTypeToken);
-      out.putConceptSequence(this.assemblageSequence);
+      out.putByte(this.semanticTypeToken);
       out.putNid(this.referencedComponentNid);
    }
 
@@ -369,8 +363,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     */
    @Override
    protected void skipAdditionalChronicleFields(ByteArrayDataBuffer in) {
-      in.getByte();             // sememeTypeToken =
-      in.getConceptSequence();  // assemblageSequence =
+      in.getByte();             // semanticTypeToken =
       in.getNid();              // referencedComponentNid =
    }
 
@@ -383,19 +376,8 @@ public class SemanticChronologyImpl extends ChronologyImpl
     */
    @Override
    protected void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in) {
-      this.sememeTypeToken        = in.getByte();
-      this.assemblageSequence     = in.getConceptSequence();
+      this.semanticTypeToken        = in.getByte();
       this.referencedComponentNid = in.getNid();
-   }
-
-   /**
-    * Gets the assemblage sequence.
-    *
-    * @return the assemblage sequence
-    */
-   @Override
-   public int getAssemblageSequence() {
-      return this.assemblageSequence;
    }
 
    /**
@@ -419,23 +401,13 @@ public class SemanticChronologyImpl extends ChronologyImpl
    }
 
    /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   @Override
-   public int getSemanticSequence() {
-      return getContainerSequence();
-   }
-
-   /**
     * Gets the sememe type.
     *
     * @return the sememe type
     */
    @Override
    public VersionType getVersionType() {
-      return VersionType.getFromToken(this.sememeTypeToken);
+      return VersionType.getFromToken(this.semanticTypeToken);
    }
 }
 

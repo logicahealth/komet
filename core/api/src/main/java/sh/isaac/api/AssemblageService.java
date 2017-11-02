@@ -48,8 +48,8 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.collections.NidSet;
 
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -98,27 +98,12 @@ public interface AssemblageService
    Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticId);
 
    /**
-    * Gets the parallel semantic stream.
-    *
-    * @return the parallel semantic  stream
-    */
-   Stream<SemanticChronology> getParallelSemanticChronologyStream();
-
-   /**
     * Gets the SemanticChronology.
     *
     * @param semanticId sequence or nid for a SemanticChronology
     * @return the identified {@code SemanticChronology}
     */
    SemanticChronology getSemanticChronology(int semanticId);
-
-   /**
-    * Use in circumstances when not all SemanticChronologys may have been loaded to find out if a SemanticChronology is present,
-    * without incurring the overhead of reading back the object.
-    * @param semanticId Either a nid or SemanticChronology sequence
-    * @return true if present, false otherwise
-    */
-   boolean hasSemantic(int semanticId);
 
    /**
     * Gets the SemanticChronology stream.
@@ -128,50 +113,56 @@ public interface AssemblageService
    Stream<SemanticChronology> getSemanticChronologyStream();
 
    /**
-    * Gets the SemanticChronology count.
-    *
-    * @return the SemanticChronology count
-    */
-   int getSemanticChronologyCount();
-
-   /**
-    * Gets the SemanticChronology key parallel stream.
-    *
-    * @return the SemanticChronology key parallel stream
-    */
-   IntStream getSemanticChronologyKeyParallelStream();
-
-   /**
     * Gets the SemanticChronology key stream.
     *
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticChronologyKeyStream();
+   IntStream getSemanticNidStream();
 
    /**
-    * Gets the SemanticChronology sequences for component.
+    * 
+    * @return count of all the semantic chronologies, active, or inactive. 
+    */
+   int getSemanticCount();
+
+   /**
+    * @param assemblageNid The nid for the assemblage to count elements from
+    * @return count of all the semantic chronologies in the assemblage, active, or inactive. 
+    */
+   int getSemanticCount(int assemblageNid);
+
+   /**
+    * Gets the SemanticChronology key stream.
+    *
+    * @param assemblageNid The nid for the assemblage to select the nids from
+    * @return the SemanticChronology key stream
+    */
+   IntStream getSemanticNidStream(int assemblageNid);
+
+   /**
+    * Gets the SemanticChronology nids for component.
     *
     * @param componentNid the component nid
-    * @return the SemanticChronology sequences for component
+    * @return the SemanticChronology nids for component
     */
-   SemanticSequenceSet getSemanticChronologySequencesForComponent(int componentNid);
+   NidSet getSemanticNidsForComponent(int componentNid);
 
    /**
-    * Gets the SemanticChronology sequences for component from assemblage.
+    * Gets the SemanticChronology nids for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the SemanticChronology sequences for component from assemblage
+    * @param assemblageConceptNid the assemblage nid
+    * @return the SemanticChronology nids for component from assemblage
     */
-   SemanticSequenceSet getSemanticChronologySequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
+   NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
    /**
-    * Gets the SemanticChronology sequences from assemblage.
+    * Gets the SemanticChronology nids from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology sequences from assemblage
     */
-   SemanticSequenceSet getSemanticChronologySequencesFromAssemblage(int assemblageConceptSequence);
+   NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronology for component.
@@ -209,7 +200,7 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification) {
-      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getConceptSequence());
+      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid());
    }
    
    /**

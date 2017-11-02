@@ -72,7 +72,7 @@ public interface ObservableConceptChronology
     *
     * @return the integer property
     */
-   IntegerProperty conceptSequenceProperty();
+   IntegerProperty entrySequenceProperty();
 
    /**
     * A test for validating that a concept contains an active description. Used
