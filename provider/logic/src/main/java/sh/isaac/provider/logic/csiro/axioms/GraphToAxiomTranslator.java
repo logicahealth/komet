@@ -65,7 +65,6 @@ import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
 
 import sh.isaac.api.DataSource;
-import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConcurrentSequenceObjectMap;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.logic.LogicNode;
@@ -83,6 +82,7 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -481,6 +481,9 @@ public class GraphToAxiomTranslator {
     */
    private Concept getConcept(int name) {
 
+      if (name < 0) {
+         name = ModelGet.identifierService().getElementSequenceForNid(name);
+      }
       final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.get(name);
 
       if (optionalConcept.isPresent()) {

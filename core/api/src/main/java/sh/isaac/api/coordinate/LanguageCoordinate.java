@@ -183,13 +183,13 @@ public interface LanguageCoordinate extends Coordinate {
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
-         switch (Get.identifierService().getOldChronologyTypeForNid(conceptId)) {
+         switch (Get.identifierService().getObjectTypeForComponent(conceptId)) {
             case CONCEPT:
                // returned below
                break;
             case SEMANTIC:
                return Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString();
-            case UNKNOWN_NID:
+            case UNKNOWN:
                return "unknown for nid: " + conceptId;
             default:
                return "unknown type for nid: " + conceptId;

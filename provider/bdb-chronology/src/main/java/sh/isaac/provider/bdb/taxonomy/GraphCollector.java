@@ -121,8 +121,12 @@ public class GraphCollector
    public void accept(HashTreeBuilder graphBuilder, int originNid) {
       int originSequence = ModelGet.identifierService().getElementSequenceForNid(originNid);
       final int[] taxonomyData = this.taxonomyMap.get(originSequence);
-
-      if (taxonomyData != null) {
+      
+      if (taxonomyData == null) {
+            System.out.println("No taxonomy data for: " + Get.conceptDescriptionText(originNid));
+            System.out.println("Nid: " + originNid + " elementSequence: " + originSequence);
+         
+      } else {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
          // For debugging.
          if (this.watchList.contains(originNid)) {
@@ -133,9 +137,22 @@ public class GraphCollector
             taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
                                                               this.manifoldCoordinate);
 
-         for (int destinationSequence: destinationStream) {
-            graphBuilder.add(destinationSequence, originNid);
+         int parentCount = 0;
+         for (int destinationNid: destinationStream) {
+            parentCount++;
+            graphBuilder.add(destinationNid, originNid);
          }
+//         if (parentCount == 0) {
+//            System.out.println("No parent for: " + Get.conceptDescriptionText(originNid));
+//            System.out.println("TaxonomyRecord: " + taxonomyRecordUnpacked);
+//            StringBuilder builder = new StringBuilder("[");
+//            for (int element: taxonomyData) {
+//               builder.append(element);
+//               builder.append(", ");
+//            }
+//            builder.replace(builder.length()-1, builder.length()-1, "]");
+//            System.out.println("Source data: " + builder.toString());
+//         }
       }
    }
 

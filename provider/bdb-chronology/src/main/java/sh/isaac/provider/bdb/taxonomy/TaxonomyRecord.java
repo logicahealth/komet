@@ -168,7 +168,7 @@ public class TaxonomyRecord {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
       if (this.conceptNidRecordMap.containsKey(conceptNid)) {
          return this.conceptNidRecordMap.get(conceptNid)
-               .containsConceptNidViaType(Integer.MAX_VALUE, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
+               .containsConceptNidViaType(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
       }
 
       return false;

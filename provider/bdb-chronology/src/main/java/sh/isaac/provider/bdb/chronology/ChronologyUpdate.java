@@ -115,9 +115,9 @@ public class ChronologyUpdate {
       int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
       int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNidForNid(referencedComponentNid);
 
-     System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
-             referencedComponentNid + " index: " + 
-             ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
+//     System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
+//             referencedComponentNid + " index: " + 
+//             ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
      
          TaxonomyFlag taxonomyFlags;
 

@@ -128,8 +128,7 @@ public class TreeBuilderTask
    private Tree compute() {
       GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
       IntStream       conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid)
-                                            .parallel();
+                                            .getNidsForAssemblage(conceptAssemblageNid);
       HashTreeBuilder graphBuilder     = conceptNidStream.filter(
                                              (conceptNid) -> {
                completedUnitOfWork();

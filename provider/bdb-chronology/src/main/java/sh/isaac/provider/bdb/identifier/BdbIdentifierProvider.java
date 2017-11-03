@@ -431,5 +431,10 @@ public class BdbIdentifierProvider
                  return allowedAssemblages.contains(nid_AssemblageNid_Map.get(value)); 
               });
    }
+
+   @Override
+   public int getMaxSequenceForAssemblage(int assemblageNid) {
+      return assemblageNid_SequenceGenerator_Map.get(assemblageNid).get() - 1;
+   }   
 }
 

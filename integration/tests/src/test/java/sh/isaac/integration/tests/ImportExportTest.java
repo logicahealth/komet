@@ -121,10 +121,11 @@ public class ImportExportTest {
    /**
     * Test classify.
     */
-   @Test(
-      groups           = { "load" },
-      dependsOnMethods = { "testExportImport" }
-   )
+   
+//   @Test(
+//      groups           = { "load" },
+//      dependsOnMethods = { "testExportImport" }
+//   )
    public void testClassify() {
       LOG.info("Classifying");
 
@@ -179,10 +180,10 @@ public class ImportExportTest {
    /**
     * Test export after classify.
     */
-   @Test(
-      groups           = { "load" },
-      dependsOnMethods = { "testClassify" }
-   )
+//   @Test(
+//      groups           = { "load" },
+//      dependsOnMethods = { "testClassify" }
+//   )
    public void testExportAfterClassify() {
       LOG.info("Testing export after classify");
 
@@ -281,10 +282,10 @@ public class ImportExportTest {
    /**
     * Test inferred taxonomy.
     */
-   @Test(
-      groups           = { "load" },
-      dependsOnMethods = { "testClassify" }
-   )
+//   @Test(
+//      groups           = { "load" },
+//      dependsOnMethods = { "testClassify" }
+//   )
    public void testInferredTaxonomy() {
       try {
          LOG.info("Testing inferred taxonomy");
@@ -402,45 +403,9 @@ public class ImportExportTest {
          TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
          
          final int[] roots = taxonomySnapshotService.getRoots();
-         final NidSet rootAssemblages = new NidSet();
-         for (int rootNid: roots) {
-            rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
-         }
-         StringBuilder rootsMessage = new StringBuilder();
-         int conceptAssemblageNid = rootAssemblages.findFirst().getAsInt();
-         SpinedIntObjectMap<int[]> map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(conceptAssemblageNid);
+
          
-         int[] nids = Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).toArray();
-         for (int nid: nids) {
-            int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid);
-            int roundTripNid = ModelGet.identifierService().getNidForElementSequence(elementSequence, conceptAssemblageNid);
-            if (roundTripNid != nid) {
-               LOG.error("Round trip failed: " + nid + ", " + elementSequence + ", " + roundTripNid);
-            }
- 
-            int[] elementTaxonomyData = map.get(elementSequence);
-            if (!Arrays.stream(elementTaxonomyData).anyMatch((value) -> value == nid)) {
-               TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
-               LOG.error("\n\nRecord does not contain status for self: " + Get.conceptDescriptionText(nid) + 
-                       " <" + nid + ">, " 
-                       + elementSequence + ", " + roundTripNid + " \n\n" + record + "\n");
-            }
-         }
-         
-         for (int root: roots) {
-            rootsMessage.append("Entry for: ").append(Get.conceptDescriptionText(root)).append(" <").append(root).append("> is: ");
-            int[] elementTaxonomyData = map.get(ModelGet.identifierService().getElementSequenceForNid(root));
-            TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
-            rootsMessage.append(" ");
-            rootsMessage.append(record);
-            rootsMessage.append("\n");
-         }
-         String message = rootsMessage.toString();
-         if (roots.length != 1) {
-            LOG.warn(message);
-         }
-         
-         Assert.assertEquals(roots.length, 1, message);
+         Assert.assertEquals(roots.length, 1, "Root count != 1: " + Arrays.asList(roots));
          
          final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
          final AtomicInteger taxonomyCount = new AtomicInteger(0);

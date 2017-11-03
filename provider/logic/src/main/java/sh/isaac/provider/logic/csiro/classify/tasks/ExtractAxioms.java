@@ -119,11 +119,11 @@ public class ExtractAxioms
          LogicCoordinate logicCoordinate,
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
-      final SemanticSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+      final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 
-      sememeSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
+      semanticSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();

@@ -101,7 +101,7 @@
                             <goal>count-concepts</goal>
                         </goals>
                     </execution>
-                    <execution>
+<!--                    <execution>
                         <id>classify</id>
                         <goals>
                             <goal>quasi-mojo-executor</goal>
@@ -109,7 +109,7 @@
                         <configuration>
                             <quasiMojoName>full-classification</quasiMojoName>
                         </configuration>
-                    </execution>
+                    </execution>-->
                     <execution>
                         <id>shutdown</id>
                         <goals>

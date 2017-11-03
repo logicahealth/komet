@@ -48,6 +48,7 @@ import java.util.Arrays;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -106,16 +107,16 @@ public class HashTreeWithBitSets
       }
 
       if (childSequenceArray.length > 0) {
-         if (!this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-            this.parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
+         if (!this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
+            this.parentSequence_ChildNidArray_Map.put(parentSequence, childSequenceArray);
          } else {
             final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
-            Arrays.stream(this.parentSequence_ChildSequenceArray_Map.get(parentSequence))
+            Arrays.stream(this.parentSequence_ChildNidArray_Map.get(parentSequence))
                     .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(childSequenceArray)
                     .forEach((sequence) -> combinedSet.add(sequence));
-            this.parentSequence_ChildSequenceArray_Map.put(parentSequence, combinedSet.keys()
+            this.parentSequence_ChildNidArray_Map.put(parentSequence, combinedSet.keys()
                     .elements());
          }
          for (int childSequence: childSequenceArray) {
@@ -134,20 +135,20 @@ public class HashTreeWithBitSets
    public void addParents(int childSequence, int[] parentSequenceArray) {
       this.conceptSequences.add(childSequence);
       if (parentSequenceArray.length > 0) {
-         if (!this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-            this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
+         if (!this.childSequence_ParentNidArray_Map.containsKey(childSequence)) {
+            this.childSequence_ParentNidArray_Map.put(childSequence, parentSequenceArray);
          } else {
             final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
-            Arrays.stream(this.childSequence_ParentSequenceArray_Map.get(childSequence))
+            Arrays.stream(this.childSequence_ParentNidArray_Map.get(childSequence))
                     .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(parentSequenceArray)
                     .forEach((sequence) -> combinedSet.add(sequence));
-            this.childSequence_ParentSequenceArray_Map.put(childSequence, combinedSet.keys()
+            this.childSequence_ParentNidArray_Map.put(childSequence, combinedSet.keys()
                     .elements());
          }
 
-         this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
+         this.childSequence_ParentNidArray_Map.put(childSequence, parentSequenceArray);
          for (int parentSequence: parentSequenceArray) {
             this.conceptSequences.add(parentSequence);
          }
@@ -206,7 +207,11 @@ public class HashTreeWithBitSets
          rootSet.remove(sequence);
          return true;
       });
-      
-      return rootSet.keys().elements();
+      int[] roots = new int[rootSet.size()];
+      int[] rootSequences = rootSet.keys().elements();
+      for (int i = 0; i < roots.length; i++) {
+         rootSequences[i] = ModelGet.identifierService().getNidForElementSequence(rootSequences[i], assemblageNid);
+      }
+      return rootSequences;
    }
 }

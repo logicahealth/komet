@@ -198,7 +198,7 @@ public class BdbTaxonomyProvider
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   private SpinedIntObjectMap<int[]> loadFromDatabase(int conceptAssemblageKey)
+   private SpinedIntObjectMap<int[]> loadFromDatabase(int assemblageKey)
             throws DatabaseException {
       IntArrayBinding           binding                              = new IntArrayBinding();
       DiskOrderedCursorConfig   docc                                 = new DiskOrderedCursorConfig();
@@ -211,7 +211,7 @@ public class BdbTaxonomyProvider
              return new TaxonomyRecord(records).toString();
           });
 
-      Database database = bdb.getTaxonomyDatabase(conceptAssemblageKey);
+      Database database = bdb.getTaxonomyDatabase(assemblageKey);
 
       try (DiskOrderedCursor cursor = database.openCursor(docc)) {
          while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
@@ -239,6 +239,11 @@ public class BdbTaxonomyProvider
          Get.commitService()
             .addChangeListener(this);
          this.identifierService = Get.service(BdbIdentifierProvider.class);
+         
+         for (int assemblageNid: bdb.getAssemblageNids()) {
+            SpinedIntObjectMap<int[]> map = loadFromDatabase(assemblageNid);
+            conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.put(assemblageNid, map);
+         }
       } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
@@ -298,6 +303,9 @@ public class BdbTaxonomyProvider
       SpinedIntObjectMap<int[]> origin_DestinationTaxonomyRecord_Map =
          conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(
              assemblageNid);
+      if (origin_DestinationTaxonomyRecord_Map == null) {
+         System.out.println("Null map...");
+      }
       int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptSequence);
 
       if (taxonomyData == null) {

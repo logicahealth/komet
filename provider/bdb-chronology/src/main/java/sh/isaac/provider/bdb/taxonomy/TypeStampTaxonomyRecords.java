@@ -332,11 +332,11 @@ public class TypeStampTaxonomyRecords {
           (TypeStampTaxonomyRecord record) -> {
              if (typeNid == Integer.MAX_VALUE) {  // wildcard
                 if (record.taxonomyFlags == flags) {
-                   intStreamBuilder.add(record.typeNid);
+                   intStreamBuilder.add(record.stampSequence);
                 }
              } else if (record.typeNid == typeNid) {
                 if (record.taxonomyFlags == flags) {
-                   intStreamBuilder.add(record.typeNid);
+                   intStreamBuilder.add(record.stampSequence);
                 }
              }
           });

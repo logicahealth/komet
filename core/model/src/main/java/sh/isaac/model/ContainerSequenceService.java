@@ -66,10 +66,17 @@ public interface ContainerSequenceService extends IdentifierService {
    
    /**
     * 
-    * @param semanticSequence the sequence of the semantic chronology
+    * @param sequenceInAssemblage the sequence of the semantic chronology
     * @param assemblageNid
     * @return the nid for the associated chronology specified by the assemblageSequence within the assemblage identified by the Nid
     */
-   int getNidForElementSequence(int semanticSequence, int assemblageNid);
+   int getNidForElementSequence(int sequenceInAssemblage, int assemblageNid);
+
+   /**
+    * 
+    * @param assemblageNid 
+    * @return get the maximum sequence for this assemblage. 
+    */
+   int getMaxSequenceForAssemblage(int assemblageNid);
    
 }

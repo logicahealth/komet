@@ -61,13 +61,20 @@ public class SpinedIntObjectMap<E>   {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
    
+   public SpinedIntObjectMap(int size, Supplier<E> supplier) {
+      this.spineSize = DEFAULT_SPINE_SIZE;
+      for (int i = 0; i < size; i++) {
+         put(i, supplier.get());
+      }
+   }
+   
    private AtomicReferenceArray<E> newSpine(Integer spineKey) {
       spineCount.set(Math.max(spineKey + 1, spineCount.get()));
       AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
       return spine;
    }
 
-   public void put(int index, E element) {
+   public final void put(int index, E element) {
       if (index < 0) {
          index = ModelGet.identifierService().getElementSequenceForNid(index);
       }

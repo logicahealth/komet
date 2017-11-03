@@ -81,6 +81,7 @@ import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -144,7 +145,8 @@ public class ProcessClassificationResults
    private ClassifierResults collectResults(Ontology classifiedResult, NidSet affectedConcepts) {
       final HashSet<NidSet> equivalentSets = new HashSet<>();
 
-      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
+      affectedConcepts.parallelStream().forEach((conceptNid) -> {
+         int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
          final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
 
          if (node == null) {
@@ -243,7 +245,7 @@ public class ProcessClassificationResults
     * @return the optional
     */
    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, NidSet affectedConcepts) {
-      final AssemblageService sememeService = Get.assemblageService();
+      final AssemblageService assemblageService = Get.assemblageService();
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
       final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
@@ -253,28 +255,27 @@ public class ProcessClassificationResults
       // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
       // JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
-      affectedConcepts.parallelStream().forEach((conceptNid) -> {
+      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
          try {
-            final NidSet inferredSememeSequences
-                    = sememeService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+            int conceptNid = ModelGet.identifierService().getNidForElementSequence(conceptSequence, logicCoordinate.getConceptAssemblageNid());
+            final NidSet inferredSemanticNids
+                    = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                             this.logicCoordinate.getInferredAssemblageNid());
-            final NidSet statedSememeSequences
-                    = sememeService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+            final NidSet statedSemanticSequences
+                    = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                             this.logicCoordinate.getStatedAssemblageNid());
 
             // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
             // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
-            testForProperSetSize(inferredSememeSequences,
+            testForProperSetSize(inferredSemanticNids,
                     conceptNid,
-                    statedSememeSequences,
-                    sememeService);
+                    statedSemanticSequences,
+                    assemblageService);
 
             // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) 
-            // assemblageService.getSemanticChronology(statedSememeSequences.stream().findFirst().getAsInt());
+            // assemblageService.getSemanticChronology(statedSemanticSequences.stream().findFirst().getAsInt());
             final SemanticChronology rawStatedChronology
-                    = sememeService.getSemanticChronology(statedSememeSequences.stream()
-                            .findFirst()
-                            .getAsInt());
+                    = assemblageService.getSemanticChronology(statedSemanticSequences.findFirst().getAsInt());
             final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
                     = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
 
@@ -297,7 +298,7 @@ public class ProcessClassificationResults
 
                // Need to construct the necessary set from classifier results.
                final Node inferredNode
-                       = inferredAxioms.getNode(Integer.toString(conceptNid));
+                       = inferredAxioms.getNode(Integer.toString(conceptSequence));
                final List<ConceptAssertion> parentList = new ArrayList<>();
 
                inferredNode.getParents().forEach((parent) -> {
@@ -321,7 +322,7 @@ public class ProcessClassificationResults
 
                   final LogicalExpression inferredExpression = inferredBuilder.build();
 
-                  if (inferredSememeSequences.isEmpty()) {
+                  if (inferredSemanticNids.isEmpty()) {
                      final SemanticBuilder builder
                              = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
                                      conceptNid,
@@ -332,7 +333,7 @@ public class ProcessClassificationResults
                              ChangeCheckerMode.INACTIVE);
                   } else {
                      final SemanticChronology inferredChronology
-                             = sememeService.getSemanticChronology(inferredSememeSequences.stream()
+                             = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
                                      .findFirst()
                                      .getAsInt());
 

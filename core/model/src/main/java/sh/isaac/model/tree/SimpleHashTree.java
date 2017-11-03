@@ -72,18 +72,18 @@ public class SimpleHashTree
     */
    public void addChild(int parentSequence, int childSequence) {
 
-      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         this.parentSequence_ChildSequenceArray_Map.put(parentSequence,
-               addToArray(this.parentSequence_ChildSequenceArray_Map.get(parentSequence), childSequence));
+      if (this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
+         this.parentSequence_ChildNidArray_Map.put(parentSequence,
+               addToArray(this.parentSequence_ChildNidArray_Map.get(parentSequence), childSequence));
       } else {
-         this.parentSequence_ChildSequenceArray_Map.put(parentSequence, new int[] { childSequence });
+         this.parentSequence_ChildNidArray_Map.put(parentSequence, new int[] { childSequence });
       }
 
-      if (this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-         this.childSequence_ParentSequenceArray_Map.put(childSequence,
-               addToArray(this.childSequence_ParentSequenceArray_Map.get(childSequence), parentSequence));
+      if (this.childSequence_ParentNidArray_Map.containsKey(childSequence)) {
+         this.childSequence_ParentNidArray_Map.put(childSequence,
+               addToArray(this.childSequence_ParentNidArray_Map.get(childSequence), parentSequence));
       } else {
-         this.childSequence_ParentSequenceArray_Map.put(childSequence, new int[] { parentSequence });
+         this.childSequence_ParentNidArray_Map.put(childSequence, new int[] { parentSequence });
       }
    }
 
@@ -96,12 +96,11 @@ public class SimpleHashTree
    public int size() {
       final IntStream.Builder builder = IntStream.builder();
 
-      this.parentSequence_ChildSequenceArray_Map.forEachPair((int first,
+      this.parentSequence_ChildNidArray_Map.forEach((int first,
             int[] second) -> {
                builder.accept(first);
                IntStream.of(second)
                         .forEach((sequence) -> builder.add(sequence));
-               return true;
             });
       return (int) builder.build()
                           .distinct()
@@ -140,16 +139,15 @@ public class SimpleHashTree
    public int[] getRootNids() {
       final OpenIntHashSet parents = new OpenIntHashSet();
 
-      this.parentSequence_ChildSequenceArray_Map.forEachKey((int parent) -> {
+      this.parentSequence_ChildNidArray_Map.forEach((int parent,
+            int[] children) -> {
                parents.add(parent);
-               return true;
             });
-      this.parentSequence_ChildSequenceArray_Map.forEachPair((int parent,
+      this.parentSequence_ChildNidArray_Map.forEach((int parent,
             int[] children) -> {
                for (int child: children) {
                   parents.remove(child);
                }
-               return true;
             });
       return parents.keys().elements();
    }

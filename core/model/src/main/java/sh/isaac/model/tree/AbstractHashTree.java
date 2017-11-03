@@ -50,7 +50,6 @@ import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
@@ -59,6 +58,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntObjectMap;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,12 +82,12 @@ public abstract class AbstractHashTree
    /**
     * map from a childIndex sequence key to an array of parentIndex sequences.
     */
-   protected final OpenIntObjectHashMap<int[]> childSequence_ParentSequenceArray_Map;
+   protected final SpinedIntObjectMap<int[]> childSequence_ParentNidArray_Map;
 
    /**
     * Map from a parentIndex sequence key to an array of childIndex sequences.
     */
-   protected final OpenIntObjectHashMap<int[]> parentSequence_ChildSequenceArray_Map;
+   protected final SpinedIntObjectMap<int[]> parentSequence_ChildNidArray_Map;
    protected final ManifoldCoordinate          manifoldCoordinate;
    protected final int                         assemblageNid;
 
@@ -102,8 +103,8 @@ public abstract class AbstractHashTree
    public AbstractHashTree(ManifoldCoordinate manifoldCoordinate, int assemblageNid) {
       this.manifoldCoordinate                    = manifoldCoordinate;
       this.assemblageNid                         = assemblageNid;
-      this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>();
-      this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>();
+      this.childSequence_ParentNidArray_Map = new SpinedIntObjectMap<>();
+      this.parentSequence_ChildNidArray_Map = new SpinedIntObjectMap<>();
    }
 
    /**
@@ -117,8 +118,8 @@ public abstract class AbstractHashTree
    public AbstractHashTree(ManifoldCoordinate manifoldCoordinate, int assemblageNid, int initialSize) {
       this.manifoldCoordinate                    = manifoldCoordinate;
       this.assemblageNid                         = assemblageNid;
-      this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
-      this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
+      this.childSequence_ParentNidArray_Map = new SpinedIntObjectMap<>();
+      this.parentSequence_ChildNidArray_Map = new SpinedIntObjectMap<>();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -126,43 +127,43 @@ public abstract class AbstractHashTree
    /**
     * Breadth first process.
     *
-    * @param startSequence the start sequence
+    * @param startNid the start nid
     * @param consumer the consumer
     * @return the tree node visit data
     */
    @Override
-   public final TreeNodeVisitData breadthFirstProcess(int startSequence,
+   public final TreeNodeVisitData breadthFirstProcess(int startNid,
          ObjIntConsumer<TreeNodeVisitData> consumer,
          Supplier<TreeNodeVisitData> emptyDataSupplier) {
       final TreeNodeVisitData nodeVisitData = emptyDataSupplier.get();
       final Queue<Integer>    bfsQueue      = new LinkedList<>();
 
-      nodeVisitData.startNodeVisit(startSequence, 0);
-      bfsQueue.add(startSequence);
+
+      nodeVisitData.startNodeVisit(startNid, 0);
+      bfsQueue.add(startNid);
 
       while (!bfsQueue.isEmpty()) {
-         final int   currentSequence = bfsQueue.remove();
-         final int   currentDistance = nodeVisitData.getDistance(currentSequence);
-         final int[] childSequences  = getChildNids(currentSequence);
+         final int   currentNid = bfsQueue.remove();
+         final int   currentDistance = nodeVisitData.getDistance(currentNid);
+         final int[] childNids  = getChildNids(currentNid);
 
-         if (childSequences.length == 0) {
-            nodeVisitData.setLeafNode(currentSequence);
+         if (childNids.length == 0) {
+            nodeVisitData.setLeafNode(currentNid);
          }
 
-         consumer.accept(nodeVisitData, currentSequence);
+         consumer.accept(nodeVisitData, currentNid);
 
-         for (final int childSequence: childSequences) {
-            nodeVisitData.setLeafNode(currentSequence);
-            consumer.accept(nodeVisitData, currentSequence);
+         for (final int childNid: childNids) {
+            consumer.accept(nodeVisitData, childNid);
 
-            if (nodeVisitData.getNodeStatus(childSequence) == NodeStatus.UNDISCOVERED) {
-               nodeVisitData.startNodeVisit(childSequence, currentDistance + 1);
-               nodeVisitData.setPredecessorNid(childSequence, currentSequence);
-               bfsQueue.add(childSequence);
+            if (nodeVisitData.getNodeStatus(childNid) == NodeStatus.UNDISCOVERED) {
+               nodeVisitData.startNodeVisit(childNid, currentDistance + 1);
+               nodeVisitData.setPredecessorNid(childNid, currentNid);
+               bfsQueue.add(childNid);
             }
          }
 
-         nodeVisitData.endNodeVisit(currentSequence);
+         nodeVisitData.endNodeVisit(currentNid);
       }
 
       return nodeVisitData;
@@ -171,105 +172,106 @@ public abstract class AbstractHashTree
    /**
     * Creates the ancestor tree.
     *
-    * @param childSequence the childIndex sequence
+    * @param childNid the childIndex sequence
     * @return the tree
     */
    @Override
-   public final Tree createAncestorTree(int childSequence) {
+   public final Tree createAncestorTree(int childNid) {
       final SimpleHashTree tree = new SimpleHashTree(manifoldCoordinate, assemblageNid);
 
-      addParentsAsChildren(tree, childSequence, getParentNids(childSequence));
+      addParentsAsChildren(tree, childNid, getParentNids(childNid));
       return tree;
    }
 
    /**
     * Depth first process.
     *
-    * @param startSequence the start sequence
+    * @param startNid the start nid (or root of the tree)
     * @param consumer the consumer
     * @return the tree node visit data
     */
    @Override
-   public final TreeNodeVisitData depthFirstProcess(int startSequence,
+   public final TreeNodeVisitData depthFirstProcess(int startNid,
          ObjIntConsumer<TreeNodeVisitData> consumer,
          Supplier<TreeNodeVisitData> emptyDataSupplier) {
       final TreeNodeVisitData graphVisitData = emptyDataSupplier.get();
 
-      dfsVisit(startSequence, consumer, graphVisitData, 0);
+      dfsVisit(startNid, consumer, graphVisitData, 0);
       return graphVisitData;
    }
 
    @Override
-   public void removeParent(int childSequence, int parentSequence) {
-      int[] parents    = childSequence_ParentSequenceArray_Map.get(childSequence);
+   public void removeParent(int childNid, int parentNid) {
+      int childSequence = ModelGet.identifierService().getElementSequenceForNid(childNid, assemblageNid);
+      int[] parents    = childSequence_ParentNidArray_Map.get(childSequence);
       int[] newParents = new int[parents.length - 1];
       int   j          = 0;
 
       for (int i = 0; i < parents.length; i++) {
-         if (parents[i] != parentSequence) {
+         if (parents[i] != parentNid) {
             newParents[j++] = parents[i];
          }
       }
 
-      childSequence_ParentSequenceArray_Map.put(childSequence, newParents);
+      childSequence_ParentNidArray_Map.put(childSequence, newParents);
    }
 
    /**
     * Dfs visit.
     *
-    * @param sequence the sequence
+    * @param nid the sequence
     * @param consumer the consumer
     * @param nodeVisitData the node visit data
     * @param depth the depth
     */
-   protected void dfsVisit(int sequence,
+   protected void dfsVisit(int nid,
                            ObjIntConsumer<TreeNodeVisitData> consumer,
                            TreeNodeVisitData nodeVisitData,
                            int depth) {
       // Change to NodeStatus.PROCESSING
-      nodeVisitData.startNodeVisit(sequence, depth);
+      nodeVisitData.startNodeVisit(nid, depth);
 
-      final int[] childSequences = getChildNids(sequence);
+      final int[] childNids = getChildNids(nid);
 
-      if (childSequences.length == 0) {
-         nodeVisitData.setLeafNode(sequence);
+      if (childNids.length == 0) {
+         nodeVisitData.setLeafNode(nid);
       }
 
-      consumer.accept(nodeVisitData, sequence);
+      consumer.accept(nodeVisitData, nid);
 
-      for (final int childSequence: childSequences) {
-         if (nodeVisitData.getNodeStatus(childSequence) == NodeStatus.UNDISCOVERED) {
-            nodeVisitData.setPredecessorNid(childSequence, sequence);
-            dfsVisit(childSequence, consumer, nodeVisitData, depth + 1);
+      for (final int childNid: childNids) {
+         if (nodeVisitData.getNodeStatus(childNid) == NodeStatus.UNDISCOVERED) {
+            nodeVisitData.setPredecessorNid(childNid, nid);
+            dfsVisit(childNid, consumer, nodeVisitData, depth + 1);
          } else {
             // second path to node. Could be multi-parent or cycle...
-            OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, childSequence);
+            OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             // add previous predecessor to node.
-            userNodeSet.add(nodeVisitData.getPredecessorNid(childSequence));
+            userNodeSet.add(nodeVisitData.getPredecessorNid(nid));
 
             // add to extra parent set of the child...
             boolean addParent = true;
 
-            for (int otherParentSequence: userNodeSet.keys()
+            for (int otherParentNid: userNodeSet.keys()
                   .elements()) {
-               if (isDescendentOf(otherParentSequence, sequence, nodeVisitData)) {
+               if (isDescendentOf(otherParentNid, nid, nodeVisitData)) {
                   addParent = false;
                }
 
-               if (isDescendentOf(sequence, otherParentSequence, nodeVisitData)) {
-                  userNodeSet.remove(otherParentSequence);
+               if (isDescendentOf(nid, otherParentNid, nodeVisitData)) {
+                  userNodeSet.remove(otherParentNid);
                }
             }
 
             if (addParent) {
-               userNodeSet.add(sequence);
+               userNodeSet.add(nid);
             }
          }
       }
 
       // Change to NodeStatus.FINISHED
-      nodeVisitData.endNodeVisit(sequence);
+      nodeVisitData.endNodeVisit(nid);
    }
 
    /**
@@ -349,28 +351,29 @@ public abstract class AbstractHashTree
    /**
     * Gets the children sequences.
     *
-    * @param parentSequence the parentIndex sequence
+    * @param parentNid the parentIndex sequence
     * @return the children sequences
     */
    @Override
-   public final int[] getChildNids(int parentSequence) {
-      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         return this.parentSequence_ChildSequenceArray_Map.get(parentSequence);
+   public final int[] getChildNids(int parentNid) {
+      int parentSequence = ModelGet.identifierService().getElementSequenceForNid(parentNid, assemblageNid);
+      if (this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
+         return this.parentSequence_ChildNidArray_Map.get(parentSequence);
       }
 
       return new int[0];
    }
 
    @Override
-   public boolean isDescendentOf(int childSequence, int parentSequence) {
-      int[] parentSequences = getParentNids(childSequence);
+   public boolean isDescendentOf(int childNid, int parentNid) {
+      int[] parentNids = getParentNids(childNid);
 
-      if (Arrays.binarySearch(parentSequences, parentSequence) >= 0) {
+      if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
          return true;
       }
 
-      for (int sequenceToTest: parentSequences) {
-         if (isDescendentOf(sequenceToTest, parentSequence)) {
+      for (int nidToTest: parentNids) {
+         if (isDescendentOf(nidToTest, parentNid)) {
             return true;
          }
       }
@@ -378,38 +381,36 @@ public abstract class AbstractHashTree
       return false;
    }
 
-   private boolean isDescendentOf(int childSequence, int parentSequenceToFind, TreeNodeVisitData nodeVisitData) {
-      return isDescendentOfWithDepth(childSequence, parentSequenceToFind, 0, childSequence, nodeVisitData);
+   private boolean isDescendentOf(int childNid, int parentNidToFind, TreeNodeVisitData nodeVisitData) {
+      return isDescendentOfWithDepth(childNid, parentNidToFind, 0, childNid, nodeVisitData);
    }
 
-   private boolean isDescendentOfWithDepth(int childSequence,
-         int parentSequenceToFind,
+   private boolean isDescendentOfWithDepth(int childNid,
+         int parentNidToFind,
          int depth,
-         int originalChildSequence,
+         int originalChildNid,
          TreeNodeVisitData nodeVisitData) {
-      int[] parentSequences = getParentNids(childSequence);
+      int[] parentSequences = getParentNids(childNid);
 
-      if (Arrays.binarySearch(parentSequences, parentSequenceToFind) >= 0) {
+      if (Arrays.binarySearch(parentSequences, parentNidToFind) >= 0) {
          return true;
       }
 
       for (int sequenceToTest: parentSequences) {
          if (depth < 100) {
-            if (sequenceToTest != childSequence) {
-               if (isDescendentOfWithDepth(
-                     sequenceToTest,
-                     parentSequenceToFind,
+            if (sequenceToTest != childNid) {
+               if (isDescendentOfWithDepth(sequenceToTest,
+                     parentNidToFind,
                      depth + 1,
-                     originalChildSequence,
+                     originalChildNid,
                      nodeVisitData)) {
                   return true;
                }
             } else {
-               System.out.println(
-                   "Self reference for: " + childSequence + " " + Get.conceptDescriptionText(childSequence));
+               System.out.println("Self reference for: " + childNid + " " + Get.conceptDescriptionText(childNid));
             }
          } else {
-            int[] cycleArray = findCycle(originalChildSequence, new int[] { originalChildSequence });
+            int[] cycleArray = findCycle(originalChildNid, new int[] { originalChildNid });
 
             if (cycleArray.length > 0) {
                int lastSequenceInCycle = cycleArray[cycleArray.length - 1];
@@ -423,7 +424,7 @@ public abstract class AbstractHashTree
             }
 
             if (cycleArray.length == 0) {
-               cycleArray = findCycle(originalChildSequence, new int[] { originalChildSequence });
+               cycleArray = findCycle(originalChildNid, new int[] { originalChildNid });
             }
 
             if (!nodeVisitData.getCycleSet()
@@ -435,9 +436,9 @@ public abstract class AbstractHashTree
 
                if (cycleArray.length == 0) {
                   builder.append("Depth exceeded, but  cycle not found between: \n     ");
-                  builder.append(originalChildSequence)
+                  builder.append(originalChildNid)
                          .append(" ")
-                         .append(Get.conceptDescriptionText(originalChildSequence));
+                         .append(Get.conceptDescriptionText(originalChildNid));
                   builder.append("\n     ")
                          .append(sequenceToTest)
                          .append(" ")
@@ -469,33 +470,34 @@ public abstract class AbstractHashTree
    /**
     * Gets the descendent sequence set.
     *
-    * @param parentSequence the parentIndex sequence
+    * @param parentNid the parentNid
     * @return the descendent sequence set
     */
    @Override
-   public final NidSet getDescendentNidSet(int parentSequence) {
-      final NidSet descendentSequences = new NidSet();
-
-      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         getDescendentsRecursive(parentSequence, descendentSequences);
-         return descendentSequences;
+   public final NidSet getDescendentNidSet(int parentNid) {
+      final NidSet descendentNids = new NidSet();
+      int parentSequence = ModelGet.identifierService().getElementSequenceForNid(parentNid, assemblageNid);
+      if (this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
+         getDescendentsRecursive(parentNid, descendentNids);
+         return descendentNids;
       }
 
-      return descendentSequences;
+      return descendentNids;
    }
 
    /**
     * Gets the descendents recursive.
     *
-    * @param parentSequence the parentIndex sequence
-    * @param descendentSequences the descendent sequences
+    * @param parentNid the parentIndex sequence
+    * @param descendentNids the descendent sequences
     * @return the descendents recursive
     */
-   private void getDescendentsRecursive(int parentSequence, NidSet descendentSequences) {
-      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         for (final int childSequence: this.parentSequence_ChildSequenceArray_Map.get(parentSequence)) {
-            descendentSequences.add(childSequence);
-            getDescendentsRecursive(childSequence, descendentSequences);
+   private void getDescendentsRecursive(int parentNid, NidSet descendentNids) {
+      int parentSequence = ModelGet.identifierService().getElementSequenceForNid(parentNid, assemblageNid);
+      if (this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
+         for (final int childNid: this.parentSequence_ChildNidArray_Map.get(parentSequence)) {
+            descendentNids.add(childNid);
+            getDescendentsRecursive(childNid, descendentNids);
          }
       }
    }
@@ -503,24 +505,25 @@ public abstract class AbstractHashTree
    /**
     * Gets the parentIndex sequence stream.
     *
-    * @param childSequence the childIndex sequence
+    * @param childNid the childIndex sequence
     * @return the parentIndex sequence stream
     */
    @Override
-   public IntStream getParentNidStream(int childSequence) {
-      return IntStream.of(getParentNids(childSequence));
+   public IntStream getParentNidStream(int childNid) {
+      return IntStream.of(getParentNids(childNid));
    }
 
    /**
     * Gets the parentIndex sequences.
     *
-    * @param childSequence the childIndex sequence
+    * @param childNid the childIndex sequence
     * @return the parentIndex sequences
     */
    @Override
-   public final int[] getParentNids(int childSequence) {
-      if (this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-         return this.childSequence_ParentSequenceArray_Map.get(childSequence);
+   public final int[] getParentNids(int childNid) {
+      int childSequence = ModelGet.identifierService().getElementSequenceForNid(childNid, assemblageNid);
+      if (this.childSequence_ParentNidArray_Map.containsKey(childSequence)) {
+         return this.childSequence_ParentNidArray_Map.get(childSequence);
       }
 
       return new int[0];
