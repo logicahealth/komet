@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.function.LongConsumer;
 import java.util.function.LongUnaryOperator;
@@ -38,14 +37,20 @@ public class SpinedIntLongMap {
    private final int spineSize;
    private final ConcurrentMap<Integer, AtomicLongArray> spines = new ConcurrentHashMap<>();
    private final long INITIAL_VALUE = Long.MAX_VALUE;
-   private final AtomicInteger spineCount = new AtomicInteger();
 
    public SpinedIntLongMap() {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
+   private int getSpineCount() {
+      int spineCount = 0;
+      for (Integer spineKey:  spines.keySet()) {
+         spineCount = Math.max(spineCount, spineKey + 1);
+      }
+      return spineCount; 
+   }
+   
    
    private AtomicLongArray newSpine(Integer spineKey) {
-      spineCount.set(Math.max(spineKey + 1, spineCount.get()));
       long[] spine = new long[spineSize];
       Arrays.fill(spine, INITIAL_VALUE);
       return new AtomicLongArray(spine);
@@ -88,7 +93,7 @@ public class SpinedIntLongMap {
    }
    
    public void forEach(Processor processor) {
-      int currentSpineCount = spineCount.get();
+      int currentSpineCount = getSpineCount();
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicLongArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
@@ -140,10 +145,12 @@ public class SpinedIntLongMap {
    }
 
    private class SpinedValueSpliterator implements Spliterator.OfLong {
-      int end = DEFAULT_SPINE_SIZE * spineCount.get();
-      int currentPosition = 0;
+      int end;
+      int currentPosition;
 
       public SpinedValueSpliterator() {
+          this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+        this.currentPosition = 0;
       }
       
       public SpinedValueSpliterator(int start, int end) {

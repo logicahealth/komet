@@ -20,14 +20,12 @@ import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
-import sh.isaac.model.ModelGet;
 
 /**
  * Use with circumstances where mapping all nids, not just a subset. 
@@ -39,14 +37,20 @@ public class SpinedNidIntMap {
    private final int spineSize;
    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
    private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
-   private final AtomicInteger spineCount = new AtomicInteger();
 
    public SpinedNidIntMap() {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
+   private int getSpineCount() {
+      int spineCount = 0;
+      for (Integer spineKey:  spines.keySet()) {
+         spineCount = Math.max(spineCount, spineKey + 1);
+      }
+      return spineCount; 
+   }
+   
 
    private AtomicIntegerArray newSpine(Integer spineKey) {
-      spineCount.set(Math.max(spineKey + 1, spineCount.get()));
       int[] spine = new int[spineSize];
       Arrays.fill(spine, INITIALIZATION_VALUE);
       return new AtomicIntegerArray(spine);
@@ -96,7 +100,7 @@ public class SpinedNidIntMap {
    }
 
    public void forEach(Processor processor) {
-      int currentSpineCount = spineCount.get();
+      int currentSpineCount = getSpineCount();
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
@@ -181,10 +185,12 @@ public class SpinedNidIntMap {
    }
 
    private class SpinedValueSpliterator implements Spliterator.OfInt {
-      int end = DEFAULT_SPINE_SIZE * spineCount.get();
-      int currentPosition = 0;
+      int end;
+      int currentPosition;
 
       public SpinedValueSpliterator() {
+         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.currentPosition = 0;
       }
       
       public SpinedValueSpliterator(int start, int end) {
@@ -229,10 +235,12 @@ public class SpinedNidIntMap {
    
 
    private class SpinedKeySpliterator implements Spliterator.OfInt {
-      int end = DEFAULT_SPINE_SIZE * spineCount.get();
-      int currentPosition = 0;
+      int end;
+      int currentPosition;
 
       public SpinedKeySpliterator() {
+         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.currentPosition = 0;
       }
       
       public SpinedKeySpliterator(int start, int end) {

@@ -85,7 +85,7 @@ public class TreeBuilderTask
       this.stampedLock                        = stampedLock;
       this.addToTotalWork(conceptCount);
       this.addToTotalWork(conceptCount / 10);  // adding a buffer for the DFS with cycle detection at the end...
-      this.updateTitle("Generating taxonomy snapshot");
+      this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyType() + " snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);

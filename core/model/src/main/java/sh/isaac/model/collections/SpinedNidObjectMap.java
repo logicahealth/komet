@@ -19,7 +19,6 @@ package sh.isaac.model.collections;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -37,7 +36,6 @@ public class SpinedNidObjectMap<E> {
    private static final int DEFAULT_SPINE_SIZE = 1024;
    private final int spineSize;
    private final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
-   private final AtomicInteger spineCount = new AtomicInteger();
    private Function<E,String> elementStringConverter;
 
    public void setElementStringConverter(Function<E, String> elementStringConverter) {
@@ -59,9 +57,15 @@ public class SpinedNidObjectMap<E> {
    public SpinedNidObjectMap() {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
-   
+  private int getSpineCount() {
+      int spineCount = 0;
+      for (Integer spineKey:  spines.keySet()) {
+         spineCount = Math.max(spineCount, spineKey + 1);
+      }
+      return spineCount; 
+   }
+    
    private AtomicReferenceArray<E> newSpine(Integer spineKey) {
-      spineCount.set(Math.max(spineKey + 1, spineCount.get()));
       AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
       return spine;
    }
@@ -94,7 +98,7 @@ public class SpinedNidObjectMap<E> {
    }
    
    public void forEach(Processor<E> processor) {
-      int currentSpineCount = spineCount.get();
+      int currentSpineCount = getSpineCount();
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicReferenceArray<E> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
@@ -157,10 +161,12 @@ public class SpinedNidObjectMap<E> {
    }
 
    private class SpinedValueSpliterator implements Spliterator<E> {
-      int end = DEFAULT_SPINE_SIZE * spineCount.get();
-      int currentPosition = 0;
+      int end;
+      int currentPosition;
 
       public SpinedValueSpliterator() {
+         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.currentPosition = 0;
       }
       
       public SpinedValueSpliterator(int start, int end) {
