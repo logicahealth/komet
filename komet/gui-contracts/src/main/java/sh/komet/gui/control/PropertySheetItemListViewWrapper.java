@@ -39,16 +39,18 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
 
         if(name.equals("Dialect") || name.equals("Type")){
             observableList.addListener(this.listChangeListener = c -> {
-                for(int i = 0; i < c.getList().size(); i++)
-                    this.observableIntegerArray.set(i, c.getList().get(i).getConceptSequence());
+                for(int i = 0; i < c.getList().size(); i++) {
+                   this.observableIntegerArray.set(i, c.getList().get(i).getNid());
+                }
             });
         }else if(name.equals("Module")){
             observableList.addListener(this.listChangeListener = c -> {
                 this.observableIntegerArray.clear();
                 if(c.getList().size() > 0) {
                     int[] iArray = new int[c.getList().size()];
-                    for (int i = 0; i < iArray.length; i++)
-                        iArray[i] = c.getList().get(i).getConceptSequence();
+                    for (int i = 0; i < iArray.length; i++) {
+                       iArray[i] = c.getList().get(i).getNid();
+                    }
                     this.observableIntegerArray.addAll(iArray, 0, iArray.length);
                 }
             });
