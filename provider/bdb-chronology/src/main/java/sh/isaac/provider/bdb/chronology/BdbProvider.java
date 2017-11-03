@@ -587,7 +587,7 @@ public class BdbProvider
       DatabaseEntry key = new DatabaseEntry();
       IntegerBinding.intToEntry(SEQUENCE_GENERATOR_MAP_KEY, key);
       DatabaseEntry   value  = new DatabaseEntry();
-      binding.objectToEntry(assemblageNid_SequenceGenerator_Map, key);
+      binding.objectToEntry(assemblageNid_SequenceGenerator_Map, value);
       database.put(null, key, value);
    }
    
@@ -606,7 +606,7 @@ public class BdbProvider
    public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap() {
       Database database = getNoDupDatabase(MISC_MAP);
       DatabaseEntry key = new DatabaseEntry();
-      IntegerBinding.intToEntry(SEQUENCE_GENERATOR_MAP_KEY, key);
+      IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
       DatabaseEntry   value  = new DatabaseEntry();
       AssemblageObjectTypeMapBinding binding = new AssemblageObjectTypeMapBinding();
       if (database.get(null, key, value, null) == OperationStatus.SUCCESS) {
@@ -620,8 +620,9 @@ public class BdbProvider
       DatabaseEntry key = new DatabaseEntry();
       IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
       DatabaseEntry   value  = new DatabaseEntry();
-      binding.objectToEntry(map, key);
-      database.put(null, key, value);
+      binding.objectToEntry(map, value);
+      OperationStatus result = database.put(null, key, value);
+      LOG.info("Put assemblage type map with result of: " + result);
    }
 }
 

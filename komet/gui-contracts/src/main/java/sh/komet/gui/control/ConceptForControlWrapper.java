@@ -65,12 +65,12 @@ public class ConceptForControlWrapper
 
    //~--- constructors --------------------------------------------------------
 
-   public ConceptForControlWrapper(Manifold manifold, int conceptSequence) {
-      if (conceptSequence == Integer.MAX_VALUE) {
+   public ConceptForControlWrapper(Manifold manifold, int conceptNid) {
+      if (conceptNid == Integer.MAX_VALUE) {
          throw new IllegalStateException("Integer.MAX_VALUE for concept sequence.");
       }
       this.manifold        = manifold;
-      this.conceptNid = conceptSequence;
+      this.conceptNid = conceptNid;
    }
 
    //~--- methods -------------------------------------------------------------

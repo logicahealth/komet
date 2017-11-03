@@ -165,7 +165,9 @@ public class BdbIdentifierProvider
          
          this.bdb.putAssemblageTypeMap(assemblageNid_ObjectType_Map);
          
-      } catch (IOException ex) {
+      } catch (Throwable ex) {
+         LOG.error(ex);
+         ex.printStackTrace();
          throw new RuntimeException(ex);
       }
    }
