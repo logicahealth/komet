@@ -43,7 +43,7 @@ package sh.isaac.model.configuration;
 
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -65,11 +65,11 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getConceptSequence());
+                                                                TermAux.DEVELOPMENT_PATH.getNid());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     ConceptSequenceSet.EMPTY,
+                                     new NidSet(),
                                      State.makeAnyStateSet());
    }
 
@@ -80,11 +80,11 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getConceptSequence());
+                                                                TermAux.DEVELOPMENT_PATH.getNid());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     ConceptSequenceSet.EMPTY,
+                                     new NidSet(),
                                      State.makeActiveOnlySet());
    }
 
@@ -95,11 +95,11 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getConceptSequence());
+                                                                TermAux.MASTER_PATH.getNid());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     ConceptSequenceSet.EMPTY,
+                                     new NidSet(),
                                      State.makeAnyStateSet());
    }
 
@@ -110,11 +110,11 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getConceptSequence());
+                                                                TermAux.MASTER_PATH.getNid());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     ConceptSequenceSet.EMPTY,
+                                     new NidSet(),
                                      State.makeActiveOnlySet());
    }
 }

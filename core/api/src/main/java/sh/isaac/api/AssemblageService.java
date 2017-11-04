@@ -42,25 +42,19 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeConstraints;
-import sh.isaac.api.component.sememe.SememeServiceTyped;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.chronicle.VersionType;
+
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -72,35 +66,20 @@ import sh.isaac.api.coordinate.StampPosition;
 @Contract
 public interface AssemblageService
         extends DatabaseServices {
-   /**
-    * Of type.
-    *
-    * @param <V> the value type
-    * @param versionType the version type
-    * @return the sememe service typed
-    */
-   <V extends SememeVersion> SememeServiceTyped ofType(VersionType versionType);
 
    /**
-    * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will
-    * merge the written sememe with the provided sememe.
+    * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will
+    * merge the written SemanticChronology with the provided semantic.
     *
     *
     * The persistence of the concept is dependent on the persistence
     * of the underlying service.
     *
-    * @param sememeChronicle the sememe chronicle
+    * @param semanticChronicle the SemanticChronology 
     */
-   void writeSememe(SememeChronology sememeChronicle);
+   void writeSemanticChronology(SemanticChronology semanticChronicle);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the assemblage types.
-    *
-    * @return the sequence identifiers of all assemblage concepts that are actually in use by a sememe
-    */
-   Stream<Integer> getAssemblageTypes();
 
    /**
     * Gets the descriptions for component.
@@ -108,120 +87,111 @@ public interface AssemblageService
     * @param componentNid the component nid
     * @return the descriptions for component
     */
-   Stream<SememeChronology> getDescriptionsForComponent(int componentNid);
+   Stream<SemanticChronology> getDescriptionsForComponent(int componentNid);
 
    /**
-    * Gets the optional sememe.
+    * Gets the optional semantic chronology.
     *
-    * @param sememeId sequence or nid for a sememe
-    * @return the identified {@code SememeChronology}
+    * @param semanticId sequence or nid for a semantic chronology
+    * @return the identified {@code SemanticChronology}
     */
-   Optional<? extends SememeChronology> getOptionalSememe(int sememeId);
+   Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticId);
 
    /**
-    * Gets the parallel sememe stream.
+    * Gets the SemanticChronology.
     *
-    * @return the parallel sememe stream
+    * @param semanticId sequence or nid for a SemanticChronology
+    * @return the identified {@code SemanticChronology}
     */
-   Stream<SememeChronology> getParallelSememeStream();
+   SemanticChronology getSemanticChronology(int semanticId);
 
    /**
-    * Gets the sememe.
+    * Gets the SemanticChronology stream.
     *
-    * @param sememeId sequence or nid for a sememe
-    * @return the identified {@code SememeChronology}
+    * @return the SemanticChronology stream
     */
-   SememeChronology getSememe(int sememeId);
+   Stream<SemanticChronology> getSemanticChronologyStream();
 
    /**
-    * Use in circumstances when not all sememes may have been loaded to find out if a sememe is present,
-    * without incurring the overhead of reading back the object.
-    * @param sememeId Either a nid or sememe sequence
-    * @return true if present, false otherwise
-    */
-   boolean hasSememe(int sememeId);
-
-   /**
-    * Gets the sememe chronology stream.
+    * Gets the SemanticChronology key stream.
     *
-    * @return the sememe chronology stream
+    * @return the SemanticChronology key stream
     */
-   Stream<SememeChronology> getSememeChronologyStream();
+   IntStream getSemanticNidStream();
 
    /**
-    * Gets the sememe count.
+    * 
+    * @return count of all the semantic chronologies, active, or inactive. 
+    */
+   int getSemanticCount();
+
+   /**
+    * @param assemblageNid The nid for the assemblage to count elements from
+    * @return count of all the semantic chronologies in the assemblage, active, or inactive. 
+    */
+   int getSemanticCount(int assemblageNid);
+
+   /**
+    * Gets the SemanticChronology key stream.
     *
-    * @return the sememe count
+    * @param assemblageNid The nid for the assemblage to select the nids from
+    * @return the SemanticChronology key stream
     */
-   int getSememeCount();
+   IntStream getSemanticNidStream(int assemblageNid);
 
    /**
-    * Gets the sememe key parallel stream.
-    *
-    * @return the sememe key parallel stream
-    */
-   IntStream getSememeKeyParallelStream();
-
-   /**
-    * Gets the sememe key stream.
-    *
-    * @return the sememe key stream
-    */
-   IntStream getSememeKeyStream();
-
-   /**
-    * Gets the sememe sequences for component.
+    * Gets the SemanticChronology nids for component.
     *
     * @param componentNid the component nid
-    * @return the sememe sequences for component
+    * @return the SemanticChronology nids for component
     */
-   SememeSequenceSet getSememeSequencesForComponent(int componentNid);
+   NidSet getSemanticNidsForComponent(int componentNid);
 
    /**
-    * Gets the sememe sequences for component from assemblage.
+    * Gets the SemanticChronology nids for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences for component from assemblage
+    * @param assemblageConceptNid the assemblage nid
+    * @return the SemanticChronology nids for component from assemblage
     */
-   SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
+   NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
    /**
-    * Gets the sememe sequences from assemblage.
+    * Gets the SemanticChronology nids from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences from assemblage
+    * @param assemblageConceptNid the assemblage nid
+    * @return the SemanticChronology sequences from assemblage
     */
-   SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
+   NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
    /**
-    * Gets the sememes for component.
+    * Gets the SemanticChronology for component.
     *
     * @param <C>
     * @param componentNid the component nid
-    * @return the sememes for component
+    * @return the SemanticChronology for component
     */
-   <C extends SememeChronology> Stream<C> getSememesForComponent(int componentNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
    /**
-    * Gets the sememes for component from assemblage.
+    * Gets the SemanticChronology for component from assemblage.
     *
     * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes for component from assemblage
+    * @return the SemanticChronologies for component from assemblage
     */
-   <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
-    * Gets the sememes from assemblage.
+    * Gets the SemanticChronologies from assemblage.
     *
     * @param <C>
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes from assemblage
+    * @return the SemanticChronologies from assemblage
     */
-   <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageConceptSequence);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence);
 
    /**
     * Gets the referenced component nids from assemblage.
@@ -230,7 +200,7 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification) {
-      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getConceptSequence());
+      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid());
    }
    
    /**
@@ -240,7 +210,7 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
-      return getSememesFromAssemblage(assemblageConceptSequence).mapToInt((sememe) -> sememe.getReferencedComponentNid());
+      return getSemanticChronologyStreamFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    
@@ -252,7 +222,7 @@ public interface AssemblageService
     * @param stampCoordinate the stamp coordinate
     * @return the snapshot
     */
-   <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType,
+   <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
 }
 

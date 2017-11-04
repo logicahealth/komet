@@ -58,13 +58,13 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
 import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -144,7 +144,7 @@ public class PropertySheetMenuItem
                     .addUncommitted((ConceptChronology) this.observableVersion.getChronology());
          } else {
             Get.commitService()
-                    .addUncommitted((SememeChronology) this.observableVersion.getChronology());
+                    .addUncommitted((SemanticChronology) this.observableVersion.getChronology());
          }
       }
 

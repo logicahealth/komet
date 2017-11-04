@@ -65,9 +65,8 @@ import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
 
 import sh.isaac.api.DataSource;
-import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.ConcurrentSequenceObjectMap;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -79,10 +78,11 @@ import sh.isaac.model.logic.node.LiteralNodeString;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -105,7 +105,7 @@ public class GraphToAxiomTranslator {
    ConcurrentHashMap<Integer, Feature> sequenceLogicFeatureMap = new ConcurrentHashMap<>();
 
    /** The loaded concepts. */
-   ConcurrentSkipListSet<Integer> loadedConcepts = new ConcurrentSkipListSet<>();
+   ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
 
    /** The f. */
    Factory f = new Factory();
@@ -120,22 +120,25 @@ public class GraphToAxiomTranslator {
       this.sequenceLogicRoleMap.clear();
       this.sequenceLogicFeatureMap.clear();
       this.sequenceLogicConceptMap.clear();
-      this.loadedConcepts.clear();
+      this.loadedConceptNids.clear();
    }
 
    /**
-    * Translates the logicGraphSememe into a set of axioms, and adds those axioms
-    * to the internal set of axioms.
+    * Translates the logicGraphSemantic into a set of axioms, and adds those axioms
+ to the internal set of axioms.
     *
-    * @param logicGraphSememe the logic graph sememe
+    * @param logicGraphSemantic the logic graph sememe
     */
-   public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSememe) {
-      this.loadedConcepts.add(logicGraphSememe.getReferencedComponentNid());
+   public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSemantic) {
+      if (logicGraphSemantic.getReferencedComponentNid() >= 0) {
+         throw new IllegalStateException("Referenced component nid must be negative: " + logicGraphSemantic.getReferencedComponentNid());
+      }
+      this.loadedConceptNids.add(logicGraphSemantic.getReferencedComponentNid());
 
-      final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSememe.getGraphData(),
+      final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSemantic.getGraphData(),
                                                                                    DataSource.INTERNAL);
 
-      generateAxioms(logicGraph.getRoot(), logicGraphSememe.getReferencedComponentNid(), logicGraph);
+      generateAxioms(logicGraph.getRoot(), logicGraphSemantic.getReferencedComponentNid(), logicGraph);
    }
 
    /**
@@ -167,9 +170,9 @@ public class GraphToAxiomTranslator {
          return processAnd((AndNode) logicNode, conceptNid, logicGraph);
 
       case CONCEPT:
-         final ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
+         final ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
 
-         return Optional.of(getConcept(conceptNode.getConceptSequence()));
+         return Optional.of(getConcept(conceptNode.getConceptNid()));
 
       case DEFINITION_ROOT:
          processRoot(logicNode, conceptNid, logicGraph);
@@ -179,7 +182,7 @@ public class GraphToAxiomTranslator {
          throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
 
       case FEATURE:
-         return processFeatureNode((FeatureNodeWithSequences) logicNode, conceptNid, logicGraph);
+         return processFeatureNode((FeatureNodeWithNids) logicNode, conceptNid, logicGraph);
 
       case NECESSARY_SET:
          processNecessarySet((NecessarySetNode) logicNode, conceptNid, logicGraph);
@@ -192,7 +195,7 @@ public class GraphToAxiomTranslator {
          throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
 
       case ROLE_SOME:
-         return processRoleNodeSome((RoleNodeSomeWithSequences) logicNode, conceptNid, logicGraph);
+         return processRoleNodeSome((RoleNodeSomeWithNids) logicNode, conceptNid, logicGraph);
 
       case SUBSTITUTION_BOOLEAN:
          throw new UnsupportedOperationException("Supported, but not yet implemented.");
@@ -305,10 +308,10 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
-   private Optional<Concept> processFeatureNode(FeatureNodeWithSequences featureNode,
+   private Optional<Concept> processFeatureNode(FeatureNodeWithNids featureNode,
          int conceptNid,
          LogicalExpressionImpl logicGraph) {
-      final Feature     theFeature = getFeature(featureNode.getTypeConceptSequence());
+      final Feature     theFeature = getFeature(featureNode.getTypeConceptNid());
       final LogicNode[] children   = featureNode.getChildren();
 
       if (children.length != 1) {
@@ -384,10 +387,10 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
-   private Optional<Concept> processRoleNodeSome(RoleNodeSomeWithSequences roleNodeSome,
+   private Optional<Concept> processRoleNodeSome(RoleNodeSomeWithNids roleNodeSome,
          int conceptNid,
          LogicalExpressionImpl logicGraph) {
-      final Role        theRole  = getRole(roleNodeSome.getTypeConceptSequence());
+      final Role        theRole  = getRole(roleNodeSome.getTypeConceptNid());
       final LogicNode[] children = roleNodeSome.getChildren();
 
       if (children.length != 1) {
@@ -480,11 +483,10 @@ public class GraphToAxiomTranslator {
     * @return the concept
     */
    private Concept getConcept(int name) {
-      if (name < 0) {
-         name = Get.identifierService()
-                   .getConceptSequence(name);
-      }
 
+      if (name < 0) {
+         name = ModelGet.identifierService().getElementSequenceForNid(name);
+      }
       final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.get(name);
 
       if (optionalConcept.isPresent()) {
@@ -511,10 +513,6 @@ public class GraphToAxiomTranslator {
     * @return the feature
     */
    private Feature getFeature(int name) {
-      if (name < 0) {
-         name = Get.identifierService()
-                   .getConceptSequence(name);
-      }
 
       final Feature feature = this.sequenceLogicFeatureMap.get(name);
 
@@ -531,8 +529,8 @@ public class GraphToAxiomTranslator {
     *
     * @return the loaded concepts
     */
-   public ConceptSequenceSet getLoadedConcepts() {
-      return ConceptSequenceSet.of(this.loadedConcepts);
+   public NidSet getLoadedConcepts() {
+      return NidSet.of(this.loadedConceptNids);
    }
 
    /**
@@ -542,11 +540,7 @@ public class GraphToAxiomTranslator {
     * @return the role
     */
    private Role getRole(int name) {
-      if (name < 0) {
-         name = Get.identifierService()
-                   .getConceptSequence(name);
-      }
-
+ 
       final Role role = this.sequenceLogicRoleMap.get(name);
 
       if (role != null) {

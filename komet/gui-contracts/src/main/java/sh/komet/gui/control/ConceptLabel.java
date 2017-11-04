@@ -69,14 +69,14 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -206,13 +206,13 @@ public class ConceptLabel
          this.manifold
                  .setFocusedConceptChronology(conceptVersion.getChronology());
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
-         SememeChronology sememeChronology = Get.serializer()
+         SemanticChronology sememeChronology = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
 
          this.manifold
                  .setFocusedConceptChronology(
                          Get.conceptService()
-                                 .getConcept(sememeChronology.getReferencedComponentNid()));
+                                 .getConceptChronology(sememeChronology.getReferencedComponentNid()));
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
          DescriptionVersion descriptionVersion = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
@@ -220,7 +220,7 @@ public class ConceptLabel
          this.manifold
                  .setFocusedConceptChronology(
                          Get.conceptService()
-                                 .getConcept(descriptionVersion.getReferencedComponentNid()));
+                                 .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
       }
 
       this.setBackground(originalBackground);

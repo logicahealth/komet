@@ -19,10 +19,10 @@ package sh.komet.gui.cell;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
@@ -39,16 +39,16 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
-        SememeVersion sememeVersion = cellValue.unwrap();
-        switch (sememeVersion.getChronology().getSememeType()) {
+        SemanticVersion sememeVersion = cellValue.unwrap();
+        switch (sememeVersion.getChronology().getVersionType()) {
            case DESCRIPTION:
               DescriptionVersion description = cellValue.unwrap();
-              int descriptionType = description.getDescriptionTypeConceptSequence();
-              if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-                 setText("FSN");
-              } else if (descriptionType == TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
+              int descriptionType = description.getDescriptionTypeConceptNid();
+              if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+                 setText("FQN");
+              } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("SYN");
-              } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+              } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
               } else {
                  setText(manifold.getPreferredDescriptionText(descriptionType));
@@ -59,7 +59,7 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               if (sememeVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
                  setText("PATH");
               } else {
-                 setText(sememeVersion.getChronology().getSememeType().getWhatName());
+                 setText(sememeVersion.getChronology().getVersionType().getWhatName());
               }
            
         }

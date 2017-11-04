@@ -89,12 +89,11 @@ public class StampPositionImpl
     * Instantiates a new stamp position impl.
     *
     * @param time the time
-    * @param stampPathSequence the stamp path sequence
+    * @param stampPathNid the stamp path sequence
     */
-   public StampPositionImpl(long time, int stampPathSequence) {
+   public StampPositionImpl(long time, int stampPathNid) {
       this.time              = time;
-      this.stampPathSequence = Get.identifierService()
-                                  .getConceptSequence(stampPathSequence);
+      this.stampPathSequence = stampPathNid;
    }
 
    //~--- methods -------------------------------------------------------------

@@ -50,7 +50,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.State;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;

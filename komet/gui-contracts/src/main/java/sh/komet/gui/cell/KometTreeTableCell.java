@@ -20,9 +20,9 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import static sh.komet.gui.style.PseudoClasses.*;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  * Parent class to handle setting of inactive, uncommitted, and uncommitted-with-error pseudo-classes.
@@ -55,11 +55,11 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
          pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(CONCEPT_PSEUDO_CLASS, false);
-         pseudoClassStateChanged(OTHER_PSEUDO_CLASS, false);
+         pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, false);
 
       } else {
          ObservableCategorizedVersion observableVersion = row.getItem();
-         pseudoClassStateChanged(OTHER_PSEUDO_CLASS, false);
+         pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, observableVersion.isUncommitted());
          pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !observableVersion.getState().isActive());
          // TODO: check for superceded. 
@@ -82,8 +82,8 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
             pseudoClassStateChanged(CONCEPT_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
-            SememeVersion sememeVersion = observableVersion.unwrap();
-            switch (sememeVersion.getChronology().getSememeType()) {
+            SemanticVersion sememeVersion = observableVersion.unwrap();
+            switch (sememeVersion.getChronology().getVersionType()) {
                case DESCRIPTION:
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, true);
                   break;
@@ -99,7 +99,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
                default:
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
-                  pseudoClassStateChanged(OTHER_PSEUDO_CLASS, true);
+                  pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, true);
             }
          }
 

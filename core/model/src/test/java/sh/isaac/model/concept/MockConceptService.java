@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -93,7 +93,7 @@ public class MockConceptService
     */
    @Override
    public void writeConcept(ConceptChronology concept) {
-      this.conceptsMap.put(concept.getConceptSequence(), concept);
+      this.conceptsMap.put(concept.getNid(), concept);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -105,9 +105,8 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology getConcept(int conceptId) {
-      return this.conceptsMap.get(Get.identifierService()
-                                     .getConceptSequence(conceptId));
+   public ConceptChronology getConceptChronology(int conceptId) {
+      return this.conceptsMap.get(conceptId);
    }
 
    /**
@@ -117,37 +116,22 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology getConcept(UUID... conceptUuids) {
+   public ConceptChronology getConceptChronology(UUID... conceptUuids) {
       final int conceptNid      = Get.identifierService()
                                      .getNidForUuids(conceptUuids);
-      final int conceptSequence = Get.identifierService()
-                                     .getConceptSequence(conceptNid);
 
-      if (this.conceptsMap.containsKey(conceptSequence)) {
-         return this.conceptsMap.get(Get.identifierService()
-                                        .getConceptSequenceForUuids(conceptUuids));
+      if (this.conceptsMap.containsKey(conceptNid)) {
+         return this.conceptsMap.get(conceptNid);
       }
 
-      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, 0);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
       }
 
-      this.conceptsMap.put(conceptSequence, concept);
+      this.conceptsMap.put(conceptNid, concept);
       return concept;
-   }
-
-   /**
-    * Checks for concept.
-    *
-    * @param conceptId the concept id
-    * @return true, if successful
-    */
-   @Override
-   public boolean hasConcept(int conceptId) {
-      return this.conceptsMap.containsKey(Get.identifierService()
-            .getConceptSequence(conceptId));
    }
 
    /**
@@ -174,18 +158,6 @@ public class MockConceptService
    }
 
    /**
-    * Gets the concept chronology stream.
-    *
-    * @param conceptSequences the concept sequences
-    * @return the concept chronology stream
-    */
-   @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(
-           ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
     * Gets the concept count.
     *
     * @return the concept count
@@ -195,17 +167,6 @@ public class MockConceptService
       return this.conceptsMap.size();
    }
 
-   /**
-    * Gets the concept key parallel stream.
-    *
-    * @return the concept key parallel stream
-    */
-   @Override
-   public IntStream getConceptKeyParallelStream() {
-      return this.conceptsMap.keySet()
-                             .parallelStream()
-                             .mapToInt(i -> i);
-   }
 
    /**
     * Gets the concept key stream.
@@ -213,7 +174,7 @@ public class MockConceptService
     * @return the concept key stream
     */
    @Override
-   public IntStream getConceptKeyStream() {
+   public IntStream getConceptNidStream() {
       return this.conceptsMap.keySet()
                              .stream()
                              .mapToInt(i -> i);
@@ -257,7 +218,7 @@ public class MockConceptService
     */
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
-      return Optional.ofNullable(getConcept(conceptId));
+      return Optional.ofNullable(getConceptChronology(conceptId));
    }
 
    /**
@@ -268,30 +229,7 @@ public class MockConceptService
     */
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
-      return Optional.ofNullable(getConcept(conceptUuids));
-   }
-
-   /**
-    * Gets the parallel concept chronology stream.
-    *
-    * @return the parallel concept chronology stream
-    */
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
-      return this.conceptsMap.values()
-                             .parallelStream();
-   }
-
-   /**
-    * Gets the parallel concept chronology stream.
-    *
-    * @param conceptSequences the concept sequences
-    * @return the parallel concept chronology stream
-    */
-   @Override
-   public Stream<ConceptChronology> getParallelConceptChronologyStream(
-           ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException();
+      return Optional.ofNullable(getConceptChronology(conceptUuids));
    }
 
    /**
@@ -306,8 +244,29 @@ public class MockConceptService
    }
 
    @Override
-   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
-      return getConcept(conceptSpecification.getConceptSequence());
+   public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
+      return getConceptChronology(conceptSpecification.getNid());
    }
+
+   @Override
+   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public int getConceptCount(int assemblageNid) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public IntStream getConceptNidStream(int assemblageNid) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }
 

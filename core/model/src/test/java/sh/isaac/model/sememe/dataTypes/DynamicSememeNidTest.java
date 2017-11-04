@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicNidImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,13 +89,13 @@ public class DynamicSememeNidTest {
     */
    private void test(int value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeNidImpl i = new DynamicSememeNidImpl(value);
+      final DynamicNidImpl i = new DynamicNidImpl(value);
 
       assertEquals(value, i.getDataNid());
       assertEquals(value, ((Integer) i.getDataObject()).intValue());
       assertEquals(value, ((Integer) i.getDataObjectProperty()
                                       .get()).intValue());
-      assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.NID);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.NID);
    }
 }
 

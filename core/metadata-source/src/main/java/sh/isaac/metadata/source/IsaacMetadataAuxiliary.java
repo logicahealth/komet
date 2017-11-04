@@ -62,52 +62,28 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.constants.DynamicSememeConstants;
-import sh.isaac.api.constants.MetadataDynamicSememeConstant;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.constants.MetadataDynamicConstant;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.model.observable.ObservableFields;
 
 import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION;
-import static sh.isaac.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.COMMITTED_STATE_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.COMMITTED_STATE_FOR_VERSION;
-import static sh.isaac.model.observable.ObservableFields.CONCEPT_SEQUENCE_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields
-   .DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields
-   .DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_SEQUENCE_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_SEQUENCE_FOR_VERSION;
 import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH;
-import static sh.isaac.model.observable.ObservableFields.PATH_SEQUENCE_FOR_EDIT_CORDINATE;
-import static sh.isaac.model.observable.ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH;
-import static sh.isaac.model.observable.ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION;
-import static sh.isaac.model.observable.ObservableFields.PATH_SEQUENCE_FOR_VERSION;
 import static sh.isaac.model.observable.ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.SEMEME_LIST_FOR_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.STAMP_SEQUENCE_FOR_VERSION;
-import static sh.isaac.model.observable.ObservableFields.STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.STATUS_FOR_VERSION;
 import static sh.isaac.model.observable.ObservableFields.TEXT_FOR_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.TIME_FOR_STAMP_POSITION;
@@ -115,6 +91,27 @@ import static sh.isaac.model.observable.ObservableFields.TIME_FOR_VERSION;
 import static sh.isaac.model.observable.ObservableFields.UUID_FOR_TAXONOMY_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.UUID_LIST_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONICLE;
+import static sh.isaac.model.observable.ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_EDIT_CORDINATE;
+import static sh.isaac.model.observable.ObservableFields.LANGUAGE_NID_FOR_LANGUAGE_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_PATH;
+import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_POSITION;
+import static sh.isaac.model.observable.ObservableFields.AUTHOR_NID_FOR_VERSION;
+import static sh.isaac.model.observable.ObservableFields.MODULE_NID_FOR_VERSION;
+import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_VERSION;
+import static sh.isaac.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION;
+import static sh.isaac.model.observable.ObservableFields.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION;
+import static sh.isaac.model.observable.ObservableFields.ENTRY_SEQUENCE_FOR_CHRONICLE;
+import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE;
+import static sh.isaac.model.observable.ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -189,7 +186,7 @@ public class IsaacMetadataAuxiliary
 
          masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));  // UUID from WB_AUX_PATH
          popParent();
-         createConcept("SNOMED DL concept operator");
+         createConcept("Sufficient concept definition operator");
          pushParent(current());
          createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
          createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
@@ -203,13 +200,13 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER);
          createConcept("Generated UUID").setPrimordialUuid("2faa9262-8fb2-11db-b606-0800200c9a66");
-         createConcept(new MetadataDynamicSememeConstant("LOINC_NUM",
+         createConcept(new MetadataDynamicConstant("LOINC_NUM",
                null,
                "LOINC Identifier",
                "Carries the LOINC_NUM native identifier",
-               new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                     DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(),
-                     DynamicSememeDataType.STRING,
+               new DynamicColumnInfo[] { new DynamicColumnInfo(0,
+                     DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
+                     DynamicDataType.STRING,
                      null,
                      true,
                      true) }));
@@ -285,6 +282,17 @@ public class IsaacMetadataAuxiliary
          createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
          createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
          popParent();
+         createConcept(TermAux.CONCEPT_ASSEMBLAGE);
+         pushParent(current());
+         createConcept(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
+         createConcept(TermAux.SNOMED_CONCEPT_ASSEMBLAGE);
+         createConcept(TermAux.LOINC_CONCEPT_ASSEMBLAGE);
+         createConcept(TermAux.RXNORM_CONCEPT_ASSEMBLAGE);
+         popParent();
+         createConcept("External data assemblage");
+         pushParent(current());
+         createConcept(TermAux.RF2_RELATIONSHIP_ASSEMBLAGE);
+         popParent();
          createConcept("Rule assemblage");
          pushParent(current());
          createConcept("Module assemblage");
@@ -320,30 +328,23 @@ public class IsaacMetadataAuxiliary
          createConcept("Axiom origin");
          pushParent(current());
 
-         final ConceptBuilder stated = createConcept("Stated");
-
-         stated.setPrimordialUuid(
+         createConcept(TermAux.STATED_PREMISE_TYPE).addUuids(
              UUID.fromString(
-                "3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));  // merge with "stated relationship" SCT ID:    900000000000010007
-         stated.addUuids(
+                 "3fde38f6-e079-3cdc-a819-eda3ec74732d"));
+         createConcept(TermAux.INFERRED_PREMISE_TYPE).addUuids(
              UUID.fromString(
-                 "3fde38f6-e079-3cdc-a819-eda3ec74732d"));  // merge with "stated (defining characteristic type)"
-
-         final ConceptBuilder inferred = createConcept("Inferred");
-
-         inferred.setPrimordialUuid(
-             "1290e6ba-48d0-31d2-8d62-e133373c63f5");  // merge with "Inferred" SCT ID:    900000000000011006
-         inferred.addUuids(UUID.fromString("a4c6bf72-8fb6-11db-b606-0800200c9a66"));  // merge with ""defining"
+                 "a4c6bf72-8fb6-11db-b606-0800200c9a66"));
+                 
          popParent();
          createConcept("Description type");
          pushParent(current());
 
-         final ConceptBuilder fsn = createConcept("Fully specified name");
+         final ConceptBuilder fsn = createConcept("Fully qualified name");
 
-         fsn.mergeFromSpec(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE);
+         fsn.mergeFromSpec(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
          fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"));       // RF1 FSN
 
-         final ConceptBuilder syn = createConcept(TermAux.SYNONYM_DESCRIPTION_TYPE);
+         final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
 
          syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
          createConcept("Definition description type").mergeFromSpec(TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -456,24 +457,24 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept("Coordinate properties");
          pushParent(current());
-         createConcept(AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE);
-         createConcept(MODULE_SEQUENCE_FOR_EDIT_COORDINATE);
-         createConcept(PATH_SEQUENCE_FOR_EDIT_CORDINATE);
-         createConcept(LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE);
-         createConcept(DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
-         createConcept(DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
-         createConcept(STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE);
-         createConcept(INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE);
-         createConcept(DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE);
-         createConcept(CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE);
+         createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE);
+         createConcept(MODULE_NID_FOR_EDIT_COORDINATE);
+         createConcept(PATH_NID_FOR_EDIT_CORDINATE);
+         createConcept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE);
+         createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
+         createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
+         createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);
+         createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);
+         createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE);
+         createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE);
          createConcept(STAMP_PRECEDENCE_FOR_STAMP_COORDINATE);
          createConcept(STAMP_POSITION_FOR_STAMP_COORDINATE);
          createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE);
-         createConcept(MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE);
-         createConcept(PATH_SEQUENCE_FOR_STAMP_PATH);
+         createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE);
+         createConcept(PATH_NID_FOR_STAMP_PATH);
          createConcept(PATH_ORIGIN_LIST_FOR_STAMP_PATH);
          createConcept(TIME_FOR_STAMP_POSITION);
-         createConcept(PATH_SEQUENCE_FOR_STAMP_POSITION);
+         createConcept(PATH_NID_FOR_STAMP_POSITION);
          createConcept(PREMISE_TYPE_FOR_TAXONOMY_COORDINATE);
          createConcept(UUID_FOR_TAXONOMY_COORDINATE);
          createConcept(STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE);
@@ -484,15 +485,15 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(STATUS_FOR_VERSION);
          createConcept(TIME_FOR_VERSION);
-         createConcept(AUTHOR_SEQUENCE_FOR_VERSION);
-         createConcept(MODULE_SEQUENCE_FOR_VERSION);
-         createConcept(PATH_SEQUENCE_FOR_VERSION);
+         createConcept(AUTHOR_NID_FOR_VERSION);
+         createConcept(MODULE_NID_FOR_VERSION);
+         createConcept(PATH_NID_FOR_VERSION);
          createConcept(COMMITTED_STATE_FOR_VERSION);
          createConcept(STAMP_SEQUENCE_FOR_VERSION);
          createConcept("Description version properties");
          pushParent(current());
-         createConcept(CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION);
-         createConcept(LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION);
+         createConcept(CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION);
+         createConcept(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION);
          createConcept(TEXT_FOR_DESCRIPTION);
          createConcept(DESCRIPTION_TYPE_FOR_DESCRIPTION);
          popParent();
@@ -501,24 +502,23 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(VERSION_LIST_FOR_CHRONICLE);
          createConcept(NATIVE_ID_FOR_CHRONICLE);
-         createConcept(CONCEPT_SEQUENCE_FOR_CHRONICLE);
-         createConcept(SEMEME_SEQUENCE_FOR_CHRONICLE);
+         createConcept(ENTRY_SEQUENCE_FOR_CHRONICLE);
          createConcept(PRIMORDIAL_UUID_FOR_CHRONICLE);
          createConcept(UUID_LIST_FOR_CHRONICLE);
          createConcept(COMMITTED_STATE_FOR_CHRONICLE);
-         createConcept(SEMEME_LIST_FOR_CHRONICLE);
-         createConcept(ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE);
+         createConcept(SEMANTIC_LIST_FOR_CHRONICLE);
+         createConcept(ASSEMBLAGE_NID_FOR_CHRONICLE);
          popParent();
          createConcept("Concept properties");
          pushParent(current());
          createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
          popParent();
-         createConcept("Sememe properties");
+         createConcept("Semantic properties");
          pushParent(current());
-         createConcept(ObservableFields.STRING_VALUE_FOR_SEMEME);
-         createConcept(ObservableFields.COMPONENT_NID_FOR_SEMEME);
-         createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMEME);
-         createConcept(ObservableFields.LONG_VALUE_FOR_SEMEME);
+         createConcept(ObservableFields.STRING_VALUE_FOR_SEMANTIC);
+         createConcept(ObservableFields.COMPONENT_NID_FOR_SEMANTIC);
+         createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC);
+         createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);
          popParent();
          
          
@@ -550,13 +550,15 @@ public class IsaacMetadataAuxiliary
    createConcept(TermAux.CONCEPT_IS_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE);
    createConcept(TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_LUCENE_ACTIVE_ONLY_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
    createConcept(TermAux.RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE);
    createConcept(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
-   createConcept(TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
    
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE);

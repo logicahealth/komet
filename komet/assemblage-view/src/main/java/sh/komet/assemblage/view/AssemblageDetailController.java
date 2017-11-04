@@ -34,7 +34,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.komet.gui.cell.TreeTableAuthorTimeCellFactory;
 import sh.komet.gui.cell.TreeTableConceptCellFactory;
 import sh.komet.gui.cell.TreeTableGeneralCellFactory;
@@ -42,6 +41,7 @@ import sh.komet.gui.cell.TreeTableModulePathCellFactory;
 import sh.komet.gui.cell.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.TreeTableWhatCellFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
@@ -110,8 +110,8 @@ public class AssemblageDetailController {
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-           ObservableList<ObservableSememeChronology> children, boolean addSememes) {
-      for (ObservableSememeChronology child : children) {
+           ObservableList<ObservableSemanticChronology> children, boolean addSememes) {
+      for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
 
@@ -139,7 +139,7 @@ public class AssemblageDetailController {
                        .add(historicTreeItem);
             }
             if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSememeList(), addSememes);
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
             }
          }
       }
@@ -153,15 +153,15 @@ public class AssemblageDetailController {
       } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                  .getObservableConceptChronology(
-                         newValue.getConceptSequence());
+                         newValue.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
                          manifold);
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-         ObservableList<ObservableSememeChronology> children = FXCollections.observableArrayList();
+         ObservableList<ObservableSemanticChronology> children = FXCollections.observableArrayList();
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-         Get.assemblageService().getSememeSequencesFromAssemblage(observableConceptChronology.getNid())
+         Get.assemblageService().getSemanticNidsFromAssemblage(observableConceptChronology.getNid())
                  .stream().forEach((sememeId) -> 
                  children.add(observableChronologyService.getObservableSememeChronology(sememeId)));
          addChildren(assemblageRoot, children, true);

@@ -54,12 +54,12 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -111,7 +111,7 @@ public interface CommitService
     * @param sc the sc
     * @return the task
     */
-   Task<Void> addUncommitted(SememeChronology sc);
+   Task<Void> addUncommitted(SemanticChronology sc);
 
    /**
     * Adds the uncommitted no checks.
@@ -127,30 +127,7 @@ public interface CommitService
     * @param sc the sc
     * @return the task
     */
-   Task<Void> addUncommittedNoChecks(SememeChronology sc);
-
-   /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel();
-
-   /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param chronicledConcept the concept to cancel changes upon.
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel(ConceptChronology chronicledConcept);
+   Task<Void> addUncommittedNoChecks(SemanticChronology sc);
 
    /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
@@ -162,18 +139,6 @@ public interface CommitService
     * @return task representing the cancel.
     */
    Task<Void> cancel(EditCoordinate editCoordinate);
-
-   /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param sememeChronicle the sememe to cancel changes upon.
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel(SememeChronology sememeChronicle);
 
    /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
@@ -188,27 +153,6 @@ public interface CommitService
    Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate);
 
    /**
-    * Commit.
-    *
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(String commitComment);
-
-   /**
-    * Commit.
-    *
-    * @param chronicledConcept the chronicled concept
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
-
-   /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
@@ -218,17 +162,6 @@ public interface CommitService
     * @return task representing the cancel.
     */
    Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
-
-   /**
-    * Commit.
-    *
-    * @param sememeChronicle the sememe chronicle
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
@@ -246,7 +179,7 @@ public interface CommitService
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.
-    * Sememes and concepts will have their versions  merged with existing versions if they exist.
+    * Semantics and concepts will have their versions  merged with existing versions if they exist.
     *
     * one MUST call {@link CommitService#postProcessImportNoChecks()} when your import batch is complete
     * to ensure data integrity.
@@ -285,13 +218,6 @@ public interface CommitService
    void removeChangeListener(ChronologyChangeListener changeListener);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the alert list.
-    *
-    * @return the alert list
-    */
-   ObservableList<Alert> getAlertList();
 
    /**
     * Gets the aliases.

@@ -62,16 +62,11 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.constants.MetadataConceptConstantGroup;
-import sh.isaac.api.constants.MetadataDynamicSememeConstant;
+import sh.isaac.api.constants.MetadataDynamicConstant;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -82,7 +77,12 @@ import sh.isaac.api.util.UuidT5Generator;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -99,9 +99,9 @@ public class IsaacTaxonomy {
    private final TreeMap<String, ConceptBuilder> conceptBuilders = new TreeMap<>();
 
    /**
-    * The sememe builders.
+    * The semantic builders.
     */
-   private final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
+   private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /**
     * The concept builders in insertion order.
@@ -172,7 +172,7 @@ public class IsaacTaxonomy {
       try {
          final ConceptBuilder cb = createConcept(cc.getPrimaryName(),
                  (cc.getParent() != null) ? cc.getParent()
-                 .getConceptSequence()
+                 .getNid()
                  : null,
                  null);
 
@@ -183,7 +183,7 @@ public class IsaacTaxonomy {
          });
 
          cc.getSynonyms().forEach((definition) -> {
-            addDescription(definition, cb, TermAux.SYNONYM_DESCRIPTION_TYPE, false);
+            addDescription(definition, cb, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, false);
          });
 
          if (cc instanceof MetadataConceptConstantGroup) {
@@ -196,62 +196,62 @@ public class IsaacTaxonomy {
             popParent();
          }
 
-         if (cc instanceof MetadataDynamicSememeConstant) {
+         if (cc instanceof MetadataDynamicConstant) {
             // See {@link DynamicSememeUsageDescription} class for more details on this format.
-            final MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant) cc;
-            final DescriptionBuilder<? extends SememeChronology, ? extends MutableDescriptionVersion> db
-                    = addDescription(dsc.getSememeAssemblageDescription(),
+            final MetadataDynamicConstant dsc = (MetadataDynamicConstant) cc;
+            final DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> db
+                    = addDescription(dsc.getAssemblageDescription(),
                             cb,
                             TermAux.DEFINITION_DESCRIPTION_TYPE,
                             false);
 
             // Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-            SememeBuilder<? extends SememeChronology> sb = Get.sememeBuilderService()
-                    .getDynamicSememeBuilder(db,
-                            DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+            SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
+                    .getDynamicBuilder(db,
+                            DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                     .getNid());
 
-            db.addSememe(sb);
+            db.addSemantic(sb);
 
-            if (dsc.getDynamicSememeColumns() != null) {
-               for (final DynamicSememeColumnInfo col : dsc.getDynamicSememeColumns()) {
-                  final DynamicSememeData[] colData = LookupService.getService(DynamicSememeUtility.class)
-                          .configureDynamicSememeDefinitionDataForColumn(col);
+            if (dsc.getDynamicColumns() != null) {
+               for (final DynamicColumnInfo col : dsc.getDynamicColumns()) {
+                  final DynamicData[] colData = LookupService.getService(DynamicUtility.class)
+                          .configureDynamicDefinitionDataForColumn(col);
 
-                  sb = Get.sememeBuilderService()
-                          .getDynamicSememeBuilder(cb,
-                                  DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
+                  sb = Get.semanticBuilderService()
+                          .getDynamicBuilder(cb,
+                                  DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                           .getNid(),
                                   colData);
-                  cb.addSememe(sb);
+                  cb.addSemantic(sb);
                }
             }
 
-            final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
-                    .configureDynamicSememeRestrictionData(
+            final DynamicData[] data = LookupService.getService(DynamicUtility.class)
+                    .configureDynamicRestrictionData(
                             dsc.getReferencedComponentTypeRestriction(),
                             dsc.getReferencedComponentSubTypeRestriction());
 
             if (data != null) {
-               sb = Get.sememeBuilderService()
-                       .getDynamicSememeBuilder(cb,
-                               DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+               sb = Get.semanticBuilderService()
+                       .getDynamicBuilder(cb,
+                               DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                        .getNid(),
                                data);
-               cb.addSememe(sb);
+               cb.addSemantic(sb);
             }
 
-            final DynamicSememeArray<DynamicSememeData> indexConfig
-                    = LookupService.getService(DynamicSememeUtility.class)
-                            .configureColumnIndexInfo(dsc.getDynamicSememeColumns());
+            final DynamicArray<DynamicData> indexConfig
+                    = LookupService.getService(DynamicUtility.class)
+                            .configureColumnIndexInfo(dsc.getDynamicColumns());
 
             if (indexConfig != null) {
-               sb = Get.sememeBuilderService()
-                       .getDynamicSememeBuilder(cb,
-                               DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
+               sb = Get.semanticBuilderService()
+                       .getDynamicBuilder(cb,
+                               DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                        .getNid(),
-                               new DynamicSememeData[]{indexConfig});
-               cb.addSememe(sb);
+                               new DynamicData[]{indexConfig});
+               cb.addSemantic(sb);
             }
          }
 
@@ -274,34 +274,34 @@ public class IsaacTaxonomy {
       final int stampSequence = Get.stampService()
               .getStampSequence(State.ACTIVE,
                       exportTime,
-                      this.authorSpec.getConceptSequence(),
-                      this.moduleSpec.getConceptSequence(),
-                      this.pathSpec.getConceptSequence());
+                      this.authorSpec.getNid(),
+                      this.moduleSpec.getNid(),
+                      this.pathSpec.getNid());
       final CommitService commitService = Get.commitService();
-      final AssemblageService sememeService = Get.assemblageService();
+      final AssemblageService assemblageService = Get.assemblageService();
       final ConceptService conceptService = Get.conceptService();
 
       commitService.setComment(stampSequence, "Generated by maven from java sources");
 
       this.conceptBuildersInInsertionOrder.forEach((builder) -> {
-         buildAndWrite(builder, stampSequence, conceptService, sememeService);
+         buildAndWrite(builder, stampSequence, conceptService, assemblageService);
       });
 
-      this.sememeBuilders.forEach((builder) -> {
-         buildAndWrite(builder, stampSequence, conceptService, sememeService);
+      this.semanticBuilders.forEach((builder) -> {
+         buildAndWrite(builder, stampSequence, conceptService, assemblageService);
       });
 
       final int stampAliasForPromotion = Get.stampService()
               .getStampSequence(State.ACTIVE,
                       exportTime + (1000 * 60),
-                      this.authorSpec.getConceptSequence(),
-                      this.moduleSpec.getConceptSequence(),
-                      this.pathSpec.getConceptSequence());
+                      this.authorSpec.getNid(),
+                      this.moduleSpec.getNid(),
+                      this.pathSpec.getNid());
 
       commitService.addAlias(stampSequence, stampAliasForPromotion, "promoted by maven");
 
       try (DataWriterService writer = new MultipleDataWriterService(jsonPath, ibdfPath)) {
-         Get.ochreExternalizableStream()
+         Get.isaacExternalizableStream()
                  .forEach((ochreExternalizable) -> writer.put(ochreExternalizable));
       }
    }
@@ -377,7 +377,7 @@ public class IsaacTaxonomy {
          constantName = constantName.replace("+", "_PLUS");
          constantName = constantName.replace("/", "_AND");
          out.append("\n" + constantName + ":\n");
-         out.append("    fsn: " + preferredName + "\n");
+         out.append("    fqn: " + preferredName + "\n");
          out.append("    uuids:\n");
 
          for (final UUID uuid : concept.getUuidList()) {
@@ -395,9 +395,9 @@ public class IsaacTaxonomy {
     * @param pathConcept the path concept
     */
    protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
-      this.sememeBuilders.add(Get.sememeBuilderService()
-              .getMembershipSememeBuilder(pathConcept.getNid(),
-                      pathAssemblageConcept.getConceptSequence()));
+      this.semanticBuilders.add(Get.semanticBuilderService()
+              .getMembershipSemanticBuilder(pathConcept.getNid(),
+                      pathAssemblageConcept.getNid()));
    }
 
    /**
@@ -488,7 +488,7 @@ public class IsaacTaxonomy {
       }
 
       if (org.apache.commons.lang3.StringUtils.isNotBlank(nonPreferredSynonym)) {
-         this.current.addDescription(nonPreferredSynonym, TermAux.SYNONYM_DESCRIPTION_TYPE);
+         this.current.addDescription(nonPreferredSynonym, TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
       this.conceptBuilders.put(name, this.current);
@@ -545,20 +545,20 @@ public class IsaacTaxonomy {
    }
 
    /**
-    * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#SYNONYM_DESCRIPTION_TYPE} This
+    * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE} This
     * currently only creates english language descriptions.
     *
     * @param description the description
     * @param cb the cb
     * @param descriptionType the description type
     * @param preferred the preferred
-    * @return the description builder<? extends sememe chronology<?>,? extends mutable description sememe<?>>
+    * @return the description builder
     */
-   private DescriptionBuilder<? extends SememeChronology, ? extends MutableDescriptionVersion> addDescription(String description,
+   private DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> addDescription(String description,
            ConceptBuilder cb,
            ConceptSpecification descriptionType,
            boolean preferred) {
-      final DescriptionBuilder<? extends SememeChronology, ? extends MutableDescriptionVersion> db
+      final DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> db
               = LookupService.getService(DescriptionBuilderService.class)
                       .getDescriptionBuilder(description,
                               cb,
@@ -581,13 +581,13 @@ public class IsaacTaxonomy {
     * @param builder the builder
     * @param stampCoordinate the stamp coordinate
     * @param conceptService the concept service
-    * @param sememeService the sememe service
+    * @param assemblageService the assemblage service
     * @throws IllegalStateException the illegal state exception
     */
    private void buildAndWrite(IdentifiedComponentBuilder builder,
            int stampCoordinate,
            ConceptService conceptService,
-           AssemblageService sememeService)
+           AssemblageService assemblageService)
            throws IllegalStateException {
       final List<?> builtObjects = new ArrayList<>();
 
@@ -596,8 +596,12 @@ public class IsaacTaxonomy {
          if (builtObject instanceof ConceptChronology) {
             conceptService.writeConcept(
                     (ConceptChronology) builtObject);
-         } else if (builtObject instanceof SememeChronology) {
-            sememeService.writeSememe((SememeChronology) builtObject);
+            ConceptChronology restored = conceptService.getConceptChronology(((ConceptChronology) builtObject).getNid());
+            if (restored.getAssemblageNid() >= 0) {
+               System.out.println("Bad restore of: " + restored);
+            }
+         } else if (builtObject instanceof SemanticChronology) {
+            assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
          } else {
             throw new UnsupportedOperationException("b Can't handle: " + builtObject);
          }

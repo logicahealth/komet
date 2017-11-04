@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-        <version>4.40</version>
+        <version>4.41</version>
     </parent>
 
     <groupId>sh.isaac.integration</groupId>
@@ -53,7 +53,7 @@
                             <artifactId>identifier</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
-                        <dependency>
+<!--                        <dependency>
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>concept</artifactId>
                             <version>${project.parent.version}</version>
@@ -61,6 +61,11 @@
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>assemblage</artifactId>
+                            <version>${project.parent.version}</version>
+                        </dependency>-->
+                       <dependency>
+                            <groupId>sh.isaac.provider</groupId>
+                            <artifactId>bdb-chronology</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
                         <dependency>
@@ -82,6 +87,12 @@
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>logic</artifactId>
                             <version>${project.parent.version}</version>
+                            <exclusions>
+                               <exclusion>
+                                 <groupId>sh.isaac.provider</groupId>
+                                 <artifactId>taxonomy</artifactId>
+                               </exclusion>
+                           </exclusions>
                         </dependency>
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>

@@ -64,9 +64,6 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.provider.workflow.BPMNInfo;
@@ -77,18 +74,21 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail;
 import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 import sh.isaac.provider.workflow.model.contents.ProcessDetail.ProcessStatus;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
-import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
-import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLongVersion;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
-import sh.isaac.api.component.sememe.version.MutableStringVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.MutableComponentNidVersion;
+import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLongVersion;
+import sh.isaac.api.component.semantic.version.MutableStringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -142,15 +142,13 @@ public class WorkflowUpdater {
       if (commitRecord.isPresent()) {
          final ProcessDetail detail = this.workflowProvider.getProcessDetailStore()
                                                             .get(processId);
-         final OfInt conceptItr = Get.identifierService()
-                                     .getConceptNidsForConceptSequences(commitRecord.get()
+         final OfInt conceptItr = commitRecord.get()
                                            .getConceptsInCommit()
-                                           .parallelStream())
+                                           .parallelStream()
                                      .iterator();
-         final OfInt sememeItr = Get.identifierService()
-                                    .getSememeNidsForSememeSequences(commitRecord.get()
-                                          .getSememesInCommit()
-                                          .parallelStream())
+         final OfInt sememeItr = commitRecord.get()
+                                          .getSemanticNidsInCommit()
+                                          .parallelStream()
                                     .iterator();
 
          while (conceptItr.hasNext()) {
@@ -201,11 +199,11 @@ public class WorkflowUpdater {
          final long  time           = Get.stampService()
                                          .getTimeForStamp(stampSeq);
          final int   author         = Get.stampService()
-                                         .getAuthorSequenceForStamp(stampSeq);
+                                         .getAuthorNidForStamp(stampSeq);
          final int   module         = Get.stampService()
-                                         .getModuleSequenceForStamp(stampSeq);
+                                         .getModuleNidForStamp(stampSeq);
          final int   path           = Get.stampService()
-                                         .getPathSequenceForStamp(stampSeq);
+                                         .getPathNidForStamp(stampSeq);
          final Stamp componentStamp = new Stamp(status, time, author, module, path);
 
          process.getComponentToInitialEditMap()
@@ -383,9 +381,9 @@ public class WorkflowUpdater {
             // add new version identical to version associated with
             // actualStampSeq
             if (Get.identifierService()
-                   .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
+                   .getOldChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
                final ConceptChronology conceptChron = Get.conceptService()
-                                                            .getConcept(compNid);
+                                                            .getConceptChronology(compNid);
 
                if (version != null) {
                   // conceptChron = ((ConceptVersion) version).getChronology();
@@ -397,22 +395,22 @@ public class WorkflowUpdater {
                Get.commitService()
                   .addUncommitted(conceptChron);
                Get.commitService()
-                  .commit("Reverting concept to how it was prior to workflow");
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
-                          .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-               final SememeChronology semChron = Get.assemblageService()
-                                                       .getSememe(compNid);
+                          .getOldChronologyTypeForNid(compNid) == ObjectChronologyType.SEMANTIC) {
+               final SemanticChronology semChron = Get.assemblageService()
+                                                       .getSemanticChronology(compNid);
 
                if (version != null) {
-                  MutableSememeVersion createdVersion = semChron.createMutableVersion(((SememeVersion) version).getState(),
+                  MutableSemanticVersion createdVersion = semChron.createMutableVersion(((SemanticVersion) version).getState(),
                                                                                                     editCoordinate);
 
-                  createdVersion = (MutableSememeVersion) populateData(createdVersion, (SememeVersion) version);
+                  createdVersion = (MutableSemanticVersion) populateData(createdVersion, (SemanticVersion) version);
                } else {
-                  final List<SememeVersion> list        = ((SememeChronology) semChron).getVersionList();
-                  final SememeVersion       lastVersion = list.toArray(new SememeVersion[list.size()])[list.size() - 1];
-                  SememeVersion createdVersion =
-                     ((SememeChronology) semChron).createMutableVersion(State.INACTIVE,
+                  final List<SemanticVersion> list        = ((SemanticChronology) semChron).getVersionList();
+                  final SemanticVersion       lastVersion = list.toArray(new SemanticVersion[list.size()])[list.size() - 1];
+                  SemanticVersion createdVersion =
+                     ((SemanticChronology) semChron).createMutableVersion(State.INACTIVE,
                                                                         editCoordinate);
 
                   createdVersion = populateData(createdVersion, lastVersion);
@@ -422,7 +420,7 @@ public class WorkflowUpdater {
                   .addUncommitted(semChron)
                   .get();
                Get.commitService()
-                  .commit("Reverting sememe to how it was prior to workflow")
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Reverting sememe to how it was prior to workflow")
                   .get();
             }
          }
@@ -437,10 +435,10 @@ public class WorkflowUpdater {
     * @return the sememe version
     * @throws Exception the exception
     */
-   private SememeVersion populateData(SememeVersion newVer, SememeVersion originalVersion)
+   private SemanticVersion populateData(SemanticVersion newVer, SemanticVersion originalVersion)
             throws Exception {
       switch (newVer.getChronology()
-                    .getSememeType()) {
+                    .getVersionType()) {
       case MEMBER:
          return newVer;
 
@@ -450,13 +448,13 @@ public class WorkflowUpdater {
 
       case DESCRIPTION:
          ((MutableDescriptionVersion) newVer).setText(((DescriptionVersion) originalVersion).getText());
-         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptSequence(((DescriptionVersion) originalVersion).getDescriptionTypeConceptSequence());
-         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptSequence(((DescriptionVersion) originalVersion).getCaseSignificanceConceptSequence());
-         ((MutableDescriptionVersion) newVer).setLanguageConceptSequence(((DescriptionVersion) originalVersion).getLanguageConceptSequence());
+         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptNid(((DescriptionVersion) originalVersion).getDescriptionTypeConceptNid());
+         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptNid(((DescriptionVersion) originalVersion).getCaseSignificanceConceptNid());
+         ((MutableDescriptionVersion) newVer).setLanguageConceptNid(((DescriptionVersion) originalVersion).getLanguageConceptNid());
          return newVer;
 
       case DYNAMIC:
-         ((MutableDynamicVersion) newVer).setData(((DynamicSememe) originalVersion).getData());
+         ((MutableDynamicVersion) newVer).setData(((DynamicVersion) originalVersion).getData());
          return newVer;
 
       case LONG:

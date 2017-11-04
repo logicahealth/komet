@@ -98,10 +98,10 @@ public class ObservableStampPositionImpl
     * @return the integer property
     */
    @Override
-   public IntegerProperty stampPathSequenceProperty() {
+   public IntegerProperty stampPathNidProperty() {
       if (this.stampPathSequenceProperty == null) {
          this.stampPathSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION.toExternalString(),
+               ObservableFields.PATH_NID_FOR_STAMP_POSITION.toExternalString(),
                getStampPathSequence());
          addListenerReference(this.stampPosition.setStampPathSequenceProperty(this.stampPathSequenceProperty));
       }

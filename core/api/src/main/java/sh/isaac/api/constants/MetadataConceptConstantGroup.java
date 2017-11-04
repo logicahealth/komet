@@ -60,22 +60,22 @@ public abstract class MetadataConceptConstantGroup
    /**
     * Instantiates a new metadata concept constant group.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid the uuid
     */
-   protected MetadataConceptConstantGroup(String fsn, UUID uuid) {
-      super(fsn, uuid);
+   protected MetadataConceptConstantGroup(String fqn, UUID uuid) {
+      super(fqn, uuid);
    }
 
    /**
     * Instantiates a new metadata concept constant group.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid the uuid
     * @param definition the definition
     */
-   protected MetadataConceptConstantGroup(String fsn, UUID uuid, String definition) {
-      super(fsn, uuid, definition);
+   protected MetadataConceptConstantGroup(String fqn, UUID uuid, String definition) {
+      super(fqn, uuid, definition);
    }
 
    //~--- methods -------------------------------------------------------------

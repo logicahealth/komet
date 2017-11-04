@@ -40,9 +40,6 @@ package sh.komet.gui.control;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -78,22 +75,15 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
-import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.manifold.Manifold;
@@ -103,6 +93,8 @@ import sh.komet.gui.style.StyleClasses;
 
 import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -335,14 +327,14 @@ public abstract class BadgedVersionPanel
          componentType.setText("Concept");
          componentText.setText(
                  "\n" + conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
-                 conceptVersion.getModuleSequence()) + " on " + getManifold().getPreferredDescriptionText(
-                 conceptVersion.getPathSequence()));
+                 conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
+                 conceptVersion.getPathNid()));
       } else {
          componentType.setText("");
          componentText.setText(
                  conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
-                 conceptVersion.getModuleSequence()) + " on " + getManifold().getPreferredDescriptionText(
-                 conceptVersion.getPathSequence()));
+                 conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
+                 conceptVersion.getPathNid()));
       }
    }
 
@@ -351,10 +343,10 @@ public abstract class BadgedVersionPanel
          componentType.setText("DEF");
 
          if (getManifold().getLogicCoordinate()
-                 .getInferredAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
+                 .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
             badges.add(Iconography.SETTINGS_GEAR.getIconographic());
          } else if (getManifold().getLogicCoordinate()
-                 .getStatedAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
+                 .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
             badges.add(Iconography.ICON_EXPORT.getIconographic());
          }
       } else {
@@ -369,13 +361,13 @@ public abstract class BadgedVersionPanel
       componentText.setText(description.getText());
 
       if (isLatestPanel()) {
-         int descriptionType = description.getDescriptionTypeConceptSequence();
+         int descriptionType = description.getDescriptionTypeConceptNid();
 
-         if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-            componentType.setText("FSN");
-         } else if (descriptionType == TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
+         if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText("FQN");
+         } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
             componentType.setText("SYN");
-         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText("DEF");
          } else {
             componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
@@ -384,23 +376,23 @@ public abstract class BadgedVersionPanel
          componentType.setText("");
       }
 
-      if (description.getCaseSignificanceConceptSequence() == TermAux.DESCRIPTION_CASE_SENSITIVE.getConceptSequence()) {
+      if (description.getCaseSignificanceConceptNid() == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid()) {
          badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence()
-              == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getConceptSequence()) {
+      } else if (description.getCaseSignificanceConceptNid()
+              == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid()) {
          // TODO get iconographic for initial character sensitive
          badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence()
-              == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getConceptSequence()) {
+      } else if (description.getCaseSignificanceConceptNid()
+              == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getNid()) {
          badges.add(Iconography.CASE_SENSITIVE_NOT.getIconographic());
       }
    }
 
    protected final void setupOther(Version version) {
-      if (version instanceof SememeVersion) {
-         SememeVersion sememeVersion = (SememeVersion) version;
-         VersionType sememeType = sememeVersion.getChronology()
-                 .getSememeType();
+      if (version instanceof SemanticVersion) {
+         SemanticVersion semanticVersion = (SemanticVersion) version;
+         VersionType sememeType = semanticVersion.getChronology()
+                 .getVersionType();
 
          componentType.setText(sememeType.toString());
 
@@ -412,9 +404,7 @@ public abstract class BadgedVersionPanel
                   componentType.setText("");
                }
 
-               componentText.setText(
-                       getManifold().getPreferredDescriptionText(
-                               sememeVersion.getAssemblageSequence()) + "\n" + ((StringVersion) sememeVersion).getString());
+               componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString());
                break;
 
             case COMPONENT_NID:
@@ -424,31 +414,25 @@ public abstract class BadgedVersionPanel
                   componentType.setText("");
                }
 
-               int nid = ((ComponentNidVersion) sememeVersion).getComponentNid();
+               int nid = ((ComponentNidVersion) semanticVersion).getComponentNid();
 
                switch (Get.identifierService()
-                       .getChronologyTypeForNid(nid)) {
+                       .getOldChronologyTypeForNid(nid)) {
                   case CONCEPT:
-                     componentText.setText(
-                             getManifold().getPreferredDescriptionText(
-                                     sememeVersion.getAssemblageSequence()) + "\n" + getManifold().getPreferredDescriptionText(nid));
+                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + getManifold().getPreferredDescriptionText(nid));
                      break;
 
-                  case SEMEME:
-                     SememeChronology sc = Get.assemblageService()
-                             .getSememe(nid);
+                  case SEMANTIC:
+                     SemanticChronology sc = Get.assemblageService()
+                             .getSemanticChronology(nid);
 
-                     componentText.setText(
-                             getManifold().getPreferredDescriptionText(
-                                     sememeVersion.getAssemblageSequence()) + "\nReferences: " + sc.getSememeType().toString());
+                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString());
                      break;
 
                   case UNKNOWN_NID:
                   default:
-                     componentText.setText(
-                             getManifold().getPreferredDescriptionText(
-                                     sememeVersion.getAssemblageSequence()) + "\nReferences:"
-                             + Get.identifierService().getChronologyTypeForNid(
+                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
+                             + Get.identifierService().getOldChronologyTypeForNid(
                                      nid).toString());
                }
 
@@ -461,7 +445,7 @@ public abstract class BadgedVersionPanel
                   componentType.setText("");
                }
 
-               componentText.setText(((LogicGraphVersion) sememeVersion).getLogicalExpression()
+               componentText.setText(((LogicGraphVersion) semanticVersion).getLogicalExpression()
                        .toString());
                break;
 
@@ -472,12 +456,11 @@ public abstract class BadgedVersionPanel
                   componentType.setText("");
                }
 
-               componentText.setText(Long.toString(((LongVersion) sememeVersion).getLongValue()));
+               componentText.setText(Long.toString(((LongVersion) semanticVersion).getLongValue()));
                break;
 
             case MEMBER:
-               componentText.setText(
-                       getManifold().getPreferredDescriptionText(sememeVersion.getAssemblageSequence()) + "\nMember");
+               componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                break;
 
             case DYNAMIC:

@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.PrimitiveIterator.OfInt;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -60,19 +59,17 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserRole;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.commit.Stamp;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.model.sememe.DynamicSememeUsageDescriptionImpl;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.workflow.BPMNInfo;
 import sh.isaac.provider.workflow.WorkflowProvider;
 import sh.isaac.provider.workflow.model.WorkflowContentStore;
@@ -83,9 +80,9 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.ProcessStatus;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory.ProcessHistoryComparator;
 import sh.isaac.utility.Frills;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,9 +197,9 @@ public class WorkflowAccessor {
       final Map<ProcessDetail, SortedSet<ProcessHistory>> processInformation = new HashMap<>();
 
       // Get User Roles
-      final Map<String, Set<AvailableAction>> actionsByInitialState =
-         getUserAvailableActionsByInitialState(definitionId,
-                                               userId);
+      final Map<String, Set<AvailableAction>> actionsByInitialState = getUserAvailableActionsByInitialState(
+                                                                          definitionId,
+                                                                                userId);
 
       // For each ActiveProcesses, see if its current state is "applicable
       // current state" and if
@@ -280,64 +277,64 @@ public class WorkflowAccessor {
          LanguageCoordinate langCoord)
             throws Exception {
       final ObjectChronologyType oct = Get.identifierService()
-                                          .getChronologyTypeForNid(nid);
+                                          .getOldChronologyTypeForNid(nid);
 
       if (null == oct) {
          throw new Exception("Unsupported Object Chronology Type: " + oct);
       } else {
          switch (oct) {
-            case CONCEPT:
-               return formatStringConceptInformation(nid, stampCoord, langCoord);
-            case SEMEME:
-               final SememeChronology sememe = Get.assemblageService()
-                       .getSememe(nid);
-               
-               switch (sememe.getSememeType()) {
-                  case DESCRIPTION:
-                     final LatestVersion<DescriptionVersion> descSem =
-                              ((SememeChronology) sememe).getLatestVersion(stampCoord);
-                     
-                     return formatStringDescriptionInformation(descSem);
-                     
-                  case DYNAMIC:
-                     final LatestVersion<DynamicSememe> dynSem =
-                             ((SememeChronology) sememe).getLatestVersion(stampCoord);
-                     final int assemblageSeq = dynSem.get()
-                             .getAssemblageSequence();
-                     
-                     Get.conceptService()
-                             .getConcept(assemblageSeq);
-                     
-                     String                              target           = null;
-                     String                              value            = null;
-                     final DynamicSememeUsageDescription sememeDefinition = DynamicSememeUsageDescriptionImpl.read(nid);
-                     
-                     for (final DynamicSememeColumnInfo info: sememeDefinition.getColumnInfo()) {
-                        if (info.getColumnDescriptionConcept()
-                                .equals(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE
-                                        .getUUID())) {
-                           value = info.getDefaultColumnValue()
-                                   .dataToString();
-                        } else if (info.getColumnDescriptionConcept()
-                                .equals(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT
-                                        .getUUID())) {
-                           target = info.getDefaultColumnValue()
-                                   .dataToString();
-                        }
-                     }
-                     
-                     if (Frills.isMapping(sememe)) {
-                        return formatStringMapInformation(value, target);
-                     } else if (Frills.isAssociation(sememe)) {
-                        return formatStringAssociationInformation(value, target);
-                     } else {
-                        return formatStringValueInformation(value);
-                     }
-                  default:
-                     throw new Exception("Unsupported Sememe Type: " + sememe.getSememeType());
+         case CONCEPT:
+            return formatStringConceptInformation(nid, stampCoord, langCoord);
+
+         case SEMANTIC:
+            final SemanticChronology sememe = Get.assemblageService()
+                                               .getSemanticChronology(nid);
+
+            switch (sememe.getVersionType()) {
+            case DESCRIPTION:
+               final LatestVersion<DescriptionVersion> descSem = ((SemanticChronology) sememe).getLatestVersion(
+                                                                     stampCoord);
+
+               return formatStringDescriptionInformation(descSem);
+
+            case DYNAMIC:
+               final LatestVersion<DynamicVersion> dynSem = ((SemanticChronology) sememe).getLatestVersion(stampCoord);
+               final int                          assemblageSeq = dynSem.get()
+                                                                        .getAssemblageNid();
+
+               Get.conceptService()
+                  .getConceptChronology(assemblageSeq);
+
+               String                              target           = null;
+               String                              value            = null;
+               final DynamicUsageDescription sememeDefinition = DynamicUsageDescriptionImpl.read(nid);
+
+               for (final DynamicColumnInfo info: sememeDefinition.getColumnInfo()) {
+                  if (info.getColumnDescriptionConcept()
+                          .equals(DynamicConstants.get().DYNAMIC_COLUMN_VALUE
+                                .getUUID())) {
+                     value = info.getDefaultColumnValue()
+                                 .dataToString();
+                  } else if (info.getColumnDescriptionConcept()
+                                 .equals(DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT
+                                           .getUUID())) {
+                     target = info.getDefaultColumnValue()
+                                  .dataToString();
+                  }
+               }
+
+               if (Frills.isMapping(sememe)) {
+                  return formatStringMapInformation(value, target);
+               } else if (Frills.isAssociation(sememe)) {
+                  return formatStringAssociationInformation(value, target);
+               } else {
+                  return formatStringValueInformation(value);
                }
             default:
-               throw new Exception("Unsupported Object Chronology Type: " + oct);
+               throw new Exception("Unsupported Sememe Type: " + sememe.getVersionType());
+            }
+         default:
+            throw new Exception("Unsupported Object Chronology Type: " + oct);
          }
       }
    }
@@ -384,7 +381,7 @@ public class WorkflowAccessor {
     */
    public DefinitionDetail getDefinitionDetails(UUID definitionId) {
       return this.workflowProvider.getDefinitionDetailStore()
-                                   .get(definitionId);
+                                  .get(definitionId);
    }
 
    /**
@@ -424,7 +421,7 @@ public class WorkflowAccessor {
     */
    public ProcessDetail getProcessDetails(UUID processId) {
       return this.workflowProvider.getProcessDetailStore()
-                                   .get(processId);
+                                  .get(processId);
    }
 
    /**
@@ -502,7 +499,7 @@ public class WorkflowAccessor {
 
       // Get User Roles
       final Set<UserRole> userRoles = this.workflowProvider.getUserRoleStore()
-                                                            .getUserRoles(userId);
+                                                           .getUserRoles(userId);
 
       // Get Map of available actions (by initialState) that can be executed
       // based on userRoles
@@ -537,9 +534,9 @@ public class WorkflowAccessor {
 
       if (processDetail != null) {
          final ProcessHistory processLatest = getProcessHistory(processId).last();
-         final Map<String, Set<AvailableAction>> actionsByInitialState =
-            getUserAvailableActionsByInitialState(processDetail.getDefinitionId(),
-                                                  userId);
+         final Map<String, Set<AvailableAction>> actionsByInitialState = getUserAvailableActionsByInitialState(
+                                                                             processDetail.getDefinitionId(),
+                                                                                   userId);
 
          if (actionsByInitialState.containsKey(processLatest.getOutcomeState())) {
             return actionsByInitialState.get(processLatest.getOutcomeState());
@@ -565,41 +562,42 @@ public class WorkflowAccessor {
          return null;
       }
 
-      final long          timeLaunched = proc.getTimeCreated();
+      final long timeLaunched = proc.getTimeCreated();
       Chronology objChron;
 
-      if (null == Get.identifierService()
-              .getChronologyTypeForNid(compNid)) {
+      if (null == Get.identifierService().getOldChronologyTypeForNid(compNid)) {
          throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
       } else {
          switch (Get.identifierService()
-                 .getChronologyTypeForNid(compNid)) {
-            case CONCEPT:
-               objChron = Get.conceptService()
-                       .getConcept(compNid);
-               break;
-            case SEMEME:
-               objChron = Get.assemblageService()
-                       .getSememe(compNid);
-               break;
-            default:
-               throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
+                    .getOldChronologyTypeForNid(compNid)) {
+         case CONCEPT:
+            objChron = Get.conceptService()
+                          .getConceptChronology(compNid);
+            break;
+
+         case SEMANTIC:
+            objChron = Get.assemblageService()
+                          .getSemanticChronology(compNid);
+            break;
+
+         default:
+            throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
          }
       }
 
-      final OfInt stampSequencesItr = objChron.getVersionStampSequences()
-                                              .iterator();
+      final int[] stampSequencesItr = objChron.getVersionStampSequences();
       int         stampSeq          = -1;
       long        stampTime         = 0;
 
-      while (stampSequencesItr.hasNext() && (stampTime < timeLaunched)) {
-         final int  currentStampSeq  = stampSequencesItr.next();
-         final long currentStampTime = Get.stampService()
-                                          .getTimeForStamp(currentStampSeq);
+      for (int currentStampSeq: stampSequencesItr) {
+         if (stampTime < timeLaunched) {
+            final long currentStampTime = Get.stampService()
+                                             .getTimeForStamp(currentStampSeq);
 
-         if (currentStampTime < timeLaunched) {
-            stampTime = currentStampTime;
-            stampSeq  = currentStampSeq;
+            if (currentStampTime < timeLaunched) {
+               stampTime = currentStampTime;
+               stampSeq  = currentStampSeq;
+            }
          }
       }
 

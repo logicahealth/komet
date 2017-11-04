@@ -47,8 +47,8 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.model.sememe.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,7 +70,7 @@ public class DescriptionBuilderProvider
     * @return the description builder
     */
    @Override
-   public DescriptionBuilder<SememeChronology, DescriptionVersionImpl> 
+   public DescriptionBuilder<SemanticChronology, DescriptionVersionImpl> 
         getDescriptionBuilder(String descriptionText,
                                    ConceptBuilder conceptBuilder,
                                    ConceptSpecification descriptionType,
@@ -88,7 +88,7 @@ public class DescriptionBuilderProvider
     * @return the description builder
     */
    @Override
-   public DescriptionBuilder<SememeChronology,
+   public DescriptionBuilder<SemanticChronology,
                              DescriptionVersionImpl> 
         getDescriptionBuilder(String descriptionText,
                                    int conceptSequence,

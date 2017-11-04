@@ -42,6 +42,7 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -52,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -116,17 +116,19 @@ public class ConceptIsDescendentOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
-      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                                              .get(this.descendentOfSpecKey);
-      final int parentNid = descendentOfSpec.getNid();
-      final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
-                                                            .getChildOfSequenceSet(parentNid, manifoldCoordinate);
-
-      descendentOfSequenceSet.remove(parentNid);
-      getResultsCache().or(NidSet.of(descendentOfSequenceSet));
-      return getResultsCache();
+      try {
+         final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+                 .get(this.viewCoordinateKey);
+         final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                 .get(this.descendentOfSpecKey);
+         final int parentNid = descendentOfSpec.getNid();
+         final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                 .getTaxonomyChildNids(parentNid);
+         getResultsCache().or(NidSet.of(descendentOfSequenceSet));
+         return getResultsCache();
+      } catch (InterruptedException | ExecutionException ex) {
+         throw new RuntimeException(ex);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -145,7 +147,6 @@ public class ConceptIsDescendentOf
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

@@ -48,7 +48,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 

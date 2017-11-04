@@ -307,6 +307,9 @@ public class RoaringIntSet
       return new OfIntWrapper(this.rbmp.getReverseIntIterator());
    }
 
+   public static RoaringIntSet of(IntSet intSet) {
+      return new RoaringIntSet(intSet.stream());
+   }
    /**
     * Gets the roaring set.
     *

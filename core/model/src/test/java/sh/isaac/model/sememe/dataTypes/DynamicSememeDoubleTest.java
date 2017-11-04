@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicDoubleImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,13 +90,13 @@ public class DynamicSememeDoubleTest {
     */
    private void test(double value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeDoubleImpl l = new DynamicSememeDoubleImpl(value);
+      final DynamicDoubleImpl l = new DynamicDoubleImpl(value);
 
       assertEquals(value, l.getDataDouble(), 0);
       assertEquals(value, (Double) l.getDataObject(), 0);
       assertEquals(value, (Double) l.getDataObjectProperty()
                                     .get(), 0);
-      assertEquals(l.getDynamicSememeDataType(), DynamicSememeDataType.DOUBLE);
+      assertEquals(l.getDynamicDataType(), DynamicDataType.DOUBLE);
    }
 }
 

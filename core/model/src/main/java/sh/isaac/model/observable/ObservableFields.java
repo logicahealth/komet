@@ -60,37 +60,37 @@ import sh.isaac.api.util.UuidT5Generator;
  */
 public enum ObservableFields
          implements ConceptSpecification {
-   /** The author sequence for edit coordinate. */
-   AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE("author sequence for edit coordinate"),
+   /** The author nid for edit coordinate. */
+   AUTHOR_NID_FOR_EDIT_COORDINATE("author nid for edit coordinate"),
 
-   /** The module sequence for edit coordinate. */
-   MODULE_SEQUENCE_FOR_EDIT_COORDINATE("module sequence for edit coordinate"),
+   /** The module nid for edit coordinate. */
+   MODULE_NID_FOR_EDIT_COORDINATE("module nid for edit coordinate"),
 
-   /** The path sequence for edit cordinate. */
-   PATH_SEQUENCE_FOR_EDIT_CORDINATE("path sequence for edit cordinate"),
+   /** The path nid for edit coordinate. */
+   PATH_NID_FOR_EDIT_CORDINATE("path nid for edit cordinate"),
 
-   /** The language sequence for language coordinate. */
-   LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE("language sequence for language coordinate"),
+   /** The language nid for language coordinate. */
+   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("language nid for language coordinate"),
 
-   /** The dialect assemblage sequence preference list for language coordinate. */
-   DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "dialect assemblage sequence preference list for language coordinate"),
+   /** The dialect assemblage nid preference list for language coordinate. */
+   DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
+      "dialect assemblage nid preference list for language coordinate"),
 
-   /** The description type sequence preference list for language coordinate. */
-   DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "description type sequence preference list for language coordinate"),
+   /** The description type nid preference list for language coordinate. */
+   DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
+      "description type nid preference list for language coordinate"),
 
-   /** The stated assemblage sequence for logic coordinate. */
-   STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE("stated assemblage sequence for logic coordinate"),
+   /** The stated assemblage nid for logic coordinate. */
+   STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("stated assemblage nid for logic coordinate"),
 
-   /** The inferred assemblage sequence for logic coordinate. */
-   INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE("inferred assemblage sequence for logic coordinate"),
+   /** The inferred assemblage nid for logic coordinate. */
+   INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("inferred assemblage nid for logic coordinate"),
 
-   /** The description logic profile sequence for logic coordinate. */
-   DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE("description logic profile sequence for logic coordinate"),
+   /** The description logic profile nid for logic coordinate. */
+   DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE("description logic profile nid for logic coordinate"),
 
-   /** The classifier sequence for logic coordinate. */
-   CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE("classifier sequence for logic coordinate"),
+   /** The classifier nid for logic coordinate. */
+   CLASSIFIER_NID_FOR_LOGIC_COORDINATE("classifier nid for logic coordinate"),
 
    /** The stamp precedence for stamp coordinate. */
    STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("stamp precedence for stamp coordinate"),
@@ -98,14 +98,14 @@ public enum ObservableFields
    /** The stamp position for stamp coordinate. */
    STAMP_POSITION_FOR_STAMP_COORDINATE("stamp position for stamp coordinate"),
 
-   /** The module sequence array for stamp coordinate. */
-   MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE("module sequence array for stamp coordinate"),
+   /** The module nid array for stamp coordinate. */
+   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("module nid array for stamp coordinate"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("allowed states for stamp coordinate"),
 
-   /** The path sequence for stamp path. */
-   PATH_SEQUENCE_FOR_STAMP_PATH("path sequence for stamp path"),
+   /** The path nid for stamp path. */
+   PATH_NID_FOR_STAMP_PATH("path nid for stamp path"),
 
    /** The path origin list for stamp path. */
    PATH_ORIGIN_LIST_FOR_STAMP_PATH("path origin list for stamp path"),
@@ -113,8 +113,8 @@ public enum ObservableFields
    /** The time for stamp position. */
    TIME_FOR_STAMP_POSITION("time for stamp position"),
 
-   /** The path sequence for stamp position. */
-   PATH_SEQUENCE_FOR_STAMP_POSITION("path sequence for stamp position"),
+   /** The path nid for stamp position. */
+   PATH_NID_FOR_STAMP_POSITION("path nid for stamp position"),
 
    /** The premise type for taxonomy coordinate. */
    PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("premise type for taxonomy coordinate"),
@@ -137,26 +137,26 @@ public enum ObservableFields
    /** The time for version. */
    TIME_FOR_VERSION("time for version"),
 
-   /** The author sequence for version. */
-   AUTHOR_SEQUENCE_FOR_VERSION("author sequence for version"),
+   /** The author nid for version. */
+   AUTHOR_NID_FOR_VERSION("author nid for version"),
 
-   /** The module sequence for version. */
-   MODULE_SEQUENCE_FOR_VERSION("module sequence for version"),
+   /** The module nid for version. */
+   MODULE_NID_FOR_VERSION("module nid for version"),
 
-   /** The path sequence for version. */
-   PATH_SEQUENCE_FOR_VERSION("path sequence for version"),
+   /** The path nid for version. */
+   PATH_NID_FOR_VERSION("path nid for version"),
 
    /** The committed state for version. */
    COMMITTED_STATE_FOR_VERSION("committed state for version"),
 
-   /** The stamp sequence for version. */
+   /** The stamp nid for version. */
    STAMP_SEQUENCE_FOR_VERSION("stamp sequence for version"),
 
-   /** The case significance concept sequence for description. */
-   CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION("case significance concept sequence for description"),
+   /** The case significance concept nid for description. */
+   CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("case significance concept nid for description"),
 
-   /** The language concept sequence for description. */
-   LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION("language concept sequence for description"),
+   /** The language concept nid for description. */
+   LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("language concept nid for description"),
 
    /** The text for description. */
    TEXT_FOR_DESCRIPTION("text for description"),
@@ -170,17 +170,14 @@ public enum ObservableFields
    /** The native id for chronicle. */
    NATIVE_ID_FOR_CHRONICLE("native id for chronicle"),
 
-   /** The concept sequence for chronicle. */
-   CONCEPT_SEQUENCE_FOR_CHRONICLE("concept sequence for chronicle"),
+   /** The entry sequence for chronicle. */
+   ENTRY_SEQUENCE_FOR_CHRONICLE("entry sequence for chronicle"),
 
-   /** The sememe sequence for chronicle. */
-   SEMEME_SEQUENCE_FOR_CHRONICLE("sememe sequence for chronicle"),
+   /** The assemblage nid for chronicle. */
+   ASSEMBLAGE_NID_FOR_CHRONICLE("assemblage nid for chronicle"),
 
-   /** The assemblage sequence for sememe chronicle. */
-   ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE("assemblage sequence for sememe chronicle"),
-
-   /** The referenced component nid for sememe chronicle. */
-   REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE("referenced component nid for sememe chronicle"),
+   /** The referenced component nid for semantic chronicle. */
+   REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE("referenced component nid for semantic chronicle"),
 
    /** The primordial uuid for chronicle. */
    PRIMORDIAL_UUID_FOR_CHRONICLE("primordial UUID for chronicle"),
@@ -191,19 +188,19 @@ public enum ObservableFields
    /** The committed state for chronicle. */
    COMMITTED_STATE_FOR_CHRONICLE("committed state for chronicle"),
 
-   /** The sememe list for chronicle. */
-   SEMEME_LIST_FOR_CHRONICLE("sememe list for chronicle"),
+   /** The semantic list for chronicle. */
+   SEMANTIC_LIST_FOR_CHRONICLE("semantic list for chronicle"),
 
    /** The description list for concept. */
    DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),
    
-   STRING_VALUE_FOR_SEMEME("string value for sememe"),
+   STRING_VALUE_FOR_SEMANTIC("string value for semantic"),
    
-   COMPONENT_NID_FOR_SEMEME("component nid for sememe"),
+   COMPONENT_NID_FOR_SEMANTIC("component nid for semantic"),
    
-   LOGIC_GRAPH_FOR_SEMEME("logic graph for sememe"),
+   LOGIC_GRAPH_FOR_SEMANTIC("logic graph for semantic"),
    
-   LONG_VALUE_FOR_SEMEME("long value for sememe");
+   LONG_VALUE_FOR_SEMANTIC("long value for semantic");
 
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");

@@ -59,6 +59,7 @@ import org.junit.Assert;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.UserRole;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.provider.workflow.WorkflowProvider;
 import sh.isaac.provider.workflow.model.contents.AvailableAction;
@@ -142,10 +143,10 @@ public abstract class AbstractWorkflowProviderTestPackage {
    protected static final String CANCELED_WORKFLOW_COMMENT = "Canceled Workflow";
 
    /** The module seq. */
-   private static int moduleSeq = 99;
+   private static final int MODULE_NID = TermAux.SOLOR_MODULE.getNid();
 
    /** The path seq. */
-   private static int pathSeq = 999;
+   private static final int PATH_NID = TermAux.DEVELOPMENT_PATH.getNid();
 
    /** The conclude action. */
    protected static AvailableAction concludeAction;
@@ -179,13 +180,13 @@ public abstract class AbstractWorkflowProviderTestPackage {
     * Adds the components to process.
     *
     * @param processId the process id
-    * @param userSeq the user seq
+    * @param userNid the user seq
     * @param state the state
     */
-   protected void addComponentsToProcess(UUID processId, int userSeq, State state) {
+   protected void addComponentsToProcess(UUID processId, int userNid, State state) {
       final ProcessDetail entry = wp.getProcessDetailStore()
                                      .get(processId);
-      final Stamp         s     = createStamp(userSeq, state);
+      final Stamp         s     = createStamp(userNid, state);
 
       for (final Integer con: conceptsForTesting) {
          entry.getComponentToInitialEditMap()
@@ -392,7 +393,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
     * @return the stamp
     */
    protected Stamp createStamp(int userSeq, State state) {
-      return new Stamp(state, new Date().getTime(), userSeq, moduleSeq, pathSeq);
+      return new Stamp(state, new Date().getTime(), userSeq, MODULE_NID, PATH_NID);
    }
 
    /**

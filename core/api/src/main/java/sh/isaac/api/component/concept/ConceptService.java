@@ -50,11 +50,11 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.collections.IntSet;
 
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -85,7 +85,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(int conceptId);
+   ConceptChronology getConceptChronology(int conceptId);
    
    /**
     * Gets the list of descriptions for a concept.
@@ -93,8 +93,8 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the list of descriptions.
     */
-   default List<SememeChronology> getConceptDescriptions(int conceptId) {
-      return getConcept(conceptId).getConceptDescriptionList();
+   default List<SemanticChronology> getConceptDescriptions(int conceptId) {
+      return getConceptChronology(conceptId).getConceptDescriptionList();
    }
 
    /**
@@ -103,8 +103,7 @@ public interface ConceptService
     * @param conceptUuids a UUID that identifies a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(UUID... conceptUuids);
-
+   ConceptChronology getConceptChronology(UUID... conceptUuids);
 
    /**
     * Gets the concept.
@@ -112,15 +111,7 @@ public interface ConceptService
     * @param conceptSpecification a specification of a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(ConceptSpecification conceptSpecification);
-
-   /**
-    * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
-    * without incurring the overhead of reading back the object.
-    * @param conceptId Either a nid or concept sequence
-    * @return true if present, false otherwise
-    */
-   boolean hasConcept(int conceptId);
+   ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification);
 
    /**
     * Checks if concept active.
@@ -134,6 +125,15 @@ public interface ConceptService
    /**
     * Gets the concept chronology stream.
     *
+    * @param assemblageNid the nid for the assemblage within which the concepts to 
+    * stream where created. 
+    * @return the concept chronology stream
+    */
+   Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid);
+
+   /**
+    * Gets the concept chronology stream across all assemblages.
+    *
     * @return the concept chronology stream
     */
    Stream<ConceptChronology> getConceptChronologyStream();
@@ -141,39 +141,42 @@ public interface ConceptService
    /**
     * Gets the concept chronology stream.
     *
-    * @param conceptSequences the concept sequences
+    * @param conceptNids the concept sequences
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology> getConceptChronologyStream(
-           ConceptSequenceSet conceptSequences);
+   Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids);
 
    /**
-    * Gets the concept count.
+    * Gets the concept count within the specified assemblage.
     *
-    * @return the concept count
+    * @param assemblageNid the nid for the assemblage within which the concepts to 
+    * count where created. 
+    * @return the concept count within the specified assemblage
+    */
+   int getConceptCount(int assemblageNid);
+
+   /**
+    * Gets the concept count within the specified assemblage.
+    *
+    * @return the concept count 
     */
    int getConceptCount();
 
    /**
-    * Gets the concept key parallel stream.
+    * Gets the concept nid stream from within the specified assemblage.
     *
-    * @return the concept key parallel stream
-    */
-   IntStream getConceptKeyParallelStream();
-
-   /**
-    * Gets the concept key stream.
-    *
+    * @param assemblageNid the nid for the assemblage within which the concepts to 
+    * stream where created. 
     * @return the concept key stream
     */
-   IntStream getConceptKeyStream();
+   IntStream getConceptNidStream(int assemblageNid);
 
-   /**
-    * Return the UUID that was generated for this datastore when the concept store was first created.
+  /**
+    * Gets the concept nid stream across all assemblages.
     *
-    * @return the data store id
+    * @return the concept nid stream
     */
-   public UUID getDataStoreId();
+   IntStream getConceptNidStream();
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
@@ -190,22 +193,6 @@ public interface ConceptService
     * @return an Optional ConceptChronology.
     */
    Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids);
-
-   /**
-    * Gets the parallel concept chronology stream.
-    *
-    * @return the parallel concept chronology stream
-    */
-   Stream<ConceptChronology> getParallelConceptChronologyStream();
-
-   /**
-    * Gets the parallel concept chronology stream.
-    *
-    * @param conceptSequences the concept sequences
-    * @return the parallel concept chronology stream
-    */
-   Stream<ConceptChronology> getParallelConceptChronologyStream(
-           ConceptSequenceSet conceptSequences);
 
    /**
     * Gets the snapshot.

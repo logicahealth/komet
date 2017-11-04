@@ -65,6 +65,7 @@ import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.identity.IdentifiedObject;
 
 //~--- classes ----------------------------------------------------------------
 

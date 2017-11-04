@@ -42,6 +42,7 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -52,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -97,10 +97,10 @@ public class RelRestriction
    String relTypeSubsumptionKey;
 
    /** The destination set. */
-   ConceptSequenceSet destinationSet;
+   NidSet destinationSet;
 
    /** The rel type set. */
-   ConceptSequenceSet relTypeSet;
+   NidSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
@@ -164,20 +164,28 @@ public class RelRestriction
          destinationSubsumption = true;
       }
 
-      this.relTypeSet = new ConceptSequenceSet();
-      this.relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new NidSet();
+      this.relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService()
-                               .getKindOfSequenceSet(relType.getConceptSequence(), manifoldCoordinate));
+         try {
+            this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    .getKindOfSequenceSet(relType.getNid()));
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
-      this.destinationSet = new ConceptSequenceSet();
-      this.destinationSet.add(destinationSpec.getConceptSequence());
+      this.destinationSet = new NidSet();
+      this.destinationSet.add(destinationSpec.getNid());
 
       if (destinationSubsumption) {
-         this.destinationSet.or(Get.taxonomyService()
-                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), manifoldCoordinate));
+         try {
+            this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    .getKindOfSequenceSet(destinationSpec.getNid()));
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
       return incomingPossibleComponents;
@@ -205,17 +213,17 @@ public class RelRestriction
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
 
-      Get.taxonomyService()
-         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
-               .getConceptSequence(),
-               this.relTypeSet,
-               manifoldCoordinate)
-         .forEach((destinationSequence) -> {
-                     if (this.destinationSet.contains(destinationSequence)) {
-                        getResultsCache().add(conceptVersion.getChronology()
-                              .getNid());
-                     }
-                  });
+      throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
+//      for (int destinationSequence: Get.taxonomyService()
+//         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
+//               .getConceptSequence(),
+//               this.relTypeSet,
+//               manifoldCoordinate)) {
+//                     if (this.destinationSet.contains(destinationSequence)) {
+//                        getResultsCache().add(conceptVersion.getChronology()
+//                              .getNid());
+//                     }
+//      }
    }
 
    /**

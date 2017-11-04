@@ -46,7 +46,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampUniversal;
 
@@ -93,10 +93,11 @@ public class IsaacExternalizableUnparsed {
    public IsaacExternalizable parse() {
       switch (this.type) {
       case CONCEPT:
-         return ConceptChronologyImpl.make(this.data);
+         ConceptChronologyImpl temp = ConceptChronologyImpl.make(this.data);
+         return temp;
 
-      case SEMEME:
-         return SememeChronologyImpl.make(this.data);
+      case SEMANTIC:
+         return SemanticChronologyImpl.make(this.data);
 
       case STAMP_ALIAS:
          return new StampAlias(this.data);

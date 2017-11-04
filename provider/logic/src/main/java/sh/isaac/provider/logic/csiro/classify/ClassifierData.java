@@ -57,15 +57,16 @@ import au.csiro.snorocket.core.SnorocketReasoner;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -100,7 +101,7 @@ public class ClassifierData
    IReasoner reasoner = new SnorocketReasoner();
 
    /** The loaded concepts. */
-   ConceptSequenceSet loadedConcepts = new ConceptSequenceSet();
+   NidSet loadedConcepts = new NidSet();
 
    /** The last classify instant. */
    Instant lastClassifyInstant;
@@ -113,6 +114,8 @@ public class ClassifierData
 
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
+   
+   private final int conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -125,6 +128,7 @@ public class ClassifierData
    private ClassifierData(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
+      this.conceptAssemblageNid = logicCoordinate.getConceptAssemblageNid();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -178,8 +182,8 @@ public class ClassifierData
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology sc) {
-      if (sc.getAssemblageSequence() == this.logicCoordinate.getStatedAssemblageSequence()) {
+   public void handleChange(SemanticChronology sc) {
+      if (sc.getAssemblageNid() == this.logicCoordinate.getStatedAssemblageNid()) {
          log.info("Stated form change: " + sc);
 
          // only process if incremental is a possibility.
@@ -281,8 +285,8 @@ public class ClassifierData
     *
     * @return the affected concept sequence set
     */
-   public ConceptSequenceSet getAffectedConceptSequenceSet() {
-      final ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
+   public NidSet getAffectedConceptNidSet() {
+      final NidSet affectedConceptNids = new NidSet();
 
       if (this.lastClassifyType == ClassificationType.INCREMENTAL) {
          // not returning loaded concepts here, because incremental classification
@@ -290,17 +294,21 @@ public class ClassifierData
          this.reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
                                   if (node !=
                                       null) {  // TODO why does the classifier include null in the affected node set.
-                                     node.getEquivalentConcepts()
-                                         .forEach(
-                                             (equalivent) -> affectedConceptSequences.add(
-                                                 Integer.parseInt(equalivent)));
-                                  }
-                               });
+                                    node.getEquivalentConcepts()
+                                         .forEach((equalivent) -> {
+                                          int nid = ModelGet.identifierService()
+                                                  .getNidForElementSequence(Integer.parseInt(equalivent), conceptAssemblageNid);
+                                          affectedConceptNids.add(nid);
+                                            
+                                  });
+                               }
+         });
+         
       } else {
          return this.loadedConcepts;
       }
 
-      return affectedConceptSequences;
+      return affectedConceptNids;
    }
 
    /**

@@ -61,7 +61,7 @@ public enum ObjectChronologyType {
    CONCEPT("Concept"),
 
    /** The sememe. */
-   SEMEME("Sememe"),
+   SEMANTIC("Semantic"),
 
    /** The unknown nid. */
    UNKNOWN_NID("Unknown");

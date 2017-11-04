@@ -1,12 +1,8 @@
 package sh.komet.gui.control;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
-import javafx.scene.control.ListView;
 import org.controlsfx.control.PropertySheet;
 import sh.komet.gui.manifold.Manifold;
 
@@ -16,39 +12,67 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
 
     private final ObservableIntegerArray observableIntegerArray; //from Coordinate
     private final String name;
-    private final SimpleListProperty<ConceptForControlWrapper> simpleListProperty;
+    private SimpleListProperty<ConceptForControlWrapper> simpleListProperty;
     private ListChangeListener<ConceptForControlWrapper> listChangeListener;
+    private final Manifold manifoldForDisplay;
 
 
     public PropertySheetItemListViewWrapper(ObservableIntegerArray observableIntegerArray, String name,
-                                            Manifold manifoldForDisplay) {
+                                            Manifold manifoldForDisplay, int[] conceptList) {
         this.observableIntegerArray = observableIntegerArray;
         this.name = name;
+        this.manifoldForDisplay = manifoldForDisplay;
+        createListViewObservableList(conceptList);
+    }
 
+    private void createListViewObservableList(int[] iArray){
         ObservableList<ConceptForControlWrapper> conceptWrapperList = FXCollections.observableArrayList();
-        for(int i = 0; i < this.observableIntegerArray.size(); i++){
+        for(int i = 0; i < iArray.length; i++){
             ConceptForControlWrapper tempWrapper = new ConceptForControlWrapper
-                    (manifoldForDisplay, this.observableIntegerArray.get(i));
+                    (manifoldForDisplay, iArray[i]);
             conceptWrapperList.add(tempWrapper);
         }
         this.simpleListProperty = new SimpleListProperty<>(conceptWrapperList);
     }
 
+    public void createCustomListListener(ObservableList<ConceptForControlWrapper> observableList){
+
+        if(name.equals("Dialect") || name.equals("Type")){
+            observableList.addListener(this.listChangeListener = c -> {
+                for(int i = 0; i < c.getList().size(); i++) {
+                   this.observableIntegerArray.set(i, c.getList().get(i).getNid());
+                }
+            });
+        }else if(name.equals("Module")){
+            observableList.addListener(this.listChangeListener = c -> {
+                this.observableIntegerArray.clear();
+                if(c.getList().size() > 0) {
+                    int[] iArray = new int[c.getList().size()];
+                    for (int i = 0; i < iArray.length; i++) {
+                       iArray[i] = c.getList().get(i).getNid();
+                    }
+                    this.observableIntegerArray.addAll(iArray, 0, iArray.length);
+                }
+            });
+        }
+    }
+
     public void addDragAndDropListener(){
         this.simpleListProperty.addListener(this.listChangeListener = c -> {
-            for(int i = 0; i < c.getList().size(); i++)
-                this.observableIntegerArray.set(i, c.getList().get(i).getConceptSequence());
+            for(int i = 0; i < c.getList().size(); i++) {
+               this.observableIntegerArray.set(i, c.getList().get(i).getNid());
+            }
         });
     }
 
     public void addMultiselectListener(ObservableList<ConceptForControlWrapper> observableList){
         observableList.addListener(this.listChangeListener = c -> {
-            System.out.println("Selected: " + c.getList().toString());
             this.observableIntegerArray.clear();
             if(c.getList().size() > 0) {
                 int[] iArray = new int[c.getList().size()];
-                for (int i = 0; i < iArray.length; i++)
-                    iArray[i] = c.getList().get(i).getConceptSequence();
+                for (int i = 0; i < iArray.length; i++) {
+                   iArray[i] = c.getList().get(i).getNid();
+                }
                 this.observableIntegerArray.addAll(iArray, 0, iArray.length);
             }
         });

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.40</version>
+		<version>4.41-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.provider</groupId>
 	<artifactId>workflow</artifactId>
@@ -23,6 +23,12 @@
 			<groupId>sh.isaac.core</groupId>
 			<artifactId>model</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>bdb-chronology</artifactId>
+			<version>${project.version}</version>
+                        <scope>test</scope>
 		</dependency>
 		
 		<dependency>

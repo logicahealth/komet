@@ -20,16 +20,19 @@ import sh.komet.gui.manifold.Manifold;
 import tornadofx.control.DateTimePicker;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.bootstrap.TermAux;
 
 /**
  *
  * @author aks8m
  */
 
-public class LetPropertySheet {
+public class LetPropertySheet{
 
     private PropertySheet propertySheet;
     private ObservableList<PropertySheet.Item> items;
@@ -42,7 +45,6 @@ public class LetPropertySheet {
     private static final String DESCRIPTION_TYPE = "Type";
     private static final String DIALECT = "Dialect";
     private static final String TIME = "Time";
-    private static final String AUTHOR = "Author";
     private static final String MODULE = "Module";
     private static final String PATH = "Path";
 
@@ -83,7 +85,7 @@ public class LetPropertySheet {
                             super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
                             super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
                                     .size() * 26) + 2));
-                            listViewWrapper.addMultiselectListener(super.getEditor().getSelectionModel().getSelectedItems());
+                            listViewWrapper.createCustomListListener(super.getEditor().getSelectionModel().getSelectedItems());
                             super.getEditor().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                         }
 
@@ -106,12 +108,13 @@ public class LetPropertySheet {
 
                         {
                             PropertySheetItemListViewWrapper listViewWrapper = ((PropertySheetItemListViewWrapper) prop);
+
                             super.getEditor().setId(UUID.randomUUID().toString());
                             super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
                             super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
                                     .size() * 26) + 2));
                             super.getEditor().setCellFactory(cell -> new CellConceptForDragDropControlWrapper());
-                            listViewWrapper.addDragAndDropListener();
+                            listViewWrapper.createCustomListListener(super.getEditor().getItems());
                         }
 
                         @Override
@@ -127,12 +130,12 @@ public class LetPropertySheet {
 
                     return preferencePropertyEditor;
                 case TIME:
-                    PropertySheetItemDateWrapper dateWrapper = ((PropertySheetItemDateWrapper) prop);
+                    PropertySheetItemDateTimeWrapper dateTimeWrapper = ((PropertySheetItemDateTimeWrapper) prop);
                     PropertyEditor<?> dateTimePropertyEditor = new AbstractPropertyEditor<LocalDateTime, DateTimePicker>
                             (prop, new DateTimePicker()) {
 
                         {
-                            super.getEditor().setDateTimeValue((LocalDateTime)dateWrapper.getValue());
+                            super.getEditor().setDateTimeValue((LocalDateTime)dateTimeWrapper.getValue());
                         }
 
                         @Override
@@ -153,57 +156,6 @@ public class LetPropertySheet {
         });
     }
 
-    private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
-        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-        ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
-
-        Get.taxonomyService().getAllRelationshipOriginSequences(concept.getNid()).forEach(i -> {
-            ConceptForControlWrapper propertySheetItemConceptWrapper = 
-                    new ConceptForControlWrapper(this.manifoldForDisplay, i);
-            collection.add(propertySheetItemConceptWrapper);
-        });
-
-        return Editors.createChoiceEditor(prop, collection);
-    }
-
-    /**
-     * Add to the items Observable list of PropertySheet Items
-     */
-    private void buildPropertySheetItems() {
-
-        buildAndSetModulesForMultiSelect();
-
-        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
-                .stampPositionProperty().get().timeProperty()));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get(),
-                MODULE,
-                this.manifoldForModification));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-                PATH,
-                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
-        ));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-                LANGUAGE,
-                this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
-        ));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
-                DIALECT,
-                this.manifoldForDisplay));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
-                DESCRIPTION_TYPE,
-                this.manifoldForDisplay));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-                CLASSIFIER,
-                this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
-        ));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-                DESCRIPTION_LOGIC,
-                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty()
-        ));
-    }
 
     public PropertySheet getPropertySheet() {
         return propertySheet;
@@ -213,22 +165,93 @@ public class LetPropertySheet {
         return manifoldForModification;
     }
 
-    private void buildAndSetModulesForMultiSelect(){
 
-        if(this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().size() == 0) {
-            ArrayList<Integer> moduleNIDs = new ArrayList<>();
-            ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
-            Get.taxonomyService().getAllRelationshipOriginSequences(MetaData.MODULE____SOLOR.getNid()).forEach(i -> {
+    private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
+       try {
+          Collection<ConceptForControlWrapper> collection = new ArrayList<>();
+          ConceptChronology concept = Get.concept(conceptSpecification.getNid());
+          
+          TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
+          for (int i: taxonomySnapshot.getTaxonomyChildNids(concept.getNid())) {
+             ConceptForControlWrapper propertySheetItemConceptWrapper =
+                     new ConceptForControlWrapper(this.manifoldForDisplay, i);
+             collection.add(propertySheetItemConceptWrapper);
+          }
+          
+          
+          return Editors.createChoiceEditor(prop, collection);
+       } catch (InterruptedException | ExecutionException ex) {
+          throw new UnsupportedOperationException(ex);
+       }
+    }
+
+    /**
+     * Add to the items Observable list of PropertySheet Items
+     */
+    private void buildPropertySheetItems() {
+
+        buildListOfAllModules();
+
+        this.items.add(new PropertySheetItemDateTimeWrapper(TIME, this.manifoldForModification.getStampCoordinate()
+                .stampPositionProperty().get().timeProperty()));
+        this.items.add(new PropertySheetItemListViewWrapper(
+                this.manifoldForModification.getStampCoordinate().moduleNidProperty().get(),
+                MODULE,
+                this.manifoldForModification, buildListOfAllModules()));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+                PATH,
+                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathNidProperty()
+        ));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+                LANGUAGE,
+                this.manifoldForModification.getLanguageCoordinate().languageConceptNidProperty()
+        ));
+        this.items.add(new PropertySheetItemListViewWrapper(
+                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
+                DIALECT,
+                this.manifoldForDisplay,
+                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get().toArray(null)));
+        this.items.add(new PropertySheetItemListViewWrapper(
+                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
+                DESCRIPTION_TYPE,
+                this.manifoldForDisplay,
+                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().toArray(null)));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+                CLASSIFIER,
+                this.manifoldForModification.getLogicCoordinate().classifierNidProperty()
+        ));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+                DESCRIPTION_LOGIC,
+                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileNidProperty()
+        ));
+
+    }
+
+    private int[] buildListOfAllModules(){
+       try {
+          int[] arrayOfModules;
+          ObservableIntegerArray manifoldModules = this.manifoldForDisplay.getManifoldCoordinate().getStampCoordinate()
+                  .moduleNidProperty().get();
+          
+          if (manifoldModules.size() == 0) {
+             ArrayList<Integer> moduleNIDs = new ArrayList<>();
+             ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
+             
+             TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
+             for (int i : taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
                 moduleNIDs.add(i);
-            });
-            int[] iArray = new int[moduleNIDs.size()];
-            for (int i = 0; i < iArray.length; i++) {
-                iArray[i] = moduleNIDs.get(i);
-            }
-            moduleIntegerArray.addAll(iArray, 0, moduleNIDs.size());
-            this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().set(moduleIntegerArray);
-        }
-
+             }
+             arrayOfModules = new int[moduleNIDs.size()];
+             for (int i = 0; i < arrayOfModules.length; i++) {
+                arrayOfModules[i] = moduleNIDs.get(i);
+             }
+          } else {
+             arrayOfModules = manifoldModules.toArray(null);
+          }
+          return arrayOfModules;
+       } catch (InterruptedException | ExecutionException ex) {
+          throw new RuntimeException(ex);
+       }
     }
 
 }

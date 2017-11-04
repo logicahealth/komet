@@ -40,6 +40,7 @@ package sh.isaac.model.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
@@ -55,7 +56,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -63,6 +63,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -90,9 +91,9 @@ public class ConceptBuilderImpl
    private final List<LogicalExpression> logicalExpressions = new ArrayList<>();
 
    /**
-    * The fsn description builder.
+    * The FQN description builder.
     */
-   private transient DescriptionBuilder<?, ?> fsnDescriptionBuilder = null;
+   private transient DescriptionBuilder<?, ?> fqnDescriptionBuilder = null;
 
    /**
     * The preferred description builder.
@@ -128,16 +129,16 @@ public class ConceptBuilderImpl
    /**
     * Instantiates a new concept builder ochre impl.
     *
-    * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional
+    * @param conceptName - Optional - if specified, a FQN will be created using this value (but see additional
     * information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created
-    * using the following forms: FSN: - "conceptName (semanticTag)" Preferred: "conceptName" If not specified: If the
-    * specified FSN contains a semantic tag, the FSN will be created using that value. A preferred term will be created
-    * by stripping the supplied semantic tag. If the specified FSN does not contain a semantic tag, no preferred term
+    * using the following forms: FQN: - "conceptName (semanticTag)" Preferred: "conceptName" If not specified: If the
+    * specified FQN contains a semantic tag, the FQN will be created using that value. A preferred term will be created
+    * by stripping the supplied semantic tag. If the specified FQN does not contain a semantic tag, no preferred term
     * will be created.
     * @param logicalExpression - Optional
-    * @param defaultLanguageForDescriptions - Optional - used as the language for the created FSN and preferred term
-    * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FSN and preferred
+    * @param defaultLanguageForDescriptions - Optional - used as the language for the created FQN and preferred term
+    * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FQN and preferred
     * term
     * @param defaultLogicCoordinate - Optional - used during the creation of the logical expression, if either a
     * logicalExpression is passed, or if @link {@link #addLogicalExpression(LogicalExpression)} or
@@ -257,8 +258,15 @@ public class ConceptBuilderImpl
    public ConceptChronology build(int stampCoordinate,
            List<Chronology> builtObjects)
            throws IllegalStateException {
-      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConcept(getUuids());
+      
+      
+      UUID[] uuids = getUuids();
+      int nid = Get.identifierService().getNidForUuids(uuids);
+      // TODO handle assemblage nid properly, by adding it to the builder. 
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      for (int i = 1; i < uuids.length; i++) {
+         conceptChronology.addAdditionalUuids(uuids[i]);
+      }
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
@@ -280,18 +288,18 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       this.sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
@@ -313,8 +321,13 @@ public class ConceptBuilderImpl
            List<Chronology> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConcept(getUuids());
+      // TODO handle assemblage nid properly, by adding it to the builder. 
+      UUID[] uuids = getUuids();
+      int nid = Get.identifierService().getNidForUuids(uuids);
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      for (int i = 1; i < uuids.length; i++) {
+         conceptChronology.addAdditionalUuids(uuids[i]);
+      }
 
       conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);
@@ -338,18 +351,18 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
-                 this.defaultLogicCoordinate.getStatedAssemblageSequence()));
+                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
@@ -381,7 +394,7 @@ public class ConceptBuilderImpl
       addUuids(conceptSpec.getUuids());
 
       if (!this.conceptName.equals(conceptSpec.getFullySpecifiedConceptDescriptionText())) {
-         addDescription(conceptSpec.getFullySpecifiedConceptDescriptionText(), TermAux.SYNONYM_DESCRIPTION_TYPE);
+         addDescription(conceptSpec.getFullySpecifiedConceptDescriptionText(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
       return this;
@@ -406,7 +419,7 @@ public class ConceptBuilderImpl
    @Override
    public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
       synchronized (this) {
-         if ((this.fsnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
+         if ((this.fqnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
             final StringBuilder descriptionTextBuilder = new StringBuilder();
 
             descriptionTextBuilder.append(this.conceptName);
@@ -428,16 +441,16 @@ public class ConceptBuilderImpl
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
-            this.fsnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+            this.fqnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                     .getDescriptionBuilder(descriptionTextBuilder.toString(),
                             this,
-                            TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE,
+                            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
                             this.defaultLanguageForDescriptions)
                     .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
          }
       }
 
-      return this.fsnDescriptionBuilder;
+      return this.fqnDescriptionBuilder;
    }
 
    /**
@@ -470,7 +483,7 @@ public class ConceptBuilderImpl
                this.preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                        .getDescriptionBuilder(prefName,
                                this,
-                               TermAux.SYNONYM_DESCRIPTION_TYPE,
+                               TermAux.REGULAR_NAME_DESCRIPTION_TYPE,
                                this.defaultLanguageForDescriptions)
                        .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
             }

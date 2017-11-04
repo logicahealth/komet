@@ -55,7 +55,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -72,7 +72,7 @@ public interface ObservableConceptChronology
     *
     * @return the integer property
     */
-   IntegerProperty conceptSequenceProperty();
+   IntegerProperty entrySequenceProperty();
 
    /**
     * A test for validating that a concept contains an active description. Used
@@ -115,7 +115,7 @@ public interface ObservableConceptChronology
     * @return the fully specified description
     */
    @Override
-   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+   LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
@@ -128,7 +128,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
+      return getFullyQualifiedNameDescription(manifoldCoordinate, manifoldCoordinate);
       
    }
 

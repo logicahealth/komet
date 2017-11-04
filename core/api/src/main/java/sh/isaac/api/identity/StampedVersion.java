@@ -68,7 +68,7 @@ public interface StampedVersion {
     *
     * @return the sequence of the concept that represents the author who committed this version.
     */
-   int getAuthorSequence();
+   int getAuthorNid();
 
    /**
     * Modules are analogous to OSGI modules, where they represent a collection of components
@@ -76,14 +76,14 @@ public interface StampedVersion {
     *
     * @return the sequence of the concept that represents the module this version is part of.
     */
-   int getModuleSequence();
+   int getModuleNid();
 
    /**
     * Gets the path sequence.
     *
     * @return the sequence of the concept that represents the path on which this version is committed.
     */
-   int getPathSequence();
+   int getPathNid();
 
    /**
     * A sequence starting at one that uniquely identifies a particular combination of

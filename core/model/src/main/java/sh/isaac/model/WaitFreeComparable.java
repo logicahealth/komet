@@ -75,5 +75,12 @@ public interface WaitFreeComparable {
     * @param sequence the write sequence for which this object is to be written.
     */
    void setWriteSequence(int sequence);
+
+   /**
+    * Gets the assemblage Nid.
+    *
+    * @return the assemblage Nid
+    */
+   int getAssemblageNid();
 }
 

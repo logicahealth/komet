@@ -48,11 +48,11 @@ import java.util.UUID;
 
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -65,12 +65,12 @@ import sh.isaac.api.chronicle.Chronology;
 public interface IdentifiedComponentBuilder<T extends CommittableComponent>
         extends IdentifiedObject {
    /**
-    * Add a nested Sememe that should be chained / built when build is called on this component.
+    * Add a nested semantic that should be chained / built when build is called on this component.
     *
-    * @param sememeBuilder the sememe builder
+    * @param semanticBuilder the semantic builder
     * @return this object
     */
-   public IdentifiedComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder);
+   public IdentifiedComponentBuilder<T> addSemantic(SemanticBuilder<?> semanticBuilder);
 
    /**
     * Add additional uuids as identifiers for this component.

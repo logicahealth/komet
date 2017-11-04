@@ -164,9 +164,9 @@ public class LoadStats {
    }
 
    /**
-    * Inc description copied from FSN count.
+    * Inc description copied from FQN count.
     */
-   public void incDescriptionCopiedFromFSNCount() {
+   public void incDescriptionCopiedFromFQNCount() {
       this.generatedPreferredTermCount.incrementAndGet();
    }
 
@@ -288,7 +288,7 @@ public class LoadStats {
       result.add("Descriptions Total: " + sum);
 
       if (this.generatedPreferredTermCount.get() > 0) {
-         result.add("Descriptions duplicated from FSN: " + this.generatedPreferredTermCount.get());
+         result.add("Descriptions duplicated from FQN: " + this.generatedPreferredTermCount.get());
       }
 
       sum = 0;

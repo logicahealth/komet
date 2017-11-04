@@ -46,12 +46,10 @@ package sh.isaac.api.commit;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collection;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -66,22 +64,20 @@ public interface ChangeChecker
     * Check.
     *
     * @param cc the cc
-    * @param alertCollection the alert collection
     * @param checkPhase the check phase
+    * @return CheckResult.PASS or CheckResult.FAIL
     */
-   void check(ConceptChronology cc,
-              Collection<Alert> alertCollection,
+   CheckResult check(ConceptChronology cc, 
               CheckPhase checkPhase);
 
    /**
     * Check.
     *
     * @param sc the sc
-    * @param alertCollection the alert collection
     * @param checkPhase the check phase
+    * @return CheckResult.PASS or CheckResult.FAIL
     */
-   void check(SememeChronology sc,
-              Collection<Alert> alertCollection,
+   CheckResult check(SemanticChronology sc,
               CheckPhase checkPhase);
 }
 

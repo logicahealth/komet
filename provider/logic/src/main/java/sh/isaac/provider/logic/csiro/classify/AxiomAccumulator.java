@@ -61,8 +61,8 @@ import au.csiro.ontology.model.Role;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -144,13 +144,13 @@ public class AxiomAccumulator
          for (final LogicNode child: andNode.getChildren()) {
             switch (child.getNodeSemantic()) {
             case CONCEPT:
-               final ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) child;
+               final ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) child;
 
-               definition.add(this.concepts[conceptNode.getConceptSequence()]);
+               definition.add(this.concepts[conceptNode.getConceptNid()]);
                break;
 
             case ROLE_SOME:
-               final RoleNodeSomeWithSequences roleNodeSome = (RoleNodeSomeWithSequences) child;
+               final RoleNodeSomeWithNids roleNodeSome = (RoleNodeSomeWithNids) child;
 
                definition.add(processRole(roleNodeSome,
                                           this.concepts,
@@ -199,14 +199,14 @@ public class AxiomAccumulator
     * @param roleGroupConceptSequence the role group concept sequence
     * @return the concept
     */
-   private Concept processRole(RoleNodeSomeWithSequences roleNodeSome,
+   private Concept processRole(RoleNodeSomeWithNids roleNodeSome,
                                Concept[] concepts,
                                OpenIntObjectHashMap<Role> roles,
                                OpenIntHashSet neverGroupRoleSequences,
                                int roleGroupConceptSequence) {
       // need to handle grouped, and never grouped...
-      if (neverGroupRoleSequences.contains(roleNodeSome.getTypeConceptSequence())) {
-         return Factory.createExistential(roles.get(roleNodeSome.getTypeConceptSequence()),
+      if (neverGroupRoleSequences.contains(roleNodeSome.getTypeConceptNid())) {
+         return Factory.createExistential(roles.get(roleNodeSome.getTypeConceptNid()),
                                           getConcept(roleNodeSome.getOnlyChild(),
                                                 concepts,
                                                 roles,
@@ -241,9 +241,9 @@ public class AxiomAccumulator
                               int roleGroupConceptSequence) {
       switch (logicNode.getNodeSemantic()) {
       case ROLE_SOME:
-         final RoleNodeSomeWithSequences roleNodeSome = (RoleNodeSomeWithSequences) logicNode;
+         final RoleNodeSomeWithNids roleNodeSome = (RoleNodeSomeWithNids) logicNode;
 
-         return Factory.createExistential(roles.get(roleNodeSome.getTypeConceptSequence()),
+         return Factory.createExistential(roles.get(roleNodeSome.getTypeConceptNid()),
                                           getConcept(roleNodeSome.getOnlyChild(),
                                                 concepts,
                                                 roles,
@@ -251,9 +251,9 @@ public class AxiomAccumulator
                                                 roleGroupConceptSequence));
 
       case CONCEPT:
-         final ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
+         final ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
 
-         return concepts[conceptNode.getConceptSequence()];
+         return concepts[conceptNode.getConceptNid()];
 
       case AND:
          return Factory.createConjunction(getConcepts(logicNode.getChildren(),

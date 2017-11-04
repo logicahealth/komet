@@ -120,7 +120,7 @@ public class TermAux {
                                                                          UUID.fromString(
                                                                             "fd9d47b7-c0a4-3eea-b3ab-2b5a3f9e888f"));
 
-   /** ConceptProxy for: "SNOMED integer identifier. 'SNOMED CT integer identifier (core metadata concept)' - 900000000000294009; 'SNOMED integer id' */
+   /** ConceptProxy for: "SNOMED integer identifier. 'SNOMED CT integer identifier' - 900000000000294009; 'SNOMED integer id' */
    public static ConceptSpecification SNOMED_IDENTIFIER = new ConceptProxy("SNOMED integer id",
                                                                            UUID.fromString(
                                                                               "0418a591-f75b-39ad-be2c-3ab849326da9"),
@@ -134,7 +134,7 @@ public class TermAux {
 
    /** ConceptProxy for: "Unspecified module. */
    public static ConceptSpecification UNSPECIFIED_MODULE =
-      new ConceptProxy("Module (core metadata concept)",  // simply labeled 'module' in IsaacMetadataAuxiliary
+      new ConceptProxy("Module",  // simply labeled 'module' in IsaacMetadataAuxiliary
                        UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
 
    /** ConceptProxy for: "ISAAC module". */
@@ -143,21 +143,21 @@ public class TermAux {
                                                                          "f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 
    /** ConceptProxy for: "Synonym description type". SCT ID:    900000000000013009 */
-   public static ConceptSpecification SYNONYM_DESCRIPTION_TYPE = new ConceptProxy("Synonym",
+   public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name",
                                                                                   UUID.fromString(
                                                                                      "8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
-   /** ConceptProxy for: "Fully specified description type. IsaacMetadataAuxiliary has "fully specified name", TermAux has "Fully specified name (core metadata concept)" */
-   public static ConceptSpecification FULLY_SPECIFIED_DESCRIPTION_TYPE =
-      new ConceptProxy("Fully specified name (core metadata concept)",
+   /** ConceptProxy for: "Fully qualified description type.  */
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE =
+      new ConceptProxy("Fully qualified name",
                        UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));
 
-   /** ConceptProxy for: "Definition description type". IsaacMetadataAuxiliary has "definition description type", TermAux has "Definition (core metadata concept)" */
+   /** ConceptProxy for: "Definition description type". IsaacMetadataAuxiliary has "definition description type", TermAux has "Definition" */
    public static ConceptSpecification DEFINITION_DESCRIPTION_TYPE =
-      new ConceptProxy("Definition (core metadata concept)",
+      new ConceptProxy("Definition",
                        UUID.fromString("700546a3-09c7-3fc2-9eb9-53d318659a09"));
 
-   /** ConceptProxy for: "Description type in source terminology". Needed within DynamicSememeMetadata constants, which can't reference IsaacMetadataAuxiliary */
+   /** ConceptProxy for: "Description type in source terminology". Needed within DynamicMetadata constants, which can't reference IsaacMetadataAuxiliary */
    public static ConceptSpecification DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY =
       new ConceptProxy("Description type in source terminology",
                        UUID.fromString("ef7d9808-a839-5119-a604-b777268eb719"));
@@ -369,13 +369,15 @@ public class TermAux {
    public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("Concept is (query clause)", "concept is", UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("Concept is kind of (query clause)", "kind of", UUID.fromString("d9c1f6d4-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Description Lucene match (query clause)", "Lucene match", UUID.fromString("d9c1f7a6-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification DESCRIPTION_LUCENE_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description Lucene match (query clause)", "Lucene active descriptions match", UUID.fromString("e047b6ea-c00f-11e7-abc4-cec278b6b50a"));
    public static ConceptSpecification PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Preferred name for concept (query clause)", "preferred name for concept", UUID.fromString("d9c1f882-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular (query clause)", "relationship is circular", UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of", UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match", UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description regex match (query clause)", "Regex active description match", UUID.fromString("3ddcdca5-957e-4faf-811b-212f94d1bfa0"));
    public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component (query clause)", "concept for component", UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of (query clause)", "descendent of", UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully specified name for concept (query clause)", "fully specified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully qualified name for concept (query clause)", "fully qualified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
    
    public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("Assemblage contains string (query clause)", "assemblage contains string", UUID.fromString("d9c207c8-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains concept (query clause)", "assemblage contains concept", UUID.fromString("d9c208a4-579e-11e7-907b-a6006ad3dba0"));
@@ -386,7 +388,15 @@ public class TermAux {
    public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("Relationship type (query clause)", "relationship type", UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Enclosing concept (query clause)", "enclosing concept", UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
 
+   public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
+   public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
   
+   public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "concepts", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
+   public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR oncept assemblage", "SOLOR concepts", UUID.fromString("6559ac67-6d85-4166-b311-b5b13a7f1502"));
+   public static ConceptSpecification SNOMED_CONCEPT_ASSEMBLAGE = new ConceptProxy("SNOMED concept assemblage", "SNOMED concepts", UUID.fromString("aece2344-ee28-4b69-86cf-ffd33e6c1852"));
+   public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("9b576b97-cf3b-4388-832b-0dddc9d51d5f"));
+   public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("1486a8ad-adbc-4494-bfc5-1ef2ec3b2936"));
+   public static ConceptSpecification RF2_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 relationship assemblage", "RF2 relationships", UUID.fromString("7daba83d-40d1-4d55-8e83-3e2dd7c0bd29"));
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -395,25 +405,22 @@ public class TermAux {
     * @param initialCaseSignificant the initial case significant
     * @return the int
     */
-   public static int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
+   public static int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
       if (initialCaseSignificant) {
-         return Get.identifierService()
-                   .getConceptSequenceForUuids(TermAux.DESCRIPTION_CASE_SENSITIVE.getUuids());
-      }
+         return Get.identifierService().getNidForUuids(TermAux.DESCRIPTION_CASE_SENSITIVE.getUuids());
+       }
 
       return Get.identifierService()
-                .getConceptSequenceForUuids(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getUuids());
+                .getNidForUuids(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getUuids());
    }
 
    /**
     * Concept id to case significance.
     *
-    * @param id the id
+    * @param nid the id
     * @return true, if successful
     */
-   public static boolean conceptIdToCaseSignificance(int id) {
-      final int nid = Get.identifierService()
-                         .getConceptNid(id);
+   public static boolean conceptIdToCaseSignificance(int nid) {
 
       return TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid() == nid;
    }
@@ -423,102 +430,102 @@ public class TermAux {
    /**
     * Gets the concept specification for language sequence.
     *
-    * @param languageConceptSequence the language concept sequence
+    * @param languageConceptNid the language concept sequence
     * @return the concept specification for language sequence
     */
-   public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptSequence) {
-      if (languageConceptSequence == ENGLISH_LANGUAGE.getConceptSequence()) {
+   public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptNid) {
+      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
          return ENGLISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == SPANISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
          return SPANISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == FRENCH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == FRENCH_LANGUAGE.getNid()) {
          return FRENCH_LANGUAGE;
       }
 
-      if (languageConceptSequence == DANISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == DANISH_LANGUAGE.getNid()) {
          return DANISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == POLISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == POLISH_LANGUAGE.getNid()) {
          return POLISH_LANGUAGE;
       }
 
-      if (languageConceptSequence == DUTCH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == DUTCH_LANGUAGE.getNid()) {
          return DUTCH_LANGUAGE;
       }
 
-      if (languageConceptSequence == LITHUANIAN_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == LITHUANIAN_LANGUAGE.getNid()) {
          return LITHUANIAN_LANGUAGE;
       }
 
-      if (languageConceptSequence == CHINESE_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == CHINESE_LANGUAGE.getNid()) {
          return CHINESE_LANGUAGE;
       }
 
-      if (languageConceptSequence == JAPANESE_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == JAPANESE_LANGUAGE.getNid()) {
          return JAPANESE_LANGUAGE;
       }
 
-      if (languageConceptSequence == SWEDISH_LANGUAGE.getConceptSequence()) {
+      if (languageConceptNid == SWEDISH_LANGUAGE.getNid()) {
          return SWEDISH_LANGUAGE;
       }
 
-      return Get.conceptSpecification(languageConceptSequence);
+      return Get.conceptSpecification(languageConceptNid);
    }
 
    /**
     * Gets the description assemblage concept sequence.
     *
-    * @param languageConceptSequence the language concept sequence
+    * @param languageConceptNid the language concept sequence
     * @return the description assemblage concept sequence
     */
-   public static int getDescriptionAssemblageConceptSequence(int languageConceptSequence) {
-      if (languageConceptSequence == ENGLISH_LANGUAGE.getConceptSequence()) {
-         return ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+   public static int getDescriptionAssemblageConceptSequence(int languageConceptNid) {
+      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
+         return ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == SPANISH_LANGUAGE.getConceptSequence()) {
-         return SPANISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
+         return SPANISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == FRENCH_LANGUAGE.getConceptSequence()) {
-         return FRENCH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == FRENCH_LANGUAGE.getNid()) {
+         return FRENCH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == DANISH_LANGUAGE.getConceptSequence()) {
-         return DANISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == DANISH_LANGUAGE.getNid()) {
+         return DANISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == POLISH_LANGUAGE.getConceptSequence()) {
-         return POLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == POLISH_LANGUAGE.getNid()) {
+         return POLISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == DUTCH_LANGUAGE.getConceptSequence()) {
-         return DUTCH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == DUTCH_LANGUAGE.getNid()) {
+         return DUTCH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == LITHUANIAN_LANGUAGE.getConceptSequence()) {
-         return LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == LITHUANIAN_LANGUAGE.getNid()) {
+         return LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == CHINESE_LANGUAGE.getConceptSequence()) {
-         return CHINESE_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == CHINESE_LANGUAGE.getNid()) {
+         return CHINESE_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == JAPANESE_LANGUAGE.getConceptSequence()) {
-         return JAPANESE_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == JAPANESE_LANGUAGE.getNid()) {
+         return JAPANESE_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
-      if (languageConceptSequence == SWEDISH_LANGUAGE.getConceptSequence()) {
-         return SWEDISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence();
+      if (languageConceptNid == SWEDISH_LANGUAGE.getNid()) {
+         return SWEDISH_DESCRIPTION_ASSEMBLAGE.getNid();
       }
 
       throw new RuntimeException("No description assemblage for: " +
-                                 Get.conceptDescriptionText(languageConceptSequence));
+                                 Get.conceptDescriptionText(languageConceptNid));
    }
 }
 

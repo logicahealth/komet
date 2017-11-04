@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,13 +90,13 @@ public class DynamicSememeFloatTest {
     */
    private void test(float value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeFloatImpl l = new DynamicSememeFloatImpl(value);
+      final DynamicFloatImpl l = new DynamicFloatImpl(value);
 
       assertEquals(value, l.getDataFloat(), 0);
       assertEquals(value, (Float) l.getDataObject(), 0);
       assertEquals(value, (Float) l.getDataObjectProperty()
                                    .get(), 0);
-      assertEquals(l.getDynamicSememeDataType(), DynamicSememeDataType.FLOAT);
+      assertEquals(l.getDynamicDataType(), DynamicDataType.FLOAT);
    }
 }
 

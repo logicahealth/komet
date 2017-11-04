@@ -161,7 +161,7 @@ public class Manifold
          MANIFOLD_CHANGE_LISTENERS.forEach(
              (manifold, u) -> {
                 HistoryRecord historyRecord = new HistoryRecord(
-                                                  newValue.getConceptSequence(),
+                                                  newValue.getNid(),
                                                         manifold.getFullySpecifiedDescriptionText(newValue));
                 ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
                                                              UNLINKED_GROUP_NAME,
@@ -289,7 +289,7 @@ public class Manifold
    public void setFocusedConceptChronology(ConceptChronology newFocusedObject) {
       if (newFocusedObject != null) {
          HistoryRecord history = new HistoryRecord(
-                                     newFocusedObject.getConceptSequence(),
+                                     newFocusedObject.getNid(),
                                      getFullySpecifiedDescriptionText(newFocusedObject));
 
          addHistory(history, this.manifoldHistory);

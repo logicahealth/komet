@@ -43,7 +43,6 @@ package sh.isaac.model.coordinate;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,11 +65,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -84,7 +82,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public class LanguageCoordinateImpl
          implements LanguageCoordinate {
    /** The language concept sequence. */
-   int languageConceptSequence;
+   int languageConceptNid;
 
    /** The dialect assemblage preference list. */
    int[] dialectAssemblagePreferenceList;
@@ -111,21 +109,9 @@ public class LanguageCoordinateImpl
    public LanguageCoordinateImpl(int languageConceptId,
                                  int[] dialectAssemblagePreferenceList,
                                  int[] descriptionTypePreferenceList) {
-      this.languageConceptSequence         = Get.identifierService()
-            .getConceptSequence(languageConceptId);
+      this.languageConceptNid         = languageConceptId;
       this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
-
-      for (int i = 0; i < this.dialectAssemblagePreferenceList.length; i++) {
-         this.dialectAssemblagePreferenceList[i] = Get.identifierService()
-               .getConceptSequence(this.dialectAssemblagePreferenceList[i]);
-      }
-
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
-
-      for (int i = 0; i < this.descriptionTypePreferenceList.length; i++) {
-         this.descriptionTypePreferenceList[i] = Get.identifierService()
-               .getConceptSequence(this.descriptionTypePreferenceList[i]);
-      }
    }
 
    //~--- methods -------------------------------------------------------------
@@ -148,7 +134,7 @@ public class LanguageCoordinateImpl
 
       final LanguageCoordinateImpl other = (LanguageCoordinateImpl) obj;
 
-      if (this.languageConceptSequence != other.languageConceptSequence) {
+      if (this.languageConceptNid != other.languageConceptNid) {
          return false;
       }
 
@@ -168,7 +154,7 @@ public class LanguageCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 79 * hash + this.languageConceptSequence;
+      hash = 79 * hash + this.languageConceptNid;
       hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
       return hash;
    }
@@ -180,7 +166,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public String toString() {
-      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptSequence) +
+      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptNid) +
              ", dialect preference: " + Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) +
              ", type preference: " + Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) + '}';
    }
@@ -196,7 +182,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
@@ -279,13 +265,13 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
                                          descriptionList,
                                          Get.languageCoordinateService()
-                                               .getFullySpecifiedConceptSequence(),
+                                               .getFullySpecifiedConceptNid(),
                                          this);
    }
 
@@ -295,8 +281,8 @@ public class LanguageCoordinateImpl
     * @return the language concept sequence
     */
    @Override
-   public int getLanguageConceptSequence() {
-      return this.languageConceptSequence;
+   public int getLanguageConceptNid() {
+      return this.languageConceptNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -307,11 +293,11 @@ public class LanguageCoordinateImpl
     * @param languageConceptSequenceProperty the language concept sequence property
     * @return the change listener
     */
-   public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
+   public ChangeListener<Number> setLanguageConceptNidProperty(IntegerProperty languageConceptSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.languageConceptSequence = newValue.intValue();
+               this.languageConceptNid = newValue.intValue();
             };
 
       languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -329,19 +315,19 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
                                          descriptionList,
                                          Get.languageCoordinateService()
-                                               .getSynonymConceptSequence(),
+                                               .getSynonymConceptNid(),
                                          this);
    }
 
    @Override
    public LanguageCoordinate deepClone() {
-      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptSequence,
+      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
                                  dialectAssemblagePreferenceList.clone(),
                                  descriptionTypePreferenceList.clone());
       return newCoordinate;

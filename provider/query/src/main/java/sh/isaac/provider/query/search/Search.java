@@ -54,10 +54,10 @@ import java.util.function.Function;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +76,7 @@ public class Search {
     * @param descriptionType - (optional) if provided, only searches within the specified description type
     * @param advancedDescriptionType - (optional) if provided, only searches within the specified advanced description type.
     * When this parameter is provided, the descriptionType parameter is ignored.
-    * @param targetCodeSystemPathNidOrSequence - (optional) Restrict the results to concepts from the specified path.
+    * @param targetCodeSystemPathNid - (optional) Restrict the results to concepts from the specified path.
     * @param memberOfRefsetNid - (optional) Restrict the results to concepts that are members of the specified refset.
     * @param kindOfNid - (optional) restrict the results to concepts that are a kind of the specified concept
     * @return - A handle to the running search.
@@ -86,23 +86,20 @@ public class Search {
                                      Consumer<SearchHandle> operationToRunWhenSearchComplete,
                                      LuceneDescriptionType descriptionType,
                                      UUID advancedDescriptionType,
-                                     Integer targetCodeSystemPathNidOrSequence,
+                                     Integer targetCodeSystemPathNid,
                                      Integer memberOfRefsetNid,
                                      Integer kindOfNid)
             throws IOException {
       final ArrayList<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> filters = new ArrayList<>();
 
-      if (targetCodeSystemPathNidOrSequence != null) {
-         final int pathFilterSequence = (targetCodeSystemPathNidOrSequence < 0) ? Get.identifierService()
-                                                                                     .getConceptSequence(
-                                                                                        targetCodeSystemPathNidOrSequence)
-               : targetCodeSystemPathNidOrSequence;
+      if (targetCodeSystemPathNid != null) {
+         final int pathFilterSequence = targetCodeSystemPathNid;
 
          filters.add(t -> {
                         final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
                         t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
-                                (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence))).forEachOrdered((csr) -> {
+                                (csr.getContainingConcept().get().getPathNid() == pathFilterSequence))).forEachOrdered((csr) -> {
                                    keep.add(csr);
             });
 
@@ -116,8 +113,7 @@ public class Search {
                            final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
                            final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                           Get.assemblageService().getSememesFromAssemblage(Get.identifierService()
-                                 .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
+                           Get.assemblageService().getSemanticChronologyStreamFromAssemblage(memberOfRefsetNid).forEach(sememeC -> {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
 
@@ -227,7 +223,7 @@ public class Search {
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
                      final LatestVersion<DescriptionVersion> latest =
-                        ((SememeChronology) descriptionC).getLatestVersion((stampCoord == null)
+                        ((SemanticChronology) descriptionC).getLatestVersion((stampCoord == null)
                                                                            ? Get.configurationService()
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);

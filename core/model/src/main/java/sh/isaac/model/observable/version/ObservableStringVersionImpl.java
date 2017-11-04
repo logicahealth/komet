@@ -49,14 +49,14 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.MutableStringVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.MutableStringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,7 +65,7 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class ObservableStringVersionImpl
-        extends ObservableSememeVersionImpl
+        extends ObservableSemanticVersionImpl
          implements ObservableStringVersion {
    /** The string property. */
    StringProperty stringProperty;
@@ -78,7 +78,7 @@ public class ObservableStringVersionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableStringVersionImpl(StringVersion stampedVersion, ObservableSememeChronology chronology) {
+   public ObservableStringVersionImpl(StringVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
@@ -89,7 +89,7 @@ public class ObservableStringVersionImpl
       StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
                                                              newVersion,
-                                                                   (ObservableSememeChronology) chronology);
+                                                                   (ObservableSemanticChronology) chronology);
 
       ((ObservableChronologyImpl) chronology).getVersionList()
             .add(newObservableVersion);
@@ -106,7 +106,7 @@ public class ObservableStringVersionImpl
       if (this.stringProperty == null) {
          this.stringProperty = new CommitAwareStringProperty(
              this,
-             ObservableFields.STRING_VALUE_FOR_SEMEME.toExternalString(),
+             ObservableFields.STRING_VALUE_FOR_SEMANTIC.toExternalString(),
              getString());
       }
 

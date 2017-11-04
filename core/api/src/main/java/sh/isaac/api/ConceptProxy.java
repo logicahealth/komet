@@ -57,7 +57,7 @@ import sh.isaac.api.util.UUIDUtil;
  * Created by kec on 2/16/15.
  */
 public class ConceptProxy
-        implements ConceptSpecification {
+        implements ConceptSpecification { 
 
    /**
     * Universal identifiers for the concept proxied by the is object.
@@ -85,7 +85,7 @@ public class ConceptProxy
     */
    public ConceptProxy(int conceptSequenceOrNid) {
       final ConceptChronology cc = Get.conceptService()
-              .getConcept(conceptSequenceOrNid);
+              .getConceptChronology(conceptSequenceOrNid);
 
       this.uuids = cc.getUuidList()
               .toArray(new UUID[0]);
@@ -220,17 +220,6 @@ public class ConceptProxy
    @Override
    public String getFullySpecifiedConceptDescriptionText() {
       return this.fullySpecifiedDescriptionText;
-   }
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @param nid the nid
-    * @return the concept sequence
-    */
-   protected static int getConceptSequence(int nid) {
-      return Get.identifierService()
-              .getConceptSequence(nid);
    }
 
    //~--- set methods ---------------------------------------------------------

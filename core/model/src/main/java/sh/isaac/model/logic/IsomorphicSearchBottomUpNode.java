@@ -42,8 +42,8 @@ package sh.isaac.model.logic;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.collections.NidSet;
 
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.NodeSemantic;
 
 //~--- classes ----------------------------------------------------------------
@@ -59,7 +59,7 @@ public class IsomorphicSearchBottomUpNode
    final NodeSemantic nodeSemantic;
 
    /** The concepts referenced at node or above. */
-   final ConceptSequenceSet conceptsReferencedAtNodeOrAbove;
+   final NidSet conceptsReferencedAtNodeOrAbove;
 
    /** The concepts referenced at node or above hash. */
    int conceptsReferencedAtNodeOrAboveHash;
@@ -88,7 +88,7 @@ public class IsomorphicSearchBottomUpNode
          int childNodeId,
          int nodeId) {
       this.nodeSemantic                        = nodeSemantic;
-      this.conceptsReferencedAtNodeOrAbove     = ConceptSequenceSet.of(conceptsReferencedAtNodeOrAbove);
+      this.conceptsReferencedAtNodeOrAbove     = NidSet.of(conceptsReferencedAtNodeOrAbove);
       this.size                                = conceptsReferencedAtNodeOrAbove.size();
       this.conceptsReferencedAtNodeOrAboveHash = 1;
 

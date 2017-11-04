@@ -122,7 +122,7 @@ public enum NodeSemantic {
    ;
 
    /** The concept sequence. */
-   int conceptSequence = Integer.MIN_VALUE;
+   int conceptNid = Integer.MIN_VALUE;
 
    /** The semantic uuid. */
    UUID semanticUuid;
@@ -145,7 +145,7 @@ public enum NodeSemantic {
     */
    static void reset() {
       for (final NodeSemantic nodeSemantic: NodeSemantic.values()) {
-         nodeSemantic.conceptSequence = Integer.MIN_VALUE;
+         nodeSemantic.conceptNid = Integer.MIN_VALUE;
       }
    }
 
@@ -156,13 +156,13 @@ public enum NodeSemantic {
     *
     * @return the concept sequence
     */
-   public int getConceptSequence() {
-      if (this.conceptSequence == Integer.MIN_VALUE) {
-         this.conceptSequence = Get.identifierService()
-                                   .getConceptSequenceForUuids(this.semanticUuid);
+   public int getConceptNid() {
+      if (this.conceptNid == Integer.MIN_VALUE) {
+         this.conceptNid = Get.identifierService()
+                                   .getNidForUuids(this.semanticUuid);
       }
 
-      return this.conceptSequence;
+      return this.conceptNid;
    }
 
    /**

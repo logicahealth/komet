@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,13 +89,13 @@ public class DynamicSememeUUIDTest {
     */
    private void test(UUID value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeUUIDImpl uuid = new DynamicSememeUUIDImpl(value);
+      final DynamicUUIDImpl uuid = new DynamicUUIDImpl(value);
 
       assertEquals(value, uuid.getDataUUID());
       assertEquals(value, uuid.getDataObject());
       assertEquals(value, uuid.getDataObjectProperty()
                               .get());
-      assertEquals(uuid.getDynamicSememeDataType(), DynamicSememeDataType.UUID);
+      assertEquals(uuid.getDynamicDataType(), DynamicDataType.UUID);
    }
 }
 

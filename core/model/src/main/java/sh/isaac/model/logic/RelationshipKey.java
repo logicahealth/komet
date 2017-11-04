@@ -41,7 +41,7 @@ package sh.isaac.model.logic;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
+import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.logic.LogicNode;
 
 //~--- classes ----------------------------------------------------------------
@@ -54,7 +54,7 @@ import sh.isaac.api.logic.LogicNode;
 public class RelationshipKey
          implements Comparable<RelationshipKey> {
    /** The concepts referenced at node or below. */
-   ConceptSequenceSet conceptsReferencedAtNodeOrBelow = new ConceptSequenceSet();
+   OpenIntHashSet conceptsReferencedAtNodeOrBelow = new OpenIntHashSet();
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,23 @@ public class RelationshipKey
     */
    @Override
    public int compareTo(RelationshipKey o) {
-      return this.conceptsReferencedAtNodeOrBelow.compareTo(o.conceptsReferencedAtNodeOrBelow);
+      int comparison = Integer.compare(this.conceptsReferencedAtNodeOrBelow.size(), o.conceptsReferencedAtNodeOrBelow.size());
+
+      if (comparison != 0) {
+         return comparison;
+      }
+
+      final int[] thisKeys  = this.conceptsReferencedAtNodeOrBelow.keys().elements();
+      final int[] otherKeys = o.conceptsReferencedAtNodeOrBelow.keys().elements();
+
+      for (int i = 0; i < thisKeys.length; i++) {
+         if (thisKeys[i] != otherKeys[i]) {
+            return Integer.compare(thisKeys[i], otherKeys[i]);
+         }
+      }
+
+      return 0;
+
    }
 
    /**

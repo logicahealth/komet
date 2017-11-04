@@ -389,10 +389,9 @@ public class LoincImportMojo
                                                                false,
                                                                sourceOrgConcept.getPrimordialUuid()));
 
-                  this.importUtil.addDescription(
-                      c,
+                  this.importUtil.addDescription(c,
                       line[1],
-                      DescriptionType.SYNONYM,
+                      DescriptionType.REGULAR_NAME,
                       true,
                       this.propertyToPropertyType_.get("NAME")
                                                   .getProperty("NAME")
@@ -449,14 +448,13 @@ public class LoincImportMojo
                                                                 true,
                                                                 MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()));
 
-         this.importUtil.addDescription(
-             rootConcept,
+         this.importUtil.addDescription(rootConcept,
              "Logical Observation Identifiers Names and Codes",
-             DescriptionType.SYNONYM,
+             DescriptionType.REGULAR_NAME,
              false,
              null,
              State.ACTIVE);
-         ConsoleUtil.println("Root concept FSN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
+         ConsoleUtil.println("Root concept FQN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
          this.concepts_.put(rootConcept.getPrimordialUuid(), rootConcept);
 
          // Build up the Class metadata
@@ -570,7 +568,7 @@ public class LoincImportMojo
 
                for (final UUID parent: parents) {
                   assertions[i++] = ConceptAssertion(Get.identifierService()
-                        .getConceptSequenceForUuids(parent), leb);
+                        .getNidForUuids(parent), leb);
                }
 
                NecessarySet(And(assertions));
@@ -817,9 +815,9 @@ public class LoincImportMojo
             final Property p = pt.getProperty(this.fieldMapInverse.get(fieldIndex));
 
             if (pt instanceof PT_Annotations) {
-               if ((p.getSourcePropertyNameFSN().equals(
-                     "COMMON_TEST_RANK") || p.getSourcePropertyNameFSN().equals(
-                         "COMMON_ORDER_RANK") || p.getSourcePropertyNameFSN().equals("COMMON_SI_TEST_RANK")) &&
+               if ((p.getSourcePropertyNameFQN().equals(
+                     "COMMON_TEST_RANK") || p.getSourcePropertyNameFQN().equals(
+                         "COMMON_ORDER_RANK") || p.getSourcePropertyNameFQN().equals("COMMON_SI_TEST_RANK")) &&
                      fields[fieldIndex].equals("0")) {
                   continue;  // Skip attributes of these types when the value is 0
                }
@@ -1037,7 +1035,7 @@ public class LoincImportMojo
                                            codeText,
                                            this.propertyToPropertyType_.get("CODE_TEXT").getProperty("CODE_TEXT"));
 
-         this.importUtil.addDescriptions(concept, Arrays.asList(vpp));  // This will get added as FSN
+         this.importUtil.addDescriptions(concept, Arrays.asList(vpp));  // This will get added as FULLY_QUALIFIED_NAME
 
          HashSet<UUID> parents = this.multiaxialPathsToRoot.get(concept.getPrimordialUuid());
 

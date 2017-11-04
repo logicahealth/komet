@@ -310,10 +310,10 @@ public class WorkflowAccessorTest
       expectedRoles.add(UserRole.REVIEWER);
       expectedRoles.add(UserRole.APPROVER);
       expectedRoles.add(UserRole.AUTOMATED);
-      Assert.assertEquals(entry.getBpmn2Id(), "VetzWorkflow");
-      Assert.assertEquals(entry.getName(), "VetzWorkflow");
-      Assert.assertEquals(entry.getNamespace(), "org.jbpm");
-      Assert.assertEquals(entry.getVersion(), "1.2");
+      Assert.assertEquals("VetzWorkflow", entry.getBpmn2Id());
+      Assert.assertEquals("VetzWorkflow", entry.getName());
+      Assert.assertEquals("org.jbpm", entry.getNamespace());
+      Assert.assertEquals("1.2", entry.getVersion());
       Assert.assertEquals(entry.getRoles(), expectedRoles);
    }
 
@@ -339,7 +339,7 @@ public class WorkflowAccessorTest
       Assert.assertEquals(0, entry.getComponentToInitialEditMap()
                                   .keySet()
                                   .size());
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       entry = wp.getWorkflowAccessor()
                  .getProcessDetails(processId);
       Assert.assertEquals(2, entry.getComponentToInitialEditMap()

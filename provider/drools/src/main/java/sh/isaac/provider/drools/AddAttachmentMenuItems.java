@@ -27,14 +27,14 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
@@ -61,16 +61,16 @@ public class AddAttachmentMenuItems {
       MenuItem menuItem = new MenuItem(menuText);
       menuItem.setOnAction((event) -> {
          try {
-            SememeBuilder<? extends SememeChronology> builder = Get.sememeBuilderService().getStringSememeBuilder("",
+            SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
                     this.categorizedVersion.getNid(),
-                    assemblageSpecification.getConceptSequence());
+                    assemblageSpecification.getNid());
             
-            OptionalWaitTask<? extends SememeChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+            OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
             
             // this step does an add uncommitted...
-            SememeChronology newChronology = buildTask.get();
+            SemanticChronology newChronology = buildTask.get();
             
-            ObservableSememeChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getSememeSequence());
+            ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getNid());
             CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = newObservableChronology.getCategorizedVersions(manifold);
             ObservableStringVersion newStringVersion = (ObservableStringVersion) categorizedVersions.getUncommittedVersions().get(0).getObservableVersion();
 

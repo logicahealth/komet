@@ -62,6 +62,7 @@ public class LayoutAnimator implements ChangeListener<Number>, ListChangeListene
   public void observe(Node n) {
     n.layoutXProperty().addListener(this);
     n.layoutYProperty().addListener(this);
+    
   }
 
   public void unobserve(Node n) {
@@ -100,7 +101,7 @@ public class LayoutAnimator implements ChangeListener<Number>, ListChangeListene
   }
 
   private abstract class MoveTransition extends Transition {
-    private final Duration MOVEMENT_ANIMATION_DURATION = new Duration(1000);
+    private final Duration MOVEMENT_ANIMATION_DURATION = new Duration(500);
 
     protected final Translate translate;
 

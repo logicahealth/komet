@@ -41,30 +41,26 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -133,8 +129,8 @@ public abstract class AbstractLogicNode
     * @param conceptSequenceSet the concept sequence set
     */
    @Override
-   public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
-      conceptSequenceSet.add(getNodeSemantic().getConceptSequence());
+   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
+      conceptSequenceSet.add(getNodeSemantic().getConceptNid());
    }
 
    /**
@@ -189,8 +185,7 @@ public abstract class AbstractLogicNode
    public String fragmentToString(String nodeIdSuffix) {
       final StringBuilder builder = new StringBuilder();
 
-      this.logicalExpression.processDepthFirst(
-          this,
+      this.logicalExpression.processDepthFirst(this,
               (LogicNode logicNode,
                TreeNodeVisitData graphVisitData) -> {
                  for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
@@ -408,9 +403,9 @@ public abstract class AbstractLogicNode
 
       switch (getNodeSemantic()) {
       case CONCEPT:
-         ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) this;
+         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) this;
 
-         sequenceForDescription = conceptNode.getConceptSequence();
+         sequenceForDescription = conceptNode.getConceptNid();
          break;
 
       case DEFINITION_ROOT:
@@ -418,7 +413,7 @@ public abstract class AbstractLogicNode
          break;
 
       default:
-         sequenceForDescription = getNodeSemantic().getConceptSequence();
+         sequenceForDescription = getNodeSemantic().getConceptNid();
       }
 
       LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(

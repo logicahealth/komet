@@ -60,7 +60,7 @@ public class PT_Descriptions
       addProperty("CONSUMER_NAME", SYNONYM + 1);
       addProperty("SHORTNAME", SYNONYM);  // typically preferred synonym.
       addProperty("LONG_COMMON_NAME",
-                  FSN);  // this should be the FSN, unless missing, then work down the synonym hierarchy
+                  FULLY_QUALIFIED_NAME);  // this should be the FULLY_QUALIFIED_NAME, unless missing, then work down the synonym hierarchy
       addProperty("DefinitionDescription", null, null, 6, Integer.MAX_VALUE, false, SYNONYM + 5);  // added in 2.52
    }
 }

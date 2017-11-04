@@ -36,5 +36,13 @@ public class PseudoClasses {
    public static final PseudoClass LOGICAL_DEFINITION_PSEUDO_CLASS = PseudoClass.getPseudoClass("logical-definition-version");
    public static final PseudoClass DESCRIPTION_PSEUDO_CLASS = PseudoClass.getPseudoClass("description-version");
    public static final PseudoClass CONCEPT_PSEUDO_CLASS = PseudoClass.getPseudoClass("concept-version");
-   public static final PseudoClass OTHER_PSEUDO_CLASS = PseudoClass.getPseudoClass("other-version");
+   public static final PseudoClass OTHER_VERSION_PSEUDO_CLASS = PseudoClass.getPseudoClass("other-version");
+   
+   public static final PseudoClass ALERT_INFO_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-info");
+   public static final PseudoClass ALERT_CONFIRM_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-confirm");
+   public static final PseudoClass ALERT_WARN_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-warn");
+   public static final PseudoClass ALERT_ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-error");
+   public static final PseudoClass ALERT_SUCCESS_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-success");
+   
+   
 }

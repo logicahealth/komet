@@ -59,10 +59,9 @@ import javax.xml.bind.annotation.XmlType;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -79,7 +78,7 @@ import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
+import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
@@ -216,13 +215,11 @@ public abstract class Query {
       final NidSet possibleComponents = this.rootClause[0].computePossibleComponents(this.forSet);
 
       if (this.computeTypes.contains(ClauseComputeType.ITERATION)) {
-         final NidSet conceptsToIterateOver = NidSet.of(Get.identifierService()
-                                                           .getConceptSequencesForConceptNids(possibleComponents));
-         final ConceptSequenceSet conceptSequences = Get.identifierService()
-                                                        .getConceptSequencesForConceptNids(conceptsToIterateOver);
+         final NidSet conceptsToIterateOver = NidSet.of(possibleComponents);
+         final NidSet conceptNids = NidSet.of(conceptsToIterateOver);
 
          Get.conceptService()
-            .getParallelConceptChronologyStream(conceptSequences)
+            .getConceptChronologyStream(conceptNids)
             .forEach((concept) -> {
                         concept.createMutableVersion(concept.getNid());
 
@@ -479,15 +476,16 @@ public abstract class Query {
       for (final ComponentCollectionTypes collection: this.forCollectionTypes) {
          switch (collection) {
          case ALL_COMPONENTS:
-            this.forSet.or(NidSet.ofAllComponentNids());
+            forSet.addAll(Get.assemblageService().getSemanticNidStream());
+            forSet.addAll(Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()));
             break;
 
          case ALL_CONCEPTS:
-            this.forSet.or(NidSet.of(ConceptSequenceSet.ofAllConceptSequences()));
+            forSet.or(NidSet.of(Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid())));
             break;
 
-         case ALL_SEMEMES:
-            this.forSet.or(NidSet.of(SememeSequenceSet.ofAllSememeSequences()));
+         case ALL_SEMANTICS:
+            forSet.or(NidSet.of(Get.assemblageService().getSemanticNidStream()));
             break;
 
          case CUSTOM_SET:
@@ -518,8 +516,8 @@ public abstract class Query {
     * @param clause the clause
     * @return the fully specified name for concept
     */
-   protected FullySpecifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
-      return new FullySpecifiedNameForConcept(this, clause);
+   protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
+      return new FullyQualifiedNameForConcept(this, clause);
    }
 
    /**

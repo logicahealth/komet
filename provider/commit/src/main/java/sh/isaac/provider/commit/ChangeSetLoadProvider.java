@@ -71,17 +71,20 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+import sh.isaac.api.alert.EnvironmentalAlert;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -198,14 +201,14 @@ public class ChangeSetLoadProvider
       Optional<AssemblageService> optionalService = Get.optionalService(AssemblageService.class);
 
       if (optionalService.isPresent()) {
-         Optional<SememeChronology> sdic = optionalService.get()
-                                                          .getSememesForComponentFromAssemblage(
+         Optional<SemanticChronology> sdic = optionalService.get()
+                                                          .getSemanticChronologyStreamForComponentFromAssemblage(
                                                                 TermAux.SOLOR_ROOT.getNid(),
-                                                                      TermAux.DATABASE_UUID.getConceptSequence())
+                                                                      TermAux.DATABASE_UUID.getNid())
                                                           .findFirst();
 
          if (sdic.isPresent()) {
-            final LatestVersion<StringVersion> sdi = ((SememeChronology) sdic.get()).getLatestVersion(
+            final LatestVersion<StringVersion> sdi = ((SemanticChronology) sdic.get()).getLatestVersion(
                                                          StampCoordinates.getDevelopmentLatest());
 
             if (sdi.isPresent()) {
@@ -274,19 +277,22 @@ public class ChangeSetLoadProvider
             LOG.error("Error writing maven artifact identity file", e);
          }
 
-         UUID sememeDbId = readSememeDbId();
+         UUID semanticDbId = readSememeDbId();
 
-         if (((sememeDbId != null) &&!sememeDbId.equals(chronicleDbId)) ||
+         if (((semanticDbId != null) &&!semanticDbId.equals(chronicleDbId)) ||
                ((changesetsDbId != null) &&!changesetsDbId.equals(chronicleDbId))) {
             final StringBuilder msg = new StringBuilder();
 
-            msg.append("Database identity mismatch!  ChronicleDbId: ")
+            msg.append("Database identity mismatch!  Concept DbId: ")
                .append(chronicleDbId);
-            msg.append(" SememeDbId: ")
-               .append(sememeDbId);
+            msg.append(" Semantic DbId: ")
+               .append(semanticDbId);
             msg.append(" Changsets DbId: ")
                .append(changesetsDbId);
-            throw new RuntimeException(msg.toString());
+            String message = msg.toString();
+            LOG.error(message);
+            AlertObject alertObject = new EnvironmentalAlert("Database identity mismatch", message, AlertType.ERROR);
+            Alert.publishAddition(alertObject);
          }
 
          if (changesetsDbId == null) {
@@ -295,7 +301,7 @@ public class ChangeSetLoadProvider
                   .getBytes());
          }
 
-         // if the sememeDbId is null, lets wait and see if it appears after processing the changesets.
+         // if the semanticDbId is null, lets wait and see if it appears after processing the changesets.
          // We store the list of files that we have already read / processed in the metacontent store, so we don't have to process them again.
          // files that "appear" in this folder via the git integration, for example, we will need to process - but files that we create
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
@@ -308,23 +314,23 @@ public class ChangeSetLoadProvider
 
          final int loaded = readChangesetFiles();
 
-         if (sememeDbId == null) {
-            sememeDbId = readSememeDbId();
+         if (semanticDbId == null) {
+            semanticDbId = readSememeDbId();
 
-            if (!Get.configurationService().inDBBuildMode() && (sememeDbId == null)) {
+            if (!Get.configurationService().inDBBuildMode() && (semanticDbId == null)) {
                if (loaded > 0) {
-                  LOG.warn("No database identify was found stored in a sememe, after loading changesets.");
+                  LOG.warn("No database identify was found stored in a semantic, after loading changesets.");
                }
 
-               Get.sememeBuilderService()
-                  .getStringSememeBuilder(
+               Get.semanticBuilderService()
+                  .getStringSemanticBuilder(
                       chronicleDbId.toString(),
                       TermAux.SOLOR_ROOT.getNid(),
-                      TermAux.DATABASE_UUID.getConceptSequence())
+                      TermAux.DATABASE_UUID.getNid())
                   .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
                   .get();
                Get.commitService()
-                  .commit("Storing database ID on root concept");
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Storing database ID on root concept");
             }
          }
       } catch (final IOException | InterruptedException | RuntimeException | ExecutionException e) {

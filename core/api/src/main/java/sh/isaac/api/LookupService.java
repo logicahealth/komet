@@ -73,7 +73,6 @@ import java.util.List;
 
 import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.constants.Constants;
-import sh.isaac.api.util.HeadlessToolkit;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -181,7 +180,8 @@ public class LookupService {
          setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
 
          // Validate that databases and associated services directories uniformly exist and are uniformly populated during startup
-         validateDatabaseFolderStatus();
+         // TODO decide if the validate database folder strategy is worthwile, and then get it working again.
+         // validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
          setRunLevel(ISAAC_STARTED_RUNLEVEL);
@@ -280,7 +280,9 @@ public class LookupService {
                                 // Inconsistency discovered
                                 throw new RuntimeException("Database Corruption Observed: Provider " +
                                 handle.getActiveDescriptor().getImplementation() +
-                                " has inconsistent database validity value prior to startup");
+                                " has inconsistent database validity value prior to startup. Should be: " + 
+                                        discoveredValidityValue + " is: " + 
+                                        handle.getService().getDatabaseValidityStatus());
                              }
                           }
                        }

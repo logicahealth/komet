@@ -42,11 +42,12 @@ package sh.isaac.api.tree;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.function.ObjIntConsumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -56,41 +57,51 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public interface Tree {
    /**
+    * 
+    * @return the assemblage nid which specifies the assemblage where the concepts in this tree
+    * where created within. 
+    */
+   int getAssemblageNid();
+   /**
     * Visit the nodes of this tree that are accessible via the startSequence in
     * a breadth-first manner, and provide the sequence of the visited node, and
-    * the {@code TreeNodeVisitData} to the consumer. Nodes are processed when
+    * the {@code TreeNodeVisitDataImpl} to the consumer. Nodes are processed when
     * they are discovered,
     *
-    * @param startSequence starting sequence for the breadth-first traversal of
+    * @param rootNid starting sequence for the breadth-first traversal of
     * this tree.
     * @param consumer The consumer that accepts each node and the
-    * {@code TreeNodeVisitData} during the traversal.
-    * @return {@code TreeNodeVisitData} for obtaining summary data.
+    * {@code TreeNodeVisitDataImpl} during the traversal.
+    * @param emptyDataSupplier provides a new, unprocessed, TreeNodeVisitData object 
+    * @return {@code TreeNodeVisitDataImpl} for obtaining summary data.
     */
-   TreeNodeVisitData breadthFirstProcess(int startSequence, ObjIntConsumer<TreeNodeVisitData> consumer);
+   TreeNodeVisitData breadthFirstProcess(int rootNid, ObjIntConsumer<TreeNodeVisitData> consumer, 
+           Supplier<TreeNodeVisitData> emptyDataSupplier);
 
    /**
     * An ancestor tree represents all the paths from a child to the tree root.
     * The child is the root of the ancestor tree, and the root of the original
     * source tree becomes the leaf of the ancestor tree.
     *
-    * @param childSequence sequence of the node to compute the ancestor tree from.
+    * @param childNid sequence of the node to compute the ancestor tree from.
     * @return a tree with the {@code childSequence} as the root
     */
-   Tree createAncestorTree(int childSequence);
+   Tree createAncestorTree(int childNid);
 
    /**
     * Visit the nodes of this tree that are accessible via the startSequence in
     * a depth-first manner, and provide the sequence of the visited node, and
-    * the {@code TreeNodeVisitData} to the consumer.
+    * the {@code TreeNodeVisitDataImpl} to the consumer.
     *
-    * @param startSequence starting sequence for the depth-first traversal of
+    * @param rootNid starting sequence for the depth-first traversal of
     * this tree.
     * @param consumer The consumer that accepts each node and the
-    * {@code TreeNodeVisitData} during the traversal.
-    * @return {@code TreeNodeVisitData} for obtaining summary data.
+    * {@code TreeNodeVisitDataImpl} during the traversal.
+    * @param emptyDataSupplier provides a new, unprocessed, TreeNodeVisitData object 
+    * @return {@code TreeNodeVisitDataImpl} for obtaining summary data.
     */
-   TreeNodeVisitData depthFirstProcess(int startSequence, ObjIntConsumer<TreeNodeVisitData> consumer);
+   TreeNodeVisitData depthFirstProcess(int rootNid, ObjIntConsumer<TreeNodeVisitData> consumer, 
+           Supplier<TreeNodeVisitData> emptyDataSupplier);
 
    /**
     * Size.
@@ -104,64 +115,72 @@ public interface Tree {
    /**
     * Gets the children sequence stream.
     *
-    * @param parentSequence sequence of the concept from which to find children
+    * @param parentNid sequence of the concept from which to find children
     * @return an IntStream of child sequences.
     */
-   IntStream getChildrenSequenceStream(int parentSequence);
+   IntStream getChildNidStream(int parentNid);
 
    /**
     * Gets the children sequences.
     *
-    * @param parentSequence sequence of the concept from which to find children
+    * @param parentNid sequence of the concept from which to find children
     * @return an array of child sequences.
     */
-   int[] getChildrenSequences(int parentSequence);
+   int[] getChildNids(int parentNid);
 
    /**
     * Gets the descendent sequence set.
     *
-    * @param parentSequence sequence of the concept from which to compute
+    * @param parentNid sequence of the concept from which to compute
     * descendents.
     * @return {@code BitSet} of the descendents of the {@code parentSequence}
     */
-   ConceptSequenceSet getDescendentSequenceSet(int parentSequence);
+   NidSet getDescendentNidSet(int parentNid);
 
    /**
     * Gets the parent sequence stream.
     *
-    * @param childSequence sequence of the concept from which to find parent
+    * @param childNid sequence of the concept from which to find parent
     * @return an IntStream of parent sequences.
     */
-   IntStream getParentSequenceStream(int childSequence);
+   IntStream getParentNidStream(int childNid);
 
    /**
     * Gets the parent sequences.
     *
-    * @param childSequence sequence of the concept from which to find parent
+    * @param childNid sequence of the concept from which to find parent
     * @return an array of parent sequences.
     */
-   int[] getParentSequences(int childSequence);
-
+   int[] getParentNids(int childNid);
+   
    /**
-    * Gets the root sequence stream.
-    *
-    * @return IntStream of sequence identifiers for the root concept[s] of this tree.
+    * Remove a parent from the tree... May be necessary after detecting a cycle in a 
+    * tree to make it processible. 
+    * @param childNid
+    * @param parentNid 
     */
-   IntStream getRootSequenceStream();
-
+   void removeParent(int childNid, int parentNid);
    /**
     * Gets the root sequences.
     *
     * @return sequence identifiers for the root concept[s] of this tree.
     */
-   int[] getRootSequences();
+   int[] getRootNids();
    
    /**
-    * Determine if the childSequence is a descendent of the parentSequence. 
-    * @param childSequence
-    * @param parentSequence
+    * Determine if the childSequence is a taxonomic descendent of the parentSequence. 
+    * @param childNid
+    * @param parentNid
     * @return true if the childSequence is a descendent of the parentSequence by any route. 
     */
-   boolean isDescendentOf(int childSequence, int parentSequence);
+   boolean isDescendentOf(int childNid, int parentNid);
+   
+   /**
+    * Determine if the childNid is a taxonomic child of the parentSequence. 
+    * @param childNid
+    * @param parentNid
+    * @return true if the childNid is a descendent of the parentSequence by any route. 
+    */
+   boolean isChildOf(int childNid, int parentNid);
 }
 

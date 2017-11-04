@@ -68,17 +68,20 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateImpl
          implements LogicCoordinate {
-   /** The stated assemblage sequence. */
-   protected int statedAssemblageSequence;
+   /** The stated assemblage nid. */
+   protected int statedAssemblageNid;
 
-   /** The inferred assemblage sequence. */
-   protected int inferredAssemblageSequence;
+   /** The inferred assemblage nid. */
+   protected int inferredAssemblageNid;
 
-   /** The description logic profile sequence. */
-   protected int descriptionLogicProfileSequence;
+   /** The description logic profile nid. */
+   protected int descriptionLogicProfileNid;
 
-   /** The classifier sequence. */
-   protected int classifierSequence;
+   /** The classifier nid. */
+   protected int classifierNid;
+
+   /** The concept assemblage nid. */
+   protected int conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -92,20 +95,23 @@ public class LogicCoordinateImpl
    /**
     * Instantiates a new logic coordinate impl.
     *
-    * @param statedAssemblageSequence the stated assemblage sequence
-    * @param inferredAssemblageSequence the inferred assemblage sequence
-    * @param descriptionLogicProfileSequence the description logic profile sequence
-    * @param classifierSequence the classifier sequence
+    * @param statedAssemblageNid the stated assemblage nid
+    * @param inferredAssemblageNid the inferred assemblage nid
+    * @param descriptionLogicProfileNid the description logic profile nid
+    * @param classifierNid the classifier nid
+    * @param conceptAssemblageNid the nid for the assemblage within which the concepts to be classified are defined within.
     */
-   public LogicCoordinateImpl(int statedAssemblageSequence,
-                              int inferredAssemblageSequence,
-                              int descriptionLogicProfileSequence,
-                              int classifierSequence) {
+   public LogicCoordinateImpl(int statedAssemblageNid,
+                              int inferredAssemblageNid,
+                              int descriptionLogicProfileNid,
+                              int classifierNid,
+                              int conceptAssemblageNid) {
       
-      this.statedAssemblageSequence        = statedAssemblageSequence;
-      this.inferredAssemblageSequence      = inferredAssemblageSequence;
-      this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
-      this.classifierSequence              = classifierSequence;
+      this.statedAssemblageNid        = statedAssemblageNid;
+      this.inferredAssemblageNid      = inferredAssemblageNid;
+      this.descriptionLogicProfileNid = descriptionLogicProfileNid;
+      this.classifierNid              = classifierNid;
+      this.conceptAssemblageNid = conceptAssemblageNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -127,19 +133,19 @@ public class LogicCoordinateImpl
       // Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
       final LogicCoordinate other = (LogicCoordinate) obj;
 
-      if (this.statedAssemblageSequence != other.getStatedAssemblageSequence()) {
+      if (this.statedAssemblageNid != other.getStatedAssemblageNid()) {
          return false;
       }
 
-      if (this.inferredAssemblageSequence != other.getInferredAssemblageSequence()) {
+      if (this.inferredAssemblageNid != other.getInferredAssemblageNid()) {
          return false;
       }
 
-      if (this.descriptionLogicProfileSequence != other.getDescriptionLogicProfileSequence()) {
+      if (this.descriptionLogicProfileNid != other.getDescriptionLogicProfileNid()) {
          return false;
       }
 
-      return this.classifierSequence == other.getClassifierSequence();
+      return this.classifierNid == other.getClassifierNid();
    }
 
    /**
@@ -151,10 +157,10 @@ public class LogicCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 29 * hash + this.statedAssemblageSequence;
-      hash = 29 * hash + this.inferredAssemblageSequence;
-      hash = 29 * hash + this.descriptionLogicProfileSequence;
-      hash = 29 * hash + this.classifierSequence;
+      hash = 29 * hash + this.statedAssemblageNid;
+      hash = 29 * hash + this.inferredAssemblageNid;
+      hash = 29 * hash + this.descriptionLogicProfileNid;
+      hash = 29 * hash + this.classifierNid;
       return hash;
    }
 
@@ -165,147 +171,170 @@ public class LogicCoordinateImpl
     */
    @Override
    public String toString() {
-      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageSequence) + "<" +
-             this.statedAssemblageSequence + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblageSequence) +
-             "<" + this.inferredAssemblageSequence + ">, \n" +
-             Get.conceptDescriptionText(this.descriptionLogicProfileSequence) + "<" +
-             this.descriptionLogicProfileSequence + ">, \n" + Get.conceptDescriptionText(this.classifierSequence) +
-             "<" + this.classifierSequence + ">}";
+      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageNid) + "<" +
+             this.statedAssemblageNid + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblageNid) +
+             "<" + this.inferredAssemblageNid + ">, \n" +
+             Get.conceptDescriptionText(this.descriptionLogicProfileNid) + "<" +
+             this.descriptionLogicProfileNid + ">, \n" + Get.conceptDescriptionText(this.classifierNid) +
+             "<" + this.classifierNid + ">}";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the classifier sequence.
+    * Gets the classifier nid.
     *
-    * @return the classifier sequence
+    * @return the classifier nid
     */
    @Override
-   public int getClassifierSequence() {
-      return this.classifierSequence;
+   public int getClassifierNid() {
+      return this.classifierNid;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set classifier sequence property.
+    * Set classifier nid property.
     *
-    * @param classifierSequenceProperty the classifier sequence property
+    * @param classifierNidProperty the classifier nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setClassifierSequenceProperty(IntegerProperty classifierSequenceProperty) {
+   public ChangeListener<Number> setClassifierNidProperty(IntegerProperty classifierNidProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.classifierSequence = newValue.intValue();
+               this.classifierNid = newValue.intValue();
             };
 
-      classifierSequenceProperty.addListener(new WeakChangeListener<>(listener));
+      classifierNidProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the description logic profile sequence.
+    * Gets the description logic profile nid.
     *
-    * @return the description logic profile sequence
+    * @return the description logic profile nid
     */
    @Override
-   public int getDescriptionLogicProfileSequence() {
-      return this.descriptionLogicProfileSequence;
+   public int getDescriptionLogicProfileNid() {
+      return this.descriptionLogicProfileNid;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set description logic profile sequence property.
+    * Set description logic profile nid property.
     *
-    * @param descriptionLogicProfileSequenceProperty the description logic profile sequence property
+    * @param descriptionLogicProfileNidProperty the description logic profile nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setDescriptionLogicProfileSequenceProperty(
-           IntegerProperty descriptionLogicProfileSequenceProperty) {
+   public ChangeListener<Number> setDescriptionLogicProfileNidProperty(
+           IntegerProperty descriptionLogicProfileNidProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.descriptionLogicProfileSequence = newValue.intValue();
+               this.descriptionLogicProfileNid = newValue.intValue();
             };
 
-      descriptionLogicProfileSequenceProperty.addListener(new WeakChangeListener<>(listener));
+      descriptionLogicProfileNidProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the inferred assemblage sequence.
+    * Gets the inferred assemblage nid.
     *
-    * @return the inferred assemblage sequence
+    * @return the inferred assemblage nid
     */
    @Override
-   public int getInferredAssemblageSequence() {
-      return this.inferredAssemblageSequence;
+   public int getInferredAssemblageNid() {
+      return this.inferredAssemblageNid;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set inferred assemblage sequence property.
+    * Set inferred assemblage nid property.
     *
-    * @param inferredAssemblageSequenceProperty the inferred assemblage sequence property
+    * @param inferredAssemblageNidProperty the inferred assemblage nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setInferredAssemblageSequenceProperty(
-           IntegerProperty inferredAssemblageSequenceProperty) {
+   public ChangeListener<Number> setInferredAssemblageNidProperty(
+           IntegerProperty inferredAssemblageNidProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.inferredAssemblageSequence = newValue.intValue();
+               this.inferredAssemblageNid = newValue.intValue();
             };
 
-      inferredAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
+      inferredAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the stated assemblage sequence.
+    * Gets the stated assemblage nid.
     *
-    * @return the stated assemblage sequence
+    * @return the stated assemblage nid
     */
    @Override
-   public int getStatedAssemblageSequence() {
-      return this.statedAssemblageSequence;
+   public int getStatedAssemblageNid() {
+      return this.statedAssemblageNid;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set stated assemblage sequence property.
+    * Set stated assemblage nid property.
     *
-    * @param statedAssemblageSequenceProperty the stated assemblage sequence property
+    * @param statedAssemblageNidProperty the stated assemblage nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setStatedAssemblageSequenceProperty(IntegerProperty statedAssemblageSequenceProperty) {
+   public ChangeListener<Number> setStatedAssemblageNidProperty(IntegerProperty statedAssemblageNidProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.statedAssemblageSequence = newValue.intValue();
+               this.statedAssemblageNid = newValue.intValue();
             };
 
-      statedAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
+      statedAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
    
    @Override
    public LogicCoordinateImpl deepClone() {
-      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(getStatedAssemblageSequence(),
-                              getInferredAssemblageSequence(),
-                              getDescriptionLogicProfileSequence(),
-                              getClassifierSequence());
+      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(getStatedAssemblageNid(),
+                              getInferredAssemblageNid(),
+                              getDescriptionLogicProfileNid(),
+                              getClassifierNid(), 
+                              getConceptAssemblageNid());
       return newCoordinate;
+   }
+
+   @Override
+   public int getConceptAssemblageNid() {
+      return this.conceptAssemblageNid;
+   }
+
+   /**
+    * Set concept assemblage nid property.
+    *
+    * @param conceptAssemblageNidProperty the stated assemblage nid property
+    * @return the change listener
+    */
+   public ChangeListener<Number> setConceptAssemblageNidProperty(IntegerProperty conceptAssemblageNidProperty) {
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.conceptAssemblageNid = newValue.intValue();
+            };
+
+      conceptAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
+      return listener;
    }
    
 }

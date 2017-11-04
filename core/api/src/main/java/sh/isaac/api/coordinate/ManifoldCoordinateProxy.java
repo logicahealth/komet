@@ -37,8 +37,8 @@ public interface ManifoldCoordinateProxy extends ManifoldCoordinate {
    }
 
    @Override
-   public default int getIsaConceptSequence() {
-      return getManifoldCoordinate().getIsaConceptSequence();
+   public default int getIsaConceptNid() {
+      return getManifoldCoordinate().getIsaConceptNid();
    }
 
    @Override

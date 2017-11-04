@@ -62,10 +62,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -168,7 +168,7 @@ public class JsonDataWriterService
       this.fos     = new FileOutputStream(path.toFile(), true);
       this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
       this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
-      this.json.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
+      this.json.addWriter(SemanticChronology.class, new Writers.SememeChronologyJsonWriter());
       LOG.info("json changeset writer has been configured to write to " +
                        this.dataPath.toAbsolutePath().toString());
    }

@@ -60,7 +60,7 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,7 +87,7 @@ public class FeatureNodeWithUuids
     * @param internalNode the internal node
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public FeatureNodeWithUuids(FeatureNodeWithSequences internalNode) {
+   public FeatureNodeWithUuids(FeatureNodeWithNids internalNode) {
       super(internalNode);
       this.operator = internalNode.getOperator();
 
@@ -211,7 +211,7 @@ public class FeatureNodeWithUuids
          break;
 
       case INTERNAL:
-         final FeatureNodeWithSequences internalForm = new FeatureNodeWithSequences(this);
+         final FeatureNodeWithNids internalForm = new FeatureNodeWithNids(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;

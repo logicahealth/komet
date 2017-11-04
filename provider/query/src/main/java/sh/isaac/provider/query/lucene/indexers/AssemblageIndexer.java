@@ -36,36 +36,36 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 /**
  * Lucene Manager for an assemblage index. Provides the description indexing
- * service also.
- *
- * This has been redesigned such that is now creates multiple columns within the
- * index
- *
- * There is a 'everything' column, which gets all descriptions, to support the
- * standard search where you want to match on a text value anywhere it appears.
- *
- * There are 3 columns to support FSN / Synonym / Definition - to support
- * searching that subset of descriptions. There are also data-defined columns to
- * support extended definition types - for example - loinc description types -
- * to support searching terminology specific fields.
- *
- * Each of the columns above is also x2, as everything is indexed both with a
- * standard analyzer, and with a whitespace analyzer.
- * 
- * TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
- * columns. 
+ service also.
+
+ This has been redesigned such that is now creates multiple columns within the
+ index
+
+ There is a 'everything' column, which gets all descriptions, to support the
+ standard search where you want to match on a text value anywhere it appears.
+
+ There are 3 columns to support FULLY_QUALIFIED_NAME / Synonym / Definition - to support
+ searching that subset of descriptions. There are also data-defined columns to
+ support extended definition types - for example - loinc description types -
+ to support searching terminology specific fields.
+
+ Each of the columns above is also x2, as everything is indexed both with a
+ standard analyzer, and with a whitespace analyzer.
+ 
+ TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
+ columns. 
  * 
  * @author kec
  * @author aimeefurber
@@ -92,6 +92,13 @@ public class AssemblageIndexer extends LuceneIndexer
       /** The desc extended type sequence. */
    private int descExtendedTypeSequence;
 
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
 
    public AssemblageIndexer() throws IOException {
       super("assemblage-index");
@@ -103,16 +110,16 @@ public class AssemblageIndexer extends LuceneIndexer
          //TODO add UUID to index...
       }
       
-      if (chronicle instanceof SememeChronology) {
-         final SememeChronology sememeChronology = (SememeChronology) chronicle;
+      if (chronicle instanceof SemanticChronology) {
+         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
          incrementIndexedItemCount("Assemblage");
          // Field component nid was already added by calling method. Just need to add additional fields. 
-         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageSequence(), sememeChronology.getReferencedComponentNid()));
+         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageNid(), sememeChronology.getReferencedComponentNid()));
          
 
-         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
+         if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
             indexDescription(doc,
-                             (SememeChronology) sememeChronology);
+                             (SemanticChronology) sememeChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -129,13 +136,13 @@ public class AssemblageIndexer extends LuceneIndexer
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
-                                        LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+               this.sequenceTypeMap.put(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
+                                        LuceneDescriptionType.FULLY_QUALIFIED_NAME.name());
+               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
-               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
-                     .getConceptSequence();
+               this.sequenceTypeMap.put(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), LuceneDescriptionType.REGULAR_NAME.name());
+               this.descExtendedTypeSequence = DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
+                     .getNid();
             }
 
             SEQUENCES_SETUP.set(true);
@@ -152,8 +159,8 @@ public class AssemblageIndexer extends LuceneIndexer
     * @param sememeChronology the sememe chronology
     */
    private void indexDescription(Document doc,
-                                 SememeChronology sememeChronology) {
-      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
+                                 SemanticChronology sememeChronology) {
+      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageNid()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
@@ -162,7 +169,7 @@ public class AssemblageIndexer extends LuceneIndexer
       for (final StampedVersion stampedVersion:
             sememeChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
-         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
+         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptNid());
 
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) ||
@@ -203,7 +210,7 @@ public class AssemblageIndexer extends LuceneIndexer
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
       setupNidConstants();
-      return chronicle instanceof SememeChronology;
+      return chronicle instanceof SemanticChronology;
    }
    
    @Override

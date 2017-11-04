@@ -71,8 +71,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ManifoldCoordinateImpl
          implements ManifoldCoordinate {
-   /** The isa concept sequence. */
-   transient int isaConceptSequence = TermAux.IS_A.getConceptSequence();
+   /** The isa concept nid. */
+   transient int isaConceptNid = TermAux.IS_A.getNid();
 
    /** The taxonomy type. */
    PremiseType taxonomyType;
@@ -231,8 +231,8 @@ public class ManifoldCoordinateImpl
     * @return the isa concept sequence
     */
    @Override
-   public int getIsaConceptSequence() {
-      return this.isaConceptSequence;
+   public int getIsaConceptNid() {
+      return this.isaConceptNid;
    }
 
    /**

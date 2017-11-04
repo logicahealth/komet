@@ -50,10 +50,10 @@ import java.util.function.Supplier;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -129,14 +129,13 @@ public class ComponentReference {
    public static ComponentReference fromChronology(Chronology object, Supplier<String> typeLabelSupplier) {
       ComponentReference cr;
 
-      if (object instanceof SememeChronology) {
+      if (object instanceof SemanticChronology) {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
-                                     () -> Get.identifierService()
-                                           .getSememeSequence(object.getNid()));
+                                     () -> object.getNid());
          cr.typeLabelSupplier = () -> {
-                                    if (((SememeChronology) object).getSememeType() == VersionType.DESCRIPTION) {
+                                    if (((SemanticChronology) object).getVersionType() == VersionType.DESCRIPTION) {
                                        return "Description";
-                                    } else if (((SememeChronology) object).getSememeType() == VersionType.LOGIC_GRAPH) {
+                                    } else if (((SemanticChronology) object).getVersionType() == VersionType.LOGIC_GRAPH) {
                                        return "Graph";
                                     }
 
@@ -144,8 +143,7 @@ public class ComponentReference {
                                  };
       } else if (object instanceof ConceptChronology) {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
-                                     () -> Get.identifierService()
-                                           .getConceptSequence(object.getNid()),
+                                     () -> object.getNid(),
                                      () -> "Concept");
       } else {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
@@ -178,7 +176,7 @@ public class ComponentReference {
     */
    public static ComponentReference fromConcept(ConceptChronology concept) {
       final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
-                                                           () -> concept.getConceptSequence(),
+                                                           () -> concept.getNid(),
                                                            () -> "Concept");
 
       cr.nidProvider  = () -> concept.getNid();
@@ -202,7 +200,7 @@ public class ComponentReference {
    public static ComponentReference fromConcept(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
-                                          .getConceptSequenceForUuids(uuid),
+                                          .getNidForUuids(uuid),
                                     () -> "Concept");
    }
 
@@ -226,7 +224,7 @@ public class ComponentReference {
    public static ComponentReference fromSememe(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
-                                          .getSememeSequenceForUuids(uuid),
+                                          .getNidForUuids(uuid),
                                     () -> "Sememe");
    }
 

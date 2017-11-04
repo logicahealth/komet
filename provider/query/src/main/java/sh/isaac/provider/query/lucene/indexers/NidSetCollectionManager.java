@@ -19,8 +19,6 @@ package sh.isaac.provider.query.lucene.indexers;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DocValues;
@@ -33,7 +31,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import static sh.isaac.provider.query.lucene.LuceneIndexer.DOCVALUE_COMPONENT_NID;
 

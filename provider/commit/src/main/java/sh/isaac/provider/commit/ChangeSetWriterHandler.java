@@ -67,17 +67,16 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -93,11 +92,11 @@ public class ChangeSetWriterHandler
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant jsonFileSuffix. */
-   private static final String jsonFileSuffix = "json";
+   /** The Constant JSON_FILE_SUFFIX. */
+   private static final String JSON_FILE_SUFFIX = "json";
 
-   /** The Constant ibdfFileSuffix. */
-   private static final String ibdfFileSuffix = "ibdf";
+   /** The Constant IBDF_FILE_SUFFIX. */
+   private static final String IBDF_FILE_SUFFIX = "ibdf";
 
    /** The Constant CHANGESETS. */
    private static final String CHANGESETS = "changesets";
@@ -146,8 +145,8 @@ public class ChangeSetWriterHandler
 
       this.writer = new MultipleDataWriterService(this.changeSetFolder,
             "ChangeSet-",
-            Optional.of(jsonFileSuffix),
-            Optional.of(ibdfFileSuffix));
+            Optional.of(JSON_FILE_SUFFIX),
+            Optional.of(IBDF_FILE_SUFFIX));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -192,17 +191,17 @@ public class ChangeSetWriterHandler
                                try {
                                   if ((commitRecord.getConceptsInCommit() != null) &&
                                       (commitRecord.getConceptsInCommit().size() > 0)) {
-                                     sequenceSetChange(commitRecord.getConceptsInCommit());
+                                     conceptNidSetChange(commitRecord.getConceptsInCommit());
                                      LOG.debug("handle Post Commit: {} concepts",
                                                commitRecord.getConceptsInCommit()
                                                      .size());
                                   }
 
-                                  if ((commitRecord.getSememesInCommit() != null) &&
-                                      (commitRecord.getSememesInCommit().size() > 0)) {
-                                     sequenceSetChange(commitRecord.getSememesInCommit());
+                                  if ((commitRecord.getSemanticNidsInCommit() != null) &&
+                                      (commitRecord.getSemanticNidsInCommit().size() > 0)) {
+                                     semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
                                      LOG.debug("handle Post Commit: {} sememes",
-                                               commitRecord.getSememesInCommit()
+                                               commitRecord.getSemanticNidsInCommit()
                                                      .size());
                                   }
                                } catch (final Exception e) {
@@ -251,10 +250,10 @@ public class ChangeSetWriterHandler
 
    /*
     */
-   private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
+   private void conceptNidSetChange(NidSet conceptSequenceSet) {
       conceptSequenceSet.stream().forEach((conceptSequence) -> {
                                     final ConceptChronology concept = Get.conceptService()
-                                                                                                      .getConcept(
+                                                                                                      .getConceptChronology(
                                                                                                          conceptSequence);
 
                                     try {
@@ -273,10 +272,10 @@ public class ChangeSetWriterHandler
 
    /*
     */
-   private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
+   private void semanticNidSetChange(NidSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SememeChronology sememe = Get.assemblageService()
-                                                                                                  .getSememe(
+                                   final SemanticChronology sememe = Get.assemblageService()
+                                                                                                  .getSemanticChronology(
                                                                                                      sememeSequence);
 
                                    try {

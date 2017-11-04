@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.40</version>
+        <version>4.41</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
@@ -12,6 +12,10 @@
     <name>ISAAC core: API</name>
 
     <dependencies>
+         <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+         </dependency>        
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>log-config</artifactId>

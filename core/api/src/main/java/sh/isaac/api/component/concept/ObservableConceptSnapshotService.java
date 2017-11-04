@@ -17,7 +17,7 @@
 package sh.isaac.api.component.concept;
 
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 
 /**
  *

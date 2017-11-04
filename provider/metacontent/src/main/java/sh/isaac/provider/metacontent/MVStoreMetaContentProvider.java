@@ -174,9 +174,7 @@ public class MVStoreMetaContentProvider
     */
    @Override
    public byte[] putUserPrefs(int userId, StorableUserPreferences userPrefs) {
-      return this.userPrefsMap.put((userId > 0) ? userId
-            : Get.identifierService()
-                 .getConceptSequence(userId), userPrefs.serialize());
+      return this.userPrefsMap.put(userId, userPrefs.serialize());
    }
 
    /**
@@ -202,9 +200,7 @@ public class MVStoreMetaContentProvider
     */
    @Override
    public void removeUserPrefs(int userId) {
-      this.userPrefsMap.remove((userId > 0) ? userId
-            : Get.identifierService()
-                 .getConceptSequence(userId));
+      this.userPrefsMap.remove(userId);
    }
 
    /**
@@ -272,9 +268,7 @@ public class MVStoreMetaContentProvider
     */
    @Override
    public byte[] getUserPrefs(int userId) {
-      return this.userPrefsMap.get((userId > 0) ? userId
-            : Get.identifierService()
-                 .getConceptSequence(userId));
+      return this.userPrefsMap.get(userId);
    }
 }
 

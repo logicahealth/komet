@@ -97,9 +97,9 @@ public class StampSerializer
          out.writeBoolean(stamp.getStatus()
                                .getBoolean());
          out.writeLong(stamp.getTime());
-         out.writeInt(stamp.getAuthorSequence());
-         out.writeInt(stamp.getModuleSequence());
-         out.writeInt(stamp.getPathSequence());
+         out.writeInt(stamp.getAuthorNid());
+         out.writeInt(stamp.getModuleNid());
+         out.writeInt(stamp.getPathNid());
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }

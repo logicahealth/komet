@@ -47,12 +47,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -119,18 +119,17 @@ public class ExtractAxioms
          LogicCoordinate logicCoordinate,
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
-      final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+      final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 
-      sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
+      semanticSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
-                                final int conceptSequence = Get.identifierService()
-                                                               .getConceptSequence(lgs.getReferencedComponentNid());
+                                final int conceptNid = lgs.getReferencedComponentNid();
 
                                 if (Get.conceptService()
-                                       .isConceptActive(conceptSequence, stampCoordinate)) {
+                                       .isConceptActive(conceptNid, stampCoordinate)) {
                                    cd.translate(lgs);
                                    logicGraphMembers.incrementAndGet();
                                 }

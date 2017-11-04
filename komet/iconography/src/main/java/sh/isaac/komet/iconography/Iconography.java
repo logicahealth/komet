@@ -158,6 +158,16 @@ public enum Iconography {
   STOP_CIRCLE(FONT_AWSOME, "stop-circle"),
   STOP_STOP(ICONS_525, "stop-sign"),
   STOP_SQUARE(MATERIAL_DESIGNS_ICON, "stop-square"),
+  ALERT_CONFIRM(SVG, "alert-confirm"),
+  ALERT_INFORM(SVG, "alert-info"),
+  ALERT_ERROR(SVG, "alert-error"),
+  ALERT_WARN(SVG, "alert-warn"),
+  ALERT_CONFIRM2(FONT_AWSOME, "alert-confirm-2"),
+  ALERT_INFORM2(ICONS_525, "alert-info-2"),
+  ALERT_ERROR2(MATERIAL_DESIGNS_WEBFONT, "alert-error-2"),
+  ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
+  TEMPORARY_FIX(MATERIAL_DESIGNS_ICON, "temporary-fix"),
+  CHECK(FONT_AWSOME, "check")
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 
@@ -190,7 +200,6 @@ public enum Iconography {
       }
    }
 
-
    enum IconSource {
       MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE, 
       ICONS_525, OCT_ICON,
@@ -218,5 +227,5 @@ public enum Iconography {
       return hbox;
    }
    
-   static boolean  fontsLoaded = LoadFonts.load();
+   static boolean fontsLoaded = LoadFonts.load();
 }

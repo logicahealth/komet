@@ -66,13 +66,13 @@ public class UncommittedStamp {
    public State status;
 
    /** The author sequence. */
-   public int authorSequence;
+   public int authorNid;
 
    /** The module sequence. */
-   public int moduleSequence;
+   public int moduleNid;
 
    /** The path sequence. */
-   public int pathSequence;
+   public int pathNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -92,33 +92,33 @@ public class UncommittedStamp {
          this.status = State.INACTIVE;
       }
 
-      this.authorSequence = input.readInt();
-      this.moduleSequence = input.readInt();
-      this.pathSequence   = input.readInt();
+      this.authorNid = input.readInt();
+      this.moduleNid = input.readInt();
+      this.pathNid   = input.readInt();
    }
 
    /**
     * Instantiates a new uncommitted stamp.
     *
     * @param status the status
-    * @param authorSequence the author sequence
-    * @param moduleSequence the module sequence
-    * @param pathSequence the path sequence
+    * @param authorNid the author nid
+    * @param moduleNid the module nid
+    * @param pathNid the path nid
     */
-   public UncommittedStamp(State status, int authorSequence, int moduleSequence, int pathSequence) {
+   public UncommittedStamp(State status, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
-      this.authorSequence = authorSequence;
-      this.moduleSequence = moduleSequence;
-      this.pathSequence   = pathSequence;
+      this.authorNid = authorNid;
+      this.moduleNid = moduleNid;
+      this.pathNid   = pathNid;
       assert status != null:
-             "s: " + status + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " + pathSequence;
-      assert pathSequence > 0:
-             "s: " + status + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " + pathSequence;
-      assert moduleSequence > 0:
-             "s: " + status + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " + pathSequence;
-      assert authorSequence > 0:
-             "s: " + status + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " + pathSequence;
+             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+      assert pathNid < 0:
+             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+      assert moduleNid < 0:
+             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+      assert authorNid < 0:
+             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -135,9 +135,9 @@ public class UncommittedStamp {
          final UncommittedStamp other = (UncommittedStamp) obj;
 
          if ((this.status == other.status) &&
-               (this.authorSequence == other.authorSequence) &&
-               (this.pathSequence == other.pathSequence) &&
-               (this.moduleSequence == other.moduleSequence)) {
+               (this.authorNid == other.authorNid) &&
+               (this.pathNid == other.pathNid) &&
+               (this.moduleNid == other.moduleNid)) {
             return true;
          }
       }
@@ -153,8 +153,8 @@ public class UncommittedStamp {
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorSequence, this.pathSequence,
-               this.moduleSequence });
+         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorNid, this.pathNid,
+               this.moduleNid });
       }
 
       return this.hashCode;
@@ -173,11 +173,11 @@ public class UncommittedStamp {
          sb.append("UncommittedStamp{s:");
          sb.append(this.status);
          sb.append(", a:");
-         sb.append(Get.conceptDescriptionText(this.authorSequence));
+         sb.append(Get.conceptDescriptionText(this.authorNid));
          sb.append(", m:");
-         sb.append(Get.conceptDescriptionText(this.moduleSequence));
+         sb.append(Get.conceptDescriptionText(this.moduleNid));
          sb.append(", p: ");
-         sb.append(Get.conceptDescriptionText(this.pathSequence));
+         sb.append(Get.conceptDescriptionText(this.pathNid));
          sb.append('}');
          return sb.toString();
       } catch (RuntimeException e) {
@@ -186,11 +186,11 @@ public class UncommittedStamp {
           sb.append("UncommittedStamp{s:");
          sb.append(this.status);
          sb.append(", a:");
-         sb.append(this.authorSequence);
+         sb.append(this.authorNid);
          sb.append(", m:");
-         sb.append(this.moduleSequence);
+         sb.append(this.moduleNid);
          sb.append(", p: ");
-         sb.append(this.pathSequence);
+         sb.append(this.pathNid);
          sb.append('}');
          return sb.toString();
      }
@@ -205,9 +205,9 @@ public class UncommittedStamp {
    public void write(DataOutput output)
             throws IOException {
       output.writeBoolean(this.status.isActive());
-      output.writeInt(this.authorSequence);
-      output.writeInt(this.moduleSequence);
-      output.writeInt(this.pathSequence);
+      output.writeInt(this.authorNid);
+      output.writeInt(this.moduleNid);
+      output.writeInt(this.pathNid);
    }
 }
 

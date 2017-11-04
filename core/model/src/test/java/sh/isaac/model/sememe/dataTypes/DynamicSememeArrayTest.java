@@ -41,6 +41,9 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.DynamicArrayImpl;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -51,7 +54,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,12 +73,12 @@ public class DynamicSememeArrayTest {
    @Test
    public void testSerializationOne()
             throws PropertyVetoException, IOException {
-      final DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
-                                                                                      new DynamicSememeIntegerImpl(8),
-                                                                                      new DynamicSememeIntegerImpl(
+      final DynamicIntegerImpl[] testDataOne = new DynamicIntegerImpl[] { new DynamicIntegerImpl(5),
+                                                                                      new DynamicIntegerImpl(8),
+                                                                                      new DynamicIntegerImpl(
                                                                                          Integer.MAX_VALUE) };
-      final DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
-         new DynamicSememeArrayImpl<>(testDataOne);
+      final DynamicArrayImpl<DynamicIntegerImpl> testOne =
+         new DynamicArrayImpl<>(testDataOne);
 
       assertEquals(3, testOne.getDataArray().length);
       assertEquals(5, testOne.getDataArray()[0]
@@ -84,19 +87,19 @@ public class DynamicSememeArrayTest {
                              .getDataInteger());
       assertEquals(Integer.MAX_VALUE, testOne.getDataArray()[2]
             .getDataInteger());
-      assertEquals(5, ((DynamicSememeIntegerImpl[]) testOne.getDataObject())[0].getDataInteger());
-      assertEquals(8, ((DynamicSememeIntegerImpl[]) testOne.getDataObject())[1].getDataInteger());
-      assertEquals(Integer.MAX_VALUE, ((DynamicSememeIntegerImpl[]) testOne.getDataObject())[2].getDataInteger());
-      assertEquals(5, ((DynamicSememeIntegerImpl[]) testOne.getDataObjectProperty()
+      assertEquals(5, ((DynamicIntegerImpl[]) testOne.getDataObject())[0].getDataInteger());
+      assertEquals(8, ((DynamicIntegerImpl[]) testOne.getDataObject())[1].getDataInteger());
+      assertEquals(Integer.MAX_VALUE, ((DynamicIntegerImpl[]) testOne.getDataObject())[2].getDataInteger());
+      assertEquals(5, ((DynamicIntegerImpl[]) testOne.getDataObjectProperty()
             .get())[0].getDataInteger());
-      assertEquals(8, ((DynamicSememeIntegerImpl[]) testOne.getDataObjectProperty()
+      assertEquals(8, ((DynamicIntegerImpl[]) testOne.getDataObjectProperty()
             .get())[1].getDataInteger());
       assertEquals(Integer.MAX_VALUE,
-                   ((DynamicSememeIntegerImpl[]) testOne.getDataObjectProperty()
+                   ((DynamicIntegerImpl[]) testOne.getDataObjectProperty()
                          .get())[2].getDataInteger());
-      assertEquals(testOne.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
+      assertEquals(testOne.getDynamicDataType(), DynamicDataType.ARRAY);
       assertEquals(testOne.getDataArray()[0]
-                          .getDynamicSememeDataType(), DynamicSememeDataType.INTEGER);
+                          .getDynamicDataType(), DynamicDataType.INTEGER);
    }
 
    /**
@@ -108,26 +111,26 @@ public class DynamicSememeArrayTest {
    @Test
    public void testSerializationTwo()
             throws PropertyVetoException, IOException {
-      final DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
-                                                                                    new DynamicSememeStringImpl(
+      final DynamicStringImpl[] testDataTwo = new DynamicStringImpl[] { new DynamicStringImpl("hi"),
+                                                                                    new DynamicStringImpl(
                                                                                        "bye") };
-      final DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
-         new DynamicSememeArrayImpl<>(testDataTwo);
+      final DynamicArrayImpl<DynamicStringImpl> testTwo =
+         new DynamicArrayImpl<>(testDataTwo);
 
       assertEquals(2, testTwo.getDataArray().length);
       assertEquals("hi", testTwo.getDataArray()[0]
                                 .getDataString());
       assertEquals("bye", testTwo.getDataArray()[1]
                                  .getDataString());
-      assertEquals("hi", ((DynamicSememeStringImpl[]) testTwo.getDataObject())[0].getDataString());
-      assertEquals("bye", ((DynamicSememeStringImpl[]) testTwo.getDataObject())[1].getDataString());
-      assertEquals("hi", ((DynamicSememeStringImpl[]) testTwo.getDataObjectProperty()
+      assertEquals("hi", ((DynamicStringImpl[]) testTwo.getDataObject())[0].getDataString());
+      assertEquals("bye", ((DynamicStringImpl[]) testTwo.getDataObject())[1].getDataString());
+      assertEquals("hi", ((DynamicStringImpl[]) testTwo.getDataObjectProperty()
             .get())[0].getDataString());
-      assertEquals("bye", ((DynamicSememeStringImpl[]) testTwo.getDataObjectProperty()
+      assertEquals("bye", ((DynamicStringImpl[]) testTwo.getDataObjectProperty()
             .get())[1].getDataString());
-      assertEquals(testTwo.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
+      assertEquals(testTwo.getDynamicDataType(), DynamicDataType.ARRAY);
       assertEquals(testTwo.getDataArray()[0]
-                          .getDynamicSememeDataType(), DynamicSememeDataType.STRING);
+                          .getDynamicDataType(), DynamicDataType.STRING);
    }
 }
 

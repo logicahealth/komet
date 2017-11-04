@@ -33,21 +33,22 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.task.SequentialAggregateTaskWithIcon;
 
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
  *
- * The {@code MultiParentTreeItem} is not a visual component. The 
- * {@code MultiParentTreeCell} provides the rendering for this
- * tree item. 
+ * The {@code MultiParentTreeItem} is not a visual component. The {@code MultiParentTreeCell} provides the rendering for
+ * this tree item.
+ *
  * @author kec
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @see MultiParentTreeCell
  */
-public class MultiParentTreeItem extends TreeItem<ConceptChronology> 
+public class MultiParentTreeItem extends TreeItem<ConceptChronology>
         implements MultiParentTreeItemI, Comparable<MultiParentTreeItem> {
 
    /**
@@ -83,10 +84,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    }
 
    MultiParentTreeItem(int conceptSequence, MultiParentTreeView treeView) {
-      this(Get.conceptService().getConcept(conceptSequence), treeView, null);
-   }
-   MultiParentTreeItem(int conceptSequence, MultiParentTreeView treeView, Node graphic) {
-      this(Get.conceptService().getConcept(conceptSequence), treeView, graphic);
+      this(Get.conceptService().getConceptChronology(conceptSequence), treeView, null);
    }
 
    MultiParentTreeItem(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
@@ -113,13 +111,16 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
             ArrayList<MultiParentTreeItem> childrenToAdd = new ArrayList<>();
             ArrayList<GetMultiParentTreeItemConceptCallable> childrenToProcess = new ArrayList<>();
 
-            for (int childSequence : treeView.getTaxonomyTree().getChildrenSequences(conceptChronology.getConceptSequence())) {
-               MultiParentTreeItem childItem = new MultiParentTreeItem(childSequence, treeView);
-               if (childItem.shouldDisplay()) {
-                  childrenToAdd.add(childItem);
-                  childrenToProcess.add(new GetMultiParentTreeItemConceptCallable(childItem));
-               } else {
-                  LOG.debug("item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " + this.getConceptUuid());
+            Tree tree = treeView.getTaxonomyTree();
+            if (tree != null) {
+               for (int childSequence : tree.getChildNids(conceptChronology.getNid())) {
+                  MultiParentTreeItem childItem = new MultiParentTreeItem(childSequence, treeView);
+                  if (childItem.shouldDisplay()) {
+                     childrenToAdd.add(childItem);
+                     childrenToProcess.add(new GetMultiParentTreeItemConceptCallable(childItem));
+                  } else {
+                     LOG.debug("item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " + this.getConceptUuid());
+                  }
                }
             }
 
@@ -134,13 +135,13 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
             });
             //This loads the children of this child
             if (!childrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children", childrenToProcess);
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children for " + this.conceptDescriptionText, childrenToProcess);
                Get.activeTasks().add(aggregateTask);
                Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
             }
          }
       } catch (Exception e) {
-         LOG.error("Unexpected error computing children and/or grandchildren", e);
+         LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
       } finally {
          childLoadComplete();
       }
@@ -160,7 +161,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
                }
                if (((MultiParentTreeItem) child).shouldDisplay()) {
                   if (child.getChildren().isEmpty() && (child.getValue() != null)) {
-                     if (treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence()).length == 0) {
+                     if (treeView.getTaxonomyTree().getChildNids(child.getValue().getNid()).length == 0) {
                         ConceptChronology value = child.getValue();
                         child.setValue(null);
                         MultiParentTreeItem noChildItem = (MultiParentTreeItem) child;
@@ -170,11 +171,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
                         ArrayList<MultiParentTreeItem> grandChildrenToAdd = new ArrayList<>();
                         ((MultiParentTreeItem) child).childLoadStarts();
 
-                        for (int childSequence : treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence())) {
+                        for (int childNid : treeView.getTaxonomyTree().getChildNids(child.getValue().getNid())) {
                            if (cancelLookup) {
                               return;
                            }
-                           MultiParentTreeItem grandChildItem = new MultiParentTreeItem(childSequence, treeView);
+                           MultiParentTreeItem grandChildItem = new MultiParentTreeItem(childNid, treeView);
 
                            if (grandChildItem.shouldDisplay()) {
                               grandChildrenToProcess.add(new GetMultiParentTreeItemConceptCallable(grandChildItem));
@@ -212,13 +213,13 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
 
             //This loads the childrens children
             if (!grandChildrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren", grandChildrenToProcess);
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren for " + this.conceptDescriptionText, grandChildrenToProcess);
                Get.activeTasks().add(aggregateTask);
                Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
             }
          }
       } catch (InterruptedException e) {
-         LOG.error("Unexpected error computing children and/or grandchildren", e);
+         LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
       } finally {
          childLoadComplete();
       }
@@ -298,6 +299,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    /**
     * returns -2 when not yet started, -1 when started, but indeterminate otherwise, a value between 0 and 1 (1 when
     * complete)
+    *
     * @return the percent load complete.
     */
    public DoubleProperty getChildLoadPercentComplete() {

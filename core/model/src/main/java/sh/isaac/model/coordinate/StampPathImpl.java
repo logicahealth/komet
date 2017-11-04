@@ -66,15 +66,14 @@ public class StampPathImpl
    /**
     * Instantiates a new stamp path impl.
     *
-    * @param pathConceptSequence the path concept sequence
+    * @param pathConceptNid the path concept nid
     */
-   public StampPathImpl(int pathConceptSequence) {
-      if (pathConceptSequence < 0) {
-         pathConceptSequence = Get.identifierService()
-                                  .getConceptSequence(pathConceptSequence);
+   public StampPathImpl(int pathConceptNid) {
+      if (pathConceptNid < 0) {
+         pathConceptNid = pathConceptNid;
       }
 
-      this.pathConceptSequence = pathConceptSequence;
+      this.pathConceptSequence = pathConceptNid;
    }
 
    //~--- methods -------------------------------------------------------------

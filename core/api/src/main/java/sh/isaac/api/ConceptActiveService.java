@@ -71,10 +71,10 @@ public interface ConceptActiveService {
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+   boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
 }
 

@@ -67,6 +67,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 
 import sh.isaac.api.ConceptProxy;
@@ -75,9 +76,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.StampAlias;
@@ -86,9 +85,11 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -124,8 +125,8 @@ public class LoadTermstore
    @Parameter(required = false)
    private int duplicatesToPrint = 20;
 
-   /** The sememe types to skip. */
-   private final HashSet<VersionType> sememeTypesToSkip = new HashSet<>();
+   /** The semantic types to skip. */
+   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
 
    /** The skipped items. */
    private final HashSet<Integer> skippedItems = new HashSet<>();
@@ -147,7 +148,7 @@ public class LoadTermstore
    private File[] ibdfFiles;
 
    /** The item failure. */
-   private int conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
+   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
 
    //~--- methods -------------------------------------------------------------
 
@@ -163,8 +164,8 @@ public class LoadTermstore
       Get.configurationService()
          .setDBBuildMode();
 
-      final int statedSequence = Get.identifierService()
-                                    .getConceptSequenceForUuids(
+      final int statedNid = Get.identifierService()
+                                    .getNidForUuids(
                                         TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
       final long loadTime = System.currentTimeMillis();
 
@@ -232,7 +233,7 @@ public class LoadTermstore
 
       getLog().info("Identified " + temp.length + " ibdf files");
 
-      final Set<Integer> deferredActionNids = new HashSet<>();
+      final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
 
       try {
          for (final File f: temp) {
@@ -264,14 +265,13 @@ public class LoadTermstore
 
                            break;
 
-                        case SEMEME:
-                           SememeChronology sc = (SememeChronology) object;
+                        case SEMANTIC:
+                           SemanticChronology sc = (SemanticChronology) object;
 
-                           if (sc.getAssemblageSequence() == statedSequence) {
-                              final SememeSequenceSet sequences = Get.assemblageService()
-                                                                     .getSememeSequencesForComponentFromAssemblage(
-                                                                        sc.getReferencedComponentNid(),
-                                                                              statedSequence);
+                           if (sc.getAssemblageNid() == statedNid) {
+                              final NidSet sequences = Get.assemblageService()
+                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
+                                                                              statedNid);
 
                               if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
                                  duplicateCount++;
@@ -281,9 +281,9 @@ public class LoadTermstore
                                  getLog().info("\nDuplicate: " + sc);
                                  sequences.stream()
                                           .forEach(
-                                              (sememeSequence) -> listToMerge.add(
+                                              (semanticSequence) -> listToMerge.add(
                                                   getLatestLogicalExpression(Get.assemblageService()
-                                                        .getSememe(sememeSequence))));
+                                                        .getSemanticChronology(semanticSequence))));
                                  getLog().info("Duplicates: " + listToMerge);
 
                                  if (listToMerge.size() > 2) {
@@ -297,8 +297,8 @@ public class LoadTermstore
 
                                  getLog().info("Isomorphic results: " + isomorphicResults);
 
-                                 final SememeChronology existingChronology = Get.assemblageService()
-                                                                                .getSememe(sequences.findFirst()
+                                 final SemanticChronology existingChronology = Get.assemblageService()
+                                                                                .getSemanticChronology(sequences.findFirst()
                                                                                       .getAsInt());
                                  final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
                                                                                    "9ecc154c-e490-5cf8-805d-d2865d62aef3");
@@ -309,9 +309,9 @@ public class LoadTermstore
                                  final int stampSequence = Get.stampService()
                                                               .getStampSequence(State.ACTIVE,
                                                                     loadTime,
-                                                                    userProxy.getConceptSequence(),
-                                                                    moduleProxy.getConceptSequence(),
-                                                                    pathProxy.getConceptSequence());
+                                                                    userProxy.getNid(),
+                                                                    moduleProxy.getNid(),
+                                                                    pathProxy.getNid());
                                  final MutableLogicGraphVersion newVersion =
                                     (MutableLogicGraphVersion) existingChronology.createMutableVersion(
                                         stampSequence);
@@ -328,17 +328,16 @@ public class LoadTermstore
                               }
                            }
 
-                           if (!this.sememeTypesToSkip.contains(sc.getSememeType()) &&
+                           if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
                                  (!this.activeOnly ||
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
                               Get.assemblageService()
-                                 .writeSememe(sc);
-
-                              if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
+                                 .writeSemanticChronology(sc);
+                              if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
                               }
 
-                              this.sememeCount++;
+                              this.semanticCount++;
                            } else {
                               this.skippedItems.add(sc.getNid());
                            }
@@ -366,8 +365,8 @@ public class LoadTermstore
                      }
                   } catch (final UnsupportedOperationException e) {
                      this.itemFailure++;
-                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount +
-                                    " sememes, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
+                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
+                                    " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
                                     " stampComments",
                                     e);
 
@@ -391,25 +390,24 @@ public class LoadTermstore
 
                   if (this.itemCount % 50000 == 0) {
                      getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
-                                   " concepts, " + this.sememeCount + " sememes, " + this.stampAliasCount +
+                                   " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
                                    " stampAlias, " + this.stampCommentCount + " stampComment");
                   }
                }
             }
-            ;
 
             if (this.skippedItems.size() > 0) {
                this.skippedAny = true;
             }
 
-            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                           this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
                           ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                   : "") + ((duplicateCount > 0) ? " Duplicates " + duplicateCount
                   : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
                   : "") + " from file " + f.getName());
             this.conceptCount      = 0;
-            this.sememeCount       = 0;
+            this.semanticCount       = 0;
             this.stampAliasCount   = 0;
             this.stampCommentCount = 0;
             this.skippedItems.clear();
@@ -418,29 +416,29 @@ public class LoadTermstore
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
-            if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
-                  .getChronologyTypeForNid(nid))) {
-               final SememeChronology sc = Get.assemblageService()
-                                              .getSememe(nid);
+            if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
+                  .getOldChronologyTypeForNid(nid))) {
+               final SemanticChronology sc = Get.assemblageService()
+                                              .getSemanticChronology(nid);
 
-               if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
+               if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {
-                  throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                  throw new UnsupportedOperationException("1 Unexpected nid in deferred set: " + nid + " " + sc);
                }
             } else {
-               throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+               throw new UnsupportedOperationException("2 Unexpected nid in deferred set: " + nid);
             }
          }
 
          if (this.skippedAny) {
-            // Loading with activeOnly set to true causes a number of gaps in the concept / sememe providers
-            Get.identifierService()
-               .clearUnusedIds();
+            // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
+//            Get.identifierService()
+//               .clearUnusedIds();
          }
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
-         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
@@ -458,12 +456,12 @@ public class LoadTermstore
    }
 
    /**
-    * Skip sememe types.
+    * Skip semantic types.
     *
     * @param types the types
     */
    public void skipSememeTypes(Collection<VersionType> types) {
-      this.sememeTypesToSkip.addAll(types);
+      this.semanticTypesToSkip.addAll(types);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -503,8 +501,8 @@ public class LoadTermstore
     * @param sc the sc
     * @return the latest logical expression
     */
-   private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
-      final SememeChronology lgsc          = sc;
+   private static LogicalExpression getLatestLogicalExpression(SemanticChronology sc) {
+      final SemanticChronology lgsc          = sc;
       LogicGraphVersion                                   latestVersion = null;
 
       for (final StampedVersion version: lgsc.getVersionList()) {

@@ -73,9 +73,9 @@ import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.AssemblageIndexer;
-import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
+import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -475,9 +475,9 @@ public class SearchHandler {
     * If there is a problem with the internal indexes - an error will be logged, and the exception will be re-thrown when the
     * {@link SearchHandle#getResults()} method of the SearchHandle is called.
     *
-    * This is really just a convenience wrapper with threading and results conversion on top of the APIs available in {@link SememeIndexer}
+    * This is really just a convenience wrapper with threading and results conversion on top of the APIs available in {@link SemanticIndexer}
     *
-    * @param searchFunction A function that will call one of the query(...) methods within {@link SememeIndexer}.  See
+    * @param searchFunction A function that will call one of the query(...) methods within {@link SemanticIndexer}.  See
     * that class for documentation on the various search types supported.
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
@@ -492,7 +492,7 @@ public class SearchHandler {
     *   out that are not on THE CURRENT COORDINATE configuration
     * @return A handle to the running search.
     */
-   public static SearchHandle sememeSearch(Function<SememeIndexer, List<SearchResult>> searchFunction,
+   public static SearchHandle sememeSearch(Function<SemanticIndexer, List<SearchResult>> searchFunction,
          final Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
          final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -505,7 +505,7 @@ public class SearchHandler {
       final Runnable r = () -> {
                             try {
                                List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
-                               final SememeIndexer         refexIndexer = LookupService.getService(SememeIndexer.class);
+                               final SemanticIndexer         refexIndexer = LookupService.getService(SemanticIndexer.class);
 
                                if (refexIndexer == null) {
                                   LOG.warn("No sememe indexer found, aborting.");
@@ -728,11 +728,11 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
+            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getNid(),
                                            true,
                                            false);
 
-         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getNid());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 

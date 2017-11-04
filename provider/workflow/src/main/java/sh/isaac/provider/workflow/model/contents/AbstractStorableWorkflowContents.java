@@ -75,6 +75,13 @@ public abstract class AbstractStorableWorkflowContents
 
    /** The primordial uuid lsb. */
    private long primordialUuidLsb;
+   
+   private int assemblageNid;
+
+   @Override
+   public int getAssemblageNid() {
+      return assemblageNid;
+   }
 
    /**
     * The write sequence is incremented each time data is written, and provides
@@ -125,7 +132,7 @@ public abstract class AbstractStorableWorkflowContents
       }
 
       this.id = new UUID(data.getLong(), data.getLong());
-
+      this.assemblageNid = data.getInt();
       if (data.isExternalData()) {
          getAdditionalWorkflowFields(data);
       } else {
@@ -150,6 +157,7 @@ public abstract class AbstractStorableWorkflowContents
       this.primordialUuidLsb = this.id.getLeastSignificantBits();
       data.putLong(this.primordialUuidMsb);
       data.putLong(this.primordialUuidLsb);
+      data.putInt(this.assemblageNid);
       putAdditionalWorkflowFields(data);
    }
 
@@ -159,7 +167,6 @@ public abstract class AbstractStorableWorkflowContents
     * Gets the additional workflow fields.
     *
     * @param in the in
-    * @return the additional workflow fields
     */
    protected abstract void getAdditionalWorkflowFields(ByteArrayDataBuffer in);
 

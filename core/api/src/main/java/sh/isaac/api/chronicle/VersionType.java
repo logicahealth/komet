@@ -49,16 +49,16 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
-import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ public enum VersionType {
    STRING((byte) 5, "String", "STR"),
 
    /** A dynamic version. */
-   DYNAMIC((byte) 6, "Dynamic Sememe", "DYNAMIC"),
+   DYNAMIC((byte) 6, "Dynamic", "DYNAMIC"),
 
    /** A description version. */
    DESCRIPTION((byte) 7, "Description", "DESC"),
@@ -94,12 +94,15 @@ public enum VersionType {
    
    /** A concept version */
    CONCEPT((byte) 9, "Concept", "CONCEPT"),
+   
+   /** An RF2 relationship for backwards compatibility. */
+   RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
 
    /** An unknown type of version. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");
 
-   /** The sememe token. */
-   final byte sememeToken;
+   /** The semantic token. */
+   final byte versionTypeToken;
 
    /** The nice name. */
    final String niceName;
@@ -110,13 +113,13 @@ public enum VersionType {
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new sememe type.
+    * Instantiates a new semantic type.
     *
-    * @param sememeToken the sememe token
+    * @param versionTypeToken the semantic token
     * @param niceName the nice name
     */
-   private VersionType(byte sememeToken, String niceName, String whatName) {
-      this.sememeToken = sememeToken;
+   private VersionType(byte versionTypeToken, String niceName, String whatName) {
+      this.versionTypeToken = versionTypeToken;
       this.niceName   = niceName;
       this.whatName   = whatName;
    }
@@ -132,7 +135,7 @@ public enum VersionType {
     *
     * @param nameOrEnumId the name or enum id
     * @param exceptionOnParseFail the exception on parse fail
-    * @return the sememe type
+    * @return the version type
     */
    public static VersionType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
@@ -155,7 +158,7 @@ public enum VersionType {
       }
 
       if (exceptionOnParseFail) {
-         throw new InvalidParameterException("Could not determine SememeType from " + nameOrEnumId);
+         throw new InvalidParameterException("Could not determine VersionType from " + nameOrEnumId);
       }
 
       return UNKNOWN;
@@ -208,12 +211,12 @@ public enum VersionType {
    }
 
    /**
-    * Gets the observable sememe version class.
+    * Gets the observable semantic version class.
     *
-    * @return the observable sememe version class
+    * @return the observable semantic version class
     */
    @SuppressWarnings("rawtypes")
-   public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
+   public Class<? extends ObservableSemanticVersion> getObservableSemanticVersionClass() {
       switch (this) {
       case COMPONENT_NID:
          return ObservableComponentNidVersion.class;
@@ -222,7 +225,7 @@ public enum VersionType {
          return ObservableDescriptionVersion.class;
 
       case MEMBER:
-         return ObservableSememeVersion.class;
+         return ObservableSemanticVersion.class;
 
       case DYNAMIC:
 
@@ -242,21 +245,21 @@ public enum VersionType {
    }
 
    /**
-    * Gets the sememe token.
+    * Gets the version type token.
     *
-    * @return the sememe token
+    * @return the version type token
     */
-   public byte getSememeToken() {
-      return this.sememeToken;
+   public byte getVersionTypeToken() {
+      return this.versionTypeToken;
    }
 
    /**
-    * Gets the sememe version class.
+    * Gets the version class.
     *
-    * @return the sememe version class
+    * @return the version class
     */
    @SuppressWarnings("rawtypes")
-   public Class<? extends SememeVersion> getSememeVersionClass() {
+   public Class<? extends SemanticVersion> getVersionClass() {
       switch (this) {
       case COMPONENT_NID:
          return ComponentNidVersion.class;
@@ -265,10 +268,10 @@ public enum VersionType {
          return DescriptionVersion.class;
 
       case MEMBER:
-         return SememeVersion.class;
+         return SemanticVersion.class;
 
       case DYNAMIC:
-         return DynamicSememe.class;
+         return DynamicVersion.class;
 
       case LOGIC_GRAPH:
          return LogicGraphVersion.class;

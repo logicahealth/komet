@@ -46,7 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.Arrays;
@@ -61,10 +60,10 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.ConnectorNode;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
-import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,10 +84,10 @@ public abstract class TypedNodeWithUuids
     *
     * @param internalForm the internal form
     */
-   public TypedNodeWithUuids(TypedNodeWithSequences internalForm) {
+   public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
       super(internalForm);
       this.typeConceptUuid = Get.identifierService()
-                                .getUuidPrimordialFromConceptId(internalForm.getTypeConceptSequence())
+                                .getUuidPrimordialForNid(internalForm.getTypeConceptNid())
                                 .get();
    }
 
@@ -180,12 +179,12 @@ public abstract class TypedNodeWithUuids
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString();
    }
 
    @Override
    public String toSimpleString() {
-      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString();
    }
 
    /**
@@ -205,17 +204,17 @@ public abstract class TypedNodeWithUuids
          break;
 
       case INTERNAL:
-         TypedNodeWithSequences internalForm = null;
+         TypedNodeWithNids internalForm = null;
 
          if (this instanceof FeatureNodeWithUuids) {
-            internalForm = new FeatureNodeWithSequences((FeatureNodeWithUuids) this);
-            ((FeatureNodeWithSequences) internalForm).writeNodeData(dataOutput, dataTarget);
+            internalForm = new FeatureNodeWithNids((FeatureNodeWithUuids) this);
+            ((FeatureNodeWithNids) internalForm).writeNodeData(dataOutput, dataTarget);
          } else if (this instanceof RoleNodeAllWithUuids) {
-            internalForm = new RoleNodeAllWithSequences((RoleNodeAllWithUuids) this);
-            ((RoleNodeAllWithSequences) internalForm).writeNodeData(dataOutput, dataTarget);
+            internalForm = new RoleNodeAllWithNids((RoleNodeAllWithUuids) this);
+            ((RoleNodeAllWithNids) internalForm).writeNodeData(dataOutput, dataTarget);
          } else if (this instanceof RoleNodeSomeWithUuids) {
-            internalForm = new RoleNodeSomeWithSequences((RoleNodeSomeWithUuids) this);
-            ((RoleNodeSomeWithSequences) internalForm).writeNodeData(dataOutput, dataTarget);
+            internalForm = new RoleNodeSomeWithNids((RoleNodeSomeWithUuids) this);
+            ((RoleNodeSomeWithNids) internalForm).writeNodeData(dataOutput, dataTarget);
          } else {
             throw new RuntimeException("Can't write internal form!");
          }

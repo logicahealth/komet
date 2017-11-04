@@ -102,7 +102,7 @@ public class WriteConceptChronicle
       this.changeListeners = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write concept");
-      updateMessage(Get.conceptDescriptionText(cc.getConceptSequence()));
+      updateMessage(Get.conceptDescriptionText(cc.getNid()));
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
               .get()
@@ -123,10 +123,10 @@ public class WriteConceptChronicle
          Get.conceptService()
                  .writeConcept(this.cc);
          // get any updates that may have occured during merge write...
-         this.cc = Get.conceptService().getConcept(this.cc.getConceptSequence());
+         this.cc = Get.conceptService().getConceptChronology(this.cc.getNid());
          this.uncommittedTracking.accept(this.cc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
+         updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getNid()));
          this.changeListeners.forEach((listenerRef) -> {
             try {
                final ChronologyChangeListener listener = listenerRef.get();
@@ -141,7 +141,7 @@ public class WriteConceptChronicle
             }
          });
          updateProgress(2, 2);
-         updateMessage("complete: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
+         updateMessage("complete: " + Get.conceptDescriptionText(this.cc.getNid()));
          return null;
       } finally {
          this.writeSemaphore.release();

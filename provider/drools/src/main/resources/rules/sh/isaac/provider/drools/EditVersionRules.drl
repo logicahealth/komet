@@ -47,8 +47,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a AddEditVersionMenuItems, with VersionType.DESCRIPTION, add editing options"
@@ -59,11 +59,11 @@ then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit description");
    propertySheetMenuItem.addPropertyToEdit("text", MetaData.TEXT_FOR_DESCRIPTION____SOLOR, PropertyEditorType.TEXT);
    propertySheetMenuItem.addPropertyToEdit("type", MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a property set, populate the choice items"
@@ -76,10 +76,10 @@ then
    }
 end
 
-rule "if property specification is PATH_SEQUENCE_FOR_VERSION____SOLOR then"
+rule "if property specification is PATH_NID_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)
 then
    $property.getAllowedValues().addAll(
       Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____SOLOR)
@@ -95,13 +95,13 @@ then
    System.out.println("Add status capability");
 end
 
-rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____SOLOR then "
+rule "if property specification is MODULE_NID_FOR_VERSION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getNid());
    
 end
 
@@ -111,35 +111,35 @@ rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 when
    $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SYNONYM____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.REGULAR_NAME____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
    
 end
-rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR then "
+rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getNid());
    
 end
-rule "if property specification is LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR then "
+rule "if property specification is LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR.getNid());
    
 end

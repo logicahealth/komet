@@ -37,9 +37,6 @@
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 
 import java.time.Instant;
 
@@ -54,11 +51,10 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
-import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
@@ -93,12 +89,13 @@ import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeAllWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
-import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
-import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
+import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
+import sh.isaac.model.tree.TreeNodeVisitDataImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -115,7 +112,7 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
 public class LogicalExpressionImpl
         implements LogicalExpression {
 
-   private static final String CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE = "ConceptsReferencedAtNodeOrAbove";
+   private static final String CONCEPT_NIDS_AT_OR_ABOVE_NODE = "ConceptsReferencedAtNodeOrAbove";
 
    public static final byte SERIAL_FORMAT_VERSION = 1;
 
@@ -139,7 +136,7 @@ public class LogicalExpressionImpl
    /**
     * The concept sequence.
     */
-   transient int conceptSequence = -1;
+   transient int conceptNid = -1;
 
    /**
     * The logic nodes.
@@ -360,12 +357,7 @@ public class LogicalExpressionImpl
    public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
       this(nodeDataArray, dataSource);
 
-      if (conceptId < 0) {
-         conceptId = Get.identifierService()
-                 .getConceptSequence(conceptId);
-      }
-
-      this.conceptSequence = conceptId;
+      this.conceptNid = conceptId;
    }
 
    /**
@@ -389,8 +381,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the role node all with sequences
     */
-   public final RoleNodeAllWithSequences AllRole(ByteArrayDataBuffer dataInputStream) {
-      return new RoleNodeAllWithSequences(this, dataInputStream);
+   public final RoleNodeAllWithNids AllRole(ByteArrayDataBuffer dataInputStream) {
+      return new RoleNodeAllWithNids(this, dataInputStream);
    }
 
    /**
@@ -400,8 +392,8 @@ public class LogicalExpressionImpl
     * @param restriction the restriction
     * @return the role node all with sequences
     */
-   public RoleNodeAllWithSequences AllRole(int typeNid, AbstractLogicNode restriction) {
-      return new RoleNodeAllWithSequences(this, typeNid, restriction);
+   public RoleNodeAllWithNids AllRole(int typeNid, AbstractLogicNode restriction) {
+      return new RoleNodeAllWithNids(this, typeNid, restriction);
    }
 
    /**
@@ -480,8 +472,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the concept node with sequences
     */
-   public final ConceptNodeWithSequences Concept(ByteArrayDataBuffer dataInputStream) {
-      return new ConceptNodeWithSequences(this, dataInputStream);
+   public final ConceptNodeWithNids Concept(ByteArrayDataBuffer dataInputStream) {
+      return new ConceptNodeWithNids(this, dataInputStream);
    }
 
    /**
@@ -490,8 +482,8 @@ public class LogicalExpressionImpl
     * @param conceptSequence the concept sequence
     * @return the concept node with sequences
     */
-   public final ConceptNodeWithSequences Concept(int conceptSequence) {
-      return new ConceptNodeWithSequences(this, conceptSequence);
+   public final ConceptNodeWithNids Concept(int conceptSequence) {
+      return new ConceptNodeWithNids(this, conceptSequence);
    }
 
    /**
@@ -550,8 +542,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the feature node with sequences
     */
-   public final FeatureNodeWithSequences Feature(ByteArrayDataBuffer dataInputStream) {
-      return new FeatureNodeWithSequences(this, dataInputStream);
+   public final FeatureNodeWithNids Feature(ByteArrayDataBuffer dataInputStream) {
+      return new FeatureNodeWithNids(this, dataInputStream);
    }
 
    /**
@@ -561,10 +553,10 @@ public class LogicalExpressionImpl
     * @param literal the literal
     * @return the feature node with sequences
     */
-   public FeatureNodeWithSequences Feature(int typeNid, AbstractLogicNode literal) {
+   public FeatureNodeWithNids Feature(int typeNid, AbstractLogicNode literal) {
       // check for LiteralNode or SubstitutionNodeLiteral
       if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
-         return new FeatureNodeWithSequences(this, typeNid, literal);
+         return new FeatureNodeWithNids(this, typeNid, literal);
       }
 
       throw new IllegalStateException("LogicNode must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
@@ -773,8 +765,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the role node some with sequences
     */
-   public final RoleNodeSomeWithSequences SomeRole(ByteArrayDataBuffer dataInputStream) {
-      return new RoleNodeSomeWithSequences(this, dataInputStream);
+   public final RoleNodeSomeWithNids SomeRole(ByteArrayDataBuffer dataInputStream) {
+      return new RoleNodeSomeWithNids(this, dataInputStream);
    }
 
    /**
@@ -784,8 +776,8 @@ public class LogicalExpressionImpl
     * @param restriction the restriction
     * @return the role node some with sequences
     */
-   public final RoleNodeSomeWithSequences SomeRole(int typeNid, AbstractLogicNode restriction) {
-      return new RoleNodeSomeWithSequences(this, typeNid, restriction);
+   public final RoleNodeSomeWithNids SomeRole(int typeNid, AbstractLogicNode restriction) {
+      return new RoleNodeSomeWithNids(this, typeNid, restriction);
    }
 
    /**
@@ -864,8 +856,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the template node with sequences
     */
-   public final TemplateNodeWithSequences Template(ByteArrayDataBuffer dataInputStream) {
-      return new TemplateNodeWithSequences(this, dataInputStream);
+   public final TemplateNodeWithNids Template(ByteArrayDataBuffer dataInputStream) {
+      return new TemplateNodeWithNids(this, dataInputStream);
    }
 
    /**
@@ -875,8 +867,8 @@ public class LogicalExpressionImpl
     * @param assemblageConceptId the assemblage concept id
     * @return the template node with sequences
     */
-   public TemplateNodeWithSequences Template(int templateConceptId, int assemblageConceptId) {
-      return new TemplateNodeWithSequences(this, templateConceptId, assemblageConceptId);
+   public TemplateNodeWithNids Template(int templateConceptId, int assemblageConceptId) {
+      return new TemplateNodeWithNids(this, templateConceptId, assemblageConceptId);
    }
 
    /**
@@ -955,8 +947,8 @@ public class LogicalExpressionImpl
          if (this.logicNodes.size() != other.logicNodes.size()) {
             return false;
          }
-
-         final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.logicNodes.size());
+         
+         final TreeNodeVisitData graphVisitData = new TreeNodeVisitDataImpl(this.logicNodes.size());
 
          depthFirstVisit(null, getRoot(), graphVisitData, 0);
          return graphsEqual(this.getRoot(), other.getRoot(), 0, graphVisitData.getMaxDepth());
@@ -985,14 +977,14 @@ public class LogicalExpressionImpl
    public int hashCode() {
       int hash = 7;
 
-      hash = 29 * hash + this.conceptSequence;
+      hash = 29 * hash + this.conceptNid;
       return hash;
    }
 
    /**
     * Process depth first. The consumer will be presented with the current logic node, and with graph visit data that
     * provides information about the other nodes that have been encountered. To get the current id of the visit, within
-    * the consumers {@code accept(LogicNode logicNode, TreeNodeVisitData visitData)} method, get the node id of the
+    * the consumers {@code accept(LogicNode logicNode, TreeNodeVisitDataImpl visitData)} method, get the node id of the
     * presented logic node.
     *
     * @param consumer the consumer
@@ -1012,7 +1004,7 @@ public class LogicalExpressionImpl
    public void processDepthFirst(LogicNode fragmentRoot, BiConsumer<LogicNode, TreeNodeVisitData> consumer) {
       init();
 
-      final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.logicNodes.size());
+      final TreeNodeVisitData graphVisitData = new TreeNodeVisitDataImpl(this.logicNodes.size());
 
       depthFirstVisit(consumer, fragmentRoot, graphVisitData, 0);
    }
@@ -1096,20 +1088,22 @@ public class LogicalExpressionImpl
 
       graphVisitData.startNodeVisit(logicNode.getNodeIndex(), depth);
 
-      final ConceptSequenceSet conceptsReferencedByNode = new ConceptSequenceSet();
+      final OpenIntHashSet conceptsReferencedByNode = new OpenIntHashSet();
 
       logicNode.addConceptsReferencedByNode(conceptsReferencedByNode);
 
-      graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex());
+      graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex());
 
-      logicNode.addConceptsReferencedByNode(
-              ConceptSequenceSet.of(graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex())));
+      logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      int predecessorSequence = graphVisitData.getPredecessorSequence(logicNode.getNodeIndex());
+      int predecessorSequence = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
       if (predecessorSequence >= 0) {
-         conceptsReferencedByNode.addAll(
-                 graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, predecessorSequence));
-         graphVisitData.setUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex(), conceptsReferencedByNode);
+         
+         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorSequence).forEachKey((node) -> {
+            conceptsReferencedByNode.add(node);
+            return true;
+         });
+         graphVisitData.setUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex(), conceptsReferencedByNode);
       }
 
       if (consumer != null) {
@@ -1132,12 +1126,12 @@ public class LogicalExpressionImpl
                break;
 
             default:
-               siblingGroupSequence = graphVisitData.getSiblingGroupForSequence(logicNode.getNodeIndex());
+               siblingGroupSequence = graphVisitData.getSiblingGroupForNid(logicNode.getNodeIndex());
          }
 
          for (final LogicNode child : logicNode.getChildren()) {
-            graphVisitData.setSiblingGroupForSequence(child.getNodeIndex(), siblingGroupSequence);
-            graphVisitData.setPredecessorSequence(child.getNodeIndex(), logicNode.getNodeIndex());
+            graphVisitData.setSiblingGroupForNid(child.getNodeIndex(), siblingGroupSequence);
+            graphVisitData.setPredecessorNid(child.getNodeIndex(), logicNode.getNodeIndex());
             depthFirstVisit(consumer, child, graphVisitData, depth + 1);
          }
       }
@@ -1250,7 +1244,7 @@ public class LogicalExpressionImpl
                break;
 
             case ROLE_ALL:
-               results[i] = AllRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+               results[i] = AllRole(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),
                        (AbstractLogicNode) addNodesWithMap(another,
                                solution,
                                anotherToThisNodeIdMap,
@@ -1261,7 +1255,7 @@ public class LogicalExpressionImpl
                break;
 
             case ROLE_SOME:
-               results[i] = SomeRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+               results[i] = SomeRole(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),
                        (AbstractLogicNode) addNodesWithMap(another,
                                solution,
                                anotherToThisNodeIdMap,
@@ -1272,7 +1266,7 @@ public class LogicalExpressionImpl
                break;
 
             case FEATURE:
-               results[i] = Feature(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+               results[i] = Feature(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),
                        (AbstractLogicNode) addNodesWithMap(another,
                                solution,
                                anotherToThisNodeIdMap,
@@ -1303,12 +1297,12 @@ public class LogicalExpressionImpl
                break;
 
             case CONCEPT:
-               results[i] = Concept(((ConceptNodeWithSequences) oldLogicNode).getConceptSequence());
+               results[i] = Concept(((ConceptNodeWithNids) oldLogicNode).getConceptNid());
                break;
 
             case TEMPLATE:
-               results[i] = Template(((TemplateNodeWithSequences) oldLogicNode).getTemplateConceptSequence(),
-                       ((TemplateNodeWithSequences) oldLogicNode).getAssemblageConceptSequence());
+               results[i] = Template(((TemplateNodeWithNids) oldLogicNode).getTemplateConceptNid(),
+                       ((TemplateNodeWithNids) oldLogicNode).getAssemblageConceptNid());
                break;
 
             case SUBSTITUTION_BOOLEAN:
@@ -1433,7 +1427,7 @@ public class LogicalExpressionImpl
     */
    @Override
    public int getConceptSequence() {
-      return this.conceptSequence;
+      return this.conceptNid;
    }
 
    /**

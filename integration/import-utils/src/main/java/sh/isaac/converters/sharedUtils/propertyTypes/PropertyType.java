@@ -52,8 +52,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
@@ -91,8 +91,8 @@ public abstract class PropertyType {
 
    /** The default data column. */
 
-   // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
-   private final DynamicSememeDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
+   // will be handled in the same way - relationships are not dynamic, assoications are, for example.
+   private final DynamicDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
    // use this information to configure the (single) data column.
 
@@ -112,7 +112,7 @@ public abstract class PropertyType {
     */
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
-                          DynamicSememeDataType defaultDynamicRefexColumnType) {
+                          DynamicDataType defaultDynamicRefexColumnType) {
       this.properties              = new HashMap<>();
       this.propertyTypeDescription = propertyTypeDescription;
       this.createAsDynamicRefex    = createAsDynamicRefex;
@@ -130,7 +130,7 @@ public abstract class PropertyType {
    public Property addProperty(Property property) {
       if (this.skipList != null) {
          for (final String s: this.skipList) {
-            if (property.getSourcePropertyNameFSN()
+            if (property.getSourcePropertyNameFQN()
                         .equals(s)) {
                ConsoleUtil.println("Skipping property '" + s + "' because of skip list configuration");
                return property;
@@ -140,15 +140,15 @@ public abstract class PropertyType {
 
       property.setOwner(this);
 
-      final Property old = this.properties.put(property.getSourcePropertyNameFSN(), property);
+      final Property old = this.properties.put(property.getSourcePropertyNameFQN(), property);
 
       if (old != null) {
-         throw new RuntimeException("Duplicate property name: " + property.getSourcePropertyNameFSN());
+         throw new RuntimeException("Duplicate property name: " + property.getSourcePropertyNameFQN());
       }
 
       if ((this.altNamePropertyMap != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
          final String s = this.altNamePropertyMap.put(property.getSourcePropertyAltName(),
-                                                       property.getSourcePropertyNameFSN());
+                                                       property.getSourcePropertyNameFQN());
 
          if (s != null) {
             throw new RuntimeException("Alt Indexing Error - duplicate!");
@@ -161,69 +161,69 @@ public abstract class PropertyType {
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @return the property
     */
-   public Property addProperty(String propertyNameFSN) {
-      return addProperty(propertyNameFSN, -1);
+   public Property addProperty(String propertyNameFQN) {
+      return addProperty(propertyNameFQN, -1);
    }
 
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param propertySubType the property sub type
     * @return the property
     */
-   public Property addProperty(String propertyNameFSN, int propertySubType) {
-      return addProperty(propertyNameFSN, null, null, false, propertySubType, null);
+   public Property addProperty(String propertyNameFQN, int propertySubType) {
+      return addProperty(propertyNameFQN, null, null, false, propertySubType, null);
    }
 
    /**
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param minVersion the min version
     * @param maxVersion the max version
     * @return the property
     */
-   public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion) {
-      return addProperty(propertyNameFSN, null, null, minVersion, maxVersion, false, -1);
+   public Property addProperty(String propertyNameFQN, int minVersion, int maxVersion) {
+      return addProperty(propertyNameFQN, null, null, minVersion, maxVersion, false, -1);
    }
 
    /**
     * Adds the property.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @return the property
     */
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String sourcePropertyAltName,
                                String sourcePropertyDefinition) {
-      return addProperty(sourcePropertyNameFSN, sourcePropertyAltName, sourcePropertyDefinition, false, -1, null);
+      return addProperty(sourcePropertyNameFQN, sourcePropertyAltName, sourcePropertyDefinition, false, -1, null);
    }
 
    /**
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param minVersion the min version
     * @param maxVersion the max version
     * @param disabled the disabled
     * @return the property
     */
-   public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion, boolean disabled) {
-      return addProperty(propertyNameFSN, null, null, minVersion, maxVersion, disabled, -1);
+   public Property addProperty(String propertyNameFQN, int minVersion, int maxVersion, boolean disabled) {
+      return addProperty(propertyNameFQN, null, null, minVersion, maxVersion, disabled, -1);
    }
 
    /**
     * Adds the property.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param disabled the disabled
@@ -231,14 +231,14 @@ public abstract class PropertyType {
     * @param dataColumnForDynamicRefex the data column for dynamic refex
     * @return the property
     */
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String sourcePropertyAltName,
                                String sourcePropertyDefinition,
                                boolean disabled,
                                int propertySubType,
-                               DynamicSememeColumnInfo[] dataColumnForDynamicRefex) {
+                               DynamicColumnInfo[] dataColumnForDynamicRefex) {
       return addProperty(new Property(this,
-                                      sourcePropertyNameFSN,
+                                      sourcePropertyNameFQN,
                                       sourcePropertyAltName,
                                       sourcePropertyDefinition,
                                       disabled,
@@ -250,7 +250,7 @@ public abstract class PropertyType {
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param altName the alt name
     * @param sourcePropertyDefinition the source property definition
     * @param minVersion the min version
@@ -259,7 +259,7 @@ public abstract class PropertyType {
     * @param propertySubType the property sub type
     * @return the property
     */
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String altName,
                                String sourcePropertyDefinition,
                                int minVersion,
@@ -270,7 +270,7 @@ public abstract class PropertyType {
          return null;
       }
 
-      return addProperty(sourcePropertyNameFSN, altName, sourcePropertyDefinition, disabled, propertySubType, null);
+      return addProperty(sourcePropertyNameFQN, altName, sourcePropertyDefinition, disabled, propertySubType, null);
    }
 
    /**
@@ -318,7 +318,7 @@ public abstract class PropertyType {
     *
     * @return the default column info
     */
-   protected DynamicSememeDataType getDefaultColumnInfo() {
+   protected DynamicDataType getDefaultColumnInfo() {
       return this.defaultDataColumn;
    }
 

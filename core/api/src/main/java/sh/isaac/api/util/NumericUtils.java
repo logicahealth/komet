@@ -47,11 +47,11 @@ import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -119,16 +119,16 @@ public class NumericUtils {
     * @return the number
     * @throws NumberFormatException the number format exception
     */
-   public static Number readNumber(DynamicSememeData value)
+   public static Number readNumber(DynamicData value)
             throws NumberFormatException {
-      if (value instanceof DynamicSememeDouble) {
-         return ((DynamicSememeDouble) value).getDataDouble();
-      } else if (value instanceof DynamicSememeFloat) {
-         return ((DynamicSememeFloat) value).getDataFloat();
-      } else if (value instanceof DynamicSememeInteger) {
-         return ((DynamicSememeInteger) value).getDataInteger();
-      } else if (value instanceof DynamicSememeLong) {
-         return ((DynamicSememeLong) value).getDataLong();
+      if (value instanceof DynamicDouble) {
+         return ((DynamicDouble) value).getDataDouble();
+      } else if (value instanceof DynamicFloat) {
+         return ((DynamicFloat) value).getDataFloat();
+      } else if (value instanceof DynamicInteger) {
+         return ((DynamicInteger) value).getDataInteger();
+      } else if (value instanceof DynamicLong) {
+         return ((DynamicLong) value).getDataLong();
       } else {
          throw new NumberFormatException("The value passed in to the validator is not a number");
       }

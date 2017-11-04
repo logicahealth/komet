@@ -53,13 +53,13 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,7 +70,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  * @param <T> the generic type
  * @param <V> the value type
  */
-public class DescriptionBuilderImpl<T extends SememeChronology, V extends DescriptionVersion>
+public class DescriptionBuilderImpl<T extends SemanticChronology, V extends DescriptionVersion>
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
    /** The preferred in dialect assemblages. */
@@ -80,7 +80,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology, V extends Descri
    private final ArrayList<ConceptSpecification> acceptableInDialectAssemblages = new ArrayList<>();
 
    /** The concept sequence. */
-   private int conceptSequence = Integer.MAX_VALUE;
+   private int conceptNid = Integer.MAX_VALUE;
 
    /** The description text. */
    private String descriptionText;
@@ -127,7 +127,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology, V extends Descri
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
       this.descriptionText        = descriptionText;
-      this.conceptSequence        = conceptSequence;
+      this.conceptNid        = conceptSequence;
       this.descriptionType        = descriptionType;
       this.languageForDescription = languageForDescription;
       this.conceptBuilder         = null;
@@ -171,39 +171,37 @@ public class DescriptionBuilderImpl<T extends SememeChronology, V extends Descri
    public T build(int stampSequence,
                   List<Chronology> builtObjects)
             throws IllegalStateException {
-      if (this.conceptSequence == Integer.MAX_VALUE) {
-         this.conceptSequence = Get.identifierService()
-                                   .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
+      if (this.conceptNid == Integer.MAX_VALUE) {
+         this.conceptNid = Get.identifierService()
+                                   .getNidForUuids(this.conceptBuilder.getUuids());
       }
 
-      final SememeBuilderService sememeBuilder = LookupService.getService(SememeBuilderService.class);
-      final SememeBuilder<? extends SememeChronology> descBuilder =
-         sememeBuilder.getDescriptionSememeBuilder(TermAux.caseSignificanceToConceptSequence(false),
-                                                   this.languageForDescription.getConceptSequence(),
-                                                   this.descriptionType.getConceptSequence(),
-                                                   this.descriptionText,
-                                                   Get.identifierService()
-                                                         .getConceptNid(this.conceptSequence));
+      final SemanticBuilderService sememeBuilder = LookupService.getService(SemanticBuilderService.class);
+      final SemanticBuilder<? extends SemanticChronology> descBuilder =
+         sememeBuilder.getDescriptionBuilder(TermAux.caseSignificanceToConceptNid(false),
+                                                   this.languageForDescription.getNid(),
+                                                   this.descriptionType.getNid(),
+                                                   this.descriptionText,this.conceptNid);
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final SememeChronology newDescription =
-         (SememeChronology) descBuilder.build(stampSequence,
+      final SemanticChronology newDescription =
+         (SemanticChronology) descBuilder.build(stampSequence,
                                                                          builtObjects);
-      final SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService sememeBuilderService = LookupService.getService(SemanticBuilderService.class);
 
       this.preferredInDialectAssemblages.forEach((assemblageProxy) -> {
-               sememeBuilderService.getComponentSememeBuilder(TermAux.PREFERRED.getNid(),
+               sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(),
                      this,
                      Get.identifierService()
-                        .getConceptSequenceForProxy(assemblageProxy))
+                        .getNidForProxy(assemblageProxy))
                                    .build(stampSequence, builtObjects);
             });
       this.acceptableInDialectAssemblages.forEach((assemblageProxy) -> {
-               sememeBuilderService.getComponentSememeBuilder(TermAux.ACCEPTABLE.getNid(),
+               sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(),
                      this,
                      Get.identifierService()
-                        .getConceptSequenceForProxy(assemblageProxy))
+                        .getNidForProxy(assemblageProxy))
                                    .build(stampSequence, builtObjects);
             });
       this.sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
@@ -224,48 +222,46 @@ public class DescriptionBuilderImpl<T extends SememeChronology, V extends Descri
                                     ChangeCheckerMode changeCheckerMode,
                                     List<Chronology> builtObjects)
             throws IllegalStateException {
-      if (this.conceptSequence == Integer.MAX_VALUE) {
-         this.conceptSequence = Get.identifierService()
-                                   .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
+      if (this.conceptNid == Integer.MAX_VALUE) {
+         this.conceptNid = Get.identifierService()
+                                   .getNidForUuids(this.conceptBuilder.getUuids());
       }
 
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      final SememeBuilderService sememeBuilder = LookupService.getService(SememeBuilderService.class);
-      final SememeBuilder<? extends SememeChronology> descBuilder =
-         sememeBuilder.getDescriptionSememeBuilder(Get.languageCoordinateService()
+      final SemanticBuilderService sememeBuilder = LookupService.getService(SemanticBuilderService.class);
+      final SemanticBuilder<? extends SemanticChronology> descBuilder =
+         sememeBuilder.getDescriptionBuilder(Get.languageCoordinateService()
                                                       .caseSignificanceToConceptSequence(false),
-                                                   this.languageForDescription.getConceptSequence(),
-                                                   this.descriptionType.getConceptSequence(),
-                                                   this.descriptionText,
-                                                   Get.identifierService()
-                                                         .getConceptNid(this.conceptSequence));
+                                                   this.languageForDescription.getNid(),
+                                                   this.descriptionType.getNid(),
+                                                   this.descriptionText,this.conceptNid);
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final OptionalWaitTask<SememeChronology> newDescription =
-         (OptionalWaitTask<SememeChronology>) descBuilder.setState(this.state)
+      final OptionalWaitTask<SemanticChronology> newDescription =
+         (OptionalWaitTask<SemanticChronology>) descBuilder.setState(this.state)
                                                                                     .build(editCoordinate,
                                                                                           changeCheckerMode,
                                                                                           builtObjects);
 
       nestedBuilders.add(newDescription);
 
-      final SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService sememeBuilderService = LookupService.getService(SemanticBuilderService.class);
 
       this.preferredInDialectAssemblages.forEach((assemblageProxy) -> {
-               nestedBuilders.add(sememeBuilderService.getComponentSememeBuilder(TermAux.PREFERRED.getNid(),
+               nestedBuilders.add(sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(),
                      newDescription.getNoWait()
                                    .getNid(),
                      Get.identifierService()
-                        .getConceptSequenceForProxy(assemblageProxy))
+                        .getNidForProxy(assemblageProxy))
                      .build(editCoordinate, changeCheckerMode, builtObjects));
             });
       this.acceptableInDialectAssemblages.forEach((assemblageProxy) -> {
-               nestedBuilders.add(sememeBuilderService.getComponentSememeBuilder(TermAux.ACCEPTABLE.getNid(),
+               nestedBuilders.add(sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(),
                      newDescription.getNoWait()
                                    .getNid(),
                      Get.identifierService()
-                        .getConceptSequenceForProxy(assemblageProxy))
+                        .getNidForProxy(assemblageProxy))
                      .build(editCoordinate, changeCheckerMode, builtObjects));
             });
       this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,

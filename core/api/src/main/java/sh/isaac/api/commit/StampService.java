@@ -44,6 +44,7 @@ package sh.isaac.api.commit;
 import java.time.Instant;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -139,7 +140,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the author sequence for stamp
     */
-   int getAuthorSequenceForStamp(int stampSequence);
+   int getAuthorNidForStamp(int stampSequence);
 
    /**
     * Gets the instant for stamp.
@@ -157,7 +158,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the module sequence for stamp
     */
-   int getModuleSequenceForStamp(int stampSequence);
+   int getModuleNidForStamp(int stampSequence);
 
    /**
     * Checks if not canceled.
@@ -173,7 +174,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the path sequence for stamp
     */
-   int getPathSequenceForStamp(int stampSequence);
+   int getPathNidForStamp(int stampSequence);
 
    /**
     * Used by the commit manager to get the pending stamps, so that there is a
@@ -182,7 +183,7 @@ public interface StampService
     *
     * @return the pending stamps for commit
     */
-   Map<UncommittedStamp, Integer> getPendingStampsForCommit();
+   ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit();
 
    //~--- set methods ---------------------------------------------------------
 
@@ -194,7 +195,7 @@ public interface StampService
     *
     * @param pendingStamps the pending stamps
     */
-   void setPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
+   void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
 
    //~--- get methods ---------------------------------------------------------
 

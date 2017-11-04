@@ -41,7 +41,7 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -56,16 +56,16 @@ public class BPT_Annotations
     * Instantiates a new BP T annotations.
     */
    public BPT_Annotations() {
-      super("Attribute Types", true, DynamicSememeDataType.STRING);
+      super("Attribute Types", true, DynamicDataType.STRING);
    }
 
    /**
     * Instantiates a new BP T annotations.
     *
-    * @param fsnPrefix the fsn prefix
+    * @param fqnPrefix the fqn prefix
     */
-   public BPT_Annotations(String fsnPrefix) {
-      super(fsnPrefix + " Attribute Types", true, DynamicSememeDataType.STRING);
+   public BPT_Annotations(String fqnPrefix) {
+      super(fqnPrefix + " Attribute Types", true, DynamicDataType.STRING);
    }
 }
 

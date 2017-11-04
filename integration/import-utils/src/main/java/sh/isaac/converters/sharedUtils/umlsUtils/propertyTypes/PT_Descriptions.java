@@ -61,7 +61,7 @@ public class PT_Descriptions
       super(termName);
 
       // from relationship metadata, but needs to be here because they are loaded as description types
-      addProperty("Inverse FSN");
+      addProperty("Inverse FQN");
       addProperty("Inverse Synonym");
       addProperty("Inverse Description");
    }

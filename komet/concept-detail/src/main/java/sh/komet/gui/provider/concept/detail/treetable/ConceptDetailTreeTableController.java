@@ -61,7 +61,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.komet.gui.cell.TreeTableAuthorTimeCellFactory;
 
 import sh.komet.gui.cell.TreeTableConceptCellFactory;
@@ -70,6 +69,7 @@ import sh.komet.gui.cell.TreeTableModulePathCellFactory;
 import sh.komet.gui.cell.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.TreeTableWhatCellFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 public class ConceptDetailTreeTableController {
@@ -135,8 +135,8 @@ public class ConceptDetailTreeTableController {
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-           ObservableList<ObservableSememeChronology> children, boolean addSememes) {
-      for (ObservableSememeChronology child : children) {
+           ObservableList<ObservableSemanticChronology> children, boolean addSememes) {
+      for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
 
@@ -164,7 +164,7 @@ public class ConceptDetailTreeTableController {
                        .add(historicTreeItem);
             }
             if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSememeList(), addSememes);
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
             }
          }
       }
@@ -179,13 +179,13 @@ public class ConceptDetailTreeTableController {
       } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                  .getObservableConceptChronology(
-                         newValue.getConceptSequence());
+                         newValue.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
                          manifold);
           if (categorizedVersions.getLatestVersion().isPresent()) {
             TreeItem<ObservableCategorizedVersion> conceptRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-            addChildren(conceptRoot, observableConceptChronology.getObservableSememeList(), true);
+            addChildren(conceptRoot, observableConceptChronology.getObservableSemanticList(), true);
             conceptExtensionTreeTable.setRoot(conceptRoot);
           } else {
              throw new IllegalStateException("Latest version is null: " + categorizedVersions);

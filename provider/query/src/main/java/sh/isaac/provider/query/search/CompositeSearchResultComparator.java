@@ -107,7 +107,7 @@ public class CompositeSearchResultComparator
          return textComparison;
       }
 
-      // else same score and FSN and preferred description - sort on type
+      // else same score and FQN and preferred description - sort on type
       final String comp1String = o1.getMatchingComponents()
                                    .iterator()
                                    .next()

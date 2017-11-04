@@ -134,9 +134,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultClassifier(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.classifierSequenceProperty()
-                                    .set(Get.identifierService()
-                                          .getConceptSequence(conceptId));
+      this.observableLogicCoordinate.classifierNidProperty()
+                                    .set(conceptId);
    }
 
    /**
@@ -146,9 +145,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultDescriptionLogicProfile(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.descriptionLogicProfileSequenceProperty()
-                                    .set(Get.identifierService()
-                                          .getConceptSequence(conceptId));
+      this.observableLogicCoordinate.descriptionLogicProfileNidProperty()
+                                    .set(conceptId);
    }
 
    /**
@@ -158,11 +156,6 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       setupDefaults();
-
-      for (int i = 0; i < descriptionTypePreferenceList.length; i++) {
-         descriptionTypePreferenceList[i] = Get.identifierService()
-               .getConceptSequence(descriptionTypePreferenceList[i]);
-      }
 
       final ObservableIntegerArray descriptionTypeIntegerArray =
          this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
@@ -181,11 +174,6 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
       setupDefaults();
-
-      for (int i = 0; i < dialectAssemblagePreferenceList.length; i++) {
-         dialectAssemblagePreferenceList[i] = Get.identifierService()
-               .getConceptSequence(dialectAssemblagePreferenceList[i]);
-      }
 
       final ObservableIntegerArray dialectAssemblageIntegerArray =
          this.observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()
@@ -216,9 +204,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultInferredAssemblage(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.inferredAssemblageSequenceProperty()
-                                    .set(Get.identifierService()
-                                          .getConceptSequence(conceptId));
+      this.observableLogicCoordinate.inferredAssemblageNidProperty()
+                                    .set(conceptId);
    }
 
    /**
@@ -228,9 +215,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultLanguage(int conceptId) {
       setupDefaults();
-      this.observableLanguageCoordinate.languageConceptSequenceProperty()
-                                       .set(Get.identifierService()
-                                             .getConceptSequence(conceptId));
+      this.observableLanguageCoordinate.languageConceptNidProperty()
+                                       .set(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -265,8 +251,7 @@ public class DefaultCoordinateProvider {
    public void setDefaultModule(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.moduleSequenceProperty()
-                                   .set(Get.identifierService()
-                                         .getConceptSequence(conceptId));
+                                   .set(conceptId);
    }
 
    /**
@@ -276,12 +261,10 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultPath(int conceptId) {
       setupDefaults();
-      this.observableStampPosition.stampPathSequenceProperty()
-                                  .set(Get.identifierService()
-                                        .getConceptSequence(conceptId));
+      this.observableStampPosition.stampPathNidProperty()
+                                  .set(conceptId);
       this.observableEditCoordinate.pathSequenceProperty()
-                                   .set(Get.identifierService()
-                                         .getConceptSequence(conceptId));
+                                   .set(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -305,9 +288,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultStatedAssemblage(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.statedAssemblageSequenceProperty()
-                                    .set(Get.identifierService()
-                                          .getConceptSequence(conceptId));
+      this.observableLogicCoordinate.statedAssemblageNidProperty()
+                                    .set(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -343,8 +325,7 @@ public class DefaultCoordinateProvider {
    public void setDefaultUser(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.authorSequenceProperty()
-                                   .set(Get.identifierService()
-                                         .getConceptSequence(conceptId));
+                                   .set(conceptId);
    }
 }
 

@@ -165,9 +165,7 @@ public abstract class MetadataConceptConstant
     */
    @Override
    public int getNid() {
-      return Get.conceptService()
-                .getConcept(getUUID())
-                .getNid();
+      return Get.identifierService().getNidForUuids(getUUID());
    }
 
    /**
@@ -195,7 +193,7 @@ public abstract class MetadataConceptConstant
    /**
     * Gets the primary name.
     *
-    * @return The name for this concept, used to construct the FSN and preferred term.
+    * @return The name for this concept, used to construct the FQN and preferred term.
     * This method is identical to {@link #getFullySpecifiedConceptDescriptionText()}
     */
    public String getPrimaryName() {
@@ -210,17 +208,6 @@ public abstract class MetadataConceptConstant
    @Override
    public UUID getPrimordialUuid() {
       return getUUID();
-   }
-
-   /**
-    * Gets the sequence.
-    *
-    * @return The concept sequence for the concept.
-    */
-   public int getSequence() {
-      return Get.conceptService()
-                .getConcept(getUUID())
-                .getConceptSequence();
    }
 
    /**

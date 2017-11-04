@@ -50,14 +50,12 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -65,6 +63,7 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -139,33 +138,21 @@ public interface Chronology
    boolean isLatestVersionActive(StampCoordinate coordinate);
 
    /**
-    * Gets the sememe list.
+    * Gets the semantic list.
     *
     * @param <V>
-    * @return a list of SememeChronology objects, where this object is the referenced component.
+    * @return a list of SemanticChronology objects, where this object is the referenced component.
     */
-   <V extends SememeChronology> List<V> getSememeList();
+   <V extends SemanticChronology> List<V> getSemanticChronologyList();
 
    /**
-    * Gets the sememe list from assemblage.
+    * Gets the SemanticChronology list from assemblage.
     *
     * @param <V>
     * @param assemblageSequence the assemblage sequence
-    * @return the sememe list from assemblage
+    * @return the SemanticChronology list from assemblage
     */
-   <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence);
-
-   /**
-    * Gets the sememe list from assemblage of type.
-    *
-    * @param <V>
-    * @param assemblageSequence the assemblage sequence
-    * @param type the type
-    * @return the sememe list from assemblage of type
-    */
-   <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
-           int assemblageSequence,
-           VersionType type);
+   <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence);
 
    /**
     * Gets the unwritten version list.
@@ -204,7 +191,7 @@ public interface Chronology
     *
     * @return the version stamps for all the versions of this object chronology.
     */
-   IntStream getVersionStampSequences();
+   int[] getVersionStampSequences();
 
    /**
     * Gets the visible ordered version list.
@@ -252,8 +239,7 @@ public interface Chronology
       return versions.get(0).getVersionType();
    }
    
-   SememeSequenceSet getRecursiveSememeSequences();
-
+   NidSet getRecursiveSemanticNids();
 
 }
 

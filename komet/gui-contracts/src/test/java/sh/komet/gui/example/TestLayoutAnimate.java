@@ -45,11 +45,8 @@ public class TestLayoutAnimate extends Application {
     Button btn = new Button();
     btn.setText("Add Rectangles");
     final TestLayoutAnimate self = this;
-    btn.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-        self.addRectangle(root);
-      }
+    btn.setOnAction((ActionEvent event) -> {
+       self.addRectangle(root);
     });
     root.getChildren().add(btn);
 

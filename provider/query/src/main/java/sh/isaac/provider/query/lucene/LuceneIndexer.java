@@ -123,7 +123,6 @@ import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
 import sh.isaac.api.index.IndexedGenerationCallable;
@@ -131,9 +130,10 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
+import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -299,26 +299,26 @@ public abstract class LuceneIndexer
                   return;
                }
 
-               final int size = commitRecord.getSememesInCommit()
+               final int size = commitRecord.getSemanticNidsInCommit()
                                             .size();
 
                if (size < 100) {
-                  LOG.info("submitting sememes " + commitRecord.getSememesInCommit().toString() + " to indexer " +
+                  LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " +
                            getIndexerName() + " due to commit");
                } else {
-                  LOG.info("submitting " + size + " sememes to indexer " + getIndexerName() + " due to commit");
+                  LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
                }
 
-               commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
-                                       final SememeChronology sc = Get.assemblageService()
-                                                                         .getSememe(sememeId);
+               commitRecord.getSemanticNidsInCommit().stream().forEach(sememeId -> {
+                                       final SemanticChronology sc = Get.assemblageService()
+                                                                         .getSemanticChronology(sememeId);
 
                                        index(sc);
                                     });
-                  LOG.info("Indexing " + size + " sememes for " + getIndexerName() + " complete");
+                  LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
             }
             @Override
-            public void handleChange(SememeChronology sc) {
+            public void handleChange(SemanticChronology sc) {
                // noop
             }
             @Override
@@ -471,11 +471,11 @@ public abstract class LuceneIndexer
          } else {
             switch (c.get()
                      .getIsaacObjectType()) {
-            case SEMEME:
-               return findConcept(((SememeChronology) c.get()).getReferencedComponentNid());
+            case SEMANTIC:
+               return findConcept(((SemanticChronology) c.get()).getReferencedComponentNid());
 
             case CONCEPT:
-               return ((ConceptChronology) c.get()).getConceptSequence();
+               return ((ConceptChronology) c.get()).getNid();
 
             default:
                LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
@@ -531,7 +531,7 @@ public abstract class LuceneIndexer
     * are detailed below.
     *
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
-    * queries.  Specifically both {@link SememeIndexer} and {@link DescriptionIndexer} have their own
+    * queries.  Specifically both {@link SemanticIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
     *
     * @param query The query to apply.

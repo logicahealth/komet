@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.40</version>
+        <version>4.41</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
@@ -20,6 +20,15 @@
             <module>bdb-chronology</module>
          </modules>
       </profile>
+    <profile>
+         <id>old</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <modules>
+            <module>workflow</module>
+         </modules>
+      </profile>
     </profiles>
     <modules>
         <module>commit</module>
@@ -29,16 +38,15 @@
         <module>path</module>
         <module>progress</module>
         <module>sync-git</module>
-        <module>workflow</module>
         <module>concept</module>
         <module>ibdf</module>
         <module>logic</module>
         <module>observable</module>
         <module>query</module>
         <module>stamp</module>
-        <module>taxonomy</module>
         <module>assemblage</module>
         <module>drools</module>
         <module>xodus-chronology</module>
+        <module>alert-resolver</module>
     </modules>
 </project>

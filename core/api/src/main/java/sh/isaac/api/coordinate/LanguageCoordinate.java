@@ -43,8 +43,8 @@ import java.util.List;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -62,7 +62,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return an optional latestDescription best matching the {@code LanguageCoordinate} constraints.
     */
    LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -80,15 +80,15 @@ public interface LanguageCoordinate extends Coordinate {
    int[] getDialectAssemblagePreferenceList();
 
    /**
-    * Convenience method - returns true if FSN is at the top of the latestDescription list.
+    * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *
-    * @return true, if FSN preferred
+    * @return true, if FQN preferred
     */
-   public default boolean isFSNPreferred() {
+   public default boolean isFQNPreferred() {
       for (final int descType : getDescriptionTypePreferenceList()) {
          if (descType
-                 == Get.identifierService().getConceptSequenceForUuids(
-                         TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid())) {
+                 == Get.identifierService().getNidForUuids(
+                         TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getPrimordialUuid())) {
             return true;
          }
 
@@ -106,7 +106,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the fully specified latestDescription
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -146,7 +146,7 @@ public interface LanguageCoordinate extends Coordinate {
     *
     * @return the language concept sequence
     */
-   int getLanguageConceptSequence();
+   int getLanguageConceptNid();
 
    /**
     * Gets the preferred latestDescription.
@@ -156,7 +156,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the preferred latestDescription
     */
    LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -183,13 +183,13 @@ public interface LanguageCoordinate extends Coordinate {
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
-         switch (Get.identifierService().getChronologyTypeForNid(conceptId)) {
+         switch (Get.identifierService().getObjectTypeForComponent(conceptId)) {
             case CONCEPT:
                // returned below
                break;
-            case SEMEME:
-               return Get.assemblageService().getSememe(conceptId).getSememeType().toString();
-            case UNKNOWN_NID:
+            case SEMANTIC:
+               return Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString();
+            case UNKNOWN:
                return "unknown for nid: " + conceptId;
             default:
                return "unknown type for nid: " + conceptId;

@@ -41,12 +41,12 @@ package sh.isaac.utility;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.util.NumericUtils;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeDoubleImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeFloatImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeIntegerImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeLongImpl;
+import sh.isaac.model.semantic.types.DynamicDoubleImpl;
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -61,23 +61,23 @@ public class NumberUtilities
     * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double.
     *
     * @param value the value
-    * @return the dynamic sememe data
+    * @return the dynamic data
     * @throws NumberFormatException the number format exception
     */
-   public static DynamicSememeData wrapIntoRefexHolder(Number value)
+   public static DynamicData wrapIntoRefexHolder(Number value)
             throws NumberFormatException {
       if (value == null) {
          return null;
       }
 
       if (value instanceof Integer) {
-         return new DynamicSememeIntegerImpl(value.intValue());
+         return new DynamicIntegerImpl(value.intValue());
       } else if (value instanceof Long) {
-         return new DynamicSememeLongImpl(value.longValue());
+         return new DynamicLongImpl(value.longValue());
       } else if (value instanceof Float) {
-         return new DynamicSememeFloatImpl(value.floatValue());
+         return new DynamicFloatImpl(value.floatValue());
       } else if (value instanceof Double) {
-         return new DynamicSememeDoubleImpl(value.doubleValue());
+         return new DynamicDoubleImpl(value.doubleValue());
       } else {
          throw new NumberFormatException("The value must be a numeric value of type int, long, float or double.");
       }

@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.nio.file.Path;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -110,5 +111,13 @@ public interface DatabaseServices {
     * get database validity status
     */
    public DatabaseValidity getDatabaseValidityStatus();
+   
+   /**
+    * Return the UUID that was generated when the database was first created.
+    *
+    * @return the data store id
+    */
+   public UUID getDataStoreId();
+
 }
 

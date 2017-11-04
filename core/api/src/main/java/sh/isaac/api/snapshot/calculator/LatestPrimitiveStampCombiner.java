@@ -123,7 +123,7 @@ public class LatestPrimitiveStampCombiner
       } else {
          tStampSet.or(uStampSet);
          t.clear();
-         Arrays.stream(this.computer.getLatestStampSequencesAsArray(tStampSet.stream()))
+         Arrays.stream(this.computer.getLatestCommittedStampSequencesAsSet(tStampSet.stream().toArray()))
                .forEach((stamp) -> t.add(stamp));
       }
    }

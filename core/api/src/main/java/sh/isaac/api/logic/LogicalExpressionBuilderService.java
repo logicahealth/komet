@@ -43,7 +43,7 @@ package sh.isaac.api.logic;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 
 //~--- interfaces -------------------------------------------------------------
 

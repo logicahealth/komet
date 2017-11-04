@@ -111,7 +111,7 @@ public class ObservableStampPathImpl
    public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
       if (this.pathConceptSequenceProperty == null) {
          this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH.toExternalString(),
+               ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
                getPathConceptSequence());
       }
 

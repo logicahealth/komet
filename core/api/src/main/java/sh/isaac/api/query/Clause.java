@@ -69,7 +69,7 @@ import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
+import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
 import sh.isaac.api.query.clauses.RelRestriction;
 import sh.isaac.api.query.clauses.RelationshipIsCircular;
@@ -265,7 +265,7 @@ public abstract class Clause implements ConceptSpecification {
          new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
          new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
          new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
-         new DescriptionRegexMatch(), new FullySpecifiedNameForConcept(),
+         new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
          new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular()
       };
    }

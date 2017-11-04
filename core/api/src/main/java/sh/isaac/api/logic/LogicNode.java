@@ -43,15 +43,15 @@ package sh.isaac.api.logic;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -75,7 +75,7 @@ public interface LogicNode
     * concepts associated with the node itself (node semantic concept + type concept, etc).
     * @param conceptSequenceSet The set to add the concept sequences to.
     */
-   void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet);
+   void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet);
 
    /**
     * Fragment to string.

@@ -58,14 +58,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -80,8 +75,13 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -101,6 +101,8 @@ public class ProcessClassificationResults
     * The logic coordinate.
     */
    LogicCoordinate logicCoordinate;
+   
+   final int assemblageNid;
 
    int classificationDuplicateCount = -1;
    int classificationCountDuplicatesToNote = 10;
@@ -115,6 +117,7 @@ public class ProcessClassificationResults
    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
+      this.assemblageNid = logicCoordinate.getConceptAssemblageNid();
       updateTitle("Retrieve inferred axioms");
    }
 
@@ -130,7 +133,7 @@ public class ProcessClassificationResults
            throws Exception {
       final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
       final Ontology inferredAxioms = cd.getClassifiedOntology();
-      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
+      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptNidSet());
 
       return classifierResults;
    }
@@ -142,10 +145,10 @@ public class ProcessClassificationResults
     * @param affectedConcepts the affected concepts
     * @return the classifier results
     */
-   private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
-      final HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
-
-      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
+   private ClassifierResults collectResults(Ontology classifiedResult, NidSet affectedConcepts) {
+      final HashSet<NidSet> equivalentSets = new HashSet<>();
+      affectedConcepts.parallelStream().forEach((conceptNid) -> {
+         int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
          final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
 
          if (node == null) {
@@ -156,26 +159,30 @@ public class ProcessClassificationResults
 
          if (node.getEquivalentConcepts()
                  .size() > 1) {
-            final ConceptSequenceSet equivalentSet = new ConceptSequenceSet();
+            final NidSet equivalentSet = new NidSet();
 
             equivalentSets.add(equivalentSet);
-            equivalentConcepts.forEach((equivalentConceptSequence) -> {
-               equivalentSet.add(Integer.parseInt(equivalentConceptSequence));
-               affectedConcepts.add(Integer.parseInt(equivalentConceptSequence));
+            equivalentConcepts.forEach((equivalentConceptCsiroId) -> {
+                  int equivalentNid = ModelGet.identifierService()
+                          .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+               equivalentSet.add(equivalentNid);
+               affectedConcepts.add(equivalentNid);
             });
          } else {
-            equivalentConcepts.forEach((equivalentConceptSequence) -> {
+            for (String equivalentConceptCsiroId: equivalentConcepts) {
                try {
-                  affectedConcepts.add(Integer.parseInt(equivalentConceptSequence));
+                  int equivalentNid = ModelGet.identifierService()
+                          .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+                  affectedConcepts.add(equivalentNid);
                } catch (final NumberFormatException numberFormatException) {
-                  if (equivalentConceptSequence.equals("_BOTTOM_")
-                          || equivalentConceptSequence.equals("_TOP_")) {
+                  if (equivalentConceptCsiroId.equals("_BOTTOM_")
+                          || equivalentConceptCsiroId.equals("_TOP_")) {
                      // do nothing.
                   } else {
                      throw numberFormatException;
                   }
                }
-            });
+            }
          }
       });
       return new ClassifierResults(affectedConcepts,
@@ -192,15 +199,15 @@ public class ProcessClassificationResults
     * @param sememeService the sememe service
     * @throws IllegalStateException the illegal state exception
     */
-   private void testForProperSetSize(SememeSequenceSet inferredSememeSequences,
+   private void testForProperSetSize(NidSet inferredSememeSequences,
            int conceptSequence,
-           SememeSequenceSet statedSememeSequences,
+           NidSet statedSememeSequences,
            AssemblageService sememeService)
            throws IllegalStateException {
       if (inferredSememeSequences.size() > 1) {
          classificationDuplicateCount++;
          if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-            log.error("Processing concept: " + Get.conceptService().getConcept(conceptSequence).toUserString());
+            log.error("Processing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
             throw new IllegalStateException("Cannot have more than one inferred definition per concept. Found: "
                     + inferredSememeSequences);
          }
@@ -216,18 +223,18 @@ public class ProcessClassificationResults
          if (statedSememeSequences.isEmpty()) {
             builder.append("No stated definition for concept: ")
                     .append(Get.conceptService()
-                            .getConcept(conceptSequence)
+                            .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
          } else {
             builder.append("Processing concept: ")
                     .append(Get.conceptService()
-                            .getConcept(conceptSequence)
+                            .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
             statedSememeSequences.stream().forEach((sememeSequence) -> {
                builder.append("Found stated definition: ")
-                       .append(sememeService.getSememe(sememeSequence))
+                       .append(sememeService.getSemanticChronology(sememeSequence))
                        .append("\n");
             });
          }
@@ -243,41 +250,40 @@ public class ProcessClassificationResults
     * @param affectedConcepts the affected concepts
     * @return the optional
     */
-   private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
-      final AssemblageService sememeService = Get.assemblageService();
+   private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, NidSet affectedConcepts) {
+      final AssemblageService assemblageService = Get.assemblageService();
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
       final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
-      final SememeBuilderService sememeBuilderService = Get.sememeBuilderService();
+      final SemanticBuilderService sememeBuilderService = Get.semanticBuilderService();
       final CommitService commitService = Get.commitService();
 
-      // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  JVisualVM tells me that all of this
+      // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
+      // JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
-      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
+      affectedConcepts.parallelStream().forEach((conceptNid) -> {
          try {
-            final SememeSequenceSet inferredSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(
-                            idService.getConceptNid(conceptSequence),
-                            this.logicCoordinate.getInferredAssemblageSequence());
-            final SememeSequenceSet statedSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(
-                            idService.getConceptNid(conceptSequence),
-                            this.logicCoordinate.getStatedAssemblageSequence());
+            int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
+            final NidSet inferredSemanticNids
+                    = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+                            this.logicCoordinate.getInferredAssemblageNid());
+            final NidSet statedSemanticSequences
+                    = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
+                            this.logicCoordinate.getStatedAssemblageNid());
 
             // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
             // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
-            testForProperSetSize(inferredSememeSequences,
-                    conceptSequence,
-                    statedSememeSequences,
-                    sememeService);
+            testForProperSetSize(inferredSemanticNids,
+                    conceptNid,
+                    statedSemanticSequences,
+                    assemblageService);
 
-            // SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) assemblageService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
-            final SememeChronology rawStatedChronology
-                    = sememeService.getSememe(statedSememeSequences.stream()
-                            .findFirst()
-                            .getAsInt());
+            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) 
+            // assemblageService.getSemanticChronology(statedSemanticSequences.stream().findFirst().getAsInt());
+            final SemanticChronology rawStatedChronology
+                    = assemblageService.getSemanticChronology(statedSemanticSequences.findFirst().getAsInt());
             final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                    = ((SememeChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
+                    = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
 
             if (latestStatedDefinitionOptional.isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
@@ -304,8 +310,12 @@ public class ProcessClassificationResults
                inferredNode.getParents().forEach((parent) -> {
                   parent.getEquivalentConcepts().forEach((parentString) -> {
                      try {
+                        int parentNid = 
+                                ModelGet.identifierService()
+                                        .getNidForElementSequence(Integer.parseInt(parentString), assemblageNid);
+                        
                         parentList.add(
-                                inferredBuilder.conceptAssertion(Integer.parseInt(parentString)));
+                                inferredBuilder.conceptAssertion(parentNid));
                      } catch (final NumberFormatException numberFormatException) {
                         if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
                            // do nothing.
@@ -322,19 +332,18 @@ public class ProcessClassificationResults
 
                   final LogicalExpression inferredExpression = inferredBuilder.build();
 
-                  if (inferredSememeSequences.isEmpty()) {
-                     final SememeBuilder builder
-                             = sememeBuilderService.getLogicalExpressionSememeBuilder(
-                                     inferredExpression,
-                                     idService.getConceptNid(conceptSequence),
-                                     this.logicCoordinate.getInferredAssemblageSequence());
+                  if (inferredSemanticNids.isEmpty()) {
+                     final SemanticBuilder builder
+                             = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
+                                     conceptNid,
+                                     this.logicCoordinate.getInferredAssemblageNid());
 
                      // get classifier edit coordinate...
                      builder.build(EditCoordinates.getClassifierSolorOverlay(),
                              ChangeCheckerMode.INACTIVE);
                   } else {
-                     final SememeChronology inferredChronology
-                             = sememeService.getSememe(inferredSememeSequences.stream()
+                     final SemanticChronology inferredChronology
+                             = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
                                      .findFirst()
                                      .getAsInt());
 
@@ -347,7 +356,7 @@ public class ProcessClassificationResults
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphVersion newVersion
-                                   = ((SememeChronology) inferredChronology).createMutableVersion(
+                                   = ((SemanticChronology) inferredChronology).createMutableVersion(
                                            sh.isaac.api.State.ACTIVE,
                                            EditCoordinates.getClassifierSolorOverlay());
 
@@ -362,13 +371,14 @@ public class ProcessClassificationResults
                throw new IllegalStateException(
                        "Empty latest version for stated definition. " + rawStatedChronology);
             }
-         } catch (final Exception e) {
+         } catch (final IllegalStateException e) {
             LogManager.getLogger()
                     .error("Error during writeback - skipping concept ", e);
          }
       });
 
-      final Task<Optional<CommitRecord>> commitTask = commitService.commit("classifier run");
+      final Task<Optional<CommitRecord>> commitTask = commitService.commit(
+              Get.configurationService().getDefaultEditCoordinate(), "classifier run");
 
       try {
          final Optional<CommitRecord> commitRecord = commitTask.get();

@@ -133,8 +133,8 @@ public class GetMultiParentTreeItemConceptCallable
 
          int numParentsFromTree = treeItem.getTreeView()
                                           .getTaxonomyTree()
-                                          .getParentSequences(treeItem.getValue()
-                                                .getConceptSequence()).length;
+                                          .getParentNids(treeItem.getValue()
+                                                .getNid()).length;
 
          if (numParentsFromTree > 1) {
             treeItem.setMultiParent(true);
@@ -147,7 +147,7 @@ public class GetMultiParentTreeItemConceptCallable
             // need a progress indicator that works at 16x16
             for (int destRelSequence: treeItem.getTreeView()
                                               .getTaxonomyTree()
-                                              .getChildrenSequences(concept.getConceptSequence())) {
+                                              .getChildNids(concept.getNid())) {
                if (MultiParentTreeView.wasGlobalShutdownRequested() || treeItem.isCancelRequested()) {
                   return false;
                }
@@ -157,8 +157,8 @@ public class GetMultiParentTreeItemConceptCallable
                if (childItem.shouldDisplay()) {
                   int numParents = treeItem.getTreeView()
                                            .getTaxonomyTree()
-                                           .getParentSequences(childItem.getValue()
-                                                 .getConceptSequence()).length;
+                                           .getParentNids(childItem.getValue()
+                                                 .getNid()).length;
 
                   if (numParents > 1) {
                      childItem.setMultiParent(true);

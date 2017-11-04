@@ -45,6 +45,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.ObjIntConsumer;
+import org.apache.mahout.math.list.IntArrayList;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -150,6 +151,10 @@ public class ConcurrentObjectIntMap<T> {
             this.read.unlock();
          }
       }
+   }
+
+   public IntArrayList values() {
+      return backingMap.values();
    }
 }
 

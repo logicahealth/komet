@@ -136,7 +136,7 @@ public class WorkflowProcessInitializerConcluderTest
                                       "Main Process Description");
 
       Thread.sleep(1);
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
       wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);
@@ -221,7 +221,7 @@ public class WorkflowProcessInitializerConcluderTest
          Assert.assertTrue(true);
       }
 
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
       wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);
@@ -288,7 +288,7 @@ public class WorkflowProcessInitializerConcluderTest
                                       "Main Process Name",
                                       "Main Process Description");
 
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
 
       // verify content in workflow is as expected
       assertProcessDefinition(ProcessStatus.DEFINED, mainDefinitionId, processId);
@@ -329,7 +329,7 @@ public class WorkflowProcessInitializerConcluderTest
                                       "Main Process Description");
 
       Thread.sleep(1);
-      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
+      addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserNid(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
       wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);

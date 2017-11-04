@@ -43,8 +43,8 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    }
 
    @Override
-   public IntegerProperty authorSequenceProperty() {
-      return getObservableVersion().authorSequenceProperty();
+   public IntegerProperty authorNidProperty() {
+      return getObservableVersion().authorNidProperty();
    }
 
    @Override
@@ -53,13 +53,13 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    }
 
    @Override
-   public IntegerProperty moduleSequenceProperty() {
-      return getObservableVersion().moduleSequenceProperty();
+   public IntegerProperty moduleNidProperty() {
+      return getObservableVersion().moduleNidProperty();
    }
 
    @Override
-   public IntegerProperty pathSequenceProperty() {
-      return getObservableVersion().pathSequenceProperty();
+   public IntegerProperty pathNidProperty() {
+      return getObservableVersion().pathNidProperty();
    }
 
    @Override

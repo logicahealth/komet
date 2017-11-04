@@ -415,7 +415,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
     *
     * @return the size
     */
-   public int getSize() {
+   public int size() {
       return this.maxSequence.get() + 1;  // sequences start at zero, so size = max + 1...
    }
 

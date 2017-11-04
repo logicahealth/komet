@@ -56,7 +56,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,7 +78,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -102,6 +100,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -588,7 +587,7 @@ public class RF2Mojo
             if (descriptionType == DescriptionType.UNKNOWN) {
                getLog().error("Unknown description type for: " + descRS.getString("TYPEID") + "|"+ id + "|" + term);
             }
-            final SememeChronology desc =
+            final SemanticChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
@@ -730,13 +729,13 @@ public class RF2Mojo
                final Rel r = rb.getRels()
                                .last();
 
-               if ((stated && MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) ||
-                     (!stated && MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId))) {
+               if ((stated && MetaData.INFERRED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId)) ||
+                     (!stated && MetaData.STATED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId))) {
                   throw new RuntimeException("Unexpected - table type and characteristic type do not match!");
                }
 
-               if (MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId) ||
-                     MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) {
+               if (MetaData.INFERRED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId) ||
+                     MetaData.STATED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId)) {
                   if (r.effectiveTime > newestRelTime) {
                      newestRelTime = r.effectiveTime;
                   }
@@ -746,7 +745,7 @@ public class RF2Mojo
                      // Don't just check primordial, IS_A has multiple UUIDs
                      if (MetaData.IS_A____SOLOR.isIdentifiedBy(r.typeId)) {
                         assertions.add(ConceptAssertion(Get.identifierService()
-                                                           .getConceptSequenceForUuids(r.destinationId),
+                                                           .getNidForUuids(r.destinationId),
                                                         leb));
                      } else {
                         // TODO [graph] ask Keith about the never group stuff.
@@ -756,16 +755,16 @@ public class RF2Mojo
                         // TODO [graph] maintain actual group numbers?
                         if (this.neverRoleGroupSet.contains(r.typeId)) {
                            assertions.add(SomeRole(Get.identifierService()
-                                                      .getConceptSequenceForUuids(r.typeId),
+                                                      .getNidForUuids(r.typeId),
                                                    ConceptAssertion(Get.identifierService()
-                                                         .getConceptSequenceForUuids(r.destinationId),
+                                                         .getNidForUuids(r.destinationId),
                                                          leb)));
                         } else {
-                           assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getConceptSequence(),
+                           assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
                                                    And(SomeRole(Get.identifierService()
-                                                         .getConceptSequenceForUuids(r.typeId),
+                                                         .getNidForUuids(r.typeId),
                                                          ConceptAssertion(Get.identifierService()
-                                                               .getConceptSequenceForUuids(r.destinationId),
+                                                               .getNidForUuids(r.destinationId),
                                                                leb)))));
                         }
                      }
@@ -778,15 +777,15 @@ public class RF2Mojo
                      }
 
                      groupAssertions.add(SomeRole(Get.identifierService()
-                                                     .getConceptSequenceForUuids(r.typeId),
+                                                     .getNidForUuids(r.typeId),
                                                   ConceptAssertion(Get.identifierService()
-                                                        .getConceptSequenceForUuids(r.destinationId),
+                                                        .getNidForUuids(r.destinationId),
                                                         leb)));
                   }
                } else {
                   // kick it over into an association bucket
                   // TODO should I toss these when processing inferred?
-                  final SememeChronology assn =
+                  final SemanticChronology assn =
                      super.importUtil.addAssociation(ComponentReference.fromConcept(r.sourceId),
                                                      r.id,
                                                      r.destinationId,
@@ -812,7 +811,7 @@ public class RF2Mojo
 
          // handle relationship groups
          for (final ArrayList<Assertion> groupAssertions: groupedAssertions.values()) {
-            assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getConceptSequence(),
+            assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
                                     And(groupAssertions.toArray(new Assertion[groupAssertions.size()]))));
          }
 
@@ -847,13 +846,13 @@ public class RF2Mojo
                   final StringBuilder builder  = new StringBuilder();
 
                   builder.append(Get.conceptDescriptionText(Get.identifierService()
-                        .getConceptSequenceForUuids(rel.sourceId)));
+                        .getNidForUuids(rel.sourceId)));
                   builder.append("|");
                   builder.append(Get.conceptDescriptionText(Get.identifierService()
-                        .getConceptSequenceForUuids(rel.typeId)));
+                        .getNidForUuids(rel.typeId)));
                   builder.append("|");
                   builder.append(Get.conceptDescriptionText(Get.identifierService()
-                        .getConceptSequenceForUuids(rel.destinationId)));
+                        .getNidForUuids(rel.destinationId)));
                   ConsoleUtil.printErrorln("No definition status found for: " + conRels.get(0) + "\n" +
                                            builder.toString());
                }

@@ -66,7 +66,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  * @param <T> the generic type
  */
-public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
+public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements IntSet {
    /** The read only. */
    boolean readOnly = false;
 
@@ -155,6 +155,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @param item to add to set.
     */
+   @Override
    public void add(int item) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -168,6 +169,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @param intStream the int stream
     */
+   @Override
    public void addAll(IntStream intStream) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -191,6 +193,26 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return (T) this;
    }
 
+   @Override
+   public IntSet and(IntSet otherSet) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public IntSet andNot(IntSet otherSet) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public IntSet or(IntSet otherSet) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public IntSet xor(IntSet otherSet) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
    /**
     * And not.
     *
@@ -211,6 +233,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the int[]
     */
+   @Override
    public int[] asArray() {
       return stream().toArray();
    }
@@ -230,6 +253,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    /**
     * Clear.
     */
+   @Override
    public void clear() {
       this.intSet.clear();
    }
@@ -267,6 +291,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     * @param item to test for containment in set.
     * @return true if item is contained in set.
     */
+   @Override
    public boolean contains(int item) {
       return this.intSet.contains(item);
    }
@@ -310,6 +335,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the optional int
     */
+   @Override
    public OptionalInt findFirst() {
       return stream().findFirst();
    }
@@ -346,11 +372,13 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return (T) this;
    }
 
+   
    /**
     * Parallel stream.
     *
     * @return the set members as an {@code IntStream}
     */
+   @Override
    public IntStream parallelStream() {
       if (this.intSet.isEmpty()) {
          return IntStream.empty();
@@ -382,6 +410,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @param item to remove from set.
     */
+   @Override
    public void remove(int item) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -395,6 +424,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the number of elements in this set.
     */
+   @Override
    public int size() {
       return this.intSet.size();
    }
@@ -404,6 +434,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the set members as an {@code IntStream}
     */
+   @Override
    public IntStream stream() {
       if (this.intSet.isEmpty()) {
          return IntStream.empty();
@@ -498,6 +529,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return true if the set is empty.
     */
+   @Override
    public boolean isEmpty() {
       return this.intSet.isEmpty();
    }
@@ -516,6 +548,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the int iterator
     */
+   @Override
    public PrimitiveIterator.OfInt getIntIterator() {
       return this.intSet.getIntIterator();
    }
@@ -536,6 +569,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     *
     * @return the reverse int iterator
     */
+   @Override
    public PrimitiveIterator.OfInt getReverseIntIterator() {
       return this.intSet.getReverseIntIterator();
    }

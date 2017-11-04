@@ -121,10 +121,10 @@ public final class ComponentPanel
                             }
                       });
       observableVersion.getChronology()
-              .getObservableSememeList()
+              .getObservableSemanticList()
               .forEach(
                       (osc) -> {
-                         switch (osc.getSememeType()) {
+                         switch (osc.getVersionType()) {
                             case DESCRIPTION:
                             case LOGIC_GRAPH:
                                break;  // Ignore, description and logic graph where already added as an independent panel

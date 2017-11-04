@@ -48,10 +48,10 @@ import java.util.List;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -94,14 +94,6 @@ public interface LanguageCoordinateService {
     */
    int iso639toConceptNid(String iso639text);
 
-   /**
-    * Iso 639 to concept sequence.
-    *
-    * @param iso639text the iso 639 text
-    * @return the int
-    */
-   int iso639toConceptSequence(String iso639text);
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -109,14 +101,14 @@ public interface LanguageCoordinateService {
     *
     * @return the acceptable concept sequence
     */
-   int getAcceptableConceptSequence();
+   int getAcceptableConceptNid();
 
    /**
     * Gets the fully specified concept sequence.
     *
     * @return the fully specified concept sequence
     */
-   int getFullySpecifiedConceptSequence();
+   int getFullySpecifiedConceptNid();
 
    /**
     * Gets the gb english language preferred term coordinate.
@@ -130,7 +122,7 @@ public interface LanguageCoordinateService {
     *
     * @return the preferred concept sequence
     */
-   int getPreferredConceptSequence();
+   int getPreferredConceptNid();
 
    /**
     * Gets the specified description.
@@ -141,7 +133,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          LanguageCoordinate languageCoordinate);
 
    /**
@@ -154,7 +146,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate);
 
@@ -163,7 +155,7 @@ public interface LanguageCoordinateService {
     *
     * @return the synonym concept sequence
     */
-   int getSynonymConceptSequence();
+   int getSynonymConceptNid();
 
    /**
     * Gets the us english language fully specified name coordinate.

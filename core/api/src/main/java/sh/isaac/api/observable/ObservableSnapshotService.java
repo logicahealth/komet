@@ -19,7 +19,7 @@ package sh.isaac.api.observable;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 
 /**
  *
@@ -42,6 +42,6 @@ public interface ObservableSnapshotService {
     * @param id either a nid or a sememe sequence
     * @return the ObservableSememeChronology with the provided id
     */
-   LatestVersion<? extends ObservableSememeVersion> getObservableSememeVersion(int id);
+   LatestVersion<? extends ObservableSemanticVersion> getObservableSememeVersion(int id);
 
 }

@@ -71,7 +71,7 @@ public interface ConceptBuilder
     *
     * @param value - the value of the description
     * @param descriptionType - One of {@link TermAux#SYNONYM_DESCRIPTION_TYPE}, {@link TermAux#DEFINITION_DESCRIPTION_TYPE}
-    * or {@link TermAux#FULLY_SPECIFIED_DESCRIPTION_TYPE}
+    * or {@link TermAux#FULLY_QUALIFIED_DESCRIPTION_TYPE}
     * @return the concept builder
     */
    ConceptBuilder addDescription(String value, ConceptSpecification descriptionType);

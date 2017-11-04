@@ -67,17 +67,17 @@ public class Stamp
    /** The hash code. */
    public int hashCode = Integer.MAX_VALUE;
 
-   /** The author sequence. */
-   private final int authorSequence;
+   /** The author nid. */
+   private final int authorNid;
 
-   /** The path sequence. */
-   private final int pathSequence;
+   /** The path nid. */
+   private final int pathNid;
 
    /** The status. */
    private final State status;
 
-   /** The module sequence. */
-   private final int moduleSequence;
+   /** The module nid. */
+   private final int moduleNid;
 
    /** The time. */
    private final long time;
@@ -95,24 +95,24 @@ public class Stamp
       super();
       this.status         = State.values()[in.readInt()];
       this.time           = in.readLong();
-      this.authorSequence = in.readInt();
-      this.moduleSequence = in.readInt();
-      this.pathSequence   = in.readInt();
+      this.authorNid = in.readInt();
+      this.moduleNid = in.readInt();
+      this.pathNid   = in.readInt();
       assert this.time != 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
-             this.moduleSequence + " p: " + this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
       assert this.status != null:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
-             this.moduleSequence + " p: " + this.pathSequence;
-      assert this.pathSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
-             this.moduleSequence + " p: " + this.pathSequence;
-      assert this.moduleSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
-             this.moduleSequence + " p: " + this.pathSequence;
-      assert this.authorSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
-             this.moduleSequence + " p: " + this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.pathNid > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.moduleNid > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.authorNid > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
    }
 
    /**
@@ -120,32 +120,32 @@ public class Stamp
     *
     * @param status the status
     * @param time the time
-    * @param authorSequence the author sequence
-    * @param moduleSequence the module sequence
-    * @param pathSequence the path sequence
+    * @param authorNid the author nid
+    * @param moduleNid the module nid
+    * @param pathNid the path nid
     */
-   public Stamp(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
+   public Stamp(State status, long time, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
       this.time           = time;
-      this.authorSequence = authorSequence;
-      this.moduleSequence = moduleSequence;
-      this.pathSequence   = pathSequence;
+      this.authorNid = authorNid;
+      this.moduleNid = moduleNid;
+      this.pathNid   = pathNid;
       assert time != 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
+             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
+             pathNid;
       assert status != null:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert pathSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert moduleSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert authorSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
+             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
+             pathNid;
+      assert pathNid < 0:
+             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
+             pathNid;
+      assert moduleNid < 0:
+             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
+             pathNid;
+      assert authorNid < 0:
+             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
+             pathNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -170,15 +170,15 @@ public class Stamp
          return this.status.ordinal() - o.status.ordinal();
       }
 
-      if (this.authorSequence != o.authorSequence) {
-         return this.authorSequence - o.authorSequence;
+      if (this.authorNid != o.authorNid) {
+         return this.authorNid - o.authorNid;
       }
 
-      if (this.moduleSequence != o.moduleSequence) {
-         return this.moduleSequence - o.moduleSequence;
+      if (this.moduleNid != o.moduleNid) {
+         return this.moduleNid - o.moduleNid;
       }
 
-      return this.pathSequence - o.pathSequence;
+      return this.pathNid - o.pathNid;
    }
 
    /**
@@ -204,7 +204,7 @@ public class Stamp
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.authorSequence, this.status.ordinal(), this.pathSequence,
+         this.hashCode = Hashcode.compute(new int[] { this.authorNid, this.status.ordinal(), this.pathNid,
                (int) this.time });
       }
 
@@ -279,14 +279,14 @@ public class Stamp
                                       .getStatusForStamp(stamp);
       final long  time           = Get.stampService()
                                       .getTimeForStamp(stamp);
-      final int   authorSequence = Get.stampService()
-                                      .getAuthorSequenceForStamp(stamp);
-      final int   moduleSequence = Get.stampService()
-                                      .getModuleSequenceForStamp(stamp);
-      final int   pathSequence   = Get.stampService()
-                                      .getPathSequenceForStamp(stamp);
+      final int   authorNid = Get.stampService()
+                                      .getAuthorNidForStamp(stamp);
+      final int   moduleNid = Get.stampService()
+                                      .getModuleNidForStamp(stamp);
+      final int   pathNid   = Get.stampService()
+                                      .getPathNidForStamp(stamp);
 
-      return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
+      return new Stamp(status, time, authorNid, moduleNid, pathNid);
    }
 
    /**
@@ -303,11 +303,11 @@ public class Stamp
       sb.append(", t:");
       sb.append(getTimeAsInstant());
       sb.append(", a:");
-      sb.append(Get.conceptDescriptionText(this.authorSequence));
+      sb.append(Get.conceptDescriptionText(this.authorNid));
       sb.append(", m:");
-      sb.append(Get.conceptDescriptionText(this.moduleSequence));
+      sb.append(Get.conceptDescriptionText(this.moduleNid));
       sb.append(", p: ");
-      sb.append(Get.conceptDescriptionText(this.pathSequence));
+      sb.append(Get.conceptDescriptionText(this.pathNid));
       sb.append('}');
       return sb.toString();
    }
@@ -322,9 +322,9 @@ public class Stamp
             throws IOException {
       out.writeInt(this.status.ordinal());
       out.writeLong(this.time);
-      out.writeInt(this.authorSequence);
-      out.writeInt(this.moduleSequence);
-      out.writeInt(this.pathSequence);
+      out.writeInt(this.authorNid);
+      out.writeInt(this.moduleNid);
+      out.writeInt(this.pathNid);
    }
 
    /**
@@ -354,30 +354,30 @@ public class Stamp
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
-   public int getAuthorSequence() {
-      return this.authorSequence;
+   public int getAuthorNid() {
+      return this.authorNid;
    }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
-   public int getModuleSequence() {
-      return this.moduleSequence;
+   public int getModuleNid() {
+      return this.moduleNid;
    }
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
-   public int getPathSequence() {
-      return this.pathSequence;
+   public int getPathNid() {
+      return this.pathNid;
    }
 
    /**

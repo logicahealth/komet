@@ -82,6 +82,10 @@ public class LogicCoordinateLazyBinding
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification classifierProxy = null;
 
+   /** The concept assemblage proxy. */
+   @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
+   private ConceptSpecification conceptAssemblageProxy;
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -98,16 +102,19 @@ public class LogicCoordinateLazyBinding
     * @param inferredAssemblageProxy the inferred assemblage proxy
     * @param descriptionLogicProfileProxy the description logic profile proxy
     * @param classifierProxy the classifier proxy
+    * @param conceptAssemblageProxy the concept assemblage proxy
     */
    public LogicCoordinateLazyBinding(ConceptSpecification statedAssemblageProxy,
                                      ConceptSpecification inferredAssemblageProxy,
                                      ConceptSpecification descriptionLogicProfileProxy,
-                                     ConceptSpecification classifierProxy) {
-      super(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                                     ConceptSpecification classifierProxy,
+                                     ConceptSpecification conceptAssemblageProxy) {
+      super(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
       this.statedAssemblageProxy        = statedAssemblageProxy;
       this.inferredAssemblageProxy      = inferredAssemblageProxy;
       this.descriptionLogicProfileProxy = descriptionLogicProfileProxy;
       this.classifierProxy              = classifierProxy;
+      this.conceptAssemblageProxy       = conceptAssemblageProxy;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -127,19 +134,23 @@ public class LogicCoordinateLazyBinding
       // Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
       final LogicCoordinate other = (LogicCoordinate) obj;
 
-      if (this.getStatedAssemblageSequence() != other.getStatedAssemblageSequence()) {
+      if (this.getStatedAssemblageNid() != other.getStatedAssemblageNid()) {
          return false;
       }
 
-      if (this.getInferredAssemblageSequence() != other.getInferredAssemblageSequence()) {
+      if (this.getInferredAssemblageNid() != other.getInferredAssemblageNid()) {
          return false;
       }
 
-      if (this.getDescriptionLogicProfileSequence() != other.getDescriptionLogicProfileSequence()) {
+      if (this.getDescriptionLogicProfileNid() != other.getDescriptionLogicProfileNid()) {
          return false;
       }
 
-      return this.getClassifierSequence() == other.getClassifierSequence();
+      if (this.getDescriptionLogicProfileNid() != other.getDescriptionLogicProfileNid()) {
+         return false;
+      }
+
+      return this.getClassifierNid() == other.getClassifierNid();
    }
 
    /**
@@ -151,10 +162,10 @@ public class LogicCoordinateLazyBinding
    public int hashCode() {
       int hash = 5;
 
-      hash = 83 * hash + this.getStatedAssemblageSequence();
-      hash = 83 * hash + this.getInferredAssemblageSequence();
-      hash = 83 * hash + this.getDescriptionLogicProfileSequence();
-      hash = 83 * hash + this.getClassifierSequence();
+      hash = 83 * hash + this.getStatedAssemblageNid();
+      hash = 83 * hash + this.getInferredAssemblageNid();
+      hash = 83 * hash + this.getDescriptionLogicProfileNid();
+      hash = 83 * hash + this.getClassifierNid();
       return hash;
    }
 
@@ -178,12 +189,21 @@ public class LogicCoordinateLazyBinding
     * @return the classifier sequence
     */
    @Override
-   public int getClassifierSequence() {
-      if (this.classifierSequence == Integer.MAX_VALUE) {
-         this.classifierSequence = this.classifierProxy.getConceptSequence();
+   public int getClassifierNid() {
+      if (this.classifierNid == Integer.MAX_VALUE) {
+         this.classifierNid = this.classifierProxy.getNid();
       }
 
-      return this.classifierSequence;
+      return this.classifierNid;
+   }
+
+   @Override
+   public int getConceptAssemblageNid() {
+      if (this.conceptAssemblageNid == Integer.MAX_VALUE) {
+         this.conceptAssemblageNid = this.conceptAssemblageProxy.getNid();
+      }
+
+      return this.conceptAssemblageNid;
    }
 
    /**
@@ -192,12 +212,12 @@ public class LogicCoordinateLazyBinding
     * @return the description logic profile sequence
     */
    @Override
-   public int getDescriptionLogicProfileSequence() {
-      if (this.descriptionLogicProfileSequence == Integer.MAX_VALUE) {
-         this.descriptionLogicProfileSequence = this.descriptionLogicProfileProxy.getConceptSequence();
+   public int getDescriptionLogicProfileNid() {
+      if (this.descriptionLogicProfileNid == Integer.MAX_VALUE) {
+         this.descriptionLogicProfileNid = this.descriptionLogicProfileProxy.getNid();
       }
 
-      return this.descriptionLogicProfileSequence;
+      return this.descriptionLogicProfileNid;
    }
 
    /**
@@ -206,12 +226,12 @@ public class LogicCoordinateLazyBinding
     * @return the inferred assemblage sequence
     */
    @Override
-   public int getInferredAssemblageSequence() {
-      if (this.inferredAssemblageSequence == Integer.MAX_VALUE) {
-         this.inferredAssemblageSequence = this.inferredAssemblageProxy.getConceptSequence();
+   public int getInferredAssemblageNid() {
+      if (this.inferredAssemblageNid == Integer.MAX_VALUE) {
+         this.inferredAssemblageNid = this.inferredAssemblageProxy.getNid();
       }
 
-      return this.inferredAssemblageSequence;
+      return this.inferredAssemblageNid;
    }
 
    /**
@@ -220,12 +240,12 @@ public class LogicCoordinateLazyBinding
     * @return the stated assemblage sequence
     */
    @Override
-   public int getStatedAssemblageSequence() {
-      if (this.statedAssemblageSequence == Integer.MAX_VALUE) {
-         this.statedAssemblageSequence = this.statedAssemblageProxy.getConceptSequence();
+   public int getStatedAssemblageNid() {
+      if (this.statedAssemblageNid == Integer.MAX_VALUE) {
+         this.statedAssemblageNid = this.statedAssemblageProxy.getNid();
       }
 
-      return this.statedAssemblageSequence;
+      return this.statedAssemblageNid;
    }
 
    //~--- inner classes -------------------------------------------------------

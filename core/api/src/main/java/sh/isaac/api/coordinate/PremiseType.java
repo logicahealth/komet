@@ -39,6 +39,9 @@
 
 package sh.isaac.api.coordinate;
 
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 /**
  * The Enum PremiseType.
  *
@@ -48,12 +51,18 @@ public enum PremiseType {
    /**
     * Compute the taxonomy from stated axioms.
     */
-   STATED,
+   STATED("Stated taxonomy"),
 
    /**
     * Compute the taxonomy from inferred axioms.
     */
-   INFERRED;
+   INFERRED("Inferred taxonomy");
+   
+   String displayName;
+
+   private PremiseType(String displayName) {
+      this.displayName = displayName;
+   }
    
    public PremiseType next() {
       switch(this) {
@@ -64,6 +73,21 @@ public enum PremiseType {
          default:
             throw new UnsupportedOperationException("h Can't handle: " + this);
       }
+   }
+
+   @Override
+   public String toString() {
+      return displayName;
+   }
+   
+   public static PremiseType fromConcept(ConceptSpecification conceptSpecification) {
+      if (conceptSpecification.getNid() == TermAux.INFERRED_PREMISE_TYPE.getNid()) {
+         return INFERRED;
+      }
+      if (conceptSpecification.getNid() == TermAux.STATED_PREMISE_TYPE.getNid()) {
+         return STATED;
+      }
+      throw new IllegalStateException("PremiseType.fromConcept can't handle: " + conceptSpecification);
    }
 }
 

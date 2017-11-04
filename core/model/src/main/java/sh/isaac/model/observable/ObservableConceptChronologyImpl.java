@@ -56,21 +56,21 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -82,8 +82,6 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl
          implements ObservableConceptChronology {
-   /** The concept sequence property. */
-   private IntegerProperty conceptSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,23 +98,6 @@ public class ObservableConceptChronologyImpl
       return (ConceptChronology) this.chronicledObjectLocal;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Concept sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty conceptSequenceProperty() {
-      if (this.conceptSequenceProperty == null) {
-         this.conceptSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.CONCEPT_SEQUENCE_FOR_CHRONICLE.toExternalString(),
-               getConceptSequence());
-      }
-
-      return this.conceptSequenceProperty;
-   }
 
    /**
     * Contains active description.
@@ -171,21 +152,6 @@ public class ObservableConceptChronologyImpl
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   @Override
-   public int getConceptSequence() {
-      if (this.conceptSequenceProperty != null) {
-         return this.conceptSequenceProperty.get();
-      }
-
-      return this.getConceptChronology().getConceptSequence();
-   }
 
    /**
     * Gets the fully specified description.
@@ -195,14 +161,14 @@ public class ObservableConceptChronologyImpl
     * @return the fully specified description
     */
    @Override
-   public LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+   public LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final LatestVersion<? extends DescriptionVersion> optionalFsn =
-         this.getConceptChronology().getFullySpecifiedDescription(languageCoordinate,
+      final LatestVersion<? extends DescriptionVersion> optionalFqn =
+         this.getConceptChronology().getFullyQualifiedNameDescription(languageCoordinate,
                                                                  stampCoordinate);
 
-      return getSpecifiedDescription(optionalFsn);
+      return getSpecifiedDescription(optionalFqn);
    }
 
    /**
@@ -252,8 +218,8 @@ public class ObservableConceptChronologyImpl
            LatestVersion<? extends DescriptionVersion> description) {
       if (description.isPresent()) {
          final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
-         final ObservableSememeChronology observableSpecified =
-            new ObservableSememeChronologyImpl(((DescriptionVersion) description.get()).getChronology());
+         final ObservableSemanticChronology observableSpecified =
+            new ObservableSemanticChronologyImpl(((DescriptionVersion) description.get()).getChronology());
 
          
 
@@ -295,7 +261,7 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public List<SememeChronology> getConceptDescriptionList() {
+   public List<SemanticChronology> getConceptDescriptionList() {
       return getConceptChronology().getConceptDescriptionList();
    }
 
@@ -326,3 +292,5 @@ public class ObservableConceptChronologyImpl
    
    
 }
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------

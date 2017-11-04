@@ -50,7 +50,6 @@ import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.Clause;
@@ -122,9 +121,8 @@ public class ConceptForComponent
 
       for (final Clause childClause: getChildren()) {
          final NidSet childPossibleComponentNids = childClause.computePossibleComponents(incomingPossibleComponentNids);
-         final ConceptSequenceSet conceptSet     = ConceptSequenceSet.of(childPossibleComponentNids);
 
-         outgoingPossibleConceptNids.or(NidSet.of(conceptSet));
+         outgoingPossibleConceptNids.or(childPossibleComponentNids);
       }
 
       return outgoingPossibleConceptNids;
@@ -168,7 +166,7 @@ public class ConceptForComponent
 
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
-      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
+      return new Clause[] {new ConceptForComponent(), new FullyQualifiedNameForConcept(), new PreferredNameForConcept()};
    }
 
    @Override

@@ -39,6 +39,9 @@
 
 package sh.isaac.api.externalizable;
 
+import java.util.List;
+import java.util.UUID;
+
 /**
  * The Class StampAlias.
  *
@@ -173,6 +176,6 @@ public final class StampAlias
     */
    public int getStampSequence() {
       return this.stampSequence;
-   }
+   }   
 }
 

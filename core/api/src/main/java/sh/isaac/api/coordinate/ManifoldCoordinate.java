@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.UUID;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -71,7 +71,7 @@ public interface ManifoldCoordinate
     * Convenience method, buffers concept sequence in a cache-sensitive manner.
     * @return the concept sequence that defines the is-a relationship type.
     */
-   int getIsaConceptSequence();
+   int getIsaConceptNid();
 
    /**
     * Gets the taxonomy type.
@@ -97,7 +97,7 @@ public interface ManifoldCoordinate
     * constraints.
     */
    default LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList) {
+           List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
    
@@ -112,7 +112,7 @@ public interface ManifoldCoordinate
               getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology> descriptionList) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, getStampCoordinate());
    }
 
@@ -122,7 +122,7 @@ public interface ManifoldCoordinate
     * @return preferred description. 
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getConceptSequence(), 
+      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    /**
@@ -141,7 +141,7 @@ public interface ManifoldCoordinate
     * @return preferred description text. 
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getConceptSequence(), 
+      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    
@@ -154,7 +154,7 @@ public interface ManifoldCoordinate
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology> descriptionList) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, getStampCoordinate());
    }
 
@@ -164,7 +164,7 @@ public interface ManifoldCoordinate
     * @return preferred description.
     */
    default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getConceptSequence(), getStampCoordinate());
+      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getNid(), getStampCoordinate());
    }
 
   /**
@@ -183,12 +183,16 @@ public interface ManifoldCoordinate
     * @return preferred description text.
     */
    default String getFullySpecifiedDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getConceptSequence(), getStampCoordinate());
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getNid(), getStampCoordinate());
    }
 
    @Override
    public ManifoldCoordinate deepClone();
-   
+
+   @Override
+   default int getConceptAssemblageNid() {
+      return getLogicCoordinate().getConceptAssemblageNid();
+   }
    
 
 }

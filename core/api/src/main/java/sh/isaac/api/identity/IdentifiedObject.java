@@ -78,6 +78,15 @@ public interface IdentifiedObject {
    }
 
    /**
+    * 
+    * @return the nid for the concept specifying which assemblage this object is created within. 
+    */
+   default int getAssemblageNid() {
+      return Get.identifierService().getAssemblageNid(getNid()).getAsInt();
+   }
+
+
+   /**
     * Gets the primordial uuid.
     *
     * @return the primordial uuid

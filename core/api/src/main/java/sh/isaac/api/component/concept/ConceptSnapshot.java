@@ -49,7 +49,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
