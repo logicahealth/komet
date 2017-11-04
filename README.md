@@ -14,15 +14,18 @@ http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/down
 Download the Berkeley DB Java Edition 7.5.11, and upload it to your repository using the following coordinate: 
 
 ```
-          <groupId>com.sleepycat</groupId>
-         <artifactId>je</artifactId>
-         <version>7.5.11</version>
+   <groupId>com.sleepycat</groupId>
+   <artifactId>je</artifactId>
+   <version>7.5.11</version>
 
 ```
+Help for manual install may be found here: 
 
+https://www.mkyong.com/maven/how-to-include-library-manully-into-maven-local-repository/
 
 If any developer or sponsor wants to take a lead on porting the database to Xodus (also Apache 2, but 
 distributed via maven central), please make yourselves known, and we will help you get started :-)
+
 
 
 ## FAQ
