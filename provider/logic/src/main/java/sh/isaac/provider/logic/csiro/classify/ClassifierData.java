@@ -66,6 +66,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -113,6 +114,8 @@ public class ClassifierData
 
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
+   
+   private final int conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -125,6 +128,7 @@ public class ClassifierData
    private ClassifierData(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
+      this.conceptAssemblageNid = logicCoordinate.getConceptAssemblageNid();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -281,8 +285,8 @@ public class ClassifierData
     *
     * @return the affected concept sequence set
     */
-   public NidSet getAffectedConceptSequenceSet() {
-      final NidSet affectedConceptSequences = new NidSet();
+   public NidSet getAffectedConceptNidSet() {
+      final NidSet affectedConceptNids = new NidSet();
 
       if (this.lastClassifyType == ClassificationType.INCREMENTAL) {
          // not returning loaded concepts here, because incremental classification
@@ -290,17 +294,21 @@ public class ClassifierData
          this.reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
                                   if (node !=
                                       null) {  // TODO why does the classifier include null in the affected node set.
-                                     node.getEquivalentConcepts()
-                                         .forEach(
-                                             (equalivent) -> affectedConceptSequences.add(
-                                                 Integer.parseInt(equalivent)));
-                                  }
-                               });
+                                    node.getEquivalentConcepts()
+                                         .forEach((equalivent) -> {
+                                          int nid = ModelGet.identifierService()
+                                                  .getNidForElementSequence(Integer.parseInt(equalivent), conceptAssemblageNid);
+                                          affectedConceptNids.add(nid);
+                                            
+                                  });
+                               }
+         });
+         
       } else {
          return this.loadedConcepts;
       }
 
-      return affectedConceptSequences;
+      return affectedConceptNids;
    }
 
    /**

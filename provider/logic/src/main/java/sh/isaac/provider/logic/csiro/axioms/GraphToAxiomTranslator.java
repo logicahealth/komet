@@ -105,7 +105,7 @@ public class GraphToAxiomTranslator {
    ConcurrentHashMap<Integer, Feature> sequenceLogicFeatureMap = new ConcurrentHashMap<>();
 
    /** The loaded concepts. */
-   ConcurrentSkipListSet<Integer> loadedConcepts = new ConcurrentSkipListSet<>();
+   ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
 
    /** The f. */
    Factory f = new Factory();
@@ -120,22 +120,25 @@ public class GraphToAxiomTranslator {
       this.sequenceLogicRoleMap.clear();
       this.sequenceLogicFeatureMap.clear();
       this.sequenceLogicConceptMap.clear();
-      this.loadedConcepts.clear();
+      this.loadedConceptNids.clear();
    }
 
    /**
-    * Translates the logicGraphSememe into a set of axioms, and adds those axioms
-    * to the internal set of axioms.
+    * Translates the logicGraphSemantic into a set of axioms, and adds those axioms
+ to the internal set of axioms.
     *
-    * @param logicGraphSememe the logic graph sememe
+    * @param logicGraphSemantic the logic graph sememe
     */
-   public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSememe) {
-      this.loadedConcepts.add(logicGraphSememe.getReferencedComponentNid());
+   public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSemantic) {
+      if (logicGraphSemantic.getReferencedComponentNid() >= 0) {
+         throw new IllegalStateException("Referenced component nid must be negative: " + logicGraphSemantic.getReferencedComponentNid());
+      }
+      this.loadedConceptNids.add(logicGraphSemantic.getReferencedComponentNid());
 
-      final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSememe.getGraphData(),
+      final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSemantic.getGraphData(),
                                                                                    DataSource.INTERNAL);
 
-      generateAxioms(logicGraph.getRoot(), logicGraphSememe.getReferencedComponentNid(), logicGraph);
+      generateAxioms(logicGraph.getRoot(), logicGraphSemantic.getReferencedComponentNid(), logicGraph);
    }
 
    /**
@@ -527,7 +530,7 @@ public class GraphToAxiomTranslator {
     * @return the loaded concepts
     */
    public NidSet getLoadedConcepts() {
-      return NidSet.of(this.loadedConcepts);
+      return NidSet.of(this.loadedConceptNids);
    }
 
    /**

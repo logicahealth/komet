@@ -303,9 +303,6 @@ public class BdbTaxonomyProvider
       SpinedIntObjectMap<int[]> origin_DestinationTaxonomyRecord_Map =
          conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(
              assemblageNid);
-      if (origin_DestinationTaxonomyRecord_Map == null) {
-         System.out.println("Null map...");
-      }
       int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptSequence);
 
       if (taxonomyData == null) {

@@ -65,7 +65,7 @@ import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 public final class ConceptNodeWithNids
         extends AbstractLogicNode {
    /** The concept sequence. */
-   int conceptNid;
+   final int conceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,6 +78,9 @@ public final class ConceptNodeWithNids
       super(externalForm);
       this.conceptNid = Get.identifierService()
                                 .getNidForUuids(externalForm.getConceptUuid());
+      if (this.conceptNid >= 0) {
+         throw new IllegalStateException("Nid must be negative, found: " + conceptNid);
+      }
    }
 
    /**
@@ -90,6 +93,9 @@ public final class ConceptNodeWithNids
                                    ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.conceptNid = dataInputStream.getInt();
+      if (this.conceptNid >= 0) {
+         throw new IllegalStateException("Nid must be negative, found: " + conceptNid);
+      }
    }
 
    /**
@@ -101,6 +107,9 @@ public final class ConceptNodeWithNids
    public ConceptNodeWithNids(LogicalExpressionImpl logicGraphVersion, int conceptId) {
       super(logicGraphVersion);
       this.conceptNid = conceptId;
+      if (this.conceptNid >= 0) {
+         throw new IllegalStateException("Nid must be negative, found: " + conceptNid);
+      }
    }
 
    //~--- methods -------------------------------------------------------------

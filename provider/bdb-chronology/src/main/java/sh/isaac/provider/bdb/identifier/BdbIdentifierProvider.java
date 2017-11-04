@@ -62,7 +62,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.OptionalInt;
@@ -197,6 +196,10 @@ public class BdbIdentifierProvider
 
    @Override
    public int getElementSequenceForNid(int nid) {
+      int elementSequence = nid_ElementSequence_Map.get(nid);
+      if (elementSequence != Integer.MAX_VALUE) {
+         return elementSequence;
+      }
       return getElementSequenceForNid(nid, getAssemblageNidForNid(nid));
    }
 

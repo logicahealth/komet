@@ -101,6 +101,8 @@ public class ProcessClassificationResults
     * The logic coordinate.
     */
    LogicCoordinate logicCoordinate;
+   
+   final int assemblageNid;
 
    int classificationDuplicateCount = -1;
    int classificationCountDuplicatesToNote = 10;
@@ -115,6 +117,7 @@ public class ProcessClassificationResults
    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
+      this.assemblageNid = logicCoordinate.getConceptAssemblageNid();
       updateTitle("Retrieve inferred axioms");
    }
 
@@ -130,7 +133,7 @@ public class ProcessClassificationResults
            throws Exception {
       final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
       final Ontology inferredAxioms = cd.getClassifiedOntology();
-      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
+      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptNidSet());
 
       return classifierResults;
    }
@@ -144,7 +147,6 @@ public class ProcessClassificationResults
     */
    private ClassifierResults collectResults(Ontology classifiedResult, NidSet affectedConcepts) {
       final HashSet<NidSet> equivalentSets = new HashSet<>();
-
       affectedConcepts.parallelStream().forEach((conceptNid) -> {
          int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
          final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
@@ -160,23 +162,27 @@ public class ProcessClassificationResults
             final NidSet equivalentSet = new NidSet();
 
             equivalentSets.add(equivalentSet);
-            equivalentConcepts.forEach((equivalentConceptNid) -> {
-               equivalentSet.add(Integer.parseInt(equivalentConceptNid));
-               affectedConcepts.add(Integer.parseInt(equivalentConceptNid));
+            equivalentConcepts.forEach((equivalentConceptCsiroId) -> {
+                  int equivalentNid = ModelGet.identifierService()
+                          .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+               equivalentSet.add(equivalentNid);
+               affectedConcepts.add(equivalentNid);
             });
          } else {
-            equivalentConcepts.forEach((equivalentConceptNid) -> {
+            for (String equivalentConceptCsiroId: equivalentConcepts) {
                try {
-                  affectedConcepts.add(Integer.parseInt(equivalentConceptNid));
+                  int equivalentNid = ModelGet.identifierService()
+                          .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+                  affectedConcepts.add(equivalentNid);
                } catch (final NumberFormatException numberFormatException) {
-                  if (equivalentConceptNid.equals("_BOTTOM_")
-                          || equivalentConceptNid.equals("_TOP_")) {
+                  if (equivalentConceptCsiroId.equals("_BOTTOM_")
+                          || equivalentConceptCsiroId.equals("_TOP_")) {
                      // do nothing.
                   } else {
                      throw numberFormatException;
                   }
                }
-            });
+            }
          }
       });
       return new ClassifierResults(affectedConcepts,
@@ -255,9 +261,9 @@ public class ProcessClassificationResults
       // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
       // JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
-      affectedConcepts.parallelStream().forEach((conceptSequence) -> {
+      affectedConcepts.parallelStream().forEach((conceptNid) -> {
          try {
-            int conceptNid = ModelGet.identifierService().getNidForElementSequence(conceptSequence, logicCoordinate.getConceptAssemblageNid());
+            int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
             final NidSet inferredSemanticNids
                     = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                             this.logicCoordinate.getInferredAssemblageNid());
@@ -304,8 +310,12 @@ public class ProcessClassificationResults
                inferredNode.getParents().forEach((parent) -> {
                   parent.getEquivalentConcepts().forEach((parentString) -> {
                      try {
+                        int parentNid = 
+                                ModelGet.identifierService()
+                                        .getNidForElementSequence(Integer.parseInt(parentString), assemblageNid);
+                        
                         parentList.add(
-                                inferredBuilder.conceptAssertion(Integer.parseInt(parentString)));
+                                inferredBuilder.conceptAssertion(parentNid));
                      } catch (final NumberFormatException numberFormatException) {
                         if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
                            // do nothing.

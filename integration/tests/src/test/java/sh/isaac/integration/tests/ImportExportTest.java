@@ -122,10 +122,10 @@ public class ImportExportTest {
     * Test classify.
     */
    
-//   @Test(
-//      groups           = { "load" },
-//      dependsOnMethods = { "testExportImport" }
-//   )
+   @Test(
+      groups           = { "load" },
+      dependsOnMethods = { "testExportImport" }
+   )
    public void testClassify() {
       LOG.info("Classifying");
 
@@ -180,10 +180,10 @@ public class ImportExportTest {
    /**
     * Test export after classify.
     */
-//   @Test(
-//      groups           = { "load" },
-//      dependsOnMethods = { "testClassify" }
-//   )
+   @Test(
+      groups           = { "load" },
+      dependsOnMethods = { "testClassify" }
+   )
    public void testExportAfterClassify() {
       LOG.info("Testing export after classify");
 
@@ -282,10 +282,10 @@ public class ImportExportTest {
    /**
     * Test inferred taxonomy.
     */
-//   @Test(
-//      groups           = { "load" },
-//      dependsOnMethods = { "testClassify" }
-//   )
+   @Test(
+      groups           = { "load" },
+      dependsOnMethods = { "testClassify" }
+   )
    public void testInferredTaxonomy() {
       try {
          LOG.info("Testing inferred taxonomy");
