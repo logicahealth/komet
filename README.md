@@ -14,6 +14,9 @@ http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/down
 Download the Berkeley DB Java Edition 7.5.11, and upload it to your repository using the following coordinate: 
 
 ```
+          <groupId>com.sleepycat</groupId>
+         <artifactId>je</artifactId>
+         <version>7.5.11</version>
 
 ```
 
