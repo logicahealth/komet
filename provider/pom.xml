@@ -21,12 +21,11 @@
          </modules>
       </profile>
     <profile>
-         <id>old-taxonomy</id>
+         <id>old</id>
          <activation>
             <activeByDefault>false</activeByDefault>
          </activation>
          <modules>
-            <module>taxonomy</module>
             <module>workflow</module>
          </modules>
       </profile>
