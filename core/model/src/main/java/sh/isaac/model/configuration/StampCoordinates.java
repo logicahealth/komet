@@ -41,7 +41,7 @@ package sh.isaac.model.configuration;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -70,7 +70,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
-                                     State.makeAnyStateSet());
+                                     Status.makeAnyStateSet());
    }
 
    /**
@@ -85,7 +85,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
-                                     State.makeActiveOnlySet());
+                                     Status.makeActiveOnlySet());
    }
 
    /**
@@ -100,7 +100,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
-                                     State.makeAnyStateSet());
+                                     Status.makeAnyStateSet());
    }
 
    /**
@@ -115,7 +115,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
-                                     State.makeActiveOnlySet());
+                                     Status.makeActiveOnlySet());
    }
 }
 

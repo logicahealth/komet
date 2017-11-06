@@ -82,7 +82,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.util.UuidT3Generator;
@@ -546,15 +546,13 @@ public class RxNormMojo
                parents.add(relationship.getTargetUUID());
                continue;
             } else if (relTypeAsAssn != null) {
-               r = ComponentReference.fromChronology(
-                   this.importUtil.addAssociation(
-                       concept,
+               r = ComponentReference.fromChronology(this.importUtil.addAssociation(concept,
                        ((relationship.getRui() != null) ? ConverterUUID.createNamespaceUUIDFromString(
                            "RUI:" + relationship.getRui())
                      : null),
                        relationship.getTargetUUID(),
                        relTypeAsAssn.getUUID(),
-                       State.ACTIVE,
+                       Status.ACTIVE,
                        null,
                        null),
                    () -> "Association");
@@ -594,12 +592,11 @@ public class RxNormMojo
 
             if (StringUtils.isNotBlank(relationship.getRui())) {
                if (!addedRUIs.contains(relationship.getRui())) {
-                  this.importUtil.addStringAnnotation(
-                      r,
+                  this.importUtil.addStringAnnotation(r,
                       relationship.getRui(),
                       this.ptUMLSAttributes.getProperty("RUI")
                                            .getUUID(),
-                      State.ACTIVE);
+                      Status.ACTIVE);
                   addedRUIs.add(relationship.getRui());
                   this.satRelStatement.clearParameters();
                   this.satRelStatement.setString(1, relationship.getRui());
@@ -619,21 +616,19 @@ public class RxNormMojo
             }
 
             if (StringUtils.isNotBlank(relationship.getRg())) {
-               this.importUtil.addStringAnnotation(
-                   r,
+               this.importUtil.addStringAnnotation(r,
                    relationship.getRg(),
                    this.ptUMLSAttributes.getProperty("RG")
                                         .getUUID(),
-                   State.ACTIVE);
+                   Status.ACTIVE);
             }
 
             if (StringUtils.isNotBlank(relationship.getDir())) {
-               this.importUtil.addStringAnnotation(
-                   r,
+               this.importUtil.addStringAnnotation(r,
                    relationship.getDir(),
                    this.ptUMLSAttributes.getProperty("DIR")
                                         .getUUID(),
-                   State.ACTIVE);
+                   Status.ACTIVE);
             }
 
             if (StringUtils.isNotBlank(relationship.getSuppress())) {
@@ -647,7 +642,7 @@ public class RxNormMojo
             if (StringUtils.isNotBlank(relationship.getCvf())) {
                if (relationship.getCvf()
                                .equals("4096")) {
-                  this.importUtil.addRefsetMembership(r, this.cpcRefsetConcept.getPrimordialUuid(), State.ACTIVE, null);
+                  this.importUtil.addRefsetMembership(r, this.cpcRefsetConcept.getPrimordialUuid(), Status.ACTIVE, null);
                } else {
                   throw new RuntimeException("Unexpected value in RXNSAT cvf column '" + relationship.getCvf() + "'");
                }
@@ -1086,12 +1081,11 @@ public class RxNormMojo
                this.ptDescriptions.addProperty(p);
 
                for (final String tty_class: classes) {
-                  this.importUtil.addStringAnnotation(
-                      ComponentReference.fromConcept(p.getUUID()),
+                  this.importUtil.addStringAnnotation(ComponentReference.fromConcept(p.getUUID()),
                       tty_class,
                       this.ptUMLSAttributes.getProperty("tty_class")
                                            .getUUID(),
-                      State.ACTIVE);
+                      Status.ACTIVE);
                }
             }
 
@@ -1253,12 +1247,11 @@ public class RxNormMojo
                                                                null));
 
                   this.sourceRestrictionLevels.put(value, c.getPrimordialUuid());
-                  this.importUtil.addStringAnnotation(
-                      c,
+                  this.importUtil.addStringAnnotation(c,
                       uri,
                       this.ptUMLSAttributes.getProperty("URI")
                                            .getUUID(),
-                      State.ACTIVE);
+                      Status.ACTIVE);
                   type  = null;
                   expl  = null;
                   value = null;
@@ -1348,11 +1341,10 @@ public class RxNormMojo
                               break;
 
                            default:
-                              this.importUtil.addStringAnnotation(
-                                  cr,
+                              this.importUtil.addStringAnnotation(cr,
                                   columnValue,
                                   metadataProperty.getUUID(),
-                                  State.ACTIVE);
+                                  Status.ACTIVE);
                               break;
                            }
                         }
@@ -1406,18 +1398,16 @@ public class RxNormMojo
                                                             null));
 
                this.semanticTypes.put(tui, c.getPrimordialUuid());
-               this.importUtil.addStringAnnotation(
-                   c,
+               this.importUtil.addStringAnnotation(c,
                    tui,
                    this.ptUMLSAttributes.getProperty("TUI")
                                         .getUUID(),
-                   State.ACTIVE);
-               this.importUtil.addStringAnnotation(
-                   c,
+                   Status.ACTIVE);
+               this.importUtil.addStringAnnotation(c,
                    stn,
                    this.ptUMLSAttributes.getProperty("STN")
                                         .getUUID(),
-                   State.ACTIVE);
+                   Status.ACTIVE);
             }
          }
       }
@@ -1655,7 +1645,7 @@ public class RxNormMojo
                 false,
                 this.ptDescriptions.getProperty("Inverse FQN")
                                    .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          if (r.getAltName() != null) {
@@ -1680,19 +1670,18 @@ public class RxNormMojo
                 null,
                 this.ptDescriptions.getProperty("Inverse Synonym")
                                    .getUUID(),
-                State.ACTIVE,
+                Status.ACTIVE,
                 null);
          }
 
          if (r.getInverseDescription() != null) {
-            this.importUtil.addDescription(
-                cr,
+            this.importUtil.addDescription(cr,
                 r.getInverseDescription(),
                 DescriptionType.DEFINITION,
                 true,
                 this.ptDescriptions.getProperty("Inverse Description")
                                    .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          if (r.getRelType() != null) {
@@ -1988,14 +1977,13 @@ public class RxNormMojo
          long conceptTime = Integer.MAX_VALUE;
 
          // Activate the concept if any description is active
-         State conceptState = State.INACTIVE;
+         Status conceptState = Status.INACTIVE;
 
-         this.importUtil.addStringAnnotation(
-             cuiConcept,
+         this.importUtil.addStringAnnotation(cuiConcept,
              rxCui,
              this.ptUMLSAttributes.getProperty("RXCUI")
                                   .getUUID(),
-             State.ACTIVE);
+             Status.ACTIVE);
 
          final ArrayList<ValuePropertyPairWithSAB> cuiDescriptions = new ArrayList<>();
          final HashSet<String>                     sabs            = new HashSet<>();
@@ -2055,7 +2043,7 @@ public class RxNormMojo
                desc.setDisabled(true);
             } else {
                // if any description is active, concept is still active
-               conceptState = State.ACTIVE;
+               conceptState = Status.ACTIVE;
             }
 
             if (descriptionTime != null) {
@@ -2187,27 +2175,24 @@ public class RxNormMojo
 
          // pulling up the UMLS CUIs.
          // uniqueUMLSCUI is populated during processSAT
-         uniqueUMLSCUI.forEach(
-             (umlsCui) -> {
+         uniqueUMLSCUI.forEach((umlsCui) -> {
                 final UUID itemUUID = ConverterUUID.createNamespaceUUIDFromString("UMLSCUI" + umlsCui);
 
-                this.importUtil.addStringAnnotation(
-                    cuiConcept,
+                this.importUtil.addStringAnnotation(cuiConcept,
                     itemUUID,
                     umlsCui,
                     this.ptTermAttributes.getProperty("UMLSCUI")
                                          .getUUID(),
-                    State.ACTIVE);
+                    Status.ACTIVE);
              });
          ValuePropertyPairWithAttributes.processAttributes(this.importUtil, cuiDescriptions, addedDescriptions);
 
          // there are no attributes in rxnorm without an AUI.
 //       try
 //       {
-         this.importUtil.addRefsetMembership(
-             cuiConcept,
+         this.importUtil.addRefsetMembership(cuiConcept,
              this.allCUIRefsetConcept.getPrimordialUuid(),
-             State.ACTIVE,
+             Status.ACTIVE,
              null);
 
 //       }
@@ -2317,13 +2302,11 @@ public class RxNormMojo
 
          // You would expect that ptTermAttributes_.get() would be looking up sab, rather than having RxNorm hardcoded... but this is an oddity of
          // a hack we are doing within the RxNorm load.
-         final ComponentReference attribute = ComponentReference.fromChronology(
-                                                  this.importUtil.addStringAnnotation(
-                                                        itemToAnnotate,
+         final ComponentReference attribute = ComponentReference.fromChronology(this.importUtil.addStringAnnotation(itemToAnnotate,
                                                               stringAttrUUID,
                                                               rxnsat.atv,
                                                               refsetUUID,
-                                                              State.ACTIVE),
+                                                              Status.ACTIVE),
                                                         () -> "Attribute");
 
          if (StringUtils.isNotBlank(rxnsat.atui)) {
@@ -2348,17 +2331,16 @@ public class RxNormMojo
 
 //          if ()
 //          {
-//                  eConcepts_.addStringAnnotation(attribute, code, ptUMLSAttributes_.getProperty("CODE").getUUID(), State.ACTIVE);
+//                  eConcepts_.addStringAnnotation(attribute, code, ptUMLSAttributes_.getProperty("CODE").getUUID(), Status.ACTIVE);
 //          }
          }
 
          if (StringUtils.isNotBlank(rxnsat.satui)) {
-            this.importUtil.addStringAnnotation(
-                attribute,
+            this.importUtil.addStringAnnotation(attribute,
                 rxnsat.satui,
                 this.ptUMLSAttributes.getProperty("SATUI")
                                      .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          // only load the sab if it is different than the sab of the item we are putting this attribute on
@@ -2378,10 +2360,9 @@ public class RxNormMojo
 
          if (StringUtils.isNotBlank(rxnsat.cvf)) {
             if (rxnsat.cvf.equals("4096")) {
-               this.importUtil.addRefsetMembership(
-                   attribute,
+               this.importUtil.addRefsetMembership(attribute,
                    this.cpcRefsetConcept.getPrimordialUuid(),
-                   State.ACTIVE,
+                   Status.ACTIVE,
                    null);
             } else {
                throw new RuntimeException("Unexpected value in RXNSAT cvf column '" + rxnsat.cvf + "'");
@@ -2411,22 +2392,20 @@ public class RxNormMojo
                                                          () -> "Sememe Member");
 
          if (rs.getString("ATUI") != null) {
-            this.importUtil.addStringAnnotation(
-                annotation,
+            this.importUtil.addStringAnnotation(annotation,
                 rs.getString("ATUI"),
                 this.ptUMLSAttributes.getProperty("ATUI")
                                      .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          if (rs.getObject("CVF") != null)  // might be an int or a string
          {
-            this.importUtil.addStringAnnotation(
-                annotation,
+            this.importUtil.addStringAnnotation(annotation,
                 rs.getString("CVF"),
                 this.ptUMLSAttributes.getProperty("CVF")
                                      .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
 //       }

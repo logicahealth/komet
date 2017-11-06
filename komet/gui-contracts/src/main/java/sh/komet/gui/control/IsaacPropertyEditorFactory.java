@@ -22,7 +22,7 @@ import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -39,7 +39,7 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
       if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
          return createCustomChoiceEditor((PropertySheetItemConceptWrapper) propertySheetItem);
       } else if (propertySheetItem instanceof PropertySheetStatusWrapper) {
-         return Editors.createChoiceEditor(propertySheetItem, State.makeActiveAndInactiveSet());
+         return Editors.createChoiceEditor(propertySheetItem, Status.makeActiveAndInactiveSet());
       }  else if (propertySheetItem instanceof PropertySheetTextWrapper) {
          return Editors.createTextEditor(propertySheetItem);
       }

@@ -531,5 +531,10 @@ public class BdbTaxonomyProvider
          return this.treeSnapshot;
       }
    }
+
+   @Override
+   public void sync() {
+      this.bdb.sync();
+   }
 }
 

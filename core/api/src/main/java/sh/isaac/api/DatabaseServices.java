@@ -118,6 +118,11 @@ public interface DatabaseServices {
     * @return the data store id
     */
    public UUID getDataStoreId();
+   
+   /**
+    * Ensures data is written to disk. 
+    */
+   public void sync();
 
 }
 

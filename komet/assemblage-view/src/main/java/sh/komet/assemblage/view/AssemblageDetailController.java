@@ -28,7 +28,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -63,7 +63,7 @@ public class AssemblageDetailController {
    @FXML  // fx:id="assemblageGeneralColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> assemblageGeneralColumn;
    @FXML  // fx:id="assemblageStatusColumn"
-   private TreeTableColumn<ObservableCategorizedVersion, State> assemblageStatusColumn;
+   private TreeTableColumn<ObservableCategorizedVersion, Status> assemblageStatusColumn;
    @FXML  // fx:id="assemblageAuthorTimeColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> assemblageAuthorTimeColumn;
    @FXML  // fx:id="assemblageTimeColumn"

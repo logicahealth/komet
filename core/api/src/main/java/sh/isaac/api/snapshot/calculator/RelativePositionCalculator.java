@@ -65,7 +65,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.OchreCache;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.StampService;
@@ -102,7 +102,7 @@ public class RelativePositionCalculator
 
    /** The coordinate. */
    private StampCoordinate coordinate;
-   private EnumSet<State>  allowedStates;
+   private EnumSet<Status>  allowedStates;
    private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap();
    private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap();
 
@@ -654,7 +654,7 @@ public class RelativePositionCalculator
     */
    public boolean isLatestActive(int[] stampSequences) {
       for (int stampSequence: getLatestCommittedStampSequencesAsSet(stampSequences)) {
-         if (getStampService().getStatusForStamp(stampSequence) == State.ACTIVE) {
+         if (getStampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
             return true;
          }
       }
@@ -768,13 +768,12 @@ public class RelativePositionCalculator
                       }
                    });
 
-      if (State.isActiveOnlySet(this.coordinate.getAllowedStates())) {
+      if (Status.isActiveOnlySet(this.coordinate.getAllowedStates())) {
          final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream()
-                         .forEach(
-                             (version) -> {
-                                if (version.getState() != State.ACTIVE) {
+                         .forEach((version) -> {
+                                if (version.getState() != Status.ACTIVE) {
                                    inactiveVersions.add(version);
                                 }
                              });

@@ -304,5 +304,11 @@ public class MockSememeService
    public IntStream getSemanticNidStream(int assemblageNid) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+   @Override
+   public void sync() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+   
 }
 

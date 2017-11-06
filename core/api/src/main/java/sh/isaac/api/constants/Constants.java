@@ -87,5 +87,8 @@ public class Constants {
     * This typically turns on and off things that were hacked in with System.Out calls for tracing ugly problems....
     */
    public static final String ISAAC_DEBUG = "sh.isaac.api.constants.isaac-debug";
+   
+   public static final String IMPORT_FOLDER_LOCATION = "sh.isaac.api.constants.IMPORT_FOLDER_LOCATION";
+   public static final String AFTER_IMPORT_FOLDER_LOCATION = "sh.isaac.api.constants.AFTER_IMPORT_FOLDER_LOCATION";
 }
 

@@ -23,7 +23,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -143,7 +143,7 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends Version> V createMutableVersion(State state, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(Status state, EditCoordinate ec) {
       return getChronology().createMutableVersion(state, ec);
    }
 

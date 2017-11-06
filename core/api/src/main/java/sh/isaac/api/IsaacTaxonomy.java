@@ -272,7 +272,7 @@ public class IsaacTaxonomy {
            throws IOException {
       final long exportTime = System.currentTimeMillis();
       final int stampSequence = Get.stampService()
-              .getStampSequence(State.ACTIVE,
+              .getStampSequence(Status.ACTIVE,
                       exportTime,
                       this.authorSpec.getNid(),
                       this.moduleSpec.getNid(),
@@ -292,7 +292,7 @@ public class IsaacTaxonomy {
       });
 
       final int stampAliasForPromotion = Get.stampService()
-              .getStampSequence(State.ACTIVE,
+              .getStampSequence(Status.ACTIVE,
                       exportTime + (1000 * 60),
                       this.authorSpec.getNid(),
                       this.moduleSpec.getNid(),

@@ -441,5 +441,10 @@ public class BdbIdentifierProvider
    public int getMaxSequenceForAssemblage(int assemblageNid) {
       return assemblageNid_SequenceGenerator_Map.get(assemblageNid).get() - 1;
    }   
+
+   @Override
+   public void sync() {
+      this.bdb.sync();
+   }
 }
 

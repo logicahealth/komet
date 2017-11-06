@@ -54,7 +54,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -68,7 +68,7 @@ import sh.isaac.api.identity.StampedVersion;
 public class StampUniversal implements IsaacExternalizable {
    /** The status. */
    @XmlAttribute
-   public State status;
+   public Status status;
 
    /** The time. */
    @XmlAttribute
@@ -97,7 +97,7 @@ public class StampUniversal implements IsaacExternalizable {
       if (IsaacObjectType.STAMP.getDataFormatVersion() != in.getObjectDataFormatVersion()) {
          throw new UnsupportedOperationException("Data format version not supported: " + in.getObjectDataFormatVersion());
       }
-      this.status     = State.getFromBoolean(in.getBoolean());
+      this.status     = Status.getFromBoolean(in.getBoolean());
       this.time       = in.getLong();
       this.authorUuid = new UUID(in.getLong(), in.getLong());
       this.moduleUuid = new UUID(in.getLong(), in.getLong());
@@ -220,7 +220,7 @@ public class StampUniversal implements IsaacExternalizable {
     *
     * @return the status
     */
-   public State getStatus() {
+   public Status getStatus() {
       return this.status;
    }
 

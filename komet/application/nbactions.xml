@@ -20,7 +20,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx5g -classpath %classpath sh.komet.fx.stage.MainApp</exec.args>
+                <exec.args>-Xmx16g -classpath %classpath sh.komet.fx.stage.MainApp</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

@@ -20,7 +20,7 @@ import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 
 /**
  *
@@ -29,16 +29,16 @@ import sh.isaac.api.State;
 public class PropertySheetStatusWrapper implements PropertySheet.Item {
 
    private final String name;
-   private final ObjectProperty<State> stateProperty;
+   private final ObjectProperty<Status> stateProperty;
 
-   public PropertySheetStatusWrapper(String name, ObjectProperty<State> stateProperty) {
+   public PropertySheetStatusWrapper(String name, ObjectProperty<Status> stateProperty) {
       this.name = name;
       this.stateProperty = stateProperty;
    }
 
    @Override
    public Class<?> getType() {
-      return State.class;
+      return Status.class;
    }
 
    @Override
@@ -57,13 +57,13 @@ public class PropertySheetStatusWrapper implements PropertySheet.Item {
    }
 
    @Override
-   public State getValue() {
+   public Status getValue() {
       return stateProperty.get();
    }
 
    @Override
    public void setValue(Object value) {
-      stateProperty.setValue((State) value);
+      stateProperty.setValue((Status) value);
    }
 
    @Override

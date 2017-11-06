@@ -89,21 +89,11 @@
          <artifactId>bdb-chronology</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
-      <!--      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>concept</artifactId>
+      <dependency>
+         <groupId>sh.isaac.solor</groupId>
+         <artifactId>rf2-direct-import</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>assemblage</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>-->
-      <!--      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>taxonomy</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>-->
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>

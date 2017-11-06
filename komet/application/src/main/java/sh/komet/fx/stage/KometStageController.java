@@ -92,6 +92,7 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -213,6 +214,12 @@ public class KometStageController
       });
       items.add(completeReindex);
 
+      MenuItem importSources = new MenuItem("Import terminology content");
+      importSources.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importer = new Rf2DirectImporter();
+         Get.executor().submit(importer);
+      });
+      items.add(importSources);
       return items;
    }
 

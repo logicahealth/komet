@@ -385,5 +385,11 @@ public class BdbConceptProvider
          return getConceptSnapshot(conceptSpecification.getNid());
       }
    }   
+
+   @Override
+   public void sync() {
+      this.bdb.sync();
+   }
+   
 }
 

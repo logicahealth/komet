@@ -414,5 +414,12 @@ public class AssemblageIndexer extends LuceneIndexer
                     sizeLimit,
                     targetGeneration,
                     filter);
+      
+      
+   }
+
+   @Override
+   public void sync() {
+      // not implemented for indexer. 
    }
 }

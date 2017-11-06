@@ -45,7 +45,7 @@ import java.util.EnumSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 
 //~--- interfaces -------------------------------------------------------------
@@ -57,10 +57,10 @@ import sh.isaac.api.collections.NidSet;
  * <p\>
  * q: How does the stamp coordinate relate to the stamp sequence?
  * <p\>
- * a: A stamp sequence is a sequentially assigned identifier for a unique combination of State, Time, Author, Module, and Path...
- * A stamp coordinate specifies a position on a  path, with a particular set of modules, and allowed state values.
- *
- * <p\>
+ a: A stamp sequence is a sequentially assigned identifier for a unique combination of Status, Time, Author, Module, and Path...
+ A stamp coordinate specifies a position on a  path, with a particular set of modules, and allowed state values.
+
+ <p\>
  * Created by kec on 2/16/15.
  *
  */
@@ -69,10 +69,10 @@ public interface StampCoordinate
    /**
     * Determine what states should be included in results based on this
     * stamp coordinate. If current—but inactive—versions are desired,
-    * the allowed states must include {@code State.INACTIVE}
+    * the allowed states must include {@code Status.INACTIVE}
     * @return the set of allowed states for results based on this stamp coordinate.
     */
-   EnumSet<State> getAllowedStates();
+   EnumSet<Status> getAllowedStates();
 
    /**
     * An empty array is a wild-card, and should match all modules. If there are

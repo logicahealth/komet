@@ -44,7 +44,7 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -142,7 +142,7 @@ public class ObservableSemanticChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends Version> V createMutableVersion(State status, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(Status status, EditCoordinate ec) {
       return (V) wrapInObservable(getSemanticChronology().createMutableVersion(status, ec));
    }
 

@@ -155,7 +155,7 @@ public class DescriptionVersionImpl
         .append(this.descriptionTypeConceptNid)
         .append(">");
       toString(sb);
-      sb.append("≥D}");
+      sb.append("≥}");
       return sb.toString();
    }
 

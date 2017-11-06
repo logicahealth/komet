@@ -69,7 +69,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -577,7 +577,7 @@ public class Frills
          }
       }
 
-      final EnumSet<State> allowedStates = EnumSet.allOf(State.class);
+      final EnumSet<Status> allowedStates = EnumSet.allOf(Status.class);
 
       allowedStates.addAll(existingStampCoordinate.getAllowedStates());
 
@@ -615,14 +615,12 @@ public class Frills
             }
 
             @SuppressWarnings("rawtypes")
-            final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(
-                                 Get.configurationService()
+            final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
                                                                                          .getDefaultStampCoordinate()
-                                                                                         .makeCoordinateAnalog(
-                                                                                               State.ACTIVE,
-                                                                                                     State.INACTIVE,
-                                                                                                     State.CANCELED,
-                                                                                                     State.PRIMORDIAL));
+                                                                                         .makeCoordinateAnalog(Status.ACTIVE,
+                                                                                                     Status.INACTIVE,
+                                                                                                     Status.CANCELED,
+                                                                                                     Status.PRIMORDIAL));
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();

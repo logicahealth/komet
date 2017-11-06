@@ -196,6 +196,12 @@ public class IsaacMetadataAuxiliary
          createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
          createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
          popParent();
+         createConcept("Identifier assemblage");
+         pushParent(current());
+         createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
+         createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
+         createConcept(TermAux.RXNORM_IDENTIFIER_ASSEMBLAGE);
+         popParent();
          createConcept("Identifier source");
          pushParent(current());
          createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER);
@@ -281,6 +287,7 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
          createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+         createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
          popParent();
          createConcept(TermAux.CONCEPT_ASSEMBLAGE);
          pushParent(current());

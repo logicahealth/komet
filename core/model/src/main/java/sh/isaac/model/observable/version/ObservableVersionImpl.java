@@ -53,7 +53,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
@@ -78,7 +78,7 @@ public abstract class ObservableVersionImpl
    /**
     * The state property.
     */
-   ObjectProperty<State> stateProperty;
+   ObjectProperty<Status> stateProperty;
 
    /**
     * The time property.
@@ -297,12 +297,12 @@ public abstract class ObservableVersionImpl
    }
 
    /**
-    * State property.
+    * Status property.
     *
     * @return the object property
     */
    @Override
-   public final ObjectProperty<State> stateProperty() {
+   public final ObjectProperty<Status> stateProperty() {
       if (this.stateProperty == null) {
          this.stateProperty = new CommitAwareObjectProperty<>(
                  this,
@@ -595,7 +595,7 @@ public abstract class ObservableVersionImpl
     * @return the state
     */
    @Override
-   public final State getState() {
+   public final Status getState() {
       if (this.stateProperty != null) {
          return this.stateProperty.get();
       }
@@ -605,7 +605,7 @@ public abstract class ObservableVersionImpl
 
    //~--- set methods ---------------------------------------------------------
    @Override
-   public final void setStatus(State state) {
+   public final void setStatus(Status state) {
       if (this.stateProperty != null) {
          this.stateProperty.set(state);
       }

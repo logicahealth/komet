@@ -83,7 +83,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -279,7 +279,7 @@ public class StampProvider
       }
       final StringBuilder sb = new StringBuilder();
       sb.append("S: ");
-      final State status = getStatusForStamp(stampSequence);
+      final Status status = getStatusForStamp(stampSequence);
 
       sb.append(status).append("\nT: ");
 
@@ -341,7 +341,7 @@ public class StampProvider
       sb.append("::");
 
       try {
-         final State status = getStatusForStamp(stampSequence);
+         final Status status = getStatusForStamp(stampSequence);
          
          sb.append(status);
          
@@ -476,7 +476,7 @@ public class StampProvider
     */
    @Override
    public int getActivatedStampSequence(int stampSequence) {
-      return getStampSequence(State.ACTIVE,
+      return getStampSequence(Status.ACTIVE,
               getTimeForStamp(stampSequence),
               getAuthorNidForStamp(stampSequence),
               getModuleNidForStamp(stampSequence),
@@ -641,7 +641,7 @@ public class StampProvider
     */
    @Override
    public int getRetiredStampSequence(int stampSequence) {
-      return getStampSequence(State.INACTIVE,
+      return getStampSequence(Status.INACTIVE,
               getTimeForStamp(stampSequence),
               getAuthorNidForStamp(stampSequence),
               getModuleNidForStamp(stampSequence),
@@ -659,7 +659,7 @@ public class StampProvider
     * @return the stamp sequence
     */
    @Override
-   public int getStampSequence(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
+   public int getStampSequence(Status status, long time, int authorSequence, int moduleSequence, int pathSequence) {
       final Stamp stampKey = new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
 
       if (time == Long.MAX_VALUE) {
@@ -730,9 +730,9 @@ public class StampProvider
     * @return the status for stamp
     */
    @Override
-   public State getStatusForStamp(int stampSequence) {
+   public Status getStatusForStamp(int stampSequence) {
       if (stampSequence < 0) {
-         return State.CANCELED;
+         return Status.CANCELED;
       }
 
       final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
@@ -785,5 +785,10 @@ public class StampProvider
    @Override
    public boolean isUncommitted(int stampSequence) {
       return getTimeForStamp(stampSequence) == Long.MAX_VALUE;
+   }
+
+   @Override
+   public void sync() {
+      // not implemented for stamp provider. 
    }
 }

@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -297,7 +297,7 @@ public class ConceptSnapshotImpl
     * @return the state
     */
    @Override
-   public State getState() {
+   public Status getState() {
       return this.snapshotVersion.get()
                                  .getState();
    }

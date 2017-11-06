@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -154,7 +154,7 @@ public class ConceptChronologyImpl
     * @return the concept version impl
     */
    @Override
-   public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
+   public ConceptVersionImpl createMutableVersion(Status state, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
                                        state,

@@ -357,7 +357,7 @@ public class ProcessClassificationResults
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphVersion newVersion
                                    = ((SemanticChronology) inferredChronology).createMutableVersion(
-                                           sh.isaac.api.State.ACTIVE,
+                                           sh.isaac.api.Status.ACTIVE,
                                            EditCoordinates.getClassifierSolorOverlay());
 
                            newVersion.setGraphData(

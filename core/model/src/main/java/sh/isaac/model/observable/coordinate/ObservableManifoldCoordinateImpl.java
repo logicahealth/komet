@@ -49,7 +49,7 @@ import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -173,7 +173,7 @@ public class ObservableManifoldCoordinateImpl
     * @return the observable taxonomy coordinate
     */
    @Override
-   public ObservableManifoldCoordinate makeCoordinateAnalog(State... state) {
+   public ObservableManifoldCoordinate makeCoordinateAnalog(Status... state) {
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeCoordinateAnalog(state));
    }
 

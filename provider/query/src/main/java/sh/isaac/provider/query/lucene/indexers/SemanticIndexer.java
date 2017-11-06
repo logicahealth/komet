@@ -731,5 +731,10 @@ public class SemanticIndexer
          }
       }
    }
+
+   @Override
+   public void sync() {
+      // not implemented for indexer. 
+   }
 }
 

@@ -227,5 +227,10 @@ public class BdbSemanticProvider implements AssemblageService {
    public UUID getDataStoreId() {
      return bdb.getDataStoreId();
    }
+
+   @Override
+   public void sync() {
+      this.bdb.sync();
+   }
    
 }

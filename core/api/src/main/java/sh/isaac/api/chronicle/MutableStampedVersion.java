@@ -41,7 +41,7 @@ package sh.isaac.api.chronicle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,9 +56,9 @@ public interface MutableStampedVersion
    /**
     * Sets the state.
     * 
-    * @param state the new State
+    * @param state the new Status
     */
-   void setStatus(State state);
+   void setStatus(Status state);
    /**
     * Sets the author sequence.
     *

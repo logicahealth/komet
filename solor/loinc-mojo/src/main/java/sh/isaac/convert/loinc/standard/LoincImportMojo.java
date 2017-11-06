@@ -70,7 +70,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.convert.loinc.LOINCReader;
@@ -396,28 +396,25 @@ public class LoincImportMojo
                       this.propertyToPropertyType_.get("NAME")
                                                   .getProperty("NAME")
                                                   .getUUID(),
-                      State.ACTIVE);
-                  this.importUtil.addStringAnnotation(
-                      c,
+                      Status.ACTIVE);
+                  this.importUtil.addStringAnnotation(c,
                       line[2],
                       this.propertyToPropertyType_.get("COPYRIGHT")
                                                   .getProperty("COPYRIGHT")
                                                   .getUUID(),
-                      State.ACTIVE);
-                  this.importUtil.addStringAnnotation(
-                      c,
+                      Status.ACTIVE);
+                  this.importUtil.addStringAnnotation(c,
                       line[3],
                       this.propertyToPropertyType_.get("TERMS_OF_USE")
                                                   .getProperty("TERMS_OF_USE")
                                                   .getUUID(),
-                      State.ACTIVE);
-                  this.importUtil.addStringAnnotation(
-                      c,
+                      Status.ACTIVE);
+                  this.importUtil.addStringAnnotation(c,
                       line[4],
                       this.propertyToPropertyType_.get("URL")
                                                   .getProperty("URL")
                                                   .getUUID(),
-                      State.ACTIVE);
+                      Status.ACTIVE);
                }
 
                line = sourceOrg.readLine();
@@ -453,7 +450,7 @@ public class LoincImportMojo
              DescriptionType.REGULAR_NAME,
              false,
              null,
-             State.ACTIVE);
+             Status.ACTIVE);
          ConsoleUtil.println("Root concept FQN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
          this.concepts_.put(rootConcept.getPrimordialUuid(), rootConcept);
 
@@ -586,7 +583,7 @@ public class LoincImportMojo
 
          // Add all of the concepts to a refset
          for (final ComponentReference concept: this.concepts_.values()) {
-            this.importUtil.addRefsetMembership(concept, loincAllConceptsRefset, State.ACTIVE, null);
+            this.importUtil.addRefsetMembership(concept, loincAllConceptsRefset, Status.ACTIVE, null);
          }
 
          ConsoleUtil.println("Processed " + this.concepts_.size() + " concepts total");
@@ -746,20 +743,20 @@ public class LoincImportMojo
     * @return the state
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private State mapStatus(String status)
+   private Status mapStatus(String status)
             throws IOException {
       switch (status) {
       case "ACTIVE":
       case "TRIAL":
       case "DISCOURAGED":
-         return State.ACTIVE;
+         return Status.ACTIVE;
 
       case "DEPRECATED":
-         return State.INACTIVE;
+         return Status.INACTIVE;
 
       default:
          ConsoleUtil.printErrorln("No mapping for status: " + status);
-         return State.ACTIVE;
+         return Status.ACTIVE;
       }
    }
 
@@ -795,7 +792,7 @@ public class LoincImportMojo
                           .getTime());
       }
 
-      final State  status = mapStatus(fields[this.fieldMap.get("STATUS")]);
+      final Status  status = mapStatus(fields[this.fieldMap.get("STATUS")]);
       final String code   = fields[this.fieldMap.get("LOINC_NUM")];
       final ComponentReference concept = ComponentReference.fromConcept(
                                              this.importUtil.createConcept(buildUUID(code), time, status, null));
@@ -822,12 +819,11 @@ public class LoincImportMojo
                   continue;  // Skip attributes of these types when the value is 0
                }
 
-               this.importUtil.addStringAnnotation(
-                   concept,
+               this.importUtil.addStringAnnotation(concept,
                    fields[fieldIndex],
                    p.getUUID(),
-                   (p.isDisabled() ? State.INACTIVE
-                                   : State.ACTIVE));
+                   (p.isDisabled() ? Status.INACTIVE
+                                   : Status.ACTIVE));
             } else if (pt instanceof PT_Descriptions) {
                // Gather for later
                descriptions.add(new ValuePropertyPair(fields[fieldIndex], p));
@@ -850,13 +846,12 @@ public class LoincImportMojo
                   this.concepts_.put(axisConcept.getPrimordialUuid(), axisConcept);
                }
 
-               this.importUtil.addAssociation(
-                   concept,
+               this.importUtil.addAssociation(concept,
                    null,
                    axisConcept.getPrimordialUuid(),
                    this.pt_SkipAxis.getProperty(this.fieldMapInverse.get(fieldIndex))
                                    .getUUID(),
-                   State.ACTIVE,
+                   Status.ACTIVE,
                    concept.getTime(),
                    null);
             } else if (pt instanceof PT_SkipClass) {
@@ -876,13 +871,12 @@ public class LoincImportMojo
                           true));
 
                   if (this.classMapping.hasMatch(fields[fieldIndex])) {
-                     this.importUtil.addStringAnnotation(
-                         classConcept,
+                     this.importUtil.addStringAnnotation(classConcept,
                          fields[fieldIndex],
                          this.propertyToPropertyType_.get("ABBREVIATION")
                                                      .getProperty("ABBREVIATION")
                                                      .getUUID(),
-                         State.ACTIVE);
+                         Status.ACTIVE);
                   }
 
                   this.importUtil.addParent(
@@ -892,13 +886,12 @@ public class LoincImportMojo
                   this.concepts_.put(classConcept.getPrimordialUuid(), classConcept);
                }
 
-               this.importUtil.addAssociation(
-                   concept,
+               this.importUtil.addAssociation(concept,
                    null,
                    classConcept.getPrimordialUuid(),
                    this.pt_SkipClass.getProperty(this.fieldMapInverse.get(fieldIndex))
                                     .getUUID(),
-                   State.ACTIVE,
+                   Status.ACTIVE,
                    concept.getTime(),
                    null);
             } else if (pt instanceof PT_Relations) {
@@ -907,13 +900,12 @@ public class LoincImportMojo
 
                this.importUtil.addParent(concept, parent, pt.getProperty(this.fieldMapInverse.get(fieldIndex)), null);
             } else if (pt instanceof PT_Associations) {
-               this.importUtil.addAssociation(
-                   concept,
+               this.importUtil.addAssociation(concept,
                    null,
                    buildUUID(fields[fieldIndex]),
                    pt.getProperty(this.fieldMapInverse.get(fieldIndex))
                      .getUUID(),
-                   State.ACTIVE,
+                   Status.ACTIVE,
                    concept.getTime(),
                    null);
             } else if (pt instanceof PT_SkipOther) {
@@ -930,31 +922,27 @@ public class LoincImportMojo
 
       if (mappings != null) {
          mappings.entrySet()
-                 .forEach(
-                     (mapping) -> {
+                 .forEach((mapping) -> {
                         final String target  = mapping.getKey();
                         final String comment = mapping.getValue();
-                        final ComponentReference cr = ComponentReference.fromChronology(
-                                                          this.importUtil.addAssociation(
-                                                                concept,
+                        final ComponentReference cr = ComponentReference.fromChronology(this.importUtil.addAssociation(concept,
                                                                       null,
                                                                       buildUUID(target),
                                                                       this.propertyToPropertyType_.get("MAP_TO")
                                                                             .getProperty("MAP_TO")
                                                                             .getUUID(),
-                                                                      State.ACTIVE,
+                                                                      Status.ACTIVE,
                                                                       concept.getTime(),
                                                                       null),
                                                                 () -> "Association");
 
                         if ((comment != null) && (comment.length() > 0)) {
-                           this.importUtil.addStringAnnotation(
-                               cr,
+                           this.importUtil.addStringAnnotation(cr,
                                comment,
                                this.propertyToPropertyType_.get("COMMENT")
                                      .getProperty("COMMENT")
                                      .getUUID(),
-                               State.ACTIVE);
+                               Status.ACTIVE);
                         }
                      });
       }
@@ -1012,23 +1000,21 @@ public class LoincImportMojo
          concept = ComponentReference.fromConcept(this.importUtil.createConcept(potential));
 
          if ((sequence != null) && (sequence.length() > 0)) {
-            this.importUtil.addStringAnnotation(
-                concept,
+            this.importUtil.addStringAnnotation(concept,
                 sequence,
                 this.propertyToPropertyType_.get("SEQUENCE")
                                             .getProperty("SEQUENCE")
                                             .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          if ((immediateParentString != null) && (immediateParentString.length() > 0)) {
-            this.importUtil.addStringAnnotation(
-                concept,
+            this.importUtil.addStringAnnotation(concept,
                 immediateParentString,
                 this.propertyToPropertyType_.get("IMMEDIATE_PARENT")
                                             .getProperty("IMMEDIATE_PARENT")
                                             .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
          final ValuePropertyPair vpp = new ValuePropertyPair(
@@ -1047,22 +1033,20 @@ public class LoincImportMojo
          parents.add(immediateParent);
 
          if (!pathString.isEmpty()) {
-            this.importUtil.addStringAnnotation(
-                concept,
+            this.importUtil.addStringAnnotation(concept,
                 pathString,
                 this.propertyToPropertyType_.get("PATH_TO_ROOT")
                                             .getProperty("PATH_TO_ROOT")
                                             .getUUID(),
-                State.ACTIVE);
+                Status.ACTIVE);
          }
 
-         this.importUtil.addStringAnnotation(
-             concept,
+         this.importUtil.addStringAnnotation(concept,
              code,
              this.propertyToPropertyType_.get("CODE")
                                          .getProperty("CODE")
                                          .getUUID(),
-             State.ACTIVE);
+             Status.ACTIVE);
          this.concepts_.put(concept.getPrimordialUuid(), concept);
       }
 

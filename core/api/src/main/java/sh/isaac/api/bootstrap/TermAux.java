@@ -397,6 +397,10 @@ public class TermAux {
    public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("9b576b97-cf3b-4388-832b-0dddc9d51d5f"));
    public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("1486a8ad-adbc-4494-bfc5-1ef2ec3b2936"));
    public static ConceptSpecification RF2_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 relationship assemblage", "RF2 relationships", UUID.fromString("7daba83d-40d1-4d55-8e83-3e2dd7c0bd29"));
+   public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage", "RF2 legacy relationship implication", UUID.fromString("a89f3deb-b88d-4c20-a0b4-38ba834d0d44"));
+   public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage", UUID.fromString("06631f96-9ecb-47e7-9cee-50847ee78a29"));
+   public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage", UUID.fromString("d22a75b3-2849-434b-94ac-68056553f362"));
+   public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage", UUID.fromString("466e95f2-56e3-4b32-8e6e-b5bc16c7cd6a"));
    //~--- methods -------------------------------------------------------------
 
    /**

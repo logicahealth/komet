@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -79,7 +79,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    protected final List<SemanticBuilder<?>> sememeBuilders = new ArrayList<>();
 
    /** The state. */
-   protected State state = State.ACTIVE;
+   protected Status state = Status.ACTIVE;
 
    //~--- methods -------------------------------------------------------------
 
@@ -192,7 +192,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the identified component builder
     */
    @Override
-   public IdentifiedComponentBuilder<T> setState(State state) {
+   public IdentifiedComponentBuilder<T> setState(Status state) {
       this.state = state;
       return this;
    }

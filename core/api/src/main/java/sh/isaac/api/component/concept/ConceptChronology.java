@@ -50,7 +50,7 @@ import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -107,7 +107,7 @@ public interface ConceptChronology
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   ConceptVersion createMutableVersion(State state, EditCoordinate ec);
+   ConceptVersion createMutableVersion(Status state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

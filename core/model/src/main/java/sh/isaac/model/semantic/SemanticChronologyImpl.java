@@ -46,7 +46,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -133,7 +133,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends Version> V  createMutableVersion(State status, EditCoordinate ec) {
+   public <V extends Version> V  createMutableVersion(Status status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(status,
                                          Long.MAX_VALUE,

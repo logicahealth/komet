@@ -74,7 +74,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
 import sh.isaac.api.MavenConceptProxy;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -480,8 +480,8 @@ public class RF2Mojo
 
          final ConceptChronology con = super.importUtil.createConcept(id,
                                                                                                    time,
-                                                                                                   active ? State.ACTIVE
-               : State.INACTIVE,
+                                                                                                   active ? Status.ACTIVE
+               : Status.INACTIVE,
                                                                                                    moduleId);
 
          if ((sctID != null) &&!id.equals(lastId)) {
@@ -489,7 +489,7 @@ public class RF2Mojo
             super.importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(con),
                   sctID + "",
                   MetaData.SCTID____SOLOR.getPrimordialUuid(),
-                  State.ACTIVE);
+                  Status.ACTIVE);
          }
 
          if (conCount % 1000 == 0) {
@@ -600,8 +600,8 @@ public class RF2Mojo
                                                      .getPrimordialUuid(),
                                                moduleId,
                                                null,
-                                               active ? State.ACTIVE
-                  : State.INACTIVE,
+                                               active ? Status.ACTIVE
+                  : Status.INACTIVE,
                                                time);
 
             // add SCTID if this is the first sighting
@@ -610,7 +610,7 @@ public class RF2Mojo
                super.importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(desc),
                      sctID + "",
                      MetaData.SCTID____SOLOR.getPrimordialUuid(),
-                     State.ACTIVE);
+                     Status.ACTIVE);
             }
 
             ps2.clearParameters();
@@ -663,8 +663,8 @@ public class RF2Mojo
                      acceptID,
                      refsetId,
                      preferred,
-                     acceptActive ? State.ACTIVE
-                                  : State.INACTIVE,
+                     acceptActive ? Status.ACTIVE
+                                  : Status.INACTIVE,
                      acceptTime,
                      acceptModuleId);
             }
@@ -790,8 +790,8 @@ public class RF2Mojo
                                                      r.id,
                                                      r.destinationId,
                                                      r.typeId,
-                                                     r.isActive ? State.ACTIVE
-                        : State.INACTIVE,
+                                                     r.isActive ? Status.ACTIVE
+                        : Status.INACTIVE,
                                                      r.effectiveTime,
                                                      r.moduleId);
 
@@ -801,7 +801,7 @@ public class RF2Mojo
                            () -> "Association"),
                            r.sctID + "",
                            MetaData.SCTID____SOLOR.getPrimordialUuid(),
-                           State.ACTIVE);
+                           Status.ACTIVE);
                   }
                }
 

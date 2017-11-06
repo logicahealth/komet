@@ -48,7 +48,7 @@ import java.io.IOException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
@@ -63,7 +63,7 @@ public class UncommittedStamp {
    public int hashCode = Integer.MAX_VALUE;
 
    /** The status. */
-   public State status;
+   public Status status;
 
    /** The author sequence. */
    public int authorNid;
@@ -87,9 +87,9 @@ public class UncommittedStamp {
       super();
 
       if (input.readBoolean()) {
-         this.status = State.ACTIVE;
+         this.status = Status.ACTIVE;
       } else {
-         this.status = State.INACTIVE;
+         this.status = Status.INACTIVE;
       }
 
       this.authorNid = input.readInt();
@@ -105,7 +105,7 @@ public class UncommittedStamp {
     * @param moduleNid the module nid
     * @param pathNid the path nid
     */
-   public UncommittedStamp(State status, int authorNid, int moduleNid, int pathNid) {
+   public UncommittedStamp(Status status, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
       this.authorNid = authorNid;

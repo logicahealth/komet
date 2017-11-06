@@ -61,13 +61,16 @@ import javafx.stage.WindowEvent;
 import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import java.io.File;
 
 import sh.isaac.api.LookupService;
+import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.util.FxGet;
 
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
+import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
@@ -118,6 +121,21 @@ public class MainApp
                  "Can't find data directory... Working dir: " + System.getProperty("user.dir"));
       }
 
+      if (Files.exists(Paths.get("target", "data"))) {
+         File importPath = new File("target", "to_import");
+         importPath.mkdirs();
+         File afterImportPath = new File("target", "completed_import");
+         afterImportPath.mkdirs();
+         System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+         System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+      } else {
+         File importPath = new File("to_import");
+         importPath.mkdirs();
+         File afterImportPath = new File("completed_import");
+         afterImportPath.mkdirs();
+         System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+         System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+      }
       // /Users/kec/isaac/semiotic-history/isaac/komet/css/src/main/resources/user.css
       if (setPropertyIfFileExists(
               USER_CSS_LOCATION_PROPERTY,

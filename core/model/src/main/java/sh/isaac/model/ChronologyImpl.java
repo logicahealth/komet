@@ -59,7 +59,7 @@ import java.util.stream.LongStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -925,16 +925,14 @@ public abstract class ChronologyImpl
     */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(
-              coordinate.makeCoordinateAnalog(
-                      State.ACTIVE,
-                      State.INACTIVE,
-                      State.CANCELED,
-                      State.PRIMORDIAL));
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ACTIVE,
+                      Status.INACTIVE,
+                      Status.CANCELED,
+                      Status.PRIMORDIAL));
       final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       for (int stampSequence : latestStampSequences) {
-         if (Get.stampService().getStatusForStamp(stampSequence) == State.ACTIVE) {
+         if (Get.stampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
             return true;
          }
       }

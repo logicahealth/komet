@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -95,7 +95,7 @@ public interface Chronology
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   <V extends Version> V createMutableVersion(State state, EditCoordinate ec);
+   <V extends Version> V createMutableVersion(Status state, EditCoordinate ec);
 
    /**
     * Gets the latest version.
@@ -129,8 +129,8 @@ public interface Chronology
 
    /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
-    * state attribute of the provided StampCoordinate - allowing all State types -
-    * it returns true if the latest version is {@link State#ACTIVE}
+ state attribute of the provided StampCoordinate - allowing all Status types -
+ it returns true if the latest version is {@link Status#ACTIVE}
     *
     * @param coordinate the coordinate
     * @return true, if latest version active

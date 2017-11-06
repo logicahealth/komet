@@ -66,7 +66,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.UuidIntMapMap;
@@ -285,7 +285,7 @@ public class IBDFCreationUtility {
           StampPrecedence.PATH,
           stampPosition,
           new NidSet(),
-          State.makeAnyStateSet());
+          Status.makeAnyStateSet());
 
       final UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(
                                   UuidT5Generator.PATH_ID_FROM_FS_DESC,
@@ -411,7 +411,7 @@ public class IBDFCreationUtility {
          UUID uuidForCreatedAnnotation,
          DynamicData value,
          UUID refexDynamicTypeUuid,
-         State state,
+         Status state,
          Long time) {
       return addAnnotation(referencedComponent, uuidForCreatedAnnotation, ((value == null) ? new DynamicData[] {}
             : new DynamicData[] { value }), refexDynamicTypeUuid, state, time, null);
@@ -435,7 +435,7 @@ public class IBDFCreationUtility {
          UUID uuidForCreatedAnnotation,
          DynamicData[] values,
          UUID refexDynamicTypeUuid,
-         State state,
+         Status state,
          Long time,
          UUID module) {
       validateDataTypes(refexDynamicTypeUuid, values);
@@ -516,7 +516,7 @@ public class IBDFCreationUtility {
          UUID associationPrimordialUuid,
          UUID targetUuid,
          UUID associationTypeUuid,
-         State state,
+         Status state,
          Long time,
          UUID module) {
       if (!isConfiguredAsDynamicSememe(associationTypeUuid)) {
@@ -550,7 +550,7 @@ public class IBDFCreationUtility {
          DescriptionType wbDescriptionType,
          boolean preferred,
          UUID sourceDescriptionTypeUUID,
-         State state) {
+         Status state) {
       return addDescription(
           concept,
           null,
@@ -584,7 +584,7 @@ public class IBDFCreationUtility {
          DescriptionType wbDescriptionType,
          boolean preferred,
          UUID sourceDescriptionTypeUUID,
-         State status) {
+         Status status) {
       return addDescription(
           concept,
           descriptionPrimordialUUID,
@@ -628,7 +628,7 @@ public class IBDFCreationUtility {
          UUID languageCode,
          UUID module,
          UUID sourceDescriptionTypeUUID,
-         State state,
+         Status state,
          Long time) {
       if (descriptionValue == null) {
          throw new RuntimeException("Description value is required");
@@ -735,7 +735,7 @@ public class IBDFCreationUtility {
          UUID acceptabilityPrimordialUUID,
          UUID dialectRefset,
          boolean preferred,
-         State state,
+         Status state,
          Long time,
          UUID module) {
       final SemanticBuilder sb = this.sememeBuilderService.getComponentSemanticBuilder(
@@ -833,9 +833,7 @@ public class IBDFCreationUtility {
                 "This method requires properties that have a parent that are an instance of BPT_Descriptions");
          }
 
-         result.add(
-             addDescription(
-                 concept,
+         result.add(addDescription(concept,
                  vpp.getUUID(),
                  vpp.getValue(),
                  descriptionType,
@@ -846,8 +844,8 @@ public class IBDFCreationUtility {
                  null,
                  vpp.getProperty()
                     .getUUID(),
-                 (vpp.isDisabled() ? State.INACTIVE
-                                   : State.ACTIVE),
+                 (vpp.isDisabled() ? Status.INACTIVE
+                                   : Status.ACTIVE),
                  vpp.getTime()));
       }
 
@@ -863,7 +861,7 @@ public class IBDFCreationUtility {
     */
    public SemanticChronology addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
-      return addDescription(concept, fullySpecifiedName, DescriptionType.FULLY_QUALIFIED_NAME, true, null, State.ACTIVE);
+      return addDescription(concept, fullySpecifiedName, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
    }
 
    /**
@@ -956,8 +954,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SemanticChronology sci = (SemanticChronology) sb.build(
-                                                            createStamp(State.ACTIVE, selectTime(time, concept)),
+      final SemanticChronology sci = (SemanticChronology) sb.build(createStamp(Status.ACTIVE, selectTime(time, concept)),
                                                                   builtObjects);
 
       for (final IsaacExternalizable ochreObject: builtObjects) {
@@ -990,7 +987,7 @@ public class IBDFCreationUtility {
     */
    public SemanticChronology addRefsetMembership(ComponentReference referencedComponent,
          UUID refexDynamicTypeUuid,
-         State state,
+         Status state,
          Long time) {
       return addAnnotation(referencedComponent,
           null,
@@ -1075,9 +1072,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SemanticChronology sci = (SemanticChronology) sb.build(
-                                                            createStamp(
-                                                                  State.ACTIVE,
+      final SemanticChronology sci = (SemanticChronology) sb.build(createStamp(Status.ACTIVE,
                                                                         selectTime(time, concept),
                                                                         module),
                                                                   builtObjects);
@@ -1102,7 +1097,7 @@ public class IBDFCreationUtility {
    public SemanticChronology addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
-         State state) {
+         Status state) {
       @SuppressWarnings("rawtypes")
       final SemanticBuilder sb = this.sememeBuilderService.getStringSemanticBuilder(
                                    annotationValue,
@@ -1146,7 +1141,7 @@ public class IBDFCreationUtility {
    public SemanticChronology addStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
-         State status) {
+         Status status) {
       return addAnnotation(referencedComponent,
           null,
           new DynamicData[] { new DynamicStringImpl(annotationValue) },
@@ -1170,7 +1165,7 @@ public class IBDFCreationUtility {
          UUID uuidForCreatedAnnotation,
          String annotationValue,
          UUID refsetUuid,
-         State status) {
+         Status status) {
       return addAnnotation(referencedComponent,
           uuidForCreatedAnnotation,
           new DynamicData[] { new DynamicStringImpl(annotationValue) },
@@ -1245,7 +1240,7 @@ public class IBDFCreationUtility {
       addRefsetMembership(ComponentReference.fromConcept(associationTypeConcept),
           DynamicConstants.get().DYNAMIC_ASSOCIATION
                                 .getUUID(),
-          State.ACTIVE,
+          Status.ACTIVE,
           null);
 
       if (!StringUtils.isBlank(inverseName)) {
@@ -1255,12 +1250,12 @@ public class IBDFCreationUtility {
                                                                               DescriptionType.REGULAR_NAME,
                                                                               false,
                                                                               null,
-                                                                              State.ACTIVE);
+                                                                              Status.ACTIVE);
 
          addRefsetMembership(ComponentReference.fromChronology(inverseDesc),
              DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                    .getUUID(),
-             State.ACTIVE,
+             Status.ACTIVE,
              selectTime(null, ComponentReference.fromChronology(inverseDesc)));
       }
 
@@ -1299,14 +1294,13 @@ public class IBDFCreationUtility {
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
-      final SemanticChronology desc = addDescription(
-                                                              concept,
+      final SemanticChronology desc = addDescription(concept,
                                                                     temp,
                                                                     refexDescription,
                                                                     DescriptionType.DEFINITION,
                                                                     true,
                                                                     null,
-                                                                    State.ACTIVE);
+                                                                    Status.ACTIVE);
 
       // Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
       addAnnotation(ComponentReference.fromChronology(desc),
@@ -1314,7 +1308,7 @@ public class IBDFCreationUtility {
           (DynamicData) null,
           DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                 .getUUID(),
-          State.ACTIVE,
+          Status.ACTIVE,
           null);
 
       // define the data columns (if any)
@@ -1328,7 +1322,7 @@ public class IBDFCreationUtility {
                 data,
                 DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                       .getUUID(),
-                State.ACTIVE,
+                Status.ACTIVE,
                 null,
                 null);
          }
@@ -1342,7 +1336,7 @@ public class IBDFCreationUtility {
                 new DynamicData[] { indexInfo },
                 DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                       .getPrimordialUuid(),
-                State.ACTIVE,
+                Status.ACTIVE,
                 null,
                 null);
          }
@@ -1362,7 +1356,7 @@ public class IBDFCreationUtility {
              data,
              DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                    .getUUID(),
-             State.ACTIVE,
+             Status.ACTIVE,
              null,
              null);
       }
@@ -1375,7 +1369,7 @@ public class IBDFCreationUtility {
     * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology createConcept(UUID conceptPrimordialUuid) {
-      return createConcept(conceptPrimordialUuid, (Long) null, State.ACTIVE, null);
+      return createConcept(conceptPrimordialUuid, (Long) null, Status.ACTIVE, null);
    }
 
    /**
@@ -1419,7 +1413,7 @@ public class IBDFCreationUtility {
    public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fqn,
          boolean createSynonymFromFQN) {
-      return createConcept(conceptPrimordialUuid, fqn, createSynonymFromFQN, null, State.ACTIVE);
+      return createConcept(conceptPrimordialUuid, fqn, createSynonymFromFQN, null, Status.ACTIVE);
    }
 
    /**
@@ -1433,7 +1427,7 @@ public class IBDFCreationUtility {
     */
    public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          Long time,
-         State status,
+         Status status,
          UUID module) {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
                                                                                  .getConceptChronology(conceptPrimordialUuid);
@@ -1480,7 +1474,7 @@ public class IBDFCreationUtility {
          String fqn,
          boolean createSynonymFromFQN,
          Long time,
-         State status) {
+         Status status) {
       final ConceptChronology cc = createConcept(
                                                                     conceptPrimordialUuid,
                                                                           time,
@@ -1497,7 +1491,7 @@ public class IBDFCreationUtility {
              DescriptionType.REGULAR_NAME,
              true,
              null,
-             State.ACTIVE);
+             Status.ACTIVE);
       }
 
       return cc;
@@ -1555,7 +1549,7 @@ public class IBDFCreationUtility {
              DescriptionType.REGULAR_NAME,
              true,
              null,
-             State.ACTIVE);
+             Status.ACTIVE);
       }
 
       if (StringUtils.isNotEmpty(altName)) {
@@ -1564,17 +1558,16 @@ public class IBDFCreationUtility {
              DescriptionType.REGULAR_NAME,
              false,
              null,
-             State.ACTIVE);
+             Status.ACTIVE);
       }
 
       if (StringUtils.isNotEmpty(definition)) {
-         addDescription(
-             ComponentReference.fromConcept(concept),
+         addDescription(ComponentReference.fromConcept(concept),
              definition,
              DescriptionType.DEFINITION,
              true,
              null,
-             State.ACTIVE);
+             Status.ACTIVE);
       }
 
       return concept;
@@ -1626,7 +1619,7 @@ public class IBDFCreationUtility {
     * @param time - time or null (for default)
     * @return the int
     */
-   public int createStamp(State state, Long time) {
+   public int createStamp(Status state, Long time) {
       return createStamp(state, time, null);
    }
 
@@ -1638,10 +1631,9 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the int
     */
-   public int createStamp(State state, Long time, UUID module) {
+   public int createStamp(Status state, Long time, UUID module) {
       return Get.stampService()
-                .getStampSequence(
-                    (state == null) ? State.ACTIVE
+                .getStampSequence((state == null) ? Status.ACTIVE
                                     : state,
                     (time == null) ? this.defaultTime
                                    : time,
@@ -1736,7 +1728,7 @@ public class IBDFCreationUtility {
                   addRefsetMembership(ComponentReference.fromConcept(concept),
                       DynamicConstants.get().DYNAMIC_ASSOCIATION
                                             .getUUID(),
-                      State.ACTIVE,
+                      Status.ACTIVE,
                       null);
 
                   // add the inverse name, if it has one
@@ -1747,12 +1739,12 @@ public class IBDFCreationUtility {
                                                                                           DescriptionType.REGULAR_NAME,
                                                                                           false,
                                                                                           null,
-                                                                                          State.ACTIVE);
+                                                                                          Status.ACTIVE);
 
                      addRefsetMembership(ComponentReference.fromChronology(inverseDesc),
                          DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                                .getUUID(),
-                         State.ACTIVE,
+                         Status.ACTIVE,
                          selectTime(null, ComponentReference.fromChronology(inverseDesc)));
                   }
                }
@@ -1793,37 +1785,32 @@ public class IBDFCreationUtility {
          String converterOutputArtifactVersion,
          Optional<String> converterOutputArtifactClassifier,
          String converterVersion) {
-      addStaticStringAnnotation(
-          terminologyMetadataRootConcept,
+      addStaticStringAnnotation(terminologyMetadataRootConcept,
           converterSourceArtifactVersion,
           MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(),
-          State.ACTIVE);
-      addStaticStringAnnotation(
-          terminologyMetadataRootConcept,
+          Status.ACTIVE);
+      addStaticStringAnnotation(terminologyMetadataRootConcept,
           converterOutputArtifactVersion,
           MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(),
-          State.ACTIVE);
-      addStaticStringAnnotation(
-          terminologyMetadataRootConcept,
+          Status.ACTIVE);
+      addStaticStringAnnotation(terminologyMetadataRootConcept,
           converterVersion,
           MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(),
-          State.ACTIVE);
+          Status.ACTIVE);
 
       if (converterOutputArtifactClassifier.isPresent() &&
             StringUtils.isNotBlank(converterOutputArtifactClassifier.get())) {
-         addStaticStringAnnotation(
-             terminologyMetadataRootConcept,
+         addStaticStringAnnotation(terminologyMetadataRootConcept,
              converterOutputArtifactClassifier.get(),
              MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR.getPrimordialUuid(),
-             State.ACTIVE);
+             Status.ACTIVE);
       }
 
       if (converterSourceReleaseDate.isPresent() && StringUtils.isNotBlank(converterSourceReleaseDate.get())) {
-         addStaticStringAnnotation(
-             terminologyMetadataRootConcept,
+         addStaticStringAnnotation(terminologyMetadataRootConcept,
              converterSourceReleaseDate.get(),
              MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(),
-             State.ACTIVE);
+             Status.ACTIVE);
       }
    }
 

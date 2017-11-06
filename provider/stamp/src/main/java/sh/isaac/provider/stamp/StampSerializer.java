@@ -49,7 +49,7 @@ import java.io.Serializable;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataSerializer;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.Stamp;
 
 //~--- classes ----------------------------------------------------------------
@@ -75,7 +75,7 @@ public class StampSerializer
    @Override
    public Stamp deserialize(DataInput in) {
       try {
-         return new Stamp(State.getFromBoolean(in.readBoolean()),
+         return new Stamp(Status.getFromBoolean(in.readBoolean()),
                           in.readLong(),
                           in.readInt(),
                           in.readInt(),

@@ -41,7 +41,7 @@ package sh.isaac.api.identity;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -95,11 +95,11 @@ public interface StampedVersion {
    int getStampSequence();
 
    /**
-    * Gets the state.
+    * Gets the status.
     *
     * @return the state of this version.
     */
-   State getState();
+   Status getState();
 
    /**
     * Long.MIN_VALUE indicates a canceled transaction. Long.MAX_VALUE indicates an

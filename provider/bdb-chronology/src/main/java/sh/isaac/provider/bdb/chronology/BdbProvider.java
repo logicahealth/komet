@@ -329,6 +329,12 @@ public class BdbProvider
          for (int nid: assemblageNidsSet.asArray()) {
             assemblageNids.add(nid);
          }
+         
+         LOG.info("Off heap cache size: " + myDbEnvironment.getConfig().getOffHeapCacheSize());
+         LOG.info("Max disk: " + myDbEnvironment.getConfig().getMaxDisk());
+         LOG.info("MAX_MEMORY: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_MEMORY));
+         LOG.info("MAX_MEMORY_PERCENT: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_MEMORY_PERCENT));
+         LOG.info("MAX_OFF_HEAP_MEMORY: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_OFF_HEAP_MEMORY));
       } catch (Throwable dbe) {
          dbe.printStackTrace();
          throw new RuntimeException(dbe);
@@ -344,23 +350,15 @@ public class BdbProvider
 
       try {
          if (myDbEnvironment != null) {
-            databases.forEach(
-                (key, database) -> {
-                   LOG.info("Syncronizing: " + key + " count: " + database.count());
-                   database.sync();
-                });
+            sync();
             databases.forEach(
                 (key, database) -> {
                    LOG.info("Closing: " + key);
                    database.close();
                 });
 
-            NidSet assemblageNidSet = NidSet.of(assemblageNids);
 
-            putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
-            propertyDatabase.sync();
             LOG.info("property count at close: " + propertyDatabase.count());
-            identifierDatabase.sync();
             LOG.info("identifier count at close: " + identifierDatabase.count());
             LOG.info("closing property database. ");
             propertyDatabase.close();
@@ -372,6 +370,21 @@ public class BdbProvider
          LOG.error(ex);
          throw ex;
       }
+   }
+
+   public void sync() {
+      NidSet assemblageNidSet = NidSet.of(assemblageNids);
+      putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
+      databases.forEach(
+              (key, database) -> {
+                 LOG.info("Syncronizing: " + key + " count: " + database.count());
+                 database.sync();
+              });
+      LOG.info("Syncronizing identifier database count: " + identifierDatabase.count());
+      identifierDatabase.sync();
+      LOG.info("Syncronizing property database count: " + propertyDatabase.count());
+      propertyDatabase.sync();
+      myDbEnvironment.sync();
    }
 
    //~--- get methods ---------------------------------------------------------

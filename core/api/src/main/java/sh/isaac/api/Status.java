@@ -34,54 +34,55 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.EnumSet;
 
 //~--- enums ------------------------------------------------------------------
-
 /**
- * The Enum State.
+ * The Enum Status.
  *
  * @author kec
  */
-public enum State {
+public enum Status {
    /**
     * Currently inactive.
     */
    INACTIVE(false, "Inactive", "I"),
-
    /**
     * Currently active.
     */
    ACTIVE(true, "Active", "A"),
-
    /**
     * Not yet created.
     */
    PRIMORDIAL(false, "Primordial", "P"),
-
    /**
     * Canceled prior to commit.
     */
-   CANCELED(false, "Canceled", "C");
+   CANCELED(false, "Canceled", "C"),
+   /**
+    * Withdrawn after being committed, but should no longer be used in snapshot computations.
+    */
+   WITHDRAWN(false, "Withdrawn", "W");
 
-   /** The is active. */
+   /**
+    * The is active.
+    */
    boolean isActive;
 
-   /** The name. */
+   /**
+    * The name.
+    */
    String name;
 
-   /** The abbreviation. */
+   /**
+    * The abbreviation.
+    */
    String abbreviation;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new state.
     *
@@ -89,42 +90,41 @@ public enum State {
     * @param name the name
     * @param abbreviation the abbreviation
     */
-   State(boolean isActive, String name, String abbreviation) {
-      this.isActive     = isActive;
-      this.name         = name;
+   Status(boolean isActive, String name, String abbreviation) {
+      this.isActive = isActive;
+      this.name = name;
       this.abbreviation = abbreviation;
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Inverse.
     *
     * @return the state
     */
-   public State inverse() {
+   public Status inverse() {
       switch (this) {
-      case ACTIVE:
-         return INACTIVE;
+         case ACTIVE:
+            return INACTIVE;
 
-      case INACTIVE:
-         return ACTIVE;
+         case INACTIVE:
+            return ACTIVE;
 
-      default:
-         return this;
+         default:
+            return this;
       }
    }
 
-   public static EnumSet<State> makeActiveOnlySet() {
+   public static EnumSet<Status> makeActiveOnlySet() {
       return EnumSet.of(ACTIVE);
    }
 
-   public static EnumSet<State> makeActiveAndInactiveSet() {
+   public static EnumSet<Status> makeActiveAndInactiveSet() {
       return EnumSet.of(ACTIVE, INACTIVE);
    }
 
-   public static EnumSet<State> makeAnyStateSet() {
-      return EnumSet.allOf(State.class);
+   public static EnumSet<Status> makeAnyStateSet() {
+      return EnumSet.allOf(Status.class);
    }
 
    /**
@@ -138,7 +138,6 @@ public enum State {
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the abbreviation.
     *
@@ -157,7 +156,7 @@ public enum State {
       return this.isActive;
    }
 
-   public static boolean isActiveOnlySet(EnumSet<State> setToTest) {
+   public static boolean isActiveOnlySet(EnumSet<Status> setToTest) {
       if (setToTest.size() != 1) {
          return false;
       }
@@ -180,12 +179,22 @@ public enum State {
     * @param isActive the is active
     * @return the from boolean
     */
-   public static State getFromBoolean(boolean isActive) {
+   public static Status getFromBoolean(boolean isActive) {
       if (isActive) {
          return ACTIVE;
       }
 
       return INACTIVE;
    }
-}
 
+   public static Status fromZeroOneToken(String token) {
+      switch (token) {
+         case "1":
+            return Status.ACTIVE;
+         case "0":
+            return Status.INACTIVE;
+         default:
+            throw new UnsupportedOperationException("Can't handle token: " + token);
+      }
+   }
+}

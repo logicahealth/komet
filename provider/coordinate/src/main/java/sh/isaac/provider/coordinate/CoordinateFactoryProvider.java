@@ -58,7 +58,7 @@ import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -260,7 +260,7 @@ public class CoordinateFactoryProvider
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          CharSequence dateTimeText) {
       final StampPositionImpl stampPosition = new StampPositionImpl(
                                                   LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
@@ -283,7 +283,7 @@ public class CoordinateFactoryProvider
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          TemporalAccessor temporal) {
       final StampPositionImpl stampPosition = new StampPositionImpl(
                                                   LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
@@ -311,7 +311,7 @@ public class CoordinateFactoryProvider
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          int year,
          int month,
          int dayOfMonth,

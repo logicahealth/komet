@@ -53,7 +53,7 @@ import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -175,7 +175,7 @@ public class PropertySheetMenuItem
    private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
       return new PropertySheetStatusWrapper(nameForProperty,
-              (ObjectProperty<State>) getPropertyMap().get(propertyConceptSpecification));
+              (ObjectProperty<Status>) getPropertyMap().get(propertyConceptSpecification));
    }
 
    private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,

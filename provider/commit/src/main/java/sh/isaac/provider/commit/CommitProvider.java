@@ -1231,4 +1231,10 @@ public class CommitProvider
          return hash;
       }
    }
+
+
+   @Override
+   public void sync() {
+      // not implemented for commit provider. 
+   }
 }

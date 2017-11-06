@@ -51,7 +51,7 @@ import java.util.List;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.LanguageCoordinateService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
@@ -164,7 +164,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          CharSequence dateTimeText);
 
    /**
@@ -181,7 +181,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          TemporalAccessor temporal);
 
    /**
@@ -203,7 +203,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
-         EnumSet<State> allowedStateSet,
+         EnumSet<Status> allowedStateSet,
          int year,
          int month,
          int dayOfMonth,

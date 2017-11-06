@@ -54,7 +54,7 @@ import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -86,7 +86,7 @@ public class ObservableStampCoordinateImpl
    ObjectProperty<ObservableIntegerArray> moduleNidsProperty;
 
    /** The allowed states. */
-   SetProperty<State> allowedStates;
+   SetProperty<Status> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
@@ -111,7 +111,7 @@ public class ObservableStampCoordinateImpl
     * @return the set property
     */
    @Override
-   public SetProperty<State> allowedStatesProperty() {
+   public SetProperty<Status> allowedStatesProperty() {
       if (this.allowedStates == null) {
          this.allowedStates = new SimpleSetProperty<>(this,
                ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(),
@@ -142,7 +142,7 @@ public class ObservableStampCoordinateImpl
     * @return the observable stamp coordinate
     */
    @Override
-   public ObservableStampCoordinate makeCoordinateAnalog(State... state) {
+   public ObservableStampCoordinate makeCoordinateAnalog(Status... state) {
       final StampCoordinate analog = this.stampCoordinate.makeCoordinateAnalog(state);
 
       return new ObservableStampCoordinateImpl(analog);
@@ -217,7 +217,7 @@ public class ObservableStampCoordinateImpl
     * @return the allowed states
     */
    @Override
-   public EnumSet<State> getAllowedStates() {
+   public EnumSet<Status> getAllowedStates() {
       return this.stampCoordinate.getAllowedStates();
    }
 

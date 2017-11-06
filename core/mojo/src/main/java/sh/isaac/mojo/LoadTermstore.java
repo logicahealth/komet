@@ -73,7 +73,7 @@ import java.util.concurrent.ExecutionException;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -307,7 +307,7 @@ public class LoadTermstore
                                  final ConceptProxy userProxy = new ConceptProxy("user",
                                                                                  "f7495b58-6630-3499-a44e-2052b5fcf06c");
                                  final int stampSequence = Get.stampService()
-                                                              .getStampSequence(State.ACTIVE,
+                                                              .getStampSequence(Status.ACTIVE,
                                                                     loadTime,
                                                                     userProxy.getNid(),
                                                                     moduleProxy.getNid(),
@@ -478,7 +478,7 @@ public class LoadTermstore
          throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
       } else {
          return ((StampedVersion) object.getVersionList()
-                                        .get(0)).getState() == State.ACTIVE;
+                                        .get(0)).getState() == Status.ACTIVE;
       }
    }
 

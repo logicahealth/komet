@@ -61,7 +61,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -267,7 +267,7 @@ public class SemanticIndexerConfiguration {
 
       final DynamicVersion rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
-      if ((rdv != null) && (rdv.getState() == State.ACTIVE)) {
+      if ((rdv != null) && (rdv.getState() == Status.ACTIVE)) {
          LookupService.get()
                       .getService(SemanticIndexerConfiguration.class).readNeeded
                       .incrementAndGet();
@@ -280,8 +280,7 @@ public class SemanticIndexerConfiguration {
                   .getService(SemanticIndexer.class));
          }
 
-         ((SemanticChronology) rdv.getChronology()).createMutableVersion(
-               State.INACTIVE,
+         ((SemanticChronology) rdv.getChronology()).createMutableVersion(Status.INACTIVE,
                EditCoordinates.getDefaultUserMetadata());
          Get.commitService()
             .addUncommitted(rdv.getChronology());
@@ -387,7 +386,7 @@ public class SemanticIndexerConfiguration {
                                          final LatestVersion<DynamicVersion> dsv =
                                             ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.isPresent() && (dsv.get().getState() == State.ACTIVE)) {
+                                         if (dsv.isPresent() && (dsv.get().getState() == Status.ACTIVE)) {
                                             final int assemblageToIndex = dsv.get()
                                                                                    .getReferencedComponentNid();
                                             Integer[]                 finalCols = new Integer[] {};

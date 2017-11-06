@@ -47,7 +47,7 @@ package sh.isaac.api.observable.concept;
 import javafx.beans.property.IntegerProperty;
 
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -103,7 +103,7 @@ public interface ObservableConceptChronology
     * @return the mutable version
     */
    @Override
-   ObservableConceptVersion createMutableVersion(State state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(Status state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

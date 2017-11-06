@@ -86,7 +86,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -342,7 +342,7 @@ public class ConceptDetailPanelNode
 
                                                  if (latest.isPresent()) {
                                                     return latest.get()
-                                                          .getState() == State.ACTIVE;
+                                                          .getState() == Status.ACTIVE;
                                                  }
                                               }
                                            default:
@@ -519,14 +519,14 @@ public class ConceptDetailPanelNode
                                    .clear();
          this.conceptDetailManifold.getStampCoordinate()
                                    .allowedStatesProperty()
-                                   .addAll(State.makeActiveAndInactiveSet());
+                                   .addAll(Status.makeActiveAndInactiveSet());
       } else {
          this.conceptDetailManifold.getStampCoordinate()
                                    .allowedStatesProperty()
                                    .clear();
          this.conceptDetailManifold.getStampCoordinate()
                                    .allowedStatesProperty()
-                                   .addAll(State.makeActiveOnlySet());
+                                   .addAll(Status.makeActiveOnlySet());
       }
    }
 
@@ -539,7 +539,7 @@ public class ConceptDetailPanelNode
             stampOrderHashMap.put(stampSequence, 0);
          } else {
             if (Get.stampService()
-                   .getStatusForStamp(stampSequence) == State.ACTIVE) {
+                   .getStatusForStamp(stampSequence) == Status.ACTIVE) {
                stampOrderHashMap.put(stampSequence, 0);
             }
          }
@@ -577,13 +577,12 @@ public class ConceptDetailPanelNode
 
       final AtomicInteger stampOrder = new AtomicInteger();
 
-      sortedStampSequences.forEach(
-          (stampSequence) -> {
+      sortedStampSequences.forEach((stampSequence) -> {
              if (historySwitch.isSelected()) {
                 stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
              } else {
                 if (Get.stampService()
-                       .getStatusForStamp(stampSequence) == State.ACTIVE) {
+                       .getStatusForStamp(stampSequence) == Status.ACTIVE) {
                    stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
                 }
              }

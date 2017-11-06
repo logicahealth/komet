@@ -54,7 +54,7 @@ import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
@@ -74,7 +74,7 @@ public class Stamp
    private final int pathNid;
 
    /** The status. */
-   private final State status;
+   private final Status status;
 
    /** The module nid. */
    private final int moduleNid;
@@ -93,7 +93,7 @@ public class Stamp
    public Stamp(DataInput in)
             throws IOException {
       super();
-      this.status         = State.values()[in.readInt()];
+      this.status         = Status.values()[in.readInt()];
       this.time           = in.readLong();
       this.authorNid = in.readInt();
       this.moduleNid = in.readInt();
@@ -124,7 +124,7 @@ public class Stamp
     * @param moduleNid the module nid
     * @param pathNid the path nid
     */
-   public Stamp(State status, long time, int authorNid, int moduleNid, int pathNid) {
+   public Stamp(Status status, long time, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
       this.time           = time;
@@ -275,7 +275,7 @@ public class Stamp
     * @return the stamp
     */
    public static Stamp stampFromIntStamp(int stamp) {
-      final State status         = Get.stampService()
+      final Status status         = Get.stampService()
                                       .getStatusForStamp(stamp);
       final long  time           = Get.stampService()
                                       .getTimeForStamp(stamp);
@@ -385,7 +385,7 @@ public class Stamp
     *
     * @return the status
     */
-   public State getStatus() {
+   public Status getStatus() {
       return this.status;
    }
 
