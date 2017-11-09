@@ -65,6 +65,7 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.model.semantic.version.Rf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -155,7 +156,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     * @param bb the bb
     * @return the sememe version impl
     */
-   public static AbstractVersionImpl createSememe(byte token,
+   public static AbstractVersionImpl createSemantic(byte token,
          SemanticChronologyImpl container,
          int stampSequence,
          ByteArrayDataBuffer bb) {
@@ -166,34 +167,25 @@ public class SemanticChronologyImpl extends ChronologyImpl
          return new SemanticVersionImpl(container, stampSequence);
 
       case COMPONENT_NID:
-         return new ComponentNidVersionImpl((SemanticChronologyImpl) container,
-                                           stampSequence,
-                                           bb);
+         return new ComponentNidVersionImpl(container, stampSequence, bb);
 
       case LONG:
-         return new LongVersionImpl((SemanticChronologyImpl) container,
-                                   stampSequence,
-                                   bb);
+         return new LongVersionImpl(container, stampSequence, bb);
 
       case LOGIC_GRAPH:
-         return new LogicGraphVersionImpl((SemanticChronologyImpl) container,
-                                         stampSequence,
-                                         bb);
+         return new LogicGraphVersionImpl(container, stampSequence, bb);
 
       case DYNAMIC:
-         return new DynamicImpl((SemanticChronologyImpl) container,
-                                      stampSequence,
-                                      bb);
+         return new DynamicImpl(container, stampSequence, bb);
 
       case STRING:
-         return new StringVersionImpl((SemanticChronologyImpl) container,
-                                     stampSequence,
-                                     bb);
+         return new StringVersionImpl(container, stampSequence, bb);
 
       case DESCRIPTION:
-         return (new DescriptionVersionImpl((SemanticChronologyImpl) container,
-                                           stampSequence,
-                                           bb));
+         return (new DescriptionVersionImpl(container, stampSequence, bb));
+         
+      case RF2_RELATIONSHIP:
+         return new Rf2RelationshipImpl(container, stampSequence, bb);
 
       default:
          throw new UnsupportedOperationException("ae Can't handle: " + token);
@@ -325,6 +317,9 @@ public class SemanticChronologyImpl extends ChronologyImpl
       case DESCRIPTION:
             return (M) new DescriptionVersionImpl((SemanticChronology) this,
                   stampSequence);
+            
+      case RF2_RELATIONSHIP:
+         return (M) new Rf2RelationshipImpl((SemanticChronology) this, stampSequence);
 
       default:
          throw new UnsupportedOperationException("af Can't handle: " + getVersionType());
@@ -342,7 +337,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
    protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
       // consume legacy version sequence. 
       db.getShort();
-      return (V) createSememe(this.semanticTypeToken, this, stampSequence, db);
+      return (V) createSemantic(this.semanticTypeToken, this, stampSequence, db);
    }
 
    /**

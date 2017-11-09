@@ -266,7 +266,7 @@ public class LoincImportMojo
 
          this.importUtil = new IBDFCreationUtility(
              Optional.empty(),
-             Optional.of(MetaData.LOINC_MODULES____SOLOR),
+             Optional.of(MetaData.SOLOR_MODULE____SOLOR),
              this.outputDirectory,
              this.converterOutputArtifactId,
              this.converterOutputArtifactVersion,

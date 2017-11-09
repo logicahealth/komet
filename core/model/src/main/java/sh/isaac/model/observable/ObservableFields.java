@@ -200,7 +200,17 @@ public enum ObservableFields
    
    LOGIC_GRAPH_FOR_SEMANTIC("logic graph for semantic"),
    
-   LONG_VALUE_FOR_SEMANTIC("long value for semantic");
+   LONG_VALUE_FOR_SEMANTIC("long value for semantic"),
+   
+   TYPE_NID_FOR_RF2_REL("type nid for rf2 relationship"),
+   
+   DESTINATION_NID_FOR_RF2_REL("destination nid for rf2 relationship"),
+   
+   REL_GROUP_FOR_RF2_REL("relationship group for rf2 relationship"),
+   
+   CHARACTERISTIC_NID_FOR_RF2_REL("characteristic nid for rf2 relationship"),
+   
+   MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship");
 
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");

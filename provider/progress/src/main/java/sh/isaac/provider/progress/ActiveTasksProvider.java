@@ -82,9 +82,15 @@ public class ActiveTasksProvider
    @Override
    public void add(Task<?> task) {
       if (Platform.isFxApplicationThread()) {
-         this.taskSet.add(task);
+         if (!task.isDone()) {
+            this.taskSet.add(task);
+         }
       } else {
-         Platform.runLater(() -> this.taskSet.add(task));
+         Platform.runLater(() -> {
+            if (!task.isDone()) {
+               this.taskSet.add(task);
+            }
+         });
       }
       
    }

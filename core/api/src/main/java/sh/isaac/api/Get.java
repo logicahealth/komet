@@ -324,7 +324,10 @@ public class Get
    }
 
    public static ConceptChronology concept(ConceptSpecification spec) {
-      return conceptService().getConceptChronology(spec);
+      if (spec != null) {
+         return conceptService().getConceptChronology(spec);
+      }
+      return null;
    }
 
    public static ConceptChronology concept(int id) {

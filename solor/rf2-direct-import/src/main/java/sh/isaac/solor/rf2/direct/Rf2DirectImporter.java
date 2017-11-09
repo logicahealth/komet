@@ -239,6 +239,7 @@ public class Rf2DirectImporter
                  "Finishing concepts from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(conceptWriter);
       }
+      updateMessage("Sunchronizing database...");
       conceptService.sync();
    }
 
@@ -265,6 +266,7 @@ public class Rf2DirectImporter
                  "Finishing descriptions from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
+      updateMessage("Sunchronizing database...");
       assemblageService.sync();
    }
 
@@ -291,23 +293,64 @@ public class Rf2DirectImporter
                  "Finishing dialect from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
+      updateMessage("Sunchronizing database...");
       assemblageService.sync();
    }
 
    private void readInferredRelationships(BufferedReader br, ImportSpecification importSpecification) throws IOException {
+      AssemblageService assemblageService = Get.assemblageService();
+      final int writeSize = 102400;
+      ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
+      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
+         columnsToWrite.add(columns);
+         if (columnsToWrite.size() == writeSize) {
+            Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(columnsToWrite, this.writeSemaphore,
+                    "Processing inferred rels from: " + trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
+            columnsToWrite = new ArrayList<>(writeSize);
+            Get.executor().submit(relWriter);
+            this.writeSemaphore.acquireUninterruptibly();
+         }
       }
+      if (!columnsToWrite.isEmpty()) {
+         Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(columnsToWrite, this.writeSemaphore,
+                 "Finishing inferred rels from: " + 
+                         trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
+         Get.executor().submit(relWriter);
+      }
+      updateMessage("Sunchronizing database...");
+      assemblageService.sync();
    }
 
    private void readStatedRelationships(BufferedReader br, ImportSpecification importSpecification) throws IOException {
+      AssemblageService assemblageService = Get.assemblageService();
+      final int writeSize = 102400;
+      ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
+      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
+         columnsToWrite.add(columns);
+         if (columnsToWrite.size() == writeSize) {
+            Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(columnsToWrite, this.writeSemaphore,
+                    "Processing stated rels from: " + trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.STATED_RELATIONSHIP);
+            columnsToWrite = new ArrayList<>(writeSize);
+            Get.executor().submit(relWriter);
+            this.writeSemaphore.acquireUninterruptibly();
+         }
       }
+      if (!columnsToWrite.isEmpty()) {
+         Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(columnsToWrite, this.writeSemaphore,
+                 "Finishing stated rels from: " + 
+                         trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.STATED_RELATIONSHIP);
+         Get.executor().submit(relWriter);
+      }
+      updateMessage("Sunchronizing database...");
+      assemblageService.sync();
    }
 
    @Override

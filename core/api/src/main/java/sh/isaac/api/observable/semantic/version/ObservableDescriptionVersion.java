@@ -60,21 +60,21 @@ public interface ObservableDescriptionVersion
     *
     * @return the integer property
     */
-   IntegerProperty caseSignificanceConceptSequenceProperty();
+   IntegerProperty caseSignificanceConceptNidProperty();
 
    /**
     * Description type concept sequence property.
     *
     * @return the integer property
     */
-   IntegerProperty descriptionTypeConceptSequenceProperty();
+   IntegerProperty descriptionTypeConceptNidProperty();
 
    /**
     * Language concept sequence property.
     *
     * @return the integer property
     */
-   IntegerProperty languageConceptSequenceProperty();
+   IntegerProperty languageConceptNidProperty();
 
    /**
     * Text property.
@@ -111,7 +111,7 @@ public interface ObservableDescriptionVersion
     *
     * @param languageConceptSequence the new language concept sequence
     */
-   void setLanguageConceptSequence(int languageConceptSequence);
+   void setLanguageConceptNid(int languageConceptSequence);
 
 
    //~--- set methods ---------------------------------------------------------

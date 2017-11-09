@@ -180,7 +180,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             final Date releaseDate = dateReader.parse(loincData.getReleaseDate());
 
             this.importUtil = new IBDFCreationUtility(Optional.empty(),
-                                                      Optional.of(MetaData.LOINC_SOLOR_MODULES____SOLOR),
+                                                      Optional.of(MetaData.SOLOR_MODULE____SOLOR),
                                                       this.outputDirectory,
                                                       this.converterOutputArtifactId,
                                                       this.converterOutputArtifactClassifier,

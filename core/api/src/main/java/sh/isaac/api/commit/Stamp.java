@@ -61,6 +61,7 @@ import sh.isaac.api.util.Hashcode;
 
 /**
  * The Class Stamp.
+ * TODO: add license and copyright nids to the class. . 
  */
 public class Stamp
          implements Comparable<Stamp> {
@@ -93,7 +94,7 @@ public class Stamp
    public Stamp(DataInput in)
             throws IOException {
       super();
-      this.status         = Status.values()[in.readInt()];
+      this.status         = Status.valueOf(in.readUTF());
       this.time           = in.readLong();
       this.authorNid = in.readInt();
       this.moduleNid = in.readInt();
@@ -320,7 +321,7 @@ public class Stamp
     */
    public void write(DataOutput out)
             throws IOException {
-      out.writeInt(this.status.ordinal());
+      out.writeUTF(this.status.name());
       out.writeLong(this.time);
       out.writeInt(this.authorNid);
       out.writeInt(this.moduleNid);

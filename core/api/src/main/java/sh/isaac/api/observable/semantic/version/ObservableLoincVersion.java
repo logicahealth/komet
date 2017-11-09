@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version;
+package sh.isaac.api.observable.semantic.version;
+
+import javafx.beans.property.StringProperty;
+import sh.isaac.api.component.semantic.version.MutableLoincVersion;
 
 /**
  *
  * @author kec
  */
-public interface Rf2Relationship 
-        extends SemanticVersion {
-
-   int getTypeNid();
+public interface ObservableLoincVersion 
+        extends ObservableSemanticVersion, MutableLoincVersion {
    
-   int getDestinationNid();
+   StringProperty loincNumProperty(); 
+   StringProperty componentProperty();  
+   StringProperty propertyProperty();  
+   StringProperty timeAspectProperty();  
+   StringProperty systemProperty();  
+   StringProperty scaleTypeProperty();  
+   StringProperty methodTypeProperty();  
+   StringProperty statusProperty();   
+   StringProperty shortNameProperty();    
+   StringProperty longCommonNameProperty(); 
    
-   int getRelationshipGroup();
-   
-   int getCharacteristicNid();
-   
-   int getModifierNid();
-
 }

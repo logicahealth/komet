@@ -205,6 +205,12 @@ public enum VersionType {
       case 7:
          return DESCRIPTION;
 
+      case 9:
+         return CONCEPT;
+
+      case 10:
+         return RF2_RELATIONSHIP;
+
       default:
          throw new UnsupportedOperationException("d Can't handle: " + token);
       }

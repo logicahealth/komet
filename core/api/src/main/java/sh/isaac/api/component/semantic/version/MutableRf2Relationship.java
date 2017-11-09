@@ -16,21 +16,27 @@
  */
 package sh.isaac.api.component.semantic.version;
 
+import sh.isaac.api.chronicle.VersionType;
+
 /**
  *
  * @author kec
  */
-public interface Rf2Relationship 
-        extends SemanticVersion {
+public interface MutableRf2Relationship extends Rf2Relationship {
+   
+   void setTypeNid(int nid);
+   
+   void setDestinationNid(int nid);
+   
+   void setRelationshipGroup(int nid);
+   
+   void setCharacteristicNid(int nid);
+   
+   void setModifierNid(int nid);
 
-   int getTypeNid();
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.RF2_RELATIONSHIP;
+   }
    
-   int getDestinationNid();
-   
-   int getRelationshipGroup();
-   
-   int getCharacteristicNid();
-   
-   int getModifierNid();
-
 }

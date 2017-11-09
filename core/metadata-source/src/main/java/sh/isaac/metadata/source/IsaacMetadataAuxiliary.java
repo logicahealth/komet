@@ -140,7 +140,7 @@ public class IsaacMetadataAuxiliary
     */
    public IsaacMetadataAuxiliary()
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
+      super(TermAux.DEVELOPMENT_PATH, TermAux.KEITH_CAMPBELL, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
 
       try {
          createConcept(TermAux.SOLOR_ROOT);
@@ -154,12 +154,10 @@ public class IsaacMetadataAuxiliary
          createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
          pushParent(current());
          createConcept(TermAux.SOLOR_MODULE);
-         createConcept("SNOMED CT core modules").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
+         createConcept("SNOMED CT® core modules").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
          createConcept("US Extension modules");
-         createConcept("LOINC modules");
-         createConcept("LOINC Solor modules");
+         createConcept("LOINC® modules");
          createConcept("RxNorm modules");
-         createConcept("RxNorm Solor modules");
          createConcept("Generated administration of module");
          createConcept("SOLOR quality assurance rule module");
          createConcept("SOLOR automation rule module");
@@ -171,13 +169,16 @@ public class IsaacMetadataAuxiliary
          // The second UUID here was the old value from the TermAux - but this was an orphan.  to best fix the bug that resulted,
          // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
          createConcept(TermAux.SOLOR_OVERLAY_MODULE).addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
-         createConcept("HL7v3 modules");
+         createConcept("HL7® v3 modules");
          createConcept("NUCC modules");
          createConcept("CVX modules");
          createConcept("MVX modules");
-         createConcept("CPT modules");
+         createConcept("CPT® modules");
          popParent();
          createConcept(TermAux.USER);
+         pushParent(current());
+         createConcept(TermAux.KEITH_CAMPBELL);
+         popParent();
          createConcept(TermAux.PATH);
          pushParent(current());
 
@@ -219,7 +220,7 @@ public class IsaacMetadataAuxiliary
          createConcept("RXCUI").setPrimordialUuid(
              "617761d2-80ef-5585-83a0-60851dd44158");  // comes from the algorithm in the rxnorm econ loader
          createConcept("VUID", "Vets Unique Identifier");
-         createConcept("OID", "HL7 Object Identifier");
+         createConcept("OID", "HL7® Object Identifier");
          createConcept("Code").setPrimordialUuid(
              "803af596-aea8-5184-b8e1-45f801585d17");  // comes from the algorithm in the VHAT econ loader
          createConcept("CVXCode", "CVX Unique Identifier");
@@ -243,6 +244,22 @@ public class IsaacMetadataAuxiliary
          createConcept("Normal member").setPrimordialUuid("cc624429-b17d-4ac5-a69e-0b32448aaf3c");
          createConcept("Marked parent").setPrimordialUuid("125f3d04-de17-490e-afec-1431c2a39e29");
          popParent();
+         createConcept(TermAux.CONTENT_LICENSE);
+         pushParent(current());
+         createConcept(TermAux.SCT_AFFILIATES_LICENSE);
+         createConcept(TermAux.LOINC_LICENSE);
+         createConcept(TermAux.RXNORM_LICENSE);
+         createConcept(TermAux.APACHE_2_LICENSE);
+         createConcept(TermAux.CC_BY_LICENSE);
+         createConcept(TermAux.US_GOVERNMENT_WORK);
+         popParent();
+         createConcept(TermAux.COPYRIGHT);
+         pushParent(current());
+         createConcept(TermAux.SNOMED_COPYRIGHT);
+         createConcept(TermAux.COPYRIGHT_FREE_WORK);
+         createConcept(TermAux.REGENSTRIEF_AND_LOINC_COPYRIGHT);
+         createConcept(TermAux.INFORMATICS_INC_COPYRIGHT);
+         popParent();
          createConcept("Annotation type");
          pushParent(current());
          createConcept("Content issue");
@@ -259,8 +276,8 @@ public class IsaacMetadataAuxiliary
             createConcept("Quality assurance rule issue assemblage");
             createConcept("Automation issue assemblage");
             createConcept("Clinical statement issue assemblage");
-            createConcept("SNOMED issue assemblage");
-            createConcept("LOINC issue assemblage");
+            createConcept("SNOMED® issue assemblage");
+            createConcept("LOINC® issue assemblage");
             createConcept("RxNorm issue assemblage");
             createConcept("SOLOR issue assemblage");
          popParent();
@@ -292,13 +309,13 @@ public class IsaacMetadataAuxiliary
          createConcept(TermAux.CONCEPT_ASSEMBLAGE);
          pushParent(current());
          createConcept(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
-         createConcept(TermAux.SNOMED_CONCEPT_ASSEMBLAGE);
          createConcept(TermAux.LOINC_CONCEPT_ASSEMBLAGE);
          createConcept(TermAux.RXNORM_CONCEPT_ASSEMBLAGE);
          popParent();
          createConcept("External data assemblage");
          pushParent(current());
-         createConcept(TermAux.RF2_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
          popParent();
          createConcept("Rule assemblage");
          pushParent(current());

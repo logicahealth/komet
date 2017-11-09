@@ -20,17 +20,16 @@ package sh.isaac.api.component.semantic.version;
  *
  * @author kec
  */
-public interface Rf2Relationship 
+public interface LoincVersion 
         extends SemanticVersion {
-
-   int getTypeNid();
-   
-   int getDestinationNid();
-   
-   int getRelationshipGroup();
-   
-   int getCharacteristicNid();
-   
-   int getModifierNid();
-
+   String getLoincNum(); 
+   String getComponent();  
+   String getProperty();  
+   String getTimeAspect();  
+   String getSystem();  
+   String getScaleType();  
+   String getMethodType();  
+   String getStatus();   
+   String getShortName();    
+   String getLongCommonName(); 
 }

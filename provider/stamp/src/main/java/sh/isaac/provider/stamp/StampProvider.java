@@ -149,7 +149,7 @@ public class StampProvider
    /**
     * Persistent map of stamp sequences to a Stamp object.
     */
-   private final ConcurrentObjectIntMap<Stamp> stampMap = new ConcurrentObjectIntMap<>();
+   private final ConcurrentHashMap<Stamp, Integer> stampMap = new ConcurrentHashMap<>();
 
    /**
     * The load required.
@@ -179,7 +179,7 @@ public class StampProvider
    /**
     * Persistent as a result of reading and writing the stampMap.
     */
-   private final ConcurrentSequenceSerializedObjectMap<Stamp> inverseStampMap;
+   private final ConcurrentHashMap<Integer, Stamp> inverseStampMap;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -194,10 +194,7 @@ public class StampProvider
               .resolve("stamp-provider");
       this.loadRequired.set(Files.exists(this.dbFolderPath));
       Files.createDirectories(this.dbFolderPath);
-      this.inverseStampMap = new ConcurrentSequenceSerializedObjectMap<>(new StampSerializer(),
-              this.dbFolderPath,
-              null,
-              null);
+      this.inverseStampMap = new ConcurrentHashMap<>();
       this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
 
       if (!Files.exists(this.stampManagerFolder)) {
@@ -205,6 +202,83 @@ public class StampProvider
       }
 
       Files.createDirectories(this.stampManagerFolder);
+   }
+
+   /**
+    * Start me.
+    */
+   @PostConstruct
+   private void startMe() {
+      try {
+         LOG.info("Starting StampProvider post-construct");
+
+         if (this.loadRequired.get()) {
+            LOG.info("Reading existing commit manager data. ");
+            LOG.info("Reading " + STAMP_MANAGER_DATA_FILENAME);
+
+            try (DataInputStream in = new DataInputStream(new FileInputStream(new File(this.stampManagerFolder.toFile(),
+                    STAMP_MANAGER_DATA_FILENAME)))) {
+               this.nextStampSequence.set(in.readInt());
+
+               final int stampMapSize = in.readInt();
+
+               for (int i = 0; i < stampMapSize; i++) {
+                  final int stampSequence = in.readInt();
+                  final Stamp stamp = new Stamp(in);
+
+                  this.stampMap.put(stamp, stampSequence);
+                  this.inverseStampMap.put(stampSequence, stamp);
+               }
+
+               final int uncommittedSize = in.readInt();
+
+               for (int i = 0; i < uncommittedSize; i++) {
+                  UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().put(new UncommittedStamp(in), in.readInt());
+               }
+            }
+
+            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+         }
+      } catch (final IOException e) {
+         LookupService.getService(SystemStatusService.class)
+                 .notifyServiceConfigurationFailure("Stamp Provider", e);
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * Stop me.
+    */
+   @PreDestroy
+   private void stopMe() {
+      LOG.info("Stopping StampProvider pre-destroy. ");
+
+      try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(this.stampManagerFolder.toFile(),
+              STAMP_MANAGER_DATA_FILENAME)))) {
+         out.writeInt(this.nextStampSequence.get());
+         out.writeInt(this.stampMap.size());
+         this.stampMap.forEach((Stamp stamp,
+                 Integer stampSequence) -> {
+            try {
+               out.writeInt(stampSequence);
+               stamp.write(out);
+            } catch (final IOException ex) {
+               throw new RuntimeException(ex);
+            }
+         });
+
+         final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().size();
+
+         out.writeInt(size);
+
+         for (final Map.Entry<UncommittedStamp, Integer> entry : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
+            entry.getKey()
+                    .write(out);
+            out.writeInt(entry.getValue());
+         }
+      } catch (final IOException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    //~--- methods -------------------------------------------------------------
@@ -223,16 +297,16 @@ public class StampProvider
    /**
     * Cancel.
     *
-    * @param authorSequence the author sequence
+    * @param authorNid the author sequence
     * @return the task
     */
    @Override
-   public synchronized Task<Void> cancel(int authorSequence) {
+   public synchronized Task<Void> cancel(int authorNid) {
       Map<UncommittedStamp, Integer> map = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get();
       map.forEach((uncommittedStamp, stampSequence) -> {
          // for each uncommitted stamp matching the author, remove the uncommitted stamp
          // and replace with a canceled stamp.
-         if (uncommittedStamp.authorNid == authorSequence) {
+         if (uncommittedStamp.authorNid == authorNid) {
             final Stamp stamp = new Stamp(uncommittedStamp.status,
                     Long.MIN_VALUE,
                     uncommittedStamp.authorNid,
@@ -390,83 +464,6 @@ public class StampProvider
       return getStatusForStamp(stampSequence1) == getStatusForStamp(stampSequence2);
    }
 
-   /**
-    * Start me.
-    */
-   @PostConstruct
-   private void startMe() {
-      try {
-         LOG.info("Starting StampProvider post-construct");
-
-         if (this.loadRequired.get()) {
-            LOG.info("Reading existing commit manager data. ");
-            LOG.info("Reading " + STAMP_MANAGER_DATA_FILENAME);
-
-            try (DataInputStream in = new DataInputStream(new FileInputStream(new File(this.stampManagerFolder.toFile(),
-                    STAMP_MANAGER_DATA_FILENAME)))) {
-               this.nextStampSequence.set(in.readInt());
-
-               final int stampMapSize = in.readInt();
-
-               for (int i = 0; i < stampMapSize; i++) {
-                  final int stampSequence = in.readInt();
-                  final Stamp stamp = new Stamp(in);
-
-                  this.stampMap.put(stamp, stampSequence);
-                  this.inverseStampMap.put(stampSequence, stamp);
-               }
-
-               final int uncommittedSize = in.readInt();
-
-               for (int i = 0; i < uncommittedSize; i++) {
-                  UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().put(new UncommittedStamp(in), in.readInt());
-               }
-            }
-
-            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
-         }
-      } catch (final IOException e) {
-         LookupService.getService(SystemStatusService.class)
-                 .notifyServiceConfigurationFailure("Stamp Provider", e);
-         throw new RuntimeException(e);
-      }
-   }
-
-   /**
-    * Stop me.
-    */
-   @PreDestroy
-   private void stopMe() {
-      LOG.info("Stopping StampProvider pre-destroy. ");
-
-      try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(this.stampManagerFolder.toFile(),
-              STAMP_MANAGER_DATA_FILENAME)))) {
-         out.writeInt(this.nextStampSequence.get());
-         out.writeInt(this.stampMap.size());
-         this.stampMap.forEachPair((Stamp stamp,
-                 int stampSequence) -> {
-            try {
-               out.writeInt(stampSequence);
-               stamp.write(out);
-            } catch (final IOException ex) {
-               throw new RuntimeException(ex);
-            }
-         });
-
-         final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().size();
-
-         out.writeInt(size);
-
-         for (final Map.Entry<UncommittedStamp, Integer> entry : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
-            entry.getKey()
-                    .write(out);
-            out.writeInt(entry.getValue());
-         }
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
-   }
-
    //~--- get methods ---------------------------------------------------------
    /**
     * Gets the activated stamp sequence.
@@ -495,11 +492,8 @@ public class StampProvider
          return TermAux.USER.getNid();
       }
 
-      final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
-
-      if (s.isPresent()) {
-         return s.get()
-                 .getAuthorNid();
+      if (this.inverseStampMap.containsKey(stampSequence)) {
+         return this.inverseStampMap.get(stampSequence).getAuthorNid();
       }
       for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
@@ -542,10 +536,8 @@ public class StampProvider
          return TermAux.UNSPECIFIED_MODULE.getNid();
       }
 
-      final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
-
-      if (s.isPresent()) {
-         return s.get().getModuleNid();
+      if (this.inverseStampMap.containsKey(stampSequence)) {
+         return this.inverseStampMap.get(stampSequence).getModuleNid();
       }
       for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
@@ -587,11 +579,9 @@ public class StampProvider
          return this.stampSequence_PathNid_Map.get(stampSequence);
       }
 
-      final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
-
-      if (s.isPresent()) {
+      if (this.inverseStampMap.containsKey(stampSequence)) {
          this.stampSequence_PathNid_Map.put(stampSequence,
-                 s.get().getPathNid());
+                 this.inverseStampMap.get(stampSequence).getPathNid());
          return this.stampSequence_PathNid_Map.get(stampSequence);
       }
       for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
@@ -687,9 +677,8 @@ public class StampProvider
          }
       }
 
-      OptionalInt stampValue = this.stampMap.get(stampKey);
 
-      if (!stampValue.isPresent()) {
+      if (!this.stampMap.containsKey(stampKey)) {
          // maybe have a few available in an atomic queue, and put back
          // if not used? Maybe in a thread-local?
          // Have different sequences, and have the increments be equal to the
@@ -697,10 +686,9 @@ public class StampProvider
          this.stampLock.lock();
 
          try {
-            stampValue = this.stampMap.get(stampKey);
 
-            if (!stampValue.isPresent()) {
-               stampValue = OptionalInt.of(this.nextStampSequence.getAndIncrement());
+            if (!this.stampMap.containsKey(stampKey)) {
+               OptionalInt stampValue = OptionalInt.of(this.nextStampSequence.getAndIncrement());
                this.inverseStampMap.put(stampValue.getAsInt(), stampKey);
                this.stampMap.put(stampKey, stampValue.getAsInt());
             }
@@ -709,7 +697,7 @@ public class StampProvider
          }
       }
 
-      return stampValue.getAsInt();
+      return this.stampMap.get(stampKey);
    }
 
    /**
@@ -734,12 +722,8 @@ public class StampProvider
       if (stampSequence < 0) {
          return Status.CANCELED;
       }
-
-      final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
-
-      if (s.isPresent()) {
-         return s.get()
-                 .getStatus();
+      if (this.inverseStampMap.containsKey(stampSequence)) {
+         return this.inverseStampMap.get(stampSequence).getStatus();
       }
       
       for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
@@ -761,13 +745,10 @@ public class StampProvider
       if (stampSequence < 0) {
          return Long.MIN_VALUE;
       }
-
-      final Optional<Stamp> s = this.inverseStampMap.get(stampSequence);
-
-      if (s.isPresent()) {
-         return s.get()
-                 .getTime();
+      if (this.inverseStampMap.containsKey(stampSequence)) {
+         return this.inverseStampMap.get(stampSequence).getTime();
       }
+
       if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().containsValue(stampSequence)) {
          return Long.MAX_VALUE;
       }

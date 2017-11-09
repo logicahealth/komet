@@ -84,7 +84,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          int pathNid = TermAux.MASTER_PATH.getNid();
 
          for (String[] descriptionRecord : descriptionRecords) {
-            int descriptionAssemblageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[LANGUGE_CODE_INDEX]);
+            int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             UUID descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
             UUID moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
             Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);

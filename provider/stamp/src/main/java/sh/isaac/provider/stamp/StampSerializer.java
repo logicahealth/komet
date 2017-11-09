@@ -75,7 +75,7 @@ public class StampSerializer
    @Override
    public Stamp deserialize(DataInput in) {
       try {
-         return new Stamp(Status.getFromBoolean(in.readBoolean()),
+         return new Stamp(Status.valueOf(in.readUTF()),
                           in.readLong(),
                           in.readInt(),
                           in.readInt(),
@@ -94,8 +94,7 @@ public class StampSerializer
    @Override
    public void serialize(DataOutput out, Stamp stamp) {
       try {
-         out.writeBoolean(stamp.getStatus()
-                               .getBoolean());
+         out.writeUTF(stamp.getStatus().name());
          out.writeLong(stamp.getTime());
          out.writeInt(stamp.getAuthorNid());
          out.writeInt(stamp.getModuleNid());

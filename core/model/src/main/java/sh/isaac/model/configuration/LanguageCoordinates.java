@@ -185,6 +185,59 @@ public class LanguageCoordinates {
       }
    }
 
+   /**
+    * Iso 639 to assemblage nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
+   public static int iso639toDescriptionAssemblageNid(String iso639text) {
+      switch (iso639text.toLowerCase(Locale.ENGLISH)) {
+      case "en":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "es":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.SPANISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "fr":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.FRENCH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "da":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.DANISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "pl":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.POLISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "nl":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.DUTCH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "lt":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "zh":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.CHINESE_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "ja":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.JAPANESE_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      case "sv":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.SWEDISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+
+      default:
+         throw new UnsupportedOperationException("sx Can't handle: " + iso639text);
+      }
+   }
+
    //~--- get methods ---------------------------------------------------------
 
    /**

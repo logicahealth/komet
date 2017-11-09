@@ -14,23 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version;
+package sh.isaac.api.observable.semantic.version;
+
+import javafx.beans.property.IntegerProperty;
+import sh.isaac.api.component.semantic.version.MutableRf2Relationship;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
  * @author kec
  */
-public interface Rf2Relationship 
-        extends SemanticVersion {
+public interface ObservableRf2Relationship extends ObservableSemanticVersion, MutableRf2Relationship {
 
-   int getTypeNid();
+   IntegerProperty typeNidProperty();
    
-   int getDestinationNid();
+   IntegerProperty destinationNidProperty();
    
-   int getRelationshipGroup();
+   IntegerProperty relationshipGroupProperty();
    
-   int getCharacteristicNid();
+   IntegerProperty characteristicNidProperty();
    
-   int getModifierNid();
+   IntegerProperty modifierNidProperty();
 
+   //~--- get methods ---------------------------------------------------------
+
+   @Override
+   public ObservableSemanticChronology getChronology();
+   
 }

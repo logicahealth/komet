@@ -256,11 +256,11 @@ public class ImportExportTest {
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
                                                                                "IsaacMetadataAuxiliary.export.ibdf"));
-         final OchreExternalizableStatsTestFilter importStats   = new OchreExternalizableStatsTestFilter();
+         final OchreExternalizableStatsTestFilter localImportStats   = new OchreExternalizableStatsTestFilter();
          final CommitService                      commitService = Get.commitService();
 
          reader.getStream()
-               .filter(importStats)
+               .filter(localImportStats)
                .forEach((object) -> {
             try {
                importCount.incrementAndGet();
@@ -271,9 +271,9 @@ public class ImportExportTest {
             }
                         });
          commitService.postProcessImportNoChecks();
-         LOG.info("imported components: " + importStats);
+         LOG.info("imported components: " + localImportStats);
          Assert.assertEquals(exportCount.get(), importCount.get());
-         Assert.assertEquals(exportStats, importStats);
+         Assert.assertEquals(exportStats, localImportStats);
       } catch (final IOException e) {
          Assert.fail("File not found", e);
       }
@@ -371,8 +371,6 @@ public class ImportExportTest {
                         });
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
-         this.importStats.semantics.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
-         this.importStats.stampComments.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          LOG.info("Loaded components: " + this.importStats);
          LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
       } catch (final FileNotFoundException e) {
