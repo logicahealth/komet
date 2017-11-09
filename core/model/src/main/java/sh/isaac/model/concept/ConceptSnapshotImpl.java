@@ -366,6 +366,11 @@ public class ConceptSnapshotImpl
    }
 
    @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+     getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+   }
+
+   @Override
    public ConceptSnapshotImpl deepClone() {
       throw new UnsupportedOperationException();
    }

@@ -198,27 +198,11 @@ public class LanguageCoordinateImpl
       return this.descriptionTypePreferenceList;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Set description type preference list property.
-    *
-    * @param descriptionTypePreferenceListProperty the description type preference list property
-    * @return the array change listener
-    */
-   public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(
-           ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
-      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                                    boolean sizeChanged,
-                                                                    int from,
-                                                                    int to) -> {
-               this.descriptionTypePreferenceList = observableArray.toArray(this.descriptionTypePreferenceList);
-            };
-
-      descriptionTypePreferenceListProperty.getValue()
-            .addListener(new WeakArrayChangeListener(listener));
-      return listener;
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      this.descriptionTypePreferenceList = descriptionTypePreferenceList;
    }
+
 
    //~--- get methods ---------------------------------------------------------
 

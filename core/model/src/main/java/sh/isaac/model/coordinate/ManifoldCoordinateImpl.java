@@ -314,6 +314,11 @@ public class ManifoldCoordinateImpl
          return v;
       }
    }
+
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+   }
    
    @Override
    public ManifoldCoordinateImpl deepClone() {

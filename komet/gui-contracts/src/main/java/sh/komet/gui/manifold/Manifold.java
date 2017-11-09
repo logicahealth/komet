@@ -64,12 +64,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -231,6 +234,22 @@ public class Manifold
                                       ConceptChronology focusedObject) {
       return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
    }
+   
+   public LatestVersion<DescriptionVersion> getDescription(int conceptNid) {
+      return getLanguageCoordinate().getDescription(conceptNid, this);
+   }
+
+   public LatestVersion<String> getDescriptionText(int conceptNid) {
+      LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid);
+      if (latestVersion.isPresent()) {
+         LatestVersion<String> latestText = new LatestVersion<>(latestVersion.get().getText());
+         for (DescriptionVersion contradition: latestVersion.contradictions()) {
+            latestText.contradictions().add(contradition.getText());
+         }
+         return latestText;
+      }
+      return new LatestVersion<>();
+   }
 
    @Override
    public String toString() {
@@ -359,6 +378,11 @@ public class Manifold
       this.manifoldUuidProperty.set(manifoldUuid);
    }
 
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      this.observableManifoldCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+   }
+   
    //~--- get methods ---------------------------------------------------------
 
    public SimpleObjectProperty<UUID> getManifoldUuidProperty() {

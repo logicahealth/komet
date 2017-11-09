@@ -86,6 +86,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.Arrays;
 
 import com.lmax.disruptor.EventHandler;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventType;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
@@ -139,7 +142,6 @@ public class MultiParentTreeView
                                                                Iconography.TAXONOMY_ICON.getIconographic());
    private Optional<UUID>                                      selectedItem            = Optional.empty();
    private final ArrayList<UUID>                               expandedUUIDs           = new ArrayList<>();
-   private final BooleanProperty                               displayFQN              = new SimpleBooleanProperty();
    private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotService = new SimpleObjectProperty<>();
    private final ObservableList<AlertObject>                   alertList = FXCollections.observableArrayList();
    private final GridPane                                      topGridPane             = new GridPane();
@@ -150,10 +152,11 @@ public class MultiParentTreeView
    private final Manifold                    manifold;
    private final StackPane                   stackPane;
    private final ProgressIndicator           taxonomyTreeFetchProgress;
-   private final MultiParentTreeItem         rootTreeItem;
+   private final MultiParentTreeItemImpl         rootTreeItem;
    private final TreeView<ConceptChronology> treeView;
    private final LayoutAnimator topPaneAnimator = new LayoutAnimator();
    private final LayoutAnimator taxonomyAlertsAnimator = new LayoutAnimator();
+   private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
 
    //~--- constructors --------------------------------------------------------
 
@@ -197,7 +200,7 @@ public class MultiParentTreeView
       ConceptChronology rootConceptCV = Get.conceptService()
                                            .getConceptChronology(rootSpec);
 
-      rootTreeItem = new MultiParentTreeItem(
+      rootTreeItem = new MultiParentTreeItemImpl(
           rootConceptCV,
           MultiParentTreeView.this,
           Iconography.TAXONOMY_ROOT_ICON.getIconographic());
@@ -211,12 +214,12 @@ public class MultiParentTreeView
           TreeItem.<ConceptChronology>branchCollapsedEvent(),
               (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
          // remove grandchildren
-                 ((MultiParentTreeItem) t.getSource()).removeGrandchildren();
+                 ((MultiParentTreeItemImpl) t.getSource()).removeGrandchildren();
               });
       rootTreeItem.addEventHandler(
           TreeItem.<ConceptChronology>branchExpandedEvent(),
               (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
-                 MultiParentTreeItem sourceTreeItem = (MultiParentTreeItem) t.getSource();
+                 MultiParentTreeItemImpl sourceTreeItem = (MultiParentTreeItemImpl) t.getSource();
 
                  Get.executor()
                     .execute(() -> sourceTreeItem.addChildrenConceptsAndGrandchildrenItems());
@@ -228,6 +231,10 @@ public class MultiParentTreeView
       topPaneAnimator.observe(topGridPane);
       this.setTop(topGridPane);
       taxonomyAlertsAnimator.observe(this.getChildren());
+      descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
+                                                                     manifold);
+      descriptionTypeChoiceBox.addEventHandler(ActionEvent.ACTION, this::handleDescriptionTypeChange);
+
       setupTopPane();
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
    }
@@ -256,9 +263,9 @@ public class MultiParentTreeView
 
    public void showConcept(final UUID conceptUUID, final BooleanProperty workingIndicator) {
       // Do work in background.
-      Task<MultiParentTreeItem> task = new Task<MultiParentTreeItem>() {
+      Task<MultiParentTreeItemImpl> task = new Task<MultiParentTreeItemImpl>() {
          @Override
-         protected MultiParentTreeItem call()
+         protected MultiParentTreeItemImpl call()
                   throws Exception {
             // await() init() completion.
             LOG.debug("Looking for concept {} in tree", conceptUUID);
@@ -302,11 +309,11 @@ public class MultiParentTreeView
 
             LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
 
-            MultiParentTreeItem currentTreeItem = rootTreeItem;
+            MultiParentTreeItemImpl currentTreeItem = rootTreeItem;
 
             // Walk down path from root.
             for (int i = pathToRoot.size() - 1; i >= 0; i--) {
-               MultiParentTreeItem child = findChild(currentTreeItem, pathToRoot.get(i));
+               MultiParentTreeItemImpl child = findChild(currentTreeItem, pathToRoot.get(i));
 
                if (child == null) {
                   break;
@@ -319,7 +326,7 @@ public class MultiParentTreeView
          }
          @Override
          protected void succeeded() {
-            final MultiParentTreeItem lastItemFound = this.getValue();
+            final MultiParentTreeItemImpl lastItemFound = this.getValue();
 
             // Expand tree to last item found.
             if (lastItemFound != null) {
@@ -378,12 +385,12 @@ public class MultiParentTreeView
     * children.
     * @throws InterruptedException
     */
-   private MultiParentTreeItem findChild(final MultiParentTreeItem item,
+   private MultiParentTreeItemImpl findChild(final MultiParentTreeItemImpl item,
          final UUID targetChildUUID)
             throws InterruptedException {
       LOG.debug("Looking for {}", targetChildUUID);
 
-      SimpleObjectProperty<MultiParentTreeItem> found = new SimpleObjectProperty<>(null);
+      SimpleObjectProperty<MultiParentTreeItemImpl> found = new SimpleObjectProperty<>(null);
 
       if (item.getValue()
               .getPrimordialUuid()
@@ -397,7 +404,7 @@ public class MultiParentTreeView
          for (TreeItem<ConceptChronology> child: item.getChildren()) {
             if ((child != null) && (child.getValue() != null) && child.getValue().isIdentifiedBy(targetChildUUID)) {
                // Found it.
-               found.set((MultiParentTreeItem) child);
+               found.set((MultiParentTreeItemImpl) child);
                break;
             }
          }
@@ -446,7 +453,7 @@ public class MultiParentTreeView
    private void onChanged(ListChangeListener.Change<? extends AlertObject> change) {
       setupTopPane();
    }
-
+   
    private void restoreExpanded() {
       treeView.getSelectionModel()
               .clearSelection();
@@ -454,7 +461,7 @@ public class MultiParentTreeView
          .execute(
              () -> {
                 try {
-                   SimpleObjectProperty<MultiParentTreeItem> scrollTo = new SimpleObjectProperty<>();
+                   SimpleObjectProperty<MultiParentTreeItemImpl> scrollTo = new SimpleObjectProperty<>();
 
                    restoreExpanded(rootTreeItem, scrollTo);
                    expandedUUIDs.clear();
@@ -474,8 +481,8 @@ public class MultiParentTreeView
              });
    }
 
-   private void restoreExpanded(MultiParentTreeItem item,
-                                SimpleObjectProperty<MultiParentTreeItem> scrollTo)
+   private void restoreExpanded(MultiParentTreeItemImpl item,
+                                SimpleObjectProperty<MultiParentTreeItemImpl> scrollTo)
             throws InterruptedException {
       if (expandedUUIDs.contains(item.getConceptUuid())) {
          item.blockUntilChildrenReady();
@@ -484,7 +491,7 @@ public class MultiParentTreeView
          List<TreeItem<ConceptChronology>> list = new ArrayList<>(item.getChildren());
 
          for (TreeItem<ConceptChronology> child: list) {
-            restoreExpanded((MultiParentTreeItem) child, scrollTo);
+            restoreExpanded((MultiParentTreeItemImpl) child, scrollTo);
          }
       }
 
@@ -511,13 +518,13 @@ public class MultiParentTreeView
       LOG.debug("Saved {} expanded nodes", expandedUUIDs.size());
    }
 
-   private void saveExpanded(MultiParentTreeItem item) {
+   private void saveExpanded(MultiParentTreeItemImpl item) {
       if (!item.isLeaf() && item.isExpanded()) {
          expandedUUIDs.add(item.getConceptUuid());
 
          if (!item.isLeaf()) {
             for (TreeItem<ConceptChronology> child: item.getChildren()) {
-               saveExpanded((MultiParentTreeItem) child);
+               saveExpanded((MultiParentTreeItemImpl) child);
             }
          }
       }
@@ -527,8 +534,6 @@ public class MultiParentTreeView
       toolBar.getItems()
              .clear();
 
-      ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
-                                                                     manifold);
 
       toolBar.getItems()
              .add(descriptionTypeChoiceBox);
@@ -563,6 +568,22 @@ public class MultiParentTreeView
                     .add(alertPanel);
       }
 
+   }
+   
+   public void handleDescriptionTypeChange(ActionEvent event) {
+      ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
+      List<ConceptSpecification> items = this.descriptionTypeChoiceBox.getItems();
+      int[] descriptionTypes = new int[items.size()];
+      int descriptionIndex = 0;
+      descriptionTypes[descriptionIndex++] = selectedDescriptionType.getNid();
+      for (ConceptSpecification spec: items) {
+         if (spec != selectedDescriptionType) {
+            descriptionTypes[descriptionIndex++] = spec.getNid();
+         }
+      }
+      this.manifold.setDescriptionTypePreferenceList(descriptionTypes);
+      this.rootTreeItem.invalidate();
+      this.treeView.refresh();
    }
 
    private void snapshotReady(ObservableValue<? extends TaxonomySnapshotService> observable,
@@ -614,7 +635,7 @@ public class MultiParentTreeView
       return this;
    }
 
-   public MultiParentTreeItem getRoot() {
+   public MultiParentTreeItemImpl getRoot() {
       return rootTreeItem;
    }
 

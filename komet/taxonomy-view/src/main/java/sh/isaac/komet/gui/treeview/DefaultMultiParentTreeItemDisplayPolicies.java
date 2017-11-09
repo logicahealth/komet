@@ -32,7 +32,7 @@ import sh.isaac.komet.iconography.Iconography;
 public class DefaultMultiParentTreeItemDisplayPolicies implements MultiParentTreeItemDisplayPolicies {
 
    @Override
-   public Node computeGraphic(MultiParentTreeItemI item) {
+   public Node computeGraphic(MultiParentTreeItem item) {
       if (item.isRoot()) {
          return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
       } else if (item.isDefined() && (item.isMultiParent() || item.getMultiParentDepth() > 0)) {

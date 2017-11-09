@@ -63,7 +63,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       if (tree == null) {
          return;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
       if (disclosureNodeDirty) {
          updateDisclosureNode();
@@ -130,7 +130,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       if (tree == null) {
          return pw;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
       if (treeItem == null) {
          return pw;
@@ -162,7 +162,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       if (disclosureNode == null) {
          return;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
       boolean disclosureVisible = treeItem != null && !treeItem.isLeaf();
       disclosureNode.setVisible(disclosureVisible);

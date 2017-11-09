@@ -315,7 +315,11 @@ public class ObservableManifoldCoordinateImpl
    public UUID getCoordinateUuid() {
       return uuidProperty().get();
    }
-   
+
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      this.languageCoordinateProperty().get().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+   }
    
    
    @Override

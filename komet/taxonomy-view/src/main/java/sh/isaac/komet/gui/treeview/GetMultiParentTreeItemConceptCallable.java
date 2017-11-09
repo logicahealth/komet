@@ -82,18 +82,18 @@ public class GetMultiParentTreeItemConceptCallable
 
    //~--- fields --------------------------------------------------------------
 
-   private final ArrayList<MultiParentTreeItem> childrenToAdd = new ArrayList<>();
-   private final MultiParentTreeItem            treeItem;
+   private final ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
+   private final MultiParentTreeItemImpl            treeItem;
    private final boolean                        addChildren;
    private ConceptChronology                    concept;
 
    //~--- constructors --------------------------------------------------------
 
-   GetMultiParentTreeItemConceptCallable(MultiParentTreeItem treeItem) {
+   GetMultiParentTreeItemConceptCallable(MultiParentTreeItemImpl treeItem) {
       this(treeItem, true);
    }
 
-   GetMultiParentTreeItemConceptCallable(MultiParentTreeItem treeItem, boolean addChildren) {
+   GetMultiParentTreeItemConceptCallable(MultiParentTreeItemImpl treeItem, boolean addChildren) {
       this.treeItem    = treeItem;
       this.concept     = (treeItem != null) ? treeItem.getValue()
             : null;
@@ -142,7 +142,7 @@ public class GetMultiParentTreeItemConceptCallable
 
          if (addChildren) {
             // TODO it would be nice to show progress here, by binding this status to the
-            // progress indicator in the MultiParentTreeItem - However -that progress indicator displays at 16x16,
+            // progress indicator in the MultiParentTreeItemImpl - However -that progress indicator displays at 16x16,
             // and ProgressIndicator has a bug, that is vanishes for anything other than indeterminate for anything less than 32x32
             // need a progress indicator that works at 16x16
             for (int destRelSequence: treeItem.getTreeView()
@@ -152,7 +152,7 @@ public class GetMultiParentTreeItemConceptCallable
                   return false;
                }
 
-               MultiParentTreeItem childItem = new MultiParentTreeItem(destRelSequence, treeItem.getTreeView());
+               MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(destRelSequence, treeItem.getTreeView());
 
                if (childItem.shouldDisplay()) {
                   int numParents = treeItem.getTreeView()

@@ -516,8 +516,8 @@ public class CoordinateFactoryProvider
 
       if (!preferredForDialect.isPresent()) {
          descriptionsForLanguageOfType.forEach(
-             (fqn) -> {
-                preferredForDialect.addLatest(fqn);
+             (description) -> {
+                preferredForDialect.addLatest(description);
              });
       }
 
