@@ -67,6 +67,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
    public DescriptionWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message) {
       this.descriptionRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
+      this.writeSemaphore.acquireUninterruptibly();
       updateTitle("Importing description batch of size: " + descriptionRecords.size());
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());

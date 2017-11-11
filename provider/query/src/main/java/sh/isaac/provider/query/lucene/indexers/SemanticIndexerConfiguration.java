@@ -40,7 +40,6 @@ package sh.isaac.provider.query.lucene.indexers;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;

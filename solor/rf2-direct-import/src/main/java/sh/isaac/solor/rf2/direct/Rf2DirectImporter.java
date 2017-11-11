@@ -75,7 +75,7 @@ import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 public class Rf2DirectImporter
         extends TimedTaskWithProgressTracker<Void> {
    
-   private static final int WRITE_PERMITS = 8;
+   private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
 
    protected static final Logger LOG = LogManager.getLogger();
 
@@ -224,7 +224,6 @@ public class Rf2DirectImporter
       String rowString;
       ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       br.readLine(); // discard header row
-      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
          columnsToWrite.add(columns);
@@ -233,7 +232,6 @@ public class Rf2DirectImporter
                     "Processing concepts from: " + trimZipName(importSpecification.zipEntry.getName()));
             columnsToWrite = new ArrayList<>(writeSize);
             Get.executor().submit(conceptWriter);
-            this.writeSemaphore.acquireUninterruptibly();
          }
       }
       if (!columnsToWrite.isEmpty()) {
@@ -241,9 +239,9 @@ public class Rf2DirectImporter
                  "Finishing concepts from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(conceptWriter);
       }
-      updateMessage("Waiting for file completion...");
+      updateMessage("Waiting for concept file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-      updateMessage("Synchronizing database...");
+      updateMessage("Synchronizing concept database...");
       conceptService.sync();
       this.writeSemaphore.release(WRITE_PERMITS);
    }
@@ -254,7 +252,6 @@ public class Rf2DirectImporter
       ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
-      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
          columnsToWrite.add(columns);
@@ -263,7 +260,6 @@ public class Rf2DirectImporter
                     "Processing descriptions from: " + trimZipName(importSpecification.zipEntry.getName()));
             columnsToWrite = new ArrayList<>(writeSize);
             Get.executor().submit(descriptionWriter);
-            this.writeSemaphore.acquireUninterruptibly();
          }
       }
       if (!columnsToWrite.isEmpty()) {
@@ -271,9 +267,9 @@ public class Rf2DirectImporter
                  "Finishing descriptions from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
-      updateMessage("Waiting for file completion...");
+      updateMessage("Waiting for description file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-      updateMessage("Synchronizing database...");
+      updateMessage("Synchronizing description database...");
       assemblageService.sync();
       this.writeSemaphore.release(WRITE_PERMITS);
    }
@@ -284,7 +280,6 @@ public class Rf2DirectImporter
       ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
-      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
          columnsToWrite.add(columns);
@@ -293,7 +288,6 @@ public class Rf2DirectImporter
                     "Processing dialect from: " + trimZipName(importSpecification.zipEntry.getName()));
             columnsToWrite = new ArrayList<>(writeSize);
             Get.executor().submit(dialectWriter);
-            this.writeSemaphore.acquireUninterruptibly();
          }
       }
       if (!columnsToWrite.isEmpty()) {
@@ -301,9 +295,9 @@ public class Rf2DirectImporter
                  "Finishing dialect from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
-      updateMessage("Waiting for file completion...");
+      updateMessage("Waiting for dialect file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-      updateMessage("Synchronizing database...");
+      updateMessage("Synchronizing dialect database...");
       assemblageService.sync();
       this.writeSemaphore.release(WRITE_PERMITS);
    }
@@ -314,7 +308,6 @@ public class Rf2DirectImporter
       ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
-      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
          columnsToWrite.add(columns);
@@ -323,7 +316,6 @@ public class Rf2DirectImporter
                     "Processing inferred rels from: " + trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
             columnsToWrite = new ArrayList<>(writeSize);
             Get.executor().submit(relWriter);
-            this.writeSemaphore.acquireUninterruptibly();
          }
       }
       if (!columnsToWrite.isEmpty()) {
@@ -332,9 +324,9 @@ public class Rf2DirectImporter
                          trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
          Get.executor().submit(relWriter);
       }
-      updateMessage("Waiting for file completion...");
+      updateMessage("Waiting for inferred relatioship file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-      updateMessage("Synchronizing database...");
+      updateMessage("Synchronizing relationship database...");
       assemblageService.sync();
       this.writeSemaphore.release(WRITE_PERMITS);
    }
@@ -345,7 +337,6 @@ public class Rf2DirectImporter
       ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
       String rowString;
       br.readLine(); // discard header row
-      this.writeSemaphore.acquireUninterruptibly();
       while ((rowString = br.readLine()) != null) {
          String[] columns = rowString.split("\t");
          columnsToWrite.add(columns);
@@ -354,7 +345,6 @@ public class Rf2DirectImporter
                     "Processing stated rels from: " + trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.STATED_RELATIONSHIP);
             columnsToWrite = new ArrayList<>(writeSize);
             Get.executor().submit(relWriter);
-            this.writeSemaphore.acquireUninterruptibly();
          }
       }
       if (!columnsToWrite.isEmpty()) {
@@ -363,9 +353,9 @@ public class Rf2DirectImporter
                          trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.STATED_RELATIONSHIP);
          Get.executor().submit(relWriter);
       }
-      updateMessage("Waiting for file completion...");
+      updateMessage("Waiting for stated relationship file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-      updateMessage("Synchronizing database...");
+      updateMessage("Synchronizing relationship database...");
       assemblageService.sync();
       this.writeSemaphore.release(WRITE_PERMITS);
    }

@@ -64,6 +64,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
    public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, String message) {
       this.conceptRecords = conceptRecords;
       this.writeSemaphore = writeSemaphore;
+      this.writeSemaphore.acquireUninterruptibly();
       updateTitle("Importing concept batch of size: " + conceptRecords.size());
       updateMessage(message);
       addToTotalWork(conceptRecords.size());

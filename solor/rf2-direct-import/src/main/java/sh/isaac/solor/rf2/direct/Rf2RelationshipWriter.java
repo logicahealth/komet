@@ -67,6 +67,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
    public Rf2RelationshipWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message, ImportStreamType importStreamType) {
       this.relationshipRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
+      this.writeSemaphore.acquireUninterruptibly();
       this.importStreamType = importStreamType;
       updateTitle("Importing rf2 relationship batch of size: " + descriptionRecords.size());
       updateMessage(message);

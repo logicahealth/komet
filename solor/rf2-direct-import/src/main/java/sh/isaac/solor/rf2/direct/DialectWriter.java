@@ -61,6 +61,7 @@ id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
    public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, String message) {
       this.dialectRecords = dialectRecords;
       this.writeSemaphore = writeSemaphore;
+      this.writeSemaphore.acquireUninterruptibly();
       updateTitle("Importing dialect batch of size: " + dialectRecords.size());
       updateMessage(message);
       addToTotalWork(dialectRecords.size());
