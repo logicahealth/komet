@@ -34,13 +34,10 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +48,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -74,7 +70,6 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class LogicProvider.
  *
@@ -83,15 +78,19 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
 @Service(name = "logic provider")
 @RunLevel(value = 2)
 public class LogicProvider
-         implements LogicService {
-   /** The Constant LOG. */
+        implements LogicService {
+
+   /**
+    * The Constant LOG.
+    */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant classifierServiceMap. */
+   /**
+    * The Constant classifierServiceMap.
+    */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new logic provider.
     */
@@ -101,7 +100,6 @@ public class LogicProvider
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Start me.
     */
@@ -119,7 +117,6 @@ public class LogicProvider
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the classifier service.
     *
@@ -130,13 +127,13 @@ public class LogicProvider
     */
    @Override
    public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
-         LogicCoordinate logicCoordinate,
-         EditCoordinate editCoordinate) {
+           LogicCoordinate logicCoordinate,
+           EditCoordinate editCoordinate) {
       final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
 
       if (!classifierServiceMap.containsKey(key)) {
          classifierServiceMap.putIfAbsent(key,
-                                          new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
+                 new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
       }
 
       return classifierServiceMap.get(key);
@@ -152,71 +149,71 @@ public class LogicProvider
     */
    @Override
    public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
-         int logicAssemblageId,
-         StampCoordinate stampCoordinate) {
+           int logicAssemblageId,
+           StampCoordinate stampCoordinate) {
       final SemanticSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
-                                                                 .getSnapshot(LogicGraphVersionImpl.class,
-                                                                       stampCoordinate);
-      
-      final List<LatestVersion<LogicalExpression>> latestVersions =
-         ssp.getLatestSemanticVersionsForComponentFromAssemblage(conceptId,
-                                                               logicAssemblageId)
-            .map((LatestVersion<LogicGraphVersionImpl> lgs) -> {
-                    final LogicalExpression expressionValue =
-                       new LogicalExpressionImpl(lgs.get().getGraphData(),
-                                                      DataSource.INTERNAL,
-                                                      lgs.get().getReferencedComponentNid());
-                    
-                    final LatestVersion<LogicalExpression> latestExpressionValue =
-                       new LatestVersion<>(expressionValue);
+              .getSnapshot(LogicGraphVersionImpl.class,
+                      stampCoordinate);
 
-                       lgs.contradictions().forEach((LogicGraphVersionImpl contradiction) -> {
-                                      final LogicalExpressionImpl contradictionValue =
-                                         new LogicalExpressionImpl(contradiction.getGraphData(),
-                                                                        DataSource.INTERNAL,
-                                                                        contradiction.getReferencedComponentNid());
+      List<LatestVersion<LogicalExpression>> latestExpressions = new ArrayList<>();
+      final List<LatestVersion<LogicGraphVersionImpl>> latestVersions
+              = ssp.getLatestSemanticVersionsForComponentFromAssemblage(conceptId,
+                      logicAssemblageId);
+      for (LatestVersion<LogicGraphVersionImpl> lgs : latestVersions) {
+         final LogicalExpression expressionValue
+                 = new LogicalExpressionImpl(lgs.get().getGraphData(),
+                         DataSource.INTERNAL,
+                         lgs.get().getReferencedComponentNid());
 
-                                      latestExpressionValue.addLatest(contradictionValue);
-                                   });
-                    
+         final LatestVersion<LogicalExpression> latestExpressionValue
+                 = new LatestVersion<>(expressionValue);
 
-                    return latestExpressionValue;
-                 })
-            .collect(Collectors.toList());
+         lgs.contradictions().forEach((LogicGraphVersionImpl contradiction) -> {
+            final LogicalExpressionImpl contradictionValue
+                    = new LogicalExpressionImpl(contradiction.getGraphData(),
+                            DataSource.INTERNAL,
+                            contradiction.getReferencedComponentNid());
 
+            latestExpressionValue.addLatest(contradictionValue);
+         });
 
-      if (latestVersions.isEmpty()) {
-         LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: " + 
-                 Get.conceptDescriptionText(logicAssemblageId) + "\n\n" + 
-                 Get.conceptService().getConceptChronology(conceptId).toString());
-         return new LatestVersion<>();
-      } else if (latestVersions.size() > 1) {
-         throw new IllegalStateException("More than one LogicGraphSememeImpl for concept in assemblage: " +
-                                         latestVersions);
+         latestExpressions.add(latestExpressionValue);
       }
-      
-      
+      if (latestExpressions.isEmpty()) {
+         LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: "
+                 + Get.conceptDescriptionText(logicAssemblageId) + "\n\n"
+                 + Get.conceptService().getConceptChronology(conceptId).toString());
+         return new LatestVersion<>();
+      } else if (latestExpressions.size() > 1) {
+         throw new IllegalStateException("More than one logical expression for concept in assemblage: "
+                 + latestVersions);
+      }
 
-      return latestVersions.get(0);
+      return latestExpressions.get(0);
    }
 
    //~--- inner classes -------------------------------------------------------
-
    /**
     * The Class ClassifierServiceKey.
     */
    private static class ClassifierServiceKey {
-      /** The stamp coordinate. */
+
+      /**
+       * The stamp coordinate.
+       */
       StampCoordinate stampCoordinate;
 
-      /** The logic coordinate. */
+      /**
+       * The logic coordinate.
+       */
       LogicCoordinate logicCoordinate;
 
-      /** The edit coordinate. */
+      /**
+       * The edit coordinate.
+       */
       EditCoordinate editCoordinate;
 
       //~--- constructors -----------------------------------------------------
-
       /**
        * Instantiates a new classifier service key.
        *
@@ -225,15 +222,14 @@ public class LogicProvider
        * @param editCoordinate the edit coordinate
        */
       public ClassifierServiceKey(StampCoordinate stampCoordinate,
-                                  LogicCoordinate logicCoordinate,
-                                  EditCoordinate editCoordinate) {
+              LogicCoordinate logicCoordinate,
+              EditCoordinate editCoordinate) {
          this.stampCoordinate = stampCoordinate;
          this.logicCoordinate = logicCoordinate;
-         this.editCoordinate  = editCoordinate;
+         this.editCoordinate = editCoordinate;
       }
 
       //~--- methods ----------------------------------------------------------
-
       /**
        * Equals.
        *
@@ -277,4 +273,3 @@ public class LogicProvider
       }
    }
 }
-

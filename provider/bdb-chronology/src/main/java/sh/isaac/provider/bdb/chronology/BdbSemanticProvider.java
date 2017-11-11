@@ -17,6 +17,8 @@
 package sh.isaac.provider.bdb.chronology;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,7 +96,7 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
+   public List<SemanticChronology> getDescriptionsForComponent(int componentNid) {
      if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
@@ -102,18 +104,14 @@ public class BdbSemanticProvider implements AssemblageService {
       final NidSet sequences = getSemanticNidsForComponentFromAssemblage(
                                                 componentNid,
                                                       TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid());
-      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(
-                                                         sememeSequence);
-
-      return sequences.stream()
-                      .filter(
-                          (int sememeSequence) -> {
-                             final Optional<? extends SemanticChronology> sememe = getOptionalSemanticChronology(
-                                                                                       sememeSequence);
-
-                             return sememe.isPresent() && (sememe.get().getVersionType() == VersionType.DESCRIPTION);
-                          })
-                      .mapToObj(mapper);
+      List<SemanticChronology> results = new ArrayList<>(sequences.size());
+      for (int semanticNid: sequences.asArray()) {
+            SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
+            if (semanticChronology != null && semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
+               results.add(semanticChronology);
+            }
+      }
+      return results;
    }
 
    @Override

@@ -227,13 +227,14 @@ public class BdbIdentifierProvider
       final int authorityAssemblageNid = getNidForUuids(identifierAuthorityUuid);
       final SemanticSnapshotService<StringVersion> snapshot = Get.assemblageService()
                                                               .getSnapshot(StringVersion.class, stampCoordinate);
+      
+      for (LatestVersion<StringVersion> stringVersion: snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid, authorityAssemblageNid)) {
+         if (stringVersion.isPresent()) {
+            return Optional.of(stringVersion.get().getString());
+         }
+      }
 
-      return snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid, authorityAssemblageNid)
-                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.isPresent())
-                     .map((LatestVersion<StringVersion> latestSememe) -> 
-                            latestSememe.get()
-                                  .getString())
-                     .findAny();
+      return Optional.empty();
    }
 
    @Override

@@ -53,7 +53,6 @@ import javafx.application.Platform;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -87,8 +86,6 @@ import org.apache.mahout.math.Arrays;
 
 import com.lmax.disruptor.EventHandler;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventType;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
@@ -213,8 +210,7 @@ public class MultiParentTreeView
       rootTreeItem.addEventHandler(
           TreeItem.<ConceptChronology>branchCollapsedEvent(),
               (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
-         // remove grandchildren
-                 ((MultiParentTreeItemImpl) t.getSource()).removeGrandchildren();
+                 ((MultiParentTreeItemImpl) t.getSource()).removeChildren();
               });
       rootTreeItem.addEventHandler(
           TreeItem.<ConceptChronology>branchExpandedEvent(),
@@ -222,7 +218,7 @@ public class MultiParentTreeView
                  MultiParentTreeItemImpl sourceTreeItem = (MultiParentTreeItemImpl) t.getSource();
 
                  Get.executor()
-                    .execute(() -> sourceTreeItem.addChildrenConceptsAndGrandchildrenItems());
+                    .execute(() -> sourceTreeItem.addChildren());
               });
       this.createSnapshotService.start();
       Alert.addAlertListener(alertHandler);
@@ -234,6 +230,7 @@ public class MultiParentTreeView
       descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
                                                                      manifold);
       descriptionTypeChoiceBox.addEventHandler(ActionEvent.ACTION, this::handleDescriptionTypeChange);
+      handleDescriptionTypeChange(null);
 
       setupTopPane();
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
@@ -570,7 +567,7 @@ public class MultiParentTreeView
 
    }
    
-   public void handleDescriptionTypeChange(ActionEvent event) {
+   public final void handleDescriptionTypeChange(ActionEvent event) {
       ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
       List<ConceptSpecification> items = this.descriptionTypeChoiceBox.getItems();
       int[] descriptionTypes = new int[items.size()];
@@ -589,8 +586,6 @@ public class MultiParentTreeView
    private void snapshotReady(ObservableValue<? extends TaxonomySnapshotService> observable,
                               TaxonomySnapshotService oldValue,
                               TaxonomySnapshotService newValue) {
-      Get.executor()
-         .execute(() -> this.rootTreeItem.addChildren());
       restoreExpanded();
    }
 

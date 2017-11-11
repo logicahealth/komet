@@ -1467,8 +1467,7 @@ public class Frills
                : stamp)
                                                            .getLatestSemanticVersionsForComponentFromAssemblage(
                                                                  componentNid,
-                                                                       MetaData.SCTID____SOLOR.getNid())
-                                                           .findFirstVersion();
+                                                                       MetaData.SCTID____SOLOR.getNid()).get(0);
 
          if (sememe.isPresent()) {
             return Optional.of(Long.parseLong(sememe.get()

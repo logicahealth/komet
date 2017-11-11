@@ -74,6 +74,8 @@ import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
  */
 public class Rf2DirectImporter
         extends TimedTaskWithProgressTracker<Void> {
+   
+   private static final int WRITE_PERMITS = 8;
 
    protected static final Logger LOG = LogManager.getLogger();
 
@@ -82,7 +84,7 @@ public class Rf2DirectImporter
     */
    protected static final SimpleDateFormat DATE_PARSER = new SimpleDateFormat("yyyyMMdd");
 
-   protected final Semaphore writeSemaphore = new Semaphore(8);
+   protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
    public Rf2DirectImporter() {
       File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
@@ -239,8 +241,11 @@ public class Rf2DirectImporter
                  "Finishing concepts from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(conceptWriter);
       }
-      updateMessage("Sunchronizing database...");
+      updateMessage("Waiting for file completion...");
+      this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+      updateMessage("Synchronizing database...");
       conceptService.sync();
+      this.writeSemaphore.release(WRITE_PERMITS);
    }
 
    private void readDescriptions(BufferedReader br, ImportSpecification importSpecification) throws IOException {
@@ -266,8 +271,11 @@ public class Rf2DirectImporter
                  "Finishing descriptions from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
-      updateMessage("Sunchronizing database...");
+      updateMessage("Waiting for file completion...");
+      this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+      updateMessage("Synchronizing database...");
       assemblageService.sync();
+      this.writeSemaphore.release(WRITE_PERMITS);
    }
 
    private void readDialect(BufferedReader br, ImportSpecification importSpecification) throws IOException {
@@ -293,8 +301,11 @@ public class Rf2DirectImporter
                  "Finishing dialect from: " + trimZipName(importSpecification.zipEntry.getName()));
          Get.executor().submit(descriptionWriter);
       }
-      updateMessage("Sunchronizing database...");
+      updateMessage("Waiting for file completion...");
+      this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+      updateMessage("Synchronizing database...");
       assemblageService.sync();
+      this.writeSemaphore.release(WRITE_PERMITS);
    }
 
    private void readInferredRelationships(BufferedReader br, ImportSpecification importSpecification) throws IOException {
@@ -321,8 +332,11 @@ public class Rf2DirectImporter
                          trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
          Get.executor().submit(relWriter);
       }
-      updateMessage("Sunchronizing database...");
+      updateMessage("Waiting for file completion...");
+      this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+      updateMessage("Synchronizing database...");
       assemblageService.sync();
+      this.writeSemaphore.release(WRITE_PERMITS);
    }
 
    private void readStatedRelationships(BufferedReader br, ImportSpecification importSpecification) throws IOException {
@@ -349,8 +363,11 @@ public class Rf2DirectImporter
                          trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.STATED_RELATIONSHIP);
          Get.executor().submit(relWriter);
       }
-      updateMessage("Sunchronizing database...");
+      updateMessage("Waiting for file completion...");
+      this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+      updateMessage("Synchronizing database...");
       assemblageService.sync();
+      this.writeSemaphore.release(WRITE_PERMITS);
    }
 
    @Override

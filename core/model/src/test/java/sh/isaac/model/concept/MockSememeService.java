@@ -42,6 +42,8 @@ package sh.isaac.model.concept;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -138,21 +140,17 @@ public class MockSememeService
     * @return the descriptions for component
     */
    @Override
-   public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
+   public List<SemanticChronology> getDescriptionsForComponent(int componentNid) {
       final NidSet set = this.componentSememeMap.get(componentNid);
-      final Stream.Builder<SemanticChronology> builder = Stream.builder();
-
-      if (set != null) {
-         set.stream().forEach((sememeSequence) -> {
+      List<SemanticChronology> results = new ArrayList<>();
+        set.stream().forEach((sememeSequence) -> {
                         final SemanticChronology sememeChronology = this.sememeMap.get(sememeSequence);
 
                         if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
-                           builder.accept(sememeChronology);
+                           results.add(sememeChronology);
                         }
                      });
-      }
-
-      return builder.build();
+      return results;
    }
 
    /**

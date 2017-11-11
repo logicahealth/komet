@@ -808,3 +808,10 @@ limitations under the License.
    -icons-color: white;
    -glyph-size: 20;
 }
+
+
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected,
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+    -fx-background-color: -komet-blue-color;
+   
+}

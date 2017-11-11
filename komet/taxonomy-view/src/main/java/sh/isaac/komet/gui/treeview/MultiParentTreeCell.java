@@ -41,7 +41,6 @@ package sh.isaac.komet.gui.treeview;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,6 @@ import java.util.Collections;
 import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -65,7 +63,6 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
@@ -75,7 +72,6 @@ import javafx.scene.transform.NonInvertibleTransformException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -115,12 +111,6 @@ final public class MultiParentTreeCell
       updateTreeView(treeView);
       setSkin(new MultiParentTreeCellSkin(this));
 
-      // Handle left-clicks.
-      ClickListener eventHandler = new ClickListener();
-
-      setOnMouseClicked(eventHandler);
-
-
       // Allow drags
       
       this.setOnDragDetected(new DragDetectedCellEventHandler());
@@ -135,7 +125,8 @@ final public class MultiParentTreeCell
       boolean addProgressIndicator = false;
       // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
 
-      setContextMenu(buildContextMenu(concept));
+      //profiling showed set context menu very slow. Maybe only set on right click...
+      //setContextMenu(buildContextMenu(concept));
 
       try {
          super.updateItem(concept, empty);
@@ -242,8 +233,7 @@ final public class MultiParentTreeCell
       return null;
    }
 
-   private void openOrCloseParent(MultiParentTreeItemImpl treeItem)
-            throws IOException {
+   protected void openOrCloseParent(MultiParentTreeItemImpl treeItem) {
       ConceptChronology value = treeItem.getValue();
 
       if (value != null) {
@@ -279,8 +269,6 @@ final public class MultiParentTreeCell
                          .add(startIndex++, extraParentItem);
                treeItem.getExtraParents()
                        .add(extraParentItem);
-               Get.executor()
-                  .execute(new GetMultiParentTreeItemConceptCallable(extraParentItem, false));
             }
          }
 
@@ -350,31 +338,6 @@ final public class MultiParentTreeCell
       return dragOffset;
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   /**
-    * Listens for mouse clicks to expand/collapse node.
-    */
-   private final class ClickListener
-            implements EventHandler<MouseEvent> {
-      @Override
-      public void handle(MouseEvent t) {
-         if (getItem() != null) {
-            if (getGraphic().getBoundsInParent()
-                            .contains(t.getX(), t.getY())) {
-               MultiParentTreeItemImpl item = (MultiParentTreeItemImpl) getTreeItem();
-
-               if (item.isMultiParent() || (item.getMultiParentDepth() > 0)) {
-                  try {
-                     openOrCloseParent(item);
-                  } catch (IOException ex) {
-                     LOG.error(ex.getLocalizedMessage(), ex);
-                  }
-               }
-            }
-         }
-      }
-   }
 
    @Override
    public String toString() {

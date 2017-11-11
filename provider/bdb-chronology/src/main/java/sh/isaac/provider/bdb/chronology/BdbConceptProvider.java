@@ -330,8 +330,7 @@ public class BdbConceptProvider
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
           return Get.assemblageService()
-                   .getDescriptionsForComponent(conceptNid)
-                   .collect(Collectors.toList());
+                   .getDescriptionsForComponent(conceptNid);
       }
 
       /**

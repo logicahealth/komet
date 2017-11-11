@@ -41,7 +41,7 @@ package sh.isaac.api.component.semantic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.stream.Stream;
+import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -65,7 +65,7 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     * @param componentNid the component nid
     * @return the latest description versions for component
     */
-   Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid);
+   List<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid);
 
    /**
     * Gets the latest semantic version.
@@ -81,7 +81,7 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     * @param componentNid the component nid
     * @return the latest semantic versions for component
     */
-   VersionStream<V> getLatestSemanticVersionsForComponent(int componentNid);
+   List<LatestVersion<V>> getLatestSemanticVersionsForComponent(int componentNid);
 
    /**
     * Gets the latest semantic versions for component from assemblage.
@@ -90,16 +90,16 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the latest semantic versions for component from assemblage
     */
-   VersionStream<V> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
+   List<LatestVersion<V>> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
     * Gets the latest semantic versions from assemblage.
     *
     * @param assemblageConceptSequence The sequence identifier of the assemblage to select
-    * sememes from.
+    * semantics from.
     * @param progressTrackers For each {@code progressTracker}, the addToTotalWork() will be
-    * updated with the total number of sememes to be processed, and each time a semantic is
+    * updated with the total number of semantics to be processed, and each time a semantic is
     * processed, {@code completedUnitOfWork()} will be called.
     * @return {@code Stream} of the {@code LatestVersion<V>} for each semantic according to the
     * criterion of this snapshot service.

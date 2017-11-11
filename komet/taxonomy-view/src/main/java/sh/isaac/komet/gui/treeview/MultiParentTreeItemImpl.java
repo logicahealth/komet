@@ -26,7 +26,6 @@ import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +36,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.NaturalOrder;
-import sh.komet.gui.task.SequentialAggregateTaskWithIcon;
 
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
@@ -119,15 +117,14 @@ public class MultiParentTreeItemImpl extends TreeItem<ConceptChronology>
          } else { // if (conceptChronology != null)
             // Gather the children
             ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
-            ArrayList<GetMultiParentTreeItemConceptCallable> childrenToProcess = new ArrayList<>();
-
             Tree tree = treeView.getTaxonomyTree();
             if (tree != null) {
                for (int childSequence : tree.getChildNids(conceptChronology.getNid())) {
                   MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childSequence, treeView);
+                  childItem.toString();
+                  childItem.setMultiParent(tree.getParentNids(childSequence).length > 1);
                   if (childItem.shouldDisplay()) {
                      childrenToAdd.add(childItem);
-                     childrenToProcess.add(new GetMultiParentTreeItemConceptCallable(childItem));
                   } else {
                      LOG.debug("item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " + this.getConceptUuid());
                   }
@@ -143,92 +140,8 @@ public class MultiParentTreeItemImpl extends TreeItem<ConceptChronology>
                     -> {
                getChildren().addAll(childrenToAdd);
             });
-            //This loads the children of this child
-            if (!childrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children for " + this.conceptDescriptionText, childrenToProcess);
-               Get.activeTasks().add(aggregateTask);
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
-            }
          }
       } catch (Exception e) {
-         LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
-      } finally {
-         childLoadComplete();
-      }
-   }
-
-   void addChildrenConceptsAndGrandchildrenItems() {
-      ArrayList<GetMultiParentTreeItemConceptCallable> grandChildrenToProcess = new ArrayList<>();
-      childLoadStarts();
-      try {
-         if (!shouldDisplay()) {
-            // Don't add children to something that shouldn't be displayed
-            LOG.debug("this.shouldDisplay() == false: not adding children concepts and grandchildren items to " + this.getConceptUuid());
-         } else {
-            for (TreeItem<ConceptChronology> child : getChildren()) {
-               if (cancelLookup) {
-                  return;
-               }
-               if (((MultiParentTreeItemImpl) child).shouldDisplay()) {
-                  if (child.getChildren().isEmpty() && (child.getValue() != null)) {
-                     if (treeView.getTaxonomyTree().getChildNids(child.getValue().getNid()).length == 0) {
-                        ConceptChronology value = child.getValue();
-                        child.setValue(null);
-                        MultiParentTreeItemImpl noChildItem = (MultiParentTreeItemImpl) child;
-                        noChildItem.computeGraphic();
-                        noChildItem.setValue(value);
-                     } else if (((MultiParentTreeItemImpl) child).getChildLoadPercentComplete().get() == -2.0) { //If this child hasn't yet been told to load
-                        ArrayList<MultiParentTreeItemImpl> grandChildrenToAdd = new ArrayList<>();
-                        ((MultiParentTreeItemImpl) child).childLoadStarts();
-
-                        for (int childNid : treeView.getTaxonomyTree().getChildNids(child.getValue().getNid())) {
-                           if (cancelLookup) {
-                              return;
-                           }
-                           MultiParentTreeItemImpl grandChildItem = new MultiParentTreeItemImpl(childNid, treeView);
-
-                           if (grandChildItem.shouldDisplay()) {
-                              grandChildrenToProcess.add(new GetMultiParentTreeItemConceptCallable(grandChildItem));
-                              grandChildrenToAdd.add(grandChildItem);
-                           } else {
-                              LOG.debug("grandChildItem.shouldDisplay() == false: not adding " + grandChildItem.getConceptUuid() + " as child of " + ((MultiParentTreeItemImpl) child).getConceptUuid());
-                           }
-                        }
-
-                        Collections.sort(grandChildrenToAdd);
-                        if (cancelLookup) {
-                           return;
-                        }
-
-                        CountDownLatch wait = new CountDownLatch(1);
-                        Platform.runLater(()
-                                -> {
-                           child.getChildren().addAll(grandChildrenToAdd);
-                           ((MultiParentTreeItemImpl) child).childLoadComplete();
-                           wait.countDown();
-                        });
-                        wait.await();
-                     }
-                  } else if ((child.getValue() == null) && ((MultiParentTreeItemImpl) child).getChildLoadPercentComplete().get() == -2.0) {
-                     grandChildrenToProcess.add(new GetMultiParentTreeItemConceptCallable((MultiParentTreeItemImpl) child));
-                  }
-               } else {
-                  LOG.debug("childItem.shouldDisplay() == false: not adding " + ((MultiParentTreeItemImpl) child).getConceptUuid() + " as child of " + this.getConceptUuid());
-               }
-            }
-
-            if (cancelLookup) {
-               return;
-            }
-
-            //This loads the childrens children
-            if (!grandChildrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren for " + this.conceptDescriptionText, grandChildrenToProcess);
-               Get.activeTasks().add(aggregateTask);
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
-            }
-         }
-      } catch (InterruptedException e) {
          LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
       } finally {
          childLoadComplete();
@@ -329,8 +242,18 @@ public class MultiParentTreeItemImpl extends TreeItem<ConceptChronology>
       if (multiParentDepth > 0) {
          return true;
       }
+      if (isRoot()) {
+         return false;
+      }
 
-      return super.isLeaf();
+      Tree tree = this.treeView.getTaxonomyTree();
+      if (tree != null) {
+         int[] children = tree.getChildNids(nid);
+         if (children != null && children.length > 0) {
+            return false;
+         }
+      }
+      return true;
    }
 
    @Override
@@ -393,13 +316,8 @@ public class MultiParentTreeItemImpl extends TreeItem<ConceptChronology>
       }
    }
 
-   public void removeGrandchildren() {
-      getChildren().stream().map((child) -> {
-         ((MultiParentTreeItemImpl) child).clearChildren();
-         return child;
-      }).forEachOrdered((child) -> {
-         ((MultiParentTreeItemImpl) child).resetChildrenCalculators();
-      });
+   public void removeChildren() {
+      this.getChildren().clear();
    }
 
    /**
