@@ -56,6 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.progress.PersistTaskResult;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -64,7 +65,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class GenerateIndexes
-        extends TimedTask<Void> {
+        extends TimedTask<Void> implements PersistTaskResult {
 
    /**
     * The Constant LOG.

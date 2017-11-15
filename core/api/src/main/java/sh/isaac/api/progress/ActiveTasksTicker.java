@@ -58,7 +58,7 @@ import sh.isaac.api.ticker.Ticker;
 /**
  * Created by kec on 4/9/15.
  */
-public class ActiveTasksTicker {
+public class ActiveTasksTicker { 
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 

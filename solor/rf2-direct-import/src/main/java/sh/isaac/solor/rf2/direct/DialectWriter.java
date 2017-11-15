@@ -21,14 +21,21 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -39,6 +46,7 @@ import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
  * @author kec
  */
 public class DialectWriter extends TimedTaskWithProgressTracker<Void> {
+
 
    /*
 id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
@@ -57,17 +65,30 @@ id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
 
    private final List<String[]> dialectRecords;
    private final Semaphore writeSemaphore;
+   private final List<IndexService> indexers;
 
    public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, String message) {
       this.dialectRecords = dialectRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("Importing dialect batch of size: " + dialectRecords.size());
       updateMessage(message);
       addToTotalWork(dialectRecords.size());
       Get.activeTasks().add(this);
    }
 
+   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
+   private void index(Chronology chronicle) {
+      for (IndexService indexer: indexers) {
+         try {
+            indexer.index(chronicle).get();
+         } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+         }
+      }
+   }
+   
    @Override
    protected Void call() throws Exception {
       try {
@@ -75,7 +96,7 @@ id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
          int authorNid = TermAux.USER.getNid();
-         int pathNid = TermAux.MASTER_PATH.getNid();
+         int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord : dialectRecords) {
             UUID elementUuid = UUID.fromString(descriptionRecord[DIALECT_UUID]);
@@ -103,6 +124,7 @@ id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
             ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(conceptStamp);
             dialectVersion.setComponentNid(acceptabilityNid);
             
+            index(dialectToWrite);
             assemblageService.writeSemanticChronology(dialectToWrite);
             completedUnitOfWork();
          }
@@ -110,6 +132,9 @@ id	effectiveTime	active	moduleId	refsetId	referencedComponentId	acceptabilityId
          return null;
       } finally {
          this.writeSemaphore.release();
+         for (IndexService indexer : indexers) {
+            indexer.commitWriter();
+         }
          this.done();
          Get.activeTasks().remove(this);
       }

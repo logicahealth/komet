@@ -41,12 +41,6 @@ package sh.isaac.api.progress;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Set;
-import javafx.collections.ObservableSet;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
 
 import org.jvnet.hk2.annotations.Contract;
 
@@ -58,28 +52,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface ActiveTasks {
-   /**
-    * Adds the.
-    *
-    * @param task the task
-    */
-   void add(Task<?> task);
-
-   /**
-    * Removes the.
-    *
-    * @param task the task
-    */
-   void remove(Task<?> task);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the.
-    *
-    * @return the set
-    */
-   ObservableSet<Task<?>> get();
+public interface ActiveTasks extends TaskList {
 }
 

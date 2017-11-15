@@ -46,6 +46,7 @@ import java.util.ResourceBundle;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 
 import javafx.event.ActionEvent;
 
@@ -93,6 +94,7 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
+import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -194,11 +196,22 @@ public class KometStageController
               .add(createWrappedTabPane());
       classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
       classifierMenuButton.getItems().clear();
-      classifierMenuButton.getItems().addAll(getClassifyMenuItems());
+      classifierMenuButton.getItems().addAll(getTaskMenuItems());
    }
 
-   private List<MenuItem> getClassifyMenuItems() {
+   private List<MenuItem> getTaskMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
+      
+      
+      MenuItem importTransformClassify = new MenuItem("Import, transform, classify");
+              
+      importTransformClassify.setOnAction((ActionEvent event) -> {
+         ImportTransformClassifyTask itcTask = new ImportTransformClassifyTask(TAXONOMY_MANIFOLD);
+         Get.executor().submit(itcTask);
+      });
+      
+      items.add(importTransformClassify);
+      
       MenuItem completeClassify = new MenuItem("Complete classify");
       completeClassify.setOnAction((ActionEvent event) -> {
          //TODO change how we get the edit coordinate. 
@@ -220,6 +233,12 @@ public class KometStageController
          Get.executor().submit(importer);
       });
       items.add(importSources);
+      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
+      transformSources.setOnAction((ActionEvent event) -> {
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+         Get.executor().submit(transformer);
+      });
+      items.add(transformSources);
       return items;
    }
 

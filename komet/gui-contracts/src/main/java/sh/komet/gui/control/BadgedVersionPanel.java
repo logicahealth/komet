@@ -462,7 +462,8 @@ public abstract class BadgedVersionPanel
             case MEMBER:
                componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                break;
-
+               
+            case RF2_RELATIONSHIP:
             case DYNAMIC:
             case UNKNOWN:
             case DESCRIPTION:

@@ -67,13 +67,14 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
+import sh.isaac.api.progress.PersistTaskResult;
 
 //~--- classes ----------------------------------------------------------------
 /**
  * Loader code to convert RF2 format fileCount into the ISAAC format.
  */
 public class Rf2DirectImporter
-        extends TimedTaskWithProgressTracker<Void> {
+        extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
    
    private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
 
@@ -105,7 +106,7 @@ public class Rf2DirectImporter
          File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
          int fileCount = loadDatabase(importDirectory);
          if (fileCount == 0) {
-            File fallbackFile = new File("/Users/kec/isaac/sct");
+            File fallbackFile = new File("/Users/kec/isaac/import");
             updateTitle("Importing from " + fallbackFile.getAbsolutePath());
             int secondTryFileCount = loadDatabase(fallbackFile);
          }

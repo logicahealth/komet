@@ -249,10 +249,13 @@ public class ClassifierData
       if (this.incrementalAllowed) {
          this.reasoner.loadAxioms(this.incrementalToAxiomTranslator.getAxioms());
          this.loadedConcepts = this.incrementalToAxiomTranslator.getLoadedConcepts();
+         System.out.println("Incremental load of " + this.incrementalToAxiomTranslator.getAxioms().size() + " axioms. ");
       } else {
          this.reasoner.loadAxioms(this.allGraphsToAxiomTranslator.getAxioms());
          this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
+         System.out.println("Complete load of " + this.allGraphsToAxiomTranslator.getAxioms().size() + " axioms. ");
       }
+      
    }
 
    /**

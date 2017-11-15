@@ -48,7 +48,6 @@ import java.util.UUID;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 
 //~--- classes ----------------------------------------------------------------

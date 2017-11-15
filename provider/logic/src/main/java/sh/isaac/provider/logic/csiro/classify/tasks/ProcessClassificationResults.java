@@ -193,34 +193,33 @@ public class ProcessClassificationResults
    /**
     * Test for proper set size.
     *
-    * @param inferredSememeSequences the inferred sememe sequences
+    * @param inferredSemanticSequences the inferred sememe sequences
     * @param conceptSequence the concept sequence
-    * @param statedSememeSequences the stated sememe sequences
+    * @param statedSemanticSequences the stated sememe sequences
     * @param sememeService the sememe service
     * @throws IllegalStateException the illegal state exception
     */
-   private void testForProperSetSize(NidSet inferredSememeSequences,
+   private void testForProperSetSize(NidSet inferredSemanticSequences,
            int conceptSequence,
-           NidSet statedSememeSequences,
+           NidSet statedSemanticSequences,
            AssemblageService sememeService)
            throws IllegalStateException {
-      if (inferredSememeSequences.size() > 1) {
+      if (inferredSemanticSequences.size() > 1) {
          classificationDuplicateCount++;
          if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-            log.error("Processing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
-            throw new IllegalStateException("Cannot have more than one inferred definition per concept. Found: "
-                    + inferredSememeSequences);
+            log.error("Cannot have more than one inferred definition per concept. Found: "
+                    + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
          }
       }
 
-      if (statedSememeSequences.size() != 1) {
+      if (statedSemanticSequences.size() != 1) {
          final StringBuilder builder = new StringBuilder();
 
          builder.append("Must have exactly one stated logic graph per concept. Found: ")
-                 .append(statedSememeSequences)
+                 .append(statedSemanticSequences)
                  .append("\n");
 
-         if (statedSememeSequences.isEmpty()) {
+         if (statedSemanticSequences.isEmpty()) {
             builder.append("No stated definition for concept: ")
                     .append(Get.conceptService()
                             .getConceptChronology(conceptSequence)
@@ -232,14 +231,13 @@ public class ProcessClassificationResults
                             .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
-            statedSememeSequences.stream().forEach((sememeSequence) -> {
+            statedSemanticSequences.stream().forEach((sememeSequence) -> {
                builder.append("Found stated definition: ")
                        .append(sememeService.getSemanticChronology(sememeSequence))
                        .append("\n");
             });
          }
-
-         throw new IllegalStateException(builder.toString());
+            log.error(builder.toString());
       }
    }
 

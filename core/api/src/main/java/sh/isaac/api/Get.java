@@ -104,6 +104,7 @@ import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
 
@@ -131,6 +132,9 @@ public class Get
                                                                    new NamedThreadFactory("alert-disruptor", true));
    /** The active task set. */
    private static ActiveTasks activeTaskSet;
+
+   /** The active task set. */
+   private static CompletedTasks completedTaskSet;
 
    /** The configuration service. */
    private static ConfigurationService configurationService;
@@ -220,6 +224,17 @@ public class Get
       }
 
       return activeTaskSet;
+   }
+   /**
+    * Active tasks.
+    *
+    * @return the active tasks
+    */
+   public static CompletedTasks completedTasks() {
+      if (completedTaskSet == null) {
+         completedTaskSet = getService(CompletedTasks.class);
+      }
+      return completedTaskSet;
    }
 
    /**

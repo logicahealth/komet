@@ -61,11 +61,11 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class WriteSememeChronicle.
+ * The Class WriteSemanticChronology.
  *
  * @author kec
  */
-public class WriteSememeChronicle
+public class WriteSemanticChronology
         extends Task<Void> {
    /** The sc. */
    private SemanticChronology sc;
@@ -91,7 +91,7 @@ public class WriteSememeChronicle
  written to the AssemblageService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
  change checker is active for this implementation.
     */
-   public WriteSememeChronicle(SemanticChronology sc,
+   public WriteSemanticChronology(SemanticChronology sc,
                                Semaphore writeSemaphore,
                                ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
                                BiConsumer<Chronology, Boolean> uncommittedTracking) {
@@ -99,7 +99,7 @@ public class WriteSememeChronicle
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
-      updateTitle("Write and notify sememe change");
+      updateTitle("Write and notify semantic change");
       updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)

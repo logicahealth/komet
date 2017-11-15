@@ -21,15 +21,20 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -60,15 +65,27 @@ id	effectiveTime	active	moduleId	definitionStatusId
 
    private final List<String[]> conceptRecords;
    private final Semaphore writeSemaphore;
+   private final List<IndexService> indexers;
 
    public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, String message) {
       this.conceptRecords = conceptRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("Importing concept batch of size: " + conceptRecords.size());
       updateMessage(message);
       addToTotalWork(conceptRecords.size());
       Get.activeTasks().add(this);
+   }
+   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
+   private void index(Chronology chronicle) {
+//      for (IndexService indexer: indexers) {
+//         try {
+//            indexer.index(chronicle).get();
+//         } catch (InterruptedException | ExecutionException ex) {
+//            LOG.error(ex);
+//         }
+//      }
    }
 
    @Override
@@ -81,7 +98,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          int conceptAssemblageNid = identifierService.getNidForProxy(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
          int sctIdentifierAssemblageNid = TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getNid();
          int authorNid = TermAux.USER.getNid();
-         int pathNid = TermAux.MASTER_PATH.getNid();
+         int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
          int defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
 
          for (String[] conceptRecord : conceptRecords) {
@@ -101,6 +118,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             int legacyDefStatusNid = identifierService.getNidForUuids(legacyDefStatus);
             
             ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptNid, conceptAssemblageNid);
+            index(conceptToWrite);
             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             conceptToWrite.createMutableVersion(conceptStamp);
             conceptService.writeConcept(conceptToWrite);
@@ -117,6 +135,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
                                
             ComponentNidVersionImpl defStatusVersion = defStatusToWrite.createMutableVersion(conceptStamp);
             defStatusVersion.setComponentNid(legacyDefStatusNid);
+            index(defStatusToWrite);
             assemblageService.writeSemanticChronology(defStatusToWrite);
             
             // add to sct identifier assemblage
@@ -131,6 +150,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             
             StringVersionImpl sctIdVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
             sctIdVersion.setString(conceptRecord[CONCEPT_SCT_ID_INDEX]);
+            index(sctIdentifierToWrite);
             assemblageService.writeSemanticChronology(sctIdentifierToWrite);
             completedUnitOfWork();
          }
@@ -138,6 +158,9 @@ id	effectiveTime	active	moduleId	definitionStatusId
          return null;
       } finally {
          this.writeSemaphore.release();
+         for (IndexService indexer : indexers) {
+            indexer.commitWriter();
+         }
          this.done();
          Get.activeTasks().remove(this);
       }

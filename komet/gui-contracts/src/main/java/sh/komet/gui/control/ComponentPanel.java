@@ -127,6 +127,7 @@ public final class ComponentPanel
                          switch (osc.getVersionType()) {
                             case DESCRIPTION:
                             case LOGIC_GRAPH:
+                            case RF2_RELATIONSHIP:
                                break;  // Ignore, description and logic graph where already added as an independent panel
 
                             default:

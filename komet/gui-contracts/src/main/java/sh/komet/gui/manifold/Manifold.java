@@ -72,7 +72,6 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -244,7 +243,7 @@ public class Manifold
       if (latestVersion.isPresent()) {
          LatestVersion<String> latestText = new LatestVersion<>(latestVersion.get().getText());
          for (DescriptionVersion contradition: latestVersion.contradictions()) {
-            latestText.contradictions().add(contradition.getText());
+            latestText.addLatest(contradition.getText());
          }
          return latestText;
       }

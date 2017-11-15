@@ -67,8 +67,10 @@ import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.api.component.semantic.version.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.version.ObservableRf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -165,38 +167,35 @@ public class ObservableSemanticChronologyImpl
    @Override
    protected <OV extends ObservableVersion>
            OV wrapInObservable(Version version) {
-              SemanticVersion sememeVersion = (SemanticVersion) version;
-      switch (sememeVersion.getChronology().getVersionType()) {
+              SemanticVersion semanticVersion = (SemanticVersion) version;
+      switch (semanticVersion.getChronology().getVersionType()) {
          case DESCRIPTION:
-            return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) semanticVersion, this);
          case COMPONENT_NID:
-            return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) semanticVersion, this);
          case MEMBER:
-            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
          case LONG:
-            return (OV) new ObservableLongVersionImpl((LongVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableLongVersionImpl((LongVersion) semanticVersion, this);
          case STRING:
-            return (OV) new ObservableStringVersionImpl((StringVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableStringVersionImpl((StringVersion) semanticVersion, this);
          case LOGIC_GRAPH:
-            return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) semanticVersion, this);
+         case RF2_RELATIONSHIP:
+            return (OV) new ObservableRf2RelationshipImpl((Rf2Relationship) semanticVersion, this);
+         
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of sememe: " + 
-                    sememeVersion.getClass().getSimpleName() + " " + sememeVersion);
-            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
-                    (ObservableSemanticChronology) this);
+            LOG.warn("Incomplete implementation of dynamic semantic: " + 
+                    semanticVersion.getClass().getSimpleName() + " " + semanticVersion);
+            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
+            
             
            // fall through to default...
          case UNKNOWN:
          default:
             throw new UnsupportedOperationException("Can't convert to observable "
-                    + sememeVersion.getChronology().getVersionType() + "from \n:    "
-                    + sememeVersion);
+                    + semanticVersion.getChronology().getVersionType() + "from \n:    "
+                    + semanticVersion);
       }
 
    }

@@ -1019,7 +1019,7 @@ public class CommitProvider
            ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
       writeSemaphore.acquireUninterruptibly();
 
-      final WriteSememeChronicle task = new WriteSememeChronicle(sc,
+      final WriteSemanticChronology task = new WriteSemanticChronology(sc,
               writeSemaphore,
               changeListeners,
               (sememeOrConceptChronicle,

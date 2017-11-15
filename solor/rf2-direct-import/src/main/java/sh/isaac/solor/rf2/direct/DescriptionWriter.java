@@ -20,15 +20,22 @@ import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -63,17 +70,29 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
 
    private final List<String[]> descriptionRecords;
    private final Semaphore writeSemaphore;
+   private final List<IndexService> indexers;
 
    public DescriptionWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message) {
       this.descriptionRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("Importing description batch of size: " + descriptionRecords.size());
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());
       Get.activeTasks().add(this);
    }
-
+   
+   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
+   private void index(Chronology chronicle) {
+//      for (IndexService indexer: indexers) {
+//         try {
+//            indexer.index(chronicle).get();
+//         } catch (InterruptedException | ExecutionException ex) {
+//            LOG.error(ex);
+//         }
+//      }
+   }
    @Override
    protected Void call() throws Exception {
       try {
@@ -82,10 +101,11 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          StampService stampService = Get.stampService();
          int sctIdentifierAssemblageNid = TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getNid();
          int authorNid = TermAux.USER.getNid();
-         int pathNid = TermAux.MASTER_PATH.getNid();
+         int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord : descriptionRecords) {
             int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[LANGUGE_CODE_INDEX]);
+            int languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             UUID descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
             UUID moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
             Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
@@ -104,6 +124,15 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             int caseSignificanceNid = identifierService.getNidForUuids(caseSignificanceUuid);
             int descriptionTypeNid = identifierService.getNidForUuids(descriptionTypeUuid);
             
+//            try {
+//               ConceptChronology concept = Get.concept(referencedConceptNid);
+//               ConceptChronology caseSignificanceConcept = Get.concept(caseSignificanceNid);
+//               ConceptChronology descripitonTypeConcept = Get.concept(descriptionTypeNid);
+//               ConceptChronology moduleConcept = Get.concept(moduleNid);
+//            } catch (NoSuchElementException e) {
+//               throw e;
+//            }
+            
             SemanticChronologyImpl descriptionToWrite = 
                     new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionNid, 
                             descriptionAssemblageNid, referencedConceptNid);
@@ -111,9 +140,10 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(conceptStamp);
             descriptionVersion.setCaseSignificanceConceptNid(caseSignificanceNid);
             descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
-            descriptionVersion.setLanguageConceptNid(descriptionAssemblageNid);
+            descriptionVersion.setLanguageConceptNid(languageNid);
             descriptionVersion.setText(descriptionRecord[DESCRIPTION_TEXT_INDEX]);
             
+            index(descriptionToWrite);
             assemblageService.writeSemanticChronology(descriptionToWrite);
             
             // add to sct identifier assemblage
@@ -128,6 +158,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             
             StringVersionImpl sctIdVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
             sctIdVersion.setString(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
+            index(sctIdentifierToWrite);
             assemblageService.writeSemanticChronology(sctIdentifierToWrite);
             completedUnitOfWork();
          }
@@ -135,6 +166,9 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          return null;
       } finally {
          this.writeSemaphore.release();
+         for (IndexService indexer : indexers) {
+            indexer.commitWriter();
+         }
          this.done();
          Get.activeTasks().remove(this);
       }
