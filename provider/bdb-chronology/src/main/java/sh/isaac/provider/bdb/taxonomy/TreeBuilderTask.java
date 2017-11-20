@@ -48,10 +48,10 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
@@ -66,15 +66,18 @@ public class TreeBuilderTask
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
    private final StampedLock               stampedLock;
-   private final SpinedIntObjectMap<int[]> originDestinationTaxonomyRecordMap;
+   private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeBuilderTask(SpinedIntObjectMap<int[]> originDestinationTaxonomyRecordMap,
+   public TreeBuilderTask(SpinedIntIntArrayMap originDestinationTaxonomyRecordMap,
                           ManifoldCoordinate manifoldCoordinate,
                           StampedLock stampedLock) {
+      if (originDestinationTaxonomyRecordMap == null) {
+         throw new IllegalStateException("originDestinationTaxonomyRecordMap cannot be null");
+      }
       this.originDestinationTaxonomyRecordMap = originDestinationTaxonomyRecordMap;
       this.manifoldCoordinate                 = manifoldCoordinate;
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()

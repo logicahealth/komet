@@ -62,6 +62,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
@@ -386,8 +387,8 @@ public class BdbConceptProvider
    }   
 
    @Override
-   public void sync() {
-      this.bdb.sync();
+   public Future<?> sync() {
+      return this.bdb.sync();
    }
    
 }

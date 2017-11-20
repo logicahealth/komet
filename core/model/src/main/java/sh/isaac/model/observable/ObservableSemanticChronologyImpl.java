@@ -296,6 +296,6 @@ public class ObservableSemanticChronologyImpl
 
    @Override
    public String toString() {
-      return "ObservableSememeChronologyImpl{" + getSemanticChronology().toUserString() + '}';
+      return "ObservableSemanticChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
 }

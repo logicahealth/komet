@@ -36,8 +36,20 @@ public interface ContainerSequenceService extends IdentifierService {
     * @param objectType 
     */
    void setupNid(int nid, int assemblageNid, IsaacObjectType objectType);
-
    
+   /**
+    * 
+    * @param nid a component nid
+    * @param referencingSemanticNid the nid for a semantic that references the component
+    */
+   void addToSemanticIndex(int nid, int referencingSemanticNid);
+
+   /**
+    * 
+    * @param componentNid
+    * @return the semantic nids associated with the component 
+    */
+   int[] getSemanticNidsForComponent(int componentNid);
    /**
     * A sequence for the semantic chronology, that is only unique within the 
     * particular assemblage. 

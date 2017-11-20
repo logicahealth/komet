@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -34,7 +33,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
@@ -85,13 +83,13 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
    
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
-//      for (IndexService indexer: indexers) {
-//         try {
-//            indexer.index(chronicle).get();
-//         } catch (InterruptedException | ExecutionException ex) {
-//            LOG.error(ex);
-//         }
-//      }
+      for (IndexService indexer: indexers) {
+         try {
+            indexer.index(chronicle).get();
+         } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+         }
+      }
    }
    @Override
    protected Void call() throws Exception {
@@ -123,16 +121,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
             int caseSignificanceNid = identifierService.getNidForUuids(caseSignificanceUuid);
             int descriptionTypeNid = identifierService.getNidForUuids(descriptionTypeUuid);
-            
-//            try {
-//               ConceptChronology concept = Get.concept(referencedConceptNid);
-//               ConceptChronology caseSignificanceConcept = Get.concept(caseSignificanceNid);
-//               ConceptChronology descripitonTypeConcept = Get.concept(descriptionTypeNid);
-//               ConceptChronology moduleConcept = Get.concept(moduleNid);
-//            } catch (NoSuchElementException e) {
-//               throw e;
-//            }
-            
+                        
             SemanticChronologyImpl descriptionToWrite = 
                     new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionNid, 
                             descriptionAssemblageNid, referencedConceptNid);

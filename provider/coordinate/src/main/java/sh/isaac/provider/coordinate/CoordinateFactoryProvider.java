@@ -488,10 +488,12 @@ public class CoordinateFactoryProvider
             for (DescriptionVersion description: descriptionsForLanguageOfType) {
                for (LatestVersion<ComponentNidVersion> acceptabilityVersion: acceptabilitySnapshot.getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(),
                                dialectAssemblageNid)) {
-                  if (acceptabilityVersion.get()
-                          .getComponentNid() == getPreferredConceptNid()) {
-                     preferredForDialect.addLatest(description);
-                  }
+                  
+                  acceptabilityVersion.ifPresent((acceptability) -> {
+                     if (acceptability.getComponentNid() == getPreferredConceptNid()) {
+                        preferredForDialect.addLatest(description);
+                     }
+                  });
                }
             }
          }

@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.index;
+package sh.isaac.model;
 
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.TaxonomyService;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 /**
  *
  * @author kec
  */
 @Contract
-public interface AssemblageIndexService extends IndexService {
-   NidSet getAttachmentNidsForComponent(int componentNid);
-   NidSet getAttachmentNidsInAssemblage(int assemblageSequence);
-   NidSet getAttachmentsForComponentInAssemblage(int componentNid, int assemblageSequence);
+public interface TaxonomyDebugService extends TaxonomyService {
+   SpinedIntIntArrayMap getTaxonomyRecordMap(int conceptAssemblageNid);
+   String describeTaxonomyRecord(int nid);
 }

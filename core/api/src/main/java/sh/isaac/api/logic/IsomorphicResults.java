@@ -41,6 +41,7 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.stream.Stream;
 
 //~--- interfaces -------------------------------------------------------------
@@ -57,7 +58,7 @@ public interface IsomorphicResults {
     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     *  in the referenceExpression, but not in the comparisonExpression.
     */
-   Stream<LogicNode> getAddedRelationshipRoots();
+   List<LogicNode> getAddedRelationshipRoots();
 
    /**
     * Gets the additional node roots.
@@ -65,7 +66,7 @@ public interface IsomorphicResults {
     * @return roots for connected nodes that are in the reference expression, but not in the
     * common expression.
     */
-   Stream<LogicNode> getAdditionalNodeRoots();
+   List<LogicNode> getAdditionalNodeRoots();
 
    /**
     * Gets the comparison expression.
@@ -81,7 +82,7 @@ public interface IsomorphicResults {
     * @return roots for connected nodes that are in the comparison expression, but are not in
     * the common expression.
     */
-   Stream<LogicNode> getDeletedNodeRoots();
+   List<LogicNode> getDeletedNodeRoots();
 
    /**
     * Gets the deleted relationship roots.
@@ -89,7 +90,7 @@ public interface IsomorphicResults {
     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     * in the comparisonExpression, but not in the referenceExpression.
     */
-   Stream<LogicNode> getDeletedRelationshipRoots();
+   List<LogicNode> getDeletedRelationshipRoots();
 
    /**
     * Gets the isomorphic expression.
@@ -119,6 +120,6 @@ public interface IsomorphicResults {
     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     *  in both the referenceExpression and in the comparisonExpression.
     */
-   Stream<LogicNode> getSharedRelationshipRoots();
+   List<LogicNode> getSharedRelationshipRoots();
 }
 

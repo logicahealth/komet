@@ -306,7 +306,7 @@ public class WorkExecutors {
     *
     * @return The ISAAC common {@link ThreadPoolExecutor} - (behavior described in the class docs).
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
-    * This executor has processing threads linkes to the number of CPUs available.  It is good for compute
+    * This executor has processing threads linked to the number of CPUs available.  It is good for compute
     * intensive jobs.
     */
    public ThreadPoolExecutor getExecutor() {

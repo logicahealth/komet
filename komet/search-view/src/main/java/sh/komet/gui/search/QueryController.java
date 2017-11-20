@@ -203,7 +203,7 @@ public class QueryController
                      .forEach(
                          (nid) -> {
                             LatestVersion<ObservableDescriptionVersion> latestDescription =
-                               (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSememeVersion(
+                               (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
                                    nid);
 
                             if (latestDescription.isPresent()) {

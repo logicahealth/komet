@@ -20,15 +20,6 @@
             <module>bdb-chronology</module>
          </modules>
       </profile>
-    <profile>
-         <id>old</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>workflow</module>
-         </modules>
-      </profile>
     </profiles>
     <modules>
         <module>commit</module>

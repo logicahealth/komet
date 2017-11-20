@@ -329,15 +329,15 @@ public class ConceptDetailPanelNode
 
          // Sort them...
          observableConceptChronology.getObservableSemanticList()
-                                    .filtered((sememeChronology) -> {
-                                           switch (sememeChronology.getVersionType()) {
+                                    .filtered((semanticChronology) -> {
+                                           switch (semanticChronology.getVersionType()) {
                                            case DESCRIPTION:
                                            case LOGIC_GRAPH:
                                               if (historySwitch.isSelected()) {
                                                  return true;
                                               } else {
                                                  LatestVersion<SemanticVersion> latest =
-                                                    sememeChronology.getLatestVersion(
+                                                    semanticChronology.getLatestVersion(
                                                         conceptDetailManifold);
 
                                                  if (latest.isPresent()) {

@@ -34,7 +34,7 @@ import sh.isaac.model.ModelGet;
  */
 public class SpinedNidObjectMap<E> {
    private static final int DEFAULT_SPINE_SIZE = 1024;
-   private final int spineSize;
+   protected final int spineSize;
    private final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
    private Function<E,String> elementStringConverter;
 

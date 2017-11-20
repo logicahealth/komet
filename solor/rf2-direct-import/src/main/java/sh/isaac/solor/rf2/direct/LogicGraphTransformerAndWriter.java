@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +31,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -86,6 +86,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
    private final int inferredAssemblageNid = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
    private final int authorNid = TermAux.USER.getNid();
    private final int developmentPathNid = TermAux.DEVELOPMENT_PATH.getNid();
+   private final TaxonomyService taxonomyService;
 
    {
       this.neverRoleGroupSet.add(TermAux.PART_OF.getNid());
@@ -105,6 +106,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
       this.transformationRecords = transformationRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      this.taxonomyService = Get.taxonomyService();
       indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("EL++ transformation");
       updateMessage("");
@@ -114,13 +116,17 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
    private void index(Chronology chronicle) {
-//      for (IndexService indexer: indexers) {
-//         try {
-//            indexer.index(chronicle).get();
-//         } catch (InterruptedException | ExecutionException ex) {
-//            LOG.error(ex);
-//         }
-//      }
+      if (chronicle instanceof SemanticChronology) {
+         this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
+      }
+      for (IndexService indexer: indexers) {
+         try {
+            indexer.index(chronicle).get();
+         } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+         }
+      }
+      
    }
 
    @Override
@@ -162,17 +168,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          LatestVersion<Rf2Relationship> latestRel = rb.getLatestVersion(stampCoordinate);
          if (latestRel.isPresent()) {
             Rf2Relationship relationship = latestRel.get();
-//            try {
-//               ConceptChronology concept = Get.concept(relationship.getReferencedComponentNid());
-//               ConceptChronology destinationConcept = Get.concept(relationship.getDestinationNid());
-//               ConceptChronology relTypeConcept = Get.concept(relationship.getTypeNid());
-//               ConceptChronology characteristicConcept = Get.concept(relationship.getCharacteristicNid());
-//               ConceptChronology modifierConcept = Get.concept(relationship.getModifierNid());
-//               ConceptChronology moduleConcept = Get.concept(relationship.getModuleNid());
-//               relationship.toString();
-//            } catch (NoSuchElementException e) {
-//               throw e;
-//            }
 
             if (definingCharacteristicSet.contains(relationship.getCharacteristicNid())) {
 

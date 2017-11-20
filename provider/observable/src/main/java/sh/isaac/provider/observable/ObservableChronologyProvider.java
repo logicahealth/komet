@@ -262,7 +262,7 @@ public class ObservableChronologyProvider
     * @return the observable sememe chronology
     */
    @Override
-   public ObservableSemanticChronology getObservableSememeChronology(int id) {
+   public ObservableSemanticChronology getObservableSemanticChronology(int id) {
       return new ObservableSemanticChronologyWeakRefImpl(id, concreteProvider);
    }
 
@@ -288,9 +288,9 @@ public class ObservableChronologyProvider
       }
 
       @Override
-      public LatestVersion<? extends ObservableSemanticVersion> getObservableSememeVersion(int id) {
-         ObservableSemanticChronology observableSememeChronology = getObservableSememeChronology(id);
-         return this.relativePositionCalculator.getLatestVersion(observableSememeChronology);
+      public LatestVersion<? extends ObservableSemanticVersion> getObservableSemanticVersion(int id) {
+         ObservableSemanticChronology observableSemanticChronology = getObservableSemanticChronology(id);
+         return this.relativePositionCalculator.getLatestVersion(observableSemanticChronology);
       }
    }
 
@@ -312,17 +312,17 @@ public class ObservableChronologyProvider
       }
 
       @Override
-      public ObservableSemanticChronology getObservableSememeChronology(int id) {
+      public ObservableSemanticChronology getObservableSemanticChronology(int id) {
  
-         ObservableSemanticChronology observableSememeChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
+         ObservableSemanticChronology observableSemanticChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
 
-         if (observableSememeChronology != null) {
-            return observableSememeChronology;
+         if (observableSemanticChronology != null) {
+            return observableSemanticChronology;
          }
 
-         SemanticChronology sememeChronology = Get.assemblageService().getSemanticChronology(id);
-         observableSememeChronology = new ObservableSemanticChronologyImpl(sememeChronology);
-         return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
+         SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(id);
+         observableSemanticChronology = new ObservableSemanticChronologyImpl(semanticChronology);
+         return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSemanticChronology);
       }
 
       @Override

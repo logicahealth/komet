@@ -65,12 +65,13 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.version.Rf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeChronologyImpl.
+ * The Class SemanticChronologyImpl.
  *
  * @author kec
  */
@@ -107,6 +108,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
       super(primordialUuid, nid, assemblageNid);
       this.semanticTypeToken        = sememeType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
+      ModelGet.identifierService().addToSemanticIndex(referencedComponentNid, nid);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -202,11 +204,12 @@ public class SemanticChronologyImpl extends ChronologyImpl
       if (IsaacObjectType.SEMANTIC.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
          throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
       }
-      final SemanticChronologyImpl sememeChronology = new SemanticChronologyImpl();
-      sememeChronology.readData(data);
-      return sememeChronology;
+      final SemanticChronologyImpl semanticChronology = new SemanticChronologyImpl();
+      semanticChronology.readData(data);
+      ModelGet.identifierService().addToSemanticIndex(semanticChronology.referencedComponentNid, semanticChronology.getNid());
+      
+      return semanticChronology;
    }
-
    /**
     * To string.
     *
@@ -223,10 +226,10 @@ public class SemanticChronologyImpl extends ChronologyImpl
    public void toString(StringBuilder builder, boolean addAttachments) {
       
       
-      builder.append("SememeChronology{");
+      builder.append("SemanticChronology{");
 
       if (this.semanticTypeToken == -1) {
-         builder.append("SememeType token not initialized");
+         builder.append("SemanticType token not initialized");
       } else {
          builder.append(VersionType.getFromToken(this.semanticTypeToken));
       }
@@ -238,7 +241,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
               .append(">\n rc:");
       
       switch (Get.identifierService()
-              .getOldChronologyTypeForNid(this.referencedComponentNid)) {
+              .getObjectTypeForComponent(this.referencedComponentNid)) {
          case CONCEPT:
             builder.append("CONCEPT: ")
                     .append(Get.conceptDescriptionText(this.referencedComponentNid));
@@ -260,7 +263,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
             
          default:
             builder.append(Get.identifierService()
-                    .getOldChronologyTypeForNid(this.referencedComponentNid))
+                    .getObjectTypeForComponent(this.referencedComponentNid))
                     .append(" ")
                     .append(this.referencedComponentNid);
       }

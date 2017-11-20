@@ -41,23 +41,11 @@ package sh.isaac.provider.assemblage;
 
 //~--- JDK imports ------------------------------------------------------------
 
-
-import org.glassfish.hk2.api.Rank;
-import org.glassfish.hk2.runlevel.RunLevel;
-
-import org.jvnet.hk2.annotations.Service;
-
-
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class AssemblageProvider.
  *
  * @author kec
  */
-@Service
-@RunLevel(value = 0)
-@Rank(value = 10)
 public class AssemblageProvider {
    
 }

@@ -70,7 +70,7 @@ public class AddAttachmentMenuItems {
             // this step does an add uncommitted...
             SemanticChronology newChronology = buildTask.get();
             
-            ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getNid());
+            ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSemanticChronology(newChronology.getNid());
             CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = newObservableChronology.getCategorizedVersions(manifold);
             ObservableStringVersion newStringVersion = (ObservableStringVersion) categorizedVersions.getUncommittedVersions().get(0).getObservableVersion();
 

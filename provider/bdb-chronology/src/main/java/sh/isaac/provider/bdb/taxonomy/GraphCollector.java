@@ -48,10 +48,10 @@ import java.util.function.ObjIntConsumer;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +72,7 @@ public class GraphCollector
    NidSet watchList = new NidSet();
 
    /** The taxonomy map. */
-   final SpinedIntObjectMap<int[]> taxonomyMap;
+   final SpinedIntIntArrayMap taxonomyMap;
 
    /** The taxonomy coordinate. */
    final ManifoldCoordinate manifoldCoordinate;
@@ -88,7 +88,10 @@ public class GraphCollector
     * @param taxonomyMap the taxonomy map
     * @param manifoldCoordinate the view coordinate
     */
-   public GraphCollector(SpinedIntObjectMap<int[]> taxonomyMap, ManifoldCoordinate manifoldCoordinate) {
+   public GraphCollector(SpinedIntIntArrayMap taxonomyMap, ManifoldCoordinate manifoldCoordinate) {
+      if (taxonomyMap == null) {
+         throw new IllegalStateException("taxonomyMap cannot be null");
+      }
       this.taxonomyMap        = taxonomyMap;
       this.manifoldCoordinate = manifoldCoordinate;
       this.taxonomyFlags      = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
@@ -119,12 +122,11 @@ public class GraphCollector
     */
    @Override
    public void accept(HashTreeBuilder graphBuilder, int originNid) {
-      int originSequence = ModelGet.identifierService().getElementSequenceForNid(originNid);
-      final int[] taxonomyData = this.taxonomyMap.get(originSequence);
+      final int[] taxonomyData = this.taxonomyMap.get(originNid);
       
       if (taxonomyData == null) {
             System.out.println("No taxonomy data for: " + Get.conceptDescriptionText(originNid));
-            System.out.println("Nid: " + originNid + " elementSequence: " + originSequence);
+            System.out.println("Nid: " + originNid);
          
       } else {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);

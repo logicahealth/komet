@@ -34,27 +34,20 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.tree;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
- * Simple implementation that uses less space, but does not have some of the
- * features of the {@code HashTreeWithBitSets} which caches some tree features
- * as {@code BitSet} objects. Meant for use with short-lived and small trees.
+ * Simple implementation that uses less space, but does not have some of the features of the {@code HashTreeWithBitSets}
+ * which caches some tree features as {@code BitSet} objects. Meant for use with short-lived and small trees.
  *
  * @author kec
  */
@@ -64,6 +57,7 @@ public class SimpleHashTree
    public SimpleHashTree(ManifoldCoordinate manifoldCoordinate, int assemblageNid) {
       super(manifoldCoordinate, assemblageNid);
    }
+
    /**
     * Adds the child.
     *
@@ -74,16 +68,16 @@ public class SimpleHashTree
 
       if (this.parentSequence_ChildNidArray_Map.containsKey(parentSequence)) {
          this.parentSequence_ChildNidArray_Map.put(parentSequence,
-               addToArray(this.parentSequence_ChildNidArray_Map.get(parentSequence), childSequence));
+                 addToArray(this.parentSequence_ChildNidArray_Map.get(parentSequence), childSequence));
       } else {
-         this.parentSequence_ChildNidArray_Map.put(parentSequence, new int[] { childSequence });
+         this.parentSequence_ChildNidArray_Map.put(parentSequence, new int[]{childSequence});
       }
 
       if (this.childSequence_ParentNidArray_Map.containsKey(childSequence)) {
          this.childSequence_ParentNidArray_Map.put(childSequence,
-               addToArray(this.childSequence_ParentNidArray_Map.get(childSequence), parentSequence));
+                 addToArray(this.childSequence_ParentNidArray_Map.get(childSequence), parentSequence));
       } else {
-         this.childSequence_ParentNidArray_Map.put(childSequence, new int[] { parentSequence });
+         this.childSequence_ParentNidArray_Map.put(childSequence, new int[]{parentSequence});
       }
    }
 
@@ -97,14 +91,14 @@ public class SimpleHashTree
       final IntStream.Builder builder = IntStream.builder();
 
       this.parentSequence_ChildNidArray_Map.forEach((int first,
-            int[] second) -> {
-               builder.accept(first);
-               IntStream.of(second)
-                        .forEach((sequence) -> builder.add(sequence));
-            });
+              int[] second) -> {
+         builder.accept(first);
+         IntStream.of(second)
+                 .forEach((sequence) -> builder.add(sequence));
+      });
       return (int) builder.build()
-                          .distinct()
-                          .count();
+              .distinct()
+              .count();
    }
 
    /**
@@ -115,21 +109,20 @@ public class SimpleHashTree
     * @return the int[]
     */
    private static int[] addToArray(int[] array, int toAdd) {
-      if (Arrays.binarySearch(array, toAdd) >= 0) {
+      int searchResult = Arrays.binarySearch(array, toAdd);
+      if (searchResult >= 0) {
          return array;
       }
 
-      final int   length = array.length + 1;
-      final int[] result = new int[length];
-
-      System.arraycopy(array, 0, result, 0, array.length);
-      result[array.length] = toAdd;
-      Arrays.sort(result);
-      return result;
+      int[] array2 = new int[array.length + 1];
+      int insertIndex = -searchResult - 1;
+      System.arraycopy(array, 0, array2, 0, insertIndex);
+      System.arraycopy(array, insertIndex, array2, insertIndex + 1, array.length - insertIndex);
+      array2[insertIndex] = toAdd;
+      return array2;
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * NOTE: not a constant time operation.
     *
@@ -140,16 +133,15 @@ public class SimpleHashTree
       final OpenIntHashSet parents = new OpenIntHashSet();
 
       this.parentSequence_ChildNidArray_Map.forEach((int parent,
-            int[] children) -> {
-               parents.add(parent);
-            });
+              int[] children) -> {
+         parents.add(parent);
+      });
       this.parentSequence_ChildNidArray_Map.forEach((int parent,
-            int[] children) -> {
-               for (int child: children) {
-                  parents.remove(child);
-               }
-            });
+              int[] children) -> {
+         for (int child : children) {
+            parents.remove(child);
+         }
+      });
       return parents.keys().elements();
    }
 }
-

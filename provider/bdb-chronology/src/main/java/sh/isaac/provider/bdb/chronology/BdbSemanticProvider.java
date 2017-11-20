@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.IntFunction;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -42,8 +42,8 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
@@ -148,23 +148,26 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public NidSet getSemanticNidsForComponent(int componentNid) {
-      AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
-
-      return NidSet.of(indexService.getAttachmentNidsForComponent(componentNid));
+      int[] semanticNids = bdb.getComponentToSemanticNidsMap().get(componentNid);
+      return NidSet.of(semanticNids);
    }
 
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
-     if (componentNid >= 0) {
+      if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-     if (assemblageNid >= 0) {
+      if (assemblageNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-      AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
-
-      return NidSet.of(
-          indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageNid));
+      ContainerSequenceService identifierService = ModelGet.identifierService();
+      NidSet semanticNids = new NidSet();
+      for (int semanticNid: bdb.getComponentToSemanticNidsMap().get(componentNid)) {
+         if (identifierService.getAssemblageNidForNid(semanticNid) == assemblageNid) {
+            semanticNids.add(semanticNid);
+         }
+      }
+      return semanticNids;
    }
 
    @Override
@@ -227,8 +230,8 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public void sync() {
-      this.bdb.sync();
+   public Future<?> sync() {
+      return this.bdb.sync();
    }
    
 }

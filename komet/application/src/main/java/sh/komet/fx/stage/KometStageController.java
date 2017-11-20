@@ -46,7 +46,6 @@ import java.util.ResourceBundle;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 
 import javafx.event.ActionEvent;
 
@@ -203,14 +202,14 @@ public class KometStageController
       ArrayList<MenuItem> items = new ArrayList<>();
       
       
-      MenuItem importTransformClassify = new MenuItem("Import, transform, classify");
+      MenuItem importTransform = new MenuItem("Import and transform");
               
-      importTransformClassify.setOnAction((ActionEvent event) -> {
-         ImportTransformClassifyTask itcTask = new ImportTransformClassifyTask(TAXONOMY_MANIFOLD);
+      importTransform.setOnAction((ActionEvent event) -> {
+         ImportAndTransformTask itcTask = new ImportAndTransformTask(TAXONOMY_MANIFOLD);
          Get.executor().submit(itcTask);
       });
       
-      items.add(importTransformClassify);
+      items.add(importTransform);
       
       MenuItem completeClassify = new MenuItem("Complete classify");
       completeClassify.setOnAction((ActionEvent event) -> {

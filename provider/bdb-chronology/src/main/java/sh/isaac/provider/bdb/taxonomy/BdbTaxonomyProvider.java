@@ -68,14 +68,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import com.sleepycat.bind.tuple.IntegerBinding;
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.DiskOrderedCursor;
-import com.sleepycat.je.DiskOrderedCursorConfig;
-import com.sleepycat.je.LockMode;
-import com.sleepycat.je.OperationStatus;
+import java.util.concurrent.Future;
 
 import sh.isaac.api.ConceptActiveService;
 import sh.isaac.api.Get;
@@ -88,7 +81,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -98,10 +90,12 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TaskWrapper;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.ModelGet;
+import sh.isaac.model.TaxonomyDebugService;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.provider.bdb.chronology.BdbProvider;
 import sh.isaac.provider.bdb.chronology.ChronologyUpdate;
-import sh.isaac.provider.bdb.binding.IntArrayBinding;
 import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
 
 //~--- classes ----------------------------------------------------------------
@@ -113,7 +107,7 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
 @Service
 @RunLevel(value = 1)
 public class BdbTaxonomyProvider
-         implements TaxonomyService, ConceptActiveService, ChronologyChangeListener {
+         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
    /**
     * The Constant LOG.
     */
@@ -135,8 +129,6 @@ public class BdbTaxonomyProvider
     * The tree cache.
     */
    private final ConcurrentHashMap<Integer, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-   private final ConcurrentHashMap<Integer, SpinedIntObjectMap<int[]>> conceptAssemblageNid_originDestinationTaxonomyRecordMap_map =
-      new ConcurrentHashMap<>();
    private final UUID listenerUUID = UUID.randomUUID();
 
    /**
@@ -198,31 +190,8 @@ public class BdbTaxonomyProvider
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   private SpinedIntObjectMap<int[]> loadFromDatabase(int assemblageKey)
-            throws DatabaseException {
-      IntArrayBinding           binding                              = new IntArrayBinding();
-      DiskOrderedCursorConfig   docc                                 = new DiskOrderedCursorConfig();
-      DatabaseEntry             foundKey                             = new DatabaseEntry();
-      DatabaseEntry             foundData                            = new DatabaseEntry();
-      SpinedIntObjectMap<int[]> origin_DestinationTaxonomyRecord_Map = new SpinedIntObjectMap<>();
-
-      origin_DestinationTaxonomyRecord_Map.setElementStringConverter(
-          (int[] records) -> {
-             return new TaxonomyRecord(records).toString();
-          });
-
-      Database database = bdb.getTaxonomyDatabase(assemblageKey);
-
-      try (DiskOrderedCursor cursor = database.openCursor(docc)) {
-         while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-            origin_DestinationTaxonomyRecord_Map.put(
-                IntegerBinding.entryToInt(foundKey),
-                binding.entryToObject(foundData));
-         }
-      }
-
-      LOG.info("Taxonomy count at open for " + database.getDatabaseName() + " is " + database.count());
-      return origin_DestinationTaxonomyRecord_Map;
+   private SpinedIntIntArrayMap loadTaxonomyFromDatabase(int assemblageKey) {
+      return bdb.getTaxonomyMap(assemblageKey);
    }
 
    /**
@@ -239,11 +208,6 @@ public class BdbTaxonomyProvider
          Get.commitService()
             .addChangeListener(this);
          this.identifierService = Get.service(BdbIdentifierProvider.class);
-         
-         for (int assemblageNid: bdb.getAssemblageNids()) {
-            SpinedIntObjectMap<int[]> map = loadFromDatabase(assemblageNid);
-            conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.put(assemblageNid, map);
-         }
       } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
@@ -256,35 +220,8 @@ public class BdbTaxonomyProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Writing taxonomy.");
+// handled by bdb;
 
-      IntArrayBinding binding = new IntArrayBinding();
-      ConcurrentHashMap.KeySetView<Integer, SpinedIntObjectMap<int[]>> keys =
-         conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.keySet();
-
-      for (int conceptAssemblageKey: keys) {
-         SpinedIntObjectMap<int[]> map = conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(
-                                             conceptAssemblageKey);
-         Database database = bdb.getTaxonomyDatabase(conceptAssemblageKey);
-
-         map.forEach(
-             (int key,
-              int[] value) -> {
-                DatabaseEntry keyEntry = new DatabaseEntry();
-
-                IntegerBinding.intToEntry(key, keyEntry);
-
-                DatabaseEntry valueEntry = new DatabaseEntry();
-
-                binding.objectToEntry(value, valueEntry);
-
-                OperationStatus result = database.put(null, keyEntry, valueEntry);
-
-                if (result != OperationStatus.SUCCESS) {
-                   throw new RuntimeException("taxonomy data did not write: " + result);
-                }
-             });
-      }
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -299,11 +236,9 @@ public class BdbTaxonomyProvider
    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
       long stamp = this.stampedLock.tryOptimisticRead();
       int  assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
-      int  conceptSequence = identifierService.getElementSequenceForNid(conceptNid, assemblageNid);
-      SpinedIntObjectMap<int[]> origin_DestinationTaxonomyRecord_Map =
-         conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(
-             assemblageNid);
-      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptSequence);
+      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map =
+         bdb.getTaxonomyMap(assemblageNid);
+      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
       if (taxonomyData == null) {
          return false;
@@ -318,7 +253,7 @@ public class BdbTaxonomyProvider
       stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyData   = origin_DestinationTaxonomyRecord_Map.get(conceptSequence);
+         taxonomyData   = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
          taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
          return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
       } finally {
@@ -373,10 +308,18 @@ public class BdbTaxonomyProvider
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   public SpinedIntObjectMap<int[]> getTaxonomyRecordMap(int conceptAssemblageNid) {
-      return conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.computeIfAbsent(
-          conceptAssemblageNid,
-          (key) -> new SpinedIntObjectMap<>());
+   @Override
+   public SpinedIntIntArrayMap getTaxonomyRecordMap(int conceptAssemblageNid) {
+      return bdb.getTaxonomyMap(conceptAssemblageNid);
+   }
+   
+   @Override
+   public String describeTaxonomyRecord(int nid) {
+      int conceptAssemblageNid = ModelGet.identifierService().getAssemblageNidForNid(nid);
+      SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
+      int[] record = map.get(nid);
+      TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(record);
+      return taxonomyRecord.toString();
    }
 
    public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
@@ -387,8 +330,8 @@ public class BdbTaxonomyProvider
          return treeTask;
       }
 
-      SpinedIntObjectMap<int[]> origin_DestinationTaxonomyRecord_Map =
-         conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(
+      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map =
+         bdb.getTaxonomyMap(
              tc.getLogicCoordinate()
                .getConceptAssemblageNid());
       TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc, stampedLock);
@@ -403,8 +346,8 @@ public class BdbTaxonomyProvider
       return treeBuilderTask;
    }
 
-   public SpinedIntObjectMap<int[]> getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
-      return conceptAssemblageNid_originDestinationTaxonomyRecordMap_map.get(conceptAssemblageNid);
+   public SpinedIntIntArrayMap getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
+      return bdb.getTaxonomyMap(conceptAssemblageNid);
    }
    @Override
    public Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid) {
@@ -533,8 +476,8 @@ public class BdbTaxonomyProvider
    }
 
    @Override
-   public void sync() {
-      this.bdb.sync();
+   public Future<?> sync() {
+      return this.bdb.sync();
    }
 }
 

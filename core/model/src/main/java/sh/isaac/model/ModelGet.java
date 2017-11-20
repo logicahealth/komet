@@ -25,10 +25,17 @@ import sh.isaac.api.Get;
  */
 public class ModelGet {
    static ContainerSequenceService containerSequenceService;
+   static TaxonomyDebugService taxonomyDebugService;
    public static ContainerSequenceService identifierService() {
       if (containerSequenceService == null) {
          containerSequenceService = Get.service(ContainerSequenceService.class);
       }
       return containerSequenceService;
+   }
+   public static TaxonomyDebugService taxonomyDebugService() {
+      if (taxonomyDebugService == null) {
+         taxonomyDebugService = Get.service(TaxonomyDebugService.class);
+      }
+      return taxonomyDebugService;
    }
 }

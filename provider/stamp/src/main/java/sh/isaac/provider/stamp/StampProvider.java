@@ -59,6 +59,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -769,7 +770,7 @@ public class StampProvider
    }
 
    @Override
-   public void sync() {
-      // not implemented for stamp provider. 
+   public Future<?> sync() {
+      throw new UnsupportedOperationException();
    }
 }

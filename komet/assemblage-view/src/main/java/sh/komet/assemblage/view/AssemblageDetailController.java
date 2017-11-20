@@ -163,7 +163,7 @@ public class AssemblageDetailController {
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
          Get.assemblageService().getSemanticNidsFromAssemblage(observableConceptChronology.getNid())
                  .stream().forEach((sememeId) -> 
-                 children.add(observableChronologyService.getObservableSememeChronology(sememeId)));
+                 children.add(observableChronologyService.getObservableSemanticChronology(sememeId)));
          addChildren(assemblageRoot, children, true);
          assemblageExtensionTreeTable.setRoot(assemblageRoot);
       }

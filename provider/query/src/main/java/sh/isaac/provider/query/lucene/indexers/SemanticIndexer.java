@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
@@ -122,7 +123,7 @@ public class SemanticIndexer
    private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant INDEX_NAME. */
-   public static final String INDEX_NAME = "sememes";
+   public static final String INDEX_NAME = "semantics";
 
    /** The Constant COLUMN_FIELD_DATA. */
    private static final String COLUMN_FIELD_DATA = "colData";
@@ -144,7 +145,7 @@ public class SemanticIndexer
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new sememe indexer.
+    * Instantiates a new semantic indexer.
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
@@ -324,13 +325,13 @@ public class SemanticIndexer
     */
    @Override
    protected void addFields(Chronology chronicle, Document doc) {
-      final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+      final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
-                            sememeChronology.getAssemblageNid() + "",
+                            semanticChronology.getAssemblageNid() + "",
                             Field.Store.NO));
 
-      for (final Object sv: sememeChronology.getVersionList()) {
+      for (final Object sv: semanticChronology.getVersionList()) {
          if (sv instanceof DynamicVersion) {
             final DynamicVersion dsv     = (DynamicVersion) sv;
             final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageNid());
@@ -378,7 +379,7 @@ public class SemanticIndexer
                            return true;
                         });
          } else {
-            LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + sememeChronology.toString());
+            LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + semanticChronology.toString());
          }
       }
 
@@ -408,13 +409,13 @@ public class SemanticIndexer
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
       if (chronicle instanceof SemanticChronology) {
-         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+         final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-         if ((sememeChronology.getVersionType() == VersionType.DYNAMIC) ||
-               (sememeChronology.getVersionType() == VersionType.STRING) ||
-               (sememeChronology.getVersionType() == VersionType.LONG) ||
-               (sememeChronology.getVersionType() == VersionType.COMPONENT_NID) ||
-               (sememeChronology.getVersionType() == VersionType.LOGIC_GRAPH)) {
+         if ((semanticChronology.getVersionType() == VersionType.DYNAMIC) ||
+               (semanticChronology.getVersionType() == VersionType.STRING) ||
+               (semanticChronology.getVersionType() == VersionType.LONG) ||
+               (semanticChronology.getVersionType() == VersionType.COMPONENT_NID) ||
+               (semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)) {
             return true;
          }
       }
@@ -733,8 +734,8 @@ public class SemanticIndexer
    }
 
    @Override
-   public void sync() {
-      // not implemented for indexer. 
+   public Future<Void> sync() {
+      throw new UnsupportedOperationException();
    }
 }
 

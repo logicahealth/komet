@@ -127,20 +127,20 @@ public class UpdateTaxonomyAfterCommitTask
       try {
          final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
-         this.sememeSequencesForUnhandledChanges.stream().forEach((sememeSequence) -> {
+         this.sememeSequencesForUnhandledChanges.stream().forEach((semanticSequence) -> {
                            try {
                               this.workDone++;
                               this.updateProgress(this.workDone, this.totalWork);
 
                               if (this.commitRecord.getSemanticNidsInCommit()
-                                    .contains(sememeSequence)) {
-                                 this.updateMessage("Updating taxonomy for: " + sememeSequence);
+                                    .contains(semanticSequence)) {
+                                 this.updateMessage("Updating taxonomy for: " + semanticSequence);
                                  this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
-                                           .getSemanticChronology(sememeSequence));
-                                 this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
+                                           .getSemanticChronology(semanticSequence));
+                                 this.sememeSequencesForUnhandledChanges.remove(semanticSequence);
                               }
                            } catch (final Exception e) {
-                              LOG.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
+                              LOG.error("Error handling update taxonomy after commit on semantic " + semanticSequence, e);
                               atLeastOneFailed.set(true);
                            }
                         });

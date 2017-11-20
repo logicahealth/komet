@@ -61,6 +61,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import static sh.isaac.model.tree.AbstractHashTree.MULTI_PARENT_SETS;
 
@@ -113,8 +114,7 @@ public class HashTreeBuilder {
    
    final int assemblageNid;
 
-   String[] watchUuids = new String[]{"598edc74-ae81-3f3e-bc26-69a1d48d8203",
-      "65dabbf3-3f57-3989-ab0c-f8824e0e0aa2", "fcea27cf-fb3c-3d49-8b68-6a416b3d237d"};
+   String[] watchUuids = new String[]{};
    IntArrayList watchNids = new IntArrayList();
 
    //~--- constructors --------------------------------------------------------
@@ -244,9 +244,17 @@ public class HashTreeBuilder {
       
       
       if (roots.size() != 1) {
-         LOG.warn("Root count != 1: " + roots);
+         StringBuilder builder1 = new StringBuilder();
+         builder1.append("Root count != 1: ");
+         builder1.append(roots.size());
+         LOG.warn(builder1.toString());
          final StringBuilder builder = new StringBuilder("Roots: \n");
+         int count = 0;
          for (int sequence : roots.keys().elements()) {
+            count++;
+            if (count > 4) {
+               break;
+            }
             builder.append(sequence).append(": ").append(Get.conceptDescriptionText(sequence)).append("\n");
             printWatch(sequence, "root: ");
          }
@@ -313,13 +321,19 @@ public class HashTreeBuilder {
       return list.elements();
    }
 
-   private void printWatch(int thisSequence, String prefix) {
-      int nid = thisSequence;
+   private void printWatch(int conceptNid, String prefix) {
+      int nid = conceptNid;
       if (nid >= 0) {
-         nid = ModelGet.identifierService().getNidForElementSequence(thisSequence, assemblageNid);
+         nid = ModelGet.identifierService().getNidForElementSequence(conceptNid, assemblageNid);
       }
+      SpinedIntIntArrayMap taxonomyMap = ModelGet.taxonomyDebugService().getTaxonomyRecordMap(ModelGet.identifierService().getAssemblageNid(nid).getAsInt());
+      int[] record = taxonomyMap.get(nid);
+
       int finalNid = nid;
       System.out.println("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
+      System.out.println("\nTaxonomy record: " + Arrays.toString(record));
+     System.out.println("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
+      
       childNid_ParentNidSet_Map.forEach((int sequence, int[] parentArray) -> {
          if (Arrays.stream(parentArray).anyMatch((value) -> value == finalNid)) {
             int sequenceNid = sequence;
@@ -338,6 +352,7 @@ public class HashTreeBuilder {
             System.out.println(prefix + Get.conceptDescriptionText(finalNid) + " found in child set of: " + sequence + " " + Get.conceptDescriptionText(sequenceNid));
          }
       });
+      System.out.println(Get.concept(nid).toString());
       System.out.println();
    }
 }

@@ -222,22 +222,22 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    /**
     * Gets the latest sememe versions from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept sequence
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions from assemblage
     */
    @Override
-   public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptSequence,
+   public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
            ProgressTracker... progressTrackers) {
-      return getLatestSemanticVersionStream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptSequence).stream(),
+      return getLatestSemanticVersionStream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).stream(),
               progressTrackers);
    }
 
    private Stream<LatestVersion<V>> getLatestSemanticVersionStreamUnwrapped(IntStream semanticNidStream,
            ProgressTracker... progressTrackers) {
-      return semanticNidStream.mapToObj((int sememeSequence) -> {
+      return semanticNidStream.mapToObj((int semanticNid) -> {
          try {
-            final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(sememeSequence);
+            final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
             final int[] stampSequences = sc.getVersionStampSequences();
             final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                     stampSequences);

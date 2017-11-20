@@ -65,6 +65,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.OptionalInt;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import sh.isaac.api.Get;
@@ -250,6 +251,16 @@ public class BdbIdentifierProvider
    @Override
    public int getNidForUuids(Collection<UUID> uuids) {
      return getNidForUuids(uuids.toArray(new UUID[uuids.size()]));
+   }
+
+   @Override
+   public void addToSemanticIndex(int nid, int referencingSemanticNid) {
+      this.bdb.getComponentToSemanticNidsMap().add(nid, referencingSemanticNid);
+   }
+
+   @Override
+   public int[] getSemanticNidsForComponent(int componentNid) {
+      return this.bdb.getComponentToSemanticNidsMap().get(componentNid);
    }
 
    @Override
@@ -444,8 +455,8 @@ public class BdbIdentifierProvider
    }   
 
    @Override
-   public void sync() {
-      this.bdb.sync();
+   public Future<?> sync() {
+     return this.bdb.sync();
    }
 }
 

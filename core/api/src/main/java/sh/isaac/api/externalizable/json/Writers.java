@@ -129,7 +129,7 @@ public class Writers {
    /**
     * This representation of a concept is only intended to aid in debugging, it is not rich enough to represent all of the data.
     */
-   public static class SememeChronologyJsonWriter
+   public static class SemanticChronologyJsonWriter
             implements JsonWriter.JsonClassWriterEx {
       /**
        * Write.

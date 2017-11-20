@@ -224,7 +224,7 @@ public abstract class ObservableChronologyImpl
                                        .stream()
                                        .noneMatch((element) -> element.getNid() == sc.getNid())) {
                this.sememeListProperty.get()
-                                      .add((ObservableSemanticChronology) ocs.getObservableSememeChronology(sc.getNid()));
+                                      .add((ObservableSemanticChronology) ocs.getObservableSemanticChronology(sc.getNid()));
             }
          }
 
@@ -289,7 +289,7 @@ public abstract class ObservableChronologyImpl
          Get.assemblageService()
             .getSemanticNidsForComponent(getNid())
             .stream()
-            .forEach((sememeSequence) -> sememeList.add(ocs.getObservableSememeChronology(sememeSequence)));
+            .forEach((sememeSequence) -> sememeList.add(ocs.getObservableSemanticChronology(sememeSequence)));
          this.sememeListProperty = new SimpleListProperty(
              this,
              ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE.toExternalString(),
@@ -515,7 +515,7 @@ public abstract class ObservableChronologyImpl
                                  .forEach(
                                      (semanticNid) -> {
                                         this.sememeListProperty.add(Get.observableChronologyService()
-                                               .getObservableSememeChronology(semanticNid));
+                                               .getObservableSemanticChronology(semanticNid));
                                      });
       }
    }
@@ -667,8 +667,8 @@ public abstract class ObservableChronologyImpl
     */
    @Override
    public ObservableList<ObservableSemanticChronology> getSemanticChronologyListFromAssemblage(int assemblageNid) {
-      return getSemanticChronologyList().filtered((observableSememeChronology) -> {
-             return observableSememeChronology.getAssemblageNid() == assemblageNid;
+      return getSemanticChronologyList().filtered((observableSemanticChronology) -> {
+             return observableSemanticChronology.getAssemblageNid() == assemblageNid;
           });
    }
 

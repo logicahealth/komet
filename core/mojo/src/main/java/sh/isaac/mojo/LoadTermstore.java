@@ -273,7 +273,9 @@ public class LoadTermstore
                                                                      .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
                                                                               statedNid);
 
-                              if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
+                              if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
+                                 // not a duplicate, just an index for itself. 
+                              } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
                                  duplicateCount++;
                                  final List<LogicalExpression> listToMerge = new ArrayList<>();
 

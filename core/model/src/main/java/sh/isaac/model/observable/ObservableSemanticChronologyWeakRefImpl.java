@@ -65,13 +65,13 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    private ObservableSemanticChronology getChronology() {
       ObservableSemanticChronology chronology;
       if (reference == null) {
-         chronology = observableChronologyService.getObservableSememeChronology(sememeId);
+         chronology = observableChronologyService.getObservableSemanticChronology(sememeId);
          reference = new WeakReference(chronology);
          return chronology;
       }
       chronology = reference.get();
       if (chronology == null) {
-         chronology = observableChronologyService.getObservableSememeChronology(sememeId);
+         chronology = observableChronologyService.getObservableSemanticChronology(sememeId);
          reference = new WeakReference(chronology);
       }
       return chronology;

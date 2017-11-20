@@ -81,7 +81,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
@@ -95,6 +94,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
 import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
 
@@ -303,11 +303,11 @@ public class ImportExportTest {
             rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
          }
          StringBuilder rootsMessage = new StringBuilder();
-         SpinedIntObjectMap<int[]> map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
+         SpinedIntIntArrayMap map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
          for (int root: roots) {
             rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
             
-            int[] elementTaxonomyData = map.get(ModelGet.identifierService().getElementSequenceForNid(root));
+            int[] elementTaxonomyData = map.get(root);
             TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
             rootsMessage.append(" ");
             rootsMessage.append(record);
@@ -362,6 +362,7 @@ public class ImportExportTest {
                      SemanticChronology sc = (SemanticChronology) object;
                      if (sc.getReferencedComponentNid() == chroniclePropertiesNid || sc.getReferencedComponentNid() == descriptionAssemblageNid) {
                         if (sc.getAssemblageNid() == statedAssemblageNid) {
+                           System.out.println(sc.toString());
                            LOG.info("Found watch def: " + sc);
                         }
                         

@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -78,7 +79,7 @@ public class MockSememeService
    ConcurrentHashMap<Integer, NidSet> componentSememeMap = new ConcurrentHashMap<>();
 
    /** The sememe map. */
-   ConcurrentHashMap<Integer, SemanticChronology> sememeMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, SemanticChronology> semanticMap = new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -107,7 +108,7 @@ public class MockSememeService
          this.componentSememeMap.put(sememeChronicle.getReferencedComponentNid(), set);
       }
 
-      this.sememeMap.put(sememeChronicle.getNid(),
+      this.semanticMap.put(sememeChronicle.getNid(),
                          (SemanticChronology) sememeChronicle);
    }
 
@@ -144,10 +145,10 @@ public class MockSememeService
       final NidSet set = this.componentSememeMap.get(componentNid);
       List<SemanticChronology> results = new ArrayList<>();
         set.stream().forEach((sememeSequence) -> {
-                        final SemanticChronology sememeChronology = this.sememeMap.get(sememeSequence);
+                        final SemanticChronology semanticChronology = this.semanticMap.get(sememeSequence);
 
-                        if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
-                           results.add(sememeChronology);
+                        if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
+                           results.add(semanticChronology);
                         }
                      });
       return results;
@@ -172,7 +173,7 @@ public class MockSememeService
     */
    @Override
    public SemanticChronology getSemanticChronology(int sememeId) {
-      return this.sememeMap.get(sememeId);
+      return this.semanticMap.get(sememeId);
    }
 
    /**
@@ -182,7 +183,7 @@ public class MockSememeService
     */
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return this.sememeMap.values()
+      return this.semanticMap.values()
                            .stream();
    }
 
@@ -193,7 +194,7 @@ public class MockSememeService
     */
    @Override
    public IntStream getSemanticNidStream() {
-      return this.sememeMap.keySet()
+      return this.semanticMap.keySet()
                            .stream()
                            .mapToInt(i -> i);
    }
@@ -304,7 +305,7 @@ public class MockSememeService
    }
 
    @Override
-   public void sync() {
+   public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
    

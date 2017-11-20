@@ -123,7 +123,11 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
+      setRunLevel(ISAAC_STARTED_RUNLEVEL);
+      setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
+      setRunLevel(METADATA_STORE_STARTED_RUNLEVEL);
       setRunLevel(WORKERS_STARTED_RUNLEVEL);
+      setRunLevel(SYSTEM_STOPPED_RUNLEVEL);
 
       // Fully release any system locks to database
       System.gc();

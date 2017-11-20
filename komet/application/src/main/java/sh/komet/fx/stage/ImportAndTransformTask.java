@@ -17,7 +17,6 @@ package sh.komet.fx.stage;
 
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
-import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
@@ -28,29 +27,25 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class ImportTransformClassifyTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
+public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
    
    final Manifold manifold;
    
-   public ImportTransformClassifyTask(Manifold manifold) {
+   public ImportAndTransformTask(Manifold manifold) {
       this.manifold = manifold;
-      updateTitle("Import, transform, and classify");
-      addToTotalWork(5);
+      updateTitle("Import and transform");
+      addToTotalWork(3);
       Get.activeTasks().add(this);
    }
    
    @Override
    protected Void call() throws Exception {
       try {
+         completedUnitOfWork();
          updateMessage("Importing new content...");
          Rf2DirectImporter importer = new Rf2DirectImporter();
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
-         completedUnitOfWork();
-         
-         updateMessage("Updating indexes...");
-         Future<?> index1Task = Get.startIndexTask();
-         index1Task.get();
          completedUnitOfWork();
          
          updateMessage("Transforming to SOLOR...");
@@ -59,16 +54,11 @@ public class ImportTransformClassifyTask extends TimedTaskWithProgressTracker<Vo
          transformTask.get();
          completedUnitOfWork();
          
-         updateMessage("Updating indexes after transform...");
-         Future<?> index2Task = Get.startIndexTask();
-         index2Task.get();
-         completedUnitOfWork();
-         
-         updateMessage("Classifying new content...");
-         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
-         Future<?> classifyTask = classifierService.classify();
-         classifyTask.get();
-         completedUnitOfWork();
+//         updateMessage("Classifying new content...");
+//         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
+//         Future<?> classifyTask = classifierService.classify();
+//         classifyTask.get();
+//         completedUnitOfWork();
          
          return null;
       } finally {

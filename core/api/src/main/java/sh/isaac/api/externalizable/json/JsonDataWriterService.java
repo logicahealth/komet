@@ -168,7 +168,7 @@ public class JsonDataWriterService
       this.fos     = new FileOutputStream(path.toFile(), true);
       this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
       this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
-      this.json.addWriter(SemanticChronology.class, new Writers.SememeChronologyJsonWriter());
+      this.json.addWriter(SemanticChronology.class, new Writers.SemanticChronologyJsonWriter());
       LOG.info("json changeset writer has been configured to write to " +
                        this.dataPath.toAbsolutePath().toString());
    }

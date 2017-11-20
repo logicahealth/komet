@@ -79,13 +79,13 @@ id	effectiveTime	active	moduleId	definitionStatusId
    }
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
-//      for (IndexService indexer: indexers) {
-//         try {
-//            indexer.index(chronicle).get();
-//         } catch (InterruptedException | ExecutionException ex) {
-//            LOG.error(ex);
-//         }
-//      }
+      for (IndexService indexer: indexers) {
+         try {
+            indexer.index(chronicle).get();
+         } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+         }
+      }
    }
 
    @Override

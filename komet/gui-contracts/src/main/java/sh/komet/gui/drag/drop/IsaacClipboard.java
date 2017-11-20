@@ -118,12 +118,12 @@ public class IsaacClipboard
          if (identifiedObject instanceof ConceptChronology) {
             this.put(ISAAC_CONCEPT, ByteBuffer.wrap(dataBuffer.getData()));
          } else if (identifiedObject instanceof SemanticChronology) {
-            SemanticChronology sememeChronology = (SemanticChronology) identifiedObject;
+            SemanticChronology semanticChronology = (SemanticChronology) identifiedObject;
 
-            if (null == sememeChronology.getVersionType()) {
+            if (null == semanticChronology.getVersionType()) {
                throw new IllegalStateException("SememeType cannot be null");
             } else {
-               switch (sememeChronology.getVersionType()) {
+               switch (semanticChronology.getVersionType()) {
                   case DESCRIPTION:
                      this.put(ISAAC_DESCRIPTION, ByteBuffer.wrap(dataBuffer.getData()));
                      break;
