@@ -71,17 +71,20 @@ public class ConceptForControlWrapper
       }
       this.manifold        = manifold;
       this.conceptNid = conceptNid;
+
+      //TODO HACK for resolving issue with ListView items toString() not calling service to early
+      System.out.println("Created ConceptForControlWrapper: " + this.toString());
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public String toString() {
-         Optional<String> description = getPreferedConceptDescriptionText();
+      Optional<String> description = getPreferedConceptDescriptionText();
 
-         if (description.isPresent()) {
-            return description.get();
-         }
+      if (description.isPresent()) {
+         return description.get();
+      }
 
       return "No description for: " + conceptNid;
    }
@@ -100,7 +103,7 @@ public class ConceptForControlWrapper
 
    @Override
    public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.of(manifold.getPreferredDescriptionText(this.conceptNid));
+      return Optional.of(this.manifold.getPreferredDescriptionText(this.conceptNid));
    }
 
    @Override
