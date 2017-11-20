@@ -119,7 +119,7 @@
                <useManifestOnlyJar>false</useManifestOnlyJar>
                <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
                <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
-               <debugForkedProcess>true</debugForkedProcess>
+<!--               <debugForkedProcess>true</debugForkedProcess>-->
                <includes>
                   <!-- Let JUnit annotations decide -->
                   <include>**/*.class</include>
