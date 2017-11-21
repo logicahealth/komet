@@ -82,6 +82,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -90,6 +91,7 @@ import javax.validation.constraints.NotNull;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.util.StringConverter;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
@@ -98,6 +100,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
@@ -108,6 +111,7 @@ import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.action.ConceptAction;
@@ -157,7 +161,7 @@ public class QueryController
    @FXML                                                                         // fx:id="clauseNameColumn"
    private TreeTableColumn<QueryClause, String>               clauseNameColumn;  // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="parameterColumn"
-   private TreeTableColumn<QueryClause, String>               parameterColumn;   // Value injected by FXMLLoader
+   private TreeTableColumn<QueryClause, Object>               parameterColumn;   // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="returnPane"
    private TitledPane                                         returnPane;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="executeButton"
@@ -353,7 +357,7 @@ public class QueryController
                                    .getClause();
 
       if (itemToProcess.isLeaf()) {
-         String parameter = itemToProcess.getValue().parameter
+         QueryClauseParameter parameter = itemToProcess.getValue().parameter
                                          .getValue();
          int    row       = whereTreeTable.getRow(itemToProcess);
 
@@ -369,7 +373,7 @@ public class QueryController
                                                         .getSimpleName() + "-" + queryBuilder.getSequence();
 
             descriptionLuceneMatch.setLuceneMatchKey(parameterKey);
-            queryBuilder.let(parameterKey, parameter);
+            queryBuilder.let(parameterKey, parameter.getParamterString());
             descriptionLuceneMatch.setViewCoordinateKey(DEFAULT_MANIFOLD_COORDINATE_KEY);
             break;
          }
@@ -581,8 +585,42 @@ public class QueryController
       this.clauseNameColumn.setCellValueFactory(
           (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
                 .getValue().clauseName);
-      this.parameterColumn.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
       this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
+      this.parameterColumn.setCellFactory(param -> {
+
+         StringConverter stringConverter = new StringConverter() {
+            @Override
+            public String toString(Object object) {
+               return object.toString();
+            }
+
+            @Override
+            public Object fromString(String string) {
+               return new QueryClauseParameter(string);
+            }
+         };
+
+         TreeTableCell<QueryClause, Object> cell = new TextFieldTreeTableCell<>(stringConverter);
+
+         cell.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.ANY);
+            event.consume();
+         });
+         cell.setOnDragDropped(event -> {
+            if(cell.getTreeTableRow().getTreeItem() != null
+                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and")
+                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and not")
+                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("not")
+                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("or")
+                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("xor")) {
+               ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
+               QueryClauseParameter queryClauseParameter = new QueryClauseParameter(droppedChronology);
+               cell.setText(queryClauseParameter.toString());
+               cell.getTreeTableRow().getTreeItem().getValue().parameter.setValue(queryClauseParameter);
+            }
+         });
+         return cell;
+      });
       this.whereTreeTable.setRoot(root);
       this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
       this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));

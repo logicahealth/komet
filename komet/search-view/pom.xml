@@ -47,5 +47,10 @@
           <artifactId>tornadofx-controls</artifactId>
           <version>1.0.5</version>
       </dependency>
+       <dependency>
+           <groupId>sh.isaac.komet</groupId>
+           <artifactId>taxonomy-view</artifactId>
+           <version>4.39-SNAPSHOT</version>
+       </dependency>
    </dependencies>  
 </project>
