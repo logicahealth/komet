@@ -48,6 +48,7 @@ package sh.isaac.api.externalizable;
 
 import java.io.DataInput;
 import java.io.IOException;
+import sh.isaac.api.DataSource;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -170,6 +171,17 @@ public enum IsaacObjectType {
       }
 
       data.setObjectDataFormatVersion(data.getByte());
+      DataSource source = DataSource.fromByteArrayDataBuffer(data);
+      switch (source) {
+         case EXTERNAL:
+            data.externalData = true;
+            break;
+         case INTERNAL:
+            data.externalData = false;
+            break;
+         default:
+               throw new UnsupportedOperationException("Can't handle: " + source);
+      }
    }
 
    /**
@@ -194,6 +206,11 @@ public enum IsaacObjectType {
    public void writeTypeVersionHeader(ByteArrayDataBuffer out) {
       writeObjectTypeToken(out);
       writeObjectDataFormatVersion(out);
+      if (out.externalData) {
+         DataSource.EXTERNAL.writeDataSourceToken(out);
+      } else {
+         DataSource.INTERNAL.writeDataSourceToken(out);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------

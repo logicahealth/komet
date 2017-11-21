@@ -42,6 +42,7 @@ package sh.isaac.provider.bdb.chronology;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -124,6 +125,7 @@ public class ChronologyUpdate {
    public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
       int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
       int conceptAssemblageNid   = IDENTIFIER_SERVICE.getAssemblageNidForNid(referencedComponentNid);
+      
 
 //    System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
 //            referencedComponentNid + " index: " + 

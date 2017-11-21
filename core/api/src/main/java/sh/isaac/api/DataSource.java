@@ -37,6 +37,8 @@
 
 package sh.isaac.api;
 
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+
 /**
  * The Enum DataSource.
  *
@@ -44,9 +46,36 @@ package sh.isaac.api;
  */
 public enum DataSource {
    /** Internal datasource. */
-   INTERNAL,
+   INTERNAL((byte) 1),
 
    /** External datasource. */
-   EXTERNAL;
+   EXTERNAL((byte) 2);
+   
+   private final byte token;
+
+   private DataSource(byte token) {
+      this.token = token;
+   }
+
+   public static DataSource fromByteArrayDataBuffer(ByteArrayDataBuffer input) {
+      final byte token = input.getByte();
+
+      return fromToken(token);
+   }
+
+   private static DataSource fromToken(byte token) {
+      switch(token) {
+         case 1:
+            return INTERNAL;
+         case 2:
+            return EXTERNAL;
+      }
+      throw new UnsupportedOperationException("Can't handle: " + token); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   public void writeDataSourceToken(ByteArrayDataBuffer out) {
+      out.putByte(this.token);
+   }
+   
 }
 

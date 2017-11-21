@@ -271,6 +271,9 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          }
          relationshipChronologiesForConcept.add(relationshipChronology);
       }
+      if (conceptNid == Get.identifierService().getNidForUuids(UUID.fromString("59284e13-8aa4-3842-8a0b-560865ca2855"))) {
+         System.out.println("Found T-Cell Count. ");
+      }
       for (StampPosition stampPosition : stampPositionsToProcess) {
          transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
       }
@@ -315,20 +318,14 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
       int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
       final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
               builtObjects);
-
-      for (final IsaacExternalizable isaacObject : builtObjects) {
-         switch (isaacObject.getIsaacObjectType()) {
-            case CONCEPT:
-               index((ConceptChronology) isaacObject);
-               Get.conceptService().writeConcept((ConceptChronology) isaacObject);
-               break;
-            case SEMANTIC:
-               index((SemanticChronology) isaacObject);
-               Get.assemblageService().writeSemanticChronology((SemanticChronology) isaacObject);
-               break;
-            default:
-         }
+      // There should be no other build objects, so ignore the builtObjects list...
+      
+      if (builtObjects.size() != 1) {
+         throw new IllegalStateException("More than one build object: " + builtObjects);
       }
+      index(sci);
+      Get.assemblageService().writeSemanticChronology(sci);
+
       return sci;
    }
 

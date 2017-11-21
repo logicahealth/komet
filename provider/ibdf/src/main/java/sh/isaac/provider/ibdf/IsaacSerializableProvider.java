@@ -45,7 +45,11 @@ public class IsaacSerializableProvider implements SerializationService {
       objectType.writeObjectTypeToken(dataBuffer);
       objectType.writeObjectDataFormatVersion(dataBuffer);
       externalizable.putExternal(dataBuffer);
-      return ByteBuffer.wrap(dataBuffer.getData());
+      byte[] data = dataBuffer.getData();
+      if (true) {
+         IdentifiedObject clone = toObject(ByteBuffer.wrap(data));
+      }
+      return ByteBuffer.wrap(data);
    }
 
    @Override
