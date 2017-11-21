@@ -177,7 +177,7 @@ public class ExportTaxonomy
                                                .getSimpleName() + ".json");
 
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
-      } catch (final Exception ex) {
+      } catch (final Throwable ex) {
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       }
    }

@@ -146,10 +146,9 @@ public class IsaacMetadataAuxiliary
     * @throws UnsupportedEncodingException the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary()
-            throws NoSuchAlgorithmException, UnsupportedEncodingException {
+            throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
       super(TermAux.DEVELOPMENT_PATH, TermAux.KEITH_CAMPBELL, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
 
-      try {
          createConcept(TermAux.SOLOR_ROOT);
          pushParent(current());
          createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
@@ -661,10 +660,7 @@ public class IsaacMetadataAuxiliary
          final LogicalExpression logicalExpression = defBuilder.build();
          multiParentBuilder.setLogicalExpression(logicalExpression);
 
-      } catch (final Exception ex) {
-         Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
-               .log(Level.SEVERE, null, ex);
-      }
+      
    }
 
    //~--- methods -------------------------------------------------------------
@@ -679,10 +675,10 @@ public class IsaacMetadataAuxiliary
          final IsaacMetadataAuxiliary aux = new IsaacMetadataAuxiliary();
 
          aux.export(new DataOutputStream(new ByteArrayOutputStream(10240)));
-      } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+      } catch (Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
                .log(Level.SEVERE, null, ex);
-      }
+      } 
    }
 }
 
