@@ -27,14 +27,14 @@ public class QueryClause {
 
    SimpleObjectProperty<Clause> clauseProperty;
    SimpleStringProperty clauseName;
-   SimpleStringProperty parameter;
+   SimpleObjectProperty<QueryClauseParameter> parameter;
    Manifold manifold;
 
    //~--- constructors -----------------------------------------------------
    protected QueryClause(@NotNull Clause clause, Manifold manifold) {
       this.manifold = manifold;
       this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
-      this.parameter = new SimpleStringProperty(this, "parameter", "");
+      this.parameter = new SimpleObjectProperty<>(this, "parameter", new QueryClauseParameter(""));
       this.clauseName = new SimpleStringProperty(this, "clauseName", manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
       this.clauseProperty.addListener((javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause) -> {
          this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept()));
@@ -42,8 +42,16 @@ public class QueryClause {
    }
 
    //~--- methods ----------------------------------------------------------
-   public SimpleStringProperty parameterProperty() {
+   public Object getParameter() {
+      return parameter.get();
+   }
+
+   public SimpleObjectProperty<QueryClauseParameter> parameterProperty() {
       return parameter;
+   }
+
+   public void clearParameter(){
+      this.parameter = new SimpleObjectProperty<>(this, "parameter", new QueryClauseParameter(""));
    }
 
    @Override

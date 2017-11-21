@@ -190,8 +190,6 @@ public class LetPropertySheet{
      */
     private void buildPropertySheetItems() {
 
-        buildListOfAllModules();
-
         this.items.add(new PropertySheetItemDateTimeWrapper(TIME, this.manifoldForModification.getStampCoordinate()
                 .stampPositionProperty().get().timeProperty()));
         this.items.add(new PropertySheetItemListViewWrapper(
@@ -235,8 +233,6 @@ public class LetPropertySheet{
           
           if (manifoldModules.size() == 0) {
              ArrayList<Integer> moduleNIDs = new ArrayList<>();
-             ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
-             
              TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
              for (int i : taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
                 moduleNIDs.add(i);

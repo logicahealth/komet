@@ -85,6 +85,7 @@ public class AssemblageContainsConcept
    String viewCoordinateKey;
 
    /** The refset spec key. */
+   //
    @XmlElement
    String refsetSpecKey;
 
