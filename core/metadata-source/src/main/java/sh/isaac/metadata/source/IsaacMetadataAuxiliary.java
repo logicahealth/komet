@@ -598,6 +598,8 @@ public class IsaacMetadataAuxiliary
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE);
    createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
    createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
+   createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE);
+
 
          popParent();
          

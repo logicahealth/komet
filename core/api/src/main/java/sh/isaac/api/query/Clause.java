@@ -55,24 +55,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.query.clauses.AssemblageContainsConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsString;
-import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
-import sh.isaac.api.query.clauses.ChangedFromPreviousVersion;
-import sh.isaac.api.query.clauses.ConceptForComponent;
-import sh.isaac.api.query.clauses.ConceptIs;
-import sh.isaac.api.query.clauses.ConceptIsChildOf;
-import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
-import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
-import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
-import sh.isaac.api.query.clauses.PreferredNameForConcept;
-import sh.isaac.api.query.clauses.RelRestriction;
-import sh.isaac.api.query.clauses.RelationshipIsCircular;
+import sh.isaac.api.query.clauses.*;
 
 //~--- classes ----------------------------------------------------------------
 

@@ -110,6 +110,7 @@ import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
+import sh.isaac.api.query.clauses.AssociatedParameter;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
@@ -303,6 +304,13 @@ public class QueryController
 
       treeItem.getChildren()
               .add(new TreeItem<>(new QueryClause(clause, manifold)));
+
+      if(true){
+         AssociatedParameter associatedParameter = new AssociatedParameter();
+         QueryClause associatedQueryClause = new QueryClause(associatedParameter, manifold);
+         treeItem.getChildren()
+                 .add(new TreeItem<>(associatedQueryClause));
+      }
    }
 
    private void addSiblingClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -318,6 +326,14 @@ public class QueryController
       treeItem.getParent()
               .getChildren()
               .add(new TreeItem<>(new QueryClause(clause, manifold)));
+
+      if(true){
+         AssociatedParameter associatedParameter = new AssociatedParameter();
+         QueryClause associatedQueryClause = new QueryClause(associatedParameter, manifold);
+         treeItem.getParent()
+                 .getChildren()
+                 .add(new TreeItem<>(associatedQueryClause));
+      }
    }
 
    private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
