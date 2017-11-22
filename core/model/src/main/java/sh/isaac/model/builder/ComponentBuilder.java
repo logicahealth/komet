@@ -42,10 +42,9 @@ package sh.isaac.model.builder;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -76,7 +75,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    private UUID primordialUuid = null;
 
    /** The sememe builders. */
-   protected final List<SemanticBuilder<?>> sememeBuilders = new ArrayList<>();
+   protected final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
    protected Status state = Status.ACTIVE;
@@ -86,12 +85,12 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    /**
     * Adds the sememe.
     *
-    * @param sememeBuilder the sememe builder
+    * @param semanticBuilder the sememe builder
     * @return the component builder
     */
    @Override
-   public ComponentBuilder<T> addSemantic(SemanticBuilder<?> sememeBuilder) {
-      this.sememeBuilders.add(sememeBuilder);
+   public ComponentBuilder<T> addSemantic(SemanticBuilder<?> semanticBuilder) {
+      this.semanticBuilders.add(semanticBuilder);
       return this;
    }
 
@@ -205,13 +204,8 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the uuid list
     */
    @Override
-   public List<UUID> getUuidList() {
-      final Stream.Builder<UUID> builder = Stream.builder();
-
-      builder.accept(getPrimordialUuid());
-      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
-      return builder.build()
-                    .collect(Collectors.toList());
+   public List<UUID> getUuidList() { // TODO use list instead of stream
+      return Arrays.asList(getUuids());
    }
 
    /**
@@ -220,13 +214,17 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the uuids
     */
    @Override
-   public UUID[] getUuids() {
-      final Stream.Builder<UUID> builder = Stream.builder();
-
-      builder.accept(getPrimordialUuid());
-      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
-      return builder.build()
-                    .toArray((int length) -> new UUID[length]);
+   public UUID[] getUuids() { 
+      if (this.additionalUuids.isEmpty()) {
+         return new UUID[] { getPrimordialUuid() };
+      }
+      UUID[] uuids = new UUID[this.additionalUuids.size() + 1];
+      uuids[0] = getPrimordialUuid();
+      
+      for (int i = 0; i < this.additionalUuids.size(); i++) {
+         uuids[i+1] = this.additionalUuids.get(i);
+      }
+      return uuids;
    }
 }
 

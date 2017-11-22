@@ -210,7 +210,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
       }
 
       if (assertions.size() > 0) {
-         boolean defined = false;
+         boolean defined = false; // Change to use list instead of stream...
          Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid);
          List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
          if (implicationList.size() == 1) {

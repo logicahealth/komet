@@ -234,7 +234,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
          throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
       }
 
-      this.sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
+      this.semanticBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
       builtObjects.add(semanticChronicle);
       return (C) semanticChronicle;
    }
@@ -358,7 +358,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       final ArrayList<OptionalWaitTask<?>> nested = new ArrayList<>();
 
-      this.sememeBuilders.forEach((builder) -> nested.add(builder.build(editCoordinate,
+      this.semanticBuilders.forEach((builder) -> nested.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
       builtObjects.add(sememeChronicle);

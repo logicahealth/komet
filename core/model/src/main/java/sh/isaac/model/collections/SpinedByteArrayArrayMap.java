@@ -169,6 +169,16 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
             mergedValues.add(currentValue[currentIndex]);
             currentIndex++;
             updateIndex++;
+            if (currentIndex == currentValue.length) {
+               while (updateIndex < updateValue.length) {
+                  mergedValues.add(updateValue[updateIndex++]);
+               }
+            }
+            if (updateIndex == updateValue.length) {
+               while (currentIndex < currentValue.length) {
+                  mergedValues.add(currentValue[currentIndex++]);
+               }
+            }
          } else if (compare < 0) {
             mergedValues.add(currentValue[currentIndex]);
             currentIndex++;
