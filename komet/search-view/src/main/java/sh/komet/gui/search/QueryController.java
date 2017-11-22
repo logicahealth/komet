@@ -121,6 +121,7 @@ import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.search.control.LetPropertySheet;
+import sh.komet.gui.search.control.WhereParameterCell;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
@@ -305,12 +306,6 @@ public class QueryController
       treeItem.getChildren()
               .add(new TreeItem<>(new QueryClause(clause, manifold)));
 
-      if(true){
-         AssociatedParameter associatedParameter = new AssociatedParameter();
-         QueryClause associatedQueryClause = new QueryClause(associatedParameter, manifold);
-         treeItem.getChildren()
-                 .add(new TreeItem<>(associatedQueryClause));
-      }
    }
 
    private void addSiblingClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -327,13 +322,6 @@ public class QueryController
               .getChildren()
               .add(new TreeItem<>(new QueryClause(clause, manifold)));
 
-      if(true){
-         AssociatedParameter associatedParameter = new AssociatedParameter();
-         QueryClause associatedQueryClause = new QueryClause(associatedParameter, manifold);
-         treeItem.getParent()
-                 .getChildren()
-                 .add(new TreeItem<>(associatedQueryClause));
-      }
    }
 
    private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -601,42 +589,47 @@ public class QueryController
       this.clauseNameColumn.setCellValueFactory(
           (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
                 .getValue().clauseName);
+
       this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
-      this.parameterColumn.setCellFactory(param -> {
+      this.parameterColumn.setCellFactory(param -> new WhereParameterCell(this.clauseNameColumn));
 
-         StringConverter stringConverter = new StringConverter() {
-            @Override
-            public String toString(Object object) {
-               return object.toString();
-            }
-
-            @Override
-            public Object fromString(String string) {
-               return new QueryClauseParameter(string);
-            }
-         };
-
-         TreeTableCell<QueryClause, Object> cell = new TextFieldTreeTableCell<>(stringConverter);
-
-         cell.setOnDragOver(event -> {
-            event.acceptTransferModes(TransferMode.ANY);
-            event.consume();
-         });
-         cell.setOnDragDropped(event -> {
-            if(cell.getTreeTableRow().getTreeItem() != null
-                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and")
-                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and not")
-                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("not")
-                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("or")
-                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("xor")) {
-               ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
-               QueryClauseParameter queryClauseParameter = new QueryClauseParameter(droppedChronology);
-               cell.setText(queryClauseParameter.toString());
-               cell.getTreeTableRow().getTreeItem().getValue().parameter.setValue(queryClauseParameter);
-            }
-         });
-         return cell;
-      });
+//      this.parameterColumn.setCellFactory(param -> {
+//
+//
+//         StringConverter stringConverter = new StringConverter() {
+//            @Override
+//            public String toString(Object object) {
+//               return object.toString();
+//            }
+//
+//            @Override
+//            public Object fromString(String string) {
+//               return new QueryClauseParameter(string);
+//            }
+//         };
+//
+//         TreeTableCell<QueryClause, Object> cell = new TextFieldTreeTableCell<>(stringConverter);
+//
+//         cell.setOnDragOver(event -> {
+//            event.acceptTransferModes(TransferMode.ANY);
+//            event.consume();
+//         });
+//         cell.setOnDragDropped(event -> {
+//            if(cell.getTreeTableRow().getTreeItem() != null
+//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and")
+//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and not")
+//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("not")
+//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("or")
+//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("xor")) {
+//               ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
+//               QueryClauseParameter queryClauseParameter = new QueryClauseParameter(droppedChronology);
+//               cell.setText(queryClauseParameter.toString());
+//               cell.getTreeTableRow().getTreeItem().getValue().parameter.setValue(queryClauseParameter);
+//            }
+//         });
+//
+//         return cell;
+//      });
       this.whereTreeTable.setRoot(root);
       this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
       this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));
