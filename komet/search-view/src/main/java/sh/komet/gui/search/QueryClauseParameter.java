@@ -4,32 +4,26 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
-public class QueryClauseParameter {
+public class QueryClauseParameter<T> {
 
-    private Object parameterObject;
+    private T parameter;
 
-    public QueryClauseParameter(Object parameterObject) {
-        this.parameterObject = parameterObject;
+    public QueryClauseParameter(T parameter) {
+        this.parameter = parameter;
     }
 
-    public String getParamterString(){
-        return this.parameterObject instanceof ConceptChronology?
-                ((ConceptChronology)this.parameterObject).getFullySpecifiedConceptDescriptionText()
-                : this.parameterObject.toString();
+    public T getParameter() {
+        return parameter;
     }
 
-    public Chronology getConceptChronology(){
-        return (Chronology) this.parameterObject;
-    }
-
-    public ConceptSpecification getConceptSpecification(){
-        return (ConceptSpecification) this.parameterObject;
+    public void setParameter(T parameter) {
+        this.parameter = parameter;
     }
 
     @Override
     public String toString() {
-        return this.parameterObject instanceof ConceptChronology?
-                ((ConceptChronology)this.parameterObject).getFullySpecifiedConceptDescriptionText()
-                : this.parameterObject.toString();
+        return this.parameter instanceof ConceptChronology?
+                ((ConceptChronology)this.parameter).getFullySpecifiedConceptDescriptionText()
+                : this.parameter.toString();
     }
 }

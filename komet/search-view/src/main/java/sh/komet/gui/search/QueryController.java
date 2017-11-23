@@ -80,9 +80,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -91,7 +89,6 @@ import javax.validation.constraints.NotNull;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.util.StringConverter;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
@@ -100,7 +97,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
@@ -110,9 +106,7 @@ import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
-import sh.isaac.api.query.clauses.AssociatedParameter;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.action.ConceptAction;
@@ -361,13 +355,14 @@ public class QueryController
                                    .getClause();
 
       if (itemToProcess.isLeaf()) {
-         QueryClauseParameter parameter = itemToProcess.getValue().parameter
-                                         .getValue();
+
          int    row       = whereTreeTable.getRow(itemToProcess);
 
          switch (clause.getClass()
                        .getSimpleName()) {
          case "DescriptionLuceneMatch":
+            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
+                    .getValue();
             if (parameter == null) {
                throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
             }
@@ -377,7 +372,7 @@ public class QueryController
                                                         .getSimpleName() + "-" + queryBuilder.getSequence();
 
             descriptionLuceneMatch.setLuceneMatchKey(parameterKey);
-            queryBuilder.let(parameterKey, parameter.getParamterString());
+            queryBuilder.let(parameterKey, parameter.getParameter());
             descriptionLuceneMatch.setViewCoordinateKey(DEFAULT_MANIFOLD_COORDINATE_KEY);
             break;
          }
@@ -591,7 +586,8 @@ public class QueryController
                 .getValue().clauseName);
 
       this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
-      this.parameterColumn.setCellFactory(param -> new WhereParameterCell(this.clauseNameColumn));
+      this.parameterColumn.setCellFactory(param -> new WhereParameterCell());
+
 
 //      this.parameterColumn.setCellFactory(param -> {
 //
