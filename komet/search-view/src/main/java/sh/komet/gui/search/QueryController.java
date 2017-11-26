@@ -587,45 +587,6 @@ public class QueryController
 
       this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
       this.parameterColumn.setCellFactory(param -> new WhereParameterCell());
-
-
-//      this.parameterColumn.setCellFactory(param -> {
-//
-//
-//         StringConverter stringConverter = new StringConverter() {
-//            @Override
-//            public String toString(Object object) {
-//               return object.toString();
-//            }
-//
-//            @Override
-//            public Object fromString(String string) {
-//               return new QueryClauseParameter(string);
-//            }
-//         };
-//
-//         TreeTableCell<QueryClause, Object> cell = new TextFieldTreeTableCell<>(stringConverter);
-//
-//         cell.setOnDragOver(event -> {
-//            event.acceptTransferModes(TransferMode.ANY);
-//            event.consume();
-//         });
-//         cell.setOnDragDropped(event -> {
-//            if(cell.getTreeTableRow().getTreeItem() != null
-//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and")
-//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("and not")
-//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("not")
-//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("or")
-//                    && !cell.getTreeTableRow().getTreeItem().getValue().toString().equals("xor")) {
-//               ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
-//               QueryClauseParameter queryClauseParameter = new QueryClauseParameter(droppedChronology);
-//               cell.setText(queryClauseParameter.toString());
-//               cell.getTreeTableRow().getTreeItem().getValue().parameter.setValue(queryClauseParameter);
-//            }
-//         });
-//
-//         return cell;
-//      });
       this.whereTreeTable.setRoot(root);
       this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
       this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));

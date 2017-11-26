@@ -7,10 +7,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 public class QueryClauseParameter<T> {
 
     private T parameter;
-
-    public QueryClauseParameter(T parameter) {
-        this.parameter = parameter;
-    }
+    private boolean isEmpty = true;
 
     public T getParameter() {
         return parameter;
@@ -18,6 +15,10 @@ public class QueryClauseParameter<T> {
 
     public void setParameter(T parameter) {
         this.parameter = parameter;
+    }
+
+    public boolean isEmpty(){
+        return parameter == null;
     }
 
     @Override
