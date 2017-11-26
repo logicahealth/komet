@@ -17,6 +17,7 @@
 package sh.isaac.solor.rf2.direct;
 
 import java.util.Arrays;
+import java.util.Objects;
 import sh.isaac.api.coordinate.PremiseType;
 
 /**
@@ -56,6 +57,35 @@ public class TransformationGroup {
       builder.append(premiseType);
       builder.append('}');
       return builder.toString();
+   }
+
+   @Override
+   public int hashCode() {
+      int hash = 3;
+      hash = 23 * hash + this.conceptNid;
+      hash = 23 * hash + Objects.hashCode(this.premiseType);
+      return hash;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (obj == null) {
+         return false;
+      }
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+      final TransformationGroup other = (TransformationGroup) obj;
+      if (this.conceptNid != other.conceptNid) {
+         return false;
+      }
+      if (!Arrays.equals(this.relationshipNids, other.relationshipNids)) {
+         return false;
+      }
+      return this.premiseType == other.premiseType;
    }
    
 }

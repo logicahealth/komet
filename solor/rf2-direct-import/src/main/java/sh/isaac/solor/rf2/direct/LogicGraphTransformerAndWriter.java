@@ -37,7 +37,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
@@ -271,8 +270,8 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          }
          relationshipChronologiesForConcept.add(relationshipChronology);
       }
-      if (conceptNid == Get.identifierService().getNidForUuids(UUID.fromString("59284e13-8aa4-3842-8a0b-560865ca2855"))) {
-         System.out.println("Found T-Cell Count. ");
+      if (conceptNid == Get.identifierService().getNidForUuids(UUID.fromString("60b19022-d5ab-3414-ba69-dad0229624e3"))) {
+         System.out.println("Found Congenital absence. ");
       }
       for (StampPosition stampPosition : stampPositionsToProcess) {
          transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);

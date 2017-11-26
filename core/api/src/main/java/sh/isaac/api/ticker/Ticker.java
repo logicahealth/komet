@@ -75,6 +75,19 @@ public class Ticker {
          Platform.runLater(() -> start(intervalInSeconds, consumer));
       }
    }
+   
+   public void start(Duration intervalDuration, Consumer consumer) {
+      if (Platform.isFxApplicationThread()) {
+         stop();
+         this.tickSubscription = EventStreams.ticks(intervalDuration)
+                 .subscribe(tick -> {
+                    consumer.accept(tick);
+                 });
+      } else {
+         Platform.runLater(() -> start(intervalDuration, consumer));
+      }
+      
+   }
 
    /**
     * Stop.

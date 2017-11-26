@@ -353,15 +353,13 @@ public enum DynamicValidatorType {
                   throw new IllegalArgumentException("A taxonomy coordinate must be provided to evaluate IS_CHILD_OF");
                }
 
-               return Get.taxonomyService().getSnapshot(tc).get()
-                         .isChildOf(childId, parentId);
+               return Get.taxonomyService().getSnapshot(tc).isChildOf(childId, parentId);
             } else {
                if (tc == null) {
                   return Get.taxonomyService()
                             .wasEverKindOf(childId, parentId);
                } else {
-                  return Get.taxonomyService().getSnapshot(tc).get()
-                            .isKindOf(childId, parentId);
+                  return Get.taxonomyService().getSnapshot(tc).isKindOf(childId, parentId);
                }
             }
          } catch (final IllegalArgumentException e) {

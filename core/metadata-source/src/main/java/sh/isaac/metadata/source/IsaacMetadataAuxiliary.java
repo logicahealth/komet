@@ -399,6 +399,7 @@ public class IsaacMetadataAuxiliary
          createConcept("Taxonomy operator");
          pushParent(current());
 
+         createConcept(TermAux.CHILD_OF);
          final ConceptBuilder isa = createConcept("Is-a");
 
          isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());

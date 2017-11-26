@@ -116,22 +116,16 @@ public class ConceptIsChildOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      try {
-         final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                 .get(this.viewCoordinateKey);
-         final ConceptSpecification childOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                 .get(this.childOfSpecKey);
-         final int parentNid = childOfSpec.getNid();
-         final NidSet childrenOfSequenceSet = 
-                 NidSet.of(
-                 Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                 .getTaxonomyChildNids(parentNid));
-         
-         getResultsCache().or(childrenOfSequenceSet);
-         return getResultsCache();
-      } catch (InterruptedException | ExecutionException ex) {
-         throw new RuntimeException(ex);
-      }
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+              .get(this.viewCoordinateKey);
+      final ConceptSpecification childOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+              .get(this.childOfSpecKey);
+      final int parentNid = childOfSpec.getNid();
+      final NidSet childrenOfSequenceSet =
+              NidSet.of(
+                      Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildNids(parentNid));
+      getResultsCache().or(childrenOfSequenceSet);
+      return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -287,54 +287,41 @@ public class ImportExportTest {
       dependsOnMethods = { "testClassify" }
    )
    public void testInferredTaxonomy() {
-      try {
-         LOG.info("Testing inferred taxonomy");
-         
-         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                 .getDefaultManifoldCoordinate()
-                 .makeCoordinateAnalog(PremiseType.INFERRED);
-         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
-         
-        
-         final int[] roots = taxonomySnapshotService.getRoots();
-         final NidSet rootAssemblages = new NidSet();
-         for (int rootNid: roots) {
-            rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
-         }
-         StringBuilder rootsMessage = new StringBuilder();
-         SpinedIntIntArrayMap map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
-         for (int root: roots) {
-            rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
-            
-            int[] elementTaxonomyData = map.get(root);
-            TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
-            rootsMessage.append(" ");
-            rootsMessage.append(record);
-            rootsMessage.append("\n");
-         }
-         String message = rootsMessage.toString();
-         if (roots.length != 1) {
-            LOG.warn(message);
-         }
-         
-         Assert.assertEquals(roots.length, 1, message);
-         
-         final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
-         final AtomicInteger taxonomyCount = new AtomicInteger(0);
-         
-         taxonomyTree.depthFirstProcess(roots[0],
-                 (TreeNodeVisitData t,
-                         int conceptSequence) -> {
-                    taxonomyCount.incrementAndGet();
-                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
-         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-         logTree(roots[0], taxonomyTree);
-      } catch (InterruptedException ex) {
-         Assert.fail("Interrupted", ex);
-      } catch (ExecutionException ex) {
-         Assert.fail("Execution exception", ex);
+      LOG.info("Testing inferred taxonomy");
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+              .getDefaultManifoldCoordinate()
+              .makeCoordinateAnalog(PremiseType.INFERRED);
+      TaxonomySnapshotService taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+      final int[] roots = taxonomySnapshotService.getRoots();
+      final NidSet rootAssemblages = new NidSet();
+      for (int rootNid: roots) {
+         rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
       }
+      StringBuilder rootsMessage = new StringBuilder();
+      SpinedIntIntArrayMap map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+         
+         int[] elementTaxonomyData = map.get(root);
+         TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
+         rootsMessage.append(" ");
+         rootsMessage.append(record);
+         rootsMessage.append("\n");
+      }
+      String message = rootsMessage.toString();
+      if (roots.length != 1) {
+         LOG.warn(message);
+      }
+      Assert.assertEquals(roots.length, 1, message);
+      final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+      final AtomicInteger taxonomyCount = new AtomicInteger(0);
+      taxonomyTree.depthFirstProcess(roots[0],
+              (TreeNodeVisitData t,
+                      int conceptSequence) -> {
+                 taxonomyCount.incrementAndGet();
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
+      logTree(roots[0], taxonomyTree);
    }
 
    /**
@@ -391,36 +378,23 @@ public class ImportExportTest {
       dependsOnMethods = { "testLoad" }
    )
    public void testStatedTaxonomy() {
-      try {
-         LOG.info("Testing stated taxonomy");
-         
-         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                 .getDefaultManifoldCoordinate()
-                 .makeCoordinateAnalog(PremiseType.STATED);
-         LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
-         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
-         
-         final int[] roots = taxonomySnapshotService.getRoots();
-
-         
-         Assert.assertEquals(roots.length, 1, "Root count != 1: " + Arrays.asList(roots));
-         
-         final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
-         final AtomicInteger taxonomyCount = new AtomicInteger(0);
-         
-         taxonomyTree.depthFirstProcess(roots[0],
-                 (TreeNodeVisitData t,
-                         int conceptSequence) -> {
-                    taxonomyCount.incrementAndGet();
-                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
-         logTree(roots[0], taxonomyTree);
-         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-      } catch (InterruptedException ex) {
-         Assert.fail("Interrupted", ex);
-      } catch (ExecutionException ex) {
-         Assert.fail("Execution exception", ex);
-      }
+      LOG.info("Testing stated taxonomy");
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+              .getDefaultManifoldCoordinate()
+              .makeCoordinateAnalog(PremiseType.STATED);
+      LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
+      TaxonomySnapshotService taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+      final int[] roots = taxonomySnapshotService.getRoots();
+      Assert.assertEquals(roots.length, 1, "Root count != 1: " + Arrays.asList(roots));
+      final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+      final AtomicInteger taxonomyCount = new AtomicInteger(0);
+      taxonomyTree.depthFirstProcess(roots[0],
+              (TreeNodeVisitData t,
+                      int conceptSequence) -> {
+                 taxonomyCount.incrementAndGet();
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+      logTree(roots[0], taxonomyTree);
+      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
 
    /**

@@ -57,7 +57,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.tree.HashTreeBuilder;
-import sh.isaac.model.tree.HashTreeWithBitSets;
+import sh.isaac.model.tree.HashTreeWithIntArraySets;
 import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
 import sh.isaac.provider.bdb.taxonomy.GraphCollector;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
@@ -137,7 +137,7 @@ public class ClassifierProvider
     *
     * @return the inferred taxonomy graph
     */
-   protected HashTreeWithBitSets getInferredTaxonomyGraph() {
+   protected HashTreeWithIntArraySets getInferredTaxonomyGraph() {
       final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getInferredManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
@@ -149,7 +149,7 @@ public class ClassifierProvider
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
               collector,
               collector);
-      final HashTreeWithBitSets resultGraph = graphBuilder.getSimpleDirectedGraph();
+      final HashTreeWithIntArraySets resultGraph = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }
@@ -159,7 +159,7 @@ public class ClassifierProvider
     *
     * @return the stated taxonomy graph
     */
-   protected HashTreeWithBitSets getStatedTaxonomyGraph() {
+   protected HashTreeWithIntArraySets getStatedTaxonomyGraph() {
       final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
@@ -171,7 +171,7 @@ public class ClassifierProvider
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
               collector,
               collector);
-      final HashTreeWithBitSets resultGraph = graphBuilder.getSimpleDirectedGraph();
+      final HashTreeWithIntArraySets resultGraph = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }

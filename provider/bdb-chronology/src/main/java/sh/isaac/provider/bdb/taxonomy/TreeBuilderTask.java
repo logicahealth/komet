@@ -86,8 +86,7 @@ public class TreeBuilderTask
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
       this.stampedLock                        = stampedLock;
-      this.addToTotalWork(conceptCount);
-      this.addToTotalWork(conceptCount / 10);  // adding a buffer for the DFS with cycle detection at the end...
+      this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
       this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyType() + " snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
@@ -146,10 +145,9 @@ public class TreeBuilderTask
 
       message = "searching for redundancies and cycles";
 
-      Tree tree = graphBuilder.getSimpleDirectedGraph();
+      Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      completedUnitsOfWork(conceptCount / 10);
       return tree;
    }
 }

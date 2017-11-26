@@ -101,6 +101,9 @@ public class TermAux {
    /** ConceptProxy for: "is a". */
    public static ConceptSpecification IS_A = new ConceptProxy("Is a (relationship type)",
                                                               UUID.fromString("46bccdc4-8fb6-11db-b606-0800200c9a66"));
+   /** ConceptProxy for: "Child of". */
+   public static ConceptSpecification CHILD_OF = new ConceptProxy("Child of (internal use relationship type)",
+                                                              UUID.fromString("91947d30-7555-5400-bbe2-4415472cff1b"));
 
    /** ConceptProxy for: "IHTSDO classifier. */
    public static ConceptSpecification IHTSDO_CLASSIFIER = new ConceptProxy("IHTSDO Classifier",

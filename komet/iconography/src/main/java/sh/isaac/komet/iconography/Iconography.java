@@ -167,7 +167,8 @@ public enum Iconography {
   ALERT_ERROR2(MATERIAL_DESIGNS_WEBFONT, "alert-error-2"),
   ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
   TEMPORARY_FIX(MATERIAL_DESIGNS_ICON, "temporary-fix"),
-  CHECK(FONT_AWSOME, "check")
+  CHECK(FONT_AWSOME, "check"),
+  CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 

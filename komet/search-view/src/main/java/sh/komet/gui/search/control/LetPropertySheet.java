@@ -167,22 +167,15 @@ public class LetPropertySheet{
 
 
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
-       try {
-          Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-          ConceptChronology concept = Get.concept(conceptSpecification.getNid());
-          
-          TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
-          for (int i: taxonomySnapshot.getTaxonomyChildNids(concept.getNid())) {
-             ConceptForControlWrapper propertySheetItemConceptWrapper =
-                     new ConceptForControlWrapper(this.manifoldForDisplay, i);
-             collection.add(propertySheetItemConceptWrapper);
-          }
-          
-          
-          return Editors.createChoiceEditor(prop, collection);
-       } catch (InterruptedException | ExecutionException ex) {
-          throw new UnsupportedOperationException(ex);
+       Collection<ConceptForControlWrapper> collection = new ArrayList<>();
+       ConceptChronology concept = Get.concept(conceptSpecification.getNid());
+       TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
+       for (int i: taxonomySnapshot.getTaxonomyChildNids(concept.getNid())) {
+          ConceptForControlWrapper propertySheetItemConceptWrapper =
+                  new ConceptForControlWrapper(this.manifoldForDisplay, i);
+          collection.add(propertySheetItemConceptWrapper);
        }
+       return Editors.createChoiceEditor(prop, collection);
     }
 
     /**
@@ -226,28 +219,23 @@ public class LetPropertySheet{
     }
 
     private int[] buildListOfAllModules(){
-       try {
-          int[] arrayOfModules;
-          ObservableIntegerArray manifoldModules = this.manifoldForDisplay.getManifoldCoordinate().getStampCoordinate()
-                  .moduleNidProperty().get();
-          
-          if (manifoldModules.size() == 0) {
-             ArrayList<Integer> moduleNIDs = new ArrayList<>();
-             TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
-             for (int i : taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
-                moduleNIDs.add(i);
-             }
-             arrayOfModules = new int[moduleNIDs.size()];
-             for (int i = 0; i < arrayOfModules.length; i++) {
-                arrayOfModules[i] = moduleNIDs.get(i);
-             }
-          } else {
-             arrayOfModules = manifoldModules.toArray(null);
+       int[] arrayOfModules;
+       ObservableIntegerArray manifoldModules = this.manifoldForDisplay.getManifoldCoordinate().getStampCoordinate()
+               .moduleNidProperty().get();
+       if (manifoldModules.size() == 0) {
+          ArrayList<Integer> moduleNIDs = new ArrayList<>();
+          TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
+          for (int i : taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
+             moduleNIDs.add(i);
           }
-          return arrayOfModules;
-       } catch (InterruptedException | ExecutionException ex) {
-          throw new RuntimeException(ex);
+          arrayOfModules = new int[moduleNIDs.size()];
+          for (int i = 0; i < arrayOfModules.length; i++) {
+             arrayOfModules[i] = moduleNIDs.get(i);
+          }
+       } else {
+          arrayOfModules = manifoldModules.toArray(null);
        }
+       return arrayOfModules;
     }
 
 }

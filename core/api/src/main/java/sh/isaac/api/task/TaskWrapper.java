@@ -83,18 +83,28 @@ public class TaskWrapper<R, T> extends Task<R> {
          this.updateMessage​(newValue);
       });
       this.updateMessage(this.wrappedTask.getMessage());
-      this.wrappedTask.progressProperty().addListener((observable, oldValue, newValue) -> {
+      this.wrappedTask.workDoneProperty().addListener((observable, oldValue, newValue) -> {
          this.updateProgress(newValue.doubleValue(), this.wrappedTask.getTotalWork());
       });
       this.wrappedTask.totalWorkProperty().addListener((observable, oldValue, newValue) -> {
-         this.updateProgress(this.wrappedTask.getProgress(), newValue.doubleValue());
+         this.updateProgress(this.wrappedTask.getWorkDone(), newValue.doubleValue());
       });
-      this.updateProgress(this.wrappedTask.getProgress(), this.wrappedTask.getTotalWork());
+      this.updateProgress(this.wrappedTask.getWorkDone(), this.wrappedTask.getTotalWork());
    }
 
    @Override
    protected R call() throws Exception {
       return adapter.apply(wrappedTask.get());
+   }
+
+   @Override
+   protected void updateProgress(double workDone, double max) {
+      super.updateProgress(workDone, max); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   protected void updateProgress(long workDone, long max) {
+      super.updateProgress(workDone, max); //To change body of generated methods, choose Tools | Templates.
    }
 
 }

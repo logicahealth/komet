@@ -64,13 +64,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeItem;
@@ -78,7 +76,6 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -139,40 +136,25 @@ public class MultiParentTreeView
                                                                Iconography.TAXONOMY_ICON.getIconographic());
    private Optional<UUID>                                      selectedItem            = Optional.empty();
    private final ArrayList<UUID>                               expandedUUIDs           = new ArrayList<>();
-   private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotService = new SimpleObjectProperty<>();
    private final ObservableList<AlertObject>                   alertList = FXCollections.observableArrayList();
    private final GridPane                                      topGridPane             = new GridPane();
 
    /** added to prevent garbage collection of listener while this node is still active */
    private final EventHandler<AlertEvent>    alertHandler = this::handleAlert;
-   private final CreateSnapshotService       createSnapshotService;
    private final Manifold                    manifold;
-   private final StackPane                   stackPane;
-   private final ProgressIndicator           taxonomyTreeFetchProgress;
    private final MultiParentTreeItemImpl         rootTreeItem;
    private final TreeView<ConceptChronology> treeView;
    private final LayoutAnimator topPaneAnimator = new LayoutAnimator();
    private final LayoutAnimator taxonomyAlertsAnimator = new LayoutAnimator();
    private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
+   
+   private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
 
    //~--- constructors --------------------------------------------------------
 
    public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
       long startTime = System.currentTimeMillis();
-
-      this.createSnapshotService = new CreateSnapshotService(manifold);
-      this.createSnapshotService.setExecutor(Get.executor());
-      this.taxonomySnapshotService.bind(createSnapshotService.valueProperty());
-      this.taxonomySnapshotService.addListener(this::snapshotReady);
-      this.taxonomyTreeFetchProgress = new ProgressIndicator();
-      this.taxonomyTreeFetchProgress.setMaxHeight(100.0);
-      this.taxonomyTreeFetchProgress.setMaxWidth(100.0);
-      this.taxonomyTreeFetchProgress.getStyleClass()
-                                    .add("progressIndicator");
-      this.taxonomyTreeFetchProgress.progressProperty()
-                                    .bind(this.createSnapshotService.progressProperty());
-      this.taxonomyTreeFetchProgress.visibleProperty()
-                                    .bind(this.createSnapshotService.runningProperty());
+      taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
       getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
       this.manifold = manifold;
       treeView      = new TreeView<>();
@@ -186,13 +168,7 @@ public class MultiParentTreeView
                         manifold.setFocusedConceptChronology(newValue.getValue());
                      }
                   });
-      stackPane = new StackPane();
-      this.setCenter(stackPane);
-      StackPane.setAlignment(taxonomyTreeFetchProgress, Pos.CENTER);
-      stackPane.getChildren()
-               .add(treeView);
-      stackPane.getChildren()
-               .add(taxonomyTreeFetchProgress);
+      this.setCenter(treeView);
 
       ConceptChronology rootConceptCV = Get.conceptService()
                                            .getConceptChronology(rootSpec);
@@ -220,7 +196,6 @@ public class MultiParentTreeView
                  Get.executor()
                     .execute(() -> sourceTreeItem.addChildren());
               });
-      this.createSnapshotService.start();
       Alert.addAlertListener(alertHandler);
       alertList.addListener(this::onChanged);
       
@@ -289,7 +264,7 @@ public class MultiParentTreeView
                // Look for an IS_A relationship to origin.
                boolean found = false;
 
-               for (int parent: getTaxonomyTree().getParentNids(concept.getNid())) {
+               for (int parent: getTaxonomySnapshot().getTaxonomyParentNids(concept.getNid())) {
                   current = Get.identifierService()
                                .getUuidPrimordialForNid(parent)
                                .get();
@@ -482,6 +457,7 @@ public class MultiParentTreeView
                                 SimpleObjectProperty<MultiParentTreeItemImpl> scrollTo)
             throws InterruptedException {
       if (expandedUUIDs.contains(item.getConceptUuid())) {
+         item.addChildren();
          item.blockUntilChildrenReady();
          Platform.runLater(() -> item.setExpanded(true));
 
@@ -583,12 +559,6 @@ public class MultiParentTreeView
       this.treeView.refresh();
    }
 
-   private void snapshotReady(ObservableValue<? extends TaxonomySnapshotService> observable,
-                              TaxonomySnapshotService oldValue,
-                              TaxonomySnapshotService newValue) {
-      restoreExpanded();
-   }
-
    private void taxonomyPremiseChanged(ObservableValue<? extends ConceptSpecification> observable,
          ConceptSpecification oldValue,
          ConceptSpecification newValue) {
@@ -596,10 +566,11 @@ public class MultiParentTreeView
       this.manifold.getManifoldCoordinate()
                    .premiseTypeProperty()
                    .set(PremiseType.fromConcept(newValue));
+      taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
       this.rootTreeItem.clearChildren();
       this.rootTreeItem.resetChildrenCalculators();
       this.alertList.clear();
-      this.createSnapshotService.restart();
+      restoreExpanded();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -634,14 +605,8 @@ public class MultiParentTreeView
       return rootTreeItem;
    }
 
-   protected Tree getTaxonomyTree() {
-      TaxonomySnapshotService service = this.taxonomySnapshotService.get();
-
-      if (service != null) {
-         return service.getTaxonomyTree();
-      }
-
-      return null;
+   protected TaxonomySnapshotService getTaxonomySnapshot() {
+      return taxonomySnapshotProperty.get();
    }
 
    @Override

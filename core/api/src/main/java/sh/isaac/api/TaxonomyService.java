@@ -107,7 +107,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the snapshot
     */
-   Task<TaxonomySnapshotService> getSnapshot(ManifoldCoordinate tc);
+   TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy child sequences.

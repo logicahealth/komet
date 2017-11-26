@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +37,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.apache.mahout.math.list.IntArrayList;
 
 /**
  *
@@ -123,69 +121,7 @@ public class SpinedNidNidSetMap {
       int spineIndex = index / spineSize;
       int indexInSpine = index % spineSize;
       this.lastUpdate.computeIfAbsent("spine-" + spineIndex, (t) -> new AtomicLong()).incrementAndGet();
-      this.spines.computeIfAbsent(spineIndex, this::newSpine).accumulateAndGet(indexInSpine, new int[]{element}, this::merge);
-   }
-
-   private int[] merge(int[] currentArray, int[] updateArray) {
-      if (currentArray == null || currentArray.length == 0) {
-         return updateArray;
-      }
-      if (updateArray == null) {
-         throw new IllegalStateException("Update value is null");
-      }
-      if (updateArray.length == 1) {
-         int updateValue = updateArray[0];
-         int searchResult = Arrays.binarySearch(currentArray, updateValue);
-         if (searchResult >= 0) {
-            return currentArray; // already there. 
-         }
-         int[] array2 = new int[currentArray.length + 1];
-         int insertIndex = -searchResult - 1;
-         System.arraycopy(currentArray, 0, array2, 0, insertIndex);
-         System.arraycopy(currentArray, insertIndex, array2, insertIndex + 1, currentArray.length - insertIndex);
-         array2[insertIndex] = updateValue;
-         return array2;
-      }
-      Arrays.sort(updateArray);
-      IntArrayList mergedValues = new IntArrayList(currentArray.length + updateArray.length);
-      int updateIndex = 0;
-      int currentIndex = 0;
-
-      while (updateIndex < updateArray.length || currentIndex < currentArray.length) {
-         int compare = Integer.compare(currentArray[currentIndex], updateArray[updateIndex]);
-         if (compare == 0) {
-            mergedValues.add(currentArray[currentIndex]);
-            currentIndex++;
-            updateIndex++;
-            if (currentIndex == currentArray.length) {
-               while (updateIndex < updateArray.length) {
-                  mergedValues.add(updateArray[updateIndex++]);
-               }
-            }
-            if (updateIndex == updateArray.length) {
-               while (currentIndex < currentArray.length) {
-                  mergedValues.add(currentArray[currentIndex++]);
-               }
-            }
-         } else if (compare < 0) {
-            mergedValues.add(currentArray[currentIndex]);
-            currentIndex++;
-            if (currentIndex == currentArray.length) {
-               while (updateIndex < updateArray.length) {
-                  mergedValues.add(updateArray[updateIndex++]);
-               }
-            }
-         } else {
-            mergedValues.add(updateArray[updateIndex]);
-            updateIndex++;
-            if (updateIndex == updateArray.length) {
-               while (currentIndex < currentArray.length) {
-                  mergedValues.add(currentArray[currentIndex++]);
-               }
-            }
-         }
-      }
-      return mergedValues.toArray(new int[mergedValues.size()]);
+      this.spines.computeIfAbsent(spineIndex, this::newSpine).accumulateAndGet(indexInSpine, new int[]{element}, MergeIntArray::merge);
    }
 
    private int getSpineCount() {
@@ -208,7 +144,7 @@ public class SpinedNidNidSetMap {
       int spineIndex = index / spineSize;
       int indexInSpine = index % spineSize;
       this.lastUpdate.computeIfAbsent("spine-" + spineIndex, (t) -> new AtomicLong()).incrementAndGet();
-      this.spines.computeIfAbsent(spineIndex, this::newSpine).accumulateAndGet(indexInSpine, element, this::merge);
+      this.spines.computeIfAbsent(spineIndex, this::newSpine).accumulateAndGet(indexInSpine, element, MergeIntArray::merge);
    }
 
    public int[] get(int index) {

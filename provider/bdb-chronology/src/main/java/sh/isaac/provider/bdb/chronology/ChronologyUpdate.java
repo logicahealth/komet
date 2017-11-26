@@ -42,7 +42,6 @@ package sh.isaac.provider.bdb.chronology;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -61,7 +60,6 @@ import sh.isaac.api.dag.Node;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
@@ -79,9 +77,9 @@ import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
  */
 public class ChronologyUpdate {
    private static final Logger                LOG                 = LogManager.getLogger();
-   private static AtomicInteger               taxonomyUpdateCount = new AtomicInteger(1);
    private static final int                   INFERRED_ASSEMBLAGE_NID;
    private static final int                   ISA_NID;
+   private static final int                   CHILD_OF_NID;
    private static final int                   ROLE_GROUP_NID;
    private static final BdbIdentifierProvider IDENTIFIER_SERVICE;
    private static final BdbTaxonomyProvider   TAXONOMY_SERVICE;
@@ -90,6 +88,7 @@ public class ChronologyUpdate {
 
    static {
       INFERRED_ASSEMBLAGE_NID = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
+      CHILD_OF_NID            = TermAux.CHILD_OF.getNid();
       ISA_NID                 = TermAux.IS_A.getNid();
       ROLE_GROUP_NID          = TermAux.ROLE_GROUP.getNid();
       IDENTIFIER_SERVICE      = Get.service(BdbIdentifierProvider.class);
@@ -110,16 +109,10 @@ public class ChronologyUpdate {
       }
 
       SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getTaxonomyRecordMap(conceptChronology.getAssemblageNid());
-      int[] result = map.accumulateAndGet(
+      map.accumulateAndGet(
                          conceptChronology.getNid(),
                          taxonomyRecord.pack(),
-                             (int[] existing,
-                              int[] update) -> {
-                                TaxonomyRecord existingRecord = new TaxonomyRecord(existing);
-
-                                existingRecord.merge(new TaxonomyRecord(update));
-                                return existingRecord.pack();
-                             });
+                             ChronologyUpdate::merge);
    }
 
    public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
@@ -139,32 +132,32 @@ public class ChronologyUpdate {
       }
 
       final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
-      TaxonomyRecord                       taxonomyRecord   = new TaxonomyRecord();
+      TaxonomyRecord                       taxonomyRecordForConcept   = new TaxonomyRecord();
 
       for (Graph<LogicGraphVersion> versionGraph: versionGraphList) {
          // this is the CPU hog...
-         processVersionNode(versionGraph.getRoot(), taxonomyRecord, taxonomyFlags);
+         processVersionNode(referencedComponentNid, versionGraph.getRoot(), taxonomyRecordForConcept, taxonomyFlags);
       }
 
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = TAXONOMY_SERVICE.getTaxonomyRecordMap(
                                                                            conceptAssemblageNid);
-      int[] start = taxonomyRecord.pack();
+      int[] start = taxonomyRecordForConcept.pack();
       int[] result = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
                          logicGraphChronology.getReferencedComponentNid(),
-                         start,
-                             (int[] existing,
-                              int[] update) -> {
-                                TaxonomyRecord existingRecord = new TaxonomyRecord(existing);
-
-                                existingRecord.merge(new TaxonomyRecord(update));
-                                return existingRecord.pack();
-                             });
+                         start, ChronologyUpdate::merge);
 
       if (start.length > result.length) {
          LOG.error("Accumulate shrank");
       } else if (result.length == start.length) {
          LOG.error("Did not grow");
       }
+   }
+   
+   private static int[] merge(int[] existing, int[] update) {
+      TaxonomyRecord existingRecord = new TaxonomyRecord(existing);
+
+      existingRecord.merge(new TaxonomyRecord(update));
+      return existingRecord.pack();
    }
 
    /**
@@ -189,7 +182,7 @@ public class ChronologyUpdate {
                                     (LogicNode andOrOrLogicNode) -> andOrOrLogicNode.getChildStream()
                                           .forEach(
                                               (LogicNode aLogicNode) -> {
-                                                 processRelationshipRoot(
+                                                 processRelationshipRoot(firstVersion.getReferencedComponentNid(),
                                                        aLogicNode,
                                                              parentTaxonomyRecord,
                                                              taxonomyFlags,
@@ -204,27 +197,27 @@ public class ChronologyUpdate {
     * Process relationship root.
     *
     * @param logicNode the logical logic node
-    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyRecordForConcept the parent taxonomy record
     * @param taxonomyFlags the taxonomy flags
     * @param stampSequence the stamp sequence
     * @param comparisonExpression the comparison expression
     */
-   private static void processRelationshipRoot(LogicNode logicNode,
-         TaxonomyRecord parentTaxonomyRecord,
+   private static void processRelationshipRoot(int conceptNid, LogicNode logicNode,
+         TaxonomyRecord taxonomyRecordForConcept,
          TaxonomyFlag taxonomyFlags,
          int stampSequence,
          LogicalExpression comparisonExpression) {
       switch (logicNode.getNodeSemantic()) {
       case CONCEPT:
-         updateIsaRel(
+         updateIsaRel(conceptNid,
              ((ConceptNodeWithNids) logicNode).getConceptNid(),
-             parentTaxonomyRecord,
+             taxonomyRecordForConcept,
              taxonomyFlags,
              stampSequence);
          break;
 
       case ROLE_SOME:
-         updateSomeRole((RoleNodeSomeWithNids) logicNode, parentTaxonomyRecord, taxonomyFlags, stampSequence);
+         updateSomeRole((RoleNodeSomeWithNids) logicNode, taxonomyRecordForConcept, taxonomyFlags, stampSequence);
          break;
 
       case FEATURE:
@@ -241,14 +234,14 @@ public class ChronologyUpdate {
     * Process version node.
     *
     * @param node the node
-    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyRecordForConcept the parent taxonomy record
     * @param taxonomyFlags the taxonomy flags
     */
-   private static void processVersionNode(Node<? extends LogicGraphVersion> node,
-         TaxonomyRecord parentTaxonomyRecord,
+   private static void processVersionNode(int conceptNid, Node<? extends LogicGraphVersion> node,
+         TaxonomyRecord taxonomyRecordForConcept,
          TaxonomyFlag taxonomyFlags) {
       if (node.getParent() == null) {
-         processNewLogicGraph(node.getData(), parentTaxonomyRecord, taxonomyFlags);
+         processNewLogicGraph(node.getData(), taxonomyRecordForConcept, taxonomyFlags);
       } else {
          final LogicalExpression comparisonExpression = node.getParent()
                                                             .getData()
@@ -263,9 +256,9 @@ public class ChronologyUpdate {
             final int stampSequence = node.getData()
                                           .getStampSequence();
 
-            processRelationshipRoot(
+            processRelationshipRoot(conceptNid,
                 relationshipRoot,
-                parentTaxonomyRecord,
+                taxonomyRecordForConcept,
                 taxonomyFlags,
                 stampSequence,
                 comparisonExpression);
@@ -277,9 +270,9 @@ public class ChronologyUpdate {
             final int stampSequence       = Get.stampService()
                                                .getRetiredStampSequence(activeStampSequence);
 
-            processRelationshipRoot(
+            processRelationshipRoot(conceptNid,
                 relationshipRoot,
-                parentTaxonomyRecord,
+                taxonomyRecordForConcept,
                 taxonomyFlags,
                 stampSequence,
                 comparisonExpression);
@@ -287,7 +280,7 @@ public class ChronologyUpdate {
       }
 
       for (Node<? extends LogicGraphVersion> childNode: node.getChildren()) {
-         processVersionNode(childNode, parentTaxonomyRecord, taxonomyFlags);
+         processVersionNode(conceptNid, childNode, taxonomyRecordForConcept, taxonomyFlags);
       }
    }
 
@@ -295,16 +288,27 @@ public class ChronologyUpdate {
     * Update isa rel.
     *
     * @param conceptNode the concept node
-    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyRecordForConcept the parent taxonomy record
     * @param taxonomyFlags the taxonomy flags
     * @param stampSequence the stamp sequence
-    * @param originSequence the origin sequence
+    * @param destinationNid the destination nid
     */
-   private static void updateIsaRel(int originSequence,
-                                    TaxonomyRecord parentTaxonomyRecord,
+   private static void updateIsaRel(int originNid,
+                                    int destinationNid,
+                                    TaxonomyRecord taxonomyRecordForConcept,
                                     TaxonomyFlag taxonomyFlags,
                                     int stampSequence) {
-      parentTaxonomyRecord.addStampRecord(originSequence, ISA_NID, stampSequence, taxonomyFlags.bits);
+      taxonomyRecordForConcept.addStampRecord(destinationNid, ISA_NID, stampSequence, taxonomyFlags.bits);
+      
+      TaxonomyRecord destinationTaxonomyRecord = new TaxonomyRecord();
+      destinationTaxonomyRecord.addStampRecord(originNid, CHILD_OF_NID, stampSequence, taxonomyFlags.bits);
+
+      int conceptAssemblageNid   = IDENTIFIER_SERVICE.getAssemblageNidForNid(originNid);
+      SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getOrigin_DestinationTaxonomyRecord_Map(conceptAssemblageNid);
+      map.accumulateAndGet(
+                         destinationNid,
+                         destinationTaxonomyRecord.pack(),
+                             ChronologyUpdate::merge);
    }
 
    /**

@@ -192,6 +192,9 @@ public class BdbIdentifierProvider
 
    @Override
    public int getAssemblageNidForNid(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be negative. Found: " + nid);
+      }
       return nid_AssemblageNid_Map.get(nid);
    }
 

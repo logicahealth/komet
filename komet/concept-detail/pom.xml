@@ -17,7 +17,7 @@
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
-         <version>4.42-SNAPSHOT</version>
+         <version>${project.parent.version}</version>
          <type>jar</type>
          <exclusions>
             <exclusion>

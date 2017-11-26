@@ -71,8 +71,8 @@ public abstract class TimedTask<T>
    /** The Constant log. */
    protected static final Logger log = LogManager.getLogger();
 
-   /** The progress update interval in secs. */
-   public static int progressUpdateIntervalInSecs = 2;
+   /** The progress update interval. */
+   public Duration progressUpdateDuration = Duration.ofMillis(10);
 
    /**
     * Seconds per minute.
@@ -106,6 +106,14 @@ public abstract class TimedTask<T>
    /** The progress message generator. */
    Consumer<TimedTask<T>> progressMessageGenerator;
 
+   public TimedTask() {
+   }
+
+   public TimedTask(Duration progressUpdateDuration) {
+      this.progressUpdateDuration = progressUpdateDuration;
+   }
+
+   
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -148,7 +156,7 @@ public abstract class TimedTask<T>
          this.startTime = Instant.now();
       }
 
-      this.updateTicker.start(progressUpdateIntervalInSecs,
+      this.updateTicker.start(progressUpdateDuration,
                               (value) -> {
                                  if (this.progressMessageGenerator != null) {
                                     this.progressMessageGenerator.accept(this);

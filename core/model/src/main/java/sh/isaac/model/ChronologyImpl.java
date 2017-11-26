@@ -358,8 +358,9 @@ public abstract class ChronologyImpl
       if (getVersionList() != null) {
          builder.deleteCharAt(builder.length() - 1);
       }
-
-      builder.append("\n ]\n}");
+      
+      builder.append("\n ]\n}\n");
+      
       if (addAttachments) {
          builder.append("\n[[\n");
          AtomicInteger attachmentCount = new AtomicInteger(0);

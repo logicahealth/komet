@@ -68,6 +68,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,6 +201,11 @@ public class ConceptChronologyImpl
       builder.append(" <");
       builder.append(getNid());
       builder.append("> \n");
+      
+      builder.append("\nTaxonomy record: \n");
+      builder.append(ModelGet.taxonomyDebugService().describeTaxonomyRecord(this.getNid()));
+      builder.append("\n\n");
+
       toString(builder, true);
       return builder.toString();
    }

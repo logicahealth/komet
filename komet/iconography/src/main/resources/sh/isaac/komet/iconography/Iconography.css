@@ -771,3 +771,9 @@ limitations under the License.
    -glyph-size: 18;
 }
 
+.checkered-flag {
+   -glyph-name: "CHECKERED_FLAG";
+   -glyph-size: 18;
+   
+}
+

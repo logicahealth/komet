@@ -82,7 +82,7 @@ public class SpinedIntObjectMap<E>   {
    public void put(int index, E element) {
       if (index < 0) {
          index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+      } 
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);

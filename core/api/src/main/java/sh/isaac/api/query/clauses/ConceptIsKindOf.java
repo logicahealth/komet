@@ -114,20 +114,14 @@ public class ConceptIsKindOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      try {
-         final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                 .get(this.viewCoordinateKey);
-         final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                 .get(this.kindOfSpecKey);
-         final int                parentNid         = kindOfSpec.getNid();
-         final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).get()
-                 .getKindOfSequenceSet(parentNid);
-         
-         getResultsCache().or(kindOfSequenceSet);
-         return getResultsCache();
-      } catch (InterruptedException | ExecutionException ex) {
-         throw new RuntimeException(ex);
-      }
+      final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+              .get(this.viewCoordinateKey);
+      final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+              .get(this.kindOfSpecKey);
+      final int                parentNid         = kindOfSpec.getNid();
+      final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).getKindOfSequenceSet(parentNid);
+      getResultsCache().or(kindOfSequenceSet);
+      return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------
