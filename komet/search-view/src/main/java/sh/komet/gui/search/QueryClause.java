@@ -36,9 +36,9 @@ public class QueryClause {
       this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
       this.parameter = new SimpleObjectProperty<>(this, "parameter", new QueryClauseParameter());
       this.clauseName = new SimpleStringProperty(this, "clauseName", manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
-      this.clauseProperty.addListener((javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause) -> {
-         this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept()));
-      });
+      this.clauseProperty.addListener(
+              (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
+                      -> this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept())));
    }
 
    //~--- methods ----------------------------------------------------------

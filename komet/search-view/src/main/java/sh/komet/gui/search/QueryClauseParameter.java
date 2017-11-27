@@ -1,8 +1,10 @@
 package sh.komet.gui.search;
 
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class QueryClauseParameter<T> {
 
@@ -23,8 +25,19 @@ public class QueryClauseParameter<T> {
 
     @Override
     public String toString() {
-        return this.parameter instanceof ConceptChronology?
-                ((ConceptChronology)this.parameter).getFullySpecifiedConceptDescriptionText()
-                : this.parameter.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if(this.parameter instanceof ConceptChronology){
+            stringBuilder.append(((ConceptChronology)this.parameter).getFullySpecifiedConceptDescriptionText());
+        }else if(this.parameter instanceof HashMap) {
+            Set<Map.Entry> entries = ((HashMap)this.parameter).entrySet();
+            for(Map.Entry entry : entries){
+                stringBuilder.append(entry.getKey() + ": " + entry.getValue());
+            }
+        }else{
+            stringBuilder.append(this.parameter.toString());
+        }
+
+        return stringBuilder.toString();
     }
 }
