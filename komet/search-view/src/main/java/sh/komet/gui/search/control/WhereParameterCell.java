@@ -200,6 +200,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
                         .getParameter().get(ParamterTypes.ASSEMBLAGE)).getFullySpecifiedConceptDescriptionText());
             else
                 assemblageLabel = new Label();
+
             if(queryClauseParameter.getParameter().containsKey(ParamterTypes.STRING))
                 stringTextField = new TextField(((String) queryClauseParameter
                         .getParameter().get(ParamterTypes.STRING)).toString());
@@ -227,7 +228,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
                 hashMap = new HashMap<>();
             else
                 hashMap = queryClauseParameter.getParameter();
-            hashMap.put(ParamterTypes.CONCEPT, droppedChronology);
+            hashMap.put(ParamterTypes.ASSEMBLAGE, droppedChronology);
             queryClauseParameter.setParameter(hashMap);
         });
 
