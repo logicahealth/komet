@@ -270,9 +270,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          }
          relationshipChronologiesForConcept.add(relationshipChronology);
       }
-      if (conceptNid == Get.identifierService().getNidForUuids(UUID.fromString("60b19022-d5ab-3414-ba69-dad0229624e3"))) {
-         System.out.println("Found Congenital absence. ");
-      }
       for (StampPosition stampPosition : stampPositionsToProcess) {
          transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
       }

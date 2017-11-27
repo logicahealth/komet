@@ -34,9 +34,6 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.search;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -62,7 +59,6 @@ import java.net.URL;
 import java.util.*;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -80,11 +76,11 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import javax.validation.constraints.NotNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
@@ -93,8 +89,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.Clause;
@@ -117,79 +113,76 @@ import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
 
-import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
-
 //~--- classes ----------------------------------------------------------------
-
 public class QueryController
-         implements ExplorationNode {
-   private static final String CLAUSE                = "clause";
+        implements ExplorationNode {
+
+   private static final Logger LOG = LogManager.getLogger();
+   private static final String CLAUSE = "clause";
    public static final boolean OUTPUT_CSS_STYLE_INFO = false;
 
    //~--- fields --------------------------------------------------------------
-
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
-   private final SimpleStringProperty titleProperty   = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
    private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
-   private SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
-                                                         Iconography.FLOWR_SEARCH.getIconographic());
+   private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
+           Iconography.FLOWR_SEARCH.getIconographic());
    @FXML  // ResourceBundle that was given to the FXMLLoader
-   private ResourceBundle                                     resources;
+   private ResourceBundle resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
-   private URL                                                location;
+   private URL location;
    @FXML                                                                         // fx:id="anchorPane"
-   private AnchorPane                                         anchorPane;        // Value injected by FXMLLoader
+   private AnchorPane anchorPane;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="flowrAccordian"
-   private Accordion                                          flowrAccordian;    // Value injected by FXMLLoader
+   private Accordion flowrAccordian;    // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="forPane"
-   private TitledPane                                         forPane;           // Value injected by FXMLLoader
+   private TitledPane forPane;           // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="letPane"
-   private TitledPane                                         letPane;           // Value injected by FXMLLoader
+   private TitledPane letPane;           // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="orderPane"
-   private TitledPane                                         orderPane;         // Value injected by FXMLLoader
+   private TitledPane orderPane;         // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="wherePane"
-   private TitledPane                                         wherePane;         // Value injected by FXMLLoader
+   private TitledPane wherePane;         // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="whereTreeTable"
-   private TreeTableView<QueryClause>                         whereTreeTable;    // Value injected by FXMLLoader
+   private TreeTableView<QueryClause> whereTreeTable;    // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="clauseNameColumn"
-   private TreeTableColumn<QueryClause, String>               clauseNameColumn;  // Value injected by FXMLLoader
+   private TreeTableColumn<QueryClause, String> clauseNameColumn;  // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="parameterColumn"
-   private TreeTableColumn<QueryClause, Object>               parameterColumn;   // Value injected by FXMLLoader
+   private TreeTableColumn<QueryClause, Object> parameterColumn;   // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="returnPane"
-   private TitledPane                                         returnPane;        // Value injected by FXMLLoader
+   private TitledPane returnPane;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="executeButton"
-   private Button                                             executeButton;     // Value injected by FXMLLoader
+   private Button executeButton;     // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="progressBar"
-   private ProgressBar                                        progressBar;       // Value injected by FXMLLoader
+   private ProgressBar progressBar;       // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="cancelButton"
-   private Button                                             cancelButton;      // Value injected by FXMLLoader
+   private Button cancelButton;      // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="resultTable"
-   private TableView<ObservableDescriptionVersion>            resultTable;       // Value injected by FXMLLoader
+   private TableView<ObservableDescriptionVersion> resultTable;       // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="textColumn"
-   private TableColumn<ObservableDescriptionVersion, String>  textColumn;        // Value injected by FXMLLoader
+   private TableColumn<ObservableDescriptionVersion, String> textColumn;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="typeColumn"
    private TableColumn<ObservableDescriptionVersion, Integer> typeColumn;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="languageColumn"
    private TableColumn<ObservableDescriptionVersion, Integer> languageColumn;    // Value injected by FXMLLoader
    @FXML
-   private RadioButton                                        allComponents;
+   private RadioButton allComponents;
    @FXML
-   private ToggleGroup                                        forGroup;
+   private ToggleGroup forGroup;
    @FXML
-   private RadioButton                                        allConcepts;
+   private RadioButton allConcepts;
    @FXML
-   private RadioButton                                        allDescriptions;
+   private RadioButton allDescriptions;
    @FXML
-   private RadioButton                                        allSememes;
+   private RadioButton allSememes;
    @FXML
-   private AnchorPane                                         letAnchorPane;
-   private TreeItem<QueryClause>                              root;
-   private Manifold                                           manifold;
-   private LetPropertySheet                                   letPropertySheet;
+   private AnchorPane letAnchorPane;
+   private TreeItem<QueryClause> root;
+   private Manifold manifold;
+   private LetPropertySheet letPropertySheet;
 
    //~--- methods -------------------------------------------------------------
-
-   void displayResults(NidSet descriptionNids) {
+   void displayResults(NidSet resultNids) {
       ObservableList<ObservableDescriptionVersion> tableItems = resultTable.getItems();
 
       tableItems.clear();
@@ -197,18 +190,41 @@ public class QueryController
       ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
 
 //      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.letPropertySheet.getManifold());
+      for (int nid : resultNids.asArray()) {
+         switch (Get.identifierService().getObjectTypeForComponent(nid)) {
+            case CONCEPT: {
+               // convert to a description. 
+               LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid);
+               if (latestDescriptionForConcept.isPresent()) {
+                  LatestVersion<ObservableDescriptionVersion> latestDescription
+                          = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
+                                  latestDescriptionForConcept.get().getNid());
 
-      descriptionNids.stream()
-                     .forEach(
-                         (nid) -> {
-                            LatestVersion<ObservableDescriptionVersion> latestDescription =
-                               (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
-                                   nid);
+                  if (latestDescription.isPresent()) {
+                     tableItems.add(latestDescription.get());
+                  } else {
+                     LOG.error("No latest description for concept: " + Get.conceptDescriptionText(nid));
+                  }
+               }
+            }
+            break;
+            case SEMANTIC:
+               LatestVersion<ObservableDescriptionVersion> latestDescription
+                       = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
+                               nid);
 
-                            if (latestDescription.isPresent()) {
-                               tableItems.add(latestDescription.get());
-                            }
-                         });
+               if (latestDescription.isPresent()) {
+                  tableItems.add(latestDescription.get());
+               } else {
+                  LOG.error("No latest description for: " + nid);
+               }
+               break;
+            default:
+               LOG.error("Can't handle type in result display: "
+                       + Get.identifierService().getObjectTypeForComponent(nid) + " for: " + nid);
+         }
+
+      }
    }
 
    @FXML
@@ -234,8 +250,8 @@ public class QueryController
       }
 
       TreeItem<QueryClause> itemToProcess = this.root;
-      Clause                rootClause    = itemToProcess.getValue()
-                                                         .getClause();
+      Clause rootClause = itemToProcess.getValue()
+              .getClause();
 
       queryBuilder.setWhereRoot((ParentClause) rootClause);
       processQueryTreeItem(itemToProcess, queryBuilder);
@@ -247,41 +263,41 @@ public class QueryController
       NidSet results = query.compute();
 
       FxGet.statusMessageService()
-           .reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
+              .reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
       displayResults(results);
    }
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-      assert anchorPane != null: "fx:id=\"anchorPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert flowrAccordian != null: "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'Query.fxml'.";
-      assert forPane != null: "fx:id=\"forPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allComponents != null: "fx:id=\"allComponents\" was not injected: check your FXML file 'Query.fxml'.";
-      assert forGroup != null: "fx:id=\"forGroup\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allConcepts != null: "fx:id=\"allConcepts\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allDescriptions != null: "fx:id=\"allDescriptions\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allSememes != null: "fx:id=\"allSememes\" was not injected: check your FXML file 'Query.fxml'.";
-      assert letPane != null: "fx:id=\"letPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert orderPane != null: "fx:id=\"orderPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert wherePane != null: "fx:id=\"wherePane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert whereTreeTable != null: "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'Query.fxml'.";
-      assert clauseNameColumn != null:
-             "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert parameterColumn != null: "fx:id=\"parameterColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert returnPane != null: "fx:id=\"returnPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert executeButton != null: "fx:id=\"executeButton\" was not injected: check your FXML file 'Query.fxml'.";
-      assert progressBar != null: "fx:id=\"progressBar\" was not injected: check your FXML file 'Query.fxml'.";
-      assert cancelButton != null: "fx:id=\"cancelButton\" was not injected: check your FXML file 'Query.fxml'.";
-      assert resultTable != null: "fx:id=\"resultTable\" was not injected: check your FXML file 'Query.fxml'.";
-      assert textColumn != null: "fx:id=\"textColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert typeColumn != null: "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert languageColumn != null: "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert letAnchorPane != null: "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert flowrAccordian != null : "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'Query.fxml'.";
+      assert forPane != null : "fx:id=\"forPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert allComponents != null : "fx:id=\"allComponents\" was not injected: check your FXML file 'Query.fxml'.";
+      assert forGroup != null : "fx:id=\"forGroup\" was not injected: check your FXML file 'Query.fxml'.";
+      assert allConcepts != null : "fx:id=\"allConcepts\" was not injected: check your FXML file 'Query.fxml'.";
+      assert allDescriptions != null : "fx:id=\"allDescriptions\" was not injected: check your FXML file 'Query.fxml'.";
+      assert allSememes != null : "fx:id=\"allSememes\" was not injected: check your FXML file 'Query.fxml'.";
+      assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert whereTreeTable != null : "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'Query.fxml'.";
+      assert clauseNameColumn != null :
+              "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert parameterColumn != null : "fx:id=\"parameterColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'Query.fxml'.";
+      assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'Query.fxml'.";
+      assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'Query.fxml'.";
+      assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'Query.fxml'.";
+      assert textColumn != null : "fx:id=\"textColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert typeColumn != null : "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'Query.fxml'.";
       textColumn.setCellValueFactory(
-          (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
-                .textProperty());
+              (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
+                      .textProperty());
       textColumn.setCellFactory(
-          (TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
+              (TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
       resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       resultTable.setOnDragDone(new DragDoneEventHandler());
    }
@@ -290,11 +306,11 @@ public class QueryController
       TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       System.out.println(event.getSource()
-                              .getClass());
+              .getClass());
 
       ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
-      Clause        clause        = (Clause) conceptAction.getProperties()
-                                                          .get(CLAUSE);
+      Clause clause = (Clause) conceptAction.getProperties()
+              .get(CLAUSE);
 
       treeItem.getChildren()
               .add(new TreeItem<>(new QueryClause(clause, manifold)));
@@ -305,11 +321,11 @@ public class QueryController
       TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       System.out.println(event.getSource()
-                              .getClass());
+              .getClass());
 
       ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
-      Clause        clause        = (Clause) conceptAction.getProperties()
-                                                          .get(CLAUSE);
+      Clause clause = (Clause) conceptAction.getProperties()
+              .get(CLAUSE);
 
       treeItem.getParent()
               .getChildren()
@@ -321,11 +337,11 @@ public class QueryController
       TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       System.out.println(event.getSource()
-                              .getClass());
+              .getClass());
 
       ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
-      Clause        clause        = (Clause) conceptAction.getProperties()
-                                                          .get(CLAUSE);
+      Clause clause = (Clause) conceptAction.getProperties()
+              .get(CLAUSE);
 
       treeItem.setValue(new QueryClause(clause, manifold));
    }
@@ -347,6 +363,7 @@ public class QueryController
 
    /**
     * Recursive depth-first walk through the tree nodes.
+    *
     * @param itemToProcess
     */
    private void processQueryTreeItem(TreeItem<QueryClause> itemToProcess, QueryBuilder queryBuilder) {
@@ -354,19 +371,19 @@ public class QueryController
 
       if (itemToProcess.isLeaf()) {
 
-         if(clause.getClass().equals(AssemblageContainsConcept.class)){
+         if (clause.getClass().equals(AssemblageContainsConcept.class)) {
 
-         }else if(clause.getClass().equals(AssemblageContainsKindOfConcept.class)){
+         } else if (clause.getClass().equals(AssemblageContainsKindOfConcept.class)) {
 
-         }else if(clause.getClass().equals(AssemblageContainsString.class)){
+         } else if (clause.getClass().equals(AssemblageContainsString.class)) {
 
-         }else if(clause.getClass().equals(AssemblageLuceneMatch.class)){
+         } else if (clause.getClass().equals(AssemblageLuceneMatch.class)) {
 
-         }else if(clause.getClass().equals(ConceptForComponent.class)){
+         } else if (clause.getClass().equals(ConceptForComponent.class)) {
 
-         }else if(clause.getClass().equals(ConceptIs.class)){
+         } else if (clause.getClass().equals(ConceptIs.class)) {
 
-         }else if(clause.getClass().equals(ConceptIsChildOf.class)){
+         } else if (clause.getClass().equals(ConceptIsChildOf.class)) {
             QueryClauseParameter<ConceptSpecification> parameter = itemToProcess.getValue().parameter
                     .getValue();
             if (parameter == null) {
@@ -377,11 +394,11 @@ public class QueryController
             conceptIsChildOf.setChildOfSpecification(parameter.getParameter());
             conceptIsChildOf.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
-         }else if(clause.getClass().equals(ConceptIsDescendentOf.class)){
+         } else if (clause.getClass().equals(ConceptIsDescendentOf.class)) {
 
-         }else if(clause.getClass().equals(ConceptIsKindOf.class)){
+         } else if (clause.getClass().equals(ConceptIsKindOf.class)) {
 
-         }else if(clause.getClass().equals(DescriptionActiveLuceneMatch.class)){
+         } else if (clause.getClass().equals(DescriptionActiveLuceneMatch.class)) {
 
             QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
                     .getValue();
@@ -393,9 +410,9 @@ public class QueryController
             descriptionActiveLuceneMatch.setParameterString(parameter.getParameter());
             descriptionActiveLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
-         }else if(clause.getClass().equals(DescriptionActiveRegexMatch.class)){
+         } else if (clause.getClass().equals(DescriptionActiveRegexMatch.class)) {
 
-         }else if(clause.getClass().equals(DescriptionLuceneMatch.class)){
+         } else if (clause.getClass().equals(DescriptionLuceneMatch.class)) {
 
             QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
                     .getValue();
@@ -407,7 +424,7 @@ public class QueryController
             descriptionLuceneMatch.setParameterString(parameter.getParameter());
             descriptionLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
-         }else if(clause.getClass().equals(DescriptionRegexMatch.class)){
+         } else if (clause.getClass().equals(DescriptionRegexMatch.class)) {
 
             QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
                     .getValue();
@@ -419,17 +436,17 @@ public class QueryController
             descriptionRegexMatch.setParameterString(parameter.getParameter());
             descriptionRegexMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
-         }else if(clause.getClass().equals(ChangedFromPreviousVersion.class)){
+         } else if (clause.getClass().equals(ChangedFromPreviousVersion.class)) {
 
-         }else if(clause.getClass().equals(FullyQualifiedNameForConcept.class)){
+         } else if (clause.getClass().equals(FullyQualifiedNameForConcept.class)) {
 
-         }else if(clause.getClass().equals(PreferredNameForConcept.class)){
+         } else if (clause.getClass().equals(PreferredNameForConcept.class)) {
 
-         }else if(clause.getClass().equals(RelationshipIsCircular.class)){
+         } else if (clause.getClass().equals(RelationshipIsCircular.class)) {
 
-         }else if(clause.getClass().equals(RelRestriction.class)){
+         } else if (clause.getClass().equals(RelRestriction.class)) {
 
-         }else{
+         } else {
             System.out.println("Missed a clause!");
          }
 
@@ -454,31 +471,31 @@ public class QueryController
 
    private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {
       // Firstly, create a list of Actions
-      ArrayList<Action>           actionList = new ArrayList();
-      final TreeItem<QueryClause> treeItem   = rowValue.getTreeItem();
+      ArrayList<Action> actionList = new ArrayList();
+      final TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       if (treeItem != null) {
          QueryClause clause = treeItem.getValue();
 
          if (clause != null) {
-            Clause[] siblings     = clause.getClause()
-                                          .getAllowedSiblingClauses();
-            Clause[] children     = clause.getClause()
-                                          .getAllowedChildClauses();
+            Clause[] siblings = clause.getClause()
+                    .getAllowedSiblingClauses();
+            Clause[] children = clause.getClause()
+                    .getAllowedChildClauses();
             Clause[] substitution = clause.getClause()
-                                          .getAllowedSubstutitionClauses();
+                    .getAllowedSubstutitionClauses();
 
             if (siblings.length > 0) {
                ConceptAction[] actions = new ConceptAction[siblings.length];
 
                for (int i = 0; i < siblings.length; i++) {
                   actions[i] = new ConceptAction(
-                      siblings[i],
+                          siblings[i],
                           (ActionEvent event) -> {
                              addSiblingClause(event, rowValue);
                           });
                   actions[i].getProperties()
-                            .put(CLAUSE, siblings[i]);
+                          .put(CLAUSE, siblings[i]);
                }
 
                actionList.add(new ActionGroup("add sibling", actions));
@@ -489,12 +506,12 @@ public class QueryController
 
                for (int i = 0; i < children.length; i++) {
                   actions[i] = new ConceptAction(
-                      children[i],
+                          children[i],
                           (ActionEvent event) -> {
                              addChildClause(event, rowValue);
                           });
                   actions[i].getProperties()
-                            .put(CLAUSE, children[i]);
+                          .put(CLAUSE, children[i]);
                }
 
                actionList.add(new ActionGroup("add child", actions));
@@ -505,12 +522,12 @@ public class QueryController
 
                for (int i = 0; i < substitution.length; i++) {
                   actions[i] = new ConceptAction(
-                      substitution[i],
+                          substitution[i],
                           (ActionEvent event) -> {
                              changeClause(event, rowValue);
                           });
                   actions[i].getProperties()
-                            .put(CLAUSE, substitution[i]);
+                          .put(CLAUSE, substitution[i]);
                }
 
                actionList.add(new ActionGroup("change this clause", actions));
@@ -518,10 +535,10 @@ public class QueryController
 
             if ((treeItem.getParent() != this.root) || (this.root.getChildren().size() > 1)) {
                Action deleteAction = new Action(
-                                         "delete this clause",
-                                             (ActionEvent event) -> {
-                                                deleteClause(event, rowValue);
-                                             });
+                       "delete this clause",
+                       (ActionEvent event) -> {
+                          deleteClause(event, rowValue);
+                       });
 
                // deleteAction.setGraphic(GlyphFonts.fontAwesome().create('\uf013').color(Color.CORAL).size(28));
                actionList.add(deleteAction);
@@ -533,58 +550,57 @@ public class QueryController
    }
 
    private void updateStyle(@NotNull String item,
-                            boolean empty,
-                            TreeTableRow<QueryClause> ttr,
-                            TreeTableCell nodeToStyle) {
+           boolean empty,
+           TreeTableRow<QueryClause> ttr,
+           TreeTableCell nodeToStyle) {
       if (empty) {
          Arrays.stream(StyleClasses.values())
-               .forEach(styleClass -> ttr.getStyleClass()
-                                         .remove(styleClass.toString()));
+                 .forEach(styleClass -> ttr.getStyleClass()
+                 .remove(styleClass.toString()));
       } else {
          if (ttr.getItem() != null) {
             ConceptSpecification clauseConcept = ttr.getItem()
-                                                    .getClause()
-                                                    .getClauseConcept();
+                    .getClause()
+                    .getClauseConcept();
 
             if (clauseConcept.equals(TermAux.AND_QUERY_CLAUSE)) {
                ttr.getStyleClass()
-                  .remove(StyleClasses.OR_CLAUSE.toString());
+                       .remove(StyleClasses.OR_CLAUSE.toString());
                ttr.getStyleClass()
-                  .add(StyleClasses.AND_CLAUSE.toString());
+                       .add(StyleClasses.AND_CLAUSE.toString());
             } else if (clauseConcept.equals(TermAux.OR_QUERY_CLAUSE)) {
                ttr.getStyleClass()
-                  .add(StyleClasses.OR_CLAUSE.toString());
+                       .add(StyleClasses.OR_CLAUSE.toString());
                ttr.getStyleClass()
-                  .remove(StyleClasses.AND_CLAUSE.toString());
+                       .remove(StyleClasses.AND_CLAUSE.toString());
             }
          }
 
          TreeItem<QueryClause> rowItem = nodeToStyle.getTreeTableRow()
-                                                    .getTreeItem();
+                 .getTreeItem();
 
          if (rowItem != null) {
-            TreeItem<QueryClause> parentItem    = rowItem.getParent();
-            ConceptSpecification  parentConcept = parentItem.getValue()
-                                                            .getClause()
-                                                            .getClauseConcept();
+            TreeItem<QueryClause> parentItem = rowItem.getParent();
+            ConceptSpecification parentConcept = parentItem.getValue()
+                    .getClause()
+                    .getClauseConcept();
 
             if (parentConcept.equals(TermAux.AND_QUERY_CLAUSE)) {
                ttr.getStyleClass()
-                  .remove(StyleClasses.OR_CLAUSE_CHILD.toString());
+                       .remove(StyleClasses.OR_CLAUSE_CHILD.toString());
                ttr.getStyleClass()
-                  .add(StyleClasses.AND_CLAUSE_CHILD.toString());
+                       .add(StyleClasses.AND_CLAUSE_CHILD.toString());
             } else if (parentConcept.equals(TermAux.OR_QUERY_CLAUSE)) {
                ttr.getStyleClass()
-                  .add(StyleClasses.OR_CLAUSE_CHILD.toString());
+                       .add(StyleClasses.OR_CLAUSE_CHILD.toString());
                ttr.getStyleClass()
-                  .remove(StyleClasses.AND_CLAUSE_CHILD.toString());
+                       .remove(StyleClasses.AND_CLAUSE_CHILD.toString());
             }
          }
       }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
    public Optional<Node> getTitleNode() {
       Label titleLabel = new Label();
@@ -593,7 +609,6 @@ public class QueryController
       titleProperty.set("");
       return Optional.of(titleLabel);
    }
-   
 
    @Override
    public Manifold getManifold() {
@@ -601,46 +616,45 @@ public class QueryController
    }
 
    //~--- set methods ---------------------------------------------------------
-
    public void setManifold(Manifold manifold) {
       this.manifold = manifold;
-      this.root     = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold));
+      this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold));
 
       TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold));
 
       orTreeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold)));
+              .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold)));
       this.root.getChildren()
-               .add(orTreeItem);
+              .add(orTreeItem);
       orTreeItem.setExpanded(true);
       this.clauseNameColumn.setCellFactory(
-          (TreeTableColumn<QueryClause, String> p) -> {
-             TreeTableCell<QueryClause, String> cell = new TreeTableCell<QueryClause, String>() {
-                @Override
-                public void updateItem(String item, boolean empty) {
-                   super.updateItem(item, empty);
-                   setText(item);
+              (TreeTableColumn<QueryClause, String> p) -> {
+                 TreeTableCell<QueryClause, String> cell = new TreeTableCell<QueryClause, String>() {
+            @Override
+            public void updateItem(String item, boolean empty) {
+               super.updateItem(item, empty);
+               setText(item);
 
-                   TreeTableRow<QueryClause> rowValue = this.tableRowProperty()
-                                                            .getValue();
+               TreeTableRow<QueryClause> rowValue = this.tableRowProperty()
+                       .getValue();
 
-                   updateStyle(item, empty, getTreeTableRow(), this);
+               updateStyle(item, empty, getTreeTableRow(), this);
 
-                   if ((item != null) && OUTPUT_CSS_STYLE_INFO) {
-                      outputStyleInfo("updateItem: " + item, this);
-                   }
+               if ((item != null) && OUTPUT_CSS_STYLE_INFO) {
+                  outputStyleInfo("updateItem: " + item, this);
+               }
 
-                   setContextMenu(ActionUtils.createContextMenu(setupContextMenu(rowValue)));
-                }
-             };
+               setContextMenu(ActionUtils.createContextMenu(setupContextMenu(rowValue)));
+            }
+         };
 
-             return cell;
-          });
+                 return cell;
+              });
 
       // Given the data in the row, return the observable value for the column.
       this.clauseNameColumn.setCellValueFactory(
-          (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
-                .getValue().clauseName);
+              (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
+                      .getValue().clauseName);
 
       this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
       this.parameterColumn.setCellFactory(param -> new WhereParameterCell());
@@ -648,58 +662,57 @@ public class QueryController
       this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
       this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));
       this.typeColumn.setCellFactory(
-          column -> {
-             return new TableCell<ObservableDescriptionVersion, Integer>() {
-                @Override
-                protected void updateItem(Integer conceptSequence, boolean empty) {
-                   super.updateItem(conceptSequence, empty);
+              column -> {
+                 return new TableCell<ObservableDescriptionVersion, Integer>() {
+            @Override
+            protected void updateItem(Integer conceptSequence, boolean empty) {
+               super.updateItem(conceptSequence, empty);
 
-                   if ((conceptSequence == null) || empty) {
-                      setText(null);
-                      setStyle("");
-                   } else {
-                      setText(manifold.getPreferredDescriptionText(conceptSequence));
-                   }
-                }
-             };
-          });
+               if ((conceptSequence == null) || empty) {
+                  setText(null);
+                  setStyle("");
+               } else {
+                  setText(manifold.getPreferredDescriptionText(conceptSequence));
+               }
+            }
+         };
+              });
       this.languageColumn.setCellValueFactory(new PropertyValueFactory("languageConceptSequence"));
 
       // TODO: make concept description cell factory...
       this.languageColumn.setCellFactory(
-          column -> {
-             return new TableCell<ObservableDescriptionVersion, Integer>() {
-                @Override
-                protected void updateItem(Integer conceptSequence, boolean empty) {
-                   super.updateItem(conceptSequence, empty);
+              column -> {
+                 return new TableCell<ObservableDescriptionVersion, Integer>() {
+            @Override
+            protected void updateItem(Integer conceptSequence, boolean empty) {
+               super.updateItem(conceptSequence, empty);
 
-                   if ((conceptSequence == null) || empty) {
-                      setText(null);
-                      setStyle("");
-                   } else {
-                      setText(manifold.getPreferredDescriptionText(conceptSequence));
-                   }
-                }
-             };
-          });
+               if ((conceptSequence == null) || empty) {
+                  setText(null);
+                  setStyle("");
+               } else {
+                  setText(manifold.getPreferredDescriptionText(conceptSequence));
+               }
+            }
+         };
+              });
       resultTable.getSelectionModel()
-                 .selectedItemProperty()
-                 .addListener(
-                     (obs, oldSelection, newSelection) -> {
-                        if (newSelection != null) {
-                           manifold.setFocusedConceptChronology(
-                               Get.conceptService()
-                                  .getConceptChronology(newSelection.getReferencedComponentNid()));
-                        }
-                     });
+              .selectedItemProperty()
+              .addListener(
+                      (obs, oldSelection, newSelection) -> {
+                         if (newSelection != null) {
+                            manifold.setFocusedConceptChronology(
+                                    Get.conceptService()
+                                            .getConceptChronology(newSelection.getReferencedComponentNid()));
+                         }
+                      });
 
       letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
       this.letAnchorPane.getChildren()
-                        .add(letPropertySheet.getPropertySheet());
+              .add(letPropertySheet.getPropertySheet());
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
    public Node getNode() {
       flowrAccordian.setExpandedPane(wherePane);
@@ -716,4 +729,3 @@ public class QueryController
       return toolTipProperty;
    }
 }
-

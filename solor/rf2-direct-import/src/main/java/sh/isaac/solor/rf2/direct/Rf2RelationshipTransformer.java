@@ -19,7 +19,6 @@ package sh.isaac.solor.rf2.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,9 +90,6 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          conceptElementSequence_InferredRelationshipNids_Map.forEach((int conceptElementSequence, int[] value) -> {
             int conceptNid = containerService.getNidForElementSequence(conceptElementSequence, conceptAssemblageNid);
-            if (conceptNid == Get.identifierService().getNidForUuids(UUID.fromString("60b19022-d5ab-3414-ba69-dad0229624e3"))) {
-               System.out.println("Found Congenital absence 2. ");
-            }
             if (conceptNid < 0) {
                inferredTransformList.add(new TransformationGroup(conceptNid, value, PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {
