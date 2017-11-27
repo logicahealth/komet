@@ -70,6 +70,10 @@ import sh.isaac.api.chronicle.Chronology;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveLuceneMatch
         extends DescriptionLuceneMatch {
+
+   private String parameterString;
+   private ManifoldCoordinate manifoldCoordinate;
+
    /**
     * Instantiates a new description active lucene match.
     */
@@ -88,6 +92,17 @@ public class DescriptionActiveLuceneMatch
 
    //~--- methods -------------------------------------------------------------
 
+
+   @Override
+   public void setParameterString(String parameterString) {
+      this.parameterString = parameterString;
+   }
+
+   @Override
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
+
    /**
     * Compute components.
     *
@@ -96,8 +111,6 @@ public class DescriptionActiveLuceneMatch
     */
    @Override
    public final NidSet computeComponents(NidSet incomingComponents) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
 
       getResultsCache().and(incomingComponents);
       incomingComponents.stream().forEach((nid) -> {
@@ -107,7 +120,7 @@ public class DescriptionActiveLuceneMatch
 
                                     if (chronology.isPresent()) {
                                        if (!chronology.get()
-                                             .isLatestVersionActive(manifoldCoordinate.getStampCoordinate())) {
+                                             .isLatestVersionActive(this.manifoldCoordinate.getStampCoordinate())) {
                                           getResultsCache().remove(nid);
                                        }
                                     } else {

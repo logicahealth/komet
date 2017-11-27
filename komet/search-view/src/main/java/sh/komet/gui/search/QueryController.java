@@ -59,11 +59,7 @@ package sh.komet.gui.search;
  */
 import java.net.URL;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -97,6 +93,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
@@ -106,7 +103,7 @@ import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
-import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.api.query.clauses.*;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.action.ConceptAction;
@@ -197,7 +194,9 @@ public class QueryController
 
       tableItems.clear();
 
-      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.letPropertySheet.getManifold());
+      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
+
+//      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.letPropertySheet.getManifold());
 
       descriptionNids.stream()
                      .forEach(
@@ -351,16 +350,53 @@ public class QueryController
     * @param itemToProcess
     */
    private void processQueryTreeItem(TreeItem<QueryClause> itemToProcess, QueryBuilder queryBuilder) {
-      Clause clause = itemToProcess.getValue()
-                                   .getClause();
+      Clause clause = itemToProcess.getValue().getClause();
 
       if (itemToProcess.isLeaf()) {
 
-         int    row       = whereTreeTable.getRow(itemToProcess);
+         if(clause.getClass().equals(AssemblageContainsConcept.class)){
 
-         switch (clause.getClass()
-                       .getSimpleName()) {
-         case "DescriptionLuceneMatch":
+         }else if(clause.getClass().equals(AssemblageContainsKindOfConcept.class)){
+
+         }else if(clause.getClass().equals(AssemblageContainsString.class)){
+
+         }else if(clause.getClass().equals(AssemblageLuceneMatch.class)){
+
+         }else if(clause.getClass().equals(ConceptForComponent.class)){
+
+         }else if(clause.getClass().equals(ConceptIs.class)){
+
+         }else if(clause.getClass().equals(ConceptIsChildOf.class)){
+            QueryClauseParameter<ConceptSpecification> parameter = itemToProcess.getValue().parameter
+                    .getValue();
+            if (parameter == null) {
+               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
+            }
+
+            ConceptIsChildOf conceptIsChildOf = (ConceptIsChildOf) clause;
+            conceptIsChildOf.setChildOfSpecification(parameter.getParameter());
+            conceptIsChildOf.setManifoldCoordinate(this.letPropertySheet.getManifold());
+
+         }else if(clause.getClass().equals(ConceptIsDescendentOf.class)){
+
+         }else if(clause.getClass().equals(ConceptIsKindOf.class)){
+
+         }else if(clause.getClass().equals(DescriptionActiveLuceneMatch.class)){
+
+            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
+                    .getValue();
+            if (parameter == null) {
+               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
+            }
+
+            DescriptionActiveLuceneMatch descriptionActiveLuceneMatch = (DescriptionActiveLuceneMatch) clause;
+            descriptionActiveLuceneMatch.setParameterString(parameter.getParameter());
+            descriptionActiveLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
+
+         }else if(clause.getClass().equals(DescriptionActiveRegexMatch.class)){
+
+         }else if(clause.getClass().equals(DescriptionLuceneMatch.class)){
+
             QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
                     .getValue();
             if (parameter == null) {
@@ -368,30 +404,51 @@ public class QueryController
             }
 
             DescriptionLuceneMatch descriptionLuceneMatch = (DescriptionLuceneMatch) clause;
-            String                 parameterKey = clause.getClass()
-                                                        .getSimpleName() + "-" + queryBuilder.getSequence();
+            descriptionLuceneMatch.setParameterString(parameter.getParameter());
+            descriptionLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
-            descriptionLuceneMatch.setLuceneMatchKey(parameterKey);
-            queryBuilder.let(parameterKey, parameter.getParameter());
-            descriptionLuceneMatch.setViewCoordinateKey(DEFAULT_MANIFOLD_COORDINATE_KEY);
-            break;
+         }else if(clause.getClass().equals(DescriptionRegexMatch.class)){
+
+            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
+                    .getValue();
+            if (parameter == null) {
+               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
+            }
+
+            DescriptionRegexMatch descriptionRegexMatch = (DescriptionRegexMatch) clause;
+            descriptionRegexMatch.setParameterString(parameter.getParameter());
+            descriptionRegexMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
+
+         }else if(clause.getClass().equals(ChangedFromPreviousVersion.class)){
+
+         }else if(clause.getClass().equals(FullyQualifiedNameForConcept.class)){
+
+         }else if(clause.getClass().equals(PreferredNameForConcept.class)){
+
+         }else if(clause.getClass().equals(RelationshipIsCircular.class)){
+
+         }else if(clause.getClass().equals(RelRestriction.class)){
+
+         }else{
+            System.out.println("Missed a clause!");
          }
+
       } else {
          ParentClause parent = (ParentClause) clause;
 
          itemToProcess.getChildren()
-                      .stream()
-                      .map(
-                          (child) -> {
-                             parent.getChildren()
-                                   .add(child.getValue()
-                                             .getClause());
-                             return child;
-                          })
-                      .forEachOrdered(
-                          (child) -> {
-                             processQueryTreeItem(child, queryBuilder);
-                          });
+                 .stream()
+                 .map(
+                         (child) -> {
+                            parent.getChildren()
+                                    .add(child.getValue()
+                                            .getClause());
+                            return child;
+                         })
+                 .forEachOrdered(
+                         (child) -> {
+                            processQueryTreeItem(child, queryBuilder);
+                         });
       }
    }
 

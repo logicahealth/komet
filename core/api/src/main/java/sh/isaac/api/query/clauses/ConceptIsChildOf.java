@@ -86,6 +86,9 @@ public class ConceptIsChildOf
    @XmlElement
    String viewCoordinateKey;
 
+   private ConceptSpecification childOfSpecification;
+   private ManifoldCoordinate manifoldCoordinate;
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -116,19 +119,24 @@ public class ConceptIsChildOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-              .get(this.viewCoordinateKey);
-      final ConceptSpecification childOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-              .get(this.childOfSpecKey);
-      final int parentNid = childOfSpec.getNid();
+      final int parentNid = this.childOfSpecification.getNid();
       final NidSet childrenOfSequenceSet =
               NidSet.of(
-                      Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildNids(parentNid));
+                      Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildNids(parentNid));
       getResultsCache().or(childrenOfSequenceSet);
       return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------
+
+
+   public void setChildOfSpecification(ConceptSpecification childOfSpecification) {
+      this.childOfSpecification = childOfSpecification;
+   }
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
 
    /**
     * Gets the compute phases.
