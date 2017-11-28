@@ -49,6 +49,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
+import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -63,7 +66,9 @@ import sh.komet.gui.manifold.Manifold;
 public class SimpleSearchExplorationNode
          implements ExplorationNode {
    private final SimpleStringProperty titleProperty = new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-   Label                              node          = new Label("Not yet implemented");
+   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
+   private AnchorPane anchorPane = new AnchorPane();
+   private GridPane node = new GridPane();
    SimpleStringProperty               toolTipText   = new SimpleStringProperty("Simple Search Panel");
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
                                                                Iconography.SIMPLE_SEARCH.getIconographic());
@@ -81,7 +86,8 @@ public class SimpleSearchExplorationNode
    public Optional<Node> getTitleNode() {
       Label titleLabel = new Label();
       titleLabel.graphicProperty().bind(iconProperty);
-      titleLabel.textProperty().bind(titleProperty);
+      titleLabel.textProperty().bind(titleNodeProperty);
+      titleProperty.set("");
       return Optional.of(titleLabel);
    }
  
@@ -92,6 +98,18 @@ public class SimpleSearchExplorationNode
 
    @Override
    public Node getNode() {
+
+      node.add(new Label("Simple Search:"), 0, 0);
+      node.add(new TextField(), 1, 0);
+
+      AnchorPane.setBottomAnchor(this.node, 10.0);
+      AnchorPane.setTopAnchor(this.node, 10.0);
+      AnchorPane.setLeftAnchor(this.node, 10.0);
+      AnchorPane.setRightAnchor(this.node, 10.0);
+
+      anchorPane.getChildren().add(node);
+
+
       return node;
    }
 

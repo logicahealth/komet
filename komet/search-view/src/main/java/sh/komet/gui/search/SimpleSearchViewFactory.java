@@ -29,10 +29,7 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-/**
- *
- * @author kec
- */
+
 @Service(name = "Simple Search Provider")
 @RunLevel(value = 1)
 public class SimpleSearchViewFactory implements ExplorationNodeFactory {
