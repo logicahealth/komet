@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.search;
+package sh.komet.gui.search.flowr;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -33,18 +33,18 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Service(name = "FLOWR Search Provider")
 @RunLevel(value = 1)
-public class QueryViewFactory implements ExplorationNodeFactory {
+public class FLOWRQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLOWR Query";
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       try {
-         FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/Query.fxml"));
+         FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/FLOWRQuery.fxml"));
          loader.load();
-         QueryController queryController = loader.getController();
-         queryController.setManifold(manifold);
-         nodeConsumer.accept(queryController.getNode());
-         return queryController;
+         FLOWRQueryController FLOWRQueryController = loader.getController();
+         FLOWRQueryController.setManifold(manifold);
+         nodeConsumer.accept(FLOWRQueryController.getNode());
+         return FLOWRQueryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
