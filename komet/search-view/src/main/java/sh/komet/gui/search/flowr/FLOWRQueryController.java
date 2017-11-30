@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.search;
+package sh.komet.gui.search.flowr;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -114,7 +114,7 @@ import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
-public class QueryController
+public class FLOWRQueryController
         implements ExplorationNode {
 
    private static final Logger LOG = LogManager.getLogger();
@@ -123,8 +123,8 @@ public class QueryController
 
    //~--- fields --------------------------------------------------------------
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
-   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty(FLOWRQueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(FLOWRQueryViewFactory.MENU_TEXT);
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
            Iconography.FLOWR_SEARCH.getIconographic());
    @FXML  // ResourceBundle that was given to the FXMLLoader
@@ -269,30 +269,30 @@ public class QueryController
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-      assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert flowrAccordian != null : "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'Query.fxml'.";
-      assert forPane != null : "fx:id=\"forPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allComponents != null : "fx:id=\"allComponents\" was not injected: check your FXML file 'Query.fxml'.";
-      assert forGroup != null : "fx:id=\"forGroup\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allConcepts != null : "fx:id=\"allConcepts\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allDescriptions != null : "fx:id=\"allDescriptions\" was not injected: check your FXML file 'Query.fxml'.";
-      assert allSememes != null : "fx:id=\"allSememes\" was not injected: check your FXML file 'Query.fxml'.";
-      assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert whereTreeTable != null : "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'Query.fxml'.";
+      assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert flowrAccordian != null : "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert forPane != null : "fx:id=\"forPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allComponents != null : "fx:id=\"allComponents\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert forGroup != null : "fx:id=\"forGroup\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allConcepts != null : "fx:id=\"allConcepts\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allDescriptions != null : "fx:id=\"allDescriptions\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allSememes != null : "fx:id=\"allSememes\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert whereTreeTable != null : "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert clauseNameColumn != null :
-              "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert parameterColumn != null : "fx:id=\"parameterColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'Query.fxml'.";
-      assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'Query.fxml'.";
-      assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'Query.fxml'.";
-      assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'Query.fxml'.";
-      assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'Query.fxml'.";
-      assert textColumn != null : "fx:id=\"textColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert typeColumn != null : "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'Query.fxml'.";
+              "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert parameterColumn != null : "fx:id=\"parameterColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert textColumn != null : "fx:id=\"textColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert typeColumn != null : "fx:id=\"typeColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       textColumn.setCellValueFactory(
               (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
                       .textProperty());

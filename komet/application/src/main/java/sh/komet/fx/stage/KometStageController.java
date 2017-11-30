@@ -84,8 +84,8 @@ import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.QueryViewFactory;
-import sh.komet.gui.search.SimpleSearchViewFactory;
+import sh.komet.gui.search.flowr.FLOWRQueryViewFactory;
+import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNodeFactory;
@@ -461,14 +461,14 @@ public class KometStageController
 
          if (tabPanelCount == 3) {
             // add FLOWR query flowrTab
-            QueryViewFactory queryViewFactory = new QueryViewFactory();
+            FLOWRQueryViewFactory FLOWRQueryViewFactory = new FLOWRQueryViewFactory();
             Tab flowrTab = new Tab();
 
-            flowrTab.setGraphic(queryViewFactory.getMenuIcon());
+            flowrTab.setGraphic(FLOWRQueryViewFactory.getMenuIcon());
             flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
 
             BorderPane searchPane = new BorderPane();
-            ExplorationNode explorationNode = queryViewFactory.createExplorationNode(
+            ExplorationNode explorationNode = FLOWRQueryViewFactory.createExplorationNode(
                     FLOWR_MANIFOLD,
                     (theNewExplorationNode) -> {
                        searchPane.setCenter(theNewExplorationNode);

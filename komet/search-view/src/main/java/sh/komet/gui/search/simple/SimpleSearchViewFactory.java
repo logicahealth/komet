@@ -14,9 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.search;
+package sh.komet.gui.search.simple;
 
+import java.io.IOException;
 import java.util.function.Consumer;
+
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
@@ -24,15 +27,13 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.search.flowr.FLOWRQueryController;
 
 /**
  *
  * @author kec
  */
-/**
- *
- * @author kec
- */
+
 @Service(name = "Simple Search Provider")
 @RunLevel(value = 1)
 public class SimpleSearchViewFactory implements ExplorationNodeFactory {
@@ -40,9 +41,16 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
 
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
-      SimpleSearchExplorationNode explorationNode = new SimpleSearchExplorationNode(manifold);
-      nodeConsumer.accept(explorationNode.getNode());
-      return explorationNode; 
+      try {
+         FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/SimpleSearch.fxml"));
+         loader.load();
+         SimpleSearchController simpleSearchController = loader.getController();
+         simpleSearchController.setManifold(manifold);
+         nodeConsumer.accept(simpleSearchController.getNode());
+         return simpleSearchController;
+      } catch (IOException ex) {
+         throw new RuntimeException(ex);
+      }
    }
 
    @Override
