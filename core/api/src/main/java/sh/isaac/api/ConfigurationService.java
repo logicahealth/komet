@@ -67,7 +67,7 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  * An interface used for system configuration. Services started by the
  * {@link LookupService} will utilize an implementation of this service in order
  * to configure themselves.
- *
+ * TODO consider how to manage a separation with the preferences service. 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract

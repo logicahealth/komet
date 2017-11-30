@@ -137,7 +137,7 @@ public class SpinedNidNidSetMap {
       return spine;
    }
 
-   private void put(int index, int[] element) {
+   public void put(int index, int[] element) {
       if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }

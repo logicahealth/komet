@@ -60,7 +60,7 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
  * @author kec
  */
 @Contract
-public interface PathService {
+public interface VersionManagmentPathService {
    /**
     * Exists.
     *

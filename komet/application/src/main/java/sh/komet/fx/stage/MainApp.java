@@ -37,11 +37,6 @@
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.net.MalformedURLException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import java.util.UUID;
 
@@ -61,16 +56,12 @@ import javafx.stage.WindowEvent;
 import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
-import java.io.File;
 
 import sh.isaac.api.LookupService;
-import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.util.FxGet;
 
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
-import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
@@ -103,61 +94,6 @@ public class MainApp
            throws Exception {
       // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
       SvgImageLoaderFactory.install();
-
-      if (Files.exists(Paths.get("target", "data", "meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/meta-db.data");
-      } else if (Files.exists(Paths.get("target", "data", "solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/solor-db.data");
-      } else if (Files.exists(Paths.get("data", "meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/meta-db.data");
-      } else if (Files.exists(Paths.get("data", "solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/solor-db.data");
-      } else if (Files.exists(Paths.get("meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "meta-db.data");
-      } else if (Files.exists(Paths.get("solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "solor-db.data");
-      } else {
-         throw new UnsupportedOperationException(
-                 "Can't find data directory... Working dir: " + System.getProperty("user.dir"));
-      }
-
-      if (Files.exists(Paths.get("target", "data"))) {
-         File importPath = new File("target", "to_import");
-         importPath.mkdirs();
-         File afterImportPath = new File("target", "completed_import");
-         afterImportPath.mkdirs();
-         System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-         System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
-      } else {
-         File importPath = new File("to_import");
-         importPath.mkdirs();
-         File afterImportPath = new File("completed_import");
-         afterImportPath.mkdirs();
-         System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-         System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
-      }
-      // /Users/kec/isaac/semiotic-history/isaac/komet/css/src/main/resources/user.css
-      if (setPropertyIfFileExists(
-              USER_CSS_LOCATION_PROPERTY,
-              Paths.get(
-                      "/Users",
-                      "kec",
-                      "isaac",
-                      "semiotic-history",
-                      "isaac",
-                      "komet",
-                      "css",
-                      "src",
-                      "main",
-                      "resources",
-                      "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {
-      } else {
-         throw new UnsupportedOperationException(
-                 "Can't find user.css file... Working dir: " + System.getProperty("user.dir"));
-      }
 
       LookupService.startupIsaac();
 
@@ -202,23 +138,5 @@ public class MainApp
       LookupService.shutdownSystem();
       Platform.exit();
       System.exit(0);
-
-   }
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    *
-    * @return true if the file existed, and the property was set.
-    */
-   private boolean setPropertyIfFileExists(String property, Path filePath)
-           throws MalformedURLException {
-      if (Files.exists(filePath)) {
-         System.setProperty(property, filePath.toUri()
-                 .toURL()
-                 .toString());
-         return true;
-      }
-
-      return false;
    }
 }

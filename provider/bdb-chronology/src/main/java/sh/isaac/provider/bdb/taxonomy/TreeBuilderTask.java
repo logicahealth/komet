@@ -65,7 +65,6 @@ public class TreeBuilderTask
    private final AtomicInteger             conceptsProcessed = new AtomicInteger();
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
-   private final StampedLock               stampedLock;
    private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
@@ -73,8 +72,7 @@ public class TreeBuilderTask
    //~--- constructors --------------------------------------------------------
 
    public TreeBuilderTask(SpinedIntIntArrayMap originDestinationTaxonomyRecordMap,
-                          ManifoldCoordinate manifoldCoordinate,
-                          StampedLock stampedLock) {
+                          ManifoldCoordinate manifoldCoordinate) {
       if (originDestinationTaxonomyRecordMap == null) {
          throw new IllegalStateException("originDestinationTaxonomyRecordMap cannot be null");
       }
@@ -85,7 +83,6 @@ public class TreeBuilderTask
       this.conceptCount = (int) Get.identifierService()
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
-      this.stampedLock                        = stampedLock;
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
       this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyType() + " snapshot");
       this.setProgressMessageGenerator(
@@ -106,21 +103,7 @@ public class TreeBuilderTask
    protected Tree call()
             throws Exception {
       try {
-         long stamp = this.stampedLock.tryOptimisticRead();
-         Tree tree  = compute();
-
-         if (this.stampedLock.validate(stamp)) {
-            return tree;
-         }
-
-         stamp = this.stampedLock.readLock();
-         this.addToTotalWork(conceptCount);
-
-         try {
-            return compute();
-         } finally {
-            this.stampedLock.unlock(stamp);
-         }
+         return compute();
       } finally {
          Get.activeTasks()
             .remove(this);

@@ -48,9 +48,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.StampedLock;
+import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -91,7 +90,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.task.TaskWrapper;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
@@ -110,7 +108,7 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = 5)
 public class BdbTaxonomyProvider
          implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
    /**
@@ -120,13 +118,11 @@ public class BdbTaxonomyProvider
 
    //~--- fields --------------------------------------------------------------
 
-   /**
-    * The stamped lock.
-    */
-   private final StampedLock stampedLock = new StampedLock();
+   private static final int MAX_AVAILABLE = Runtime.getRuntime().availableProcessors() * 2;
+   private final Semaphore updatePermits = new Semaphore(MAX_AVAILABLE);
 
    /**
-    * The semantic sequences for unhandled changes.
+    * The semantic nids for unhandled changes.
     */
    private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
 
@@ -180,8 +176,8 @@ public class BdbTaxonomyProvider
       if (this.semanticNidsForUnhandledChanges.size() > 0) {
          this.snapshotCache.clear();
       }
-
-      UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.stampedLock);
+      this.updatePermits.acquireUninterruptibly();
+      UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
    }
 
    @Override
@@ -235,7 +231,10 @@ public class BdbTaxonomyProvider
     */
    @PreDestroy
    private void stopMe() {
-//    handled by bdb;
+      LOG.info("Stopping BdbTaxonomyProvider");
+      // make sure updates are done prior to allowing other services to stop. 
+      this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
+      LOG.info("BdbTaxonomyProvider stopped");
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -248,7 +247,6 @@ public class BdbTaxonomyProvider
 
    @Override
    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      long                 stamp                                = this.stampedLock.tryOptimisticRead();
       int                  assemblageNid                        = identifierService.getAssemblageNidForNid(conceptNid);
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(assemblageNid);
       int[]                taxonomyData                         = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
@@ -258,20 +256,7 @@ public class BdbTaxonomyProvider
       }
 
       TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
-
-      if (this.stampedLock.validate(stamp)) {
-         return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
-      }
-
-      stamp = this.stampedLock.readLock();
-
-      try {
-         taxonomyData   = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
-         taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
-         return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
-      } finally {
-         this.stampedLock.unlock(stamp);
-      }
+      return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
    }
 
    @Override
@@ -341,7 +326,7 @@ public class BdbTaxonomyProvider
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(
                                                                       tc.getLogicCoordinate()
                                                                             .getConceptAssemblageNid());
-      TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc, stampedLock);
+      TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
 
 //    Task<Tree>      previousTask    = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
 //

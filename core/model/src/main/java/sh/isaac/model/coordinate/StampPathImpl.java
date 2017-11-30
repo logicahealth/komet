@@ -108,7 +108,7 @@ public class StampPathImpl
     */
    @Override
    public Collection<? extends StampPosition> getPathOrigins() {
-      return Get.pathService()
+      return Get.versionManagmentPathService()
                 .getOrigins(this.pathConceptSequence);
    }
 }

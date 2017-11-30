@@ -1,222 +1,227 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>sh.isaac</groupId>
-        <artifactId>integration</artifactId>
-        <version>4.42-SNAPSHOT</version>
-    </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>sh.isaac</groupId>
+      <artifactId>integration</artifactId>
+      <version>4.42-SNAPSHOT</version>
+   </parent>
 
-    <groupId>sh.isaac.integration</groupId>
-    <artifactId>db-builder</artifactId>
-    <packaging>pom</packaging>
-    <name>ISAAC integration: Database builder</name>
+   <groupId>sh.isaac.integration</groupId>
+   <artifactId>db-builder</artifactId>
+   <packaging>pom</packaging>
+   <name>ISAAC integration: Database builder</name>
     
-    <properties>
-        <!-- this should be overridden by a sub-mojo, if necessary - don't change it here -->
-        <resultArtifactClassifier />
-        <inParent>true</inParent>
-        <chronicles.type>cradle.zip</chronicles.type>
-        <index.type>lucene.zip</index.type>
-    </properties>
+   <properties>
+      <!-- this should be overridden by a sub-mojo, if necessary - don't change it here -->
+      <resultArtifactClassifier />
+      <inParent>true</inParent>
+      <chronicles.type>cradle.zip</chronicles.type>
+      <index.type>lucene.zip</index.type>
+   </properties>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>sh.isaac.core</groupId>
-                    <artifactId>mojo</artifactId>
-                    <version>${project.parent.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>sh.isaac.core</groupId>
-                            <artifactId>model</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>ibdf</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>commit</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>stamp</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                       <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>bdb-chronology</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>progress</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>coordinate</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>path</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>logic</artifactId>
-                            <version>${project.parent.version}</version>
-                            <exclusions>
-                               <exclusion>
-                                 <groupId>sh.isaac.provider</groupId>
-                                 <artifactId>taxonomy</artifactId>
-                               </exclusion>
-                           </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>query</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.core</groupId>
-                            <artifactId>log-config</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <!-- Note that all of these plugins are configured to not run during the building of this parent pom - they only execute during child pom building -->
+   <build>
+      <pluginManagement>
+         <plugins>
             <plugin>
-                <!-- metadata we want in the output package -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy metadata files</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <skip>${inParent}</skip>
-                            <target>
-                                <!-- Copy the things necessary to reproduce the build -->
-                                <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/">
-                                    <fileset dir="${basedir}">
-                                        <include name="*.txt" />
-                                        <include name="*.xml" />
-                                    </fileset>
-                                    <fileset dir="${basedir}">
-                                        <include name="src/**/*" />
-                                    </fileset>
-                                </copy>
-                                
-                                <!-- Create a file with the active build properties -->
-                                <echoproperties destfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
-                                
-                                <!-- Setup the manifest, copy the license files -->
-                                <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
-                                    <fileset dir="${basedir}">
-                                        <include name="LICENSE.txt" />
-                                        <include name="NOTICE.txt" />
-                                    </fileset>
-                                </copy>
-                                
-                                <!-- Write a manifest file, with properties filled in -->
-                                <copy filtering="true" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
-                                    <fileset dir="${basedir}/src/assembly/">
-                                        <include name="MANIFEST.MF" />
-                                    </fileset>
-                                    <filterset begintoken="${" endtoken="}" filtersfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
-                                </copy>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
+               <groupId>sh.isaac.core</groupId>
+               <artifactId>mojo</artifactId>
+               <version>${project.parent.version}</version>
+               <dependencies>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>preferences</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.core</groupId>
+                     <artifactId>model</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>ibdf</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>commit</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>stamp</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>bdb-chronology</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>progress</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>coordinate</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>path</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>logic</artifactId>
+                     <version>${project.parent.version}</version>
+                     <exclusions>
+                        <exclusion>
+                           <groupId>sh.isaac.provider</groupId>
+                           <artifactId>taxonomy</artifactId>
+                        </exclusion>
+                     </exclusions>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>query</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.core</groupId>
+                     <artifactId>log-config</artifactId>
+                     <version>${project.parent.version}</version>
+                  </dependency>
+               </dependencies>
             </plugin>
+         </plugins>
+      </pluginManagement>
+      <plugins>
+         <!-- Note that all of these plugins are configured to not run during the building of this parent pom - they only execute during child pom building -->
+         <plugin>
+            <!-- metadata we want in the output package -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>copy metadata files</id>
+                  <phase>generate-sources</phase>
+                  <configuration>
+                     <skip>${inParent}</skip>
+                     <target>
+                        <!-- Copy the things necessary to reproduce the build -->
+                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/">
+                           <fileset dir="${basedir}">
+                              <include name="*.txt" />
+                              <include name="*.xml" />
+                           </fileset>
+                           <fileset dir="${basedir}">
+                              <include name="src/**/*" />
+                           </fileset>
+                        </copy>
+                                
+                        <!-- Create a file with the active build properties -->
+                        <echoproperties destfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
+                                
+                        <!-- Setup the manifest, copy the license files -->
+                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
+                           <fileset dir="${basedir}">
+                              <include name="LICENSE.txt" />
+                              <include name="NOTICE.txt" />
+                           </fileset>
+                        </copy>
+                                
+                        <!-- Write a manifest file, with properties filled in -->
+                        <copy filtering="true" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
+                           <fileset dir="${basedir}/src/assembly/">
+                              <include name="MANIFEST.MF" />
+                           </fileset>
+                           <filterset begintoken="${" endtoken="}" filtersfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
+                        </copy>
+                     </target>
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
             
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>zip</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <skipAssembly>${inParent}</skipAssembly>
-                            <descriptors>
-                                <descriptor>${basedir}/src/assembly/cradle.xml</descriptor>
-                                <descriptor>${basedir}/src/assembly/lucene.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                            <encoding>UTF-8</encoding>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <!-- create a property for the classifier (if the classifier property is set) that has a leading hyphen -->
-                    <execution>
-                        <id>regex-property</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>regex-property</goal>
-                        </goals>
-                        <configuration>
-                            <skipAttach>${inParent}</skipAttach>
-                            <!-- If we match just a hyphen (no classifier) then replace (blank) otherwise, we get the 'value' which has a prefixed hyphen -->
-                            <name>resultArtifactClassifierWithLeadingHyphen</name>
-                            <value>-${resultArtifactClassifier}</value>
-                            <regex>^-$</regex>
-                            <replacement>${resultArtifactClassifier}</replacement>
-                            <failIfNoMatch>false</failIfNoMatch>
-                        </configuration>
-                    </execution>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>zip</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <skipAssembly>${inParent}</skipAssembly>
+                     <descriptors>
+                        <descriptor>${basedir}/src/assembly/cradle.xml</descriptor>
+                        <descriptor>${basedir}/src/assembly/lucene.xml</descriptor>
+                     </descriptors>
+                     <attach>false</attach>
+                     <encoding>UTF-8</encoding>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+               <!-- create a property for the classifier (if the classifier property is set) that has a leading hyphen -->
+               <execution>
+                  <id>regex-property</id>
+                  <phase>initialize</phase>
+                  <goals>
+                     <goal>regex-property</goal>
+                  </goals>
+                  <configuration>
+                     <skipAttach>${inParent}</skipAttach>
+                     <!-- If we match just a hyphen (no classifier) then replace (blank) otherwise, we get the 'value' which has a prefixed hyphen -->
+                     <name>resultArtifactClassifierWithLeadingHyphen</name>
+                     <value>-${resultArtifactClassifier}</value>
+                     <regex>^-$</regex>
+                     <replacement>${resultArtifactClassifier}</replacement>
+                     <failIfNoMatch>false</failIfNoMatch>
+                  </configuration>
+               </execution>
 
-                    <execution>
-                        <id>attach-artifact</id>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <skipAttach>${inParent}</skipAttach>
-                            <artifacts>
-                                <artifact>
-                                    <type>${chronicles.type}</type>
-                                    <!-- Note that the assembly plugin doesn't use the same classifier - we hack the classifier it returns to be a mis
-                                    mash of classifier and part of type.  So there is always a classifier on the produced zip file, even if no classifier
-                                    was specified by the user.  During artifact attachment, this classifier/type mess is corrected. -->
-                                    <file>${project.build.directory}/${project.build.finalName}-${resultArtifactClassifier}.cradle.zip</file>
-                                    <classifier>${resultArtifactClassifier}</classifier>
-                                </artifact>
-                                <artifact>
-                                    <type>${index.type}</type>
-                                    <!-- Note that the assembly plugin doesn't use the same classifier - we hack the classifier it returns to be a mis
-                                    mash of classifier and part of type.  So there is always a classifier on the produced zip file, even if no classifier
-                                    was specified by the user.  During artifact attachment, this classifier/type mess is corrected. -->
-                                    <file>${project.build.directory}/${project.build.finalName}-${resultArtifactClassifier}.lucene.zip</file>
-                                    <classifier>${resultArtifactClassifier}</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+               <execution>
+                  <id>attach-artifact</id>
+                  <goals>
+                     <goal>attach-artifact</goal>
+                  </goals>
+                  <configuration>
+                     <skipAttach>${inParent}</skipAttach>
+                     <artifacts>
+                        <artifact>
+                           <type>${chronicles.type}</type>
+                           <!-- Note that the assembly plugin doesn't use the same classifier - we hack the classifier it returns to be a mis
+                           mash of classifier and part of type.  So there is always a classifier on the produced zip file, even if no classifier
+                           was specified by the user.  During artifact attachment, this classifier/type mess is corrected. -->
+                           <file>${project.build.directory}/${project.build.finalName}-${resultArtifactClassifier}.cradle.zip</file>
+                           <classifier>${resultArtifactClassifier}</classifier>
+                        </artifact>
+                        <artifact>
+                           <type>${index.type}</type>
+                           <!-- Note that the assembly plugin doesn't use the same classifier - we hack the classifier it returns to be a mis
+                           mash of classifier and part of type.  So there is always a classifier on the produced zip file, even if no classifier
+                           was specified by the user.  During artifact attachment, this classifier/type mess is corrected. -->
+                           <file>${project.build.directory}/${project.build.finalName}-${resultArtifactClassifier}.lucene.zip</file>
+                           <classifier>${resultArtifactClassifier}</classifier>
+                        </artifact>
+                     </artifacts>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
 </project>

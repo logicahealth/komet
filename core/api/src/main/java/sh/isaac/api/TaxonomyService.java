@@ -43,7 +43,6 @@ package sh.isaac.api;
 
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import javafx.concurrent.Task;
 
 //~--- non-JDK imports --------------------------------------------------------
 

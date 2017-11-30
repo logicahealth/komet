@@ -59,7 +59,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.PathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
@@ -68,6 +67,7 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.model.coordinate.StampPathImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.VersionManagmentPathService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -78,8 +78,8 @@ import sh.isaac.api.component.semantic.version.LongVersion;
  */
 @Service(name = "Path Provider")
 @RunLevel(value = 2)
-public class PathProvider
-         implements PathService {
+public class VersionManagmentPathProvider
+         implements VersionManagmentPathService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -96,7 +96,7 @@ public class PathProvider
    /**
     * Instantiates a new path provider.
     */
-   protected PathProvider() {}
+   protected VersionManagmentPathProvider() {}
 
    //~--- methods -------------------------------------------------------------
 

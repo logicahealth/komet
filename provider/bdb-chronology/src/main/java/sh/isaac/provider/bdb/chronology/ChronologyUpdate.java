@@ -42,7 +42,6 @@ package sh.isaac.provider.bdb.chronology;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
 

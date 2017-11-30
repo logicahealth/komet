@@ -1086,7 +1086,7 @@ public abstract class ChronologyImpl
 
       getVersionList().<V>forEach(
               (version) -> {
-                 final StampPath path = Get.pathService()
+                 final StampPath path = Get.versionManagmentPathService()
                          .getStampPath(version.getPathNid());
                  TreeSet<V> versionSet = versionMap.get(path);
 

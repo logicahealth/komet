@@ -14,7 +14,7 @@
     <profile>
          <id>bdb</id>
          <activation>
-            <activeByDefault>false</activeByDefault>
+            <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
             <module>bdb-chronology</module>
@@ -39,5 +39,6 @@
         <module>drools</module>
         <module>xodus-chronology</module>
         <module>alert-resolver</module>
+        <module>preferences</module>
     </modules>
 </project>

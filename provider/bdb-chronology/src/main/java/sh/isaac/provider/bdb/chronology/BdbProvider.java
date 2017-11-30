@@ -34,9 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.isaac.provider.bdb.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.io.File;
 
 import java.nio.file.Path;
@@ -58,13 +62,16 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import javafx.concurrent.Task;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,6 +86,7 @@ import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.DiskOrderedCursor;
 import com.sleepycat.je.DiskOrderedCursorConfig;
 import com.sleepycat.je.Environment;
@@ -93,6 +101,7 @@ import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -113,6 +122,7 @@ import sh.isaac.provider.bdb.binding.SequenceGeneratorBinding;
 import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  *
  * @author kec
@@ -120,26 +130,25 @@ import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
 @Service
 @RunLevel(value = 0)
 public class BdbProvider
-        implements DatabaseServices, IdentifiedObjectService {
-
+         implements DatabaseServices, IdentifiedObjectService {
    /**
     * The Constant LOG.
     */
-   private static final Logger LOG = LogManager.getLogger();
-   private static final String ASSEMBLAGE_NIDS = "assemblageNids";
-   private static final String MISC_MAP = "miscMap";
-   private static final int SEQUENCE_GENERATOR_MAP_KEY = 1;
-   private static final int ASSEMBLAGE_TYPE_MAP_KEY = 2;
+   private static final Logger LOG                        = LogManager.getLogger();
+   private static final String ASSEMBLAGE_NIDS            = "assemblageNids";
+   private static final String MISC_MAP                   = "miscMap";
+   private static final int    SEQUENCE_GENERATOR_MAP_KEY = 1;
+   private static final int    ASSEMBLAGE_TYPE_MAP_KEY    = 2;
 
    //~--- fields --------------------------------------------------------------
-   private final ConcurrentHashMap<String, Database> databases = new ConcurrentHashMap<>();
-   private final ConcurrentHashMap<String, SpinedByteArrayArrayMap> spinedChronologyMapMap = new ConcurrentHashMap<>();
-   private final ConcurrentHashMap<String, SpinedIntIntArrayMap> spinedTaxonomyMapMap = new ConcurrentHashMap<>();
 
-   private final DatabaseConfig chronologyDbConfig = new DatabaseConfig();
-   private final DatabaseConfig noDupConfig = new DatabaseConfig();
-   private final ConcurrentSkipListSet<Integer> assemblageNids = new ConcurrentSkipListSet<>();
-   private final SpinedNidNidSetMap componentToSemanticMap = new SpinedNidNidSetMap();
+   private final ConcurrentHashMap<String, Database>                databases              = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<String, SpinedByteArrayArrayMap> spinedChronologyMapMap = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<String, SpinedIntIntArrayMap>    spinedTaxonomyMapMap   = new ConcurrentHashMap<>();
+   private final DatabaseConfig                                     chronologyDbConfig     = new DatabaseConfig();
+   private final DatabaseConfig                                     noDupConfig            = new DatabaseConfig();
+   private final ConcurrentSkipListSet<Integer>                     assemblageNids = new ConcurrentSkipListSet<>();
+   private final SpinedNidNidSetMap                                 componentToSemanticMap = new SpinedNidNidSetMap();
 
    /**
     * The database validity.
@@ -147,13 +156,15 @@ public class BdbProvider
    private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
 
    // TODO persist dataStoreId.
-   private final UUID dataStoreId = UUID.randomUUID();
-   private final ChronologyLocation chronologyLocation = ChronologyLocation.SPINE;
-   private Environment myDbEnvironment;
-   private Database identifierDatabase;
-   private Database propertyDatabase;
+   private final UUID         dataStoreId        = UUID.randomUUID();
+   private ChronologyLocation chronologyLocation = ChronologyLocation.SPINE;
+   private Environment        myDbEnvironment;
+   private Database           identifierDatabase;
+   private Database           propertyDatabase;
+   private Database           semanticMapDb;
 
    //~--- initializers --------------------------------------------------------
+
    {
       chronologyDbConfig.setAllowCreate(true);
       chronologyDbConfig.setDeferredWrite(true);
@@ -164,21 +175,21 @@ public class BdbProvider
    }
 
    //~--- constant enums ------------------------------------------------------
-   private enum ChronologyLocation {
-      SPINE,
-      BDB
-   }
+
+   private enum ChronologyLocation { SPINE,
+                                     BDB }
 
    //~--- methods -------------------------------------------------------------
+
    @Override
    public void clearDatabaseValidityValue() {
       this.databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
    }
 
    public void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
-      AssemblageObjectTypeMapBinding binding = new AssemblageObjectTypeMapBinding();
-      Database database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry key = new DatabaseEntry();
+      AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
+      Database                       database = getNoDupDatabase(MISC_MAP);
+      DatabaseEntry                  key      = new DatabaseEntry();
 
       IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
 
@@ -196,8 +207,8 @@ public class BdbProvider
 
       StringBinding.stringToEntry(key, keyEntry);
 
-      DatabaseEntry valueEntry = new DatabaseEntry();
-      IntArrayBinding binding = new IntArrayBinding();
+      DatabaseEntry   valueEntry = new DatabaseEntry();
+      IntArrayBinding binding    = new IntArrayBinding();
 
       binding.objectToEntry(nidSet.asArray(), valueEntry);
 
@@ -207,6 +218,23 @@ public class BdbProvider
          throw new RuntimeException("Status = " + status);
       }
    }
+   public void putNidToNidSet(int nid, NidSet nidSet) {
+      DatabaseEntry keyEntry = new DatabaseEntry();
+
+      IntegerBinding.intToEntry(nid, keyEntry);
+
+      DatabaseEntry   valueEntry = new DatabaseEntry();
+      IntArrayBinding binding    = new IntArrayBinding();
+
+      binding.objectToEntry(nidSet.asArray(), valueEntry);
+
+      OperationStatus status = semanticMapDb.put(null, keyEntry, valueEntry);
+
+      if (status != OperationStatus.SUCCESS) {
+         throw new RuntimeException("Status = " + status);
+      }
+   }
+
 
    public void putProperty(String property, String value) {
       DatabaseEntry keyEntry = new DatabaseEntry();
@@ -225,9 +253,9 @@ public class BdbProvider
    }
 
    public void putSequenceGeneratorMap(ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map) {
-      SequenceGeneratorBinding binding = new SequenceGeneratorBinding();
-      Database database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry key = new DatabaseEntry();
+      SequenceGeneratorBinding binding  = new SequenceGeneratorBinding();
+      Database                 database = getNoDupDatabase(MISC_MAP);
+      DatabaseEntry            key      = new DatabaseEntry();
 
       IntegerBinding.intToEntry(SEQUENCE_GENERATOR_MAP_KEY, key);
 
@@ -238,52 +266,50 @@ public class BdbProvider
    }
 
    public void putSpinedIntIntMap(String databaseKey, SpinedIntIntMap map) {
-      Database mapDatabase = getNoDupDatabase(databaseKey);
-      ConcurrentMap<Integer, AtomicIntegerArray> spineMap = map.getSpines();
-      IntSpineBinding spineBinding = new IntSpineBinding();
+      Database                                   mapDatabase  = getNoDupDatabase(databaseKey);
+      ConcurrentMap<Integer, AtomicIntegerArray> spineMap     = map.getSpines();
+      IntSpineBinding                            spineBinding = new IntSpineBinding();
 
       spineMap.forEach(
-              (key, spine) -> {
-                 DatabaseEntry keyEntry = new DatabaseEntry();
+          (key, spine) -> {
+             DatabaseEntry keyEntry = new DatabaseEntry();
 
-                 IntegerBinding.intToEntry(key, keyEntry);
+             IntegerBinding.intToEntry(key, keyEntry);
 
-                 DatabaseEntry valueEntry = new DatabaseEntry();
+             DatabaseEntry valueEntry = new DatabaseEntry();
 
-                 spineBinding.objectToEntry(spine, valueEntry);
+             spineBinding.objectToEntry(spine, valueEntry);
 
-                 OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
+             OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
 
-                 if (status != OperationStatus.SUCCESS) {
-                    throw new RuntimeException("Status = " + status);
-                 }
-              });
+             if (status != OperationStatus.SUCCESS) {
+                throw new RuntimeException("Status = " + status);
+             }
+          });
    }
 
    public void putSpinedNidIntMap(String databaseKey, SpinedNidIntMap map) {
-      Database mapDatabase = getNoDupDatabase(databaseKey);
-      ConcurrentMap<Integer, AtomicIntegerArray> spineMap = map.getSpines();
-      IntSpineBinding spineBinding = new IntSpineBinding();
+      Database                                   mapDatabase  = getNoDupDatabase(databaseKey);
+      ConcurrentMap<Integer, AtomicIntegerArray> spineMap     = map.getSpines();
+      IntSpineBinding                            spineBinding = new IntSpineBinding();
 
       spineMap.forEach(
-              (key, spine) -> {
-                 DatabaseEntry keyEntry = new DatabaseEntry();
+          (key, spine) -> {
+             DatabaseEntry keyEntry = new DatabaseEntry();
 
-                 IntegerBinding.intToEntry(key, keyEntry);
+             IntegerBinding.intToEntry(key, keyEntry);
 
-                 DatabaseEntry valueEntry = new DatabaseEntry();
+             DatabaseEntry valueEntry = new DatabaseEntry();
 
-                 spineBinding.objectToEntry(spine, valueEntry);
+             spineBinding.objectToEntry(spine, valueEntry);
 
-                 OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
+             OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
 
-                 if (status != OperationStatus.SUCCESS) {
-                    throw new RuntimeException("Status = " + status);
-                 }
-              });
+             if (status != OperationStatus.SUCCESS) {
+                throw new RuntimeException("Status = " + status);
+             }
+          });
    }
-
-   ;
 
    //~--- methods -------------------------------------------------------------
 
@@ -292,7 +318,7 @@ public class BdbProvider
       Task<Void> syncTask = new SyncTask();
 
       return Get.executor()
-              .submit(syncTask);
+                .submit(syncTask);
    }
 
    public void writeChronologyData(ChronologyImpl chronology) {
@@ -300,33 +326,33 @@ public class BdbProvider
 
       assemblageNids.add(assemblageNid);
 
-      IsaacObjectType objectType = chronology.getIsaacObjectType();
-      int assemblageForNid = ModelGet.identifierService()
-              .getAssemblageNidForNid(chronology.getNid());
+      IsaacObjectType objectType       = chronology.getIsaacObjectType();
+      int             assemblageForNid = ModelGet.identifierService()
+                                                 .getAssemblageNidForNid(chronology.getNid());
 
       if (assemblageForNid == Integer.MAX_VALUE) {
          ModelGet.identifierService()
                  .setupNid(chronology.getNid(), assemblageNid, objectType);
 
          if (chronology instanceof SemanticChronologyImpl) {
-            SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
-            int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+            SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
+            int                    referencedComponentNid = semanticChronology.getReferencedComponentNid();
 
             componentToSemanticMap.add(referencedComponentNid, semanticChronology.getNid());
          }
       }
 
       switch (chronologyLocation) {
-         case BDB:
-            writeChronologyDataToBdb(chronology, assemblageNid);
-            break;
+      case BDB:
+         writeChronologyDataToBdb(chronology, assemblageNid);
+         break;
 
-         case SPINE:
-            writeChronologyDataToSpinedMap(chronology, assemblageNid);
-            break;
+      case SPINE:
+         writeChronologyDataToSpinedMap(chronology, assemblageNid);
+         break;
 
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
+      default:
+         throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
       }
    }
 
@@ -336,10 +362,10 @@ public class BdbProvider
       IntegerBinding.intToEntry(chronology.getElementSequence(), key);
 
       List<byte[]> dataList = chronology.getDataList();
-      Database database = getChronologyDatabase(assemblageNid);
+      Database     database = getChronologyDatabase(assemblageNid);
 
-      for (byte[] data : dataList) {
-         DatabaseEntry value = new DatabaseEntry(data);
+      for (byte[] data: dataList) {
+         DatabaseEntry   value  = new DatabaseEntry(data);
          OperationStatus status = database.put(null, key, value);
 
          if (status != OperationStatus.SUCCESS) {
@@ -351,18 +377,18 @@ public class BdbProvider
    public void writeChronologyDataToSpinedMap(ChronologyImpl chronology, int assemblageNid) {
       SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
       int elementSequence = ModelGet.identifierService()
-              .getElementSequenceForNid(chronology.getNid(), assemblageNid);
+                                    .getElementSequenceForNid(chronology.getNid(), assemblageNid);
 
       spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
    }
 
    protected static ByteArrayDataBuffer collectByteRecords(DatabaseEntry key,
-           DatabaseEntry value,
-           final Cursor cursor)
-           throws IllegalStateException {
+         DatabaseEntry value,
+         final Cursor cursor)
+            throws IllegalStateException {
       ArrayList<byte[]> dataList = new ArrayList<>();
-      byte[] data = value.getData();
-      int size = data.length;
+      byte[]            data     = value.getData();
+      int               size     = data.length;
 
       dataList.add(data);
 
@@ -378,9 +404,9 @@ public class BdbProvider
       }
 
       ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-              size + 4);  // room for 0 int value at end to indicate last version
+                                           size + 4);  // room for 0 int value at end to indicate last version
 
-      for (byte[] dataEntry : dataList) {
+      for (byte[] dataEntry: dataList) {
          byteBuffer.put(dataEntry);
       }
 
@@ -402,10 +428,23 @@ public class BdbProvider
       LOG.info("Starting BDB provider post-construct");
 
       try {
+         MemoryConfiguration memoryConfiguration = Get.applicationPreferences()
+                                                      .getValue(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+
+         switch (memoryConfiguration) {
+         case ALL_CHRONICLES_IN_MEMORY:
+         case SELECTED_CHRONICLES_IN_MEMORY:
+            this.chronologyLocation = ChronologyLocation.SPINE;
+            break;
+
+         case ALL_CHRONICLES_MANAGED_BY_DB:
+            this.chronologyLocation = ChronologyLocation.BDB;
+         }
+
          EnvironmentConfig envConfig = new EnvironmentConfig();
          final Path folderPath = LookupService.getService(ConfigurationService.class)
-                 .getChronicleFolderPath()
-                 .resolve("bdb");
+                                              .getChronicleFolderPath()
+                                              .resolve("bdb");
 
          envConfig.setAllowCreate(true);
 
@@ -416,15 +455,25 @@ public class BdbProvider
          }
 
          dbEnv.mkdirs();
-         myDbEnvironment = new Environment(dbEnv, envConfig);
-         propertyDatabase = myDbEnvironment.openDatabase(null, "property", noDupConfig);
+         myDbEnvironment    = new Environment(dbEnv, envConfig);
+         propertyDatabase   = myDbEnvironment.openDatabase(null, "property", noDupConfig);
          identifierDatabase = myDbEnvironment.openDatabase(null, "identifier", noDupConfig);
+         semanticMapDb = myDbEnvironment.openDatabase(null, "semantic", noDupConfig);
          LOG.info("identifier count at open: " + identifierDatabase.count());
-         componentToSemanticMap.read(getComponentToSemanticMapDirectory());
+         switch (this.chronologyLocation) {
+            case BDB:
+               populateMapFromBdb(componentToSemanticMap);
+               break;
+            case SPINE:
+               componentToSemanticMap.read(getComponentToSemanticMapDirectory());
+               break;
+               
+         }
+         
 
          NidSet assemblageNidsSet = getNidSet(ASSEMBLAGE_NIDS);
 
-         for (int nid : assemblageNidsSet.asArray()) {
+         for (int nid: assemblageNidsSet.asArray()) {
             assemblageNids.add(nid);
          }
 
@@ -432,10 +481,10 @@ public class BdbProvider
          LOG.info("Max disk: " + myDbEnvironment.getConfig().getMaxDisk());
          LOG.info("MAX_MEMORY: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_MEMORY));
          LOG.info(
-                 "MAX_MEMORY_PERCENT: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_MEMORY_PERCENT));
+             "MAX_MEMORY_PERCENT: " + myDbEnvironment.getConfig().getConfigParam(EnvironmentConfig.MAX_MEMORY_PERCENT));
          LOG.info(
-                 "MAX_OFF_HEAP_MEMORY: " + myDbEnvironment.getConfig().getConfigParam(
-                         EnvironmentConfig.MAX_OFF_HEAP_MEMORY));
+             "MAX_OFF_HEAP_MEMORY: " + myDbEnvironment.getConfig().getConfigParam(
+                 EnvironmentConfig.MAX_OFF_HEAP_MEMORY));
       } catch (Throwable dbe) {
          dbe.printStackTrace();
          throw new RuntimeException(dbe);
@@ -454,12 +503,12 @@ public class BdbProvider
             // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
             // with an unbounded queue.
             ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                    4,
-                    4,
-                    60,
-                    TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<>(),
-                    new NamedThreadFactory("BDB-Shutdown-work-thread", true));
+                                              4,
+                                              4,
+                                              60,
+                                              TimeUnit.SECONDS,
+                                              new LinkedBlockingQueue<>(),
+                                              new NamedThreadFactory("BDB-Shutdown-work-thread", true));
 
             executor.allowCoreThreadTimeOut(true);
 
@@ -468,16 +517,18 @@ public class BdbProvider
             executor.submit(syncTask)
                     .get();
             databases.forEach(
-                    (key, database) -> {
-                       LOG.info("Closing: " + key);
-                       database.close();
-                    });
+                (key, database) -> {
+                   LOG.info("Closing: " + key);
+                   database.close();
+                });
             LOG.info("property count at close: " + propertyDatabase.count());
             LOG.info("identifier count at close: " + identifierDatabase.count());
             LOG.info("closing property database. ");
             propertyDatabase.close();
             LOG.info("closing taxonomy database. ");
             identifierDatabase.close();
+            LOG.info("closing semantic index database. ");
+            semanticMapDb.close();
             myDbEnvironment.close();
          }
       } catch (Throwable ex) {
@@ -488,17 +539,18 @@ public class BdbProvider
    }
 
    //~--- get methods ---------------------------------------------------------
+
    public ConcurrentSkipListSet<Integer> getAssemblageNids() {
       return assemblageNids;
    }
 
    public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap() {
-      Database database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry key = new DatabaseEntry();
+      Database      database = getNoDupDatabase(MISC_MAP);
+      DatabaseEntry key      = new DatabaseEntry();
 
       IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
 
-      DatabaseEntry value = new DatabaseEntry();
+      DatabaseEntry                  value   = new DatabaseEntry();
       AssemblageObjectTypeMapBinding binding = new AssemblageObjectTypeMapBinding();
 
       if (database.get(null, key, value, null) == OperationStatus.SUCCESS) {
@@ -510,42 +562,42 @@ public class BdbProvider
 
    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
       switch (chronologyLocation) {
-         case BDB:
-            return getChronologyDataFromBdb(nid);
+      case BDB:
+         return getChronologyDataFromBdb(nid);
 
-         case SPINE:
-            return getChronologyDataFromSpine(nid);
+      case SPINE:
+         return getChronologyDataFromSpine(nid);
 
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
+      default:
+         throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
       }
    }
 
    public Optional<ByteArrayDataBuffer> getChronologyDataFromBdb(int nid)
-           throws IllegalStateException {
-      int assemblageNid = ModelGet.identifierService()
-              .getAssemblageNid(nid)
-              .getAsInt();
-      int elementSequence = ModelGet.identifierService()
-              .getElementSequenceForNid(nid, assemblageNid);
-      Database database = getChronologyDatabase(assemblageNid);
+            throws IllegalStateException {
+      int      assemblageNid   = ModelGet.identifierService()
+                                         .getAssemblageNid(nid)
+                                         .getAsInt();
+      int      elementSequence = ModelGet.identifierService()
+                                         .getElementSequenceForNid(nid, assemblageNid);
+      Database database        = getChronologyDatabase(assemblageNid);
 
       try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
          DatabaseEntry key = new DatabaseEntry();
 
          IntegerBinding.intToEntry(elementSequence, key);
 
-         DatabaseEntry value = new DatabaseEntry();
+         DatabaseEntry   value  = new DatabaseEntry();
          OperationStatus status = cursor.getSearchKey(key, value, LockMode.DEFAULT);
 
          switch (status) {
-            case KEYEMPTY:
-            case KEYEXIST:
-            case NOTFOUND:
-               return Optional.empty();
+         case KEYEMPTY:
+         case KEYEXIST:
+         case NOTFOUND:
+            return Optional.empty();
 
-            case SUCCESS:
-               return Optional.of(collectByteRecords(key, value, cursor));
+         case SUCCESS:
+            return Optional.of(collectByteRecords(key, value, cursor));
          }
       }
 
@@ -553,14 +605,14 @@ public class BdbProvider
    }
 
    public Optional<ByteArrayDataBuffer> getChronologyDataFromSpine(int nid)
-           throws IllegalStateException {
-      int assemblageNid = ModelGet.identifierService()
-              .getAssemblageNid(nid)
-              .getAsInt();
+            throws IllegalStateException {
+      int                     assemblageNid           = ModelGet.identifierService()
+                                                                .getAssemblageNid(nid)
+                                                                .getAsInt();
       int elementSequence = ModelGet.identifierService()
-              .getElementSequenceForNid(nid, assemblageNid);
+                                    .getElementSequenceForNid(nid, assemblageNid);
       SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-      byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
+      byte[][]                data                    = spinedByteArrayArrayMap.get(elementSequence);
 
       if (data == null) {
          return Optional.empty();
@@ -568,14 +620,14 @@ public class BdbProvider
 
       int size = 0;
 
-      for (byte[] dataEntry : data) {
+      for (byte[] dataEntry: data) {
          size = size + dataEntry.length;
       }
 
       ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-              size + 4);  // room for 0 int value at end to indicate last version
+                                           size + 4);  // room for 0 int value at end to indicate last version
 
-      for (byte[] dataEntry : data) {
+      for (byte[] dataEntry: data) {
          byteBuffer.put(dataEntry);
       }
 
@@ -590,52 +642,38 @@ public class BdbProvider
    }
 
    public Database getChronologyDatabase(int assemblageNid) {
-      String databaseKey = "Chronology" + assemblageNid;
-      Database database = databases.computeIfAbsent(
-              databaseKey,
-              (dbKey) -> {
-                 Database db = myDbEnvironment.openDatabase(null, dbKey, chronologyDbConfig);
+      String   databaseKey = "Chronology" + assemblageNid;
+      Database database    = databases.computeIfAbsent(
+                                 databaseKey,
+                                     (dbKey) -> {
+                                        Database db = myDbEnvironment.openDatabase(null, dbKey, chronologyDbConfig);
 
-                 LOG.info("Opening " + dbKey + " count at open: " + db.count());
-                 return db;
-              });
+                                        LOG.info("Opening " + dbKey + " count at open: " + db.count());
+                                        return db;
+                                     });
 
       return database;
    }
 
    public SpinedByteArrayArrayMap getChronologySpinedMap(int assemblageNid) {
-      String spinedMapKey = "ChronologySpinedMap" + assemblageNid;
-      SpinedByteArrayArrayMap spinedMap = spinedChronologyMapMap.computeIfAbsent(
-              spinedMapKey,
-              (dbKey) -> {
-                 SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap();
+      String                  spinedMapKey = "ChronologySpinedMap" + assemblageNid;
+      SpinedByteArrayArrayMap spinedMap    = spinedChronologyMapMap.computeIfAbsent(
+                                                 spinedMapKey,
+                                                       (dbKey) -> {
+               SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap();
 
-                 spinedByteArrayArrayMap.read(getSpinedByteArrayArrayMapDirectory(dbKey));
-                 LOG.info("Opening " + dbKey);
-                 return spinedByteArrayArrayMap;
-              });
-
-      return spinedMap;
-   }
-  public SpinedIntIntArrayMap getTaxonomySpinedMap(int assemblageNid) {
-      String spinedMapKey = "TaxonomySpinedMap" + assemblageNid;
-      SpinedIntIntArrayMap spinedMap = spinedTaxonomyMapMap.computeIfAbsent(
-              spinedMapKey,
-              (dbKey) -> {
-                 SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
-
-                 spinedIntIntArrayMap.read(getSpinedIntIntArrayMapDirectory(dbKey));
-                 LOG.info("Opening " + dbKey);
-                 return spinedIntIntArrayMap;
-              });
+               spinedByteArrayArrayMap.read(getSpinedByteArrayArrayMapDirectory(dbKey));
+               LOG.info("Opening " + dbKey);
+               return spinedByteArrayArrayMap;
+            });
 
       return spinedMap;
    }
 
    File getComponentToSemanticMapDirectory() {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-              .getChronicleFolderPath()
-              .resolve("bdb");
+                                           .getChronicleFolderPath()
+                                           .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), "ComponentToSemanticMap");
 
       spinedMapDirectory.mkdirs();
@@ -654,7 +692,7 @@ public class BdbProvider
    @Override
    public Path getDatabaseFolder() {
       return this.myDbEnvironment.getHome()
-              .toPath();
+                                 .toPath();
    }
 
    @Override
@@ -672,18 +710,18 @@ public class BdbProvider
 
             // concept or semantic?
             switch (ModelGet.identifierService()
-                    .getObjectTypeForComponent(nid)) {
-               case CONCEPT:
-                  IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
-                  return Optional.of(ConceptChronologyImpl.make(byteBuffer));
+                            .getObjectTypeForComponent(nid)) {
+            case CONCEPT:
+               IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
+               return Optional.of(ConceptChronologyImpl.make(byteBuffer));
 
-               case SEMANTIC:
-                  IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
-                  return Optional.of(SemanticChronologyImpl.make(byteBuffer));
+            case SEMANTIC:
+               IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
+               return Optional.of(SemanticChronologyImpl.make(byteBuffer));
 
-               default:
-                  throw new UnsupportedOperationException(
-                          "Can't handle: " + ModelGet.identifierService().getObjectTypeForComponent(nid));
+            default:
+               throw new UnsupportedOperationException(
+                   "Can't handle: " + ModelGet.identifierService().getObjectTypeForComponent(nid));
             }
          }
       } catch (NoSuchElementException nse) {
@@ -702,8 +740,8 @@ public class BdbProvider
 
       StringBinding.stringToEntry(key, keyEntry);
 
-      DatabaseEntry valueEntry = new DatabaseEntry();
-      OperationStatus status = propertyDatabase.get(null, keyEntry, valueEntry, null);
+      DatabaseEntry   valueEntry = new DatabaseEntry();
+      OperationStatus status     = propertyDatabase.get(null, keyEntry, valueEntry, null);
 
       if (status != OperationStatus.SUCCESS) {
          if (status == OperationStatus.NOTFOUND) {
@@ -720,13 +758,13 @@ public class BdbProvider
 
    public Database getNoDupDatabase(String databaseKey) {
       Database database = databases.computeIfAbsent(
-              databaseKey,
-              (dbKey) -> {
-                 Database db = myDbEnvironment.openDatabase(null, dbKey, noDupConfig);
+                              databaseKey,
+                                  (dbKey) -> {
+                                     Database db = myDbEnvironment.openDatabase(null, dbKey, noDupConfig);
 
-                 LOG.info("Opening " + dbKey + " count at open: " + db.count());
-                 return db;
-              });
+                                     LOG.info("Opening " + dbKey + " count at open: " + db.count());
+                                     return db;
+                                  });
 
       return database;
    }
@@ -736,7 +774,7 @@ public class BdbProvider
 
       StringBinding.stringToEntry(property, key);
 
-      DatabaseEntry value = new DatabaseEntry();
+      DatabaseEntry   value  = new DatabaseEntry();
       OperationStatus status = propertyDatabase.get(null, key, value, null);
 
       if (status == OperationStatus.SUCCESS) {
@@ -747,12 +785,12 @@ public class BdbProvider
    }
 
    public ConcurrentMap<Integer, AtomicInteger> getSequenceGeneratorMap() {
-      Database database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry key = new DatabaseEntry();
+      Database      database = getNoDupDatabase(MISC_MAP);
+      DatabaseEntry key      = new DatabaseEntry();
 
       IntegerBinding.intToEntry(SEQUENCE_GENERATOR_MAP_KEY, key);
 
-      DatabaseEntry value = new DatabaseEntry();
+      DatabaseEntry            value   = new DatabaseEntry();
       SequenceGeneratorBinding binding = new SequenceGeneratorBinding();
 
       if (database.get(null, key, value, null) == OperationStatus.SUCCESS) {
@@ -762,21 +800,12 @@ public class BdbProvider
       return new ConcurrentHashMap<>();
    }
 
-   File getSpinedIntIntArrayMapDirectory(String spinedMapName) {
-      final Path folderPath = LookupService.getService(ConfigurationService.class)
-              .getChronicleFolderPath()
-              .resolve("bdb");
-      File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
-
-      spinedMapDirectory.mkdirs();
-      return spinedMapDirectory;
-   }
    File getSpinedByteArrayArrayMapDirectory(int assemblageNid) {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-              .getChronicleFolderPath()
-              .resolve("bdb");
-      String spinedMapName = "ChronologySpinedMap" + assemblageNid;
-      File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
+                                           .getChronicleFolderPath()
+                                           .resolve("bdb");
+      String spinedMapName      = "ChronologySpinedMap" + assemblageNid;
+      File   spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
 
       spinedMapDirectory.mkdirs();
       return spinedMapDirectory;
@@ -784,8 +813,18 @@ public class BdbProvider
 
    File getSpinedByteArrayArrayMapDirectory(String spinedMapName) {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-              .getChronicleFolderPath()
-              .resolve("bdb");
+                                           .getChronicleFolderPath()
+                                           .resolve("bdb");
+      File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
+
+      spinedMapDirectory.mkdirs();
+      return spinedMapDirectory;
+   }
+
+   File getSpinedIntIntArrayMapDirectory(String spinedMapName) {
+      final Path folderPath = LookupService.getService(ConfigurationService.class)
+                                           .getChronicleFolderPath()
+                                           .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
 
       spinedMapDirectory.mkdirs();
@@ -793,20 +832,20 @@ public class BdbProvider
    }
 
    public SpinedIntIntMap getSpinedIntIntMap(String databaseKey) {
-      Database mapDatabase = getNoDupDatabase(databaseKey);
-      SpinedIntIntMap map = new SpinedIntIntMap();
+      Database        mapDatabase = getNoDupDatabase(databaseKey);
+      SpinedIntIntMap map         = new SpinedIntIntMap();
 
       try (Cursor cursor = mapDatabase.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
-         DatabaseEntry foundKey = new DatabaseEntry();
-         DatabaseEntry foundData = new DatabaseEntry();
+         DatabaseEntry   foundKey     = new DatabaseEntry();
+         DatabaseEntry   foundData    = new DatabaseEntry();
          IntSpineBinding spineBinding = new IntSpineBinding();
 
          while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-            int spineKey = IntegerBinding.entryToInt(foundKey);
+            int                spineKey  = IntegerBinding.entryToInt(foundKey);
             AtomicIntegerArray spineData = spineBinding.entryToObject(foundData);
 
             map.getSpines()
-                    .put(spineKey, spineData);
+               .put(spineKey, spineData);
          }
       }
 
@@ -814,20 +853,20 @@ public class BdbProvider
    }
 
    public SpinedNidIntMap getSpinedNidIntMap(String databaseKey) {
-      Database mapDatabase = getNoDupDatabase(databaseKey);
-      SpinedNidIntMap map = new SpinedNidIntMap();
+      Database        mapDatabase = getNoDupDatabase(databaseKey);
+      SpinedNidIntMap map         = new SpinedNidIntMap();
 
       try (Cursor cursor = mapDatabase.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
-         DatabaseEntry foundKey = new DatabaseEntry();
-         DatabaseEntry foundData = new DatabaseEntry();
+         DatabaseEntry   foundKey     = new DatabaseEntry();
+         DatabaseEntry   foundData    = new DatabaseEntry();
          IntSpineBinding spineBinding = new IntSpineBinding();
 
          while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-            int spineKey = IntegerBinding.entryToInt(foundKey);
+            int                spineKey  = IntegerBinding.entryToInt(foundKey);
             AtomicIntegerArray spineData = spineBinding.entryToObject(foundData);
 
             map.getSpines()
-                    .put(spineKey, spineData);
+               .put(spineKey, spineData);
          }
       }
 
@@ -838,102 +877,227 @@ public class BdbProvider
       throw new UnsupportedOperationException();
    }
 
-   public SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
-      switch (chronologyLocation) {
-         case BDB: {
-            IntArrayBinding binding = new IntArrayBinding();
-            DiskOrderedCursorConfig docc = new DiskOrderedCursorConfig();
-            DatabaseEntry foundKey = new DatabaseEntry();
-            DatabaseEntry foundData = new DatabaseEntry();
-            SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = new SpinedIntIntArrayMap();
-
-            origin_DestinationTaxonomyRecord_Map.setElementStringConverter(
-                    (int[] records) -> {
-                       return new TaxonomyRecord(records).toString();
-                    });
-
-            Database database = getTaxonomyDatabase(assemblageNid);
-
-            try (DiskOrderedCursor cursor = database.openCursor(docc)) {
-               while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                  origin_DestinationTaxonomyRecord_Map.put(
-                          IntegerBinding.entryToInt(foundKey),
-                          binding.entryToObject(foundData));
-               }
-            }
-
-            LOG.info("Taxonomy count at open for " + database.getDatabaseName() + " is " + database.count());
-            return origin_DestinationTaxonomyRecord_Map;
-         }
-
-         case SPINE:
-            return getTaxonomySpinedMap(assemblageNid);
-
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
-      }
-   }
-
    private Database getTaxonomyDatabase(int assemblageNid) {
-      String databaseKey = "Taxonomy" + assemblageNid;
-      Database database = databases.computeIfAbsent(
-              databaseKey,
-              (dbKey) -> {
-                 Database db = myDbEnvironment.openDatabase(null, dbKey, chronologyDbConfig);
+      String   databaseKey = "Taxonomy" + assemblageNid;
+      Database database    = databases.computeIfAbsent(
+                                 databaseKey,
+                                     (dbKey) -> {
+                                        Database db = myDbEnvironment.openDatabase(null, dbKey, chronologyDbConfig);
 
-                 LOG.info("Opening " + dbKey + " count at open: " + db.count());
-                 return db;
-              });
+                                        LOG.info("Opening " + dbKey + " count at open: " + db.count());
+                                        return db;
+                                     });
 
       return database;
    }
 
+   public SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
+      switch (chronologyLocation) {
+      case BDB: {
+         String spinedMapKey = "TaxonomySpinedMap" + assemblageNid;
+
+         if (spinedTaxonomyMapMap.containsKey(spinedMapKey)) {
+            return spinedTaxonomyMapMap.get(spinedMapKey);
+         }
+
+         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = spinedTaxonomyMapMap.computeIfAbsent(
+                                                                         spinedMapKey,
+                                                                               (dbKey) -> {
+                  SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
+
+                  spinedIntIntArrayMap.read(getSpinedIntIntArrayMapDirectory(dbKey));
+                  LOG.info("Opening " + dbKey);
+                  return spinedIntIntArrayMap;
+               });
+         Database database = populateMapFromBdb(origin_DestinationTaxonomyRecord_Map, assemblageNid);
+
+         LOG.info("Taxonomy count at open for " + database.getDatabaseName() + " is " + database.count());
+         return origin_DestinationTaxonomyRecord_Map;
+      }
+
+      case SPINE:
+         return getTaxonomySpinedMap(assemblageNid);
+
+      default:
+         throw new UnsupportedOperationException("Can't handle: " + chronologyLocation);
+      }
+   }
+
+   private Database populateMapFromBdb(SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map, int assemblageNid) throws DatabaseException {
+      IntArrayBinding         binding   = new IntArrayBinding();
+      DiskOrderedCursorConfig docc      = new DiskOrderedCursorConfig();
+      DatabaseEntry           foundKey  = new DatabaseEntry();
+      DatabaseEntry           foundData = new DatabaseEntry();
+      origin_DestinationTaxonomyRecord_Map.setElementStringConverter(
+              (int[] records) -> {
+                 return new TaxonomyRecord(records).toString();
+              });
+      Database database = getTaxonomyDatabase(assemblageNid);
+      try (DiskOrderedCursor cursor = database.openCursor(docc)) {
+         while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+            origin_DestinationTaxonomyRecord_Map.put(
+                    IntegerBinding.entryToInt(foundKey),
+                    binding.entryToObject(foundData));
+         }
+      }
+      return database;
+   }
+
+   private void populateMapFromBdb(SpinedNidNidSetMap map) throws DatabaseException {
+      IntArrayBinding         binding   = new IntArrayBinding();
+      DiskOrderedCursorConfig docc      = new DiskOrderedCursorConfig();
+      DatabaseEntry           foundKey  = new DatabaseEntry();
+      DatabaseEntry           foundData = new DatabaseEntry();
+      
+      try (DiskOrderedCursor cursor = semanticMapDb.openCursor(docc)) {
+         while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+            map.put(IntegerBinding.entryToInt(foundKey),
+                    binding.entryToObject(foundData));
+         }
+      }
+   }
+      
+      
+   private void writeMapToBdb(SpinedNidNidSetMap map) {
+      IntArrayBinding         binding   = new IntArrayBinding();
+      DatabaseEntry           key  = new DatabaseEntry();
+      DatabaseEntry           data = new DatabaseEntry();
+      map.forEach((int nid, int[] value) -> {
+         IntegerBinding.intToEntry(nid, key);
+         binding.objectToEntry(value, data);
+         OperationStatus status = semanticMapDb.put(null, key, data);
+         if (status != OperationStatus.SUCCESS) {
+            String message = "Write to semanticMapDb failed: " + status;
+            LOG.error(message);
+            throw new RuntimeException(message);
+         }
+      });
+      
+   }
+    private Database writeTaxonomyMapToBdb(SpinedIntIntArrayMap taxonomyMap, int assemblageNid) throws DatabaseException {
+      IntArrayBinding         binding   = new IntArrayBinding();
+      DatabaseEntry           key  = new DatabaseEntry();
+      DatabaseEntry           data = new DatabaseEntry();
+      Database database = getTaxonomyDatabase(assemblageNid);
+      taxonomyMap.forEach((int elementSequence, int[] value) -> {
+         IntegerBinding.intToEntry(elementSequence, key);
+         binding.objectToEntry(value, data);
+         OperationStatus status = database.put(null, key, data);
+         if (status != OperationStatus.SUCCESS) {
+            String message = "Write to semanticMapDb failed: " + status;
+            LOG.error(message);
+            throw new RuntimeException(message);
+         }
+      });
+      return database;
+   }
+  
+   private int getNidFromKey(String key) {
+      int index = key.indexOf('-');
+      return Integer.parseInt(key.substring(index));
+   }
+
+   public SpinedIntIntArrayMap getTaxonomySpinedMap(int assemblageNid) {
+      String               spinedMapKey = "TaxonomySpinedMap" + assemblageNid;
+      SpinedIntIntArrayMap spinedMap    = spinedTaxonomyMapMap.computeIfAbsent(
+                                              spinedMapKey,
+                                                    (dbKey) -> {
+               SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
+
+               spinedIntIntArrayMap.read(getSpinedIntIntArrayMapDirectory(dbKey));
+               LOG.info("Opening " + dbKey);
+               return spinedIntIntArrayMap;
+            });
+
+      return spinedMap;
+   }
+
    //~--- inner classes -------------------------------------------------------
+
    private class SyncTask
            extends TimedTaskWithProgressTracker<Void> {
-
       public SyncTask() {
          updateTitle("Writing data to disk");
          addToTotalWork(8);
          Get.activeTasks()
-                 .add(this);
+            .add(this);
       }
 
       //~--- methods ----------------------------------------------------------
+
       @Override
       protected Void call()
-              throws Exception {
+               throws Exception {
          try {
-            updateMessage("Writing assemblage nids...");
+            switch (chronologyLocation) {
+            case BDB: {
+               updateMessage("Writing assemblage nids...");
 
-            NidSet assemblageNidSet = NidSet.of(assemblageNids);
+               NidSet assemblageNidSet = NidSet.of(assemblageNids);
 
-            putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
-            completedUnitOfWork();
-            updateMessage("Writing component to semantics map...");
-            componentToSemanticMap.write(getComponentToSemanticMapDirectory());
-            completedUnitOfWork();
+               putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
+               completedUnitOfWork();
+               
+               updateMessage("Writing component to semantics map...");
+               writeMapToBdb(componentToSemanticMap);
+               completedUnitOfWork();
+
+
+               updateMessage("Writing taxonomy spines...");
+               spinedTaxonomyMapMap.forEach(
+                  (String key, SpinedIntIntArrayMap spinedMap) -> {
+                      LOG.info("Syncronizing: " + key);
+                      writeTaxonomyMapToBdb(spinedMap, getNidFromKey(key));
+               });
+               completedUnitOfWork();
+               break;
+            }
+
+            case SPINE: {
+               updateMessage("Writing assemblage nids...");
+
+               NidSet assemblageNidSet = NidSet.of(assemblageNids);
+
+               putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
+               completedUnitOfWork();
+               
+               
+               updateMessage("Writing component to semantics map...");
+               componentToSemanticMap.write(getComponentToSemanticMapDirectory());
+               completedUnitOfWork();
+
+               updateMessage("Writing chronology spines...");
+               spinedChronologyMapMap.forEach(
+                  (key, spinedMap) -> {
+                     LOG.info("Syncronizing: " + key);
+                     spinedMap.write(getSpinedByteArrayArrayMapDirectory(key));
+                });
+               completedUnitOfWork();
+            
+               updateMessage("Writing taxonomy spines...");
+               spinedTaxonomyMapMap.forEach(
+                  (key, spinedMap) -> {
+                      LOG.info("Syncronizing: " + key);
+                      spinedMap.write(getSpinedIntIntArrayMapDirectory(key));
+               });
+               completedUnitOfWork();
+               
+               break;
+            }
+
+            default:
+               throw new UnsupportedOperationException("Can't handle chronology location: " + chronologyLocation);
+            }
+
             updateMessage("Writing databases...");
             databases.forEach(
-                    (key, database) -> {
-                       LOG.info("Syncronizing: " + key + " count: " + database.count());
-                       database.sync();
-                    });
+                (key, database) -> {
+                   LOG.info("Syncronizing: " + key + " count: " + database.count());
+                   database.sync();
+                });
             completedUnitOfWork();
-            updateMessage("Writing chronology spines...");
-            spinedChronologyMapMap.forEach(
-                    (key, spinedMap) -> {
-                       LOG.info("Syncronizing: " + key);
-                       spinedMap.write(getSpinedByteArrayArrayMapDirectory(key));
-                    });
-            completedUnitOfWork();
-          updateMessage("Writing taxonomy spines...");
-            spinedTaxonomyMapMap.forEach(
-                    (key, spinedMap) -> {
-                       LOG.info("Syncronizing: " + key);
-                       spinedMap.write(getSpinedIntIntArrayMapDirectory(key));
-                    });
-            completedUnitOfWork();
+            
+            
             updateMessage("Writing identifier database...");
             LOG.info("Syncronizing identifier database count: " + identifierDatabase.count());
             identifierDatabase.sync();
@@ -949,8 +1113,9 @@ public class BdbProvider
             return null;
          } finally {
             Get.activeTasks()
-                    .remove(this);
+               .remove(this);
          }
       }
    }
 }
+
