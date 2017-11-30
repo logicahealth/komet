@@ -107,6 +107,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.SpinedByteArrayArrayMap;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
@@ -451,7 +452,17 @@ public class BdbProvider
          File dbEnv = folderPath.toFile();
 
          if (!dbEnv.exists()) {
-            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+            File dataFolderFile = folderPath.getParent().getParent().getParent().toFile();
+            File solorDbFolder = new File(dataFolderFile, "solor-db.data");
+            File metaDbFolder = new File(dataFolderFile, "meta-db.data");
+            File isaacDbFolder = new File(dataFolderFile, "isaac.data");
+            if (solorDbFolder.exists()) {
+               solorDbFolder.renameTo(isaacDbFolder);
+            } else if (metaDbFolder.exists()) {
+               metaDbFolder.renameTo(isaacDbFolder);
+            } else {
+               this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+            }
          }
 
          dbEnv.mkdirs();
@@ -924,6 +935,7 @@ public class BdbProvider
    }
 
    private Database populateMapFromBdb(SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map, int assemblageNid) throws DatabaseException {
+      ContainerSequenceService idService = ModelGet.identifierService();
       IntArrayBinding         binding   = new IntArrayBinding();
       DiskOrderedCursorConfig docc      = new DiskOrderedCursorConfig();
       DatabaseEntry           foundKey  = new DatabaseEntry();
@@ -935,8 +947,10 @@ public class BdbProvider
       Database database = getTaxonomyDatabase(assemblageNid);
       try (DiskOrderedCursor cursor = database.openCursor(docc)) {
          while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+            int elementSequence = IntegerBinding.entryToInt(foundKey);
+            int nid = idService.getNidForElementSequence(elementSequence, assemblageNid);
             origin_DestinationTaxonomyRecord_Map.put(
-                    IntegerBinding.entryToInt(foundKey),
+                    nid,
                     binding.entryToObject(foundData));
          }
       }

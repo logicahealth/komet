@@ -166,7 +166,7 @@ public class PreferencesProvider
          if (!this.applicationPreferences.hasKey(MemoryConfiguration.class)) {
             this.applicationPreferences.put(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
          }
-         
+         this.applicationPreferences.sync();
          
       } catch (Throwable ex) {
          // HK2 swallows these exceptions, so I'm trying to make sure they are

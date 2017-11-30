@@ -182,22 +182,6 @@ public class DefaultConfigurationService
 
                if (!StringUtils.isBlank(dataStoreRootFolder.toString())) {
                   this.dataStoreFolderPath = Paths.get(dataStoreRootFolder.toString());
-
-                  if (!Files.exists(this.dataStoreFolderPath)) {
-                     try {
-                        Files.createDirectories(this.dataStoreFolderPath);
-                     } catch (final IOException e) {
-                        throw new RuntimeException("Failure creating dataStoreRootFolder folder: " +
-                                                   this.dataStoreFolderPath.toString(),
-                                                   e);
-                     }
-                  }
-
-                  if (!Files.isDirectory(this.dataStoreFolderPath)) {
-                     throw new IllegalStateException(
-                         "The specified path to the db folder appears to be a file, rather than a folder, as expected.  " +
-                         " Found: " + this.dataStoreFolderPath.toAbsolutePath().toString());
-                  }
                }
 
                this.initComplete = true;
