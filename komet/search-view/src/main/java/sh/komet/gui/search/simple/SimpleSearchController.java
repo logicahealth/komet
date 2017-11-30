@@ -44,32 +44,43 @@ package sh.komet.gui.search.simple;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckListView;
+import org.controlsfx.control.IndexedCheckModel;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.query.clauses.ConceptIsChildOf;
+import sh.isaac.api.query.clauses.ConceptIsKindOf;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.ConceptForControlWrapper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
-import java.util.Optional;
+import java.util.*;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,6 +100,8 @@ public class SimpleSearchController
    private Manifold manifold;
    private NidSet results = new NidSet();
    private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
+   private final ObservableList<CustomCheckListItem> kindOfObservableList = FXCollections.observableArrayList();
+
 
    @FXML
    AnchorPane mainAnchorPane;
@@ -98,6 +111,15 @@ public class SimpleSearchController
    private TableView<ObservableDescriptionVersion> resultTable;
    @FXML
    private TableColumn<ObservableDescriptionVersion, String> resultColumn;
+   @FXML
+   private RadioButton activeRadioButton;
+   @FXML
+   private RadioButton inactiveRadioButton;
+   @FXML
+   private RadioButton bothRadioButton;
+   @FXML
+   private CheckListView<CustomCheckListItem> kindOfCheckListView;
+
 
 
    @FXML
@@ -106,6 +128,10 @@ public class SimpleSearchController
       assert searchParameter != null : "fx:id=\"searchParameter\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert resultColumn != null : "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert activeRadioButton != null : "fx:id=\"activeRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert inactiveRadioButton != null : "fx:id=\"inactiveRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert bothRadioButton != null : "fx:id=\"bothRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert kindOfCheckListView != null : "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
       this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -158,19 +184,93 @@ public class SimpleSearchController
 
    public void setManifold(Manifold manifold) {
       this.manifold = manifold;
+      //init CheckListView
+      TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(this.manifold);
+      List<CustomCheckListItem> list = new ArrayList<>();
+      Arrays.stream(taxonomySnapshot.getTaxonomyChildNids(MetaData.METADATA____SOLOR.getNid()))
+              .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))) );
+      Collections.sort(list);
+      list.stream().forEach(customCheckListItem -> this.kindOfObservableList.add(customCheckListItem));
+      this.kindOfCheckListView.setItems(this.kindOfObservableList);
    }
 
    @FXML
    public void executeSearch(ActionEvent actionEvent){
-
-      this.descriptionLuceneMatch.setManifoldCoordinate(this.manifold);
-      this.descriptionLuceneMatch.setParameterString(this.searchParameter.getText());
-      this.results = descriptionLuceneMatch.computePossibleComponents(null);
-
-      filterSearchResults();
+      if(!this.searchParameter.getText().equals("")) {
+         this.descriptionLuceneMatch.setManifoldCoordinate(this.manifold);
+         this.descriptionLuceneMatch.setParameterString(this.searchParameter.getText());
+         this.results = descriptionLuceneMatch.computePossibleComponents(null);
+         filterSearchResults();
+      }
    }
 
    private void filterSearchResults(){
+
+
+      //Filter based on Active, Inactive, or Active/Inactive
+      if (activeRadioButton.isSelected()) {
+
+         this.results.stream().forEach(nid -> {
+            final Optional<? extends Chronology> chronology =
+                    Get.identifiedObjectService()
+                            .getIdentifiedObjectChronology(nid);
+
+            if (chronology.isPresent()) {
+               if (!chronology.get()
+                       .isLatestVersionActive(this.manifold.getStampCoordinate())) {
+                  this.results.remove(nid);
+               }
+            } else {
+               this.results.remove(nid);
+            }
+         });
+      } else if (inactiveRadioButton.isSelected()) {
+
+         this.results.stream().forEach(nid -> {
+            final Optional<? extends Chronology> chronology =
+                    Get.identifiedObjectService()
+                            .getIdentifiedObjectChronology(nid);
+
+            if (chronology.isPresent()) {
+               if (chronology.get()
+                       .isLatestVersionActive(this.manifold.getStampCoordinate())) {
+                  this.results.remove(nid);
+               }
+            } else {
+               this.results.remove(nid);
+            }
+         });
+      }
+
+      //Filter by selected kind of parent concept
+      IndexedCheckModel<CustomCheckListItem> indexedCheckModel = this.kindOfCheckListView.getCheckModel();
+      if(indexedCheckModel.getCheckedIndices().size() > 0) {
+         NidSet nidsToSave = new NidSet();
+
+         indexedCheckModel.getCheckedIndices().stream().forEach(index -> {
+
+            this.results.stream().forEach(childNID -> {
+               int parentNID = indexedCheckModel.getItem(index).getNID();
+
+               //need to find concept that semantic belongs too (from lucene search)
+               switch (Get.identifierService().getObjectTypeForComponent(childNID)) {
+                  case SEMANTIC:
+                     int conceptReferenceByChildSemantic = Get.observableSnapshotService(this.manifold)
+                             .getObservableSemanticVersion(childNID).get().referencedComponentNidProperty().get();
+
+                     Get.taxonomyService().getSnapshot(this.manifold)
+                             .getKindOfSequenceSet(parentNID).stream().forEach(kindOfNID -> {
+                        if (kindOfNID == conceptReferenceByChildSemantic)
+                           nidsToSave.add(childNID);
+                     });
+
+                     break;
+               }
+            });
+         });
+         this.results.clear();
+         this.results.addAll(nidsToSave);
+      }
 
       displaySearchResults();
    }
@@ -192,6 +292,34 @@ public class SimpleSearchController
          }
 
       });
+   }
+
+
+   private class CustomCheckListItem implements Comparable<CustomCheckListItem>{
+
+      private ConceptSpecification conceptSpecification;
+
+      public CustomCheckListItem(ConceptSpecification conceptSpecification){
+         this.conceptSpecification = conceptSpecification;
+      }
+
+      @Override
+      public int compareTo(CustomCheckListItem o) {
+         return this.conceptSpecification.getFullySpecifiedConceptDescriptionText().compareTo(o.getConceptSpecification().getFullySpecifiedConceptDescriptionText());
+      }
+
+      public int getNID(){
+         return this.conceptSpecification.getNid();
+      }
+
+      public ConceptSpecification getConceptSpecification() {
+         return conceptSpecification;
+      }
+
+      @Override
+      public String toString() {
+         return this.conceptSpecification.getFullySpecifiedConceptDescriptionText();
+      }
    }
 }
 
