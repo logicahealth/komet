@@ -114,7 +114,7 @@ public class ImportExportTest {
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
 
    /** The import stats. */
-   OchreExternalizableStatsTestFilter importStats;
+   IsaacExternalizableStatsTestFilter importStats;
 
    //~--- methods -------------------------------------------------------------
 
@@ -188,7 +188,7 @@ public class ImportExportTest {
       LOG.info("Testing export after classify");
 
       try {
-         final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
@@ -238,7 +238,7 @@ public class ImportExportTest {
       try {
          final AtomicInteger                      exportCount = new AtomicInteger(0);
          final AtomicInteger                      importCount = new AtomicInteger(0);
-         final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
@@ -256,7 +256,7 @@ public class ImportExportTest {
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
                                                                                "IsaacMetadataAuxiliary.export.ibdf"));
-         final OchreExternalizableStatsTestFilter localImportStats   = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter localImportStats   = new IsaacExternalizableStatsTestFilter();
          final CommitService                      commitService = Get.commitService();
 
          reader.getStream()
@@ -341,7 +341,7 @@ public class ImportExportTest {
                                                                                "IsaacMetadataAuxiliary.ibdf"));
          final CommitService commitService = Get.commitService();
 
-         this.importStats = new OchreExternalizableStatsTestFilter();
+         this.importStats = new IsaacExternalizableStatsTestFilter();
          reader.getStream()
                .filter(this.importStats)
                .forEach((object) -> {

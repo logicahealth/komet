@@ -361,10 +361,7 @@
       <profile>
          <id>meta-database</id>
          <activation>
-            <property>
-               <!-- If no other database is defined, use the meta database. -->
-               <name>!database</name>
-            </property>
+            <activeByDefault>false</activeByDefault>
          </activation>
          <dependencies>
             <dependency>

@@ -114,6 +114,14 @@ public class TreeBuilderTask
       GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
+      
+      long count = conceptNidStream.count();
+      if (count == 0) {
+         System.out.println("Empty concept stream...");
+      } 
+      
+      conceptNidStream = Get.identifierService()
+                                            .getNidsForAssemblage(conceptAssemblageNid);
       HashTreeBuilder graphBuilder     = conceptNidStream.filter(
                                              (conceptNid) -> {
                completedUnitOfWork();

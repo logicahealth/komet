@@ -71,6 +71,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 
 import com.lmax.disruptor.dsl.Disruptor;
+import java.io.InputStream;
 
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -301,6 +302,11 @@ public class Get
    public static BinaryDataReaderService binaryDataReader(Path dataPath)
             throws FileNotFoundException {
       return getService(BinaryDataServiceFactory.class).getReader(dataPath);
+   }
+
+   public static BinaryDataReaderService binaryDataReader(InputStream inputStream)
+            throws FileNotFoundException {
+      return getService(BinaryDataServiceFactory.class).getReader(inputStream);
    }
 
    /**
@@ -750,6 +756,10 @@ public class Get
 
    public static <T> List<T> services(Class<T> clazz) {
       return getServices(clazz);
+   }
+   
+   public static MetadataService metadataService() {
+      return service(MetadataService.class);
    }
 
    /**

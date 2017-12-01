@@ -93,7 +93,6 @@ import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.alert.AlertPanel;
@@ -147,7 +146,7 @@ public class MultiParentTreeView
    private final LayoutAnimator topPaneAnimator = new LayoutAnimator();
    private final LayoutAnimator taxonomyAlertsAnimator = new LayoutAnimator();
    private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
-   
+   private final ChoiceBox<ConceptSpecification> premiseChoiceBox;
    private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
 
    //~--- constructors --------------------------------------------------------
@@ -206,6 +205,10 @@ public class MultiParentTreeView
                                                                      manifold);
       descriptionTypeChoiceBox.addEventHandler(ActionEvent.ACTION, this::handleDescriptionTypeChange);
       handleDescriptionTypeChange(null);
+      this.premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(manifold);
+      this.premiseChoiceBox.valueProperty()
+                      .addListener(this::taxonomyPremiseChanged);
+
 
       setupTopPane();
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
@@ -511,10 +514,7 @@ public class MultiParentTreeView
       toolBar.getItems()
              .add(descriptionTypeChoiceBox);
 
-      ChoiceBox<ConceptSpecification> premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(manifold);
 
-      premiseChoiceBox.valueProperty()
-                      .addListener(this::taxonomyPremiseChanged);
       toolBar.getItems()
              .add(premiseChoiceBox);
 

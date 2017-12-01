@@ -34,16 +34,22 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import javafx.application.Application;
 import javafx.application.Platform;
 
+import javafx.concurrent.Task;
 
 import javafx.fxml.FXMLLoader;
 
@@ -57,7 +63,15 @@ import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.util.FxGet;
@@ -65,15 +79,16 @@ import sh.komet.gui.util.FxGet;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
+
 public class MainApp
         extends Application {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
-
    public static final String SPLASH_IMAGE = "prism-splash.png";
 
    //~--- methods -------------------------------------------------------------
+
    /**
     * The main() method is ignored in correctly deployed JavaFX application. main() serves only as fallback in case the
     * application can not be launched through deployment artifacts, e.g., in IDEs with limited FX support. NetBeans
@@ -91,26 +106,47 @@ public class MainApp
    // for each tab group, add a + control to create new tabs...
    @Override
    public void start(Stage stage)
-           throws Exception {
+            throws Exception {
       // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
       SvgImageLoaderFactory.install();
+      LookupService.startupPreferenceProvider();
 
+      IsaacPreferences appPreferences = Get.applicationPreferences();
+
+      appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
       LookupService.startupIsaac();
 
-      FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-      Parent root = loader.load();
+      if (Get.metadataService()
+             .importMetadata()) {
+         final StampCoordinate stampCoordinate = Get.coordinateFactory()
+                                                    .createDevelopmentLatestStampCoordinate();
+         final LogicCoordinate logicCoordinate = Get.coordinateFactory()
+                                                    .createStandardElProfileLogicCoordinate();
+         final EditCoordinate  editCoordinate  = Get.coordinateFactory()
+                                                    .createClassifierSolorOverlayEditCoordinate();
+         final ClassifierService logicService = Get.logicService()
+                                                   .getClassifierService(
+                                                         stampCoordinate,
+                                                               logicCoordinate,
+                                                               editCoordinate);
+         final Task<ClassifierResults> classifyTask      = logicService.classify();
+         final ClassifierResults       classifierResults = classifyTask.get();
+      }
+
+      FXMLLoader           loader     = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+      Parent               root       = loader.load();
       KometStageController controller = loader.getController();
 
       root.setId(UUID.randomUUID()
-              .toString());
+                     .toString());
 
       Scene scene = new Scene(root);
 
       // GraphController.setSceneForControllers(scene);
       scene.getStylesheets()
-              .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+           .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
       scene.getStylesheets()
-              .add(Iconography.getStyleSheetStringUrl());
+           .add(Iconography.getStyleSheetStringUrl());
 
       // SNAPSHOT
       // Chronology
@@ -126,7 +162,7 @@ public class MainApp
       stage.setTitle("SOLOR");
       stage.setScene(scene);
       FxGet.statusMessageService()
-              .addScene(scene, controller::reportStatus);
+           .addScene(scene, controller::reportStatus);
       stage.show();
       stage.setOnCloseRequest(this::handleShutdown);
 
@@ -140,3 +176,4 @@ public class MainApp
       System.exit(0);
    }
 }
+

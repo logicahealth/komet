@@ -77,18 +77,6 @@ public interface DatabaseServices {
       POPULATED_DIRECTORY
    }
 
-   ;
-
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Clear database validity value.
-    */
-
-   /*
-    * Clear flag indicating that database has had its validity calculated. Will force a real-time investigation second time through
-    */
-   void clearDatabaseValidityValue();
 
    //~--- get methods ---------------------------------------------------------
 

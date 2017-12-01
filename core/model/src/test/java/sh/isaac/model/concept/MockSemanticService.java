@@ -73,7 +73,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  */
 @Service
 @Rank(value = -50)
-public class MockSememeService
+public class MockSemanticService
          implements AssemblageService {
    /** The component sememe map. */
    ConcurrentHashMap<Integer, NidSet> componentSememeMap = new ConcurrentHashMap<>();
@@ -82,14 +82,6 @@ public class MockSememeService
    ConcurrentHashMap<Integer, SemanticChronology> semanticMap = new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
-
-   /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Placeholder as databaseFolderExists always returns true.
-   }
 
 
    /**

@@ -465,15 +465,6 @@ public class CommitProvider
    }
 
    /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Reset to enforce analysis
-      this.databaseValidity = DatabaseValidity.NOT_SET;
-   }
-
-   /**
     * Commit.
     *
     * @param editCoordinate the edit coordinate

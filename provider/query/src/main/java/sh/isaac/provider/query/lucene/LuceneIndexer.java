@@ -342,15 +342,6 @@ public abstract class LuceneIndexer
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Reset to enforce analysis
-      this.databaseValidity = DatabaseValidity.NOT_SET;
-   }
-
-   /**
     * Clear index.
     */
    @Override

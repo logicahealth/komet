@@ -105,6 +105,9 @@ public class LookupService {
    /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
    public static final int METADATA_STORE_STARTED_RUNLEVEL = -1;
 
+   /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
+   public static final int PREFERENCES_PROVIDER_RUNLEVEL = -1;
+
    /** The Constant WORKERS_STARTED_RUNLEVEL. */
    public static final int WORKERS_STARTED_RUNLEVEL = -2;
 
@@ -174,6 +177,10 @@ public class LookupService {
          }
       }
    }
+   
+   public static void startupPreferenceProvider() {
+      setRunLevel(PREFERENCES_PROVIDER_RUNLEVEL);
+   }
 
    /**
     * Start all core isaac services, blocking until started (or failed).
@@ -190,18 +197,11 @@ public class LookupService {
          // If database is validated, startup remaining run levels
          setRunLevel(ISAAC_STARTED_RUNLEVEL);
          setRunLevel(ISAAC_DEPENDENTS_RUNLEVEL);
-      } catch (final Exception e) {
+      } catch (final Throwable e) {
+         e.printStackTrace();
          // Will inform calling routines that database is corrupt
          throw e;
-      } finally {
-         // Regardless of successful or failed startup, reset database and lucene services' validityCalculated flag for next startup attempt
-         get().getAllServiceHandles(DatabaseServices.class).forEach(handle -> {
-                          if (handle.isActive()) {
-                             handle.getService()
-                                   .clearDatabaseValidityValue();
-                          }
-                       });
-      }
+      } 
    }
 
    /**

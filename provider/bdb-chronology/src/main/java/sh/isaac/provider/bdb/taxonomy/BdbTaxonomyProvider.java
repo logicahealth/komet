@@ -148,11 +148,6 @@ public class BdbTaxonomyProvider
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public void clearDatabaseValidityValue() {
-      this.bdb.clearDatabaseValidityValue();
-   }
-
-   @Override
    public String describeTaxonomyRecord(int nid) {
       return getTaxonomyRecord(nid).toString();
    }

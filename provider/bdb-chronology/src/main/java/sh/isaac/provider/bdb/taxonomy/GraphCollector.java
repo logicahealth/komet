@@ -50,7 +50,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 //~--- classes ----------------------------------------------------------------
@@ -135,12 +134,17 @@ public class GraphCollector
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
-         final int[] destinationStream =
+         final int[] destinationConceptNids =
             taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
                                                               this.manifoldCoordinate);
 
+         if (destinationConceptNids.length == 0) {
+            // again for steping through with the debugger. Remove when issues resolved. 
+            taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
+                                                              this.manifoldCoordinate);
+         }
          int parentCount = 0;
-         for (int destinationNid: destinationStream) {
+         for (int destinationNid: destinationConceptNids) {
             parentCount++;
             graphBuilder.add(destinationNid, originNid);
          }

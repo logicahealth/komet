@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -52,16 +53,11 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = 2)
 public class BdbSemanticProvider implements AssemblageService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-
-   @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
 
    @Override
    public Path getDatabaseFolder() {
@@ -78,8 +74,13 @@ public class BdbSemanticProvider implements AssemblageService {
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting semantic provider.");
-      bdb = Get.service(BdbProvider.class);
+      try {
+         LOG.info("Starting semantic provider.");
+         bdb = Get.service(BdbProvider.class);
+      } catch (Exception ex) {
+         ex.printStackTrace();
+         throw new RuntimeException(ex);
+      }
    }
 
    /**

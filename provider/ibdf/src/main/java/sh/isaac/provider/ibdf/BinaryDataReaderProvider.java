@@ -46,6 +46,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.nio.file.Path;
 
@@ -59,7 +60,6 @@ import java.util.stream.StreamSupport;
 
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 
@@ -79,9 +79,6 @@ public class BinaryDataReaderProvider
    /** The complete. */
    CountDownLatch complete = new CountDownLatch(1);
 
-   /** The data path. */
-   Path dataPath;
-
    /** The input. */
    DataInputStream input;
 
@@ -98,8 +95,18 @@ public class BinaryDataReaderProvider
     */
    public BinaryDataReaderProvider(Path dataPath)
             throws FileNotFoundException {
-      this.dataPath = dataPath;
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
+
+      try {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+   public BinaryDataReaderProvider(InputStream inputStream)
+            throws FileNotFoundException {
+      this.input    = new DataInputStream(inputStream);
 
       try {
          this.streamBytes = this.input.available();

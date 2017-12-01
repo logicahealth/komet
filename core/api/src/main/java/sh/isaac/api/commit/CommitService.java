@@ -197,7 +197,7 @@ public interface CommitService
 
    /**
     * Runs any update code (such as taxonomy updates) that may need to be done as a result of using
-    * {@link #importNoChecks(OchreExternalizable)}.  There are certain operations that cannot be done
+    * {@link #importNoChecks(IsaacExternalizable)}.  There are certain operations that cannot be done
     * during the import, to avoid running into data consistency issues.  This must be called if any call to
     * importNoChecks returns a value greater than 0, implying there is at least one deferred operation.
     */

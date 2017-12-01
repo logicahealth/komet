@@ -338,15 +338,6 @@ public class StampProvider
       return task;
    }
 
-   /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Reset to enforce analysis
-      this.databaseValidity = DatabaseValidity.NOT_SET;
-   }
-
    @Override
    public String describeStampSequenceForTooltip(int stampSequence, ManifoldCoordinate manifoldCoordinate) {
       if (stampSequence == -1) {

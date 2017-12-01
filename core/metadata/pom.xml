@@ -24,6 +24,16 @@
    </dependencies>
 
    <build>
+      <resources>
+         <resource>
+            <targetPath>sh/isaac</targetPath>
+            <filtering>false</filtering>
+            <directory>${project.build.directory}/generated-resources</directory>
+            <includes>
+               <include>IsaacMetadataAuxiliary.ibdf</include>
+            </includes>
+         </resource>
+      </resources>
       <plugins>
          <plugin>
             <groupId>sh.isaac.core</groupId>

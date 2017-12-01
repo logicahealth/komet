@@ -80,14 +80,6 @@ public class MockConceptService
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Placeholder as databaseFolderExists always returns true.
-   }
-
-   /**
     * Write concept.
     *
     * @param concept the concept

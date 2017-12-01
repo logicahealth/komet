@@ -63,7 +63,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -100,11 +99,6 @@ public class BdbConceptProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-
-   @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
 
    @Override
    public Path getDatabaseFolder() {

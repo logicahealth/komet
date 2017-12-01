@@ -53,7 +53,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 /**
  * Created by kec on 1/25/16.
  */
-public class OchreExternalizableStatsTestFilter
+public class IsaacExternalizableStatsTestFilter
          implements Predicate<IsaacExternalizable> {
    /** The concept count. */
    AtomicInteger concepts = new AtomicInteger(0);
@@ -88,7 +88,7 @@ public class OchreExternalizableStatsTestFilter
          return false;
       }
 
-      final OchreExternalizableStatsTestFilter that = (OchreExternalizableStatsTestFilter) o;
+      final IsaacExternalizableStatsTestFilter that = (IsaacExternalizableStatsTestFilter) o;
 
       if (this.concepts.get() != that.concepts.get()) {
          return false;

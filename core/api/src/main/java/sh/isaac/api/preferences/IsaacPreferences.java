@@ -16,9 +16,14 @@
  */
 package sh.isaac.api.preferences;
 
+import com.sun.javafx.scene.control.behavior.OptionalBoolean;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
@@ -55,17 +60,20 @@ public interface IsaacPreferences  {
      * preference to the specified default.
      *
      * @param key key whose associated value is to be returned.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>.
-     * @return the value associated with <tt>key</tt>, or <tt>def</tt>
+     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
      *         if no value is associated with <tt>key</tt>, or the backing
      *         store is inaccessible.
      * @throws IllegalStateException if this node (or an ancestor) has been
      *         removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.  (A
-     *         <tt>null</tt> value for <tt>def</tt> <i>is</i> permitted.)
+     * @throws NullPointerException if <tt>key</tt> or <tt>defaultValue</tt> is <tt>null</tt>.  
      */
-    String get(String key, String def);
+    String get(String key, String defaultValue);
+    
+    default Optional<String> get(String key) {
+       return Optional.ofNullable(get(key, null));
+    }
 
     /**
      * Removes the value associated with the specified key in this preference
@@ -136,12 +144,12 @@ public interface IsaacPreferences  {
      * the specified default.
      *
      * @param key key whose associated value is to be returned as an int.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>
      *        or the associated value cannot be interpreted as an int,
      *        or the backing store is inaccessible.
      * @return the int value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
+     *         <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      *         associated value does not exist or cannot be interpreted as
      *         an int.
      * @throws IllegalStateException if this node (or an ancestor) has been
@@ -150,7 +158,15 @@ public interface IsaacPreferences  {
      * @see #putInt(String,int)
      * @see #get(String,String)
      */
-    int getInt(String key, int def);
+    int getInt(String key, int defaultValue);
+    
+    default OptionalInt getInt(String key) {
+       Optional<String> optionalValue = get(key);
+       if (optionalValue.isPresent()) {
+          return OptionalInt.of(Integer.parseInt(optionalValue.get()));
+       }
+       return OptionalInt.empty();
+    }
 
     /**
      * Associates a string representing the specified long value with the
@@ -186,12 +202,12 @@ public interface IsaacPreferences  {
      * the specified default.
      *
      * @param key key whose associated value is to be returned as a long.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>
      *        or the associated value cannot be interpreted as a long,
      *        or the backing store is inaccessible.
      * @return the long value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
+     *         <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      *         associated value does not exist or cannot be interpreted as
      *         a long.
      * @throws IllegalStateException if this node (or an ancestor) has been
@@ -200,7 +216,15 @@ public interface IsaacPreferences  {
      * @see #putLong(String,long)
      * @see #get(String,String)
      */
-    long getLong(String key, long def);
+    long getLong(String key, long defaultValue);
+
+    default OptionalLong getLong(String key) {
+       Optional<String> optionalValue = get(key);
+       if (optionalValue.isPresent()) {
+          return OptionalLong.of(Long.parseLong(optionalValue.get()));
+       }
+       return OptionalLong.empty();
+    }
 
     /**
      * Associates a string representing the specified boolean value with the
@@ -241,12 +265,12 @@ public interface IsaacPreferences  {
      * specified default is used.
      *
      * @param key key whose associated value is to be returned as a boolean.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>
      *        or the associated value cannot be interpreted as a boolean,
      *        or the backing store is inaccessible.
      * @return the boolean value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
+     *         <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      *         associated value does not exist or cannot be interpreted as
      *         a boolean.
      * @throws IllegalStateException if this node (or an ancestor) has been
@@ -255,56 +279,18 @@ public interface IsaacPreferences  {
      * @see #get(String,String)
      * @see #putBoolean(String,boolean)
      */
-    boolean getBoolean(String key, boolean def);
-
-    /**
-     * Associates a string representing the specified float value with the
-     * specified key in this preference node.  The associated string is the
-     * one that would be returned if the float value were passed to
-     * {@link Float#toString(float)}.  This method is intended for use in
-     * conjunction with {@link #getFloat}.
-     *
-     * @param key key with which the string form of value is to be associated.
-     * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     *         <tt>MAX_KEY_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     *         removed with the {@link #removeNode()} method.
-     * @see #getFloat(String,float)
-     */
-    void putFloat(String key, float value);
-
-    /**
-     * Returns the float value represented by the string associated with the
-     * specified key in this preference node.  The string is converted to an
-     * integer as by {@link Float#parseFloat(String)}.  Returns the specified
-     * default if there is no value associated with the key, the backing store
-     * is inaccessible, or if <tt>Float.parseFloat(String)</tt> would throw a
-     * {@link NumberFormatException} if the associated value were passed.
-     * This method is intended for use in conjunction with {@link #putFloat}.
-     *
-     * <p>If the implementation supports <i>stored defaults</i> and such a
-     * default exists, is accessible, and could be converted to a float
-     * with <tt>Float.parseFloat</tt>, this float is returned in preference to
-     * the specified default.
-     *
-     * @param key key whose associated value is to be returned as a float.
-     * @param def the value to be returned in the event that this
-     *        preference node has no value associated with <tt>key</tt>
-     *        or the associated value cannot be interpreted as a float,
-     *        or the backing store is inaccessible.
-     * @return the float value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
-     *         associated value does not exist or cannot be interpreted as
-     *         a float.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     *         removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @see #putFloat(String,float)
-     * @see #get(String,String)
-     */
-    float getFloat(String key, float def);
+    boolean getBoolean(String key, boolean defaultValue);
+    
+    default OptionalBoolean getBoolean(String key) {
+       Optional<String> optionalValue = get(key);
+       if (optionalValue.isPresent()) {
+          if (Boolean.parseBoolean(optionalValue.get())) {
+             return OptionalBoolean.TRUE;
+          }
+          return OptionalBoolean.FALSE;
+       }
+       return OptionalBoolean.ANY;
+    }
 
     /**
      * Associates a string representing the specified double value with the
@@ -339,12 +325,12 @@ public interface IsaacPreferences  {
      * to the specified default.
      *
      * @param key key whose associated value is to be returned as a double.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>
      *        or the associated value cannot be interpreted as a double,
      *        or the backing store is inaccessible.
      * @return the double value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
+     *         <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      *         associated value does not exist or cannot be interpreted as
      *         a double.
      * @throws IllegalStateException if this node (or an ancestor) has been
@@ -353,7 +339,15 @@ public interface IsaacPreferences  {
      * @see #putDouble(String,double)
      * @see #get(String,String)
      */
-    double getDouble(String key, double def);
+    double getDouble(String key, double defaultValue);
+    
+    default OptionalDouble getDouble(String key) {
+       Optional<String> optionalValue = get(key);
+       if (optionalValue.isPresent()) {
+          return OptionalDouble.of(Double.parseDouble(optionalValue.get()));
+       }
+       return OptionalDouble.empty();
+    }
 
     /**
      * Associates a string representing the specified byte array with the
@@ -402,22 +396,29 @@ public interface IsaacPreferences  {
      * specified default is used.
      *
      * @param key key whose associated value is to be returned as a byte array.
-     * @param def the value to be returned in the event that this
+     * @param defaultValue the value to be returned in the event that this
      *        preference node has no value associated with <tt>key</tt>
      *        or the associated value cannot be interpreted as a byte array,
      *        or the backing store is inaccessible.
      * @return the byte array value represented by the string associated with
-     *         <tt>key</tt> in this preference node, or <tt>def</tt> if the
+     *         <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      *         associated value does not exist or cannot be interpreted as
      *         a byte array.
      * @throws IllegalStateException if this node (or an ancestor) has been
      *         removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.  (A
-     *         <tt>null</tt> value for <tt>def</tt> <i>is</i> permitted.)
+     * @throws NullPointerException if <tt>key</tt> or <tt>defaultValue</tt> is <tt>null</tt>.  
      * @see #get(String,String)
      * @see #putByteArray(String,byte[])
      */
-    byte[] getByteArray(String key, byte[] def);
+    byte[] getByteArray(String key, byte[] defaultValue);
+    
+    default Optional<byte[]> getByteArray(String key) {
+       Optional<String> optionalValue = get(key);
+       if (optionalValue.isPresent()) {
+          return Optional.of(getByteArray(key, null));
+       }
+       return Optional.empty();
+    }
 
     /**
      * Returns all of the keys that have an associated value in this
@@ -769,25 +770,32 @@ public interface IsaacPreferences  {
     * @param defaultValue
     * @return the enumerated preference value. 
     */
-   default <T extends Enum<T>> T getValue(T defaultValue) {
+   default <T extends Enum<T>> T getEnum(T defaultValue) {
       String key = defaultValue.getClass().getCanonicalName();
-      return (T) Enum.valueOf(
-              defaultValue.getClass(), 
-              get(key, defaultValue.name()));
+      String value = get(key, defaultValue.name());
+      return (T) Enum.valueOf(defaultValue.getClass(),value);
+   }
+   default <T extends Enum<T>> Optional<T> getEnum(Class<T> enumClass) {
+      String key = enumClass.getCanonicalName();
+      Optional<String> value = get(key);
+      if (value.isPresent()) {
+         return Optional.of(Enum.valueOf(enumClass,value.get()));
+      }
+      return Optional.empty();
    }
    
-   default void put(Enum value) {
+   default void putEnum(Enum value) {
       String key = value.getClass().getCanonicalName();
       put(key, value.name());
    }
    
    default boolean hasKey(Class clazz) {
-      return get(clazz.getCanonicalName(), null) != null;
+      return get(clazz.getCanonicalName()).isPresent();
    }
    default boolean hasKey(Enum enumDefault) {
-      return get(enumDefault.getClass().getCanonicalName(), null) != null;
+      return get(enumDefault.getClass().getCanonicalName()).isPresent();
    }
    default boolean hasKey(String key) {
-      return get(key, null) != null;
+      return get(key).isPresent();
    }
 }

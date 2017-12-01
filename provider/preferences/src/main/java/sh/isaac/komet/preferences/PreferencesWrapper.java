@@ -42,8 +42,11 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public String get(String key, String def) {
-      return delegate.get(key, def);
+   public String get(String key, String defaultValue) {
+      if (defaultValue == null) {
+         throw new NullPointerException("Default values cannot be null. Use equivalent Optional method instead.");
+      }
+      return delegate.get(key, defaultValue);
    }
 
    @Override
@@ -62,8 +65,8 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public int getInt(String key, int def) {
-      return delegate.getInt(key, def);
+   public int getInt(String key, int defaultValue) {
+      return delegate.getInt(key, defaultValue);
    }
 
    @Override
@@ -72,8 +75,8 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public long getLong(String key, long def) {
-      return delegate.getLong(key, def);
+   public long getLong(String key, long defaultValue) {
+      return delegate.getLong(key, defaultValue);
    }
 
    @Override
@@ -82,18 +85,8 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public boolean getBoolean(String key, boolean def) {
-      return delegate.getBoolean(key, def);
-   }
-
-   @Override
-   public void putFloat(String key, float value) {
-      delegate.putFloat(key, value);
-   }
-
-   @Override
-   public float getFloat(String key, float def) {
-      return delegate.getFloat(key, def);
+   public boolean getBoolean(String key, boolean defaultValue) {
+      return delegate.getBoolean(key, defaultValue);
    }
 
    @Override
@@ -102,8 +95,8 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public double getDouble(String key, double def) {
-      return delegate.getDouble(key, def);
+   public double getDouble(String key, double defaultValue) {
+      return delegate.getDouble(key, defaultValue);
    }
 
    @Override
@@ -112,8 +105,11 @@ public class PreferencesWrapper implements IsaacPreferences {
    }
 
    @Override
-   public byte[] getByteArray(String key, byte[] def) {
-      return delegate.getByteArray(key, def);
+   public byte[] getByteArray(String key, byte[] defaultValue) {
+      if (defaultValue == null) {
+         throw new NullPointerException("Default values cannot be null. Use equivalent Optional method instead.");
+      }
+      return delegate.getByteArray(key, defaultValue);
    }
 
    @Override

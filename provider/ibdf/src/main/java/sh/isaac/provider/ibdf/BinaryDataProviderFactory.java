@@ -43,6 +43,7 @@ package sh.isaac.provider.ibdf;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.nio.file.Path;
 
@@ -92,6 +93,11 @@ public class BinaryDataProviderFactory
    public BinaryDataReaderService getReader(Path dataPath)
             throws FileNotFoundException {
       return new BinaryDataReaderProvider(dataPath);
+   }
+
+   @Override
+   public BinaryDataReaderService getReader(InputStream inputStream) throws FileNotFoundException {
+      return new BinaryDataReaderProvider(inputStream);
    }
 
    /**

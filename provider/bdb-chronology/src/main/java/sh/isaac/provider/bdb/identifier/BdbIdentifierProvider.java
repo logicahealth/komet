@@ -422,11 +422,6 @@ public class BdbIdentifierProvider
    }
 
    @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
-
-   @Override
    public Path getDatabaseFolder() {
       return bdb.getDatabaseFolder();
    }
