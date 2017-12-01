@@ -101,6 +101,9 @@ public class SimpleSearchController
    private NidSet results = new NidSet();
    private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
    private final ObservableList<CustomCheckListItem> kindOfObservableList = FXCollections.observableArrayList();
+   private final String STATUS_ACTIVE = "Active";
+   private final String STATUS_INACTIVE = "Inactive";
+   private final String STATUS_ACTIVE_AND_INACTIVE = "Active & Inactive";
 
 
    @FXML
@@ -111,14 +114,11 @@ public class SimpleSearchController
    private TableView<ObservableDescriptionVersion> resultTable;
    @FXML
    private TableColumn<ObservableDescriptionVersion, String> resultColumn;
-   @FXML
-   private RadioButton activeRadioButton;
-   @FXML
-   private RadioButton inactiveRadioButton;
-   @FXML
-   private RadioButton bothRadioButton;
+
    @FXML
    private CheckListView<CustomCheckListItem> kindOfCheckListView;
+   @FXML
+   private ChoiceBox<String> statusChoiceBox;
 
 
 
@@ -128,10 +128,9 @@ public class SimpleSearchController
       assert searchParameter != null : "fx:id=\"searchParameter\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert resultColumn != null : "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-      assert activeRadioButton != null : "fx:id=\"activeRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-      assert inactiveRadioButton != null : "fx:id=\"inactiveRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-      assert bothRadioButton != null : "fx:id=\"bothRadioButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert kindOfCheckListView != null : "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert statusChoiceBox != null : "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+
 
       this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -184,14 +183,34 @@ public class SimpleSearchController
 
    public void setManifold(Manifold manifold) {
       this.manifold = manifold;
+      initControls();
+   }
+
+   private void initControls(){
+      //init Status Choice Box
+      ObservableList<String> statusChoiceBoxItems = FXCollections.observableArrayList();
+      statusChoiceBoxItems.add(this.STATUS_ACTIVE);
+      statusChoiceBoxItems.add(this.STATUS_INACTIVE);
+      statusChoiceBoxItems.add(this.STATUS_ACTIVE_AND_INACTIVE);
+      this.statusChoiceBox.setItems(statusChoiceBoxItems);
+      this.statusChoiceBox.getSelectionModel().select(0);
+
       //init CheckListView
+      CustomCheckListItem defaultCheckedItem;
       TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(this.manifold);
       List<CustomCheckListItem> list = new ArrayList<>();
-      Arrays.stream(taxonomySnapshot.getTaxonomyChildNids(MetaData.METADATA____SOLOR.getNid()))
+      list.add(new CustomCheckListItem(Get.conceptSpecification(MetaData.METADATA____SOLOR.getNid())));
+      Arrays.stream(taxonomySnapshot.getTaxonomyChildNids(MetaData.HEALTH_CONCEPT____SOLOR.getNid()))
               .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))) );
       Collections.sort(list);
       list.stream().forEach(customCheckListItem -> this.kindOfObservableList.add(customCheckListItem));
       this.kindOfCheckListView.setItems(this.kindOfObservableList);
+
+      list.stream().forEach(item -> {
+         if(item.getNID() == MetaData.PHENOMENON____SOLOR.getNid())
+            this.kindOfCheckListView.getCheckModel().check(item);
+      });
+
    }
 
    @FXML
@@ -208,7 +227,7 @@ public class SimpleSearchController
 
 
       //Filter based on Active, Inactive, or Active/Inactive
-      if (activeRadioButton.isSelected()) {
+      if (this.statusChoiceBox.getValue().equals(this.STATUS_ACTIVE)) {
 
          this.results.stream().forEach(nid -> {
             final Optional<? extends Chronology> chronology =
@@ -224,7 +243,7 @@ public class SimpleSearchController
                this.results.remove(nid);
             }
          });
-      } else if (inactiveRadioButton.isSelected()) {
+      } else if (this.statusChoiceBox.getValue().equals(this.STATUS_INACTIVE)) {
 
          this.results.stream().forEach(nid -> {
             final Optional<? extends Chronology> chronology =
@@ -263,7 +282,6 @@ public class SimpleSearchController
                         if (kindOfNID == conceptReferenceByChildSemantic)
                            nidsToSave.add(childNID);
                      });
-
                      break;
                }
             });

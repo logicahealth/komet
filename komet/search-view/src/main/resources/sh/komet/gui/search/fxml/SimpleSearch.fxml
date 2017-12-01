@@ -16,52 +16,35 @@
     <children>
         <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
-                <SplitPane dividerPositions="0.5, 0.5" orientation="VERTICAL" BorderPane.alignment="CENTER">
+                <SplitPane dividerPositions="0.10957004160887657" orientation="VERTICAL" BorderPane.alignment="CENTER">
                     <items>
-                  <GridPane maxHeight="75.0">
+                  <GridPane maxHeight="422.0" prefHeight="337.0" prefWidth="338.0">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="296.0" minWidth="10.0" prefWidth="76.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="2.0" prefWidth="4.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="10.0" prefWidth="178.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="481.0" minWidth="10.0" prefWidth="81.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="296.0" minWidth="10.0" prefWidth="72.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="0.0" prefWidth="5.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="10.0" prefWidth="177.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="481.0" minWidth="10.0" prefWidth="85.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="59.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="169.0" minHeight="34.0" prefHeight="34.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="223.0" minHeight="37.0" prefHeight="37.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="333.0" minHeight="10.0" prefHeight="282.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Label text="Parameter:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+                        <Label text="Keyword:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
                         <TextField fx:id="searchParameter" prefHeight="27.0" prefWidth="339.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <Button mnemonicParsing="false" onAction="#executeSearch" text="Search" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <Label text="Status:" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+                        <ChoiceBox fx:id="statusChoiceBox" prefHeight="27.0" prefWidth="182.0" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
+                        <CheckListView fx:id="kindOfCheckListView" GridPane.columnSpan="4" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
-                  <GridPane maxHeight="700.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="108.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.0" minWidth="10.0" prefWidth="120.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints maxHeight="154.0" minHeight="10.0" prefHeight="16.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="214.0" minHeight="10.0" prefHeight="214.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <RadioButton fx:id="activeRadioButton" mnemonicParsing="false" text="Active" GridPane.halignment="CENTER">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="status" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="inactiveRadioButton" mnemonicParsing="false" text="Inactive" toggleGroup="$status" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-                        <RadioButton fx:id="bothRadioButton" mnemonicParsing="false" selected="true" text="Both" toggleGroup="$status" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-                        <CheckListView fx:id="kindOfCheckListView" GridPane.columnSpan="3" GridPane.rowIndex="1" />
-                     </children>
-                  </GridPane>
-                        <VBox maxHeight="400.0">
+                        <VBox maxHeight="350.0" prefHeight="300.0" prefWidth="339.0">
                             <children>
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                     <content>
-                                        <TableView fx:id="resultTable" maxHeight="500.0" prefHeight="200.0" prefWidth="200.0">
+                                        <TableView fx:id="resultTable" maxHeight="500.0" prefHeight="338.0" prefWidth="337.0">
                                             <columns>
                                                 <TableColumn fx:id="resultColumn" editable="false" prefWidth="336.0" text="Result" />
                                             </columns>

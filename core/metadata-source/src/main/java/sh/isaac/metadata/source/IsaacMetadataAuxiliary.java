@@ -153,7 +153,16 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
          pushParent(current());
-         createConcept("Phenomenon");
+         createConcept(TermAux.BODY_STRUCTURE);
+         createConcept(TermAux.EVENT);
+         createConcept(TermAux.FORCE);
+         createConcept(TermAux.MEDICATION);
+         createConcept(TermAux.PHENOMENON);
+         createConcept(TermAux.ORGANISM);
+         createConcept(TermAux.OBJECT);
+         createConcept(TermAux.PROCEDURE);
+         createConcept(TermAux.SPECIMEN);
+         createConcept(TermAux.SUBSTANCE);
          popParent();
          createConcept(TermAux.SOLOR_METADATA);
          pushParent(current());
