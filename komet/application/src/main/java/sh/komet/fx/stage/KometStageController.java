@@ -91,6 +91,7 @@ import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
@@ -211,6 +212,23 @@ public class KometStageController
       
       items.add(importTransform);
       
+      MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
+      setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+         ChangeDatabaseMemoryConfigurationAndQuit task = 
+                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+         task.run();
+      });
+      items.add(setLowMemConfigAndQuit);
+
+      MenuItem setHighMemConfigAndQuit = new MenuItem("Set to high memory configuration, erase database, and quit");
+      setHighMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+         ChangeDatabaseMemoryConfigurationAndQuit task = 
+                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.SELECTED_CHRONICLES_IN_MEMORY);
+         task.run();
+      });
+      items.add(setHighMemConfigAndQuit);
+      
+      
       MenuItem completeClassify = new MenuItem("Complete classify");
       completeClassify.setOnAction((ActionEvent event) -> {
          //TODO change how we get the edit coordinate. 
@@ -219,25 +237,25 @@ public class KometStageController
          classifierService.classify();
       });
       items.add(completeClassify);
-
-      MenuItem completeReindex = new MenuItem("Complete reindex");
-      completeReindex.setOnAction((ActionEvent event) -> {
-         Get.startIndexTask();
-      });
-      items.add(completeReindex);
-
-      MenuItem importSources = new MenuItem("Import terminology content");
-      importSources.setOnAction((ActionEvent event) -> {
-         Rf2DirectImporter importer = new Rf2DirectImporter();
-         Get.executor().submit(importer);
-      });
-      items.add(importSources);
-      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
-      transformSources.setOnAction((ActionEvent event) -> {
-         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
-         Get.executor().submit(transformer);
-      });
-      items.add(transformSources);
+//
+//      MenuItem completeReindex = new MenuItem("Complete reindex");
+//      completeReindex.setOnAction((ActionEvent event) -> {
+//         Get.startIndexTask();
+//      });
+//      items.add(completeReindex);
+//
+//      MenuItem importSources = new MenuItem("Import terminology content");
+//      importSources.setOnAction((ActionEvent event) -> {
+//         Rf2DirectImporter importer = new Rf2DirectImporter();
+//         Get.executor().submit(importer);
+//      });
+//      items.add(importSources);
+//      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
+//      transformSources.setOnAction((ActionEvent event) -> {
+//         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+//         Get.executor().submit(transformer);
+//      });
+//      items.add(transformSources);
       return items;
    }
 

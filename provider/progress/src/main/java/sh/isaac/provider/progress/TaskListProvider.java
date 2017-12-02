@@ -63,7 +63,9 @@ public class TaskListProvider {
     * @param task the task
     */
    public void remove(Task<?> task) {
-      this.taskSet.remove(task);
+      Platform.runLater(() -> {
+            this.taskSet.remove(task);
+      });
    }
    
 }

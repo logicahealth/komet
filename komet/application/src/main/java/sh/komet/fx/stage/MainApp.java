@@ -42,7 +42,6 @@ package sh.komet.fx.stage;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 //~--- non-JDK imports --------------------------------------------------------
 

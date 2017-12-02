@@ -40,7 +40,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
    protected static final Logger LOG = LogManager.getLogger();
    private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
    protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
-   final int transformSize = 102400;
+   final int transformSize = 10240;
    final ContainerSequenceService containerService = ModelGet.identifierService();
 
    public Rf2RelationshipTransformer() {

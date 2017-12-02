@@ -88,7 +88,7 @@ import sh.isaac.api.util.metainf.MetaInfReader;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = 3)
+@RunLevel(value = 5)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */

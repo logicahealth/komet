@@ -166,6 +166,8 @@ public class PreferencesProvider
          if (!this.applicationPreferences.hasKey(MemoryConfiguration.class)) {
             this.applicationPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
          }
+         this.applicationPreferences.put(DATA_STORE_ROOT_LOCATION_PROPERTY, 
+                 System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
          this.applicationPreferences.sync();
          
       } catch (Throwable ex) {
