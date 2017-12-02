@@ -422,6 +422,19 @@ public class TermAux {
    public static ConceptSpecification INFORMATICS_INC_COPYRIGHT = new ConceptProxy("© Informatics, Incorporated", "© Informatics, Inc.", UUID.fromString("f892783f-4aa4-5ba8-a0bf-8a99c4149155"));
    public static ConceptSpecification KEITH_CAMPBELL = new ConceptProxy("Keith Eugene Campbell", "kec", UUID.fromString("5e47881c-9e27-5578-a1c1-5535a9400bc6"));
 
+   //SNOMED CT High Level Taxonomy Classes
+   public static ConceptSpecification BODY_STRUCTURE = new ConceptProxy("Body structure", "Body structure", UUID.fromString("4be3f62e-28d5-3bb4-a424-9aa7856a1790"));
+   public static ConceptSpecification EVENT = new ConceptProxy("Event", "Event", UUID.fromString("c7243365-510d-3e5f-82b3-7286b27d7698"));
+   public static ConceptSpecification FORCE = new ConceptProxy("Force", "Force", UUID.fromString("32213bf6-c073-3ce1-b0c7-9463e43af2f1"));
+   public static ConceptSpecification MEDICATION = new ConceptProxy("Medication", "Medication", UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449"));
+   public static ConceptSpecification PHENOMENON = new ConceptProxy("Phenomenon", "Phenomenon", UUID.fromString("c2e8bc47-3353-5e02-b0d1-2a5916efed4d"));
+   public static ConceptSpecification ORGANISM = new ConceptProxy("Organism", "Organism", UUID.fromString("0bab48ac-3030-3568-93d8-aee0f63bf072"));
+   public static ConceptSpecification OBJECT = new ConceptProxy("Object", "Object", UUID.fromString("72765109-6b53-3814-9b05-34ebddd16592"));
+   public static ConceptSpecification PROCEDURE = new ConceptProxy("Procedure", "Procedure", UUID.fromString("bfbced4b-ad7d-30aa-ae5c-f848ccebd45b"));
+   public static ConceptSpecification SPECIMEN = new ConceptProxy("Specimen", "Specimen", UUID.fromString("3680e12d-c14c-39cb-ac89-2ae1fa125d41"));
+   public static ConceptSpecification SUBSTANCE = new ConceptProxy("Substance", "Substance", UUID.fromString("95f41098-8391-3f5e-9d61-4b019f1de99d"));
+
+
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -554,7 +567,7 @@ public class TermAux {
    }
    
    public static void main(String[] args) {
-      for (int i = 0; i < 50; i++) {
+      for (int i = 0; i < 19; i++) {
          System.out.println(UuidT5Generator.get(UUID.randomUUID().toString()));
       }
    }
