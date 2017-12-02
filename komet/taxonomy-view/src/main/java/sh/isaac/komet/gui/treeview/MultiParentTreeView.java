@@ -85,6 +85,7 @@ import com.lmax.disruptor.EventHandler;
 import javafx.event.ActionEvent;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -116,7 +117,7 @@ import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
  */
 public class MultiParentTreeView
         extends BorderPane
-         implements ExplorationNode {
+         implements ExplorationNode, RefreshListener {
    /**
     * The Constant LOG.
     */
@@ -211,10 +212,19 @@ public class MultiParentTreeView
 
 
       setupTopPane();
+      // Not a leak, since the taxonomy service adds a weak reference to the listener. 
+      Get.taxonomyService().addTaxonomyRefreshListener(this);
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
    }
 
    //~--- methods -------------------------------------------------------------
+
+   @Override
+   public void refresh() {
+      Platform.runLater(() -> {
+         this.refreshTaxonomy();
+      });
+   }
 
    /**
     * Convenience method for other code to add buttons, etc to the tool bar displayed above the tree view
@@ -223,7 +233,7 @@ public class MultiParentTreeView
     */
    public void addToToolBar(Node node) {
       toolBar.getItems()
-             .add(node);
+              .add(node);
    }
 
    /**
@@ -562,10 +572,15 @@ public class MultiParentTreeView
    private void taxonomyPremiseChanged(ObservableValue<? extends ConceptSpecification> observable,
          ConceptSpecification oldValue,
          ConceptSpecification newValue) {
+      refreshTaxonomy();
+   }
+
+   private void refreshTaxonomy() {
       saveExpanded();
+      PremiseType newPremiseType = PremiseType.fromConcept(this.premiseChoiceBox.getValue());
       this.manifold.getManifoldCoordinate()
-                   .premiseTypeProperty()
-                   .set(PremiseType.fromConcept(newValue));
+              .premiseTypeProperty()
+              .set(newPremiseType);
       taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
       this.rootTreeItem.clearChildren();
       this.rootTreeItem.resetChildrenCalculators();

@@ -131,5 +131,27 @@ public interface TaxonomyService
     * @return an unprocessed TreeNodeVisitData object. 
     */
    Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid);
+   
+   
+   /**
+    * Due to the use of Weak References in the implementation, you MUST maintain a reference to the change listener that is passed in here,
+    * otherwise, it will be rapidly garbage collected, and you will randomly stop getting change notifications!.
+    * <br>
+    * Notification occurs on the FxApplication thread. 
+    * @param refreshListener the refresh listener
+    */
+   void addTaxonomyRefreshListener(RefreshListener refreshListener);
+   
+   /**
+    * Called by processes when the process decides that it has concluded a set of changes, and taxonomy listeners should
+    * refresh. This method will not send notifications for every change to the taxonomy (it will not notify when
+    * updateTaxonomy(SemanticChronology logicGraphChronology) is called). If listeners want to be notified of 
+    * every taxonomy change, they should use the addChangeListener(ChronologyChangeListener changeListener) 
+    * capability provided the the CommitService, and filter the changes of interest to them. 
+    * <br>
+    * Notification occurs on the FxApplication thread, but this method may be called on any thread. 
+    */
+   void notifyTaxonomyListenersToRefresh();
+   
 }
 

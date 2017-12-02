@@ -275,6 +275,10 @@
                <additionalAppResources>${project.build.directory}/data</additionalAppResources>
                <detail>true</detail>
                <skipNativeVersionNumberSanitizing>true</skipNativeVersionNumberSanitizing>   
+               <jvmArgs>
+                  <jvmArg>-Xms4G</jvmArg>
+                  <jvmArg>-Xmx16G</jvmArg>
+               </jvmArgs>               
                <bundleArguments>              
                   <icon.ico>${project.basedir}/src/main/resources/icons/KOMET.ico</icon.ico>
                   <icon.png>${project.basedir}/src/main/resources/icons/KOMET.png</icon.png>

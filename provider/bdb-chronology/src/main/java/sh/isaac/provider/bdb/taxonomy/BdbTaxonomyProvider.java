@@ -34,12 +34,10 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 
@@ -53,7 +51,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
@@ -62,12 +59,10 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker.State;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -78,6 +73,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConceptActiveService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.RefreshListener;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -102,7 +98,6 @@ import sh.isaac.provider.bdb.chronology.ChronologyUpdate;
 import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -110,15 +105,16 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
 @Service
 @RunLevel(value = 5)
 public class BdbTaxonomyProvider
-         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
+        implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
+
    /**
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
+   private static final int MAX_AVAILABLE = Runtime.getRuntime()
+           .availableProcessors() * 2;
 
    //~--- fields --------------------------------------------------------------
-
-   private static final int MAX_AVAILABLE = Runtime.getRuntime().availableProcessors() * 2;
    private final Semaphore updatePermits = new Semaphore(MAX_AVAILABLE);
 
    /**
@@ -130,22 +126,31 @@ public class BdbTaxonomyProvider
     * The tree cache.
     */
    private final ConcurrentHashMap<Integer, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-   private final UUID                                   listenerUUID  = UUID.randomUUID();
+   private final UUID listenerUUID = UUID.randomUUID();
+
+   /**
+    * The change listeners.
+    */
+   ConcurrentSkipListSet<WeakReference<RefreshListener>> refreshListeners = new ConcurrentSkipListSet<>();
 
    /**
     * The identifier service.
     */
    private BdbIdentifierProvider identifierService;
-   private BdbProvider           bdb;
-   private int                   inferredAssemblageNid;
-   private int                   isaNid;
-   private int                   roleGroupNid;
+   private BdbProvider bdb;
+   private int inferredAssemblageNid;
+   private int isaNid;
+   private int roleGroupNid;
 
    //~--- constructors --------------------------------------------------------
-
-   public BdbTaxonomyProvider() {}
+   public BdbTaxonomyProvider() {
+   }
 
    //~--- methods -------------------------------------------------------------
+   @Override
+   public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
+      refreshListeners.add(new WeakReference<>(refreshListener));
+   }
 
    @Override
    public String describeTaxonomyRecord(int nid) {
@@ -155,7 +160,7 @@ public class BdbTaxonomyProvider
    @Override
    public void handleChange(ConceptChronology cc) {
       // not processing concept changes
-      // is this call redundant/better than update status call above?
+      // is this call redundant/better than updateStatus(ConceptChronology conceptChronology) call/method?
    }
 
    @Override
@@ -171,8 +176,24 @@ public class BdbTaxonomyProvider
       if (this.semanticNidsForUnhandledChanges.size() > 0) {
          this.snapshotCache.clear();
       }
+
       this.updatePermits.acquireUninterruptibly();
       UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
+   }
+
+   @Override
+   public void notifyTaxonomyListenersToRefresh() {
+      snapshotCache.clear();
+      Platform.runLater(
+              () -> {
+                 for (WeakReference<RefreshListener> listenerReference : refreshListeners) {
+                    RefreshListener listener = listenerReference.get();
+
+                    if (listener != null) {
+                       listener.refresh();
+                    }
+                 }
+              });
    }
 
    @Override
@@ -193,7 +214,7 @@ public class BdbTaxonomyProvider
    @Override
    public boolean wasEverKindOf(int childId, int parentId) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    private SpinedIntIntArrayMap loadTaxonomyFromDatabase(int assemblageKey) {
@@ -208,15 +229,15 @@ public class BdbTaxonomyProvider
       try {
          LOG.info("Starting BdbTaxonomyProvider post-construct");
          this.inferredAssemblageNid = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
-         this.isaNid                = TermAux.IS_A.getNid();
-         this.roleGroupNid          = TermAux.ROLE_GROUP.getNid();
-         this.bdb                   = Get.service(BdbProvider.class);
+         this.isaNid = TermAux.IS_A.getNid();
+         this.roleGroupNid = TermAux.ROLE_GROUP.getNid();
+         this.bdb = Get.service(BdbProvider.class);
          Get.commitService()
-            .addChangeListener(this);
+                 .addChangeListener(this);
          this.identifierService = Get.service(BdbIdentifierProvider.class);
       } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
-                      .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
+                 .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
          throw new RuntimeException(e);
       }
    }
@@ -227,30 +248,31 @@ public class BdbTaxonomyProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping BdbTaxonomyProvider");
-      // make sure updates are done prior to allowing other services to stop. 
+
+      // make sure updates are done prior to allowing other services to stop.
       this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
       LOG.info("BdbTaxonomyProvider stopped");
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
    public IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      int                  assemblageNid                        = identifierService.getAssemblageNidForNid(conceptNid);
+      int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(assemblageNid);
-      int[]                taxonomyData                         = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
+      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
       if (taxonomyData == null) {
          return false;
       }
 
       TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
+
       return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
    }
 
@@ -288,20 +310,20 @@ public class BdbTaxonomyProvider
    @Override
    public IntStream getTaxonomyChildSequences(int parentId) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public IntStream getTaxonomyParentSequences(int childId) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
-      int                  conceptAssemblageNid = ModelGet.identifierService()
-                                                          .getAssemblageNidForNid(nid);
-      SpinedIntIntArrayMap map                  = getTaxonomyRecordMap(conceptAssemblageNid);
-      int[]                record               = map.get(nid);
+      int conceptAssemblageNid = ModelGet.identifierService()
+              .getAssemblageNidForNid(nid);
+      SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
+      int[] record = map.get(nid);
 
       return new TaxonomyRecordPrimitive(record);
    }
@@ -319,17 +341,17 @@ public class BdbTaxonomyProvider
       }
 
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(
-                                                                      tc.getLogicCoordinate()
-                                                                            .getConceptAssemblageNid());
+              tc.getLogicCoordinate()
+                      .getConceptAssemblageNid());
       TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
+      Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
 
-//    Task<Tree>      previousTask    = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
-//
-//    if (previousTask != null) {
-//       return previousTask;
-//    }
+      if (previousTask != null) {
+         return previousTask;
+      }
+
       Get.executor()
-         .execute(treeBuilderTask);
+              .execute(treeBuilderTask);
       return treeBuilderTask;
    }
 
@@ -339,71 +361,68 @@ public class BdbTaxonomyProvider
       SpinedNidIntMap nid_sequenceInAssemblage_map = identifierService.getNid_ElementSequence_Map();
 
       return () -> new TreeNodeVisitDataBdbImpl(
-          (int) sequenceInAssemblage_nid_map.valueStream().count(),
-          conceptAssemblageNid,
-          nid_sequenceInAssemblage_map,
-          sequenceInAssemblage_nid_map);
+              (int) sequenceInAssemblage_nid_map.valueStream().count(),
+              conceptAssemblageNid,
+              nid_sequenceInAssemblage_map,
+              sequenceInAssemblage_nid_map);
    }
 
    //~--- inner classes -------------------------------------------------------
-
    /**
     * The Class TaxonomySnapshotProvider.
     */
    private class TaxonomySnapshotProvider
-            implements TaxonomySnapshotService {
-      int     isaNid            = TermAux.IS_A.getNid();
-      int     childOfNid        = TermAux.CHILD_OF.getNid();
-      NidSet  childOfTypeNidSet = new NidSet();
-      NidSet  isaTypeNidSet     = new NidSet();
-  
+           implements TaxonomySnapshotService {
+
+      int isaNid = TermAux.IS_A.getNid();
+      int childOfNid = TermAux.CHILD_OF.getNid();
+      NidSet childOfTypeNidSet = new NidSet();
+      NidSet isaTypeNidSet = new NidSet();
+
       /**
        * The tc.
        */
       final ManifoldCoordinate tc;
-      Tree                     treeSnapshot;
-      Task<Tree>               treeTask;
+      Tree treeSnapshot;
+      final Task<Tree> treeTask;
 
       //~--- initializers -----------------------------------------------------
-
       {
          isaTypeNidSet.add(isaNid);
          childOfTypeNidSet.add(childOfNid);
       }
 
       //~--- constructors -----------------------------------------------------
-
       public TaxonomySnapshotProvider(ManifoldCoordinate tc, Task<Tree> treeTask) {
-         this.tc       = tc;
+         this.tc = tc;
          this.treeTask = treeTask;
 
          if (Platform.isFxApplicationThread()) {
             this.treeTask.stateProperty()
-                         .addListener(this::succeeded);
+                    .addListener(this::succeeded);
          } else {
             Platform.runLater(
-                () -> {
-                   Task<Tree> theTask = treeTask;
-                   if (theTask != null) {
-                      if (!theTask.isDone()) {
-                         theTask.stateProperty()
-                                      .addListener(this::succeeded);
-                      } else {
-                         try {
-                            this.treeTask     = null;
-                            this.treeSnapshot = treeTask.get();
-                         } catch (InterruptedException | ExecutionException ex) {
-                            LOG.error(ex);
-                         }
-                      }
-                   }
-                });
+                    () -> {
+                       Task<Tree> theTask = treeTask;
+
+                       if (theTask != null) {
+                          if (!theTask.isDone()) {
+                             theTask.stateProperty()
+                                     .addListener(this::succeeded);
+                          } else {
+                             try {
+                                this.treeSnapshot = treeTask.get();
+                             } catch (InterruptedException | ExecutionException ex) {
+                                LOG.error(ex);
+                             }
+                          }
+                       }
+                    });
          }
 
          if (treeTask.isDone()) {
             try {
                this.treeSnapshot = treeTask.get();
-               this.treeTask     = null;
             } catch (InterruptedException | ExecutionException ex) {
                LOG.error(ex);
                throw new RuntimeException(ex);
@@ -411,25 +430,13 @@ public class BdbTaxonomyProvider
          }
       }
 
-      /**
-       * Instantiates a new taxonomy snapshot provider.
-       *
-       * @param tc the tc
-       */
-      public TaxonomySnapshotProvider(ManifoldCoordinate tc, Tree treeSnapshot) {
-         this.tc           = tc;
-         this.treeSnapshot = treeSnapshot;
-      }
-
       //~--- methods ----------------------------------------------------------
-
       private void succeeded(ObservableValue<? extends State> observable, State oldValue, State newValue) {
          try {
             switch (newValue) {
-            case SUCCEEDED: {
-               this.treeSnapshot = treeTask.get();
-               this.treeTask     = null;
-            }
+               case SUCCEEDED: {
+                  this.treeSnapshot = treeTask.get();
+               }
             }
          } catch (InterruptedException | ExecutionException ex) {
             LOG.error(ex);
@@ -438,7 +445,6 @@ public class BdbTaxonomyProvider
       }
 
       //~--- get methods ------------------------------------------------------
-
       /**
        * Checks if child of.
        *
@@ -474,7 +480,7 @@ public class BdbTaxonomyProvider
             return true;
          }
 
-         for (int parentNid: getTaxonomyParentNids(childId)) {
+         for (int parentNid : getTaxonomyParentNids(childId)) {
             if (isKindOf(parentNid, kindofNid)) {
                return true;
             }
@@ -498,10 +504,10 @@ public class BdbTaxonomyProvider
             return kindOfSet;
          }
 
-         int[]  childNids = getTaxonomyChildNids(rootId);
+         int[] childNids = getTaxonomyChildNids(rootId);
          NidSet kindOfSet = NidSet.of(getTaxonomyChildNids(rootId));
 
-         for (int childNid: childNids) {
+         for (int childNid : childNids) {
             kindOfSet.addAll(getKindOfSequenceSet(childNid));
          }
 
@@ -524,7 +530,7 @@ public class BdbTaxonomyProvider
             return treeSnapshot.getRootNids();
          }
 
-         return new int[] { TermAux.SOLOR_ROOT.getNid() };
+         return new int[]{TermAux.SOLOR_ROOT.getNid()};
       }
 
       /**
@@ -581,4 +587,3 @@ public class BdbTaxonomyProvider
       }
    }
 }
-

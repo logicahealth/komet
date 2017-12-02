@@ -63,6 +63,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          return null;
       } finally {
          this.done();
+         Get.taxonomyService().notifyTaxonomyListenersToRefresh();
          Get.activeTasks().remove(this);
       }
    }

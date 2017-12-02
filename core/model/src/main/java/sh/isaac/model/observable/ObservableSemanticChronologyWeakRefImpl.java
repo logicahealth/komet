@@ -42,7 +42,6 @@ import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
  *

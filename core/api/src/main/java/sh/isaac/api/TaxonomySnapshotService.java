@@ -118,5 +118,6 @@ public interface TaxonomySnapshotService {
     * @return ManifoldCoordinate
     */
    ManifoldCoordinate getManifoldCoordinate();
+   
 }
 
