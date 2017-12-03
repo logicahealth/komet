@@ -149,6 +149,7 @@ public class MultiParentTreeView
    private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
    private final ChoiceBox<ConceptSpecification> premiseChoiceBox;
    private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
+   private final UUID uuid = UUID.randomUUID();
 
    //~--- constructors --------------------------------------------------------
 
@@ -244,6 +245,11 @@ public class MultiParentTreeView
    public static void globalShutdownRequested() {
       shutdownRequested = true;
       LOG.info("Global Tree shutdown called!");
+   }
+
+   @Override
+   public UUID getListenerUuid() {
+      return this.uuid;
    }
 
    public void showConcept(final UUID conceptUUID, final BooleanProperty workingIndicator) {

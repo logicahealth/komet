@@ -16,7 +16,6 @@
  */
 package sh.isaac.api.preferences;
 
-import com.sun.javafx.scene.control.behavior.OptionalBoolean;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

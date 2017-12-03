@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.search.simple;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -50,7 +46,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import org.apache.logging.log4j.LogManager;
@@ -60,20 +55,14 @@ import org.controlsfx.control.IndexedCheckModel;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.query.clauses.ConceptIsChildOf;
-import sh.isaac.api.query.clauses.ConceptIsKindOf;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.ConceptForControlWrapper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -81,30 +70,27 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public class SimpleSearchController
-         implements ExplorationNode {
+        implements ExplorationNode {
 
    private static final Logger LOG = LogManager.getLogger();
    private final SimpleStringProperty titleProperty = new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
    private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-   SimpleStringProperty               toolTipText   = new SimpleStringProperty("Simple Search Panel");
+   SimpleStringProperty toolTipText = new SimpleStringProperty("Simple Search Panel");
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
-                                                               Iconography.SIMPLE_SEARCH.getIconographic());
+           Iconography.SIMPLE_SEARCH.getIconographic());
    private Manifold manifold;
    private NidSet results = new NidSet();
    private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
    private final ObservableList<CustomCheckListItem> kindOfObservableList = FXCollections.observableArrayList();
-   private final String STATUS_ACTIVE = "Active";
-   private final String STATUS_INACTIVE = "Inactive";
-   private final String STATUS_ACTIVE_AND_INACTIVE = "Active & Inactive";
-
 
    @FXML
    AnchorPane mainAnchorPane;
@@ -118,9 +104,7 @@ public class SimpleSearchController
    @FXML
    private CheckListView<CustomCheckListItem> kindOfCheckListView;
    @FXML
-   private ChoiceBox<String> statusChoiceBox;
-
-
+   private ChoiceBox<SearchComponentStatus> statusChoiceBox;
 
    @FXML
    void initialize() {
@@ -130,7 +114,6 @@ public class SimpleSearchController
       assert resultColumn != null : "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert kindOfCheckListView != null : "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert statusChoiceBox != null : "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-
 
       this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -160,7 +143,7 @@ public class SimpleSearchController
       titleProperty.set("");
       return Optional.of(titleLabel);
    }
- 
+
    @Override
    public Manifold getManifold() {
       return manifold;
@@ -186,14 +169,14 @@ public class SimpleSearchController
       initControls();
    }
 
-   private void initControls(){
+   private void initControls() {
       //init Status Choice Box
-      ObservableList<String> statusChoiceBoxItems = FXCollections.observableArrayList();
-      statusChoiceBoxItems.add(this.STATUS_ACTIVE);
-      statusChoiceBoxItems.add(this.STATUS_INACTIVE);
-      statusChoiceBoxItems.add(this.STATUS_ACTIVE_AND_INACTIVE);
+      ObservableList<SearchComponentStatus> statusChoiceBoxItems = FXCollections.observableArrayList();
+      for (SearchComponentStatus status : SearchComponentStatus.values()) {
+         statusChoiceBoxItems.add(status);
+      }
       this.statusChoiceBox.setItems(statusChoiceBoxItems);
-      this.statusChoiceBox.getSelectionModel().select(0);
+      this.statusChoiceBox.getSelectionModel().select(SearchComponentStatus.ACTIVE);
 
       //init CheckListView
       CustomCheckListItem defaultCheckedItem;
@@ -201,21 +184,22 @@ public class SimpleSearchController
       List<CustomCheckListItem> list = new ArrayList<>();
       list.add(new CustomCheckListItem(Get.conceptSpecification(MetaData.METADATA____SOLOR.getNid())));
       Arrays.stream(taxonomySnapshot.getTaxonomyChildNids(MetaData.HEALTH_CONCEPT____SOLOR.getNid()))
-              .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))) );
+              .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))));
       Collections.sort(list);
       list.stream().forEach(customCheckListItem -> this.kindOfObservableList.add(customCheckListItem));
       this.kindOfCheckListView.setItems(this.kindOfObservableList);
 
       list.stream().forEach(item -> {
-         if(item.getNID() == MetaData.PHENOMENON____SOLOR.getNid())
+         if (item.getNID() == MetaData.PHENOMENON____SOLOR.getNid()) {
             this.kindOfCheckListView.getCheckModel().check(item);
+         }
       });
 
    }
 
    @FXML
-   public void executeSearch(ActionEvent actionEvent){
-      if(!this.searchParameter.getText().equals("")) {
+   public void executeSearch(ActionEvent actionEvent) {
+      if (!this.searchParameter.getText().isEmpty()) {
          this.descriptionLuceneMatch.setManifoldCoordinate(this.manifold);
          this.descriptionLuceneMatch.setParameterString(this.searchParameter.getText());
          this.results = descriptionLuceneMatch.computePossibleComponents(null);
@@ -223,77 +207,80 @@ public class SimpleSearchController
       }
    }
 
-   private void filterSearchResults(){
-
-
-      //Filter based on Active, Inactive, or Active/Inactive
-      if (this.statusChoiceBox.getValue().equals(this.STATUS_ACTIVE)) {
-
-         this.results.stream().forEach(nid -> {
-            final Optional<? extends Chronology> chronology =
-                    Get.identifiedObjectService()
-                            .getIdentifiedObjectChronology(nid);
-
-            if (chronology.isPresent()) {
-               if (!chronology.get()
-                       .isLatestVersionActive(this.manifold.getStampCoordinate())) {
-                  this.results.remove(nid);
-               }
-            } else {
-               this.results.remove(nid);
-            }
-         });
-      } else if (this.statusChoiceBox.getValue().equals(this.STATUS_INACTIVE)) {
-
-         this.results.stream().forEach(nid -> {
-            final Optional<? extends Chronology> chronology =
-                    Get.identifiedObjectService()
-                            .getIdentifiedObjectChronology(nid);
-
-            if (chronology.isPresent()) {
-               if (chronology.get()
-                       .isLatestVersionActive(this.manifold.getStampCoordinate())) {
-                  this.results.remove(nid);
-               }
-            } else {
-               this.results.remove(nid);
-            }
-         });
-      }
-
-      //Filter by selected kind of parent concept
+   private void filterSearchResults() {
+      NidSet filteredValues = new NidSet();
+      SearchComponentStatus searchComponentStatus = this.statusChoiceBox.getValue();
+      // Get a combined set of allowed concepts... 
       IndexedCheckModel<CustomCheckListItem> indexedCheckModel = this.kindOfCheckListView.getCheckModel();
-      if(indexedCheckModel.getCheckedIndices().size() > 0) {
-         NidSet nidsToSave = new NidSet();
-
-         indexedCheckModel.getCheckedIndices().stream().forEach(index -> {
-
-            this.results.stream().forEach(childNID -> {
-               int parentNID = indexedCheckModel.getItem(index).getNID();
-
-               //need to find concept that semantic belongs too (from lucene search)
-               switch (Get.identifierService().getObjectTypeForComponent(childNID)) {
-                  case SEMANTIC:
-                     int conceptReferenceByChildSemantic = Get.observableSnapshotService(this.manifold)
-                             .getObservableSemanticVersion(childNID).get().referencedComponentNidProperty().get();
-
-                     Get.taxonomyService().getSnapshot(this.manifold)
-                             .getKindOfSequenceSet(parentNID).stream().forEach(kindOfNID -> {
-                        if (kindOfNID == conceptReferenceByChildSemantic)
-                           nidsToSave.add(childNID);
-                     });
-                     break;
-               }
-            });
-         });
-         this.results.clear();
-         this.results.addAll(nidsToSave);
+      TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(this.manifold);
+      NidSet allowedParents = new NidSet();
+      for (int checkedIndex : indexedCheckModel.getCheckedIndices()) {
+         allowedParents.add(indexedCheckModel.getItem(checkedIndex).getNID());
       }
+
+      // if the result set is small, it will be faster to use the isKindOf method call, rather than pre-computing 
+      // all allowed concepts as the kindOfSequenceSet would. You can play with changing this number to compare
+      // performance choices. 
+      NidSet allowedConceptNids = null;
+      if (this.results.size() > 500) {
+         allowedConceptNids = new NidSet();
+         for (int allowedParentNid: allowedParents.asArray()) {
+            NidSet kindOfSet = taxonomySnapshot.getKindOfSequenceSet(allowedParentNid);
+            allowedConceptNids.addAll(kindOfSet);
+         }
+      }
+
+      // I assume this is a description nid...
+      for (int descriptionNid : this.results.asArray()) {
+         SemanticChronology descriptionChronology = Get.assemblageService().getSemanticChronology(descriptionNid);
+         LatestVersion<DescriptionVersion> description = descriptionChronology.getLatestVersion(manifold);
+         // TODO, this step probably filters out inactive descriptions, which is not always what we do. 
+         // The stamp coordinate would have to have both active and inactive status values, but I don't want to mess with the 
+         // manifold here, save that for the FLOWR query to get right. 
+         if (!description.isPresent()) {
+            // move on to the next one...
+            continue;
+         }
+         DescriptionVersion descriptionVersion = description.get();
+         int conceptNid = descriptionVersion.getReferencedComponentNid();
+         if (searchComponentStatus != SearchComponentStatus.DONT_CARE) {
+            boolean active = Get.conceptActiveService().isConceptActive(conceptNid, manifold);
+            if (!searchComponentStatus.filter(active)) {
+               // move on to the next one...
+               continue;
+            }
+         }
+         if (!allowedParents.isEmpty()) {
+            if (allowedConceptNids != null) {
+               if (!allowedConceptNids.contains(conceptNid)) {
+                  // move on to the next one...
+                  continue;
+               }
+            } else {
+               boolean allowedParentFound = false;
+               for (int allowedParentNid: allowedParents.asArray()) {
+                  if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
+                     allowedParentFound = true;
+                     // break the allowedParents loop
+                     break;
+                  }
+               }
+               if (!allowedParentFound) {
+                  // move on to the next one. 
+                  continue;
+               }
+            }
+         }
+         // if you get this far, it is an allowed nid. 
+         filteredValues.add(descriptionNid);
+      }
+      this.results.clear();
+      this.results.addAll(filteredValues);
 
       displaySearchResults();
    }
 
-   private void displaySearchResults(){
+   private void displaySearchResults() {
       ObservableList<ObservableDescriptionVersion> tableItems = this.resultTable.getItems();
       ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
 
@@ -301,7 +288,7 @@ public class SimpleSearchController
       this.results.stream().forEach(value -> {
          LatestVersion<ObservableDescriptionVersion> latestDescription
                  = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
-                 value);
+                         value);
 
          if (latestDescription.isPresent()) {
             tableItems.add(latestDescription.get());
@@ -312,12 +299,11 @@ public class SimpleSearchController
       });
    }
 
-
-   private class CustomCheckListItem implements Comparable<CustomCheckListItem>{
+   private class CustomCheckListItem implements Comparable<CustomCheckListItem> {
 
       private ConceptSpecification conceptSpecification;
 
-      public CustomCheckListItem(ConceptSpecification conceptSpecification){
+      public CustomCheckListItem(ConceptSpecification conceptSpecification) {
          this.conceptSpecification = conceptSpecification;
       }
 
@@ -326,7 +312,7 @@ public class SimpleSearchController
          return this.conceptSpecification.getFullySpecifiedConceptDescriptionText().compareTo(o.getConceptSpecification().getFullySpecifiedConceptDescriptionText());
       }
 
-      public int getNID(){
+      public int getNID() {
          return this.conceptSpecification.getNid();
       }
 
@@ -340,4 +326,3 @@ public class SimpleSearchController
       }
    }
 }
-

@@ -637,19 +637,10 @@ public class IsaacMetadataAuxiliary
          
          popParent();
          
-         createConcept("test concept");
-         pushParent(current());
-         ConceptBuilder parentOneBuilder = createConcept("parent one");
-         pushParent(current());
-         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
-         popParent();
-         ConceptBuilder parentTwoBuilder = createConcept("parent two");
-         
-         
-         
+         if (false) {
+            addMultiparentTestConcepts();
+         }
 
-         
-         
          popParent();
          
          // Note that we leave this method with the root concept set as parent (on purpose) - we don't call popParent the last time.
@@ -661,16 +652,26 @@ public class IsaacMetadataAuxiliary
          // MetaData file....
          generateStableUUIDs();
 
-         final LogicalExpressionBuilderService expressionBuilderService =
-            LookupService.getService(LogicalExpressionBuilderService.class);
-         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
-                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
-                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
-         
-         final LogicalExpression logicalExpression = defBuilder.build();
-         multiParentBuilder.setLogicalExpression(logicalExpression);
 
       
+   }
+
+   private void addMultiparentTestConcepts() throws IllegalStateException {
+      createConcept("test concept");
+      pushParent(current());
+      ConceptBuilder parentOneBuilder = createConcept("parent one");
+      pushParent(current());
+      ConceptBuilder multiParentBuilder = createConcept("multi-parent");
+      popParent();
+      ConceptBuilder parentTwoBuilder = createConcept("parent two");
+      final LogicalExpressionBuilderService expressionBuilderService =
+              LookupService.getService(LogicalExpressionBuilderService.class);
+      final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+      NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder),
+              ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
+      
+      final LogicalExpression logicalExpression = defBuilder.build();
+      multiParentBuilder.setLogicalExpression(logicalExpression);
    }
 
    //~--- methods -------------------------------------------------------------

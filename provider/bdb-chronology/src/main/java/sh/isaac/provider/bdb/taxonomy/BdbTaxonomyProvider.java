@@ -149,7 +149,7 @@ public class BdbTaxonomyProvider
    //~--- methods -------------------------------------------------------------
    @Override
    public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
-      refreshListeners.add(new WeakReference<>(refreshListener));
+      refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
    }
 
    @Override

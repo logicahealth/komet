@@ -14,15 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api;
-
-import java.util.UUID;
+package sh.komet.gui.search.simple;
 
 /**
  *
  * @author kec
  */
-public interface RefreshListener {
-   UUID getListenerUuid();
-   void refresh();
+public enum SearchComponentStatus {
+   ACTIVE("Active"),
+   INACTIVE("Inactive"),
+   DONT_CARE("Active & Inactive");
+   
+   final String displayToken;
+
+   private SearchComponentStatus(String displayToken) {
+      this.displayToken = displayToken;
+   }
+
+   @Override
+   public String toString() {
+      return displayToken;
+   }
+   
+   public boolean filter(boolean active) {
+        if (this == DONT_CARE) {
+           return true;
+        }
+        if (active && this == ACTIVE) {
+           return true;
+        }
+        return !active && this == INACTIVE;
+   }
 }

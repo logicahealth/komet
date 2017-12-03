@@ -14,15 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api;
-
-import java.util.UUID;
+package sh.isaac.api.preferences;
 
 /**
  *
  * @author kec
  */
-public interface RefreshListener {
-   UUID getListenerUuid();
-   void refresh();
+public enum OptionalBoolean {
+    TRUE,
+    FALSE,
+    ANY;
+    
+    public boolean equals(boolean b) {
+        if (this == ANY) {
+           return true;
+        }
+        if (b && this == TRUE) {
+           return true;
+        }
+        return !b && this == FALSE;
+    }
+    
+    
 }
