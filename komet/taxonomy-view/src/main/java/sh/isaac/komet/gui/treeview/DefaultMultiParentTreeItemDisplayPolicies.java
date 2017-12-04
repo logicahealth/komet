@@ -19,8 +19,12 @@
 
 package sh.isaac.komet.gui.treeview;
 
+import java.util.EnumSet;
 import javafx.scene.Node;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * DefaultMultiParentTreeItemDisplayPolicies
@@ -30,7 +34,13 @@ import sh.isaac.komet.iconography.Iconography;
  *
  */
 public class DefaultMultiParentTreeItemDisplayPolicies implements MultiParentTreeItemDisplayPolicies {
+   private final Manifold manifold;
 
+   public DefaultMultiParentTreeItemDisplayPolicies(Manifold manifold) {
+      this.manifold = manifold;
+   }
+   
+   
    @Override
    public Node computeGraphic(MultiParentTreeItem item) {
       if (item.isRoot()) {
@@ -52,4 +62,19 @@ public class DefaultMultiParentTreeItemDisplayPolicies implements MultiParentTre
       }
       return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
    }
+
+   @Override
+   public boolean shouldDisplay(MultiParentTreeItem treeItem) {
+      int conceptNid = treeItem.getConceptNid();
+      EnumSet<Status> allowedStates = manifold.getAllowedStates();
+      EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, manifold);
+      for (Status state: states) {
+         if (allowedStates.contains(state)) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
+   
 }

@@ -83,9 +83,11 @@ import org.apache.mahout.math.Arrays;
 
 import com.lmax.disruptor.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.scene.control.ContentDisplay;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -102,6 +104,7 @@ import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
+import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.layout.LayoutAnimator;
 
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
@@ -122,16 +125,15 @@ public class MultiParentTreeView
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
-   private final static MultiParentTreeItemDisplayPolicies DEFAULT_DISPLAY_POLICIES =
-      new DefaultMultiParentTreeItemDisplayPolicies();
    private static volatile boolean shutdownRequested = false;
 
    //~--- fields --------------------------------------------------------------
 
    private final SimpleStringProperty         titleProperty   = new SimpleStringProperty(MENU_TEXT);
    private final SimpleStringProperty         toolTipProperty = new SimpleStringProperty("Multi-parent taxonomy view");
+   private final OnOffToggleSwitch            historySwitch        = new OnOffToggleSwitch();
    private final ToolBar                      toolBar         = new ToolBar();
-   private MultiParentTreeItemDisplayPolicies displayPolicies = DEFAULT_DISPLAY_POLICIES;
+   private MultiParentTreeItemDisplayPolicies displayPolicies;
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
                                                                Iconography.TAXONOMY_ICON.getIconographic());
    private Optional<UUID>                                      selectedItem            = Optional.empty();
@@ -155,9 +157,15 @@ public class MultiParentTreeView
 
    public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
       long startTime = System.currentTimeMillis();
-      taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
-      getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
       this.manifold = manifold;
+      historySwitch.setSelected(false);
+      updateManifoldHistoryStates();
+      historySwitch.selectedProperty()
+                   .addListener(this::setShowHistory);
+
+      this.displayPolicies = new DefaultMultiParentTreeItemDisplayPolicies(manifold);
+      this.taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
+      getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
       treeView      = new TreeView<>();
       treeView.getSelectionModel()
               .selectedItemProperty()
@@ -219,6 +227,28 @@ public class MultiParentTreeView
    }
 
    //~--- methods -------------------------------------------------------------
+   private void setShowHistory(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+      updateManifoldHistoryStates();
+      refresh();
+   }
+
+   private void updateManifoldHistoryStates() {
+      if (historySwitch.isSelected()) {
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(Status.makeActiveAndInactiveSet());
+      } else {
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(Status.makeActiveOnlySet());
+      }
+   }
 
    @Override
    public void refresh() {
@@ -533,6 +563,13 @@ public class MultiParentTreeView
 
       toolBar.getItems()
              .add(premiseChoiceBox);
+      
+       Label historySwitchWithLabel = new Label("History", historySwitch);
+       historySwitchWithLabel.setContentDisplay(ContentDisplay.RIGHT);
+       toolBar.getItems()
+             .add(historySwitchWithLabel);
+      
+      
 
       // Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
       // HPos halignment, VPos valignment, Priority hgrow, Priority vgrow
@@ -595,10 +632,6 @@ public class MultiParentTreeView
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   public static MultiParentTreeItemDisplayPolicies getDefaultDisplayPolicies() {
-      return DEFAULT_DISPLAY_POLICIES;
-   }
 
    public MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
       return displayPolicies;

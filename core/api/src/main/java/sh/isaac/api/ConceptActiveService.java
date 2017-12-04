@@ -41,6 +41,7 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.EnumSet;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -76,5 +77,14 @@ public interface ConceptActiveService {
     * @return true, if concept active
     */
    boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
+   
+   /**
+    * Returns the (possibly contradicting) states of the concept as of the stamp coordinate.
+    *
+    * @param conceptNid the concept nid
+    * @param stampCoordinate the stamp coordinate
+    * @return the set of status current status values for the concept. 
+    */
+   EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate);
 }
 

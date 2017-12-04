@@ -42,8 +42,6 @@ package sh.komet.gui.search.simple;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -72,7 +70,6 @@ import org.controlsfx.control.IndexedCheckModel;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;

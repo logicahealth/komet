@@ -39,7 +39,9 @@ package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.Optional;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -116,6 +118,9 @@ public class TaxonomyRecordPrimitive {
       return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
    }
 
+   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampCoordinate);
+   }
    /**
     * Contains nid via type.
     *

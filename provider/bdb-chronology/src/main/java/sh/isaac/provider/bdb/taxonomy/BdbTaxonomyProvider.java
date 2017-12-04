@@ -40,6 +40,7 @@ package sh.isaac.provider.bdb.taxonomy;
 import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
+import java.util.EnumSet;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,6 +75,7 @@ import sh.isaac.api.ConceptActiveService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Status;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -275,7 +277,20 @@ public class BdbTaxonomyProvider
 
       return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
    }
+   @Override
+   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+      int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(assemblageNid);
+      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
+      if (taxonomyData == null) {
+         return EnumSet.noneOf(Status.class);
+      }
+
+      TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
+
+      return taxonomyRecord.getConceptStates(conceptNid, stampCoordinate);
+   }
    @Override
    public UUID getDataStoreId() {
       return this.bdb.getDataStoreId();

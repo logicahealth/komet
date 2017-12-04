@@ -223,7 +223,7 @@ public class KometStageController
       MenuItem setHighMemConfigAndQuit = new MenuItem("Set to high memory configuration, erase database, and quit");
       setHighMemConfigAndQuit.setOnAction((ActionEvent event) -> {
          ChangeDatabaseMemoryConfigurationAndQuit task = 
-                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.SELECTED_CHRONICLES_IN_MEMORY);
+                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
          task.run();
       });
       items.add(setHighMemConfigAndQuit);

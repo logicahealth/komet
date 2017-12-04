@@ -41,6 +41,7 @@ package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -48,6 +49,8 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -144,6 +147,15 @@ public class TypeStampTaxonomyRecords {
       final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
 
       return latestStamps.length > 0;
+   }
+   
+   public EnumSet<Status> getConceptStates(int typeNid, int flags, RelativePositionCalculator computer) {
+      final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
+      EnumSet<Status> statusSet = EnumSet.noneOf(Status.class);
+      for (int stamp: latestStamps) {
+         statusSet.add(Get.stampService().getStatusForStamp(stamp));
+      }
+      return statusSet;
    }
 
    /**

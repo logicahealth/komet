@@ -41,6 +41,7 @@ package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +56,7 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -172,6 +174,15 @@ public class TaxonomyRecord {
       }
 
       return false;
+   }
+   
+   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
+      if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+         return this.conceptNidRecordMap.get(conceptNid)
+               .getConceptStates(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
+      }
+      return EnumSet.noneOf(Status.class);
    }
 
    /**

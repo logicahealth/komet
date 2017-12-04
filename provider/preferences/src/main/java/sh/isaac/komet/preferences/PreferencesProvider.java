@@ -164,7 +164,7 @@ public class PreferencesProvider
          
          this.applicationPreferences = IsaacPreferencesImpl.getApplicationRoot();
          if (!this.applicationPreferences.hasKey(MemoryConfiguration.class)) {
-            this.applicationPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+            this.applicationPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
          }
          this.applicationPreferences.put(DATA_STORE_ROOT_LOCATION_PROPERTY, 
                  System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));

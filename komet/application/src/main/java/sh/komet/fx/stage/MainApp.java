@@ -76,6 +76,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.util.FxGet;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.api.constants.MemoryConfiguration;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -111,6 +112,9 @@ public class MainApp
       LookupService.startupPreferenceProvider();
 
       IsaacPreferences appPreferences = Get.applicationPreferences();
+      appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+      
+      appPreferences.sync();
 
       appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
       LookupService.startupIsaac();
