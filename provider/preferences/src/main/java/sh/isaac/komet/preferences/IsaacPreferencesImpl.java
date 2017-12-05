@@ -46,9 +46,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,10 +210,7 @@ public class IsaacPreferencesImpl
          try (FileOutputStream fos = new FileOutputStream(temporaryFile)) {
             exportMap(fos, preferencesTree);
          }
-
-         if (!temporaryFile.renameTo(preferencesFile)) {
-            throw new BackingStoreException("Can't rename " + temporaryFile + " to " + preferencesFile);
-         }
+         Files.move(temporaryFile.toPath(), preferencesFile.toPath(), REPLACE_EXISTING);
       } catch (Exception e) {
          if (e instanceof BackingStoreException) {
             throw(BackingStoreException) e;

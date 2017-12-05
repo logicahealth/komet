@@ -65,7 +65,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.manifold.Manifold;
 
