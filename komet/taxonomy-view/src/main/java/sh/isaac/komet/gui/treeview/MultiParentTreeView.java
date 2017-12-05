@@ -157,14 +157,17 @@ public class MultiParentTreeView
 
    public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
       long startTime = System.currentTimeMillis();
-      this.manifold = manifold;
+      this.manifold = manifold.deepClone();
+      this.manifold.getStampCoordinate().allowedStatesProperty().addListener((observable, oldValue, newValue) -> {
+         System.out.println("Allowed states changed to: " + newValue);
+      });
       historySwitch.setSelected(false);
       updateManifoldHistoryStates();
       historySwitch.selectedProperty()
                    .addListener(this::setShowHistory);
 
-      this.displayPolicies = new DefaultMultiParentTreeItemDisplayPolicies(manifold);
-      this.taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
+      this.displayPolicies = new DefaultMultiParentTreeItemDisplayPolicies(this.manifold);
+      this.taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(this.manifold));
       getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
       treeView      = new TreeView<>();
       treeView.getSelectionModel()
@@ -174,7 +177,7 @@ public class MultiParentTreeView
                    TreeItem<ConceptChronology> oldValue,
                    TreeItem<ConceptChronology> newValue) -> {
                      if (newValue != null) {
-                        manifold.setFocusedConceptChronology(newValue.getValue());
+                        this.manifold.setFocusedConceptChronology(newValue.getValue());
                      }
                   });
       this.setCenter(treeView);
@@ -212,10 +215,10 @@ public class MultiParentTreeView
       this.setTop(topGridPane);
       taxonomyAlertsAnimator.observe(this.getChildren());
       descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
-                                                                     manifold);
+                                                                     this.manifold);
       descriptionTypeChoiceBox.addEventHandler(ActionEvent.ACTION, this::handleDescriptionTypeChange);
       handleDescriptionTypeChange(null);
-      this.premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(manifold);
+      this.premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(this.manifold);
       this.premiseChoiceBox.valueProperty()
                       .addListener(this::taxonomyPremiseChanged);
 

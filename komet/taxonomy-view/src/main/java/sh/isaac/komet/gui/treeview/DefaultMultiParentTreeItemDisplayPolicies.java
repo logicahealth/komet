@@ -66,6 +66,7 @@ public class DefaultMultiParentTreeItemDisplayPolicies implements MultiParentTre
    @Override
    public boolean shouldDisplay(MultiParentTreeItem treeItem) {
       int conceptNid = treeItem.getConceptNid();
+      String description = Get.conceptDescriptionText(conceptNid);
       EnumSet<Status> allowedStates = manifold.getAllowedStates();
       EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, manifold);
       for (Status state: states) {
