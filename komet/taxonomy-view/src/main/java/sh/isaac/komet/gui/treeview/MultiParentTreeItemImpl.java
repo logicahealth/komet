@@ -67,6 +67,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.NaturalOrder;
+import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -208,11 +209,13 @@ public class MultiParentTreeItemImpl
                ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
                TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
 
-               for (int childSequence: taxonomySnapshot.getTaxonomyChildNids(conceptChronology.getNid())) {
-                  MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childSequence, treeView);
-
+               for (int childNid: taxonomySnapshot.getTaxonomyChildNids(conceptChronology.getNid())) {
+                  ConceptChronology childChronology = Get.concept(childNid);
+                  MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
+                  Manifold manifold = treeView.getManifold();
+                  childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                   childItem.toString();
-                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentNids(childSequence).length > 1);
+                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentNids(childNid).length > 1);
 
                   if (childItem.shouldDisplay()) {
                      childrenToAdd.add(childItem);

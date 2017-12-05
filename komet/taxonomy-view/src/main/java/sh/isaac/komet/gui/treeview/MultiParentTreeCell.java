@@ -71,6 +71,7 @@ import javafx.scene.transform.NonInvertibleTransformException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -252,8 +253,10 @@ final public class MultiParentTreeCell
 
             for (int parentSequence: allParents) {
                if ((allParents.length == 1) || (parentSequence != parentItem.getValue().getNid())) {
-                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentSequence, treeItem.getTreeView());
-
+                  ConceptChronology parentChronology = Get.concept(parentSequence);
+                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentChronology, treeItem.getTreeView(), null);
+                  Manifold manifold = treeItem.getTreeView().getManifold();
+                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold, manifold));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
                }
