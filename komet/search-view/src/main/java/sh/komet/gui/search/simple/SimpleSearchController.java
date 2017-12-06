@@ -119,6 +119,10 @@ public class SimpleSearchController
    private CheckListView<CustomCheckListItem>                kindOfCheckListView;
    @FXML
    private ChoiceBox<SearchComponentStatus>                  statusChoiceBox;
+   @FXML
+   private ProgressBar searchProgressBar;
+   @FXML
+   private Button cancelSearchButton;
 
    //~--- methods -------------------------------------------------------------
 
@@ -134,6 +138,11 @@ public class SimpleSearchController
    }
 
    @FXML
+   public void cancelSearch(ActionEvent actionEvent){
+      
+   }
+
+   @FXML
    void initialize() {
       assert mainAnchorPane != null:
              "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
@@ -145,6 +154,9 @@ public class SimpleSearchController
              "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
       assert statusChoiceBox != null:
              "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert searchProgressBar != null: "fx:id=\"searchProgressBar\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+      assert cancelSearchButton != null: "fx:id=\"cancelSearchButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+
       this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       this.resultTable.setOnDragDone(new DragDoneEventHandler());
       this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
