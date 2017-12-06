@@ -237,12 +237,12 @@ public class KometStageController
          classifierService.classify();
       });
       items.add(completeClassify);
-//
-//      MenuItem completeReindex = new MenuItem("Complete reindex");
-//      completeReindex.setOnAction((ActionEvent event) -> {
-//         Get.startIndexTask();
-//      });
-//      items.add(completeReindex);
+
+      MenuItem completeReindex = new MenuItem("Complete reindex");
+      completeReindex.setOnAction((ActionEvent event) -> {
+         Get.startIndexTask();
+      });
+      items.add(completeReindex);
 //
 //      MenuItem importSources = new MenuItem("Import terminology content");
 //      importSources.setOnAction((ActionEvent event) -> {
