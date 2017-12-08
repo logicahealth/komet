@@ -1,0 +1,192 @@
+<project>
+    <shortName>SOLOR</shortName>
+    <fullName>SOLOR Viewer</fullName>
+    <version>1.0</version>
+    <htmlLicenseFile>../../main/resources/licenses/APACHE-LICENSE-2.0.html</htmlLicenseFile>
+    <leftImage>../../main/resources/images/vanityBox@2x.png</leftImage>
+    <logoImage>../../main/resources/icons/KOMET.png</logoImage>
+    <splashImage>../../main/resources/images/prism-splash.png</splashImage>
+    <componentList>
+        <component>
+            <name>default</name>
+            <description>Default Component</description>
+            <canBeEdited>1</canBeEdited>
+            <selected>1</selected>
+            <show>1</show>
+            <folderList>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfiles</name>
+                    <platforms>all</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>../../../target/jfx/app</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <shortcutList>
+                        <shortcut>
+                            <comment>Uninstall</comment>
+                            <exec>${installdir}/${uninstallerName}</exec>
+                            <icon></icon>
+                            <name>Uninstall ${product_fullname}</name>
+                            <path>${installdir}</path>
+                            <platforms>all</platforms>
+                            <runAsAdmin>0</runAsAdmin>
+                            <runInTerminal>0</runInTerminal>
+                            <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                            <windowsExecArgs></windowsExecArgs>
+                            <windowsIcon></windowsIcon>
+                            <windowsPath>${installdir}</windowsPath>
+                        </shortcut>
+                    </shortcutList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileslinux</name>
+                    <platforms>linux</platforms>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileswindows</name>
+                    <platforms>windows</platforms>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfilesosx</name>
+                    <platforms>osx</platforms>
+                </folder>
+            </folderList>
+            <startMenuShortcutList>
+                <startMenuShortcut>
+                    <comment>Uninstall ${product_fullname}</comment>
+                    <name>Uninstall ${product_fullname}</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+            </startMenuShortcutList>
+        </component>
+    </componentList>
+    <preInstallationActionList>
+        <autodetectJava>
+            <promptUser>0</promptUser>
+        </autodetectJava>
+    </preInstallationActionList>
+    <postInstallationActionList>
+        <!-- Set abortOnError="0" and showMessageOnError="0" so the action does not report any error
+ if Java is not detected -->
+        <autodetectJava abortOnError="0" promptUser="0" selectionOrder="newest" showMessageOnError="0"/>
+        <actionGroup>
+            <actionList>
+                <actionGroup>
+                    <actionList>
+                        <showProgressDialog>
+                            <title>Downloading files</title>
+                            <actionList>
+                                <httpGet>
+                                    <filename>${installdir}/java.tar.gz</filename>
+                                    <url>http://www.example.com/downloads/java/1.6/jre1.6.0_24-linux.tar.gz</url>
+                                </httpGet>
+                            </actionList>
+                        </showProgressDialog>
+                        <runProgram>
+                            <program>tar</program>
+                            <programArguments>xzf ${installdir}/java.tar.gz -C ${installdir}</programArguments>
+                        </runProgram>
+                    </actionList>
+                    <ruleList>
+                        <platformTest type="linux"/>
+                    </ruleList>
+                </actionGroup>
+                <actionGroup>
+                    <actionList>
+                        <showProgressDialog>
+                            <title>Downloading files</title>
+                            <actionList>
+                                <httpGet>
+                                    <filename>${installdir}/java.exe</filename>
+                                    <url>http://www.example.com/downloads/java/1.6/jre1.6.0_24-windows.exe</url>
+                                </httpGet>
+                            </actionList>
+                        </showProgressDialog>
+                        <runProgram>
+                            <program>${installdir}/java.exe</program>
+                            <programArguments>/s INSTALLDIR="${installdir.dos}\JRE" REBOOT=Suppress</programArguments>
+                        </runProgram>
+                    </actionList>
+                    <ruleList>
+                        <platformTest type="windows"/>
+                    </ruleList>
+                </actionGroup>
+            </actionList>
+            <ruleList>
+                <isFalse value="${java_autodetected}"/>
+            </ruleList>
+        </actionGroup>
+        <createJavaLaunchers>
+            <destination>${installdir}</destination>
+            <javaLauncherList>
+                <javaLauncher>
+                    <allowCommandLineArguments>1</allowCommandLineArguments>
+                    <arguments>-jar application-4.42-SNAPSHOT.jar</arguments>
+                    <binaryName>SOLOR Viewer</binaryName>
+                    <classpath></classpath>
+                    <jarFile></jarFile>
+                    <mainClass></mainClass>
+                    <preferredJavaBinary></preferredJavaBinary>
+                    <runInBackground>0</runInBackground>
+                    <runInConsole>0</runInConsole>
+                    <usePropertiesFile>0</usePropertiesFile>
+                    <vmParameters></vmParameters>
+                    <windowsResourceFileVersion>1.0.0.0</windowsResourceFileVersion>
+                    <workingDirectory></workingDirectory>
+                    <validVersionList>
+                        <validVersion>
+                            <bitness></bitness>
+                            <maxVersion>1.8</maxVersion>
+                            <minVersion>1.8</minVersion>
+                            <requireJDK>1</requireJDK>
+                            <vendor>sun</vendor>
+                        </validVersion>
+                    </validVersionList>
+                </javaLauncher>
+            </javaLauncherList>
+        </createJavaLaunchers>
+    </postInstallationActionList>
+    <compressionAlgorithm>lzham-ultra</compressionAlgorithm>
+    <enableRollback>1</enableRollback>
+    <enableTimestamp>1</enableTimestamp>
+    <saveRelativePaths>1</saveRelativePaths>
+    <vendor>Health Services Platform Consortium</vendor>
+    <parameterList>
+        <directoryParameter>
+            <name>installdir</name>
+            <description>Installer.Parameter.installdir.description</description>
+            <explanation>Installer.Parameter.installdir.explanation</explanation>
+            <value></value>
+            <default>${platform_install_prefix}/${product_shortname}-${product_version}</default>
+            <allowEmptyValue>0</allowEmptyValue>
+            <ask>yes</ask>
+            <cliOptionName>prefix</cliOptionName>
+            <mustBeWritable>yes</mustBeWritable>
+            <mustExist>0</mustExist>
+            <width>30</width>
+        </directoryParameter>
+    </parameterList>
+    <platformOptionsList>
+        <platformOptions>
+            <platform>windows</platform>
+        </platformOptions>
+        <platformOptions>
+            <platform>osx</platform>
+        </platformOptions>
+    </platformOptionsList>
+</project>
+

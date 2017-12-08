@@ -28,7 +28,6 @@
          <groupId>${project.groupId}</groupId>
          <artifactId>css</artifactId>
          <version>${project.version}</version>
-         <type>zip</type>
       </dependency>
       <dependency>
          <groupId>org.controlsfx</groupId>
@@ -199,30 +198,6 @@
    </dependencies>
    <build>
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>extract-dependencies</id>
-                  <phase>process-resources</phase>
-                  <goals>
-                     <goal>unpack</goal>
-                  </goals>
-                  <configuration>
-                     <artifactItems>
-                        <artifact>
-                           <groupId>${project.groupId}</groupId>
-                           <artifactId>css</artifactId>
-                           <version>${project.version}</version>
-                           <type>zip</type>
-                        </artifact>
-                     </artifactItems>
-                     <outputDirectory>${project.build.directory}/data</outputDirectory>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>

@@ -8,30 +8,6 @@
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>css</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
    <name>ISAAC’s KOMET: CSS</name>
-   <build>
-      <plugins> 
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>single</goal>
-                  </goals>
-                  <configuration>
-                     <descriptors>
-                        <descriptor>src/assembly/assembly.xml</descriptor>
-                     </descriptors>
-                     <attach>true</attach>
-                     <appendAssemblyId>false</appendAssemblyId>
-                     <encoding>UTF-8</encoding>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-     </plugins>
-   </build>
 </project>

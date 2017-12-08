@@ -34,23 +34,36 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.isaac.komet.preferences;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import java.net.MalformedURLException;
 
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.prefs.Preferences;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,17 +71,18 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 
 import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
-import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import static sh.isaac.api.constants.Constants.PREFERENCES_FOLDER_LOCATION;
-import sh.isaac.api.constants.MemoryConfiguration;
-import sh.isaac.api.preferences.IsaacPreferences;
+import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  *
  * @author kec
@@ -76,18 +90,19 @@ import sh.isaac.api.preferences.IsaacPreferences;
 @Service(name = "Preferences Provider")
 @RunLevel(value = -1)
 public class PreferencesProvider
-        implements PreferencesService {
-
+         implements PreferencesService {
    /**
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
+
    private LaunchEnvironment launchEnvironment;
-   private IsaacPreferences applicationPreferences;
+   private IsaacPreferences  applicationPreferences;
 
    //~--- methods -------------------------------------------------------------
+
    /**
     * Start me.
     */
@@ -101,75 +116,89 @@ public class PreferencesProvider
          }
 
          switch (launchEnvironment) {
-            case FX_LAUNCHER: {
-               System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/isaac.data");
-               System.setProperty(PREFERENCES_FOLDER_LOCATION, "data/preferences");
+         case FX_LAUNCHER: {
+            System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/isaac.data");
+            System.setProperty(PREFERENCES_FOLDER_LOCATION, "data/preferences");
 
-               File importPath = new File("to-import");
+            File importPath = new File("data/to-import");
 
-               importPath.mkdirs();
+            importPath.mkdirs();
 
-               File afterImportPath = new File("completed-import");
+            File afterImportPath = new File("data/completed-import");
 
-               afterImportPath.mkdirs();
-               System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-               System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
-               if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {
-               } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {
-               } else {
-                  throw new UnsupportedOperationException(
-                          "Can't find user.css file... Working dir: " + System.getProperty("user.dir"));
+            afterImportPath.mkdirs();
+            System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+            System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+
+            if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {}
+            else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {}
+            else {
+               Path cssPath = Paths.get("data", "user.css");
+
+               try (InputStream is = PreferencesProvider.class.getResourceAsStream("/user.css");
+                  BufferedWriter writer = new BufferedWriter(Files.newBufferedWriter(cssPath, CREATE, APPEND))) {
+                  BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                  String         line   = null;
+
+                  while ((line = reader.readLine()) != null) {
+                     writer.write(line);
+                     writer.newLine();
+                  }
                }
-               break;
             }
 
-            case MAVEN: {
-               System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/isaac.data");
-               System.setProperty(PREFERENCES_FOLDER_LOCATION, "target/data/preferences");
-
-               File importPath = new File("target", "to-import");
-
-               importPath.mkdirs();
-
-               File afterImportPath = new File("target", "completed-import");
-
-               afterImportPath.mkdirs();
-               System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-               System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
-
-               if (setPropertyIfFileExists(
-                       USER_CSS_LOCATION_PROPERTY,
-                       Paths.get(
-                               "/Users",
-                               "kec",
-                               "isaac",
-                               "semiotic-history",
-                               "isaac",
-                               "komet",
-                               "css",
-                               "src",
-                               "main",
-                               "resources",
-                               "user.css"))) {
-               } else {
-                  setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css"));
-               }
-
-               break;
-            }
-
-            default:
-               throw new UnsupportedOperationException("Can't handle launch environment: " + launchEnvironment);
+            break;
          }
-         
+
+         case MAVEN: {
+            System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/isaac.data");
+            System.setProperty(PREFERENCES_FOLDER_LOCATION, "target/data/preferences");
+
+            File importPath = new File("target", "to-import");
+
+            importPath.mkdirs();
+
+            File afterImportPath = new File("target", "completed-import");
+
+            afterImportPath.mkdirs();
+            System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+            System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+
+            if (setPropertyIfFileExists(
+                  USER_CSS_LOCATION_PROPERTY,
+                  Paths.get(
+                      "/Users",
+                      "kec",
+                      "isaac",
+                      "semiotic-history",
+                      "isaac",
+                      "komet",
+                      "css",
+                      "src",
+                      "main",
+                      "resources",
+                      "user.css"))) {}
+            else {
+               setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css"));
+            }
+
+            break;
+         }
+
+         default:
+            throw new UnsupportedOperationException("Can't handle launch environment: " + launchEnvironment);
+         }
+
          this.applicationPreferences = IsaacPreferencesImpl.getApplicationRoot();
+
          if (!this.applicationPreferences.hasKey(MemoryConfiguration.class)) {
             this.applicationPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
          }
-         this.applicationPreferences.put(DATA_STORE_ROOT_LOCATION_PROPERTY, 
-                 System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+
+         this.applicationPreferences.put(
+             DATA_STORE_ROOT_LOCATION_PROPERTY,
+             System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
          this.applicationPreferences.sync();
-         
       } catch (Throwable ex) {
          // HK2 swallows these exceptions, so I'm trying to make sure they are
          // easy to identify.
@@ -198,29 +227,33 @@ public class PreferencesProvider
       }
    }
 
+   //~--- get methods ---------------------------------------------------------
+
+   @Override
+   public IsaacPreferences getApplicationPreferences() {
+      // MemoryConfiguration memoryConfiguration = MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY;
+      return IsaacPreferencesImpl.getApplicationRoot();
+   }
+
    //~--- set methods ---------------------------------------------------------
+
    /**
     *
     * @return true if the file existed, and the property was set.
     */
    private boolean setPropertyIfFileExists(String property, Path filePath)
-           throws MalformedURLException {
+            throws MalformedURLException {
       if (Files.exists(filePath)) {
          System.setProperty(property, filePath.toUri()
-                 .toURL()
-                 .toString());
+               .toURL()
+               .toString());
          return true;
       }
 
       return false;
    }
 
-   @Override
-   public IsaacPreferences getApplicationPreferences() {
-      // MemoryConfiguration memoryConfiguration = MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY;
-
-      return IsaacPreferencesImpl.getApplicationRoot();
-   }
+   //~--- get methods ---------------------------------------------------------
 
    @Override
    public IsaacPreferences getSystemPreferences() {
@@ -231,7 +264,5 @@ public class PreferencesProvider
    public IsaacPreferences getUserPreferences() {
       return new PreferencesWrapper(Preferences.userRoot());
    }
-   
-   
-   
 }
+
