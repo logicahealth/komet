@@ -37,6 +37,7 @@
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
+import javafx.scene.image.Image;
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -93,8 +95,6 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -140,6 +140,8 @@ public class KometStageController
    private GridPane topGridPane;                      // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="classifierMenuButton"
    private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
+
+   private final ImageView vanityImage = new ImageView();
 
    //~--- methods -------------------------------------------------------------
    /**
@@ -197,6 +199,15 @@ public class KometStageController
       classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
       classifierMenuButton.getItems().clear();
       classifierMenuButton.getItems().addAll(getTaskMenuItems());
+      
+      
+      Image image = new Image(KometStageController.class.getResourceAsStream("/images/viewer-logo-b@2.png"));
+      vanityImage.setImage(image);
+      vanityImage.setFitHeight(36);
+      vanityImage.setPreserveRatio(true);
+      vanityImage.setSmooth(true);
+      vanityImage.setCache(true);
+      vanityBox.setGraphic(vanityImage);
    }
 
    private List<MenuItem> getTaskMenuItems() {

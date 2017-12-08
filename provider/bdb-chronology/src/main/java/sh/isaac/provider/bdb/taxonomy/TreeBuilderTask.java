@@ -42,7 +42,6 @@ package sh.isaac.provider.bdb.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.StampedLock;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------

@@ -191,7 +191,7 @@ limitations under the License.
 }
 
 .vanity-box {
-   -fx-graphic: url("/sh/isaac/komet/iconography/isaacs_komet.svg");
+   -fx-graphic: url("/sh/isaac/komet/iconography/viewer-logo.png");
    -my-height: 40;
    -my-width: 160;
    
