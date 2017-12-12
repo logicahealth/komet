@@ -104,11 +104,16 @@ public class Rf2DirectImporter
            throws Exception {
       try {
          File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+         System.out.println("Trying to import from: " + importDirectory.getAbsolutePath());
          int fileCount = loadDatabase(importDirectory);
          if (fileCount == 0) {
-            File fallbackFile = new File("/Users/kec/isaac/import");
-            updateTitle("Importing from " + fallbackFile.getAbsolutePath());
-            int secondTryFileCount = loadDatabase(fallbackFile);
+            System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
+            File fallbackDirectory = new File("/Users/kec/isaac/import");
+            if (fallbackDirectory.exists()) {
+               System.out.println("Fallback import from: " + fallbackDirectory.getAbsolutePath());
+               updateTitle("Importing from " + fallbackDirectory.getAbsolutePath());
+               loadDatabase(fallbackDirectory);
+            }
          }
          return null;
       } finally {
@@ -325,7 +330,7 @@ public class Rf2DirectImporter
                          trimZipName(importSpecification.zipEntry.getName()), ImportStreamType.INFERRED_RELATIONSHIP);
          Get.executor().submit(relWriter);
       }
-      updateMessage("Waiting for inferred relatioship file completion...");
+      updateMessage("Waiting for inferred relationship file completion...");
       this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
       updateMessage("Synchronizing relationship database...");
       assemblageService.sync();

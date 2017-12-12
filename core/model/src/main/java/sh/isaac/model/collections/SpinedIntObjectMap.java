@@ -33,7 +33,7 @@ import sh.isaac.model.ModelGet;
  * @author kec
  * @param <E> the generic type for the spined list. 
  */
-public class SpinedIntObjectMap<E>   {
+ class SpinedIntObjectMap<E>   {
    private static final int DEFAULT_SPINE_SIZE = 1024;
    protected final int spineSize;
    protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();

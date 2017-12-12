@@ -208,13 +208,13 @@ public class MultiParentTreeItemImpl
                ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
                TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
 
-               for (int childNid: taxonomySnapshot.getTaxonomyChildNids(conceptChronology.getNid())) {
+               for (int childNid: taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid())) {
                   ConceptChronology childChronology = Get.concept(childNid);
                   MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
                   Manifold manifold = treeView.getManifold();
                   childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                   childItem.toString();
-                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentNids(childNid).length > 1);
+                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
 
                   if (childItem.shouldDisplay()) {
                      childrenToAdd.add(childItem);
@@ -366,14 +366,7 @@ public class MultiParentTreeItemImpl
          return true;
       }
 
-      if (isRoot()) {
-         return false;
-      }
-
-      int[] children = this.treeView.getTaxonomySnapshot()
-                                    .getTaxonomyChildNids(nid);
-
-      return !((children != null) && (children.length > 0));
+      return this.treeView.getTaxonomySnapshot().isLeaf(nid);
    }
 
    @Override

@@ -46,6 +46,22 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
 
    public SpinedByteArrayArrayMap() {
    }
+   
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+      sizeInBytes = sizeInBytes + ((spineSize * 8) * spines.size()); // 8 bytes = pointer to an object
+      for (AtomicReferenceArray<byte[][]> spine: spines.values()) {
+         for (int i = 0; i < spine.length(); i++) {
+            byte[][] value = spine.get(i);
+            if (value != null) {
+               for (byte[] byteArray: value) {
+                  sizeInBytes = sizeInBytes + byteArray.length + 4; // 4 bytes = integer length of the array of array length. 
+               }
+            }
+         }
+      }
+      return sizeInBytes;
+   }
 
    public void read(File directory) {
       File[] files = directory.listFiles((pathname) -> {

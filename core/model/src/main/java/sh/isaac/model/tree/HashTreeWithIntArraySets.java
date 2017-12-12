@@ -49,7 +49,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -69,7 +68,6 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.MergeIntArray;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -108,12 +106,12 @@ public class HashTreeWithIntArraySets
    /**
     * map from a nid key to an array of parent nids.
     */
-   protected final SpinedIntObjectMap<int[]> childNid_ParentNidSetArray_Map;
+   protected final SpinedIntIntArrayMap childNid_ParentNidSetArray_Map;
 
    /**
     * Map from a nid key to an array of child nids.
     */
-   protected final SpinedIntObjectMap<int[]> parentNid_ChildNidSetArray_Map;
+   protected final SpinedIntIntArrayMap parentNid_ChildNidSetArray_Map;
    protected final ManifoldCoordinate        manifoldCoordinate;
    protected final int                       assemblageNid;
    protected final OpenIntHashSet roots = new OpenIntHashSet();
@@ -133,8 +131,8 @@ public class HashTreeWithIntArraySets
       this.conceptNidsWithParents    = new OpenIntHashSet();
       this.conceptNidsWithChildren   = new OpenIntHashSet();
       this.conceptNids               = new OpenIntHashSet();
-      this.childNid_ParentNidSetArray_Map = new SpinedIntObjectMap<>();
-      this.parentNid_ChildNidSetArray_Map = new SpinedIntObjectMap<>();
+      this.childNid_ParentNidSetArray_Map = new SpinedIntIntArrayMap();
+      this.parentNid_ChildNidSetArray_Map = new SpinedIntIntArrayMap();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -496,21 +494,18 @@ public class HashTreeWithIntArraySets
     */
    @Override
    public final int[] getChildNids(int parentNid) {
-      int parentSequence = ModelGet.identifierService()
-                                   .getElementSequenceForNid(parentNid, assemblageNid);
-
-      if (this.parentNid_ChildNidSetArray_Map.containsKey(parentSequence)) {
-         return this.parentNid_ChildNidSetArray_Map.get(parentSequence);
+      int[] returnValue = this.parentNid_ChildNidSetArray_Map.get(parentNid);
+      if (returnValue != null) {
+         return returnValue;
       }
-
       return new int[0];
    }
 
    @Override
-   public final boolean isChildOf(int childSequence, int parentSequence) {
-      int[] parentSequences = getParentNids(childSequence);
+   public final boolean isChildOf(int childConceptNid, int parentConceptNid) {
+      int[] parentConceptNids = getParentNids(childConceptNid);
 
-      return Arrays.binarySearch(parentSequences, parentSequence) >= 0;
+      return Arrays.binarySearch(parentConceptNids, parentConceptNid) >= 0;
    }
 
    /**
@@ -673,11 +668,8 @@ public class HashTreeWithIntArraySets
     */
    @Override
    public final int[] getParentNids(int childNid) {
-      int childSequence = ModelGet.identifierService()
-                                  .getElementSequenceForNid(childNid, assemblageNid);
-
-      if (this.childNid_ParentNidSetArray_Map.containsKey(childSequence)) {
-         return this.childNid_ParentNidSetArray_Map.get(childSequence);
+      if (this.childNid_ParentNidSetArray_Map.containsKey(childNid)) {
+         return this.childNid_ParentNidSetArray_Map.get(childNid);
       }
 
       return new int[0];

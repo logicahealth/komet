@@ -14,22 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version;
+package sh.isaac.api.component.semantic.version.brittle;
+
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
-public interface LoincVersion 
+public interface C1_Str2_Version 
         extends SemanticVersion {
-   String getLoincNum(); 
-   String getComponent();  
-   String getProperty();  
-   String getTimeAspect();  
-   String getSystem();  
-   String getScaleType();  
-   String getMethodType();  
-   String getStatus();   
-   String getShortName();    
-   String getLongCommonName(); 
+   
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.C1_Str2;
+   }
+   
 }

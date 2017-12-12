@@ -316,7 +316,7 @@ public class MultiParentTreeView
                // Look for an IS_A relationship to origin.
                boolean found = false;
 
-               for (int parent: getTaxonomySnapshot().getTaxonomyParentNids(concept.getNid())) {
+               for (int parent: getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
                   current = Get.identifierService()
                                .getUuidPrimordialForNid(parent)
                                .get();

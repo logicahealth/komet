@@ -188,20 +188,20 @@ public class TreeNodeVisitDataBdbImpl
       this.conceptAssemblageNid = conceptAssemblageNid;
       this.nid_sequenceInAssemblage_map = nid_sequenceInAssemblage_map;
       this.sequenceInAssemblage_nid_map = sequenceInAssemblage_nid_map;
-      this.graphSize = graphSize;
+      this.graphSize = graphSize + 1;
       this.visitStarted = new OpenIntHashSet();
       this.visitEnded = new OpenIntHashSet();
       this.leafNodes = new OpenIntHashSet();
-      this.distanceList = new IntArrayList(new int[graphSize]);
-      this.distanceList.fillFromToWith(0, graphSize - 1, -1);
-      this.discoveryTimeList = new IntArrayList(new int[graphSize]);
-      this.discoveryTimeList.fillFromToWith(0, graphSize - 1, -1);
-      this.finishTimeList = new IntArrayList(new int[graphSize]);
-      this.finishTimeList.fillFromToWith(0, graphSize - 1, -1);
-      this.siblingGroupNidList = new IntArrayList(new int[graphSize]);
-      this.siblingGroupNidList.fillFromToWith(0, graphSize - 1, -1);
-      this.predecessorNidList = new IntArrayList(new int[graphSize]);
-      this.predecessorNidList.fillFromToWith(0, graphSize - 1, -1);
+      this.distanceList = new IntArrayList(new int[this.graphSize]);
+      this.distanceList.fillFromToWith(0, this.graphSize - 1, -1);
+      this.discoveryTimeList = new IntArrayList(new int[this.graphSize]);
+      this.discoveryTimeList.fillFromToWith(0, this.graphSize - 1, -1);
+      this.finishTimeList = new IntArrayList(new int[this.graphSize]);
+      this.finishTimeList.fillFromToWith(0, this.graphSize - 1, -1);
+      this.siblingGroupNidList = new IntArrayList(new int[this.graphSize]);
+      this.siblingGroupNidList.fillFromToWith(0, this.graphSize - 1, -1);
+      this.predecessorNidList = new IntArrayList(new int[this.graphSize]);
+      this.predecessorNidList.fillFromToWith(0, this.graphSize - 1, -1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -588,8 +588,14 @@ public class TreeNodeVisitDataBdbImpl
 
             OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
 
-            if (userNodeSet[nodeSequence] == null) {
-               userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
+            if (nodeSequence < userNodeSet.length) {
+               if (userNodeSet[nodeSequence] == null) {
+                  userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
+               }
+            } else {
+               if (userNodeSet[nodeSequence] == null) {
+                  userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
+               }
             }
 
             return userNodeSet[nodeSequence];

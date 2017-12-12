@@ -47,8 +47,8 @@ import sh.isaac.model.ModelGet;
  * @author kec
  */
 public class SpinedIntIntArrayMap {
-   private static final int DEFAULT_SPINE_SIZE = 1024;
-   protected final int spineSize;
+   private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
+   protected final int elementsPerSpine;
    private final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
    private Function<int[],String> elementStringConverter;
    ConcurrentHashMap<Integer, AtomicLong> lastWrite = new ConcurrentHashMap<>();
@@ -72,7 +72,27 @@ public class SpinedIntIntArrayMap {
    }
 
    public SpinedIntIntArrayMap() {
-      this.spineSize = DEFAULT_SPINE_SIZE;
+      this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
+   }
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+      int spineCount = spines.size();
+      sizeInBytes = sizeInBytes + ((elementsPerSpine * 8) * spineCount);  // 8 bytes = pointer to an object
+
+
+      for (int spineIndex = 0; spineIndex < spineCount; spineIndex++) {
+         AtomicReferenceArray<int[]> spine = spines.get(spineIndex);
+
+         for (int spineElement = 0; spineElement < spine.length(); spineElement++) {
+            int[] value = spine.get(spineElement);
+
+            if (value != null) {
+               sizeInBytes = sizeInBytes + (value.length * 4);
+            }
+         }
+      }
+
+      return sizeInBytes;
    }
 
    public void read(File directory) {
@@ -140,7 +160,7 @@ public class SpinedIntIntArrayMap {
    }
     
    private AtomicReferenceArray<int[]> newSpine(Integer spineKey) {
-      AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(spineSize);
+      AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(elementsPerSpine);
       return spine;
    }
 
@@ -150,8 +170,8 @@ public class SpinedIntIntArrayMap {
       } else {
          throw new IllegalStateException("Identifiers must be negative: " + index);
       }
-      int spineIndex = index/spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index/elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       this.lastUpdate.computeIfAbsent(spineIndex, (t) -> new AtomicLong()).incrementAndGet();
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
@@ -159,8 +179,8 @@ public class SpinedIntIntArrayMap {
       if (index < 0) {
          throw new IllegalStateException("sequence must be positive: " + index);
       } 
-      int spineIndex = index/spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index/elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       this.lastUpdate.computeIfAbsent(spineIndex, (t) -> new AtomicLong()).incrementAndGet();
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
@@ -171,8 +191,8 @@ public class SpinedIntIntArrayMap {
       } else {
          throw new IllegalStateException("Identifiers must be negative: " + index);
       }
-      int spineIndex = index/spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index/elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
    }
 
@@ -182,8 +202,8 @@ public class SpinedIntIntArrayMap {
       } else {
          throw new IllegalStateException("Identifiers must be negative: " + index);
       }
-      int spineIndex = index/spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index/elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
    }
    
@@ -192,7 +212,7 @@ public class SpinedIntIntArrayMap {
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
-         for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
+         for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
             int[] element = spine.get(indexInSpine);
             if (element != null) {
                processor.process(key, element);
@@ -208,8 +228,8 @@ public class SpinedIntIntArrayMap {
       } else {
          throw new IllegalStateException("Identifiers must be negative: " + index);
       }
-      int spineIndex = index/spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index/elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       this.lastUpdate.computeIfAbsent(spineIndex, (t) -> new AtomicLong()).incrementAndGet();
       return this.spines.computeIfAbsent(spineIndex, this::newSpine)
               .accumulateAndGet(indexInSpine, x, accumulatorFunction);
@@ -258,7 +278,7 @@ public class SpinedIntIntArrayMap {
       int currentPosition;
 
       public SpinedValueSpliterator() {
-         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.end = DEFAULT_ELEMENTS_PER_SPINE * getSpineCount();
          this.currentPosition = 0;
       }
       

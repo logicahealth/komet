@@ -29,7 +29,7 @@ import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.SpinedIntObjectMap;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 /**
  *
@@ -54,7 +54,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          updateMessage("Computing concept to stated relationship associations...");
          int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
 
-         SpinedIntObjectMap<int[]> conceptElementSequence_StatedRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
+         SpinedIntIntArrayMap conceptElementSequence_StatedRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
          addToTotalWork(4);
          completedUnitOfWork();
 
@@ -84,7 +84,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          updateMessage("Transforming inferred logical definitions...");
          updateMessage("Computing concept to inferred relationship associations...");
-         SpinedIntObjectMap<int[]> conceptElementSequence_InferredRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
+         SpinedIntIntArrayMap conceptElementSequence_InferredRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
          completedUnitOfWork();
          List<TransformationGroup> inferredTransformList = new ArrayList<>();
 
@@ -116,8 +116,8 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
       }
    }
 
-   private SpinedIntObjectMap<int[]> setupRelSpinedMap(int relationshipAssemblageNid, int conceptAssemblageNid) {
-      SpinedIntObjectMap<int[]> conceptElementSequence_RelationshipNids_Map = new SpinedIntObjectMap<>();
+   private SpinedIntIntArrayMap setupRelSpinedMap(int relationshipAssemblageNid, int conceptAssemblageNid) {
+      SpinedIntIntArrayMap conceptElementSequence_RelationshipNids_Map = new SpinedIntIntArrayMap();
       Get.assemblageService().getSemanticChronologyStreamFromAssemblage(relationshipAssemblageNid)
               .forEach((semanticChronology) -> {
                  int conceptNid = semanticChronology.getReferencedComponentNid();
@@ -125,15 +125,14 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
                  if (conceptAssemblageNidFound != conceptAssemblageNid) {
                     throw new IllegalStateException("conceptAssemblageNids do not match: " + conceptAssemblageNidFound + " " + conceptAssemblageNid);
                  }
-                 int conceptElementSequence = containerService.getElementSequenceForNid(semanticChronology.getReferencedComponentNid());
-
-                 int[] relNids = conceptElementSequence_RelationshipNids_Map.get(conceptElementSequence);
+                 int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+                 int[] relNids = conceptElementSequence_RelationshipNids_Map.get(referencedComponentNid);
                  if (relNids == null) {
-                    conceptElementSequence_RelationshipNids_Map.put(conceptElementSequence, new int[]{semanticChronology.getNid()});
+                    conceptElementSequence_RelationshipNids_Map.put(referencedComponentNid, new int[]{semanticChronology.getNid()});
                  } else {
                     relNids = Arrays.copyOf(relNids, relNids.length + 1);
                     relNids[relNids.length - 1] = semanticChronology.getNid();
-                    conceptElementSequence_RelationshipNids_Map.put(conceptElementSequence, relNids);
+                    conceptElementSequence_RelationshipNids_Map.put(referencedComponentNid, relNids);
                  }
               });
       return conceptElementSequence_RelationshipNids_Map;

@@ -142,7 +142,7 @@ public class RelationshipIsCircular
       this.relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfSequenceSet(relType.getNid()));
+         this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(relType.getNid()));
       }
 
       return incomingPossibleComponents;

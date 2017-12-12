@@ -19,7 +19,7 @@ package sh.isaac.model.observable.version;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
-import sh.isaac.api.component.semantic.version.Rf2Relationship;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableRf2Relationship;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;

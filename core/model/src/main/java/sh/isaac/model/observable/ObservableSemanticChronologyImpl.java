@@ -67,7 +67,7 @@ import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
-import sh.isaac.api.component.semantic.version.Rf2Relationship;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.observable.version.ObservableRf2RelationshipImpl;

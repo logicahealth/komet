@@ -55,6 +55,20 @@ public class SpinedNidNidSetMap {
    public SpinedNidNidSetMap() {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
+   
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+      sizeInBytes = sizeInBytes + ((spineSize * 8) * spines.size()); // 8 bytes = pointer to an object
+      for (AtomicReferenceArray<int[]> spine: spines.values()) {
+         for (int i = 0; i < spine.length(); i++) {
+            int[] value = spine.get(i);
+            if (value != null) {
+               sizeInBytes = sizeInBytes + (value.length * 4);
+            }
+         }
+      }
+      return sizeInBytes;
+   }
 
    public void read(File directory) {
       File[] files = directory.listFiles((pathname) -> {

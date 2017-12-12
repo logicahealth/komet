@@ -354,14 +354,17 @@ public class BdbIdentifierProvider
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
       if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
-         final Optional<? extends Chronology> optionalObj =
-            Get.identifiedObjectService()
-               .getIdentifiedObjectChronology(
+         OptionalInt optionalAssemblageNid = getAssemblageNid(nid);
+         if (optionalAssemblageNid.isPresent()) {
+            final Optional<? extends Chronology> optionalObj =
+               Get.identifiedObjectService()
+                  .getIdentifiedObjectChronology(
                    nid);
 
-         if (optionalObj.isPresent()) {
-            return Optional.of(optionalObj.get()
+            if (optionalObj.isPresent()) {
+               return Optional.of(optionalObj.get()
                                           .getPrimordialUuid());
+            }
          }
       }
 
@@ -381,14 +384,15 @@ public class BdbIdentifierProvider
      if (nid > 0) {
          throw new RuntimeException("Method expected nid!");
       }
+      OptionalInt optionalAssemblageNid = getAssemblageNid(nid);
+      if (optionalAssemblageNid.isPresent()) {
+         final Optional<? extends Chronology> optionalObj = 
+              Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
 
-      final Optional<? extends Chronology> optionalObj = Get.identifiedObjectService()
-                                                                                            .getIdentifiedObjectChronology(
-                                                                                                  nid);
-
-      if (optionalObj.isPresent()) {
-         return optionalObj.get()
+         if (optionalObj.isPresent()) {
+            return optionalObj.get()
                            .getUuidList();
+         }
       }
 
       final UUID[] uuids = this.uuidIntMapMap.getKeysForValue(nid);

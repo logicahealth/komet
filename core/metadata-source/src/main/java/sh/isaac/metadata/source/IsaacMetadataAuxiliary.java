@@ -151,7 +151,7 @@ public class IsaacMetadataAuxiliary
 
          createConcept(TermAux.SOLOR_ROOT);
          pushParent(current());
-         createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
+         createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8").addUuids(UUID.fromString("a892950a-0847-300c-b477-4e3cbb945225"));
          pushParent(current());
          createConcept(TermAux.BODY_STRUCTURE);
          createConcept(TermAux.EVENT);
@@ -619,18 +619,9 @@ public class IsaacMetadataAuxiliary
          
          pushParent(current());
          
-         createConcept("Phenomenon statement");
-         
-         pushParent(current());
-         createConcept("Phenomenon measurement");
-         createConcept("Phenomenon goal");
-         popParent();
-         
+         createConcept("Request statement");
+           
          createConcept("Action statement");
-         pushParent(current());
-         createConcept("Action request");
-         createConcept("Action performance");
-         popParent();
 
          pushParent(current());
          popParent();

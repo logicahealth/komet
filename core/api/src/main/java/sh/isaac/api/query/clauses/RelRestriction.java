@@ -168,14 +168,14 @@ public class RelRestriction
       this.relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfSequenceSet(relType.getNid()));
+         this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(relType.getNid()));
       }
 
       this.destinationSet = new NidSet();
       this.destinationSet.add(destinationSpec.getNid());
 
       if (destinationSubsumption) {
-         this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfSequenceSet(destinationSpec.getNid()));
+         this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(destinationSpec.getNid()));
       }
 
       return incomingPossibleComponents;

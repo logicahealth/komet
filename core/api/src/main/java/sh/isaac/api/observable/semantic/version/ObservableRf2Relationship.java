@@ -17,14 +17,14 @@
 package sh.isaac.api.observable.semantic.version;
 
 import javafx.beans.property.IntegerProperty;
-import sh.isaac.api.component.semantic.version.MutableRf2Relationship;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
  * @author kec
  */
-public interface ObservableRf2Relationship extends ObservableSemanticVersion, MutableRf2Relationship {
+public interface ObservableRf2Relationship extends ObservableSemanticVersion, Rf2Relationship {
 
    IntegerProperty typeNidProperty();
    

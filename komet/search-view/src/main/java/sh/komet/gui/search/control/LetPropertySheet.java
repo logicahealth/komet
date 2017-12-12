@@ -170,7 +170,7 @@ public class LetPropertySheet{
        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
        ConceptChronology concept = Get.concept(conceptSpecification.getNid());
        TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
-       for (int i: taxonomySnapshot.getTaxonomyChildNids(concept.getNid())) {
+       for (int i: taxonomySnapshot.getTaxonomyChildConceptNids(concept.getNid())) {
           ConceptForControlWrapper propertySheetItemConceptWrapper =
                   new ConceptForControlWrapper(this.manifoldForDisplay, i);
           collection.add(propertySheetItemConceptWrapper);
@@ -225,7 +225,7 @@ public class LetPropertySheet{
        if (manifoldModules.size() == 0) {
           ArrayList<Integer> moduleNIDs = new ArrayList<>();
           TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
-          for (int i : taxonomySnapshot.getTaxonomyChildNids(MetaData.MODULE____SOLOR.getNid())) {
+          for (int i : taxonomySnapshot.getTaxonomyChildConceptNids(MetaData.MODULE____SOLOR.getNid())) {
              moduleNIDs.add(i);
           }
           arrayOfModules = new int[moduleNIDs.size()];

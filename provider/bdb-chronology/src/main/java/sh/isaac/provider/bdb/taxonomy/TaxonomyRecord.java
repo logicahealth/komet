@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -626,6 +627,45 @@ public class TaxonomyRecord {
       return conceptSequenceList.elements();
    }
 
+   /**
+    * Gets the destination concept sequences of type.
+    *
+    * @param typeSet the type set
+    * @param tc the tc
+    * @return the destination concept sequences of type
+    */
+   public boolean hasDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
+      final int                        flags                    = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
+      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+      final AtomicBoolean found = new AtomicBoolean(false);
+      
+
+      this.conceptNidRecordMap.forEachPair((int destinationSequence,
+            TypeStampTaxonomyRecords stampRecords) -> {
+               final OpenIntHashSet stampsForConceptIntSet = new OpenIntHashSet();
+
+               stampRecords.forEach((record) -> {
+                                       if ((record.getTaxonomyFlags() & flags) == flags) {
+                                          if (computer.onRoute(record.getStampSequence())) {
+                                             if (typeSet.isEmpty()) {
+                                                stampsForConceptIntSet.add(record.getStampSequence());
+                                             } else if (typeSet.contains(record.getTypeNid())) {
+                                                stampsForConceptIntSet.add(record.getStampSequence());
+                                             }
+                                          }
+                                       }
+                                    });
+
+               if (computer.isLatestActive(stampsForConceptIntSet.keys().elements())) {
+                  found.set(true);
+                  return false;
+               }
+
+               return true;
+            });
+      return found.get();
+   }
+   
    /**
     * Gets the parent concept sequences.
     *

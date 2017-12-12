@@ -495,7 +495,7 @@ public class BdbTaxonomyProvider
             return true;
          }
 
-         for (int parentNid : getTaxonomyParentNids(childId)) {
+         for (int parentNid : getTaxonomyParentConceptNids(childId)) {
             if (isKindOf(parentNid, kindofNid)) {
                return true;
             }
@@ -511,7 +511,7 @@ public class BdbTaxonomyProvider
        * @return the kind of sequence set
        */
       @Override
-      public NidSet getKindOfSequenceSet(int rootId) {
+      public NidSet getKindOfConceptNidSet(int rootId) {
          if (treeSnapshot != null) {
             NidSet kindOfSet = this.treeSnapshot.getDescendentNidSet(rootId);
 
@@ -519,11 +519,11 @@ public class BdbTaxonomyProvider
             return kindOfSet;
          }
 
-         int[] childNids = getTaxonomyChildNids(rootId);
-         NidSet kindOfSet = NidSet.of(getTaxonomyChildNids(rootId));
+         int[] childNids = getTaxonomyChildConceptNids(rootId);
+         NidSet kindOfSet = NidSet.of(getTaxonomyChildConceptNids(rootId));
 
          for (int childNid : childNids) {
-            kindOfSet.addAll(getKindOfSequenceSet(childNid));
+            kindOfSet.addAll(getKindOfConceptNidSet(childNid));
          }
 
          return kindOfSet;
@@ -555,7 +555,7 @@ public class BdbTaxonomyProvider
        * @return the taxonomy child sequences
        */
       @Override
-      public int[] getTaxonomyChildNids(int parentId) {
+      public int[] getTaxonomyChildConceptNids(int parentId) {
          if (treeSnapshot != null) {
             return this.treeSnapshot.getChildNids(parentId);
          }
@@ -565,6 +565,15 @@ public class BdbTaxonomyProvider
          return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
       }
 
+      @Override
+      public boolean isLeaf(int conceptNid) {
+         if (treeSnapshot != null) {
+            return this.treeSnapshot.getChildNids(conceptNid).length == 0;
+         }
+         TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(conceptNid);
+         return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, tc);
+      }
+
       /**
        * Gets the taxonomy parent sequences.
        *
@@ -572,7 +581,7 @@ public class BdbTaxonomyProvider
        * @return the taxonomy parent sequences
        */
       @Override
-      public int[] getTaxonomyParentNids(int childId) {
+      public int[] getTaxonomyParentConceptNids(int childId) {
          if (treeSnapshot != null) {
             return this.treeSnapshot.getParentNids(childId);
          }

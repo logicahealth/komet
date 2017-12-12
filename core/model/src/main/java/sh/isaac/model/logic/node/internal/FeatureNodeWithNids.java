@@ -48,7 +48,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
-import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;

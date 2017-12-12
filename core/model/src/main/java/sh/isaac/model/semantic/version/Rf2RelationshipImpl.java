@@ -45,7 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.MutableRf2Relationship;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -58,7 +58,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  */
 public class Rf2RelationshipImpl
         extends AbstractVersionImpl
-         implements MutableRf2Relationship {
+         implements Rf2Relationship {
    int typeNid           = Integer.MAX_VALUE;
    int destinationNid    = Integer.MAX_VALUE;
    int relationshipGroup = Integer.MAX_VALUE;

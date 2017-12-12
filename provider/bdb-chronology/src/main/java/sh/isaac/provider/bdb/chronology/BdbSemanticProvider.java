@@ -212,12 +212,11 @@ public class BdbSemanticProvider implements AssemblageService {
       }
 
    @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
-      final NidSet sememeSequences = getSemanticNidsFromAssemblage(
-                                                      assemblageConceptSequence);
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptNid) {
+      final NidSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
 
-      return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+      return semanticSequences.stream()
+                            .mapToObj((int semanticSequence) -> (C) getSemanticChronology(semanticSequence));
    }
 
    @Override

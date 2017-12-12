@@ -221,7 +221,7 @@ public class SimpleSearchController
          allowedConceptNids = new NidSet();
 
          for (int allowedParentNid: allowedParents.asArray()) {
-            NidSet kindOfSet = taxonomySnapshot.getKindOfSequenceSet(allowedParentNid);
+            NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
 
             allowedConceptNids.addAll(kindOfSet);
          }
@@ -307,7 +307,7 @@ public class SimpleSearchController
       List<CustomCheckListItem> list             = new ArrayList<>();
 
       list.add(new CustomCheckListItem(Get.conceptSpecification(MetaData.METADATA____SOLOR.getNid())));
-      Arrays.stream(taxonomySnapshot.getTaxonomyChildNids(MetaData.HEALTH_CONCEPT____SOLOR.getNid()))
+      Arrays.stream(taxonomySnapshot.getTaxonomyChildConceptNids(MetaData.HEALTH_CONCEPT____SOLOR.getNid()))
             .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))));
       Collections.sort(list);
       list.stream()
@@ -345,7 +345,7 @@ public class SimpleSearchController
 
       if (this.results.size() > 500) {
          for (int allowedParentNid: allowedParents.asArray()) {
-            NidSet kindOfSet = taxonomySnapshot.getKindOfSequenceSet(allowedParentNid);
+            NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
 
             allowedConceptNids.addAll(kindOfSet);
          }

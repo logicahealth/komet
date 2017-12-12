@@ -248,7 +248,7 @@ final public class MultiParentTreeCell
          } else {
             int[] allParents = treeItem.getTreeView()
                                        .getTaxonomySnapshot()
-                                       .getTaxonomyParentNids(value.getNid());
+                                       .getTaxonomyParentConceptNids(value.getNid());
             ArrayList<MultiParentTreeItemImpl> secondaryParentItems = new ArrayList<>();
 
             for (int parentSequence: allParents) {

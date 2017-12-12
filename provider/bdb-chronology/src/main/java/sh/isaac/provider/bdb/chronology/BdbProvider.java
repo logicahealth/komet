@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -94,12 +95,14 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import java.util.Map;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitService;
@@ -125,7 +128,6 @@ import sh.isaac.provider.bdb.binding.IntArrayBinding;
 import sh.isaac.provider.bdb.binding.IntSpineBinding;
 import sh.isaac.provider.bdb.binding.SequenceGeneratorBinding;
 import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
-import sh.isaac.api.MetadataService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -201,6 +203,7 @@ public class BdbProvider
             }
          }
       }
+
       return false;
    }
 
@@ -307,26 +310,24 @@ public class BdbProvider
    }
 
    public void putSpinedNidIntMap(String databaseKey, SpinedNidIntMap map) {
-      Database                                   mapDatabase  = getNoDupDatabase(databaseKey);
-      ConcurrentMap<Integer, AtomicIntegerArray> spineMap     = map.getSpines();
-      IntSpineBinding                            spineBinding = new IntSpineBinding();
+      Database             mapDatabase  = getNoDupDatabase(databaseKey);
+      ConcurrentMap<Integer, AtomicIntegerArray> spineArray   = map.getSpines();
+      IntSpineBinding      spineBinding = new IntSpineBinding();
+      DatabaseEntry        keyEntry     = new DatabaseEntry();
+      DatabaseEntry        valueEntry   = new DatabaseEntry();
 
-      spineMap.forEach(
-          (key, spine) -> {
-             DatabaseEntry keyEntry = new DatabaseEntry();
+      
+      for (Map.Entry<Integer, AtomicIntegerArray> entry: spineArray.entrySet()) {
 
-             IntegerBinding.intToEntry(key, keyEntry);
+         IntegerBinding.intToEntry(entry.getKey(), keyEntry);
+         spineBinding.objectToEntry(entry.getValue(), valueEntry);
 
-             DatabaseEntry valueEntry = new DatabaseEntry();
+         OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
 
-             spineBinding.objectToEntry(spine, valueEntry);
-
-             OperationStatus status = mapDatabase.put(null, keyEntry, valueEntry);
-
-             if (status != OperationStatus.SUCCESS) {
-                throw new RuntimeException("Status = " + status);
-             }
-          });
+         if (status != OperationStatus.SUCCESS) {
+            throw new RuntimeException("Status = " + status);
+         }
+      }
    }
 
    @Override
@@ -746,39 +747,43 @@ public class BdbProvider
 
    public Optional<ByteArrayDataBuffer> getChronologyDataFromSpine(int nid)
             throws IllegalStateException {
-      int                     assemblageNid           = ModelGet.identifierService()
-                                                                .getAssemblageNid(nid)
-                                                                .getAsInt();
-      int elementSequence = ModelGet.identifierService()
-                                    .getElementSequenceForNid(nid, assemblageNid);
-      SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-      byte[][]                data                    = spinedByteArrayArrayMap.get(elementSequence);
+      OptionalInt assemblageNidOptional = ModelGet.identifierService()
+                                                  .getAssemblageNid(nid);
 
-      if (data == null) {
-         return Optional.empty();
+      if (assemblageNidOptional.isPresent()) {
+         int                     assemblageNid           = assemblageNidOptional.getAsInt();
+         int elementSequence = ModelGet.identifierService()
+                                       .getElementSequenceForNid(nid, assemblageNid);
+         SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
+         byte[][]                data                    = spinedByteArrayArrayMap.get(elementSequence);
+
+         if (data == null) {
+            return Optional.empty();
+         }
+
+         int size = 0;
+
+         for (byte[] dataEntry: data) {
+            size = size + dataEntry.length;
+         }
+
+         ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
+                                              size + 4);  // room for 0 int value at end to indicate last version
+
+         for (byte[] dataEntry: data) {
+            byteBuffer.put(dataEntry);
+         }
+
+         byteBuffer.putInt(0);
+         byteBuffer.rewind();
+
+         if (byteBuffer.getInt() != 0) {
+            throw new IllegalStateException("Record does not start with zero...");
+         }
+
+         return Optional.of(byteBuffer);
       }
-
-      int size = 0;
-
-      for (byte[] dataEntry: data) {
-         size = size + dataEntry.length;
-      }
-
-      ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-                                           size + 4);  // room for 0 int value at end to indicate last version
-
-      for (byte[] dataEntry: data) {
-         byteBuffer.put(dataEntry);
-      }
-
-      byteBuffer.putInt(0);
-      byteBuffer.rewind();
-
-      if (byteBuffer.getInt() != 0) {
-         throw new IllegalStateException("Record does not start with zero...");
-      }
-
-      return Optional.of(byteBuffer);
+      throw new IllegalStateException("Assemblage nid is not present. ");
    }
 
    public Database getChronologyDatabase(int assemblageNid) {
@@ -1011,8 +1016,7 @@ public class BdbProvider
             int                spineKey  = IntegerBinding.entryToInt(foundKey);
             AtomicIntegerArray spineData = spineBinding.entryToObject(foundData);
 
-            map.getSpines()
-               .put(spineKey, spineData);
+            map.addSpine(spineKey, spineData);
          }
       }
 

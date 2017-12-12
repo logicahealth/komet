@@ -69,7 +69,7 @@ import sh.komet.gui.control.FixedSizePane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.Rf2Relationship;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------

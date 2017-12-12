@@ -43,6 +43,13 @@ public class SpinedIntIntMap {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
 
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+      sizeInBytes = sizeInBytes + ((spineSize * 4) * spines.size()); // 4 bytes = bytes of 32 bit integer
+      return sizeInBytes;
+   }
+
+   
    private AtomicIntegerArray newSpine(Integer spineKey) {
       int[] spine = new int[spineSize];
       Arrays.fill(spine, INITIALIZATION_VALUE);

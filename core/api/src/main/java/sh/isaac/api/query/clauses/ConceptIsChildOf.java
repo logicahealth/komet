@@ -121,7 +121,7 @@ public class ConceptIsChildOf
       final int parentNid = this.childOfSpecification.getNid();
       final NidSet childrenOfSequenceSet =
               NidSet.of(
-                      Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildNids(parentNid));
+                      Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildConceptNids(parentNid));
       getResultsCache().or(childrenOfSequenceSet);
       return getResultsCache();
    }

@@ -14,29 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version;
+package sh.isaac.api.component.semantic.version.brittle;
 
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
-public interface MutableRf2Relationship extends Rf2Relationship {
+public interface Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version 
+        extends SemanticVersion {
    
-   void setTypeNid(int nid);
-   
-   void setDestinationNid(int nid);
-   
-   void setRelationshipGroup(int nid);
-   
-   void setCharacteristicNid(int nid);
-   
-   void setModifierNid(int nid);
-
    @Override
    default VersionType getVersionType() {
-      return VersionType.RF2_RELATIONSHIP;
+      return VersionType.Str1_Str2_Str3_Str4_Str5_Str6_Str7;
    }
    
 }
