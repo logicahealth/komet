@@ -14,21 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version.brittle;
+package sh.isaac.api.observable.semantic.version.brittle;
 
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
 
 /**
  *
  * @author kec
  */
-public interface C1_C2_Str3_Version 
-        extends SemanticVersion {
-   
-   @Override
-   default VersionType getVersionType() {
-      return VersionType.C1_C2_Str3;
-   }
-   
+public interface Observable_Nid1_Str2_Version 
+   extends ObservableSemanticVersion,  Nid1_Str2_Version {
+   IntegerProperty Nid1Property();
+   StringProperty Str2Property();
 }

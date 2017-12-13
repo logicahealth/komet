@@ -108,11 +108,11 @@ public interface LoincVersion
 
    //~--- get methods ---------------------------------------------------------
 
-   String getStatus();
+   String getLoincStatus();
 
    //~--- set methods ---------------------------------------------------------
 
-   void setStatus(String value);
+   void setLoincStatus(String value);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -131,7 +131,7 @@ public interface LoincVersion
    void setTimeAspect(String value);
    
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.LOINC_RECORD;
    }
 }

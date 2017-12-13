@@ -14,27 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.observable.semantic.version;
+package sh.isaac.api.component.semantic.version.brittle;
 
-import javafx.beans.property.StringProperty;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
-public interface ObservableLoincVersion 
-        extends ObservableSemanticVersion, LoincVersion {
+public interface Nid1_Nid2_Str3_Version 
+        extends SemanticVersion {
+   int getNid1();
+   int getNid2();
+   String getStr3();
    
-   StringProperty loincNumProperty(); 
-   StringProperty componentProperty();  
-   StringProperty propertyProperty();  
-   StringProperty timeAspectProperty();  
-   StringProperty systemProperty();  
-   StringProperty scaleTypeProperty();  
-   StringProperty methodTypeProperty();  
-   StringProperty statusProperty();   
-   StringProperty shortNameProperty();    
-   StringProperty longCommonNameProperty(); 
+   void setNid1(int nid);
+   void setNid2(int nid);
+   void setStr3(String value);
+   
+   @Override
+   default VersionType getSemanticType() {
+      return VersionType.C1_C2_Str3;
+   }
    
 }

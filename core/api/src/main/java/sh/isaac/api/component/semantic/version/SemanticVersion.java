@@ -64,7 +64,7 @@ public interface SemanticVersion
    SemanticChronology getChronology();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.MEMBER;
    }
 }

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model.semantic.version;
+package sh.isaac.model.semantic.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -49,6 +49,8 @@ import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.AbstractVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -272,7 +274,7 @@ public class Rf2RelationshipImpl
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.RF2_RELATIONSHIP;
    }
 

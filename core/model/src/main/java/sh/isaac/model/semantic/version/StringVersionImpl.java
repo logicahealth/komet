@@ -143,7 +143,7 @@ public class StringVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.STRING;
    }
 

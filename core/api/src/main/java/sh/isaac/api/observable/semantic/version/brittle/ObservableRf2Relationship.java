@@ -14,21 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.component.semantic.version.brittle;
+package sh.isaac.api.observable.semantic.version.brittle;
 
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
+import javafx.beans.property.IntegerProperty;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 
 /**
  *
  * @author kec
  */
-public interface Str1_Str2_C3_C4_Version 
-        extends SemanticVersion {
+public interface ObservableRf2Relationship extends ObservableSemanticVersion, Rf2Relationship {
+
+   IntegerProperty typeNidProperty();
    
+   IntegerProperty destinationNidProperty();
+   
+   IntegerProperty relationshipGroupProperty();
+   
+   IntegerProperty characteristicNidProperty();
+   
+   IntegerProperty modifierNidProperty();
+
+   //~--- get methods ---------------------------------------------------------
+
    @Override
-   default VersionType getVersionType() {
-      return VersionType.Str1_Str2_C3_C4;
-   }
+   public ObservableSemanticChronology getChronology();
    
 }

@@ -14,17 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.observable.version;
+package sh.isaac.model.observable.version.brittle;
 
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservableRf2Relationship;
+import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.semantic.version.Rf2RelationshipImpl;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 /**
  *

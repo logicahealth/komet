@@ -66,7 +66,7 @@ import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.semantic.version.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
 

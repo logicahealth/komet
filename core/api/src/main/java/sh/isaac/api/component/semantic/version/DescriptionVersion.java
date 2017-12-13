@@ -79,7 +79,7 @@ public interface DescriptionVersion
    String getText();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.DESCRIPTION;
    }
    

@@ -55,7 +55,7 @@ public class AddEditVersionMenuItems {
    }
 
    public VersionType getVersionType() {
-      return categorizedVersion.getVersionType();
+      return categorizedVersion.getSemanticType();
    }
    public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
       PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);

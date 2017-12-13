@@ -36,7 +36,7 @@ import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.version.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 /**
  *

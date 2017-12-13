@@ -56,7 +56,7 @@ public interface StringVersion
    String getString();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.STRING;
    }
 }

@@ -220,8 +220,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public VersionType getVersionType() {
-      return delegate.getVersionType();
+   public VersionType getSemanticType() {
+      return delegate.getSemanticType();
    }
    
    public CategorizedVersions getCategorizedVersions() {

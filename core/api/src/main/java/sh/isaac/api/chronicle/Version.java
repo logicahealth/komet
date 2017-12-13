@@ -31,7 +31,7 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     */
    Chronology getChronology();
    
-   VersionType getVersionType();
+   VersionType getSemanticType();
    
    /**
     * Create a analog version with Long.MAX_VALUE as the time, indicating

@@ -236,7 +236,7 @@ public interface Chronology
       if (versions.isEmpty()) {
          return VersionType.UNKNOWN;
       }
-      return versions.get(0).getVersionType();
+      return versions.get(0).getSemanticType();
    }
    
    NidSet getRecursiveSemanticNids();

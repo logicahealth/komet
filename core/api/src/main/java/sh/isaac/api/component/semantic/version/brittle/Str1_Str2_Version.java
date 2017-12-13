@@ -25,9 +25,14 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  */
 public interface Str1_Str2_Version 
         extends SemanticVersion {
+   String getStr1();
+   String getStr2();
+   
+   void setStr1(String value);
+   void setStr2(String value);
    
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.Str1_Str2;
    }
    

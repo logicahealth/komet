@@ -23,12 +23,26 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  *
  * @author kec
  */
-public interface C1_C2_Int3_Version 
+public interface Nid1_Int2_Str3_Str4_Nid5_Nid6_Version 
         extends SemanticVersion {
    
+   int getNid1();
+   int getInt2();
+   String getStr3();
+   String getStr4();
+   int getNid5();
+   int getNid6();
    
+   void setNid1(int nid);
+   void setInt2(int nid);
+   void setStr3(String value);
+   void setStr4(String value);
+   void setNid5(int nid);
+   void setNid6(int nid);
+
    @Override
-   default VersionType getVersionType() {
-      return VersionType.C1_C2_Int3;
+   default VersionType getSemanticType() {
+      return VersionType.C1_Int2_Str3_Str4_C5_C6;
    }
+   
 }

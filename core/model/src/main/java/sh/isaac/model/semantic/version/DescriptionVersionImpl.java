@@ -253,7 +253,7 @@ public class DescriptionVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.DESCRIPTION;
    }
 

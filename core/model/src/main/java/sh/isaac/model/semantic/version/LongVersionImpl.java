@@ -173,7 +173,7 @@ public class LongVersionImpl
     * @return the sememe type
     */
    @Override
-   public final VersionType getSememeType() {
+   public final VersionType getSemanticType() {
       return VersionType.LONG;
    }
 
