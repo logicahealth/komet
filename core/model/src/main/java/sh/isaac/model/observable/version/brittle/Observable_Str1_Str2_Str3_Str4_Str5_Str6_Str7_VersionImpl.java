@@ -30,42 +30,50 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
         extends ObservableSemanticVersionImpl
          implements Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version {
 
+   StringProperty str1Property;
+   StringProperty str2Property;
+   StringProperty str3Property;
+   StringProperty str4Property;
+   StringProperty str5Property;
+   StringProperty str6Property;
+   StringProperty str7Property;
+
    public Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public StringProperty Str1Property() {
+   public StringProperty str1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str2Property() {
+   public StringProperty str2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str3Property() {
+   public StringProperty str3Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str4Property() {
+   public StringProperty str4Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str5Property() {
+   public StringProperty str5Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str6Property() {
+   public StringProperty str6Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str7Property() {
+   public StringProperty str7Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

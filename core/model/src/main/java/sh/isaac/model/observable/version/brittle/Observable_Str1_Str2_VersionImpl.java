@@ -30,17 +30,20 @@ public class Observable_Str1_Str2_VersionImpl
         extends ObservableSemanticVersionImpl
          implements Observable_Str1_Str2_Version {
 
+   StringProperty str1Property;
+   StringProperty str2Property;
+   
    public Observable_Str1_Str2_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public StringProperty Str1Property() {
+   public StringProperty str1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str2Property() {
+   public StringProperty str2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

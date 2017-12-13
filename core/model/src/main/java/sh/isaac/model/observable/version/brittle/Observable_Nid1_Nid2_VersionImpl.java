@@ -30,17 +30,20 @@ public class Observable_Nid1_Nid2_VersionImpl
         extends ObservableSemanticVersionImpl
          implements Observable_Nid1_Nid2_Version {
 
+   IntegerProperty nid1Property;
+   IntegerProperty nid2Property;
+
    public Observable_Nid1_Nid2_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public IntegerProperty Nid1Property() {
+   public IntegerProperty nid1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid2Property() {
+   public IntegerProperty nid2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

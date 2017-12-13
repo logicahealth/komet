@@ -31,22 +31,26 @@ public class ObservableNid1_Nid2_Int3_Version
         extends ObservableSemanticVersionImpl
          implements Observable_Nid1_Nid2_Int3_Version {
 
+   IntegerProperty nid1Property;
+   IntegerProperty nid2Property;
+  IntegerProperty int3Property;
+  
    public ObservableNid1_Nid2_Int3_Version(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public IntegerProperty Nid1Property() {
+   public IntegerProperty nid1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid2Property() {
+   public IntegerProperty nid2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Int3Property() {
+   public IntegerProperty int3Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

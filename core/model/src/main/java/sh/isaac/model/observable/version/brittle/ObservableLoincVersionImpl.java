@@ -30,6 +30,17 @@ public class ObservableLoincVersionImpl
         extends ObservableSemanticVersionImpl
          implements ObservableLoincVersion {
 
+   StringProperty loincNumProperty;
+   StringProperty componentProperty;
+   StringProperty propertyProperty;
+   StringProperty timeAspectProperty;
+   StringProperty systemProperty;
+   StringProperty scaleTypeProperty;
+   StringProperty methodTypeProperty;
+   StringProperty loincStatusProperty;
+   StringProperty shortNameProperty;
+   StringProperty longCommonNameProperty;
+   
    public ObservableLoincVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }

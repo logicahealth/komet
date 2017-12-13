@@ -26,11 +26,11 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
  */
 public interface Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version 
    extends ObservableSemanticVersion,  Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version {
-   StringProperty Str1Property();
-   StringProperty Str2Property();
-   StringProperty Str3Property();
-   StringProperty Str4Property();
-   StringProperty Str5Property();
-   StringProperty Str6Property();
-   StringProperty Str7Property();   
+   StringProperty str1Property();
+   StringProperty str2Property();
+   StringProperty str3Property();
+   StringProperty str4Property();
+   StringProperty str5Property();
+   StringProperty str6Property();
+   StringProperty str7Property();   
 }

@@ -31,42 +31,51 @@ public class Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
         extends ObservableSemanticVersionImpl
          implements Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version {
    
+   IntegerProperty int1Property;
+   IntegerProperty int2Property;
+
+   StringProperty str3Property;
+   StringProperty str4Property;
+   StringProperty str5Property;
+    IntegerProperty nid6Property;
+   IntegerProperty nid7Property;
+
    public Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public IntegerProperty Int1Property() {
+   public IntegerProperty int1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Int2Property() {
+   public IntegerProperty int2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str3Property() {
+   public StringProperty str3Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str4Property() {
+   public StringProperty str4Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str5Property() {
+   public StringProperty str5Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid6Property() {
+   public IntegerProperty nid6Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid7Property() {
+   public IntegerProperty nid7Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

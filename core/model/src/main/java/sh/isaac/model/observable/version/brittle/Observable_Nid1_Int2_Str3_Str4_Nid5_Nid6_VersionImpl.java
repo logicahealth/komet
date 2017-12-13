@@ -31,37 +31,44 @@ public class Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
         extends ObservableSemanticVersionImpl
          implements Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_Version {
 
+   IntegerProperty nid1Property;
+   IntegerProperty int2Property;
+   StringProperty str3Property;
+   StringProperty str4Property;
+   IntegerProperty nid5Property;
+   IntegerProperty nid6Property;
+
    public Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
    @Override
-   public IntegerProperty Nid1Property() {
+   public IntegerProperty nid1Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Int2Property() {
+   public IntegerProperty int2Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str3Property() {
+   public StringProperty str3Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public StringProperty Str4Property() {
+   public StringProperty str4Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid5Property() {
+   public IntegerProperty nid5Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public IntegerProperty Nid6Property() {
+   public IntegerProperty nid6Property() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

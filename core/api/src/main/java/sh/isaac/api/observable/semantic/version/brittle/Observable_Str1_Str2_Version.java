@@ -26,7 +26,7 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
  */
 public interface Observable_Str1_Str2_Version 
    extends ObservableSemanticVersion,  Str1_Str2_Version {
-   StringProperty Str1Property();
-   StringProperty Str2Property();
+   StringProperty str1Property();
+   StringProperty str2Property();
    
 }

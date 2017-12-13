@@ -27,8 +27,8 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
  */
 public interface Observable_Nid1_Nid2_Str3_Version 
    extends ObservableSemanticVersion,  Nid1_Nid2_Str3_Version {
-   IntegerProperty Nid1Property();
-   IntegerProperty Nid2Property();
-   StringProperty Str3Property();
+   IntegerProperty nid1Property();
+   IntegerProperty nid2Property();
+   StringProperty str3Property();
    
 }
