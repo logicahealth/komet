@@ -84,7 +84,7 @@ public class StringVersionImpl
            int stampSequence,
            ByteArrayDataBuffer data) {
       super(container, stampSequence);
-      this.string = data.readUTF();
+      this.string = data.getUTF();
    }
 
    private StringVersionImpl(StringVersionImpl other, int stampSequence) {
