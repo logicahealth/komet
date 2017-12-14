@@ -167,12 +167,7 @@ public class PreferencesProvider
             if (setPropertyIfFileExists(
                   USER_CSS_LOCATION_PROPERTY,
                   Paths.get(
-                      "/Users",
-                      "kec",
-                      "isaac",
-                      "semiotic-history",
-                      "isaac",
-                      "komet",
+                       "..",
                       "css",
                       "src",
                       "main",

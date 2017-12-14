@@ -162,7 +162,7 @@ public class MainApp
       // CHILLDE
       // Knowledge, Language, Dialect, Chronology
       // KOLDAC
-      stage.setTitle("SOLOR");
+      stage.setTitle("Viewer");
       stage.setScene(scene);
       FxGet.statusMessageService()
            .addScene(scene, controller::reportStatus);
