@@ -42,7 +42,7 @@ public interface Nid1_Int2_Str3_Str4_Nid5_Nid6_Version
 
    @Override
    default VersionType getSemanticType() {
-      return VersionType.C1_Int2_Str3_Str4_C5_C6;
+      return VersionType.Nid1_Int2_Str3_Str4_Nid5_Nid6;
    }
    
 }

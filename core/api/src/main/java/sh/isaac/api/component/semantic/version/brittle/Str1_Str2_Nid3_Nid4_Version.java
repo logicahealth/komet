@@ -37,7 +37,7 @@ public interface Str1_Str2_Nid3_Nid4_Version
    
    @Override
    default VersionType getSemanticType() {
-      return VersionType.Str1_Str2_C3_C4;
+      return VersionType.Str1_Str2_Nid3_Nid4;
    }
    
 }

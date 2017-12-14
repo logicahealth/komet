@@ -43,7 +43,7 @@ public interface Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version
    
    @Override
    default VersionType getSemanticType() {
-      return VersionType.Int1_Int2_Str3_Str4_Str5_C6_C7;
+      return VersionType.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7;
    }
    
 }

@@ -34,7 +34,7 @@ public interface Nid1_Int2_Version
    
    @Override
    default VersionType getSemanticType() {
-      return VersionType.C1_Int2;
+      return VersionType.Nid1_Int2;
    }
    
 }
