@@ -135,7 +135,6 @@ public class SimpleSearchService extends Service<NidSet> {
                     results.addAll(filteredValues);
                 }
 
-
                 return results;
             }
         };
