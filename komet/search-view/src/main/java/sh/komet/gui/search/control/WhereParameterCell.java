@@ -14,6 +14,11 @@ import sh.komet.gui.search.flowr.QueryClauseParameter;
 
 import java.util.HashMap;
 
+/**
+ *
+ * @author aks8m
+ */
+
 public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
 
     public enum ParamterTypes{

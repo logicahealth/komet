@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import org.controlsfx.control.textfield.*?>
 <?import org.controlsfx.control.*?>
 <?import java.lang.*?>
 <?import java.net.*?>
@@ -16,38 +17,23 @@
     <children>
         <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
-                <SplitPane dividerPositions="0.10957004160887657" orientation="VERTICAL" BorderPane.alignment="CENTER">
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" BorderPane.alignment="CENTER">
                     <items>
-                  <GridPane maxHeight="422.0" prefHeight="337.0" prefWidth="338.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="296.0" minWidth="10.0" prefWidth="72.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="0.0" prefWidth="5.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="519.0" minWidth="10.0" prefWidth="177.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="481.0" minWidth="10.0" prefWidth="85.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="59.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="169.0" minHeight="34.0" prefHeight="34.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="223.0" minHeight="37.0" prefHeight="37.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="333.0" minHeight="10.0" prefHeight="282.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <Label text="Keyword:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
-                        <TextField fx:id="searchParameter" prefHeight="27.0" prefWidth="339.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#executeSearch" text="Search" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                        <Label text="Status:" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-                        <ChoiceBox fx:id="statusChoiceBox" prefHeight="27.0" prefWidth="182.0" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
-                        <CheckListView fx:id="kindOfCheckListView" GridPane.columnSpan="4" GridPane.rowIndex="3" />
+                        <ToolBar prefHeight="40.0" prefWidth="200.0">
+                          <items>
+                            <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearSearch" prefHeight="27.0" prefWidth="25.0" text="X" />
+                              <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="191.0" />
+                              <ChoiceBox fx:id="statusChoiceBox" prefWidth="100.0" />
+                          </items>
+                        </ToolBar>
+                        <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
+                        <CheckListView fx:id="kindOfCheckListView" />
                      </children>
-                  </GridPane>
+                  </VBox>
                         <VBox maxHeight="350.0" prefHeight="300.0" prefWidth="339.0">
                             <children>
-                        <HBox prefHeight="28.0" prefWidth="339.0">
-                           <children>
-                              <ProgressBar fx:id="searchProgressBar" prefHeight="28.0" prefWidth="279.0" progress="0.0" />
-                              <Button fx:id="cancelSearchButton" mnemonicParsing="false" onAction="#cancelSearch" text="Cancel" />
-                           </children>
-                        </HBox>
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                     <content>
                                         <TableView fx:id="resultTable" maxHeight="500.0" prefHeight="338.0" prefWidth="337.0">
