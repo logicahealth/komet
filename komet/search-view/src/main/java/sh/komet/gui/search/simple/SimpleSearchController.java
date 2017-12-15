@@ -44,6 +44,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -85,6 +86,10 @@ public class SimpleSearchController implements ExplorationNode {
         FXCollections.observableArrayList();
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
     private Manifold                                          manifold;
+    private static final PseudoClass CSS_FAIL = PseudoClass.getPseudoClass("fail");
+    private static final PseudoClass CSS_SUCESS = PseudoClass.getPseudoClass("success");
+    private static final PseudoClass CSS_NORESULT = PseudoClass.getPseudoClass("noresults");
+    private static final PseudoClass CSS_CANCELLED = PseudoClass.getPseudoClass("cancelled");
     @FXML
     AnchorPane                                                mainAnchorPane;
     @FXML
@@ -111,6 +116,10 @@ public class SimpleSearchController implements ExplorationNode {
             this.resultTable.getItems().clear();
             this.resultTable.setPlaceholder(new Label("No content in table"));
         }
+        this.searchTextField.pseudoClassStateChanged(CSS_CANCELLED, false);
+        this.searchTextField.pseudoClassStateChanged(CSS_FAIL, false);
+        this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, false);
+        this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, false);
     }
 
     @FXML
@@ -155,6 +164,10 @@ public class SimpleSearchController implements ExplorationNode {
         });
     }
 
+    private void initializeProgressBar(){
+
+    }
+
     private void initializeSearchService(){
         this.searchService.setManifold(this.manifold);
         this.searchService.parameterProperty().bind(this.searchTextField.textProperty());
@@ -169,6 +182,7 @@ public class SimpleSearchController implements ExplorationNode {
                     ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
 
                     if(this.searchService.getValue().size() == 0) {
+                        this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, true);
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));
                         break;
                     }
@@ -184,12 +198,15 @@ public class SimpleSearchController implements ExplorationNode {
                         }
                     });
 
+                    this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, true);
                     this.searchService.reset();
                     break;
                 case FAILED:
+                    this.searchTextField.pseudoClassStateChanged(CSS_FAIL, true);
                     this.searchService.reset();
                     break;
                 case CANCELLED:
+                    this.searchTextField.pseudoClassStateChanged(CSS_CANCELLED, true);
                     this.searchTextField.clear();
                     this.searchService.reset();
                     break;

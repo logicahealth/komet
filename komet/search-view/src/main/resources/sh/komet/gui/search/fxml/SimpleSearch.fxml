@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import org.controlsfx.control.textfield.*?>
-<?import org.controlsfx.control.*?>
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import javafx.geometry.*?>
-<?import javafx.geometry.Insets?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.CheckListView?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
 <?import java.net.URL?>
-
 <AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
     <stylesheets>
         <URL value="@/styles/search.css" />
@@ -23,9 +19,21 @@
                      <children>
                         <ToolBar prefHeight="40.0" prefWidth="200.0">
                           <items>
-                            <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearSearch" prefHeight="27.0" prefWidth="25.0" text="X" />
-                              <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="191.0" />
-                              <ChoiceBox fx:id="statusChoiceBox" prefWidth="100.0" />
+                              <Button fx:id="clearButton" styleClass="clearButton" mnemonicParsing="false" onAction="#clearSearch" prefHeight="27.0" prefWidth="25.0">
+                                  <graphic>
+                                      <FontAwesomeIconView styleClass="buttonSearchCloseIcon"/>
+                                  </graphic>
+                              </Button>
+                              <CustomTextField fx:id="searchTextField" styleClass="searchField" onAction="#executeSearch" prefHeight="27.0" prefWidth="211.0">
+                                  <left>
+                                      <Label styleClass="searchBoxLabel">
+                                          <graphic>
+                                              <FontAwesomeIconView styleClass="searchBoxLabelIcon"/>
+                                          </graphic>
+                                      </Label>
+                                  </left>
+                              </CustomTextField>
+                              <ChoiceBox fx:id="statusChoiceBox" prefWidth="80.0" />
                           </items>
                         </ToolBar>
                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
