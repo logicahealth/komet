@@ -67,6 +67,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import javafx.concurrent.Worker;
 
 /**
  * @author kec
@@ -103,9 +104,9 @@ public class SimpleSearchController implements ExplorationNode {
 
     @FXML
     public void clearSearch() {
-        if(this.searchService.isRunning())
-            searchService.cancel();
-        else{
+        if(this.searchService.isRunning()) {
+           searchService.cancel();
+        } else{
             this.searchTextField.clear();
             this.resultTable.getItems().clear();
             this.resultTable.setPlaceholder(new Label("No content in table"));
@@ -115,7 +116,11 @@ public class SimpleSearchController implements ExplorationNode {
     @FXML
     public void executeSearch() {
         this.resultTable.getItems().clear();
-        this.searchService.start();
+        if (this.searchService.getState() == Worker.State.READY) {
+           this.searchService.start();
+        } else {
+           this.searchService.restart();
+        }       
     }
 
     private void initializeControls() {
@@ -172,10 +177,11 @@ public class SimpleSearchController implements ExplorationNode {
                         LatestVersion<ObservableDescriptionVersion> latestDescription =
                                 (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(value);
 
-                        if (latestDescription.isPresent())
-                            tableItems.add(latestDescription.get());
-                        else
-                            LOG.error("No latest description for: " + value);
+                        if (latestDescription.isPresent()) {
+                           tableItems.add(latestDescription.get());
+                        } else {
+                           LOG.error("No latest description for: " + value);
+                        }
                     });
 
                     this.searchService.reset();
