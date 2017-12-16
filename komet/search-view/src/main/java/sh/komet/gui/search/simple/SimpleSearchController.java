@@ -170,7 +170,7 @@ public class SimpleSearchController implements ExplorationNode {
 
     private void initializeSearchService(){
         this.searchService.setManifold(this.manifold);
-        this.searchService.parameterProperty().bind(this.searchTextField.textProperty());
+        this.searchService.luceneQueryProperty().bind(this.searchTextField.textProperty());
         this.searchService.searchComponentStatusProperty().bind(this.statusChoiceBox.valueProperty());
         this.searchService.searchableParentsProperty().bind(this.kindOfCheckListView.checkModelProperty());
 

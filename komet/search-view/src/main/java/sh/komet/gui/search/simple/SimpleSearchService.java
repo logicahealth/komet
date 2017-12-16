@@ -22,7 +22,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class SimpleSearchService extends Service<NidSet> {
 
-    private final SimpleStringProperty parameter = new SimpleStringProperty();
+    private final SimpleStringProperty luceneQuery = new SimpleStringProperty();
     private final SimpleObjectProperty<SearchComponentStatus> searchComponentStatus  = new SimpleObjectProperty<>();
     private final SimpleObjectProperty<IndexedCheckModel<SimpleSearchController.CustomCheckListItem>> searchableParents = new SimpleObjectProperty<>();
     private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
@@ -62,7 +62,7 @@ public class SimpleSearchService extends Service<NidSet> {
                                 allowedConceptNids.addAll(kindOfSet);
                             }
                         }
-                    }catch (Exception e){
+                    } catch (Exception e){
                         e.printStackTrace();
                     }
 
@@ -124,8 +124,9 @@ public class SimpleSearchService extends Service<NidSet> {
                             }
                         }
 
-                        if(progressCount % 5 == 0)
-                            super.updateProgress(progressCount, results.size());
+                        if(progressCount % 5 == 0) {
+                           super.updateProgress(progressCount, results.size());
+                        }
 
                         progressCount++;
                         filteredValues.add(descriptionNid);
@@ -140,8 +141,8 @@ public class SimpleSearchService extends Service<NidSet> {
         };
     }
 
-    public SimpleStringProperty parameterProperty() {
-        return parameter;
+    public SimpleStringProperty luceneQueryProperty() {
+        return luceneQuery;
     }
 
     public SimpleObjectProperty<SearchComponentStatus> searchComponentStatusProperty() {
@@ -168,7 +169,7 @@ public class SimpleSearchService extends Service<NidSet> {
     }
 
     private String getParameter() {
-        return parameter.get();
+        return luceneQuery.get();
     }
 
     private SearchComponentStatus getSearchComponentStatus() {

@@ -155,7 +155,7 @@ public class AssemblageIndexer extends LuceneIndexer
     */
    private void indexDescription(Document doc,
                                  SemanticChronology semanticChronology) {
-      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, semanticChronology.getAssemblageNid()));
+      doc.add(new IntPoint(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE, semanticChronology.getAssemblageNid()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
@@ -230,7 +230,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (descriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (int[]) null, sizeLimit, targetGeneration);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(),
@@ -266,7 +266,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (extendedDescriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (int[]) null, sizeLimit, targetGeneration);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(),
@@ -297,7 +297,7 @@ public class AssemblageIndexer extends LuceneIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to search within. 
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -308,11 +308,11 @@ public class AssemblageIndexer extends LuceneIndexer
    @Override
    public List<SearchResult> query(String query,
                                    boolean prefixSearch,
-                                   Integer[] sememeConceptSequence,
+                                   int[] assemblageConceptNids,
                                    int sizeLimit,
                                    Long targetGeneration) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
-                                     sememeConceptSequence),
+      return search(restrictToSemantic(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+                                     assemblageConceptNids),
                     sizeLimit,
                     targetGeneration,
                     null);
@@ -338,7 +338,7 @@ public class AssemblageIndexer extends LuceneIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to include in the search
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -351,12 +351,12 @@ public class AssemblageIndexer extends LuceneIndexer
     */
    public List<SearchResult> query(String query,
                                    boolean prefixSearch,
-                                   Integer[] sememeConceptSequence,
+                                   int[] assemblageConceptNids,
                                    int sizeLimit,
                                    Long targetGeneration,
                                    Predicate<Integer> filter) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
-                                     sememeConceptSequence),
+      return search(restrictToSemantic(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+                                     assemblageConceptNids),
                     sizeLimit,
                     targetGeneration,
                     filter);
