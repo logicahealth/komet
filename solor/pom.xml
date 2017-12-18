@@ -16,5 +16,6 @@
         <module>rxnorm-mojo</module>
         <module>solor-parent</module>
         <module>rf2-direct-import</module>
+        <module>solor-mojo</module>
     </modules>
 </project>

@@ -328,9 +328,7 @@ public class HashTreeWithIntArraySets
 
    @Override
    public final void removeParent(int childNid, int parentNid) {
-      int   childSequence = ModelGet.identifierService()
-                                    .getElementSequenceForNid(childNid, assemblageNid);
-      int[] parents       = childNid_ParentNidSetArray_Map.get(childSequence);
+      int[] parents       = childNid_ParentNidSetArray_Map.get(childNid);
       int[] newParents    = new int[parents.length - 1];
       int   j             = 0;
 
@@ -340,7 +338,7 @@ public class HashTreeWithIntArraySets
          }
       }
 
-      childNid_ParentNidSetArray_Map.put(childSequence, newParents);
+      childNid_ParentNidSetArray_Map.put(childNid, newParents);
    }
 
    /**
@@ -517,10 +515,7 @@ public class HashTreeWithIntArraySets
    @Override
    public final NidSet getDescendentNidSet(int parentNid) {
       final NidSet descendentNids = new NidSet();
-      int          parentSequence = ModelGet.identifierService()
-                                            .getElementSequenceForNid(parentNid, assemblageNid);
-
-      if (this.parentNid_ChildNidSetArray_Map.containsKey(parentSequence)) {
+      if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
          getDescendentsRecursive(parentNid, descendentNids);
          return descendentNids;
       }
@@ -640,11 +635,8 @@ public class HashTreeWithIntArraySets
     * @return the descendents recursive
     */
    private void getDescendentsRecursive(int parentNid, NidSet descendentNids) {
-      int parentSequence = ModelGet.identifierService()
-                                   .getElementSequenceForNid(parentNid, assemblageNid);
-
-      if (this.parentNid_ChildNidSetArray_Map.containsKey(parentSequence)) {
-         for (final int childNid: this.parentNid_ChildNidSetArray_Map.get(parentSequence)) {
+      if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
+         for (final int childNid: this.parentNid_ChildNidSetArray_Map.get(parentNid)) {
             descendentNids.add(childNid);
             getDescendentsRecursive(childNid, descendentNids);
          }

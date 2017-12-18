@@ -235,7 +235,39 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
+         
+   // Ideally, all of the below would be represented as dynamic semantics, 
+   // but quick, removable implementation for now. 
+      case Byte.MAX_VALUE - 10:
+         return Nid1_Nid2;
 
+      case Byte.MAX_VALUE - 9:
+         return Nid1_Nid2_Int3;
+
+      case Byte.MAX_VALUE - 8:
+         return Nid1_Nid2_Str3;
+
+      case Byte.MAX_VALUE - 7:
+         return Nid1_Int2;
+
+      case Byte.MAX_VALUE - 6:
+         return Nid1_Str2;
+
+      case Byte.MAX_VALUE - 5:
+         return Nid1_Int2_Str3_Str4_Nid5_Nid6;
+
+      case Byte.MAX_VALUE - 4:
+         return Int1_Int2_Str3_Str4_Str5_Nid6_Nid7;
+
+      case Byte.MAX_VALUE - 3:
+         return Str1_Str2;
+
+      case Byte.MAX_VALUE - 2:
+         return Str1_Str2_Nid3_Nid4;
+
+      case Byte.MAX_VALUE - 1:
+         return Str1_Str2_Str3_Str4_Str5_Str6_Str7;
+         
       default:
          throw new UnsupportedOperationException("d Can't handle: " + token);
       }

@@ -39,7 +39,6 @@ import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
-import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
@@ -74,16 +73,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
 
-   public BrittleRefsetWriter(List<String[]> refsetRecords, Semaphore writeSemaphore, String message, 
+   public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
            ImportStreamType importType) {
-      this.refsetRecords = refsetRecords;
+      this.refsetRecords = semanticRecords;
       this.writeSemaphore = writeSemaphore;
       this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
       indexers = LookupService.get().getAllServices(IndexService.class);
-      updateTitle("Importing concept batch of size: " + refsetRecords.size());
+      updateTitle("Importing semantic batch of size: " + semanticRecords.size());
       updateMessage(message);
-      addToTotalWork(refsetRecords.size());
+      addToTotalWork(semanticRecords.size());
       Get.activeTasks().add(this);
 
    }
@@ -121,8 +120,9 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
             TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+            
             SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                                        VersionType.COMPONENT_NID,
+                                                        this.importType.getSemanticVersionType(),
                                                               elementUuid,
                                                               elementNid,
                                                               assemblageNid,
