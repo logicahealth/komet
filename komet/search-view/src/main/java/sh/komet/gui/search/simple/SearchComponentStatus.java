@@ -23,7 +23,7 @@ package sh.komet.gui.search.simple;
 public enum SearchComponentStatus {
    ACTIVE("Active"),
    INACTIVE("Inactive"),
-   DONT_CARE("Active & Inactive");
+   DONT_CARE("Both");
    
    final String displayToken;
 

@@ -113,7 +113,7 @@ public class DataBufferTest {
       assertEquals(13, instance.getInt());
       assertEquals(16, instance.getInt());
 
-      final String result = instance.readUTF();
+      final String result = instance.getUTF();
 
       assertEquals(str, result);
       assertEquals(11, instance.getInt());
@@ -454,7 +454,7 @@ public class DataBufferTest {
       instance.putUTF(str);
       instance.rewind();
 
-      final String result = instance.readUTF();
+      final String result = instance.getUTF();
 
       assertEquals(str, result);
    }
@@ -472,7 +472,7 @@ public class DataBufferTest {
       instance.putUTF(str);
       instance.rewind();
 
-      final String result = instance.readUTF();
+      final String result = instance.getUTF();
 
       assertEquals(str, result);
    }

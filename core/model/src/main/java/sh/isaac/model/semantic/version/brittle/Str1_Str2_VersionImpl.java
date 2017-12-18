@@ -46,6 +46,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -65,6 +66,25 @@ public class Str1_Str2_VersionImpl
 
    public Str1_Str2_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
+   }
+
+   public Str1_Str2_VersionImpl(SemanticChronology container, 
+           int stampSequence, ByteArrayDataBuffer data) {
+      super(container, stampSequence);
+      this.str1 = data.getUTF();
+      this.str2 = data.getUTF();
+   }
+
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
+   @Override
+   protected void writeVersionData(ByteArrayDataBuffer data) {
+      super.writeVersionData(data);
+      data.putUTF(this.str1);
+      data.putUTF(this.str2);
    }
 
    //~--- methods -------------------------------------------------------------

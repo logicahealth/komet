@@ -169,9 +169,9 @@ public class SemanticIndexer
     * root concept.
     *
     * @param nid the id reference to search for
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to include in the search
     * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
-    * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
+ ONE and only one assemblageConceptNids is provided.  May not be provided if 0 or more than 1 assemblageConceptNids values are provided.
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in-progress
@@ -180,7 +180,7 @@ public class SemanticIndexer
     * match relative to other matches. Note that scores are pointless for exact id matches - they will all be the same.
     */
    public List<SearchResult> query(int nid,
-                                   Integer[] sememeConceptSequence,
+                                   int[] assemblageConceptNids,
                                    Integer[] searchColumns,
                                    int sizeLimit,
                                    Long targetGeneration) {
@@ -189,9 +189,9 @@ public class SemanticIndexer
          Query buildQuery(String columnName) {
             return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
          }
-      }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+      }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
 
-      return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration, null);
+      return search(restrictToSemantic(q, assemblageConceptNids), sizeLimit, targetGeneration, null);
    }
 
    /**
@@ -205,7 +205,7 @@ public class SemanticIndexer
     *
     * @param queryString the query string
     * @param prefixSearch the prefix search
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to include in the search. Null is a wildcard. 
     * @param sizeLimit the size limit
     * @param targetGeneration the target generation
     * @return the list
@@ -213,12 +213,12 @@ public class SemanticIndexer
    @Override
    public final List<SearchResult> query(String queryString,
          boolean prefixSearch,
-         Integer[] sememeConceptSequence,
+         int[] assemblageConceptNids,
          int sizeLimit,
          Long targetGeneration) {
       return query(new DynamicStringImpl(queryString),
                    prefixSearch,
-                   sememeConceptSequence,
+                   assemblageConceptNids,
                    null,
                    sizeLimit,
                    targetGeneration);
@@ -230,9 +230,9 @@ public class SemanticIndexer
     * @param queryData - The query data object (string, int, etc)
     * @param prefixSearch see {@link LuceneIndexer#query(String, boolean, ComponentProperty, int, Long)} for a description.  Only applicable
     * when the queryData type is string.  Ignored for all other data types.
-    * @param sememeConceptSequence (optional) limit the search to the specified assemblage
+    * @param assemblageConceptNids (optional) limit the search to the specified assemblage
     * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
-    * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
+ ONE and only one assemblageConceptNids is provided.  May not be provided if 0 or more than 1 assemblageConceptNids values are provided.
     * @param sizeLimit the size limit
     * @param targetGeneration (optional) wait for an index to build, or null to not wait
     * @return the list
@@ -241,7 +241,7 @@ public class SemanticIndexer
    // TODO fix this limitation on the column restriction...
    public final List<SearchResult> query(final DynamicData queryData,
          final boolean prefixSearch,
-         Integer[] sememeConceptSequence,
+         int[] assemblageConceptNids,
          Integer[] searchColumns,
          int sizeLimit,
          Long targetGeneration) {
@@ -265,7 +265,7 @@ public class SemanticIndexer
                LOG.debug("Modified search string is: ''{}''", queryString);
                return buildTokenizedStringQuery(queryString, columnName, prefixSearch);
             }
-         }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+         }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
       } else {
          if ((queryData instanceof DynamicBoolean) ||
                (queryData instanceof DynamicNid) ||
@@ -276,7 +276,7 @@ public class SemanticIndexer
                   return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                                 queryData.getDataObject().toString()));
                }
-            }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+            }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
          } else if ((queryData instanceof DynamicDouble) ||
                     (queryData instanceof DynamicFloat) ||
                     (queryData instanceof DynamicInteger) ||
@@ -301,7 +301,7 @@ public class SemanticIndexer
 
                   return temp;
                }
-            }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+            }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
          } else if (queryData instanceof DynamicByteArray) {
             throw new RuntimeException("DynamicSememeByteArray isn't indexed");
          } else if (queryData instanceof DynamicPolymorphic) {
@@ -314,7 +314,7 @@ public class SemanticIndexer
          }
       }
 
-      return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration, null);
+      return search(restrictToSemantic(q, assemblageConceptNids), sizeLimit, targetGeneration, null);
    }
 
    /**
@@ -327,7 +327,7 @@ public class SemanticIndexer
    protected void addFields(Chronology chronicle, Document doc) {
       final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-      doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
+      doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE,
                             semanticChronology.getAssemblageNid() + "",
                             Field.Store.NO));
 
@@ -697,20 +697,20 @@ public class SemanticIndexer
       /**
        * Builds the column handling query.
        *
-       * @param sememeConceptSequence the sememe concept sequence
+       * @param assemblageConcepteNids the sememe concept sequence
        * @param searchColumns the search columns
        * @return the query
        */
-      protected Query buildColumnHandlingQuery(Integer[] sememeConceptSequence, Integer[] searchColumns) {
+      protected Query buildColumnHandlingQuery(int[] assemblageConcepteNids, Integer[] searchColumns) {
          Integer[] sememeIndexedColumns = null;
 
          if ((searchColumns != null) && (searchColumns.length > 0)) {
-            // If they provide a search column - then they MUST provide one and only one sememeConceptSequence
-            if ((sememeConceptSequence == null) || (sememeConceptSequence.length != 1)) {
+            // If they provide a search column - then they MUST provide one and only one assemblageConcepteNids
+            if ((assemblageConcepteNids == null) || (assemblageConcepteNids.length != 1)) {
                throw new RuntimeException(
                    "If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
             } else {
-               sememeIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(sememeConceptSequence[0]);
+               sememeIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(assemblageConcepteNids[0]);
             }
          }
 

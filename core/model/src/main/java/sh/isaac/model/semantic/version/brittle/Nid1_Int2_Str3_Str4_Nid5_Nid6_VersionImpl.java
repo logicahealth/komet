@@ -46,6 +46,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -67,10 +68,35 @@ public class Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
 
    //~--- constructors --------------------------------------------------------
 
-   public Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(SemanticChronology container, int stampSequence) {
+   public Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(SemanticChronology container, 
+           int stampSequence) {
       super(container, stampSequence);
    }
-
+   public Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(SemanticChronology container, 
+           int stampSequence, ByteArrayDataBuffer data) {
+      super(container, stampSequence);
+      this.nid1 = data.getNid();
+      this.int2 = data.getInt();
+      this.str3 = data.getUTF();
+      this.str4 = data.getUTF();
+      this.nid5 = data.getNid();
+      this.nid6 = data.getNid();
+   }
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
+   @Override
+   protected void writeVersionData(ByteArrayDataBuffer data) {
+      super.writeVersionData(data);
+      data.putNid(this.nid1);
+      data.putInt(this.int2);
+      data.putUTF(this.str3);
+      data.putUTF(this.str4);
+      data.putNid(this.nid5);
+      data.putNid(this.nid6);
+   }
    //~--- methods -------------------------------------------------------------
 
    @Override

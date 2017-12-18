@@ -46,6 +46,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -94,6 +95,35 @@ public class Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       newVersion.setStr7(this.str7);
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   
+   }
+
+   public Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticChronology container, 
+           int stampSequence, ByteArrayDataBuffer data) {
+      super(container, stampSequence);
+      this.str1 = data.getUTF();
+      this.str2 = data.getUTF();
+      this.str3 = data.getUTF();
+      this.str4 = data.getUTF();
+      this.str5 = data.getUTF();
+      this.str6 = data.getUTF();
+      this.str7 = data.getUTF();
+   }
+
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
+   @Override
+   protected void writeVersionData(ByteArrayDataBuffer data) {
+      super.writeVersionData(data);
+      data.putUTF(this.str1);
+      data.putUTF(this.str2);
+      data.putUTF(this.str3);
+      data.putUTF(this.str4);
+      data.putUTF(this.str5);
+      data.putUTF(this.str6);
+      data.putUTF(this.str7);
    }
 
    @Override

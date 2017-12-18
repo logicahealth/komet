@@ -1398,7 +1398,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____SOLOR.getNid() },
+                                                     new int[] { MetaData.SCTID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1430,7 +1430,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____SOLOR.getNid() },
+                                                     new int[] { MetaData.VUID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 

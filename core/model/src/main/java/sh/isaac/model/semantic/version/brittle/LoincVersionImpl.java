@@ -46,6 +46,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -75,6 +76,39 @@ public class LoincVersionImpl
       super(container, stampSequence);
    }
 
+   public LoincVersionImpl(SemanticChronology container, 
+           int stampSequence, ByteArrayDataBuffer data) {
+      super(container, stampSequence);
+      this.component = data.getUTF();
+      this.loincNum = data.getUTF();
+      this.longCommonName = data.getUTF();
+      this.methodType = data.getUTF();
+      this.property = data.getUTF();
+      this.scaleType = data.getUTF();
+      this.shortName = data.getUTF();
+      this.loincStatus = data.getUTF();
+      this.system = data.getUTF();
+      this.timeAspect = data.getUTF();
+   }
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
+   @Override
+   protected void writeVersionData(ByteArrayDataBuffer data) {
+      super.writeVersionData(data);
+      data.putUTF(this.component);
+      data.putUTF(this.loincNum);
+      data.putUTF(this.longCommonName);
+      data.putUTF(this.methodType);
+      data.putUTF(this.property);
+      data.putUTF(this.scaleType);
+      data.putUTF(this.shortName);
+      data.putUTF(this.loincStatus);
+      data.putUTF(this.system);
+      data.putUTF(this.timeAspect);
+   }
    //~--- methods -------------------------------------------------------------
 
    @Override

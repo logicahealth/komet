@@ -210,8 +210,32 @@ public enum ObservableFields
    
    CHARACTERISTIC_NID_FOR_RF2_REL("characteristic nid for rf2 relationship"),
    
-   MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship");
-
+   MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship"),
+   
+   NID1("Refset nid1"),
+   NID2("Refset nid2"),
+   NID3("Refset nid3"),
+   NID4("Refset nid4"),
+   NID5("Refset nid5"),
+   NID6("Refset nid6"),
+   NID7("Refset nid7"),
+   STR1("Refset str1"),
+   STR2("Refset str2"),
+   STR3("Refset str3"),
+   STR4("Refset str4"),
+   STR5("Refset str5"),
+   STR6("Refset str6"),
+   STR7("Refset str7"),
+   INT1("Refset int1"),
+   INT2("Refset int2"),
+   INT3("Refset int3"),
+   INT4("Refset int4"),
+   INT5("Refset int5"),
+   INT6("Refset int6"),
+   INT7("Refset int7")
+           
+         
+;
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
