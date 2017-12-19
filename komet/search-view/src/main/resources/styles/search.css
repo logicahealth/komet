@@ -5,33 +5,29 @@
 .mainFxmlClass {
 
 }
-.buttonSearchCloseIcon {
-    -glyph-size: 15;
-    -glyph-name: CLOSE;
-}
-.clearButton{
+.searchRefreshButton{
     -fx-background-color: transparent;
     -fx-background-insets: 0;
 }
-.searchBoxLabel {
+.searchRefreshButtonIcon{
+    -glyph-size: 15;
+    -glyph-name: REFRESH;
+}
+.searchTextFieldLabel{
     -fx-padding: 0 2 0 7;
 }
-.searchBoxLabelIcon {
-    -glyph-size: 13;
-    -glyph-name: SEARCH;
+.searchTextFieldLabelIcon{
+     -glyph-size: 13;
+     -glyph-name: SEARCH;
 }
-.searchField:fail {
-    -fx-background-color: #ff4500;
+.searchTextField:fail {
+    -fx-background-color: red;
 }
-.searchField:success {
- -fx-background-color: #3cb371;
+.searchTextField:success {
+ -fx-background-color: green;
 }
-.searchField:noresults {
- -fx-background-color: #f0e68c;
+.searchTextField:noResults {
+ -fx-background-color: grey;
 }
-.searchField:cancelled {
-  -fx-background-color: #a9a9a9;
-}
-
 
 

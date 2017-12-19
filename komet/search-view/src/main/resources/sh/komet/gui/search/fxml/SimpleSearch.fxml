@@ -19,16 +19,16 @@
                      <children>
                         <ToolBar prefHeight="40.0" prefWidth="200.0">
                           <items>
-                              <Button fx:id="clearButton" styleClass="clearButton" mnemonicParsing="false" onAction="#clearSearch" prefHeight="27.0" prefWidth="25.0">
+                              <Button fx:id="searchRefreshButton" styleClass="searchRefreshButton" mnemonicParsing="false" onAction="#searchRefresh" prefHeight="27.0" prefWidth="25.0">
                                   <graphic>
-                                      <FontAwesomeIconView styleClass="buttonSearchCloseIcon"/>
+                                      <FontAwesomeIconView styleClass="searchRefreshButtonIcon"/>
                                   </graphic>
                               </Button>
-                              <CustomTextField fx:id="searchTextField" styleClass="searchField" onAction="#executeSearch" prefHeight="27.0" prefWidth="211.0">
+                              <CustomTextField fx:id="searchTextField" styleClass="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="211.0">
                                   <left>
-                                      <Label styleClass="searchBoxLabel">
+                                      <Label styleClass="searchTextFieldLabel">
                                           <graphic>
-                                              <FontAwesomeIconView styleClass="searchBoxLabelIcon"/>
+                                              <FontAwesomeIconView styleClass="searchTextFieldLabelIcon"/>
                                           </graphic>
                                       </Label>
                                   </left>
