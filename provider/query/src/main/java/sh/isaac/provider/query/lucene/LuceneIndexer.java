@@ -162,9 +162,9 @@ public abstract class LuceneIndexer
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
 
-   /** The Constant FIELD_SEMEME_ASSEMBLAGE_SEQUENCE. */
+   /** The Constant FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE. */
    // exact matches.
-   protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" +
+   protected static final String FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE = "_semantic_type_sequence_" +
                                                                     PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 
    /** The Constant FIELD_COMPONENT_NID. */
@@ -342,15 +342,6 @@ public abstract class LuceneIndexer
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Reset to enforce analysis
-      this.databaseValidity = DatabaseValidity.NOT_SET;
-   }
-
-   /**
     * Clear index.
     */
    @Override
@@ -500,7 +491,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public final List<SearchResult> query(String query, int sizeLimit) {
-      return query(query, null, sizeLimit, Long.MIN_VALUE);
+      return query(query,(int[]) null, sizeLimit, Long.MIN_VALUE);
    }
 
    /**
@@ -508,8 +499,8 @@ public abstract class LuceneIndexer
     * Calls {@link #query(String, boolean, Integer, int, long)} with the prefixSearch field set to false.
     *
     * @param query The query to apply.
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null,
-    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+    * @param assemblageConceptNids optional - The concept id of the assemblage that you wish to search within.  If null,
+    * searches all indexed content.  This would be set to the concept nid of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
     * or the concept sequence {@link MetaData#SCTID} for example.
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no
@@ -520,10 +511,10 @@ public abstract class LuceneIndexer
     */
    @Override
    public final List<SearchResult> query(String query,
-         Integer[] semeneConceptSequence,
+         int[] assemblageConceptNids,
          int sizeLimit,
          Long targetGeneration) {
-      return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration);
+      return query(query, false, assemblageConceptNids, sizeLimit, targetGeneration);
    }
 
    /**
@@ -546,7 +537,7 @@ public abstract class LuceneIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the sememe concept sequence
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -557,7 +548,7 @@ public abstract class LuceneIndexer
    @Override
    public abstract List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] sememeConceptSequence,
+         int[] assemblageConceptNids,
          int sizeLimit,
          Long targetGeneration);
 
@@ -716,14 +707,14 @@ public abstract class LuceneIndexer
     * Restrict to sememe.
     *
     * @param query the query
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the sememe concept sequence
     * @return the query
     */
-   protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence) {
+   protected Query restrictToSemantic(Query query, int[] assemblageConceptNids) {
       final ArrayList<Integer> nullSafe = new ArrayList<>();
 
-      if (sememeConceptSequence != null) {
-         for (final Integer i: sememeConceptSequence) {
+      if (assemblageConceptNids != null) {
+         for (final Integer i: assemblageConceptNids) {
             if (i != null) {
                nullSafe.add(i);
             }
@@ -732,7 +723,6 @@ public abstract class LuceneIndexer
 
       if (!nullSafe.isEmpty()) {
          final BooleanQuery.Builder outerWrapQueryBuilder = new BooleanQuery.Builder();
-;
 
          outerWrapQueryBuilder.add(query, Occur.MUST);
 
@@ -740,7 +730,7 @@ public abstract class LuceneIndexer
 
          // or together the sememeConceptSequences, but require at least one of them to match.
          nullSafe.forEach((i) -> {
-            wrapBuilder.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
+            wrapBuilder.add(new TermQuery(new Term(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
          });
 
          return outerWrapQueryBuilder.add(wrapBuilder.build(), Occur.MUST).build();

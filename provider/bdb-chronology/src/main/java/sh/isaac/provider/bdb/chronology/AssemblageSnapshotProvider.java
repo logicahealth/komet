@@ -34,20 +34,17 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.bdb.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -62,7 +59,6 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class AssemblageSnapshotProvider.
  *
@@ -70,7 +66,8 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  * @param <V> the value type
  */
 public class AssemblageSnapshotProvider<V extends SemanticVersion>
-         implements SemanticSnapshotService<V> {
+        implements SemanticSnapshotService<V> {
+
    /**
     * The version type.
     */
@@ -92,7 +89,6 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    RelativePositionCalculator calculator;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new sememe snapshot provider.
     *
@@ -101,16 +97,15 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @param sememeProvider the sememe provider
     */
    public AssemblageSnapshotProvider(Class<V> versionType,
-                                     StampCoordinate stampCoordinate,
-                                     AssemblageService sememeProvider) {
-      this.versionType     = versionType;
+           StampCoordinate stampCoordinate,
+           AssemblageService sememeProvider) {
+      this.versionType = versionType;
       this.stampCoordinate = stampCoordinate;
-      this.semanticProvider  = sememeProvider;
-      this.calculator      = RelativePositionCalculator.getCalculator(stampCoordinate);
+      this.semanticProvider = sememeProvider;
+      this.calculator = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the latest description versions for component.
     *
@@ -118,24 +113,32 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @return the latest description versions for component
     */
    @Override
-   public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponent(componentNid)
-                             .parallelStream()
-                             .filter(sememeSequence -> (this.semanticProvider.getSemanticChronology(sememeSequence)
-                                       .getVersionType() == VersionType.DESCRIPTION)));
+   public List<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
+      List<LatestVersion<V>> results = new ArrayList<>();
+      for (int semanticNid : this.semanticProvider.getSemanticNidsForComponent(componentNid).asArray()) {
+         SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
+         if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
+            results.add(this.getLatestSemanticVersion(semanticChronology));
+         }
+      }
+      return results;
    }
 
    /**
     * Gets the latest sememe version.
     *
-    * @param sememeSequenceOrNid the sememe sequence or nid
-    * @return the latest sememe version
+    * @param semanticNid the semantic nid
+    * @return the latest semantic version
     */
    @Override
-   public LatestVersion<V> getLatestSemanticVersion(int sememeSequenceOrNid) {
-      final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(sememeSequenceOrNid);
-      final int[]            stampSequences  = sc.getVersionStampSequences();
-      final int[]     latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
+   public LatestVersion<V> getLatestSemanticVersion(int semanticNid) {
+      final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
+      return getLatestSemanticVersion(sc);
+   }
+
+   private LatestVersion<V> getLatestSemanticVersion(final SemanticChronologyImpl sc) {
+      final int[] stampSequences = sc.getVersionStampSequences();
+      final int[] latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
       if (latestSequences.length == 0) {
          return new LatestVersion<>();
@@ -143,9 +146,9 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
 
       final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
-      for (int stampSequence: latestSequences) {
+      for (int stampSequence : latestSequences) {
          latest.addLatest((V) sc.getVersionForStamp(stampSequence)
-                                  .get());
+                 .get());
       }
       return latest;
    }
@@ -157,26 +160,39 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private VersionStream<V> getLatestSememeVersions(IntStream sememeSequenceStream,
-         ProgressTracker... progressTrackers) {
-      return new VersionStreamWrapper<>(getLatestSememeVersionsUnwrapped(sememeSequenceStream, progressTrackers));
+   private VersionStream<V> getLatestSemanticVersionStream(IntStream sememeSequenceStream,
+           ProgressTracker... progressTrackers) {
+      return new VersionStreamWrapper<>(getLatestSemanticVersionStreamUnwrapped(sememeSequenceStream, progressTrackers));
+   }
+
+   private List<LatestVersion<V>> getLatestSemanticVersionList(NidSet semanticNidSet,
+           ProgressTracker... progressTrackers) {
+
+      List<LatestVersion<V>> results = new ArrayList<>(semanticNidSet.size());
+      for (int semanticNid : semanticNidSet.asArray()) {
+         final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
+         results.add(getLatestSemanticVersion(sc));
+         for (ProgressTracker tracker: progressTrackers) {
+            tracker.completedUnitOfWork();
+         }
+      }
+      return results;
    }
 
    /**
     * Gets the latest sememe versions.
     *
-    * @param sememeSequenceSet the sememe sequence set
+    * @param semanticNidSet the sememe sequence set
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private VersionStream<V> getLatestSememeVersions(NidSet sememeSequenceSet,
-         ProgressTracker... progressTrackers) {
+   private List<LatestVersion<V>> getLatestSemanticVersions(NidSet semanticNidSet,
+           ProgressTracker... progressTrackers) {
       Arrays.stream(progressTrackers)
-            .forEach(
-                (tracker) -> {
-                   tracker.addToTotalWork(sememeSequenceSet.size());
-                });
-      return getLatestSememeVersions(sememeSequenceSet.parallelStream(), progressTrackers);
+              .forEach((tracker) -> {
+                 tracker.addToTotalWork(semanticNidSet.size());
+              });
+      return AssemblageSnapshotProvider.this.getLatestSemanticVersionList(semanticNidSet, progressTrackers);
    }
 
    /**
@@ -186,8 +202,8 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @return the latest sememe versions for component
     */
    @Override
-   public VersionStream<V> getLatestSemanticVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponent(componentNid));
+   public List<LatestVersion<V>> getLatestSemanticVersionsForComponent(int componentNid) {
+      return getLatestSemanticVersions(this.semanticProvider.getSemanticNidsForComponent(componentNid));
    }
 
    /**
@@ -198,57 +214,56 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @return the latest sememe versions for component from assemblage
     */
    @Override
-   public VersionStream<V> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
-         int assemblageConceptSequence) {
-      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsForComponentFromAssemblage(componentNid, assemblageConceptSequence));
+   public List<LatestVersion<V>> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
+           int assemblageConceptSequence) {
+      return getLatestSemanticVersions(this.semanticProvider.getSemanticNidsForComponentFromAssemblage(componentNid, assemblageConceptSequence));
    }
 
    /**
     * Gets the latest sememe versions from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept sequence
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions from assemblage
     */
    @Override
-   public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptSequence,
-         ProgressTracker... progressTrackers) {
-      return getLatestSememeVersions(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptSequence),
-          progressTrackers);
+   public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
+           ProgressTracker... progressTrackers) {
+      return getLatestSemanticVersionStream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).stream(),
+              progressTrackers);
    }
 
-   private Stream<LatestVersion<V>> getLatestSememeVersionsUnwrapped(IntStream sememeSequenceStream,
-         ProgressTracker... progressTrackers) {
-      return sememeSequenceStream.mapToObj((int sememeSequence) -> {
-             try {
-                final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(sememeSequence);
-                final int[]                stampSequences = sc.getVersionStampSequences();
-                final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
-                                                                  stampSequences);
+   private Stream<LatestVersion<V>> getLatestSemanticVersionStreamUnwrapped(IntStream semanticNidStream,
+           ProgressTracker... progressTrackers) {
+      return semanticNidStream.mapToObj((int semanticNid) -> {
+         try {
+            final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
+            final int[] stampSequences = sc.getVersionStampSequences();
+            final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
+                    stampSequences);
 
-                if (latestStampSequences.length == 0) {
-                   return Optional.empty();
-                }
+            if (latestStampSequences.length == 0) {
+               return Optional.empty();
+            }
 
-                final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
+            final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
-                for (int stampSequence: latestStampSequences) {
-                  latest.addLatest((V) sc.getVersionForStamp(stampSequence).get());
-                }
-                return Optional.of(latest);
-             } finally {
-                Arrays.stream(progressTrackers)
-                      .forEach(
-                          (tracker) -> {
-                             tracker.completedUnitOfWork();
-                          });
-             }
-          })
-                                 .filter(
-                                     (optional) -> {
-                                        return optional.isPresent();
-                                     })
-                                 .map((optional) -> (LatestVersion<V>) optional.get());
+            for (int stampSequence : latestStampSequences) {
+               latest.addLatest((V) sc.getVersionForStamp(stampSequence).get());
+            }
+            return Optional.of(latest);
+         } finally {
+            Arrays.stream(progressTrackers)
+                    .forEach(
+                            (tracker) -> {
+                               tracker.completedUnitOfWork();
+                            });
+         }
+      })
+              .filter(
+                      (optional) -> {
+                         return optional.isPresent();
+                      })
+              .map((optional) -> (LatestVersion<V>) optional.get());
    }
 }
-

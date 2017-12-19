@@ -206,13 +206,12 @@ public class ConceptLabel
          this.manifold
                  .setFocusedConceptChronology(conceptVersion.getChronology());
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
-         SemanticChronology sememeChronology = Get.serializer()
+         SemanticChronology semanticChronology = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
 
          this.manifold
-                 .setFocusedConceptChronology(
-                         Get.conceptService()
-                                 .getConceptChronology(sememeChronology.getReferencedComponentNid()));
+                 .setFocusedConceptChronology(Get.conceptService()
+                                 .getConceptChronology(semanticChronology.getReferencedComponentNid()));
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
          DescriptionVersion descriptionVersion = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);

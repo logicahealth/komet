@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.41</version>
+        <version>4.42</version>
     </parent>
     <artifactId>solor</artifactId>
     <name>ISAAC SOLOR: (MMP)</name>
@@ -15,5 +15,7 @@
         <module>rf2-mojo</module>
         <module>rxnorm-mojo</module>
         <module>solor-parent</module>
+        <module>rf2-direct-import</module>
+        <module>solor-mojo</module>
     </modules>
 </project>

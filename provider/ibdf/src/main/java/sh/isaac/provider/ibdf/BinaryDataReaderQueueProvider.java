@@ -66,7 +66,6 @@ import java.util.stream.StreamSupport;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 

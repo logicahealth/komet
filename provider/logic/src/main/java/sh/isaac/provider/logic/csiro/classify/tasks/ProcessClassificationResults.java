@@ -52,6 +52,7 @@ import org.apache.logging.log4j.LogManager;
 
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
+import java.util.OptionalInt;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -101,7 +102,7 @@ public class ProcessClassificationResults
     * The logic coordinate.
     */
    LogicCoordinate logicCoordinate;
-   
+
    final int assemblageNid;
 
    int classificationDuplicateCount = -1;
@@ -163,13 +164,13 @@ public class ProcessClassificationResults
 
             equivalentSets.add(equivalentSet);
             equivalentConcepts.forEach((equivalentConceptCsiroId) -> {
-                  int equivalentNid = ModelGet.identifierService()
-                          .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+               int equivalentNid = ModelGet.identifierService()
+                       .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
                equivalentSet.add(equivalentNid);
                affectedConcepts.add(equivalentNid);
             });
          } else {
-            for (String equivalentConceptCsiroId: equivalentConcepts) {
+            for (String equivalentConceptCsiroId : equivalentConcepts) {
                try {
                   int equivalentNid = ModelGet.identifierService()
                           .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
@@ -193,34 +194,33 @@ public class ProcessClassificationResults
    /**
     * Test for proper set size.
     *
-    * @param inferredSememeSequences the inferred sememe sequences
+    * @param inferredSemanticSequences the inferred sememe sequences
     * @param conceptSequence the concept sequence
-    * @param statedSememeSequences the stated sememe sequences
+    * @param statedSemanticSequences the stated sememe sequences
     * @param sememeService the sememe service
     * @throws IllegalStateException the illegal state exception
     */
-   private void testForProperSetSize(NidSet inferredSememeSequences,
+   private void testForProperSetSize(NidSet inferredSemanticSequences,
            int conceptSequence,
-           NidSet statedSememeSequences,
+           NidSet statedSemanticSequences,
            AssemblageService sememeService)
            throws IllegalStateException {
-      if (inferredSememeSequences.size() > 1) {
+      if (inferredSemanticSequences.size() > 1) {
          classificationDuplicateCount++;
          if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-            log.error("Processing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
-            throw new IllegalStateException("Cannot have more than one inferred definition per concept. Found: "
-                    + inferredSememeSequences);
+            log.error("Cannot have more than one inferred definition per concept. Found: "
+                    + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
          }
       }
 
-      if (statedSememeSequences.size() != 1) {
+      if (statedSemanticSequences.size() != 1) {
          final StringBuilder builder = new StringBuilder();
 
          builder.append("Must have exactly one stated logic graph per concept. Found: ")
-                 .append(statedSememeSequences)
+                 .append(statedSemanticSequences)
                  .append("\n");
 
-         if (statedSememeSequences.isEmpty()) {
+         if (statedSemanticSequences.isEmpty()) {
             builder.append("No stated definition for concept: ")
                     .append(Get.conceptService()
                             .getConceptChronology(conceptSequence)
@@ -232,14 +232,13 @@ public class ProcessClassificationResults
                             .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
-            statedSememeSequences.stream().forEach((sememeSequence) -> {
+            statedSemanticSequences.stream().forEach((sememeSequence) -> {
                builder.append("Found stated definition: ")
                        .append(sememeService.getSemanticChronology(sememeSequence))
                        .append("\n");
             });
          }
-
-         throw new IllegalStateException(builder.toString());
+         log.error(builder.toString());
       }
    }
 
@@ -267,7 +266,7 @@ public class ProcessClassificationResults
             final NidSet inferredSemanticNids
                     = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                             this.logicCoordinate.getInferredAssemblageNid());
-            final NidSet statedSemanticSequences
+            final NidSet statedSemanticNids
                     = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                             this.logicCoordinate.getStatedAssemblageNid());
 
@@ -275,102 +274,110 @@ public class ProcessClassificationResults
             // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
             testForProperSetSize(inferredSemanticNids,
                     conceptNid,
-                    statedSemanticSequences,
+                    statedSemanticNids,
                     assemblageService);
 
             // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) 
-            // assemblageService.getSemanticChronology(statedSemanticSequences.stream().findFirst().getAsInt());
-            final SemanticChronology rawStatedChronology
-                    = assemblageService.getSemanticChronology(statedSemanticSequences.findFirst().getAsInt());
-            final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                    = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
+            // assemblageService.getSemanticChronology(statedSemanticNids.stream().findFirst().getAsInt());
+            OptionalInt statedSemanticNidOptional = statedSemanticNids.findFirst();
+            if (statedSemanticNidOptional.isPresent()) {
 
-            if (latestStatedDefinitionOptional.isPresent()) {
-               final LogicalExpressionBuilder inferredBuilder
-                       = logicalExpressionBuilderService.getLogicalExpressionBuilder();
-               final LatestVersion<LogicGraphVersion> latestStatedDefinition
-                       = latestStatedDefinitionOptional;
-               final LogicalExpression statedDefinition = latestStatedDefinition.get()
-                       .getLogicalExpression();
+               final SemanticChronology rawStatedChronology
+                       = assemblageService.getSemanticChronology(statedSemanticNidOptional.getAsInt());
+               final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
+                       = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
 
-               if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
-                  sufficientSets.incrementAndGet();
+               if (latestStatedDefinitionOptional.isPresent()) {
+                  final LogicalExpressionBuilder inferredBuilder
+                          = logicalExpressionBuilderService.getLogicalExpressionBuilder();
+                  final LatestVersion<LogicGraphVersion> latestStatedDefinition
+                          = latestStatedDefinitionOptional;
+                  final LogicalExpression statedDefinition = latestStatedDefinition.get()
+                          .getLogicalExpression();
 
-                  // Sufficient sets are copied exactly to the inferred form.
-                  statedDefinition.getNodesOfType(NodeSemantic.SUFFICIENT_SET).forEach((sufficientSetNode) -> {
-                     inferredBuilder.cloneSubTree(sufficientSetNode);
-                  });
-               }
+                  if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
+                     sufficientSets.incrementAndGet();
 
-               // Need to construct the necessary set from classifier results.
-               final Node inferredNode
-                       = inferredAxioms.getNode(Integer.toString(conceptSequence));
-               final List<ConceptAssertion> parentList = new ArrayList<>();
+                     // Sufficient sets are copied exactly to the inferred form.
+                     statedDefinition.getNodesOfType(NodeSemantic.SUFFICIENT_SET).forEach((sufficientSetNode) -> {
+                        inferredBuilder.cloneSubTree(sufficientSetNode);
+                     });
+                  }
 
-               inferredNode.getParents().forEach((parent) -> {
-                  parent.getEquivalentConcepts().forEach((parentString) -> {
-                     try {
-                        int parentNid = 
-                                ModelGet.identifierService()
-                                        .getNidForElementSequence(Integer.parseInt(parentString), assemblageNid);
-                        
-                        parentList.add(
-                                inferredBuilder.conceptAssertion(parentNid));
-                     } catch (final NumberFormatException numberFormatException) {
-                        if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
-                           // do nothing.
-                        } else {
-                           throw numberFormatException;
+                  // Need to construct the necessary set from classifier results.
+                  final Node inferredNode
+                          = inferredAxioms.getNode(Integer.toString(conceptSequence));
+                  final List<ConceptAssertion> parentList = new ArrayList<>();
+
+                  inferredNode.getParents().forEach((parent) -> {
+                     parent.getEquivalentConcepts().forEach((parentString) -> {
+                        try {
+                           int parentNid
+                                   = ModelGet.identifierService()
+                                           .getNidForElementSequence(Integer.parseInt(parentString), assemblageNid);
+
+                           parentList.add(
+                                   inferredBuilder.conceptAssertion(parentNid));
+                        } catch (final NumberFormatException numberFormatException) {
+                           if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
+                              // do nothing.
+                           } else {
+                              throw numberFormatException;
+                           }
                         }
-                     }
+                     });
                   });
-               });
 
-               if (!parentList.isEmpty()) {
-                  NecessarySet(
-                          And(parentList.toArray(new ConceptAssertion[parentList.size()])));
+                  if (!parentList.isEmpty()) {
+                     NecessarySet(
+                             And(parentList.toArray(new ConceptAssertion[parentList.size()])));
 
-                  final LogicalExpression inferredExpression = inferredBuilder.build();
+                     final LogicalExpression inferredExpression = inferredBuilder.build();
 
-                  if (inferredSemanticNids.isEmpty()) {
-                     final SemanticBuilder builder
-                             = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
-                                     conceptNid,
-                                     this.logicCoordinate.getInferredAssemblageNid());
+                     if (inferredSemanticNids.isEmpty()) {
+                        final SemanticBuilder builder
+                                = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
+                                        conceptNid,
+                                        this.logicCoordinate.getInferredAssemblageNid());
 
-                     // get classifier edit coordinate...
-                     builder.build(EditCoordinates.getClassifierSolorOverlay(),
-                             ChangeCheckerMode.INACTIVE);
-                  } else {
-                     final SemanticChronology inferredChronology
-                             = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
-                                     .findFirst()
-                                     .getAsInt());
+                        // get classifier edit coordinate...
+                        builder.build(EditCoordinates.getClassifierSolorOverlay(),
+                                ChangeCheckerMode.INACTIVE);
+                     } else {
+                        final SemanticChronology inferredChronology
+                                = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
+                                        .findFirst()
+                                        .getAsInt());
 
-                     // check to see if changed from old...
-                     final LatestVersion<LogicGraphVersion> latestDefinitionOptional
-                             = inferredChronology.getLatestVersion(this.stampCoordinate);
+                        // check to see if changed from old...
+                        final LatestVersion<LogicGraphVersion> latestDefinitionOptional
+                                = inferredChronology.getLatestVersion(this.stampCoordinate);
 
-                     if (latestDefinitionOptional.isPresent()) {
-                        if (!latestDefinitionOptional.get()
-                                .getLogicalExpression()
-                                .equals(inferredExpression)) {
-                           final MutableLogicGraphVersion newVersion
-                                   = ((SemanticChronology) inferredChronology).createMutableVersion(
-                                           sh.isaac.api.State.ACTIVE,
-                                           EditCoordinates.getClassifierSolorOverlay());
+                        if (latestDefinitionOptional.isPresent()) {
+                           if (!latestDefinitionOptional.get()
+                                   .getLogicalExpression()
+                                   .equals(inferredExpression)) {
+                              final MutableLogicGraphVersion newVersion
+                                      = ((SemanticChronology) inferredChronology).createMutableVersion(
+                                              sh.isaac.api.Status.ACTIVE,
+                                              EditCoordinates.getClassifierSolorOverlay());
 
-                           newVersion.setGraphData(
-                                   inferredExpression.getData(DataTarget.INTERNAL));
-                           commitService.addUncommittedNoChecks(inferredChronology);
+                              newVersion.setGraphData(
+                                      inferredExpression.getData(DataTarget.INTERNAL));
+                              commitService.addUncommittedNoChecks(inferredChronology);
+                           }
                         }
                      }
                   }
+               } else {
+                  throw new IllegalStateException(
+                          "Empty latest version for stated definition. " + rawStatedChronology);
                }
             } else {
-               throw new IllegalStateException(
-                       "Empty latest version for stated definition. " + rawStatedChronology);
+               LogManager.getLogger()
+                    .error("No statedSemanticNid - skipping concept: " + Get.conceptDescriptionText(conceptNid));
             }
+
          } catch (final IllegalStateException e) {
             LogManager.getLogger()
                     .error("Error during writeback - skipping concept ", e);

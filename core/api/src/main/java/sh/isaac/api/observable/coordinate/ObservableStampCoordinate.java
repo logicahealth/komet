@@ -46,7 +46,7 @@ import javafx.beans.property.SetProperty;
 
 import javafx.collections.ObservableIntegerArray;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 
@@ -64,7 +64,7 @@ public interface ObservableStampCoordinate
     *
     * @return the set property
     */
-   SetProperty<State> allowedStatesProperty();
+   SetProperty<Status> allowedStatesProperty();
 
    /**
     * Module sequences property.

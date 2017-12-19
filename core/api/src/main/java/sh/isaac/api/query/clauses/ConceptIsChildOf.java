@@ -42,7 +42,6 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.concurrent.ExecutionException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -86,6 +85,9 @@ public class ConceptIsChildOf
    @XmlElement
    String viewCoordinateKey;
 
+   private ConceptSpecification childOfSpecification;
+   private ManifoldCoordinate manifoldCoordinate;
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -116,25 +118,24 @@ public class ConceptIsChildOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      try {
-         final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                 .get(this.viewCoordinateKey);
-         final ConceptSpecification childOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                 .get(this.childOfSpecKey);
-         final int parentNid = childOfSpec.getNid();
-         final NidSet childrenOfSequenceSet = 
-                 NidSet.of(
-                 Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                 .getTaxonomyChildNids(parentNid));
-         
-         getResultsCache().or(childrenOfSequenceSet);
-         return getResultsCache();
-      } catch (InterruptedException | ExecutionException ex) {
-         throw new RuntimeException(ex);
-      }
+      final int parentNid = this.childOfSpecification.getNid();
+      final NidSet childrenOfSequenceSet =
+              NidSet.of(
+                      Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildConceptNids(parentNid));
+      getResultsCache().or(childrenOfSequenceSet);
+      return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------
+
+
+   public void setChildOfSpecification(ConceptSpecification childOfSpecification) {
+      this.childOfSpecification = childOfSpecification;
+   }
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
 
    /**
     * Gets the compute phases.
@@ -150,7 +151,6 @@ public class ConceptIsChildOf
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

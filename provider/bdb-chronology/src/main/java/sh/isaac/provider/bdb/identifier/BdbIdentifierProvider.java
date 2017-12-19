@@ -65,6 +65,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.OptionalInt;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import sh.isaac.api.Get;
@@ -191,6 +192,9 @@ public class BdbIdentifierProvider
 
    @Override
    public int getAssemblageNidForNid(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be negative. Found: " + nid);
+      }
       return nid_AssemblageNid_Map.get(nid);
    }
 
@@ -227,13 +231,14 @@ public class BdbIdentifierProvider
       final int authorityAssemblageNid = getNidForUuids(identifierAuthorityUuid);
       final SemanticSnapshotService<StringVersion> snapshot = Get.assemblageService()
                                                               .getSnapshot(StringVersion.class, stampCoordinate);
+      
+      for (LatestVersion<StringVersion> stringVersion: snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid, authorityAssemblageNid)) {
+         if (stringVersion.isPresent()) {
+            return Optional.of(stringVersion.get().getString());
+         }
+      }
 
-      return snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid, authorityAssemblageNid)
-                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.isPresent())
-                     .map((LatestVersion<StringVersion> latestSememe) -> 
-                            latestSememe.get()
-                                  .getString())
-                     .findAny();
+      return Optional.empty();
    }
 
    @Override
@@ -249,6 +254,16 @@ public class BdbIdentifierProvider
    @Override
    public int getNidForUuids(Collection<UUID> uuids) {
      return getNidForUuids(uuids.toArray(new UUID[uuids.size()]));
+   }
+
+   @Override
+   public void addToSemanticIndex(int nid, int referencingSemanticNid) {
+      this.bdb.getComponentToSemanticNidsMap().add(nid, referencingSemanticNid);
+   }
+
+   @Override
+   public int[] getSemanticNidsForComponent(int componentNid) {
+      return this.bdb.getComponentToSemanticNidsMap().get(componentNid);
    }
 
    @Override
@@ -339,14 +354,17 @@ public class BdbIdentifierProvider
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
       if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
-         final Optional<? extends Chronology> optionalObj =
-            Get.identifiedObjectService()
-               .getIdentifiedObjectChronology(
+         OptionalInt optionalAssemblageNid = getAssemblageNid(nid);
+         if (optionalAssemblageNid.isPresent()) {
+            final Optional<? extends Chronology> optionalObj =
+               Get.identifiedObjectService()
+                  .getIdentifiedObjectChronology(
                    nid);
 
-         if (optionalObj.isPresent()) {
-            return Optional.of(optionalObj.get()
+            if (optionalObj.isPresent()) {
+               return Optional.of(optionalObj.get()
                                           .getPrimordialUuid());
+            }
          }
       }
 
@@ -366,14 +384,15 @@ public class BdbIdentifierProvider
      if (nid > 0) {
          throw new RuntimeException("Method expected nid!");
       }
+      OptionalInt optionalAssemblageNid = getAssemblageNid(nid);
+      if (optionalAssemblageNid.isPresent()) {
+         final Optional<? extends Chronology> optionalObj = 
+              Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
 
-      final Optional<? extends Chronology> optionalObj = Get.identifiedObjectService()
-                                                                                            .getIdentifiedObjectChronology(
-                                                                                                  nid);
-
-      if (optionalObj.isPresent()) {
-         return optionalObj.get()
+         if (optionalObj.isPresent()) {
+            return optionalObj.get()
                            .getUuidList();
+         }
       }
 
       final UUID[] uuids = this.uuidIntMapMap.getKeysForValue(nid);
@@ -407,11 +426,6 @@ public class BdbIdentifierProvider
    }
 
    @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
-
-   @Override
    public Path getDatabaseFolder() {
       return bdb.getDatabaseFolder();
    }
@@ -441,5 +455,10 @@ public class BdbIdentifierProvider
    public int getMaxSequenceForAssemblage(int assemblageNid) {
       return assemblageNid_SequenceGenerator_Map.get(assemblageNid).get() - 1;
    }   
+
+   @Override
+   public Future<?> sync() {
+     return this.bdb.sync();
+   }
 }
 

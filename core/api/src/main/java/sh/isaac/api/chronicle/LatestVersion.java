@@ -41,6 +41,8 @@ package sh.isaac.api.chronicle;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -302,6 +304,19 @@ public final class LatestVersion<V> {
       }
 
       return builder.build();
+   }
+   
+   public List<V> versionList() {
+      if (this.value == null) {
+         return Collections.EMPTY_LIST;
+      }
+      if (this.contradictions == null) {
+         return Arrays.asList(this.value);
+      }
+      ArrayList<V> versions = new ArrayList(this.contradictions.size() + 1);
+      versions.add(value);
+      versions.addAll(this.contradictions);
+      return versions;
    }
    
    public StampSequenceSet getStamps() {

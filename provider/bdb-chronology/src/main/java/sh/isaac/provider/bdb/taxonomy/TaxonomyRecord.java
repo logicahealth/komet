@@ -41,10 +41,12 @@ package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -55,6 +57,7 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -172,6 +175,15 @@ public class TaxonomyRecord {
       }
 
       return false;
+   }
+   
+   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
+      if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+         return this.conceptNidRecordMap.get(conceptNid)
+               .getConceptStates(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
+      }
+      return EnumSet.noneOf(Status.class);
    }
 
    /**
@@ -615,6 +627,45 @@ public class TaxonomyRecord {
       return conceptSequenceList.elements();
    }
 
+   /**
+    * Gets the destination concept sequences of type.
+    *
+    * @param typeSet the type set
+    * @param tc the tc
+    * @return the destination concept sequences of type
+    */
+   public boolean hasDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
+      final int                        flags                    = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
+      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+      final AtomicBoolean found = new AtomicBoolean(false);
+      
+
+      this.conceptNidRecordMap.forEachPair((int destinationSequence,
+            TypeStampTaxonomyRecords stampRecords) -> {
+               final OpenIntHashSet stampsForConceptIntSet = new OpenIntHashSet();
+
+               stampRecords.forEach((record) -> {
+                                       if ((record.getTaxonomyFlags() & flags) == flags) {
+                                          if (computer.onRoute(record.getStampSequence())) {
+                                             if (typeSet.isEmpty()) {
+                                                stampsForConceptIntSet.add(record.getStampSequence());
+                                             } else if (typeSet.contains(record.getTypeNid())) {
+                                                stampsForConceptIntSet.add(record.getStampSequence());
+                                             }
+                                          }
+                                       }
+                                    });
+
+               if (computer.isLatestActive(stampsForConceptIntSet.keys().elements())) {
+                  found.set(true);
+                  return false;
+               }
+
+               return true;
+            });
+      return found.get();
+   }
+   
    /**
     * Gets the parent concept sequences.
     *

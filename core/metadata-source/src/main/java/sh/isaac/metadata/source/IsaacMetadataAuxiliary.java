@@ -60,12 +60,19 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.IsaacTaxonomy;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.constants.MetadataDynamicConstant;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -139,27 +146,33 @@ public class IsaacMetadataAuxiliary
     * @throws UnsupportedEncodingException the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary()
-            throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
+            throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
+      super(TermAux.DEVELOPMENT_PATH, TermAux.KEITH_CAMPBELL, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
 
-      try {
          createConcept(TermAux.SOLOR_ROOT);
          pushParent(current());
-         createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
+         createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8").addUuids(UUID.fromString("a892950a-0847-300c-b477-4e3cbb945225"));
          pushParent(current());
-         createConcept("Phenomenon");
+         createConcept(TermAux.BODY_STRUCTURE);
+         createConcept(TermAux.EVENT);
+         createConcept(TermAux.FORCE);
+         createConcept(TermAux.MEDICATION);
+         createConcept(TermAux.PHENOMENON).addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"), UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
+         createConcept(TermAux.ORGANISM);
+         createConcept(TermAux.OBJECT);
+         createConcept(TermAux.PROCEDURE);
+         createConcept(TermAux.SPECIMEN);
+         createConcept(TermAux.SUBSTANCE);
          popParent();
          createConcept(TermAux.SOLOR_METADATA);
          pushParent(current());
          createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
          pushParent(current());
          createConcept(TermAux.SOLOR_MODULE);
-         createConcept("SNOMED CT core modules").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
+         createConcept("SNOMED CT® core modules").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
          createConcept("US Extension modules");
-         createConcept("LOINC modules");
-         createConcept("LOINC Solor modules");
+         createConcept("LOINC® modules");
          createConcept("RxNorm modules");
-         createConcept("RxNorm Solor modules");
          createConcept("Generated administration of module");
          createConcept("SOLOR quality assurance rule module");
          createConcept("SOLOR automation rule module");
@@ -171,13 +184,16 @@ public class IsaacMetadataAuxiliary
          // The second UUID here was the old value from the TermAux - but this was an orphan.  to best fix the bug that resulted,
          // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
          createConcept(TermAux.SOLOR_OVERLAY_MODULE).addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
-         createConcept("HL7v3 modules");
+         createConcept("HL7® v3 modules");
          createConcept("NUCC modules");
          createConcept("CVX modules");
          createConcept("MVX modules");
-         createConcept("CPT modules");
+         createConcept("CPT® modules");
          popParent();
          createConcept(TermAux.USER);
+         pushParent(current());
+         createConcept(TermAux.KEITH_CAMPBELL);
+         popParent();
          createConcept(TermAux.PATH);
          pushParent(current());
 
@@ -196,6 +212,12 @@ public class IsaacMetadataAuxiliary
          createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
          createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
          popParent();
+         createConcept("Identifier assemblage");
+         pushParent(current());
+         createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
+         createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
+         createConcept(TermAux.RXNORM_IDENTIFIER_ASSEMBLAGE);
+         popParent();
          createConcept("Identifier source");
          pushParent(current());
          createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER);
@@ -213,7 +235,7 @@ public class IsaacMetadataAuxiliary
          createConcept("RXCUI").setPrimordialUuid(
              "617761d2-80ef-5585-83a0-60851dd44158");  // comes from the algorithm in the rxnorm econ loader
          createConcept("VUID", "Vets Unique Identifier");
-         createConcept("OID", "HL7 Object Identifier");
+         createConcept("OID", "HL7® Object Identifier");
          createConcept("Code").setPrimordialUuid(
              "803af596-aea8-5184-b8e1-45f801585d17");  // comes from the algorithm in the VHAT econ loader
          createConcept("CVXCode", "CVX Unique Identifier");
@@ -237,6 +259,22 @@ public class IsaacMetadataAuxiliary
          createConcept("Normal member").setPrimordialUuid("cc624429-b17d-4ac5-a69e-0b32448aaf3c");
          createConcept("Marked parent").setPrimordialUuid("125f3d04-de17-490e-afec-1431c2a39e29");
          popParent();
+         createConcept(TermAux.CONTENT_LICENSE);
+         pushParent(current());
+         createConcept(TermAux.SCT_AFFILIATES_LICENSE);
+         createConcept(TermAux.LOINC_LICENSE);
+         createConcept(TermAux.RXNORM_LICENSE);
+         createConcept(TermAux.APACHE_2_LICENSE);
+         createConcept(TermAux.CC_BY_LICENSE);
+         createConcept(TermAux.US_GOVERNMENT_WORK);
+         popParent();
+         createConcept(TermAux.COPYRIGHT);
+         pushParent(current());
+         createConcept(TermAux.SNOMED_COPYRIGHT);
+         createConcept(TermAux.COPYRIGHT_FREE_WORK);
+         createConcept(TermAux.REGENSTRIEF_AND_LOINC_COPYRIGHT);
+         createConcept(TermAux.INFORMATICS_INC_COPYRIGHT);
+         popParent();
          createConcept("Annotation type");
          pushParent(current());
          createConcept("Content issue");
@@ -253,8 +291,8 @@ public class IsaacMetadataAuxiliary
             createConcept("Quality assurance rule issue assemblage");
             createConcept("Automation issue assemblage");
             createConcept("Clinical statement issue assemblage");
-            createConcept("SNOMED issue assemblage");
-            createConcept("LOINC issue assemblage");
+            createConcept("SNOMED® issue assemblage");
+            createConcept("LOINC® issue assemblage");
             createConcept("RxNorm issue assemblage");
             createConcept("SOLOR issue assemblage");
          popParent();
@@ -281,17 +319,18 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
          createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+         createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
          popParent();
          createConcept(TermAux.CONCEPT_ASSEMBLAGE);
          pushParent(current());
          createConcept(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
-         createConcept(TermAux.SNOMED_CONCEPT_ASSEMBLAGE);
          createConcept(TermAux.LOINC_CONCEPT_ASSEMBLAGE);
          createConcept(TermAux.RXNORM_CONCEPT_ASSEMBLAGE);
          popParent();
          createConcept("External data assemblage");
          pushParent(current());
-         createConcept(TermAux.RF2_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
          popParent();
          createConcept("Rule assemblage");
          pushParent(current());
@@ -369,6 +408,7 @@ public class IsaacMetadataAuxiliary
          createConcept("Taxonomy operator");
          pushParent(current());
 
+         createConcept(TermAux.CHILD_OF);
          final ConceptBuilder isa = createConcept("Is-a");
 
          isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
@@ -567,6 +607,8 @@ public class IsaacMetadataAuxiliary
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE);
    createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
    createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
+   createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE);
+
 
          popParent();
          
@@ -577,37 +619,19 @@ public class IsaacMetadataAuxiliary
          
          pushParent(current());
          
-         createConcept("Phenomenon statement");
-         
-         pushParent(current());
-         createConcept("Phenomenon measurement");
-         createConcept("Phenomenon goal");
-         popParent();
-         
+         createConcept("Request statement");
+           
          createConcept("Action statement");
-         pushParent(current());
-         createConcept("Action request");
-         createConcept("Action performance");
-         popParent();
 
          pushParent(current());
          popParent();
          
          popParent();
          
-//         createConcept("test concept");
-//         pushParent(current());
-//         ConceptBuilder parentOneBuilder = createConcept("parent one");
-//         pushParent(current());
-//         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
-//         popParent();
-//         ConceptBuilder parentTwoBuilder = createConcept("parent two");
-         
-         
-         
+         if (false) {
+            addMultiparentTestConcepts();
+         }
 
-         
-         
          popParent();
          
          // Note that we leave this method with the root concept set as parent (on purpose) - we don't call popParent the last time.
@@ -619,19 +643,26 @@ public class IsaacMetadataAuxiliary
          // MetaData file....
          generateStableUUIDs();
 
-//         final LogicalExpressionBuilderService expressionBuilderService =
-//            LookupService.getService(LogicalExpressionBuilderService.class);
-//         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
-//                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
-//                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
-//         
-//         final LogicalExpression logicalExpression = defBuilder.build();
-//         multiParentBuilder.setLogicalExpression(logicalExpression);
 
-      } catch (final Exception ex) {
-         Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
-               .log(Level.SEVERE, null, ex);
-      }
+      
+   }
+
+   private void addMultiparentTestConcepts() throws IllegalStateException {
+      createConcept("test concept");
+      pushParent(current());
+      ConceptBuilder parentOneBuilder = createConcept("parent one");
+      pushParent(current());
+      ConceptBuilder multiParentBuilder = createConcept("multi-parent");
+      popParent();
+      ConceptBuilder parentTwoBuilder = createConcept("parent two");
+      final LogicalExpressionBuilderService expressionBuilderService =
+              LookupService.getService(LogicalExpressionBuilderService.class);
+      final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+      NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder),
+              ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
+      
+      final LogicalExpression logicalExpression = defBuilder.build();
+      multiParentBuilder.setLogicalExpression(logicalExpression);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -646,10 +677,10 @@ public class IsaacMetadataAuxiliary
          final IsaacMetadataAuxiliary aux = new IsaacMetadataAuxiliary();
 
          aux.export(new DataOutputStream(new ByteArrayOutputStream(10240)));
-      } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+      } catch (Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
                .log(Level.SEVERE, null, ex);
-      }
+      } 
    }
 }
 

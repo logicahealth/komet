@@ -53,7 +53,6 @@ import javafx.application.Platform;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -65,13 +64,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeItem;
@@ -79,15 +76,18 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.Arrays;
 
 import com.lmax.disruptor.EventHandler;
+import javafx.event.ActionEvent;
+import javafx.scene.control.ContentDisplay;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -96,7 +96,6 @@ import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.alert.AlertPanel;
@@ -105,6 +104,7 @@ import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
+import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.layout.LayoutAnimator;
 
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
@@ -120,61 +120,55 @@ import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
  */
 public class MultiParentTreeView
         extends BorderPane
-         implements ExplorationNode {
+         implements ExplorationNode, RefreshListener {
    /**
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
-   private final static MultiParentTreeItemDisplayPolicies DEFAULT_DISPLAY_POLICIES =
-      new DefaultMultiParentTreeItemDisplayPolicies();
    private static volatile boolean shutdownRequested = false;
 
    //~--- fields --------------------------------------------------------------
 
    private final SimpleStringProperty         titleProperty   = new SimpleStringProperty(MENU_TEXT);
    private final SimpleStringProperty         toolTipProperty = new SimpleStringProperty("Multi-parent taxonomy view");
+   private final OnOffToggleSwitch            historySwitch        = new OnOffToggleSwitch();
    private final ToolBar                      toolBar         = new ToolBar();
-   private MultiParentTreeItemDisplayPolicies displayPolicies = DEFAULT_DISPLAY_POLICIES;
+   private MultiParentTreeItemDisplayPolicies displayPolicies;
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
                                                                Iconography.TAXONOMY_ICON.getIconographic());
    private Optional<UUID>                                      selectedItem            = Optional.empty();
    private final ArrayList<UUID>                               expandedUUIDs           = new ArrayList<>();
-   private final BooleanProperty                               displayFQN              = new SimpleBooleanProperty();
-   private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotService = new SimpleObjectProperty<>();
    private final ObservableList<AlertObject>                   alertList = FXCollections.observableArrayList();
    private final GridPane                                      topGridPane             = new GridPane();
 
    /** added to prevent garbage collection of listener while this node is still active */
    private final EventHandler<AlertEvent>    alertHandler = this::handleAlert;
-   private final CreateSnapshotService       createSnapshotService;
    private final Manifold                    manifold;
-   private final StackPane                   stackPane;
-   private final ProgressIndicator           taxonomyTreeFetchProgress;
-   private final MultiParentTreeItem         rootTreeItem;
+   private final MultiParentTreeItemImpl         rootTreeItem;
    private final TreeView<ConceptChronology> treeView;
    private final LayoutAnimator topPaneAnimator = new LayoutAnimator();
    private final LayoutAnimator taxonomyAlertsAnimator = new LayoutAnimator();
+   private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
+   private final ChoiceBox<ConceptSpecification> premiseChoiceBox;
+   private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
+   private final UUID uuid = UUID.randomUUID();
 
    //~--- constructors --------------------------------------------------------
 
    public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
       long startTime = System.currentTimeMillis();
+      this.manifold = manifold.deepClone();
+      this.manifold.getStampCoordinate().allowedStatesProperty().addListener((observable, oldValue, newValue) -> {
+         System.out.println("Allowed states changed to: " + newValue);
+      });
+      historySwitch.setSelected(false);
+      updateManifoldHistoryStates();
+      historySwitch.selectedProperty()
+                   .addListener(this::setShowHistory);
 
-      this.createSnapshotService = new CreateSnapshotService(manifold);
-      this.createSnapshotService.setExecutor(Get.executor());
-      this.taxonomySnapshotService.bind(createSnapshotService.valueProperty());
-      this.taxonomySnapshotService.addListener(this::snapshotReady);
-      this.taxonomyTreeFetchProgress = new ProgressIndicator();
-      this.taxonomyTreeFetchProgress.setMaxHeight(100.0);
-      this.taxonomyTreeFetchProgress.setMaxWidth(100.0);
-      this.taxonomyTreeFetchProgress.getStyleClass()
-                                    .add("progressIndicator");
-      this.taxonomyTreeFetchProgress.progressProperty()
-                                    .bind(this.createSnapshotService.progressProperty());
-      this.taxonomyTreeFetchProgress.visibleProperty()
-                                    .bind(this.createSnapshotService.runningProperty());
+      this.displayPolicies = new DefaultMultiParentTreeItemDisplayPolicies(this.manifold);
+      this.taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(this.manifold));
       getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
-      this.manifold = manifold;
       treeView      = new TreeView<>();
       treeView.getSelectionModel()
               .selectedItemProperty()
@@ -183,21 +177,15 @@ public class MultiParentTreeView
                    TreeItem<ConceptChronology> oldValue,
                    TreeItem<ConceptChronology> newValue) -> {
                      if (newValue != null) {
-                        manifold.setFocusedConceptChronology(newValue.getValue());
+                        this.manifold.setFocusedConceptChronology(newValue.getValue());
                      }
                   });
-      stackPane = new StackPane();
-      this.setCenter(stackPane);
-      StackPane.setAlignment(taxonomyTreeFetchProgress, Pos.CENTER);
-      stackPane.getChildren()
-               .add(treeView);
-      stackPane.getChildren()
-               .add(taxonomyTreeFetchProgress);
+      this.setCenter(treeView);
 
       ConceptChronology rootConceptCV = Get.conceptService()
                                            .getConceptChronology(rootSpec);
 
-      rootTreeItem = new MultiParentTreeItem(
+      rootTreeItem = new MultiParentTreeItemImpl(
           rootConceptCV,
           MultiParentTreeView.this,
           Iconography.TAXONOMY_ROOT_ICON.getIconographic());
@@ -210,29 +198,67 @@ public class MultiParentTreeView
       rootTreeItem.addEventHandler(
           TreeItem.<ConceptChronology>branchCollapsedEvent(),
               (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
-         // remove grandchildren
-                 ((MultiParentTreeItem) t.getSource()).removeGrandchildren();
+                 ((MultiParentTreeItemImpl) t.getSource()).removeChildren();
               });
       rootTreeItem.addEventHandler(
           TreeItem.<ConceptChronology>branchExpandedEvent(),
               (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
-                 MultiParentTreeItem sourceTreeItem = (MultiParentTreeItem) t.getSource();
+                 MultiParentTreeItemImpl sourceTreeItem = (MultiParentTreeItemImpl) t.getSource();
 
                  Get.executor()
-                    .execute(() -> sourceTreeItem.addChildrenConceptsAndGrandchildrenItems());
+                    .execute(() -> sourceTreeItem.addChildren());
               });
-      this.createSnapshotService.start();
       Alert.addAlertListener(alertHandler);
       alertList.addListener(this::onChanged);
       
       topPaneAnimator.observe(topGridPane);
       this.setTop(topGridPane);
       taxonomyAlertsAnimator.observe(this.getChildren());
+      descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
+                                                                     this.manifold);
+      descriptionTypeChoiceBox.addEventHandler(ActionEvent.ACTION, this::handleDescriptionTypeChange);
+      handleDescriptionTypeChange(null);
+      this.premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(this.manifold);
+      this.premiseChoiceBox.valueProperty()
+                      .addListener(this::taxonomyPremiseChanged);
+
+
       setupTopPane();
+      // Not a leak, since the taxonomy service adds a weak reference to the listener. 
+      Get.taxonomyService().addTaxonomyRefreshListener(this);
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
    }
 
    //~--- methods -------------------------------------------------------------
+   private void setShowHistory(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+      updateManifoldHistoryStates();
+      refresh();
+   }
+
+   private void updateManifoldHistoryStates() {
+      if (historySwitch.isSelected()) {
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(Status.makeActiveAndInactiveSet());
+      } else {
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.manifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(Status.makeActiveOnlySet());
+      }
+   }
+
+   @Override
+   public void refresh() {
+      Platform.runLater(() -> {
+         this.refreshTaxonomy();
+      });
+   }
 
    /**
     * Convenience method for other code to add buttons, etc to the tool bar displayed above the tree view
@@ -241,7 +267,7 @@ public class MultiParentTreeView
     */
    public void addToToolBar(Node node) {
       toolBar.getItems()
-             .add(node);
+              .add(node);
    }
 
    /**
@@ -254,11 +280,16 @@ public class MultiParentTreeView
       LOG.info("Global Tree shutdown called!");
    }
 
+   @Override
+   public UUID getListenerUuid() {
+      return this.uuid;
+   }
+
    public void showConcept(final UUID conceptUUID, final BooleanProperty workingIndicator) {
       // Do work in background.
-      Task<MultiParentTreeItem> task = new Task<MultiParentTreeItem>() {
+      Task<MultiParentTreeItemImpl> task = new Task<MultiParentTreeItemImpl>() {
          @Override
-         protected MultiParentTreeItem call()
+         protected MultiParentTreeItemImpl call()
                   throws Exception {
             // await() init() completion.
             LOG.debug("Looking for concept {} in tree", conceptUUID);
@@ -285,7 +316,7 @@ public class MultiParentTreeView
                // Look for an IS_A relationship to origin.
                boolean found = false;
 
-               for (int parent: getTaxonomyTree().getParentNids(concept.getNid())) {
+               for (int parent: getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
                   current = Get.identifierService()
                                .getUuidPrimordialForNid(parent)
                                .get();
@@ -302,11 +333,11 @@ public class MultiParentTreeView
 
             LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
 
-            MultiParentTreeItem currentTreeItem = rootTreeItem;
+            MultiParentTreeItemImpl currentTreeItem = rootTreeItem;
 
             // Walk down path from root.
             for (int i = pathToRoot.size() - 1; i >= 0; i--) {
-               MultiParentTreeItem child = findChild(currentTreeItem, pathToRoot.get(i));
+               MultiParentTreeItemImpl child = findChild(currentTreeItem, pathToRoot.get(i));
 
                if (child == null) {
                   break;
@@ -319,7 +350,7 @@ public class MultiParentTreeView
          }
          @Override
          protected void succeeded() {
-            final MultiParentTreeItem lastItemFound = this.getValue();
+            final MultiParentTreeItemImpl lastItemFound = this.getValue();
 
             // Expand tree to last item found.
             if (lastItemFound != null) {
@@ -378,12 +409,12 @@ public class MultiParentTreeView
     * children.
     * @throws InterruptedException
     */
-   private MultiParentTreeItem findChild(final MultiParentTreeItem item,
+   private MultiParentTreeItemImpl findChild(final MultiParentTreeItemImpl item,
          final UUID targetChildUUID)
             throws InterruptedException {
       LOG.debug("Looking for {}", targetChildUUID);
 
-      SimpleObjectProperty<MultiParentTreeItem> found = new SimpleObjectProperty<>(null);
+      SimpleObjectProperty<MultiParentTreeItemImpl> found = new SimpleObjectProperty<>(null);
 
       if (item.getValue()
               .getPrimordialUuid()
@@ -397,7 +428,7 @@ public class MultiParentTreeView
          for (TreeItem<ConceptChronology> child: item.getChildren()) {
             if ((child != null) && (child.getValue() != null) && child.getValue().isIdentifiedBy(targetChildUUID)) {
                // Found it.
-               found.set((MultiParentTreeItem) child);
+               found.set((MultiParentTreeItemImpl) child);
                break;
             }
          }
@@ -446,7 +477,7 @@ public class MultiParentTreeView
    private void onChanged(ListChangeListener.Change<? extends AlertObject> change) {
       setupTopPane();
    }
-
+   
    private void restoreExpanded() {
       treeView.getSelectionModel()
               .clearSelection();
@@ -454,7 +485,7 @@ public class MultiParentTreeView
          .execute(
              () -> {
                 try {
-                   SimpleObjectProperty<MultiParentTreeItem> scrollTo = new SimpleObjectProperty<>();
+                   SimpleObjectProperty<MultiParentTreeItemImpl> scrollTo = new SimpleObjectProperty<>();
 
                    restoreExpanded(rootTreeItem, scrollTo);
                    expandedUUIDs.clear();
@@ -474,17 +505,18 @@ public class MultiParentTreeView
              });
    }
 
-   private void restoreExpanded(MultiParentTreeItem item,
-                                SimpleObjectProperty<MultiParentTreeItem> scrollTo)
+   private void restoreExpanded(MultiParentTreeItemImpl item,
+                                SimpleObjectProperty<MultiParentTreeItemImpl> scrollTo)
             throws InterruptedException {
       if (expandedUUIDs.contains(item.getConceptUuid())) {
+         item.addChildren();
          item.blockUntilChildrenReady();
          Platform.runLater(() -> item.setExpanded(true));
 
          List<TreeItem<ConceptChronology>> list = new ArrayList<>(item.getChildren());
 
          for (TreeItem<ConceptChronology> child: list) {
-            restoreExpanded((MultiParentTreeItem) child, scrollTo);
+            restoreExpanded((MultiParentTreeItemImpl) child, scrollTo);
          }
       }
 
@@ -511,13 +543,13 @@ public class MultiParentTreeView
       LOG.debug("Saved {} expanded nodes", expandedUUIDs.size());
    }
 
-   private void saveExpanded(MultiParentTreeItem item) {
+   private void saveExpanded(MultiParentTreeItemImpl item) {
       if (!item.isLeaf() && item.isExpanded()) {
          expandedUUIDs.add(item.getConceptUuid());
 
          if (!item.isLeaf()) {
             for (TreeItem<ConceptChronology> child: item.getChildren()) {
-               saveExpanded((MultiParentTreeItem) child);
+               saveExpanded((MultiParentTreeItemImpl) child);
             }
          }
       }
@@ -527,18 +559,20 @@ public class MultiParentTreeView
       toolBar.getItems()
              .clear();
 
-      ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(
-                                                                     manifold);
 
       toolBar.getItems()
              .add(descriptionTypeChoiceBox);
 
-      ChoiceBox<ConceptSpecification> premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(manifold);
 
-      premiseChoiceBox.valueProperty()
-                      .addListener(this::taxonomyPremiseChanged);
       toolBar.getItems()
              .add(premiseChoiceBox);
+      
+       Label historySwitchWithLabel = new Label("History", historySwitch);
+       historySwitchWithLabel.setContentDisplay(ContentDisplay.RIGHT);
+       toolBar.getItems()
+             .add(historySwitchWithLabel);
+      
+      
 
       // Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
       // HPos halignment, VPos valignment, Priority hgrow, Priority vgrow
@@ -564,33 +598,43 @@ public class MultiParentTreeView
       }
 
    }
-
-   private void snapshotReady(ObservableValue<? extends TaxonomySnapshotService> observable,
-                              TaxonomySnapshotService oldValue,
-                              TaxonomySnapshotService newValue) {
-      Get.executor()
-         .execute(() -> this.rootTreeItem.addChildren());
-      restoreExpanded();
+   
+   public final void handleDescriptionTypeChange(ActionEvent event) {
+      ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
+      List<ConceptSpecification> items = this.descriptionTypeChoiceBox.getItems();
+      int[] descriptionTypes = new int[items.size()];
+      int descriptionIndex = 0;
+      descriptionTypes[descriptionIndex++] = selectedDescriptionType.getNid();
+      for (ConceptSpecification spec: items) {
+         if (spec != selectedDescriptionType) {
+            descriptionTypes[descriptionIndex++] = spec.getNid();
+         }
+      }
+      this.manifold.setDescriptionTypePreferenceList(descriptionTypes);
+      this.rootTreeItem.invalidate();
+      this.treeView.refresh();
    }
 
    private void taxonomyPremiseChanged(ObservableValue<? extends ConceptSpecification> observable,
          ConceptSpecification oldValue,
          ConceptSpecification newValue) {
+      refreshTaxonomy();
+   }
+
+   private void refreshTaxonomy() {
       saveExpanded();
+      PremiseType newPremiseType = PremiseType.fromConcept(this.premiseChoiceBox.getValue());
       this.manifold.getManifoldCoordinate()
-                   .premiseTypeProperty()
-                   .set(PremiseType.fromConcept(newValue));
+              .premiseTypeProperty()
+              .set(newPremiseType);
+      taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
       this.rootTreeItem.clearChildren();
       this.rootTreeItem.resetChildrenCalculators();
       this.alertList.clear();
-      this.createSnapshotService.restart();
+      restoreExpanded();
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   public static MultiParentTreeItemDisplayPolicies getDefaultDisplayPolicies() {
-      return DEFAULT_DISPLAY_POLICIES;
-   }
 
    public MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
       return displayPolicies;
@@ -614,18 +658,12 @@ public class MultiParentTreeView
       return this;
    }
 
-   public MultiParentTreeItem getRoot() {
+   public MultiParentTreeItemImpl getRoot() {
       return rootTreeItem;
    }
 
-   protected Tree getTaxonomyTree() {
-      TaxonomySnapshotService service = this.taxonomySnapshotService.get();
-
-      if (service != null) {
-         return service.getTaxonomyTree();
-      }
-
-      return null;
+   protected TaxonomySnapshotService getTaxonomySnapshot() {
+      return taxonomySnapshotProperty.get();
    }
 
    @Override

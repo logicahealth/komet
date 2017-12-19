@@ -69,7 +69,6 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
@@ -140,9 +139,10 @@ public final class ObservableLanguageCoordinateImpl
          this.descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
                ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
-         addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setDescriptionTypePreferenceListProperty(
-                 this.descriptionTypePreferenceListProperty));
+         
+         this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
+            this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
+         });
       }
 
       return this.descriptionTypePreferenceListProperty;
@@ -236,10 +236,19 @@ public final class ObservableLanguageCoordinateImpl
    public int[] getDescriptionTypePreferenceList() {
       if (this.descriptionTypePreferenceListProperty != null) {
          return this.descriptionTypePreferenceListProperty.get()
-               .toArray(new int[2]);
+               .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
       }
 
       return this.languageCoordinate.getDescriptionTypePreferenceList();
+   }
+
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      if (this.descriptionTypePreferenceListProperty != null) {
+         this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
+      } else {
+         this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+      }
    }
 
    /**
@@ -251,7 +260,7 @@ public final class ObservableLanguageCoordinateImpl
    public int[] getDialectAssemblagePreferenceList() {
       if (this.dialectAssemblagePreferenceListProperty != null) {
          return this.dialectAssemblagePreferenceListProperty.get()
-               .toArray(new int[2]);
+               .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
       }
 
       return this.languageCoordinate.getDialectAssemblagePreferenceList();

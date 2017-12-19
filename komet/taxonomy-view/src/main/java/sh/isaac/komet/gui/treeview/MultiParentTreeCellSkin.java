@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,54 +16,100 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import com.sun.javafx.scene.control.skin.TreeCellSkin;
+import com.sun.javafx.css.converters.SizeConverter;
+import com.sun.javafx.scene.control.skin.CellSkinBase;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.WritableValue;
+import javafx.css.CssMetaData;
+import javafx.css.Styleable;
+import javafx.css.StyleableDoubleProperty;
+import javafx.css.StyleableProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 
 /**
  *
  * @author kec
  */
-public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
+public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChronology>, MultiParentTreeCellBehavior> {
+
+    /**
+     * The amount of space to multiply by the methodTreeItem.level to get the left
+ margin for this tree cell. This is settable from CSS
+     */
+    private DoubleProperty indent = null;
+    public final void setIndent(double value) { indentProperty().set(value); }
+    public final double getIndent() { return indent == null ? 10.0 : indent.get(); }
+    public final DoubleProperty indentProperty() {
+        if (indent == null) {
+            indent = new StyleableDoubleProperty(10.0) {
+                @Override public Object getBean() {
+                    return MultiParentTreeCellSkin.this;
+                }
+
+                @Override public String getName() {
+                    return "indent";
+                }
+
+                @Override public CssMetaData<TreeCell<?>,Number> getCssMetaData() {
+                    return MultiParentTreeCellSkin.StyleableProperties.INDENT;
+                }
+            };
+        }
+        return indent;
+    }
+
+    private boolean disclosureNodeDirty = true;
+
+    private double fixedCellSize;
+    private boolean fixedCellSizeEnabled;
 
    private final double defaultDisclosureWidth = 18;
-   private boolean disclosureNodeDirty = true;
 
    public MultiParentTreeCellSkin(TreeCell control) {
-      super(control);
+        super(control, new MultiParentTreeCellBehavior(control));
+
+        this.fixedCellSize = control.getTreeView().getFixedCellSize();
+        this.fixedCellSizeEnabled = fixedCellSize > 0;
+
+        registerChangeListener(control.treeItemProperty(), "TREE_ITEM");
+        registerChangeListener(control.textProperty(), "TEXT");
+        registerChangeListener(control.getTreeView().fixedCellSizeProperty(), "FIXED_CELL_SIZE");
    }
 
-   @Override
+   @Override 
    protected void handleControlPropertyChanged(String p) {
-      if (null != p) {
-         switch (p) {
-            case "TREE_ITEM":
-               disclosureNodeDirty = true;
-               break;
-            default:
-               break;
-         }
-      }
-      super.handleControlPropertyChanged(p);
-   }
+        super.handleControlPropertyChanged(p);
+        if ("TREE_ITEM".equals(p)) {
+            disclosureNodeDirty = true;
+            getSkinnable().requestLayout();
+        } else if ("TEXT".equals(p)) {
+            getSkinnable().requestLayout();
+        } else if ("FIXED_CELL_SIZE".equals(p)) {
+            this.fixedCellSize = getSkinnable().getTreeView().getFixedCellSize();
+            this.fixedCellSizeEnabled = fixedCellSize > 0;
+        }
+    }
 
    @Override
    protected void layoutChildren(double x, final double y,
            double w, final double h) {
       // RT-25876: can not null-check here as this prevents empty rows from
       // being cleaned out.
-      // if (treeItem == null) return;
+      // if (methodTreeItem == null) return;
 
       TreeView<ConceptChronology> tree = getSkinnable().getTreeView();
       if (tree == null) {
          return;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
       if (disclosureNodeDirty) {
          updateDisclosureNode();
@@ -72,18 +118,18 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
 
       Node disclosureNode = getSkinnable().getDisclosureNode();
 
-      int level = tree.getTreeItemLevel(treeItem);
+      int level = tree.getTreeItemLevel(methodTreeItem);
       if (!tree.isShowRoot()) {
          level--;
       }
       double leftMargin = getIndent() * level;
-      if (treeItem != null) {
-         leftMargin += treeItem.getMultiParentDepth() * getIndent();
+      if (methodTreeItem != null) {
+         leftMargin += methodTreeItem.getMultiParentDepth() * getIndent();
       }
       x += leftMargin;
 
       // position the disclosure node so that it is at the proper indent
-      boolean disclosureVisible = disclosureNode != null && treeItem != null && !treeItem.isLeaf();
+      boolean disclosureVisible = disclosureNode != null && methodTreeItem != null && !methodTreeItem.isLeaf();
 
       double disclosureWidth = defaultDisclosureWidth;
 
@@ -106,7 +152,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
 
       // determine starting point of the graphic or cell node, and the
       // remaining width available to them
-      final int padding = treeItem != null && treeItem.getGraphic() == null ? 0 : 3;
+      final int padding = methodTreeItem != null && methodTreeItem.getGraphic() == null ? 0 : 3;
       x += disclosureWidth + padding;
       w -= (leftMargin + disclosureWidth + padding);
 
@@ -130,16 +176,16 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       if (tree == null) {
          return pw;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
-      if (treeItem == null) {
+      if (methodTreeItem == null) {
          return pw;
       }
 
       pw = labelWidth;
 
       // determine the amount of indentation
-      int level = tree.getTreeItemLevel(treeItem);
+      int level = tree.getTreeItemLevel(methodTreeItem);
       if (!tree.isShowRoot()) {
          level--;
       }
@@ -162,9 +208,9 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       if (disclosureNode == null) {
          return;
       }
-      MultiParentTreeItem treeItem = (MultiParentTreeItem) getSkinnable().getTreeItem();
+      MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
 
-      boolean disclosureVisible = treeItem != null && !treeItem.isLeaf();
+      boolean disclosureVisible = methodTreeItem != null && !methodTreeItem.isLeaf();
       disclosureNode.setVisible(disclosureVisible);
 
       if (!disclosureVisible) {
@@ -183,4 +229,92 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
       }
    }
 
+    @Override protected void updateChildren() {
+        super.updateChildren();
+        updateDisclosureNode();
+    }
+
+    @Override protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+        if (fixedCellSizeEnabled) {
+            return fixedCellSize;
+        }
+
+        double pref = super.computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
+        Node d = getSkinnable().getDisclosureNode();
+        return (d == null) ? pref : Math.max(d.minHeight(-1), pref);
+    }
+
+    @Override protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+        if (fixedCellSizeEnabled) {
+            return fixedCellSize;
+        }
+
+        final MultiParentTreeCell cell = (MultiParentTreeCell) getSkinnable();
+
+        final double pref = super.computePrefHeight(width, topInset, rightInset, bottomInset, leftInset);
+        final Node d = cell.getDisclosureNode();
+        final double prefHeight = (d == null) ? pref : Math.max(d.prefHeight(-1), pref);
+
+        // RT-30212: TreeCell does not honor minSize of cells.
+        // snapSize for RT-36460
+        return snapSize(Math.max(cell.getMinHeight(), prefHeight));
+    }
+
+    @Override protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+        if (fixedCellSizeEnabled) {
+            return fixedCellSize;
+        }
+
+        return super.computeMaxHeight(width, topInset, rightInset, bottomInset, leftInset);
+    }
+
+    /***************************************************************************
+     *                                                                         *
+     *                         Stylesheet Handling                             *
+     *                                                                         *
+     **************************************************************************/
+
+    /** @treatAsPrivate */
+    private static class StyleableProperties {
+
+        private static final CssMetaData<TreeCell<?>,Number> INDENT =
+            new CssMetaData<TreeCell<?>,Number>("-fx-indent",
+                SizeConverter.getInstance(), 10.0) {
+
+            @Override public boolean isSettable(TreeCell<?> n) {
+                DoubleProperty p = ((MultiParentTreeCellSkin) n.getSkin()).indentProperty();
+                return p == null || !p.isBound();
+            }
+
+            @Override public StyleableProperty<Number> getStyleableProperty(TreeCell<?> n) {
+                final  MultiParentTreeCellSkin skin = (MultiParentTreeCellSkin) n.getSkin();
+                return (StyleableProperty<Number>)(WritableValue<Number>)skin.indentProperty();
+            }
+        };
+
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+        static {
+            final List<CssMetaData<? extends Styleable, ?>> styleables =
+                new ArrayList<>(CellSkinBase.getClassCssMetaData());
+            styleables.add(INDENT);
+            STYLEABLES = Collections.unmodifiableList(styleables);
+        }
+    }
+
+    /**
+     * @return The CssMetaData associated with this class, which may include the
+     * CssMetaData of its super classes.
+     */
+    public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+        return StyleableProperties.STYLEABLES;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() {
+        return getClassCssMetaData();
+    }
 }
+

@@ -47,7 +47,7 @@ import se.liu.imt.mi.snomedct.expression.tools.ExpressionSyntaxError;
 import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.convert.loinc.LOINCReader;
@@ -180,7 +180,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             final Date releaseDate = dateReader.parse(loincData.getReleaseDate());
 
             this.importUtil = new IBDFCreationUtility(Optional.empty(),
-                                                      Optional.of(MetaData.LOINC_SOLOR_MODULES____SOLOR),
+                                                      Optional.of(MetaData.SOLOR_MODULE____SOLOR),
                                                       this.outputDirectory,
                                                       this.converterOutputArtifactId,
                                                       this.converterOutputArtifactClassifier,
@@ -207,7 +207,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             this.importUtil.addStaticStringAnnotation(metadata,
                                                       this.converterSourceLoincArtifactVersion,
                                                       MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(),
-                                                      State.ACTIVE);
+                                                      Status.ACTIVE);
 
             final PT_Refsets      refsets     = new PT_Refsets();
             final PT_Annotations  annotations = new PT_Annotations(new ArrayList<>());
@@ -328,7 +328,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                             this.importUtil.addRelationshipGraph(concept, expressionId, expression, true, null, null);
                             this.importUtil.addRefsetMembership(concept,
                                                                 PT_Refsets.Refsets.ALL.getProperty().getUUID(),
-                                                                State.ACTIVE,
+                                                                Status.ACTIVE,
                                                                 null);
 
                             // add descriptions
@@ -352,7 +352,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                                     this.importUtil.addStringAnnotation(concept,
                                                                         data,
                                                                         annotations.getProperty(property).getUUID(),
-                                                                        State.ACTIVE);
+                                                                        Status.ACTIVE);
                                 }
                             }
                         }

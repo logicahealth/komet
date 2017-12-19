@@ -63,7 +63,7 @@ public class StampComment
       if (in.getObjectDataFormatVersion() == IsaacObjectType.STAMP_COMMENT.getDataFormatVersion()) {
          this.stampSequence = StampUniversal.get(in)
                                             .getStampSequence();
-         this.comment       = in.readUTF();
+         this.comment       = in.getUTF();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + in.getObjectDataFormatVersion());
       }

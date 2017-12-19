@@ -47,6 +47,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
 
 //~--- classes ----------------------------------------------------------------
@@ -57,7 +58,7 @@ import sh.isaac.api.task.SequentialAggregateTask;
  * @author kec
  */
 public class AggregateClassifyTask
-        extends SequentialAggregateTask<ClassifierResults> {
+        extends SequentialAggregateTask<ClassifierResults> implements PersistTaskResult {
    /**
     * Instantiates a new aggregate classify task.
     *

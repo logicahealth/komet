@@ -61,7 +61,7 @@ public interface ConceptVersion
    ConceptChronology getChronology();
    
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.CONCEPT;
    }
 }

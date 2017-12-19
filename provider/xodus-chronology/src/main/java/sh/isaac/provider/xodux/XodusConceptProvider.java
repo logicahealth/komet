@@ -168,10 +168,6 @@ public abstract class XodusConceptProvider
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
-   @Override
-   public void clearDatabaseValidityValue() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
 
    @Override
    public Path getDatabaseFolder() {

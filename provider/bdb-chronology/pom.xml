@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>provider</artifactId>
-      <version>4.41</version>
+      <version>4.42</version>
    </parent>
    <groupId>sh.isaac.provider</groupId>
    <artifactId>bdb-chronology</artifactId>
@@ -91,15 +91,12 @@
          <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
-<!--       Metadata 
+<!--       Metadata -->
       <dependency>
          <groupId>sh.isaac.core</groupId>
-         <artifactId>metadata</artifactId>
+         <artifactId>metadata-source</artifactId>
          <version>${project.parent.version}</version>
-         <classifier>all</classifier>
-         <type>ibdf.zip</type>
-         <optional>true</optional>  Not needed at runtime / transitively 
-      </dependency>-->
+      </dependency>
    </dependencies>
   
    <build>

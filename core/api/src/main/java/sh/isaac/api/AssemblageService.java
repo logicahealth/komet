@@ -41,6 +41,7 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -86,8 +87,9 @@ public interface AssemblageService
     *
     * @param componentNid the component nid
     * @return the descriptions for component
+    * @TODO needs to integrate the language at some point...
     */
-   Stream<SemanticChronology> getDescriptionsForComponent(int componentNid);
+   List<SemanticChronology> getDescriptionsForComponent(int componentNid);
 
    /**
     * Gets the optional semantic chronology.

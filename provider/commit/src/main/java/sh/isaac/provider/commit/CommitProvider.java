@@ -68,6 +68,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -447,29 +448,20 @@ public class CommitProvider
             subTasks.add(addUncommitted(conceptChronology));
          }
       } else if (chronicle instanceof SemanticChronology) {
-         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+         final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-         if (this.uncommittedSemanticsNoChecksNidSet.contains(sememeChronology.getNid())) {
-            subTasks.add(addUncommittedNoChecks(sememeChronology));
+         if (this.uncommittedSemanticsNoChecksNidSet.contains(semanticChronology.getNid())) {
+            subTasks.add(addUncommittedNoChecks(semanticChronology));
          }
 
-         if (this.uncommittedSemanticsWithChecksNidSet.contains(sememeChronology.getNid())) {
-            subTasks.add(addUncommitted(sememeChronology));
+         if (this.uncommittedSemanticsWithChecksNidSet.contains(semanticChronology.getNid())) {
+            subTasks.add(addUncommitted(semanticChronology));
          }
       } else {
          throw new RuntimeException("Unsupported chronology type: " + chronicle);
       }
 
       return new SequentialAggregateTask<>("Canceling change", subTasks);
-   }
-
-   /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Reset to enforce analysis
-      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
    /**
@@ -552,11 +544,11 @@ public class CommitProvider
             });
          }
       } else if (chronicle instanceof SemanticChronology) {
-         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+         final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-         if (this.uncommittedSemanticsWithChecksNidSet.contains(sememeChronology.getNid())) {
+         if (this.uncommittedSemanticsWithChecksNidSet.contains(semanticChronology.getNid())) {
             this.checkers.stream().forEach((check) -> {
-               if (check.check(sememeChronology, CheckPhase.COMMIT) == CheckResult.FAIL) {
+               if (check.check(semanticChronology, CheckPhase.COMMIT) == CheckResult.FAIL) {
                   failCount.incrementAndGet();
                }
             });
@@ -593,13 +585,13 @@ public class CommitProvider
             Get.conceptService()
                     .writeConcept(conceptChronology);
          } else {
-            final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+            final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-            sememesInCommit.add(sememeChronology.getNid());
-            this.uncommittedSemanticsWithChecksNidSet.remove(sememeChronology.getNid());
-            this.uncommittedSemanticsNoChecksNidSet.remove(sememeChronology.getNid());
+            sememesInCommit.add(semanticChronology.getNid());
+            this.uncommittedSemanticsWithChecksNidSet.remove(semanticChronology.getNid());
+            this.uncommittedSemanticsNoChecksNidSet.remove(semanticChronology.getNid());
             Get.assemblageService()
-                    .writeSemanticChronology(sememeChronology);
+                    .writeSemanticChronology(semanticChronology);
          }
 
          commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
@@ -647,13 +639,13 @@ public class CommitProvider
             break;
 
          case SEMANTIC:
-            final SemanticChronology sememeChronology = (SemanticChronology) isaacExternalizable;
+            final SemanticChronology semanticChronology = (SemanticChronology) isaacExternalizable;
 
             Get.assemblageService()
-                    .writeSemanticChronology(sememeChronology);
+                    .writeSemanticChronology(semanticChronology);
 
-            if (sememeChronology.getVersionType() == VersionType.LOGIC_GRAPH) {
-               deferNidAction(sememeChronology.getNid());
+            if (semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH) {
+               deferNidAction(semanticChronology.getNid());
             }
 
             break;
@@ -1019,7 +1011,7 @@ public class CommitProvider
            ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
       writeSemaphore.acquireUninterruptibly();
 
-      final WriteSememeChronicle task = new WriteSememeChronicle(sc,
+      final WriteSemanticChronology task = new WriteSemanticChronology(sc,
               writeSemaphore,
               changeListeners,
               (sememeOrConceptChronicle,
@@ -1230,5 +1222,11 @@ public class CommitProvider
          hash = 67 * hash + Objects.hashCode(this.listenerUuid);
          return hash;
       }
+   }
+
+
+   @Override
+   public Future<?> sync() {
+      throw new UnsupportedOperationException();
    }
 }

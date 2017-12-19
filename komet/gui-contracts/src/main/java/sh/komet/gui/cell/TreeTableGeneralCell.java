@@ -55,6 +55,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
@@ -68,6 +69,7 @@ import sh.komet.gui.control.FixedSizePane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -131,7 +133,7 @@ public class TreeTableGeneralCell
       setWrapText(false);
 
       SemanticVersion sememeVersion = version.unwrap();
-      VersionType sememeType = sememeVersion.getChronology()
+      VersionType semanticType = sememeVersion.getChronology()
               .getVersionType();
 
       this.setGraphic(null);
@@ -150,8 +152,7 @@ public class TreeTableGeneralCell
               manifold.getPreferredDescriptionText(
                       sememeVersion.getReferencedComponentNid()));
 
-      switch (Get.identifierService()
-              .getOldChronologyTypeForNid(sememeVersion.getReferencedComponentNid())) {
+      switch (Get.identifierService().getObjectTypeForComponent(sememeVersion.getReferencedComponentNid())) {
          case CONCEPT:
             referencedComponentText.getStyleClass()
                     .add(StyleClasses.CONCEPT_COMPONENT_REFERENCE.toString());
@@ -166,7 +167,7 @@ public class TreeTableGeneralCell
                     .add(StyleClasses.SEMEME_COMPONENT_REFERENCE.toString());
             break;
 
-         case UNKNOWN_NID:
+         case UNKNOWN:
          default:
             referencedComponentText.getStyleClass()
                     .add(StyleClasses.ERROR_TEXT.toString());
@@ -174,7 +175,7 @@ public class TreeTableGeneralCell
                     .add(StyleClasses.ERROR_TEXT.toString());
       }
 
-      switch (sememeType) {
+      switch (semanticType) {
          case DESCRIPTION:
             DescriptionVersion description = version.unwrap();
 
@@ -195,7 +196,7 @@ public class TreeTableGeneralCell
             ComponentNidVersion componentNidVersion = version.unwrap();
 
             switch (Get.identifierService()
-                    .getOldChronologyTypeForNid(componentNidVersion.getComponentNid())) {
+                    .getObjectTypeForComponent(componentNidVersion.getComponentNid())) {
                case CONCEPT:
                   Text conceptText = new Text(manifold.getPreferredDescriptionText(componentNidVersion.getComponentNid()));
 
@@ -225,7 +226,7 @@ public class TreeTableGeneralCell
 
                   break;
 
-               case UNKNOWN_NID:
+               case UNKNOWN:
                   LOG.warn("Unknown nid: " + componentNidVersion);
 
                   Text unknownText = new Text("Unknown nid: " + componentNidVersion);
@@ -283,9 +284,29 @@ public class TreeTableGeneralCell
             }
 
             break;
-
+            
+         case RF2_RELATIONSHIP:
+         {
+            Rf2Relationship rf2Relationship = version.unwrap();
+            StringBuilder buff = new StringBuilder();
+            if (!(rf2Relationship.getTypeNid() == TermAux.IS_A.getNid())) {
+               buff.append(this.manifold.getPreferredDescriptionText(rf2Relationship.getModifierNid()));
+               buff.append(" ");
+            }
+            buff.append(this.manifold.getPreferredDescriptionText(rf2Relationship.getTypeNid()));
+            buff.append(" ");
+            buff.append(this.manifold.getPreferredDescriptionText(rf2Relationship.getDestinationNid()));
+            buff.append(" (");
+            buff.append(this.manifold.getPreferredDescriptionText(rf2Relationship.getCharacteristicNid()));
+            buff.append(") ");
+            
+            
+            Text defaultText = new Text(buff.toString());
+            addTextToCell(assemblageNameText, defaultText, referencedComponentText);
+         }
+            break;
          default:
-            Text defaultText = new Text("not implemented for type: " + sememeType);
+            Text defaultText = new Text("not implemented for type: " + semanticType);
 
             defaultText.getStyleClass()
                     .add(StyleClasses.ERROR_TEXT.toString());

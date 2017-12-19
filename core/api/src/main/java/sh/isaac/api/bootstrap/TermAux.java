@@ -48,6 +48,7 @@ import java.util.UUID;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.UuidT5Generator;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -100,6 +101,9 @@ public class TermAux {
    /** ConceptProxy for: "is a". */
    public static ConceptSpecification IS_A = new ConceptProxy("Is a (relationship type)",
                                                               UUID.fromString("46bccdc4-8fb6-11db-b606-0800200c9a66"));
+   /** ConceptProxy for: "Child of". */
+   public static ConceptSpecification CHILD_OF = new ConceptProxy("Child of (internal use relationship type)",
+                                                              UUID.fromString("91947d30-7555-5400-bbe2-4415472cff1b"));
 
    /** ConceptProxy for: "IHTSDO classifier. */
    public static ConceptSpecification IHTSDO_CLASSIFIER = new ConceptProxy("IHTSDO Classifier",
@@ -212,7 +216,7 @@ public class TermAux {
 
    /** ConceptProxy for: "Japanese language". */
    public static ConceptSpecification JAPANESE_LANGUAGE = new ConceptProxy("Japanese language",
-                                                                           UUID.fromString("b90a1097-29e3-42bc-8576-8e8eb6715c44"));
+                                                                           UUID.fromString("aa789d52-2278-54cb-9a13-f41c36249f77"));
 
    /** ConceptProxy for: "Swedish language". */
    public static ConceptSpecification SWEDISH_LANGUAGE = new ConceptProxy("Swedish language",
@@ -374,7 +378,7 @@ public class TermAux {
    public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular (query clause)", "relationship is circular", UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of", UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match", UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description regex match (query clause)", "Regex active description match", UUID.fromString("3ddcdca5-957e-4faf-811b-212f94d1bfa0"));
+   public static ConceptSpecification DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description regex match (query clause)", "Regex active description match", UUID.fromString("48bafde1-02a4-5d74-b1e4-8909e7e5b5fc"));
    public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component (query clause)", "concept for component", UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of (query clause)", "descendent of", UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully qualified name for concept (query clause)", "fully qualified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
@@ -387,16 +391,50 @@ public class TermAux {
    public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("Relationship restriction (query clause)", "relationship restriction", UUID.fromString("d9c20c0a-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("Relationship type (query clause)", "relationship type", UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Enclosing concept (query clause)", "enclosing concept", UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSOCIATED_PARAMETER_QUERY_CLAUSE = new ConceptProxy("Associated parameter (query clause)", " ↳ ", UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
 
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
    public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
   
    public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "concepts", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
-   public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR oncept assemblage", "SOLOR concepts", UUID.fromString("6559ac67-6d85-4166-b311-b5b13a7f1502"));
-   public static ConceptSpecification SNOMED_CONCEPT_ASSEMBLAGE = new ConceptProxy("SNOMED concept assemblage", "SNOMED concepts", UUID.fromString("aece2344-ee28-4b69-86cf-ffd33e6c1852"));
-   public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("9b576b97-cf3b-4388-832b-0dddc9d51d5f"));
-   public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("1486a8ad-adbc-4494-bfc5-1ef2ec3b2936"));
-   public static ConceptSpecification RF2_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 relationship assemblage", "RF2 relationships", UUID.fromString("7daba83d-40d1-4d55-8e83-3e2dd7c0bd29"));
+   public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR concept assemblage", "SOLOR concepts", UUID.fromString("d39b3ecd-9a80-5009-a8ac-0b947f95ca7c"));
+   public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("d4d1bb43-bf2f-5c4e-b8b8-f0be8a5cca83"));
+   public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("914cd34d-c97a-5fc5-abac-53bfb161eca0"));
+   public static ConceptSpecification RF2_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 stated relationship assemblage", "RF2 stated relationships", UUID.fromString("c5c57241-e1c3-5c8b-85c6-0edffb28cfd0"));
+   public static ConceptSpecification RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 inferred relationship assemblage", "RF2 inferred relationships", UUID.fromString("e3436c74-2491-50fa-b43c-13d83238648c"));
+   public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage", "RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
+   public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage", UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
+   public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage", UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
+   public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage", UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
+
+   public static ConceptSpecification CONTENT_LICENSE = new ConceptProxy("Content license", "Content license", UUID.fromString("b3305461-6954-574e-9124-285a02d4ecae"));
+   public static ConceptSpecification SCT_AFFILIATES_LICENSE = new ConceptProxy("SNOMED® affiliates license", "SNOMED® affiliates license", UUID.fromString("4e7d8a63-1f36-56bb-9217-daa6da1b47e7"));
+   public static ConceptSpecification LOINC_LICENSE = new ConceptProxy("LOINC® license", "LOINC® license", UUID.fromString( "2c6f846b-a61d-5358-afdd-5e2309157408"));
+   public static ConceptSpecification RXNORM_LICENSE = new ConceptProxy("RxNorm license", "RxNorm license", UUID.fromString("9ca299bb-61b8-5aaa-b1c1-131600067947"));
+   public static ConceptSpecification APACHE_2_LICENSE = new ConceptProxy("Apache 2 license", "Apache 2 license", UUID.fromString("a4516185-deb8-5db1-8db8-10dbe021ffa5"));
+   public static ConceptSpecification CC_BY_LICENSE = new ConceptProxy("Creative Commons BY license", "Creative Commons BY license", UUID.fromString("3415a972-7850-57cd-aa86-a572ca1c2ceb"));
+   public static ConceptSpecification US_GOVERNMENT_WORK = new ConceptProxy("US Government Work", "US Government Work", UUID.fromString("9f031ac8-4737-508b-8874-a6c1a6e134e2"));
+
+   public static ConceptSpecification COPYRIGHT = new ConceptProxy("Copyright", "Copyright", UUID.fromString("57b405d5-20b5-5aa3-923c-ead3af1e692e"));
+   public static ConceptSpecification SNOMED_COPYRIGHT = new ConceptProxy("© SNOMED International", "© SNOMED International", UUID.fromString("d03b0cc5-dfdf-5580-b162-f2fb0e15eb94"));
+   public static ConceptSpecification COPYRIGHT_FREE_WORK = new ConceptProxy("Copyright free work", "Copyright free work", UUID.fromString("4d268bfc-026d-53a4-b7d0-cbe3ee109337"));
+   public static ConceptSpecification REGENSTRIEF_AND_LOINC_COPYRIGHT = new ConceptProxy("© Regenstrief Institute, Inc. and © The Logical Observation Identifiers Names and Codes (LOINC) Committee", "© Regenstrief Institute and the LOINC Committee", UUID.fromString("005d1366-7865-5055-9cd7-2b40a0396326"));
+   public static ConceptSpecification INFORMATICS_INC_COPYRIGHT = new ConceptProxy("© Informatics, Incorporated", "© Informatics, Inc.", UUID.fromString("f892783f-4aa4-5ba8-a0bf-8a99c4149155"));
+   public static ConceptSpecification KEITH_CAMPBELL = new ConceptProxy("Keith Eugene Campbell", "kec", UUID.fromString("5e47881c-9e27-5578-a1c1-5535a9400bc6"));
+
+   //SNOMED CT High Level Taxonomy Classes
+   public static ConceptSpecification BODY_STRUCTURE = new ConceptProxy("Body structure", "Body structure", UUID.fromString("4be3f62e-28d5-3bb4-a424-9aa7856a1790"));
+   public static ConceptSpecification EVENT = new ConceptProxy("Event", "Event", UUID.fromString("c7243365-510d-3e5f-82b3-7286b27d7698"));
+   public static ConceptSpecification FORCE = new ConceptProxy("Force", "Force", UUID.fromString("32213bf6-c073-3ce1-b0c7-9463e43af2f1"));
+   public static ConceptSpecification MEDICATION = new ConceptProxy("Medication", "Medication", UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449"));
+   public static ConceptSpecification PHENOMENON = new ConceptProxy("Phenomenon", "Phenomenon", UUID.fromString("c2e8bc47-3353-5e02-b0d1-2a5916efed4d"));
+   public static ConceptSpecification ORGANISM = new ConceptProxy("Organism", "Organism", UUID.fromString("0bab48ac-3030-3568-93d8-aee0f63bf072"));
+   public static ConceptSpecification OBJECT = new ConceptProxy("Object", "Object", UUID.fromString("72765109-6b53-3814-9b05-34ebddd16592"));
+   public static ConceptSpecification PROCEDURE = new ConceptProxy("Procedure", "Procedure", UUID.fromString("bfbced4b-ad7d-30aa-ae5c-f848ccebd45b"));
+   public static ConceptSpecification SPECIMEN = new ConceptProxy("Specimen", "Specimen", UUID.fromString("3680e12d-c14c-39cb-ac89-2ae1fa125d41"));
+   public static ConceptSpecification SUBSTANCE = new ConceptProxy("Substance", "Substance", UUID.fromString("95f41098-8391-3f5e-9d61-4b019f1de99d"));
+
+
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -526,6 +564,12 @@ public class TermAux {
 
       throw new RuntimeException("No description assemblage for: " +
                                  Get.conceptDescriptionText(languageConceptNid));
+   }
+   
+   public static void main(String[] args) {
+      for (int i = 0; i < 19; i++) {
+         System.out.println(UuidT5Generator.get(UUID.randomUUID().toString()));
+      }
    }
 }
 

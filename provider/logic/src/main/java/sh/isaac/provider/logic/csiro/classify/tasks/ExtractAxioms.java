@@ -134,6 +134,8 @@ public class ExtractAxioms
                                    logicGraphMembers.incrementAndGet();
                                 }
                              });
+      
+      System.out.println("Extracted " + logicGraphMembers + " logical definitions from: " + Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
    }
 }
 

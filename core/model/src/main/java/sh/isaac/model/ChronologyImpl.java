@@ -59,7 +59,7 @@ import java.util.stream.LongStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -358,8 +358,9 @@ public abstract class ChronologyImpl
       if (getVersionList() != null) {
          builder.deleteCharAt(builder.length() - 1);
       }
-
-      builder.append("\n ]\n}");
+      
+      builder.append("\n ]\n}\n");
+      
       if (addAttachments) {
          builder.append("\n[[\n");
          AtomicInteger attachmentCount = new AtomicInteger(0);
@@ -811,7 +812,15 @@ public abstract class ChronologyImpl
               | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
 
       while (versionSize != 0) {
-         dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionStart + versionSize));
+         int versionTo = versionStart + versionSize;
+         int newLength = versionTo - versionStart;
+         if (versionTo < 0) {
+            System.out.println("Error versionTo: " + versionTo);
+         }
+        if (newLength < 0) {
+            System.out.println("Error newLength: " + newLength);
+        }
+         dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
          versionStart = versionStart + versionSize;
          versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
                  | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
@@ -848,21 +857,10 @@ public abstract class ChronologyImpl
       writeChronicleData(db);
 
       this.versionStartPosition = db.getPosition();
-      if (this.writtenData != null) {
-         db.put(
-                 this.writtenData,
-                 this.versionStartPosition,
-                 this.writtenData.length - this.versionStartPosition - 4);  // 4 for the zero length version at the end.
+      for (Version version: getVersionList()) {
+         final int stampSequenceForVersion = version.getStampSequence();
+         writeIfNotCanceled(db, version, stampSequenceForVersion);
       }
-
-      // add versions..
-      this.unwrittenData.values()
-              .forEach(
-                      (version) -> {
-                         final int stampSequenceForVersion = version.getStampSequence();
-
-                         writeIfNotCanceled(db, version, stampSequenceForVersion);
-                      });
       db.putInt(0);  // last data is a zero length version record
       db.trimToSize();
       return db.getData();
@@ -925,16 +923,14 @@ public abstract class ChronologyImpl
     */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(
-              coordinate.makeCoordinateAnalog(
-                      State.ACTIVE,
-                      State.INACTIVE,
-                      State.CANCELED,
-                      State.PRIMORDIAL));
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ACTIVE,
+                      Status.INACTIVE,
+                      Status.CANCELED,
+                      Status.PRIMORDIAL));
       final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       for (int stampSequence : latestStampSequences) {
-         if (Get.stampService().getStatusForStamp(stampSequence) == State.ACTIVE) {
+         if (Get.stampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
             return true;
          }
       }
@@ -1090,7 +1086,7 @@ public abstract class ChronologyImpl
 
       getVersionList().<V>forEach(
               (version) -> {
-                 final StampPath path = Get.pathService()
+                 final StampPath path = Get.versionManagmentPathService()
                          .getStampPath(version.getPathNid());
                  TreeSet<V> versionSet = versionMap.get(path);
 

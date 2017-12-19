@@ -50,7 +50,7 @@ import javafx.fxml.FXMLLoader;
 
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
@@ -79,7 +79,7 @@ public class ConceptDetailTreeTableNode
    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
       try {
          this.conceptDetailManifold = conceptDetailManifold;
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(State.INACTIVE);
+         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
          conceptDetailManifold.focusedConceptProperty()
                  .addListener(
                          (ObservableValue<? extends ConceptSpecification> observable,

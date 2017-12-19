@@ -547,9 +547,9 @@ public class ByteArrayDataBuffer {
     *
     * @return the string
     */
-   public final String readUTF() {
+   public final String getUTF() {
       final int[]  positionArray = new int[] { this.position };
-      final String result        = readUTF(positionArray);
+      final String result        = getUTF(positionArray);
 
       this.position = positionArray[0];
       return result;
@@ -561,7 +561,7 @@ public class ByteArrayDataBuffer {
     * @param position the position
     * @return the string
     */
-   public final String readUTF(int[] position) {
+   public final String getUTF(int[] position) {
       final int    utflen  = getInt(position[0]);
       final byte[] bytearr = new byte[utflen];
       final char[] chararr = new char[utflen];

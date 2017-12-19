@@ -4,13 +4,19 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>integration</artifactId>
-      <version>4.41</version>
+      <version>4.42</version>
    </parent>
    <groupId>sh.isaac.integration</groupId>
    <artifactId>tests</artifactId>
    <packaging>jar</packaging>
    <name>ISAAC integration: Tests</name>
    <dependencies>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>preferences</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
@@ -79,12 +85,6 @@
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
-<!--      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>workflow</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>-->
    </dependencies>
    <build>
       <plugins>
@@ -125,7 +125,7 @@
                <useManifestOnlyJar>false</useManifestOnlyJar>
                <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
                <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
-<!--               <debugForkedProcess>true</debugForkedProcess>-->
+               <!--               <debugForkedProcess>true</debugForkedProcess>-->
                <includes>
                   <!-- Let JUnit annotations decide -->
                   <include>**/*.class</include>

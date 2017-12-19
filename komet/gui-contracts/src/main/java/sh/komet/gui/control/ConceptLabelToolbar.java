@@ -32,6 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
 
@@ -48,10 +49,14 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    public void manifoldEventHandler(Event event) {
       MenuItem menuItem = (MenuItem) event.getSource();
       String manifoldGroup = (String) menuItem.getUserData();
-      
-      ConceptChronology focusedConcept = Get.concept(manifold.getConceptForGroup(manifoldGroup));
+      ConceptSpecification spec = manifold.getConceptForGroup(manifoldGroup);
+      if (spec != null) {
+         ConceptChronology focusedConcept = Get.concept(spec);
+         manifold.setFocusedConceptChronology(focusedConcept);
+      } else {
+         manifold.setFocusedConceptChronology(null);
+      }
       manifold.setGroupName(manifoldGroup);
-      manifold.setFocusedConceptChronology(focusedConcept);
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
    }
 

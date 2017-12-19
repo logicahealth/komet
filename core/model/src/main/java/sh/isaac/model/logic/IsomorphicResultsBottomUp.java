@@ -41,9 +41,11 @@ package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -107,12 +109,12 @@ public class IsomorphicResultsBottomUp
    /** The isomorphic solution. */
 
    /*
-    * isomorphicSolution is a mapping from logicNodes in the referenceExpression to logicNodes
-    * in the comparisonExpression. The index of the isomorphicSolution is the nodeId
+    * localIsomorphicSolution is a mapping from logicNodes in the referenceExpression to logicNodes
+    * in the comparisonExpression. The index of the localIsomorphicSolution is the nodeId
     * in the referenceExpression, the value of the array at that index is the
-    * nodeId in the comparisonExpression: isomorphicSolution[nodeIdInReference] == nodeIdInComparison
+    * nodeId in the comparisonExpression: localIsomorphicSolution[nodeIdInReference] == nodeIdInComparison
     * If the nodeIdInComparison == -1, then there is no corresponding node in the
-    * comparisonExpression as part of the isomorphicSolution.
+    * comparisonExpression as part of the localIsomorphicSolution.
     */
    IsomorphicSolution isomorphicSolution;
 
@@ -493,12 +495,12 @@ public class IsomorphicResultsBottomUp
                                       generatedPossibleSolution.length);
                      generatedPossibleSolution[solutionNodeId] = isomorphicSearchNode.nodeId;
 
-                     final IsomorphicSolution isomorphicSolution = new IsomorphicSolution(generatedPossibleSolution,
+                     final IsomorphicSolution localIsomorphicSolution = new IsomorphicSolution(generatedPossibleSolution,
                                                                                           this.referenceVisitData,
                                                                                           this.comparisonVisitData);
 
-                     if (isomorphicSolution.legal) {
-                        outgoingPossibleNodes.add(isomorphicSolution);
+                     if (localIsomorphicSolution.legal) {
+                        outgoingPossibleNodes.add(localIsomorphicSolution);
                      }
                   }
                });
@@ -681,8 +683,8 @@ public class IsomorphicResultsBottomUp
 
    /**
     * Scoring algorithm to determine if it is possible that a
-    * isomorphicSolution based on the possibleSolution may score >= the current
-    * maximum isomorphicSolution. Used to trim the search space of unnecessary
+ localIsomorphicSolution based on the possibleSolution may score >= the current
+ maximum localIsomorphicSolution. Used to trim the search space of unnecessary
     * permutations.
     *
     * @param solution the solution
@@ -708,15 +710,18 @@ public class IsomorphicResultsBottomUp
     * @return the added relationship roots
     */
    @Override
-   public final Stream<LogicNode> getAddedRelationshipRoots() {
+   public final List<LogicNode> getAddedRelationshipRoots() {
       final TreeSet<RelationshipKey> addedRelationshipRoots =
          new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
 
       addedRelationshipRoots.removeAll(this.comparisonRelationshipNodesMap.keySet());
-      return addedRelationshipRoots.stream()
-                                   .map((
-                                   RelationshipKey key) -> this.referenceExpression.getNode(
-                                       this.referenceRelationshipNodesMap.get(key)));
+      
+      List<LogicNode> results = new ArrayList<>();
+      for (RelationshipKey relationshipKey: addedRelationshipRoots) {
+         results.add(this.referenceExpression.getNode(
+                                       this.referenceRelationshipNodesMap.get(relationshipKey)));
+      }
+      return results;
    }
 
    /**
@@ -725,9 +730,14 @@ public class IsomorphicResultsBottomUp
     * @return the additional node roots
     */
    @Override
-   public Stream<LogicNode> getAdditionalNodeRoots() {
-      return this.referenceAdditionRoots.stream()
-                                        .mapToObj((nodeId) -> this.referenceExpression.getNode(nodeId));
+   public List<LogicNode> getAdditionalNodeRoots() {
+      
+     List<LogicNode> results = new ArrayList<>();
+     for (int rootNodeId: this.referenceAdditionRoots.asArray()) {
+        results.add(this.referenceExpression.getNode(rootNodeId));
+     }
+     
+     return results;
    }
 
    /**
@@ -746,9 +756,12 @@ public class IsomorphicResultsBottomUp
     * @return the deleted node roots
     */
    @Override
-   public Stream<LogicNode> getDeletedNodeRoots() {
-      return this.comparisonDeletionRoots.stream()
-                                         .mapToObj((nodeId) -> this.comparisonExpression.getNode(nodeId));
+   public List<LogicNode> getDeletedNodeRoots() {
+     List<LogicNode> results = new ArrayList<>();
+     for (int deletedNodeId: this.comparisonDeletionRoots.asArray()) {
+        results.add(this.comparisonExpression.getNode(deletedNodeId));
+     }
+     return results;
    }
 
    /**
@@ -757,15 +770,18 @@ public class IsomorphicResultsBottomUp
     * @return the deleted relationship roots
     */
    @Override
-   public final Stream<LogicNode> getDeletedRelationshipRoots() {
+   public final List<LogicNode> getDeletedRelationshipRoots() {
       final TreeSet<RelationshipKey> deletedRelationshipRoots =
          new TreeSet<>(this.comparisonRelationshipNodesMap.keySet());
 
       deletedRelationshipRoots.removeAll(this.referenceRelationshipNodesMap.keySet());
-      return deletedRelationshipRoots.stream()
-                                     .map((
-                                     RelationshipKey key) -> this.comparisonExpression.getNode(
-                                         this.comparisonRelationshipNodesMap.get(key)));
+      
+     List<LogicNode> results = new ArrayList<>();
+     for (RelationshipKey deletedNodeId: deletedRelationshipRoots) {
+        results.add(this.comparisonExpression.getNode(
+                                         this.comparisonRelationshipNodesMap.get(deletedNodeId)));
+     }
+     return results;
    }
 
    /**
@@ -804,15 +820,18 @@ public class IsomorphicResultsBottomUp
     * @return the shared relationship roots
     */
    @Override
-   public Stream<LogicNode> getSharedRelationshipRoots() {
+   public List<LogicNode> getSharedRelationshipRoots() {
       final TreeSet<RelationshipKey> sharedRelationshipRoots =
          new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
 
       sharedRelationshipRoots.retainAll(this.comparisonRelationshipNodesMap.keySet());
-      return sharedRelationshipRoots.stream()
-                                    .map((
-                                    RelationshipKey key) -> this.referenceExpression.getNode(
-                                        this.referenceRelationshipNodesMap.get(key)));
+
+     List<LogicNode> results = new ArrayList<>();
+     for (RelationshipKey deletedNodeId: sharedRelationshipRoots) {
+        results.add(this.comparisonExpression.getNode(
+                                         this.comparisonRelationshipNodesMap.get(deletedNodeId)));
+     }
+     return results;
    }
 }
 

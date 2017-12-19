@@ -75,7 +75,7 @@ public class LiteralNodeString
    public LiteralNodeString(LogicalExpressionImpl logicGraphVersion,
                             ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.literalValue = dataInputStream.readUTF();
+      this.literalValue = dataInputStream.getUTF();
    }
 
    /**

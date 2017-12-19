@@ -51,7 +51,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -147,7 +147,7 @@ public class ObservableConceptChronologyImpl
     * @return the observable concept version impl
     */
    @Override
-   public ObservableConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
+   public ObservableConceptVersionImpl createMutableVersion(Status state, EditCoordinate ec) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }

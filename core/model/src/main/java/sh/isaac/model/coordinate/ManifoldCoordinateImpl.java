@@ -52,7 +52,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -205,7 +205,7 @@ public class ManifoldCoordinateImpl
     * @return the taxonomy coordinate impl
     */
    @Override
-   public ManifoldCoordinateImpl makeCoordinateAnalog(State... state) {
+   public ManifoldCoordinateImpl makeCoordinateAnalog(Status... state) {
       return new ManifoldCoordinateImpl(this.taxonomyType,
                                         this.stampCoordinate.makeCoordinateAnalog(state),
                                         this.languageCoordinate,
@@ -313,6 +313,11 @@ public class ManifoldCoordinateImpl
       public Object unmarshal(Object v) {
          return v;
       }
+   }
+
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+      this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
    }
    
    @Override

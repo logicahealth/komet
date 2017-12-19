@@ -149,6 +149,18 @@ public class NidSet
       return new NidSet(members);
    }
 
+     /**
+    * Adds the all.
+    *
+    * @param otherSet the set to add
+    */
+   public void addAll(NidSet otherSet) {
+      if (this.readOnly) {
+         throw new UnsupportedOperationException("Read only set");
+      }
+      this.or(otherSet);
+   }
+
    //~--- methods -------------------------------------------------------------
 
    /**

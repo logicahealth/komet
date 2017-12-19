@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.41</version>
+      <version>4.42</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -28,7 +28,6 @@
          <groupId>${project.groupId}</groupId>
          <artifactId>css</artifactId>
          <version>${project.version}</version>
-         <type>zip</type>
       </dependency>
       <dependency>
          <groupId>org.controlsfx</groupId>
@@ -89,21 +88,11 @@
          <artifactId>bdb-chronology</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
-      <!--      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>concept</artifactId>
+      <dependency>
+         <groupId>sh.isaac.solor</groupId>
+         <artifactId>rf2-direct-import</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>assemblage</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>-->
-      <!--      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>taxonomy</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>-->
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>
@@ -164,6 +153,12 @@
          <type>jar</type>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>preferences</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>search-view</artifactId>
          <version>${project.parent.version}</version>
@@ -203,30 +198,6 @@
    </dependencies>
    <build>
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>extract-dependencies</id>
-                  <phase>process-resources</phase>
-                  <goals>
-                     <goal>unpack</goal>
-                  </goals>
-                  <configuration>
-                     <artifactItems>
-                        <artifact>
-                           <groupId>${project.groupId}</groupId>
-                           <artifactId>css</artifactId>
-                           <version>${project.version}</version>
-                           <type>zip</type>
-                        </artifact>
-                     </artifactItems>
-                     <outputDirectory>${project.build.directory}/data</outputDirectory>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -279,6 +250,10 @@
                <additionalAppResources>${project.build.directory}/data</additionalAppResources>
                <detail>true</detail>
                <skipNativeVersionNumberSanitizing>true</skipNativeVersionNumberSanitizing>   
+               <jvmArgs>
+                  <jvmArg>-Xms4G</jvmArg>
+                  <jvmArg>-Xmx16G</jvmArg>
+               </jvmArgs>               
                <bundleArguments>              
                   <icon.ico>${project.basedir}/src/main/resources/icons/KOMET.ico</icon.ico>
                   <icon.png>${project.basedir}/src/main/resources/icons/KOMET.png</icon.png>
@@ -365,10 +340,7 @@
       <profile>
          <id>meta-database</id>
          <activation>
-            <property>
-               <!-- If no other database is defined, use the meta database. -->
-               <name>!database</name>
-            </property>
+            <activeByDefault>false</activeByDefault>
          </activation>
          <dependencies>
             <dependency>

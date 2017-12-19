@@ -52,7 +52,10 @@ import sh.isaac.api.task.TaskWrapper;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
+ * TODO left in as and example, but taxonomy snapshot generates in the background without the caller having to
+ * be aware of the background activity, and results can be obtained via the taxonomy snapshot via alternative
+ * (but slower) means while the background task completes. After crating other examples, this example to handle things like classification,
+ * this class can be removed, and the classes that refer to it can be updated.
  * @author kec
  */
 public class CreateSnapshotService
@@ -70,7 +73,14 @@ public class CreateSnapshotService
    @Override
    protected Task<TaxonomySnapshotService> createTask() {
       return new TaskWrapper(
-          Get.taxonomyService().getSnapshot(manifoldCoordinate),
+          new Task<TaxonomySnapshotService>() {
+             @Override
+             protected TaxonomySnapshotService call()
+                      throws Exception {
+                return Get.taxonomyService()
+                          .getSnapshot(manifoldCoordinate);
+             }
+          },
               (t) -> {
                  return t;
               },

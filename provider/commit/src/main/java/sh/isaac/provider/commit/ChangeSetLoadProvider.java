@@ -50,7 +50,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -65,26 +64,14 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ChangeSetLoadService;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.alert.Alert;
-import sh.isaac.api.alert.AlertObject;
-import sh.isaac.api.alert.AlertType;
-import sh.isaac.api.alert.EnvironmentalAlert;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
-import sh.isaac.model.configuration.EditCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -101,7 +88,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = 3)
+@RunLevel(value = 5)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */
@@ -193,39 +180,6 @@ public class ChangeSetLoadProvider
    }
 
    /**
-    * Read sememe db id.
-    *
-    * @return the uuid
-    */
-   private UUID readSememeDbId() {
-      Optional<AssemblageService> optionalService = Get.optionalService(AssemblageService.class);
-
-      if (optionalService.isPresent()) {
-         Optional<SemanticChronology> sdic = optionalService.get()
-                                                          .getSemanticChronologyStreamForComponentFromAssemblage(
-                                                                TermAux.SOLOR_ROOT.getNid(),
-                                                                      TermAux.DATABASE_UUID.getNid())
-                                                          .findFirst();
-
-         if (sdic.isPresent()) {
-            final LatestVersion<StringVersion> sdi = ((SemanticChronology) sdic.get()).getLatestVersion(
-                                                         StampCoordinates.getDevelopmentLatest());
-
-            if (sdi.isPresent()) {
-               try {
-                  return UUID.fromString(sdi.get()
-                                            .getString());
-               } catch (final Exception e) {
-                  LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
-               }
-            }
-         }
-      }
-
-      return null;
-   }
-
-   /**
     * Start me.
     */
    @PostConstruct
@@ -277,29 +231,6 @@ public class ChangeSetLoadProvider
             LOG.error("Error writing maven artifact identity file", e);
          }
 
-         UUID semanticDbId = readSememeDbId();
-
-         if (((semanticDbId != null) &&!semanticDbId.equals(chronicleDbId)) ||
-               ((changesetsDbId != null) &&!changesetsDbId.equals(chronicleDbId))) {
-            final StringBuilder msg = new StringBuilder();
-
-            msg.append("Database identity mismatch!  Concept DbId: ")
-               .append(chronicleDbId);
-            msg.append(" Semantic DbId: ")
-               .append(semanticDbId);
-            msg.append(" Changsets DbId: ")
-               .append(changesetsDbId);
-            String message = msg.toString();
-            LOG.error(message);
-            AlertObject alertObject = new EnvironmentalAlert("Database identity mismatch", message, AlertType.ERROR);
-            Alert.publishAddition(alertObject);
-         }
-
-         if (changesetsDbId == null) {
-            changesetsDbId = chronicleDbId;
-            Files.write(changesetsIdPath, changesetsDbId.toString()
-                  .getBytes());
-         }
 
          // if the semanticDbId is null, lets wait and see if it appears after processing the changesets.
          // We store the list of files that we have already read / processed in the metacontent store, so we don't have to process them again.
@@ -314,26 +245,8 @@ public class ChangeSetLoadProvider
 
          final int loaded = readChangesetFiles();
 
-         if (semanticDbId == null) {
-            semanticDbId = readSememeDbId();
 
-            if (!Get.configurationService().inDBBuildMode() && (semanticDbId == null)) {
-               if (loaded > 0) {
-                  LOG.warn("No database identify was found stored in a semantic, after loading changesets.");
-               }
-
-               Get.semanticBuilderService()
-                  .getStringSemanticBuilder(
-                      chronicleDbId.toString(),
-                      TermAux.SOLOR_ROOT.getNid(),
-                      TermAux.DATABASE_UUID.getNid())
-                  .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
-                  .get();
-               Get.commitService()
-                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Storing database ID on root concept");
-            }
-         }
-      } catch (final IOException | InterruptedException | RuntimeException | ExecutionException e) {
+      } catch (final IOException | RuntimeException e) {
          LOG.error("Error ", e);
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Change Set Load Provider", e);

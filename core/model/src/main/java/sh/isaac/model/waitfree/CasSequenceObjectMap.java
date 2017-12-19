@@ -83,10 +83,11 @@ import sh.isaac.model.WaitFreeComparable;
 
 /**
  * The Class CasSequenceObjectMap.
- *
+ * @deprecated use the accumulate and get spines instead. 
  * @author kec
  * @param <T> the generic type
  */
+@Deprecated
 public class CasSequenceObjectMap<T extends WaitFreeComparable> {
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();

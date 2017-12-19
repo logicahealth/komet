@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.CheckListView?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
+<?import java.net.URL?>
+<AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
+    <stylesheets>
+        <URL value="@/styles/search.css" />
+    </stylesheets>
+    <children>
+        <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <center>
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" BorderPane.alignment="CENTER">
+                    <items>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <ToolBar prefHeight="40.0" prefWidth="200.0">
+                          <items>
+                              <Button fx:id="clearButton" styleClass="clearButton" mnemonicParsing="false" onAction="#clearSearch" prefHeight="27.0" prefWidth="25.0">
+                                  <graphic>
+                                      <FontAwesomeIconView styleClass="buttonSearchCloseIcon"/>
+                                  </graphic>
+                              </Button>
+                              <CustomTextField fx:id="searchTextField" styleClass="searchField" onAction="#executeSearch" prefHeight="27.0" prefWidth="211.0">
+                                  <left>
+                                      <Label styleClass="searchBoxLabel">
+                                          <graphic>
+                                              <FontAwesomeIconView styleClass="searchBoxLabelIcon"/>
+                                          </graphic>
+                                      </Label>
+                                  </left>
+                              </CustomTextField>
+                              <ChoiceBox fx:id="statusChoiceBox" prefWidth="80.0" />
+                          </items>
+                        </ToolBar>
+                        <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
+                        <CheckListView fx:id="kindOfCheckListView" />
+                     </children>
+                  </VBox>
+                        <VBox maxHeight="350.0" prefHeight="300.0" prefWidth="339.0">
+                            <children>
+                                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <TableView fx:id="resultTable" maxHeight="500.0" prefHeight="338.0" prefWidth="337.0">
+                                            <columns>
+                                                <TableColumn fx:id="resultColumn" editable="false" prefWidth="336.0" text="Result" />
+                                            </columns>
+                                        </TableView>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </VBox>
+                    </items>
+                </SplitPane>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>

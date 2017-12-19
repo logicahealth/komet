@@ -69,7 +69,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -101,7 +101,7 @@ public class StampCoordinateImpl
 
    /** The allowed states. */
    @XmlJavaTypeAdapter(EnumSetAdapter.class)
-   EnumSet<State> allowedStates;
+   EnumSet<Status> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
@@ -123,7 +123,7 @@ public class StampCoordinateImpl
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
                               NidSet moduleSequences,
-                              EnumSet<State> allowedStates) {
+                              EnumSet<Status> allowedStates) {
       this.stampPrecedence = stampPrecedence;
       this.stampPosition   = stampPosition;
       this.moduleSequences = moduleSequences;
@@ -145,7 +145,7 @@ public class StampCoordinateImpl
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
                               List<ConceptSpecification> moduleSpecifications,
-                              EnumSet<State> allowedStates) {
+                              EnumSet<Status> allowedStates) {
       this(stampPrecedence,
            stampPosition,
            NidSet.of(moduleSpecifications.stream()
@@ -228,8 +228,8 @@ public class StampCoordinateImpl
     * @return the stamp coordinate impl
     */
    @Override
-   public StampCoordinateImpl makeCoordinateAnalog(State... states) {
-      final EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
+   public StampCoordinateImpl makeCoordinateAnalog(Status... states) {
+      final EnumSet<Status> newAllowedStates = EnumSet.noneOf(Status.class);
 
       newAllowedStates.addAll(Arrays.asList(states));
       return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
@@ -270,7 +270,7 @@ public class StampCoordinateImpl
     * @return the allowed states
     */
    @Override
-   public EnumSet<State> getAllowedStates() {
+   public EnumSet<Status> getAllowedStates() {
       return this.allowedStates;
    }
 
@@ -282,8 +282,8 @@ public class StampCoordinateImpl
     * @param allowedStatesProperty the allowed states property
     * @return the set change listener
     */
-   public SetChangeListener<State> setAllowedStatesProperty(SetProperty<State> allowedStatesProperty) {
-      final SetChangeListener<State> listener = (change) -> {
+   public SetChangeListener<Status> setAllowedStatesProperty(SetProperty<Status> allowedStatesProperty) {
+      final SetChangeListener<Status> listener = (change) -> {
                if (change.wasAdded()) {
                   this.allowedStates.add(change.getElementAdded());
                } else {
@@ -426,7 +426,7 @@ public class StampCoordinateImpl
     * The Class EnumSetAdapter.
     */
    private static class EnumSetAdapter
-           extends XmlAdapter<State[], EnumSet<State>> {
+           extends XmlAdapter<Status[], EnumSet<Status>> {
       /**
        * Marshal.
        *
@@ -434,8 +434,8 @@ public class StampCoordinateImpl
        * @return the state[]
        */
       @Override
-      public State[] marshal(EnumSet<State> c) {
-         return c.toArray(new State[c.size()]);
+      public Status[] marshal(EnumSet<Status> c) {
+         return c.toArray(new Status[c.size()]);
       }
 
       /**
@@ -446,9 +446,9 @@ public class StampCoordinateImpl
        * @throws Exception the exception
        */
       @Override
-      public EnumSet<State> unmarshal(State[] v)
+      public EnumSet<Status> unmarshal(Status[] v)
                throws Exception {
-         final EnumSet<State> s = EnumSet.noneOf(State.class);
+         final EnumSet<Status> s = EnumSet.noneOf(Status.class);
 
          s.addAll(Arrays.asList(v));
          return s;

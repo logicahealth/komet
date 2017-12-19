@@ -62,7 +62,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
+import java.util.concurrent.Future;
 import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -99,11 +99,6 @@ public class BdbConceptProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-
-   @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
 
    @Override
    public Path getDatabaseFolder() {
@@ -330,8 +325,7 @@ public class BdbConceptProvider
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
           return Get.assemblageService()
-                   .getDescriptionsForComponent(conceptNid)
-                   .collect(Collectors.toList());
+                   .getDescriptionsForComponent(conceptNid);
       }
 
       /**
@@ -385,5 +379,11 @@ public class BdbConceptProvider
          return getConceptSnapshot(conceptSpecification.getNid());
       }
    }   
+
+   @Override
+   public Future<?> sync() {
+      return this.bdb.sync();
+   }
+   
 }
 

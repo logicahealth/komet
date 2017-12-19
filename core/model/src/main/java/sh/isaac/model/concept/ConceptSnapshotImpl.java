@@ -45,12 +45,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -190,6 +189,12 @@ public class ConceptSnapshotImpl
     */
    @Override
    public DescriptionVersion getDescription() {
+      
+      LatestVersion<DescriptionVersion> optionalDescription = this.manifoldCoordinate.getDescription(conceptChronology.getConceptDescriptionList());
+      if (optionalDescription.isPresent()) {
+         return optionalDescription.get();
+      }
+      
       final LatestVersion<DescriptionVersion> fsd = getFullySpecifiedDescription();
 
       if (fsd.isPresent()) {
@@ -202,12 +207,9 @@ public class ConceptSnapshotImpl
          return pd.get();
       }
 
+      // Last resort if none of above return a proper version. 
       return (DescriptionVersion) Get.assemblageService()
-                .getDescriptionsForComponent(getNid())
-                .findAny()
-                .get()
-                .getVersionList()
-                .get(0);
+                .getDescriptionsForComponent(getNid()).get(0).getVersionList().get(0);
    }
 
    /**
@@ -218,8 +220,7 @@ public class ConceptSnapshotImpl
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription() {
       return this.manifoldCoordinate.getFullySpecifiedDescription(Get.assemblageService()
-            .getDescriptionsForComponent(getNid())
-            .collect(Collectors.toList()),
+            .getDescriptionsForComponent(getNid()),
             this.manifoldCoordinate);
    }
 
@@ -264,8 +265,7 @@ public class ConceptSnapshotImpl
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription() {
       return this.manifoldCoordinate.getPreferredDescription(Get.assemblageService()
-            .getDescriptionsForComponent(getNid())
-            .collect(Collectors.toList()),
+            .getDescriptionsForComponent(getNid()),
             this.manifoldCoordinate);
    }
 
@@ -297,7 +297,7 @@ public class ConceptSnapshotImpl
     * @return the state
     */
    @Override
-   public State getState() {
+   public Status getState() {
       return this.snapshotVersion.get()
                                  .getState();
    }
@@ -363,6 +363,11 @@ public class ConceptSnapshotImpl
    @Override
    public LogicCoordinate getLogicCoordinate() {
       return this.manifoldCoordinate;
+   }
+
+   @Override
+   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+     getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
    }
 
    @Override

@@ -62,7 +62,7 @@ import org.testng.annotations.Test;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import static sh.isaac.api.bootstrap.TermAux.SOLOR_CONCEPT_ASSEMBLAGE;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -156,7 +156,7 @@ public class ConceptSuite {
       final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, 
               conceptAssemblageNid);
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(State.ACTIVE, time, authorNid, moduleNid, pathNid);
+                                   .getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
 
       conceptChronology.createMutableVersion(stampSequence);
 
@@ -223,7 +223,7 @@ public class ConceptSuite {
       final int moduleNid = TermAux.SOLOR_MODULE.getNid();
       final int pathNid   = TermAux.DEVELOPMENT_PATH.getNid();
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(State.ACTIVE, time, authorNid, moduleNid, pathNid);
+                                   .getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
       final List<Chronology> builtObjects = new ArrayList<>();
       final ConceptChronology concept = testConceptBuilder.build(stampSequence, builtObjects);
 

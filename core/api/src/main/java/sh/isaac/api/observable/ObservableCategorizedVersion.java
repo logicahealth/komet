@@ -23,7 +23,7 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.commit.CommitStates;
@@ -68,7 +68,7 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    }
 
    @Override
-   public ObjectProperty<State> stateProperty() {
+   public ObjectProperty<Status> stateProperty() {
       return getObservableVersion().stateProperty();
    }
 

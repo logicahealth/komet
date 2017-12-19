@@ -44,7 +44,7 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -67,8 +67,32 @@ import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
+import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Str2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -142,7 +166,7 @@ public class ObservableSemanticChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends Version> V createMutableVersion(State status, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(Status status, EditCoordinate ec) {
       return (V) wrapInObservable(getSemanticChronology().createMutableVersion(status, ec));
    }
 
@@ -165,38 +189,59 @@ public class ObservableSemanticChronologyImpl
    @Override
    protected <OV extends ObservableVersion>
            OV wrapInObservable(Version version) {
-              SemanticVersion sememeVersion = (SemanticVersion) version;
-      switch (sememeVersion.getChronology().getVersionType()) {
+              SemanticVersion semanticVersion = (SemanticVersion) version;
+      switch (semanticVersion.getChronology().getVersionType()) {
          case DESCRIPTION:
-            return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) semanticVersion, this);
          case COMPONENT_NID:
-            return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) semanticVersion, this);
          case MEMBER:
-            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
          case LONG:
-            return (OV) new ObservableLongVersionImpl((LongVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableLongVersionImpl((LongVersion) semanticVersion, this);
          case STRING:
-            return (OV) new ObservableStringVersionImpl((StringVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableStringVersionImpl((StringVersion) semanticVersion, this);
          case LOGIC_GRAPH:
-            return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) sememeVersion,
-                    (ObservableSemanticChronology) this);
+            return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) semanticVersion, this);
+         case RF2_RELATIONSHIP:
+            return (OV) new ObservableRf2RelationshipImpl((Rf2Relationship) semanticVersion, this);
+         
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of sememe: " + 
-                    sememeVersion.getClass().getSimpleName() + " " + sememeVersion);
-            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
-                    (ObservableSemanticChronology) this);
+            LOG.warn("Incomplete implementation of dynamic semantic: " + 
+                    semanticVersion.getClass().getSimpleName() + " " + semanticVersion);
+            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
+            
+            
+         case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+            return (OV) new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) semanticVersion, this);
+         case Nid1_Int2:
+            return (OV) new Observable_Nid1_Int2_VersionImpl((Nid1_Int2_VersionImpl) semanticVersion, this);
+         case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+            return (OV) new Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2:
+            return (OV) new Observable_Nid1_Nid2_VersionImpl((Nid1_Nid2_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2_Int3:
+            return (OV) new Observable_Nid1_Nid2_Int3_VersionImpl((Nid1_Nid2_Int3_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2_Str3:
+            return (OV) new Observable_Nid1_Nid2_Str3_VersionImpl((Nid1_Nid2_Str3_VersionImpl) semanticVersion, this);
+         case Nid1_Str2:
+            return (OV) new Observable_Nid1_Str2_VersionImpl((Nid1_Str2_VersionImpl) semanticVersion, this);
+         case Str1_Str2:
+            return (OV) new Observable_Str1_Str2_VersionImpl((Str1_Str2_VersionImpl) semanticVersion, this);
+         case Str1_Str2_Nid3_Nid4:
+            return (OV) new Observable_Str1_Str2_Nid3_Nid4_VersionImpl((Str1_Str2_Nid3_Nid4_VersionImpl) semanticVersion, this);
+         case LOINC_RECORD:
+            return (OV) new ObservableLoincVersionImpl((LoincVersionImpl) semanticVersion, this);
+         case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+            return (OV) new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl) semanticVersion, this);
+            
             
            // fall through to default...
          case UNKNOWN:
          default:
             throw new UnsupportedOperationException("Can't convert to observable "
-                    + sememeVersion.getChronology().getVersionType() + "from \n:    "
-                    + sememeVersion);
+                    + semanticVersion.getChronology().getVersionType() + "from \n:    "
+                    + semanticVersion);
       }
 
    }
@@ -297,6 +342,6 @@ public class ObservableSemanticChronologyImpl
 
    @Override
    public String toString() {
-      return "ObservableSememeChronologyImpl{" + getSemanticChronology().toUserString() + '}';
+      return "ObservableSemanticChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
 }

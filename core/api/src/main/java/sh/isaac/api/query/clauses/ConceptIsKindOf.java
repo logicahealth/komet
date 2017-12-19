@@ -82,6 +82,9 @@ public class ConceptIsKindOf
    @XmlElement
    String viewCoordinateKey;
 
+   private ConceptSpecification kindOfSpecification;
+   private ManifoldCoordinate manifoldCoordinate;
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -106,6 +109,15 @@ public class ConceptIsKindOf
 
    //~--- methods -------------------------------------------------------------
 
+
+   public void setKindOfSpecification(ConceptSpecification kindOfSpecification) {
+      this.kindOfSpecification = kindOfSpecification;
+   }
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
+
    /**
     * Compute possible components.
     *
@@ -114,20 +126,10 @@ public class ConceptIsKindOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      try {
-         final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                 .get(this.viewCoordinateKey);
-         final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                 .get(this.kindOfSpecKey);
-         final int                parentNid         = kindOfSpec.getNid();
-         final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).get()
-                 .getKindOfSequenceSet(parentNid);
-         
-         getResultsCache().or(kindOfSequenceSet);
-         return getResultsCache();
-      } catch (InterruptedException | ExecutionException ex) {
-         throw new RuntimeException(ex);
-      }
+      final int                parentNid         = this.kindOfSpecification.getNid();
+      final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getKindOfConceptNidSet(parentNid);
+      getResultsCache().or(kindOfSequenceSet);
+      return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------

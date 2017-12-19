@@ -54,7 +54,7 @@ import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -129,7 +129,7 @@ public interface StampService
     * Gets the activated stamp sequence.
     *
     * @param stampSequence a stamp sequence to create an analog of
-    * @return a stampSequence with a State of {@link State#ACTIVE}, but the
+    * @return a stampSequence with a Status of {@link Status#ACTIVE}, but the
     * same time, author, module, and path as the provided stamp sequence.
     */
    int getActivatedStampSequence(int stampSequence);
@@ -203,7 +203,7 @@ public interface StampService
     * Gets the retired stamp sequence.
     *
     * @param stampSequence a stamp sequence to create an analog of
-    * @return a stampSequence with a State of {@link State#INACTIVE}, but the
+    * @return a stampSequence with a Status of {@link Status#INACTIVE}, but the
     * same time, author, module, and path as the provided stamp sequence.
     */
    int getRetiredStampSequence(int stampSequence);
@@ -217,12 +217,12 @@ public interface StampService
     *
     * @param status the status
     * @param time the time
-    * @param authorSequence the author sequence
-    * @param moduleSequence the module sequence
-    * @param pathSequence the path sequence
+    * @param authorNid the author nid
+    * @param moduleNid the module nid
+    * @param pathNid the path nid
     * @return the stampSequence
     */
-   int getStampSequence(State status, long time, int authorSequence, int moduleSequence, int pathSequence);
+   int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid);
 
    /**
     * Gets the stamp sequences.
@@ -237,7 +237,7 @@ public interface StampService
     * @param stampSequence the stamp sequence
     * @return the status for stamp
     */
-   State getStatusForStamp(int stampSequence);
+   Status getStatusForStamp(int stampSequence);
 
    /**
     * Gets the time for stamp.

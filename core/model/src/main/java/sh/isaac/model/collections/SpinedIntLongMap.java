@@ -41,6 +41,12 @@ public class SpinedIntLongMap {
    public SpinedIntLongMap() {
       this.spineSize = DEFAULT_SPINE_SIZE;
    }
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+      sizeInBytes = sizeInBytes + ((spineSize * 8) * spines.size()); // 8 bytes = bytes of 64 bit integer
+      return sizeInBytes;
+   }
+
    private int getSpineCount() {
       int spineCount = 0;
       for (Integer spineKey:  spines.keySet()) {

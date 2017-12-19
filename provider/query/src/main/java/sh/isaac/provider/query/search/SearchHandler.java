@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -75,6 +74,7 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.AssemblageIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -97,7 +97,7 @@ public class SearchHandler {
    private static final Logger LOG = LogManager.getLogger();
 
    /** The description sememe assemblages cache. */
-   private static Integer[] descriptionSememeAssemblagesCache = null;
+   private static int[] descriptionSememeAssemblagesCache = null;
 
    //~--- methods -------------------------------------------------------------
 
@@ -342,7 +342,7 @@ public class SearchHandler {
                                   try {
                                      return index.query(queryString,
                                            prefixSearch,
-                                           getDescriptionSememeAssemblages(),
+                                           getDescriptionAssemblages(),
                                            resultLimit,
                                            Long.MIN_VALUE);
                                   } catch (final Exception e) {
@@ -576,8 +576,8 @@ public class SearchHandler {
                              try {
                                 return index.query(searchString,
                                       prefixSearch,
-                                      ((assemblageNid == null) ? (Integer[]) null
-                  : new Integer[] { assemblageNid }),
+                                      ((assemblageNid == null) ? (int[]) null
+                  : new int[] { assemblageNid }),
                                       resultLimit,
                                       Long.MIN_VALUE);
                              } catch (final Exception e) {
@@ -725,15 +725,15 @@ public class SearchHandler {
     *
     * @return the description sememe assemblages
     */
-   private static Integer[] getDescriptionSememeAssemblages() {
+   private static int[] getDescriptionAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
-         final Set<Integer> descSememes =
+         final NidSet descriptionAssemblages =
             getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getNid(),
                                            true,
                                            false);
 
-         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getNid());
-         descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
+         descriptionAssemblages.add(TermAux.DESCRIPTION_ASSEMBLAGE.getNid());
+         descriptionSememeAssemblagesCache = descriptionAssemblages.asArray();
       }
 
       return descriptionSememeAssemblagesCache;
@@ -743,16 +743,16 @@ public class SearchHandler {
 
    /**
     * Get isA children of a concept.  Does not return the requested concept in any circumstance.
-    * @param conceptSequence The concept to look at
+    * @param conceptNid The concept to look at
     * @param recursive recurse down from the concept
     * @param leafOnly only return leaf nodes
     * @return the set of concept sequence ids that represent the children
     */
-   public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
-      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
+   public static NidSet getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly) {
+      final NidSet temp = getAllChildrenOfConcept(new NidSet(), conceptNid, recursive, leafOnly);
 
       if (leafOnly && (temp.size() == 1)) {
-         temp.remove(conceptSequence);
+         temp.remove(conceptNid);
       }
 
       return temp;
@@ -768,11 +768,11 @@ public class SearchHandler {
     * @param leafOnly the leaf only
     * @return the all children of concept
     */
-   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
+   private static NidSet getAllChildrenOfConcept(NidSet handledConceptSequenceIds,
          int conceptSequence,
          boolean recursive,
          boolean leafOnly) {
-      final Set<Integer> results = new HashSet<>();
+      final NidSet results = new NidSet();
 
       // This both prevents infinite recursion and avoids processing or returning of duplicates
       if (handledConceptSequenceIds.contains(conceptSequence)) {

@@ -56,6 +56,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -85,6 +86,9 @@ public class DescriptionRegexMatch
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
+
+   private String parameterString;
+   private ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -122,6 +126,15 @@ public class DescriptionRegexMatch
 
    //~--- get methods ---------------------------------------------------------
 
+
+   public void setParameterString(String parameterString) {
+      this.parameterString = parameterString;
+   }
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
+
    @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE;
@@ -144,8 +157,7 @@ public class DescriptionRegexMatch
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      final String            regex             = (String) this.enclosingQuery.getLetDeclarations()
-                                                                              .get(this.regexKey);
+
       final ConceptChronology conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList()
@@ -156,8 +168,8 @@ public class DescriptionRegexMatch
                                             .forEach(
                                                   (dv) -> {
                      if (((DescriptionVersion) dv).getText()
-                           .matches(regex)) {
-                        addToResultsCache((((DescriptionVersion) dv).getNid()));
+                           .matches(this.parameterString)) {
+                        addToResultsCache((dv.getNid()));
                      }
                   });
                               }

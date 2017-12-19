@@ -43,7 +43,6 @@ package sh.isaac.api.tree;
 
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -113,14 +112,6 @@ public interface Tree {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the children sequence stream.
-    *
-    * @param parentNid sequence of the concept from which to find children
-    * @return an IntStream of child sequences.
-    */
-   IntStream getChildNidStream(int parentNid);
-
-   /**
     * Gets the children sequences.
     *
     * @param parentNid sequence of the concept from which to find children
@@ -136,14 +127,6 @@ public interface Tree {
     * @return {@code BitSet} of the descendents of the {@code parentSequence}
     */
    NidSet getDescendentNidSet(int parentNid);
-
-   /**
-    * Gets the parent sequence stream.
-    *
-    * @param childNid sequence of the concept from which to find parent
-    * @return an IntStream of parent sequences.
-    */
-   IntStream getParentNidStream(int childNid);
 
    /**
     * Gets the parent sequences.

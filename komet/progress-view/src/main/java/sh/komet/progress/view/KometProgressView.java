@@ -148,7 +148,7 @@ public class KometProgressView <T extends Task<?>> extends Control {
      */
     public final ObjectProperty<Callback<T, Node>> graphicFactoryProperty() {
         if (graphicFactory == null) {
-            graphicFactory = new SimpleObjectProperty<Callback<T, Node>>(
+            graphicFactory = new SimpleObjectProperty<>(
                     this, "graphicFactory");
         }
 

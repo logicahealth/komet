@@ -117,7 +117,6 @@ public abstract class TimedTaskWithProgressTracker<T>
 
    /** The last total work. */
    AtomicLong lastTotalWork = new AtomicLong();
-
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -164,12 +163,10 @@ public abstract class TimedTaskWithProgressTracker<T>
    protected void running() {
       super.running();
 
-      final long currentTotalWork = this.totalWork.get();
-
-      this.progressTicker.start(progressUpdateIntervalInSecs,
+      this.progressTicker.start(progressUpdateDuration,
                                 (value) -> {
                                    try {
-                                      if (currentTotalWork > 0) {
+                                      if (this.totalWork.get() > 0) {
                                          MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
                                          MH_SET_PROGRESS.invoke(this,
                                                this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());

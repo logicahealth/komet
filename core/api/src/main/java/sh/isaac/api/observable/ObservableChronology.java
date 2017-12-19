@@ -122,7 +122,7 @@ public interface ObservableChronology
    /**
     * Gets the sememe list.
     *
-    * @return a list of SememeChronology objects, where this object is the referenced component.
+    * @return a list of SemanticChronology objects, where this object is the referenced component.
     */
    ObservableList<ObservableSemanticChronology> getObservableSemanticList();
 

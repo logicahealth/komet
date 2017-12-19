@@ -141,7 +141,7 @@ public interface IndexService
     * Query index with the specified target generation of the index.
     *
     * @param query The query to apply
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the sememe concept sequence
     * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
     * @param targetGeneration (optional) target generation that must be included in the search
     * or Long.MIN_VALUE if there is no need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until
@@ -149,7 +149,7 @@ public interface IndexService
     * @return a List of {@code SearchResult} that contains the nid of the
     * component that matched, and the score of that match relative to other matches.
     */
-   List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
+   List<SearchResult> query(String query, int[] assemblageConceptNids, int sizeLimit, Long targetGeneration);
 
    /**
     * Query.
@@ -166,7 +166,7 @@ public interface IndexService
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to include in the search. 
     * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -176,7 +176,7 @@ public interface IndexService
     */
    List<SearchResult> query(String query,
                             boolean prefixSearch,
-                            Integer[] sememeConceptSequence,
+                            int[] assemblageConceptNids,
                             int sizeLimit,
                             Long targetGeneration);
 

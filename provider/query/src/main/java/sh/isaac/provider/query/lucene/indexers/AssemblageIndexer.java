@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -28,23 +29,20 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.index.IndexService;
 
 /**
  * Lucene Manager for an assemblage index. Provides the description indexing
@@ -74,7 +72,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 @Service(name = "assemblage index")
 @RunLevel(value = 2)
 public class AssemblageIndexer extends LuceneIndexer
-        implements AssemblageIndexService {
+        implements IndexService {
    
    /** The Constant SETUP_NIDS_SEMAPHORE. */
    private static final Semaphore SETUP_NIDS_SEMAPHORE = new Semaphore(1);
@@ -84,8 +82,7 @@ public class AssemblageIndexer extends LuceneIndexer
 
    /** The Constant FIELD_INDEXED_STRING_VALUE. */
    private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
-   
-   public final String ASSEMBLAGE_COMPONENT_COORDINATE = "assemblage-component-coordinate";
+
    /** The sequence type map. */
    private final HashMap<Integer, String> sequenceTypeMap = new HashMap<>();
    
@@ -107,19 +104,17 @@ public class AssemblageIndexer extends LuceneIndexer
    @Override
    protected void addFields(Chronology chronicle, Document doc) {
       for (UUID uuid: chronicle.getUuidList()) {
-         //TODO add UUID to index...
+         //TODO add UUID to index... ?
       }
       
       if (chronicle instanceof SemanticChronology) {
-         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
+         final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
          incrementIndexedItemCount("Assemblage");
-         // Field component nid was already added by calling method. Just need to add additional fields. 
-         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageNid(), sememeChronology.getReferencedComponentNid()));
          
 
-         if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
+         if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
             indexDescription(doc,
-                             (SemanticChronology) sememeChronology);
+                             (SemanticChronology) semanticChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -156,18 +151,18 @@ public class AssemblageIndexer extends LuceneIndexer
     * Index description.
     *
     * @param doc the doc
-    * @param sememeChronology the sememe chronology
+    * @param semanticChronology the semantic chronology
     */
    private void indexDescription(Document doc,
-                                 SemanticChronology sememeChronology) {
-      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageNid()));
+                                 SemanticChronology semanticChronology) {
+      doc.add(new IntPoint(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE, semanticChronology.getAssemblageNid()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
       for (final StampedVersion stampedVersion:
-            sememeChronology.getVersionList()) {
+            semanticChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
          final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptNid());
 
@@ -213,55 +208,6 @@ public class AssemblageIndexer extends LuceneIndexer
       return chronicle instanceof SemanticChronology;
    }
    
-   @Override
-   public NidSet getAttachmentNidsForComponent(int componentNid) {
-      return getAttachmentsForComponent(componentNid, Long.MAX_VALUE);
-   }
-
-   @Override
-   public NidSet getAttachmentNidsInAssemblage(int assemblageSequence) {
-      return getAttachmentsInAssemblage(assemblageSequence, Long.MAX_VALUE);
-   }
-   
-   @Override
-   public NidSet getAttachmentsForComponentInAssemblage(int componentNid, int assemblageSequence) {
-      return getAttachmentsForComponentInAssemblage(componentNid, assemblageSequence, Long.MAX_VALUE);
-   }
-   
-   private NidSet getAttachmentsForComponent(int componentNid, Long targetGeneration) {
-      try {
-         // assemblage, component
-         Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {Integer.MIN_VALUE, componentNid}, new int[] {Integer.MAX_VALUE, componentNid});
-         IndexSearcher searcher = getIndexSearcher(targetGeneration);
-         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
-         return searcher.search(query, collectionManager);
-      } catch (IOException ex) {
-         throw new RuntimeException(ex);
-      }
-  }
-
-   private NidSet getAttachmentsInAssemblage(int assemblageSequence, Long targetGeneration) {
-      try {
-      Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {assemblageSequence, Integer.MIN_VALUE}, new int[] {assemblageSequence, Integer.MAX_VALUE});
-         IndexSearcher searcher = getIndexSearcher(targetGeneration);
-         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
-         return searcher.search(query, collectionManager);
-      } catch (IOException ex) {
-         throw new RuntimeException(ex);
-      }
-   }
-   
-   private NidSet getAttachmentsForComponentInAssemblage(int componentNid, int assemblageSequence, Long targetGeneration) {
-      try {
-      Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {assemblageSequence, componentNid}, new int[] {assemblageSequence, componentNid});
-         IndexSearcher searcher = getIndexSearcher(targetGeneration);
-         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
-         return searcher.search(query, collectionManager);
-      } catch (IOException ex) {
-         throw new RuntimeException(ex);
-      }
-   }
-
    /**
     * Search the specified description type.
     *
@@ -284,7 +230,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (descriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (int[]) null, sizeLimit, targetGeneration);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(),
@@ -320,7 +266,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (extendedDescriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (int[]) null, sizeLimit, targetGeneration);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(),
@@ -351,7 +297,7 @@ public class AssemblageIndexer extends LuceneIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to search within. 
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -362,11 +308,11 @@ public class AssemblageIndexer extends LuceneIndexer
    @Override
    public List<SearchResult> query(String query,
                                    boolean prefixSearch,
-                                   Integer[] sememeConceptSequence,
+                                   int[] assemblageConceptNids,
                                    int sizeLimit,
                                    Long targetGeneration) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
-                                     sememeConceptSequence),
+      return search(restrictToSemantic(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+                                     assemblageConceptNids),
                     sizeLimit,
                     targetGeneration,
                     null);
@@ -392,7 +338,7 @@ public class AssemblageIndexer extends LuceneIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
+    * @param assemblageConceptNids the assemblages to include in the search
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -405,14 +351,21 @@ public class AssemblageIndexer extends LuceneIndexer
     */
    public List<SearchResult> query(String query,
                                    boolean prefixSearch,
-                                   Integer[] sememeConceptSequence,
+                                   int[] assemblageConceptNids,
                                    int sizeLimit,
                                    Long targetGeneration,
                                    Predicate<Integer> filter) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
-                                     sememeConceptSequence),
+      return search(restrictToSemantic(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+                                     assemblageConceptNids),
                     sizeLimit,
                     targetGeneration,
                     filter);
+      
+      
+   }
+
+   @Override
+   public Future<Void> sync() {
+      throw new UnsupportedOperationException();
    }
 }

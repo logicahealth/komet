@@ -291,18 +291,18 @@ public class ConceptBuilderImpl
       final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
+         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
+         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
-      this.sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+      this.semanticBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
       return conceptChronology;
    }
 
@@ -354,18 +354,18 @@ public class ConceptBuilderImpl
       final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
+         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
+         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }
 
-      this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
+      this.semanticBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
               changeCheckerMode,
               builtObjects)));
 

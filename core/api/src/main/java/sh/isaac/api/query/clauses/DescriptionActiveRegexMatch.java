@@ -47,7 +47,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -99,7 +99,7 @@ public class DescriptionActiveRegexMatch
       conceptChronology.getConceptDescriptionList().stream().forEach((dc) -> {
                                    dc.getVersionList()
                                      .stream()
-                                     .filter((dv) -> (((DescriptionVersion) dv).getText().matches(regex) && (dv.getState() == State.ACTIVE)))
+                                     .filter((dv) -> (((DescriptionVersion) dv).getText().matches(regex) && (dv.getState() == Status.ACTIVE)))
                                      .forEach((dv) -> {
                   addToResultsCache((((DescriptionVersion) dv).getNid()));
                });

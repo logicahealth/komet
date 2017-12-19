@@ -50,7 +50,7 @@ import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -62,6 +62,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.logic.NodeSemantic;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -96,6 +97,7 @@ public interface ConceptChronology
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
+   @Override
    ConceptVersion createMutableVersion(int stampSequence);
 
    /**
@@ -107,7 +109,8 @@ public interface ConceptChronology
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   ConceptVersion createMutableVersion(State state, EditCoordinate ec);
+   @Override
+   ConceptVersion createMutableVersion(Status state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -150,6 +153,17 @@ public interface ConceptChronology
    LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate);
+   
+   default boolean isSufficientlyDefined(StampCoordinate stampCoordinate,
+         LogicCoordinate logicCoordinate) {
+      LatestVersion<LogicGraphVersion> latestDefinition = getLogicalDefinition(stampCoordinate,
+         PremiseType.STATED,
+         logicCoordinate);
+      if (latestDefinition.isPresent()) {
+         return latestDefinition.get().getLogicalExpression().contains(NodeSemantic.SUFFICIENT_SET);
+      }
+      return false;
+   }
 
    /**
     * Return a formatted text report showing chronology of logical definitions

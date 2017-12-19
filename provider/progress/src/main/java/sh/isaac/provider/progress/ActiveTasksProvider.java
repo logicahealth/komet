@@ -41,24 +41,19 @@ package sh.isaac.provider.progress;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.concurrent.ConcurrentHashMap;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javafx.concurrent.Task;
 import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.progress.PersistTaskResult;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,13 +62,10 @@ import sh.isaac.api.progress.ActiveTasks;
  */
 @Service
 @Singleton
-public class ActiveTasksProvider
+public class ActiveTasksProvider extends TaskListProvider
          implements ActiveTasks {
-   /** The task set. */
-   ObservableSet<Task<?>> taskSet = FXCollections.observableSet(ConcurrentHashMap.newKeySet());
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Adds the task to the active tasks set.
     *
@@ -81,34 +73,21 @@ public class ActiveTasksProvider
     */
    @Override
    public void add(Task<?> task) {
-      if (Platform.isFxApplicationThread()) {
-         this.taskSet.add(task);
+      if (!task.isDone()) {
+         super.add(task);
       } else {
-         Platform.runLater(() -> this.taskSet.add(task));
+         if (task instanceof PersistTaskResult) {
+            Get.completedTasks().add(task);
+         }
       }
-      
    }
 
-   /**
-    * Removes the task from the active tasks set.
-    *
-    * @param task the task
-    */
    @Override
    public void remove(Task<?> task) {
-      this.taskSet.remove(task);
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the observable task set.
-    *
-    * @return the set
-    */
-   @Override
-   public ObservableSet<Task<?>> get() {
-      return this.taskSet;
+      super.remove(task);
+      if (task instanceof PersistTaskResult) {
+         Get.completedTasks().add(task);
+      }
    }
 }
 

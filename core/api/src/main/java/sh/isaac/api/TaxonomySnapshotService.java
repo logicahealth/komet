@@ -44,7 +44,6 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
@@ -59,53 +58,60 @@ import sh.isaac.api.tree.Tree;
 public interface TaxonomySnapshotService {
 
    /**
+    * 
+    * @param conceptNid concept to test if it is a leaf node
+    * @return true if the node is a leaf (it has no children)
+    */
+   boolean isLeaf(int conceptNid);
+   
+   /**
     * Checks if child of.
     *
-    * @param childId the child id
-    * @param parentId the parent id
+    * @param childConceptNid the child id
+    * @param parentConceptNid the parent id
     * @return true, if child of
     */
-   boolean isChildOf(int childId, int parentId);
+   boolean isChildOf(int childConceptNid, int parentConceptNid);
 
    /**
     * Checks if kind of.
     *
-    * @param childId the child id
-    * @param parentId the parent id
+    * @param childConceptNid the child id
+    * @param parentConceptNid the parent id
     * @return true, if kind of
     */
-   boolean isKindOf(int childId, int parentId);
+   boolean isKindOf(int childConceptNid, int parentConceptNid);
 
    /**
     * Gets the kind of sequence set.
     *
-    * @param rootId the root id
+    * @param rootConceptNid the root id
     * @return the kind of sequence set
     */
-   NidSet getKindOfSequenceSet(int rootId);
+   NidSet getKindOfConceptNidSet(int rootConceptNid);
 
    /**
     * Gets the roots.
     *
-    * @return the roots
+    * @return the roo concept nids
     */
    int[] getRoots();
 
    /**
     * Gets the taxonomy child sequences.
     *
-    * @param parentId the parent id
-    * @return the taxonomy child sequences
+    * @param parentConceptNid the parent id
+    * @return the taxonomy child concept nids
     */
-   int[] getTaxonomyChildNids(int parentId);
+   int[] getTaxonomyChildConceptNids(int parentConceptNid);
 
    /**
     * Gets the taxonomy parent sequences.
     *
-    * @param childId the child id
+    * @param childConceptNids the child id
     * @return the taxonomy parent sequences
     */
-   int[] getTaxonomyParentNids(int childId);
+   int[] getTaxonomyParentConceptNids(int childConceptNids);
 
    /**
     * Gets the taxonomy tree.
@@ -119,5 +125,6 @@ public interface TaxonomySnapshotService {
     * @return ManifoldCoordinate
     */
    ManifoldCoordinate getManifoldCoordinate();
+   
 }
 

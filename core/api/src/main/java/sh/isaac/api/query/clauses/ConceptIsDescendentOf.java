@@ -116,19 +116,14 @@ public class ConceptIsDescendentOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      try {
-         final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                 .get(this.viewCoordinateKey);
-         final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                 .get(this.descendentOfSpecKey);
-         final int parentNid = descendentOfSpec.getNid();
-         final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
-                 .getTaxonomyChildNids(parentNid);
-         getResultsCache().or(NidSet.of(descendentOfSequenceSet));
-         return getResultsCache();
-      } catch (InterruptedException | ExecutionException ex) {
-         throw new RuntimeException(ex);
-      }
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+              .get(this.viewCoordinateKey);
+      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+              .get(this.descendentOfSpecKey);
+      final int parentNid = descendentOfSpec.getNid();
+      final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildConceptNids(parentNid);
+      getResultsCache().or(NidSet.of(descendentOfSequenceSet));
+      return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------

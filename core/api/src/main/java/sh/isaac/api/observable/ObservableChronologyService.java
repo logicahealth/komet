@@ -65,12 +65,12 @@ public interface ObservableChronologyService {
    ObservableConceptChronology getObservableConceptChronology(int id);
 
    /**
-    * Gets the observable sememe chronology.
+    * Gets the observable semantic chronology.
     *
     * @param id either a nid or a sememe sequence
-    * @return the ObservableSememeChronology with the provided id
+    * @return the ObservableSemanticChronology with the provided id
     */
-   ObservableSemanticChronology getObservableSememeChronology(int id);
+   ObservableSemanticChronology getObservableSemanticChronology(int id);
    /**
     * 
     * @param manifoldCoordinate the coordinate to determine the latest versions of the snapshot

@@ -43,7 +43,7 @@
           <RowConstraints vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <MenuButton fx:id="classifierMenuButton" mnemonicParsing="false" styleClass="classify-menu-button" text="Classifier" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER">
+            <MenuButton fx:id="classifierMenuButton" mnemonicParsing="false" styleClass="classify-menu-button" text="Tasks" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER">
               <items>
                 <MenuItem mnemonicParsing="false" text="Action 1" />
               </items>

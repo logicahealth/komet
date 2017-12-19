@@ -46,7 +46,7 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
 
@@ -177,7 +177,7 @@ public class CategorizedVersion
    }
 
    @Override
-   public State getState() {
+   public Status getState() {
       return delegate.getState();
    }
 
@@ -194,7 +194,7 @@ public class CategorizedVersion
    }
 
    @Override
-   public void setStatus(State state) {
+   public void setStatus(Status state) {
       delegate.setStatus(state);
    }
 
@@ -220,8 +220,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public VersionType getVersionType() {
-      return delegate.getVersionType();
+   public VersionType getSemanticType() {
+      return delegate.getSemanticType();
    }
    
    public CategorizedVersions getCategorizedVersions() {

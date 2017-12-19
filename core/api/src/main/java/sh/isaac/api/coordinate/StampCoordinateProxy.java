@@ -17,7 +17,7 @@
 package sh.isaac.api.coordinate;
 
 import java.util.EnumSet;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 
 /**
@@ -35,7 +35,7 @@ public interface StampCoordinateProxy extends StampCoordinate {
    StampCoordinate getStampCoordinate();
 
    @Override
-   public default EnumSet<State> getAllowedStates() {
+   public default EnumSet<Status> getAllowedStates() {
       return getStampCoordinate().getAllowedStates();
    }
 
@@ -60,7 +60,7 @@ public interface StampCoordinateProxy extends StampCoordinate {
    }
 
    @Override
-   public default StampCoordinate makeCoordinateAnalog(State... state) {
+   public default StampCoordinate makeCoordinateAnalog(Status... state) {
       return getStampCoordinate().makeCoordinateAnalog(state);
    }
    

@@ -98,7 +98,7 @@ public class DescriptionVersionImpl
       super(chronicle, stampSequence);
       this.caseSignificanceConceptNid = data.getNid();
       this.languageConceptNid         = data.getNid();
-      this.text                            = data.readUTF();
+      this.text                       = data.getUTF();
       this.descriptionTypeConceptNid  = data.getNid();
    }
    private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence) {
@@ -155,7 +155,7 @@ public class DescriptionVersionImpl
         .append(this.descriptionTypeConceptNid)
         .append(">");
       toString(sb);
-      sb.append("≥D}");
+      sb.append("≥}");
       return sb.toString();
    }
 
@@ -253,7 +253,7 @@ public class DescriptionVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.DESCRIPTION;
    }
 

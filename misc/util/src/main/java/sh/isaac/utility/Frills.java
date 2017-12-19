@@ -69,7 +69,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -577,7 +577,7 @@ public class Frills
          }
       }
 
-      final EnumSet<State> allowedStates = EnumSet.allOf(State.class);
+      final EnumSet<Status> allowedStates = EnumSet.allOf(Status.class);
 
       allowedStates.addAll(existingStampCoordinate.getAllowedStates());
 
@@ -615,14 +615,12 @@ public class Frills
             }
 
             @SuppressWarnings("rawtypes")
-            final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(
-                                 Get.configurationService()
+            final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
                                                                                          .getDefaultStampCoordinate()
-                                                                                         .makeCoordinateAnalog(
-                                                                                               State.ACTIVE,
-                                                                                                     State.INACTIVE,
-                                                                                                     State.CANCELED,
-                                                                                                     State.PRIMORDIAL));
+                                                                                         .makeCoordinateAnalog(Status.ACTIVE,
+                                                                                                     Status.INACTIVE,
+                                                                                                     Status.CANCELED,
+                                                                                                     Status.PRIMORDIAL));
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
@@ -1286,10 +1284,10 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
          @SuppressWarnings("unchecked")
-         final SemanticChronology sememeChronology =
+         final SemanticChronology semanticChronology =
             (SemanticChronology) defChronologyOptional.get();
 
-         return Optional.of(sememeChronology);
+         return Optional.of(semanticChronology);
       } else {
          LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
@@ -1325,10 +1323,10 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
          @SuppressWarnings("unchecked")
-         final SemanticChronology sememeChronology =
+         final SemanticChronology semanticChronology =
             (SemanticChronology) defChronologyOptional.get();
 
-         return Optional.of(sememeChronology);
+         return Optional.of(semanticChronology);
       } else {
          LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
@@ -1339,29 +1337,26 @@ public class Frills
    /**
     * Gets the logic graph version.
     *
-    * @param logicGraphSememeChronology The SemanticChronology<? extends LogicGraphVersion> chronology for which the logic graph version is requested
+    * @param logicGraphSemanticChronology The SemanticChronology<? extends LogicGraphVersion> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
     * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
    public static LatestVersion<LogicGraphVersion> getLogicGraphVersion(
-         SemanticChronology logicGraphSememeChronology,
+         SemanticChronology logicGraphSemanticChronology,
          StampCoordinate stampCoordinate) {
-      LOG.debug(
-          "Getting logic graph sememe for {}",
-          Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
+      LOG.debug("Getting logic graph sememe for {}",
+          Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSememeChronology).getLatestVersion(
+      final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSemanticChronology).getLatestVersion(
                                                                 stampCoordinate);
 
       if (latest.isPresent()) {
-         LOG.debug(
-             "Got logic graph sememe for {}",
-             Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
+         LOG.debug("Got logic graph sememe for {}",
+             Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       } else {
-         LOG.warn(
-             "NO logic graph sememe for {}",
-             Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
+         LOG.warn("NO logic graph sememe for {}",
+             Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       }
 
       return latest;
@@ -1403,7 +1398,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____SOLOR.getNid() },
+                                                     new int[] { MetaData.SCTID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1435,7 +1430,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____SOLOR.getNid() },
+                                                     new int[] { MetaData.VUID____SOLOR.getNid() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1469,8 +1464,7 @@ public class Frills
                : stamp)
                                                            .getLatestSemanticVersionsForComponentFromAssemblage(
                                                                  componentNid,
-                                                                       MetaData.SCTID____SOLOR.getNid())
-                                                           .findFirstVersion();
+                                                                       MetaData.SCTID____SOLOR.getNid()).get(0);
 
          if (sememe.isPresent()) {
             return Optional.of(Long.parseLong(sememe.get()
@@ -1614,10 +1608,10 @@ public class Frills
       switch (obj.getIsaacObjectType()) {
       case SEMANTIC: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
-         final SemanticChronology sememeChronology =
+         final SemanticChronology semanticChronology =
             (SemanticChronology) obj;
 
-         switch (sememeChronology.getVersionType()) {
+         switch (semanticChronology.getVersionType()) {
          case COMPONENT_NID:
             return ComponentNidVersionImpl.class;
 
@@ -1641,7 +1635,7 @@ public class Frills
          default:
             throw new RuntimeException(
                 "Sememe with NID=" + obj.getNid() + " is of unsupported SememeType " +
-                sememeChronology.getVersionType());
+                semanticChronology.getVersionType());
          }
       }
 

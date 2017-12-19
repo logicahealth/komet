@@ -204,7 +204,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                         .getNidForProxy(assemblageProxy))
                                    .build(stampSequence, builtObjects);
             });
-      this.sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
+      this.semanticBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
       return (T) newDescription;
    }
 
@@ -264,7 +264,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                         .getNidForProxy(assemblageProxy))
                      .build(editCoordinate, changeCheckerMode, builtObjects));
             });
-      this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
+      this.semanticBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);

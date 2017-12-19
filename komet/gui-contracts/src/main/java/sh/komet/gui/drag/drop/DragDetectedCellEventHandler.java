@@ -97,7 +97,6 @@ public class DragDetectedCellEventHandler
       }
 
       if (eventNode != null) {
-         System.out.println(event);
 
          Dragboard db = eventNode.startDragAndDrop(TransferMode.COPY);
 

@@ -66,11 +66,29 @@ public interface LanguageCoordinate extends Coordinate {
            StampCoordinate stampCoordinate);
 
    /**
+    * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    *
+    * @param conceptNid the concept nid. 
+    * @param stampCoordinate the stamp coordinate
+    * @return an optional latestDescription best matching the {@code LanguageCoordinate} constraints.
+    */
+   default LatestVersion<DescriptionVersion> getDescription(int conceptNid, StampCoordinate stampCoordinate) {
+      return getDescription(Get.conceptService().getConceptDescriptions(conceptNid), stampCoordinate);
+   }
+
+   /**
     * Gets the latestDescription type preference list.
     *
     * @return the latestDescription type preference list
     */
    int[] getDescriptionTypePreferenceList();
+
+   /**
+    * Gets the latestDescription type preference list.
+    *
+    * @param descriptionTypePreferenceList
+    */
+   void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
 
    /**
     * Gets the dialect assemblage preference list.

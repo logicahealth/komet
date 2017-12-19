@@ -45,7 +45,6 @@ public abstract class AbstractVersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
-   public abstract VersionType getSememeType();
    /**
     * Write version data.
     *

@@ -17,10 +17,13 @@
 package sh.isaac.provider.bdb.chronology;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.IntFunction;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -40,8 +43,8 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
@@ -50,16 +53,11 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = 2)
 public class BdbSemanticProvider implements AssemblageService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
-
-   @Override
-   public void clearDatabaseValidityValue() {
-      bdb.clearDatabaseValidityValue();
-   }
 
    @Override
    public Path getDatabaseFolder() {
@@ -76,8 +74,13 @@ public class BdbSemanticProvider implements AssemblageService {
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting semantic provider.");
-      bdb = Get.service(BdbProvider.class);
+      try {
+         LOG.info("Starting semantic provider.");
+         bdb = Get.service(BdbProvider.class);
+      } catch (Exception ex) {
+         ex.printStackTrace();
+         throw new RuntimeException(ex);
+      }
    }
 
    /**
@@ -94,7 +97,7 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
+   public List<SemanticChronology> getDescriptionsForComponent(int componentNid) {
      if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
@@ -102,18 +105,14 @@ public class BdbSemanticProvider implements AssemblageService {
       final NidSet sequences = getSemanticNidsForComponentFromAssemblage(
                                                 componentNid,
                                                       TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid());
-      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(
-                                                         sememeSequence);
-
-      return sequences.stream()
-                      .filter(
-                          (int sememeSequence) -> {
-                             final Optional<? extends SemanticChronology> sememe = getOptionalSemanticChronology(
-                                                                                       sememeSequence);
-
-                             return sememe.isPresent() && (sememe.get().getVersionType() == VersionType.DESCRIPTION);
-                          })
-                      .mapToObj(mapper);
+      List<SemanticChronology> results = new ArrayList<>(sequences.size());
+      for (int semanticNid: sequences.asArray()) {
+            SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
+            if (semanticChronology != null && semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
+               results.add(semanticChronology);
+            }
+      }
+      return results;
    }
 
    @Override
@@ -150,23 +149,26 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public NidSet getSemanticNidsForComponent(int componentNid) {
-      AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
-
-      return NidSet.of(indexService.getAttachmentNidsForComponent(componentNid));
+      int[] semanticNids = bdb.getComponentToSemanticNidsMap().get(componentNid);
+      return NidSet.of(semanticNids);
    }
 
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
-     if (componentNid >= 0) {
+      if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-     if (assemblageNid >= 0) {
+      if (assemblageNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-      AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
-
-      return NidSet.of(
-          indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageNid));
+      ContainerSequenceService identifierService = ModelGet.identifierService();
+      NidSet semanticNids = new NidSet();
+      for (int semanticNid: bdb.getComponentToSemanticNidsMap().get(componentNid)) {
+         if (identifierService.getAssemblageNidForNid(semanticNid) == assemblageNid) {
+            semanticNids.add(semanticNid);
+         }
+      }
+      return semanticNids;
    }
 
    @Override
@@ -210,12 +212,11 @@ public class BdbSemanticProvider implements AssemblageService {
       }
 
    @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
-      final NidSet sememeSequences = getSemanticNidsFromAssemblage(
-                                                      assemblageConceptSequence);
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptNid) {
+      final NidSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
 
-      return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+      return semanticSequences.stream()
+                            .mapToObj((int semanticSequence) -> (C) getSemanticChronology(semanticSequence));
    }
 
    @Override
@@ -226,6 +227,11 @@ public class BdbSemanticProvider implements AssemblageService {
    @Override
    public UUID getDataStoreId() {
      return bdb.getDataStoreId();
+   }
+
+   @Override
+   public Future<?> sync() {
+      return this.bdb.sync();
    }
    
 }

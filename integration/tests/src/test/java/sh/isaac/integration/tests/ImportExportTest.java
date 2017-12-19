@@ -81,7 +81,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
@@ -95,6 +94,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
 import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
 
@@ -114,7 +114,7 @@ public class ImportExportTest {
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
 
    /** The import stats. */
-   OchreExternalizableStatsTestFilter importStats;
+   IsaacExternalizableStatsTestFilter importStats;
 
    //~--- methods -------------------------------------------------------------
 
@@ -188,7 +188,7 @@ public class ImportExportTest {
       LOG.info("Testing export after classify");
 
       try {
-         final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
@@ -238,7 +238,7 @@ public class ImportExportTest {
       try {
          final AtomicInteger                      exportCount = new AtomicInteger(0);
          final AtomicInteger                      importCount = new AtomicInteger(0);
-         final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
@@ -256,11 +256,11 @@ public class ImportExportTest {
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
                                                                                "IsaacMetadataAuxiliary.export.ibdf"));
-         final OchreExternalizableStatsTestFilter importStats   = new OchreExternalizableStatsTestFilter();
+         final IsaacExternalizableStatsTestFilter localImportStats   = new IsaacExternalizableStatsTestFilter();
          final CommitService                      commitService = Get.commitService();
 
          reader.getStream()
-               .filter(importStats)
+               .filter(localImportStats)
                .forEach((object) -> {
             try {
                importCount.incrementAndGet();
@@ -271,9 +271,9 @@ public class ImportExportTest {
             }
                         });
          commitService.postProcessImportNoChecks();
-         LOG.info("imported components: " + importStats);
+         LOG.info("imported components: " + localImportStats);
          Assert.assertEquals(exportCount.get(), importCount.get());
-         Assert.assertEquals(exportStats, importStats);
+         Assert.assertEquals(exportStats, localImportStats);
       } catch (final IOException e) {
          Assert.fail("File not found", e);
       }
@@ -287,54 +287,41 @@ public class ImportExportTest {
       dependsOnMethods = { "testClassify" }
    )
    public void testInferredTaxonomy() {
-      try {
-         LOG.info("Testing inferred taxonomy");
-         
-         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                 .getDefaultManifoldCoordinate()
-                 .makeCoordinateAnalog(PremiseType.INFERRED);
-         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
-         
-        
-         final int[] roots = taxonomySnapshotService.getRoots();
-         final NidSet rootAssemblages = new NidSet();
-         for (int rootNid: roots) {
-            rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
-         }
-         StringBuilder rootsMessage = new StringBuilder();
-         SpinedIntObjectMap<int[]> map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
-         for (int root: roots) {
-            rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
-            
-            int[] elementTaxonomyData = map.get(ModelGet.identifierService().getElementSequenceForNid(root));
-            TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
-            rootsMessage.append(" ");
-            rootsMessage.append(record);
-            rootsMessage.append("\n");
-         }
-         String message = rootsMessage.toString();
-         if (roots.length != 1) {
-            LOG.warn(message);
-         }
-         
-         Assert.assertEquals(roots.length, 1, message);
-         
-         final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
-         final AtomicInteger taxonomyCount = new AtomicInteger(0);
-         
-         taxonomyTree.depthFirstProcess(roots[0],
-                 (TreeNodeVisitData t,
-                         int conceptSequence) -> {
-                    taxonomyCount.incrementAndGet();
-                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
-         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-         logTree(roots[0], taxonomyTree);
-      } catch (InterruptedException ex) {
-         Assert.fail("Interrupted", ex);
-      } catch (ExecutionException ex) {
-         Assert.fail("Execution exception", ex);
+      LOG.info("Testing inferred taxonomy");
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+              .getDefaultManifoldCoordinate()
+              .makeCoordinateAnalog(PremiseType.INFERRED);
+      TaxonomySnapshotService taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+      final int[] roots = taxonomySnapshotService.getRoots();
+      final NidSet rootAssemblages = new NidSet();
+      for (int rootNid: roots) {
+         rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
       }
+      StringBuilder rootsMessage = new StringBuilder();
+      SpinedIntIntArrayMap map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+         
+         int[] elementTaxonomyData = map.get(root);
+         TaxonomyRecord record = new TaxonomyRecord(elementTaxonomyData);
+         rootsMessage.append(" ");
+         rootsMessage.append(record);
+         rootsMessage.append("\n");
+      }
+      String message = rootsMessage.toString();
+      if (roots.length != 1) {
+         LOG.warn(message);
+      }
+      Assert.assertEquals(roots.length, 1, message);
+      final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+      final AtomicInteger taxonomyCount = new AtomicInteger(0);
+      taxonomyTree.depthFirstProcess(roots[0],
+              (TreeNodeVisitData t,
+                      int conceptSequence) -> {
+                 taxonomyCount.incrementAndGet();
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
+      logTree(roots[0], taxonomyTree);
    }
 
    /**
@@ -354,7 +341,7 @@ public class ImportExportTest {
                                                                                "IsaacMetadataAuxiliary.ibdf"));
          final CommitService commitService = Get.commitService();
 
-         this.importStats = new OchreExternalizableStatsTestFilter();
+         this.importStats = new IsaacExternalizableStatsTestFilter();
          reader.getStream()
                .filter(this.importStats)
                .forEach((object) -> {
@@ -362,6 +349,7 @@ public class ImportExportTest {
                      SemanticChronology sc = (SemanticChronology) object;
                      if (sc.getReferencedComponentNid() == chroniclePropertiesNid || sc.getReferencedComponentNid() == descriptionAssemblageNid) {
                         if (sc.getAssemblageNid() == statedAssemblageNid) {
+                           System.out.println(sc.toString());
                            LOG.info("Found watch def: " + sc);
                         }
                         
@@ -371,8 +359,6 @@ public class ImportExportTest {
                         });
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
-         this.importStats.semantics.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
-         this.importStats.stampComments.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          LOG.info("Loaded components: " + this.importStats);
          LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
       } catch (final FileNotFoundException e) {
@@ -392,36 +378,23 @@ public class ImportExportTest {
       dependsOnMethods = { "testLoad" }
    )
    public void testStatedTaxonomy() {
-      try {
-         LOG.info("Testing stated taxonomy");
-         
-         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                 .getDefaultManifoldCoordinate()
-                 .makeCoordinateAnalog(PremiseType.STATED);
-         LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
-         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
-         
-         final int[] roots = taxonomySnapshotService.getRoots();
-
-         
-         Assert.assertEquals(roots.length, 1, "Root count != 1: " + Arrays.asList(roots));
-         
-         final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
-         final AtomicInteger taxonomyCount = new AtomicInteger(0);
-         
-         taxonomyTree.depthFirstProcess(roots[0],
-                 (TreeNodeVisitData t,
-                         int conceptSequence) -> {
-                    taxonomyCount.incrementAndGet();
-                 }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
-         logTree(roots[0], taxonomyTree);
-         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-      } catch (InterruptedException ex) {
-         Assert.fail("Interrupted", ex);
-      } catch (ExecutionException ex) {
-         Assert.fail("Execution exception", ex);
-      }
+      LOG.info("Testing stated taxonomy");
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+              .getDefaultManifoldCoordinate()
+              .makeCoordinateAnalog(PremiseType.STATED);
+      LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
+      TaxonomySnapshotService taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+      final int[] roots = taxonomySnapshotService.getRoots();
+      Assert.assertEquals(roots.length, 1, "Root count != 1: " + Arrays.asList(roots));
+      final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+      final AtomicInteger taxonomyCount = new AtomicInteger(0);
+      taxonomyTree.depthFirstProcess(roots[0],
+              (TreeNodeVisitData t,
+                      int conceptSequence) -> {
+                 taxonomyCount.incrementAndGet();
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+      logTree(roots[0], taxonomyTree);
+      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
 
    /**

@@ -71,6 +71,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 
 import com.lmax.disruptor.dsl.Disruptor;
+import java.io.InputStream;
 
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -103,7 +104,10 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
 
@@ -131,6 +135,9 @@ public class Get
                                                                    new NamedThreadFactory("alert-disruptor", true));
    /** The active task set. */
    private static ActiveTasks activeTaskSet;
+
+   /** The active task set. */
+   private static CompletedTasks completedTaskSet;
 
    /** The configuration service. */
    private static ConfigurationService configurationService;
@@ -169,7 +176,7 @@ public class Get
    private static BinaryDataDifferService binaryDataDifferService;
 
    /** The path service. */
-   private static PathService pathService;
+   private static VersionManagmentPathService versionManagementPathService;
 
    /** The semantic builder service. */
    private static SemanticBuilderService<?> semanticBuilderService;
@@ -199,7 +206,8 @@ public class Get
    private static ChangeSetWriterService      changeSetWriterService;
    private static ObservableChronologyService observableChronologyService;
    private static SerializationService        serializationService;
-
+   
+   private static PreferencesService preferencesService;
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -220,6 +228,17 @@ public class Get
       }
 
       return activeTaskSet;
+   }
+   /**
+    * Active tasks.
+    *
+    * @return the active tasks
+    */
+   public static CompletedTasks completedTasks() {
+      if (completedTaskSet == null) {
+         completedTaskSet = getService(CompletedTasks.class);
+      }
+      return completedTaskSet;
    }
 
    /**
@@ -285,6 +304,11 @@ public class Get
       return getService(BinaryDataServiceFactory.class).getReader(dataPath);
    }
 
+   public static BinaryDataReaderService binaryDataReader(InputStream inputStream)
+            throws FileNotFoundException {
+      return getService(BinaryDataServiceFactory.class).getReader(inputStream);
+   }
+
    /**
     * Binary data writer.
     *
@@ -324,7 +348,10 @@ public class Get
    }
 
    public static ConceptChronology concept(ConceptSpecification spec) {
-      return conceptService().getConceptChronology(spec);
+      if (spec != null) {
+         return conceptService().getConceptChronology(spec);
+      }
+      return null;
    }
 
    public static ConceptChronology concept(int id) {
@@ -644,12 +671,12 @@ public class Get
     *
     * @return the path service
     */
-   public static PathService pathService() {
-      if (pathService == null) {
-         pathService = getService(PathService.class);
+   public static VersionManagmentPathService versionManagmentPathService() {
+      if (versionManagementPathService == null) {
+         versionManagementPathService = getService(VersionManagmentPathService.class);
       }
 
-      return pathService;
+      return versionManagementPathService;
    }
 
    /**
@@ -685,7 +712,7 @@ public class Get
       languageCoordinateService       = null;
       logicalExpressionBuilderService = null;
       logicService                    = null;
-      pathService                     = null;
+      versionManagementPathService                     = null;
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;
@@ -729,6 +756,10 @@ public class Get
 
    public static <T> List<T> services(Class<T> clazz) {
       return getServices(clazz);
+   }
+   
+   public static MetadataService metadataService() {
+      return service(MetadataService.class);
    }
 
    /**
@@ -798,7 +829,26 @@ public class Get
 
       return taxonomyService;
    }
+   
+   private static PreferencesService preferenceService() {
+      if (preferencesService == null) {
+         preferencesService = getService(PreferencesService.class);
+      }
+      return preferencesService;
+   }
 
+   public static IsaacPreferences applicationPreferences() {
+      return preferenceService().getApplicationPreferences();
+   }
+   
+   public static IsaacPreferences userPreferences() {
+      return preferenceService().getUserPreferences();
+   }
+   
+   public static IsaacPreferences systemPreferences() {
+      return preferenceService().getSystemPreferences();
+   }
+   
    /**
     * Work executors.
     *

@@ -67,7 +67,7 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  * An interface used for system configuration. Services started by the
  * {@link LookupService} will utilize an implementation of this service in order
  * to configure themselves.
- *
+ * TODO consider how to manage a separation with the preferences service. 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
@@ -129,7 +129,8 @@ public interface ConfigurationService {
     * default implementation returns the result of
     * {@link #getDataStoreFolderPath()} + {@link Constants#DEFAULT_CHRONICLE_FOLDER}
     *
-    * The returned path exists on disk at the time that this method returns.
+    * The returned path MAY NOT exists on disk at the time that this method returns.
+    * It is the caller's responsibility to create the path if necessary. 
     */
    public default Path getChronicleFolderPath() {
       Path                 result;
@@ -144,13 +145,6 @@ public interface ConfigurationService {
          result = rootPath.get()
                           .resolve(Constants.DEFAULT_CHRONICLE_FOLDER);
       }
-
-      try {
-         Files.createDirectories(result);
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
-
       return result;
    }
 
@@ -183,8 +177,8 @@ public interface ConfigurationService {
     * - Nothing if
     * {@link Constants#DATA_STORE_ROOT_LOCATION_PROPERTY} has not been set.
     *
-    * If a value is returned, the returned path will exist on disk at the time
-    * that this method returns.
+    * If a value is returned, the returned path still MAY NOT Exist on disk at the time
+    * that this method returns. The caller is responsible to create the path if necessary. 
     */
    public Optional<Path> getDataStoreFolderPath();
 

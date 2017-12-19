@@ -26,6 +26,7 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
     }
 
     private void createListViewObservableList(int[] iArray){
+
         ObservableList<ConceptForControlWrapper> conceptWrapperList = FXCollections.observableArrayList();
         for(int i = 0; i < iArray.length; i++){
             ConceptForControlWrapper tempWrapper = new ConceptForControlWrapper
@@ -55,27 +56,6 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
                 }
             });
         }
-    }
-
-    public void addDragAndDropListener(){
-        this.simpleListProperty.addListener(this.listChangeListener = c -> {
-            for(int i = 0; i < c.getList().size(); i++) {
-               this.observableIntegerArray.set(i, c.getList().get(i).getNid());
-            }
-        });
-    }
-
-    public void addMultiselectListener(ObservableList<ConceptForControlWrapper> observableList){
-        observableList.addListener(this.listChangeListener = c -> {
-            this.observableIntegerArray.clear();
-            if(c.getList().size() > 0) {
-                int[] iArray = new int[c.getList().size()];
-                for (int i = 0; i < iArray.length; i++) {
-                   iArray[i] = c.getList().get(i).getNid();
-                }
-                this.observableIntegerArray.addAll(iArray, 0, iArray.length);
-            }
-        });
     }
 
     @Override

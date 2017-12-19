@@ -272,7 +272,7 @@ public class IsaacTaxonomy {
            throws IOException {
       final long exportTime = System.currentTimeMillis();
       final int stampSequence = Get.stampService()
-              .getStampSequence(State.ACTIVE,
+              .getStampSequence(Status.ACTIVE,
                       exportTime,
                       this.authorSpec.getNid(),
                       this.moduleSpec.getNid(),
@@ -292,7 +292,7 @@ public class IsaacTaxonomy {
       });
 
       final int stampAliasForPromotion = Get.stampService()
-              .getStampSequence(State.ACTIVE,
+              .getStampSequence(Status.ACTIVE,
                       exportTime + (1000 * 60),
                       this.authorSpec.getNid(),
                       this.moduleSpec.getNid(),
@@ -327,6 +327,10 @@ public class IsaacTaxonomy {
          final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
          String constantName = preferredName.toUpperCase();
 
+         constantName = constantName.replace(".", "");
+         constantName = constantName.replace(",", "");
+         constantName = constantName.replace("®", "");
+         constantName = constantName.replace("©", "C");
          constantName = constantName.replace("(", "___");
          constantName = constantName.replace(")", "");
          constantName = constantName.replace(" ", "_");
@@ -410,6 +414,9 @@ public class IsaacTaxonomy {
       //ConceptProxy specification = (ConceptProxy) spec;
       final ConceptBuilder builder = createConcept(specification.getFullySpecifiedConceptDescriptionText());
 
+      if (specification.getPrimordialUuid().version() == 4) {
+         throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullySpecifiedConceptDescriptionText());
+      }
       builder.setPrimordialUuid(specification.getUuidList()
               .get(0));
 
@@ -615,7 +622,7 @@ public class IsaacTaxonomy {
     */
    private void checkConceptDescriptionText(String name) {
       if (this.conceptBuilders.containsKey(name)) {
-         throw new RuntimeException("Concept is already added");
+         throw new RuntimeException("Concept is already added: " + name);
       }
    }
 

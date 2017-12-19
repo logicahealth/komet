@@ -42,16 +42,15 @@ package sh.isaac.provider.bdb.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.StampedLock;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
@@ -65,16 +64,17 @@ public class TreeBuilderTask
    private final AtomicInteger             conceptsProcessed = new AtomicInteger();
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
-   private final StampedLock               stampedLock;
-   private final SpinedIntObjectMap<int[]> originDestinationTaxonomyRecordMap;
+   private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeBuilderTask(SpinedIntObjectMap<int[]> originDestinationTaxonomyRecordMap,
-                          ManifoldCoordinate manifoldCoordinate,
-                          StampedLock stampedLock) {
+   public TreeBuilderTask(SpinedIntIntArrayMap originDestinationTaxonomyRecordMap,
+                          ManifoldCoordinate manifoldCoordinate) {
+      if (originDestinationTaxonomyRecordMap == null) {
+         throw new IllegalStateException("originDestinationTaxonomyRecordMap cannot be null");
+      }
       this.originDestinationTaxonomyRecordMap = originDestinationTaxonomyRecordMap;
       this.manifoldCoordinate                 = manifoldCoordinate;
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
@@ -82,9 +82,7 @@ public class TreeBuilderTask
       this.conceptCount = (int) Get.identifierService()
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
-      this.stampedLock                        = stampedLock;
-      this.addToTotalWork(conceptCount);
-      this.addToTotalWork(conceptCount / 10);  // adding a buffer for the DFS with cycle detection at the end...
+      this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
       this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyType() + " snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
@@ -104,21 +102,7 @@ public class TreeBuilderTask
    protected Tree call()
             throws Exception {
       try {
-         long stamp = this.stampedLock.tryOptimisticRead();
-         Tree tree  = compute();
-
-         if (this.stampedLock.validate(stamp)) {
-            return tree;
-         }
-
-         stamp = this.stampedLock.readLock();
-         this.addToTotalWork(conceptCount);
-
-         try {
-            return compute();
-         } finally {
-            this.stampedLock.unlock(stamp);
-         }
+         return compute();
       } finally {
          Get.activeTasks()
             .remove(this);
@@ -128,6 +112,14 @@ public class TreeBuilderTask
    private Tree compute() {
       GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
       IntStream       conceptNidStream = Get.identifierService()
+                                            .getNidsForAssemblage(conceptAssemblageNid);
+      
+      long count = conceptNidStream.count();
+      if (count == 0) {
+         System.out.println("Empty concept stream...");
+      } 
+      
+      conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       HashTreeBuilder graphBuilder     = conceptNidStream.filter(
                                              (conceptNid) -> {
@@ -143,10 +135,9 @@ public class TreeBuilderTask
 
       message = "searching for redundancies and cycles";
 
-      Tree tree = graphBuilder.getSimpleDirectedGraph();
+      Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      completedUnitsOfWork(conceptCount / 10);
       return tree;
    }
 }

@@ -43,6 +43,8 @@ package sh.isaac.api;
 
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.concurrent.Future;
+import javafx.concurrent.Task;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -75,18 +77,6 @@ public interface DatabaseServices {
       POPULATED_DIRECTORY
    }
 
-   ;
-
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Clear database validity value.
-    */
-
-   /*
-    * Clear flag indicating that database has had its validity calculated. Will force a real-time investigation second time through
-    */
-   void clearDatabaseValidityValue();
 
    //~--- get methods ---------------------------------------------------------
 
@@ -118,6 +108,12 @@ public interface DatabaseServices {
     * @return the data store id
     */
    public UUID getDataStoreId();
+   
+   /**
+    * Ensures data is written to disk. 
+    * @return 
+    */
+   public Future<?> sync();
 
 }
 

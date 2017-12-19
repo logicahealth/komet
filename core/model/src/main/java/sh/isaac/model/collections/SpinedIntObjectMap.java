@@ -33,10 +33,10 @@ import sh.isaac.model.ModelGet;
  * @author kec
  * @param <E> the generic type for the spined list. 
  */
-public class SpinedIntObjectMap<E>   {
+ class SpinedIntObjectMap<E>   {
    private static final int DEFAULT_SPINE_SIZE = 1024;
-   private final int spineSize;
-   private final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
+   protected final int spineSize;
+   protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
    private Function<E,String> elementStringConverter;
 
    public void setElementStringConverter(Function<E, String> elementStringConverter) {
@@ -74,15 +74,15 @@ public class SpinedIntObjectMap<E>   {
    }
    
 
-   private AtomicReferenceArray<E> newSpine(Integer spineKey) {
+   protected AtomicReferenceArray<E> newSpine(Integer spineKey) {
       AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
       return spine;
    }
 
-   public final void put(int index, E element) {
+   public void put(int index, E element) {
       if (index < 0) {
          index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+      } 
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);

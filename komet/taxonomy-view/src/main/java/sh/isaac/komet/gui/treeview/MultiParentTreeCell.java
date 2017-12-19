@@ -41,7 +41,6 @@ package sh.isaac.komet.gui.treeview;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,6 @@ import java.util.Collections;
 import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -65,7 +63,6 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
@@ -74,8 +71,8 @@ import javafx.scene.transform.NonInvertibleTransformException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.Get;
+
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -115,12 +112,6 @@ final public class MultiParentTreeCell
       updateTreeView(treeView);
       setSkin(new MultiParentTreeCellSkin(this));
 
-      // Handle left-clicks.
-      ClickListener eventHandler = new ClickListener();
-
-      setOnMouseClicked(eventHandler);
-
-
       // Allow drags
       
       this.setOnDragDetected(new DragDetectedCellEventHandler());
@@ -135,7 +126,8 @@ final public class MultiParentTreeCell
       boolean addProgressIndicator = false;
       // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
 
-      setContextMenu(buildContextMenu(concept));
+      //profiling showed set context menu very slow. Maybe only set on right click...
+      //setContextMenu(buildContextMenu(concept));
 
       try {
          super.updateItem(concept, empty);
@@ -145,7 +137,7 @@ final public class MultiParentTreeCell
             conceptDescriptionText = null;
             setGraphic(null);
          } else {
-            final MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
+            final MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
             conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
@@ -192,7 +184,7 @@ final public class MultiParentTreeCell
       }
    }
 
-   private void addProgressIndicator(final MultiParentTreeItem treeItem, StackPane progressStack) {
+   private void addProgressIndicator(final MultiParentTreeItemImpl treeItem, StackPane progressStack) {
       ProgressIndicator pi = new ProgressIndicator();
 
       pi.setPrefSize(16, 16);
@@ -215,7 +207,7 @@ final public class MultiParentTreeCell
 
    private ContextMenu buildContextMenu(ConceptChronology concept) {
       if (concept != null) {
-         MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
+         MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
          MultiParentTreeView treeView = treeItem.getTreeView();
          Manifold menuManifold = treeView.getManifold();
          
@@ -224,8 +216,8 @@ final public class MultiParentTreeCell
 
       item1.setOnAction(
           (ActionEvent e) -> {
-             int conceptNid = ((MultiParentTreeItem) getTreeItem()).getConceptNid();
-             Manifold manifold = ((MultiParentTreeItem) getTreeItem()).getTreeView().getManifold();
+             int conceptNid = ((MultiParentTreeItemImpl) getTreeItem()).getConceptNid();
+             Manifold manifold = ((MultiParentTreeItemImpl) getTreeItem()).getTreeView().getManifold();
              treeItem.getValue();
           });
 
@@ -242,28 +234,29 @@ final public class MultiParentTreeCell
       return null;
    }
 
-   private void openOrCloseParent(MultiParentTreeItem treeItem)
-            throws IOException {
+   protected void openOrCloseParent(MultiParentTreeItemImpl treeItem) {
       ConceptChronology value = treeItem.getValue();
 
       if (value != null) {
          treeItem.setValue(null);
 
-         MultiParentTreeItem parentItem = (MultiParentTreeItem) treeItem.getParent();
+         MultiParentTreeItemImpl parentItem = (MultiParentTreeItemImpl) treeItem.getParent();
          ObservableList<TreeItem<ConceptChronology>> siblings = parentItem.getChildren();
 
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
          } else {
             int[] allParents = treeItem.getTreeView()
-                                       .getTaxonomyTree()
-                                       .getParentNids(value.getNid());
-            ArrayList<MultiParentTreeItem> secondaryParentItems = new ArrayList<>();
+                                       .getTaxonomySnapshot()
+                                       .getTaxonomyParentConceptNids(value.getNid());
+            ArrayList<MultiParentTreeItemImpl> secondaryParentItems = new ArrayList<>();
 
             for (int parentSequence: allParents) {
                if ((allParents.length == 1) || (parentSequence != parentItem.getValue().getNid())) {
-                  MultiParentTreeItem extraParentItem = new MultiParentTreeItem(parentSequence, treeItem.getTreeView());
-
+                  ConceptChronology parentChronology = Get.concept(parentSequence);
+                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentChronology, treeItem.getTreeView(), null);
+                  Manifold manifold = treeItem.getTreeView().getManifold();
+                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold, manifold));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
                }
@@ -274,13 +267,11 @@ final public class MultiParentTreeCell
 
             int startIndex = siblings.indexOf(treeItem);
 
-            for (MultiParentTreeItem extraParentItem: secondaryParentItems) {
+            for (MultiParentTreeItemImpl extraParentItem: secondaryParentItems) {
                parentItem.getChildren()
                          .add(startIndex++, extraParentItem);
                treeItem.getExtraParents()
                        .add(extraParentItem);
-               Get.executor()
-                  .execute(new GetMultiParentTreeItemConceptCallable(extraParentItem, false));
             }
          }
 
@@ -290,7 +281,7 @@ final public class MultiParentTreeCell
       }
    }
 
-   private void removeExtraParents(MultiParentTreeItem treeItem,
+   private void removeExtraParents(MultiParentTreeItemImpl treeItem,
                                    ObservableList<TreeItem<ConceptChronology>> siblings) {
       treeItem.getExtraParents().stream().map((extraParent) -> {
          removeExtraParents(extraParent, siblings);
@@ -350,36 +341,11 @@ final public class MultiParentTreeCell
       return dragOffset;
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   /**
-    * Listens for mouse clicks to expand/collapse node.
-    */
-   private final class ClickListener
-            implements EventHandler<MouseEvent> {
-      @Override
-      public void handle(MouseEvent t) {
-         if (getItem() != null) {
-            if (getGraphic().getBoundsInParent()
-                            .contains(t.getX(), t.getY())) {
-               MultiParentTreeItem item = (MultiParentTreeItem) getTreeItem();
-
-               if (item.isMultiParent() || (item.getMultiParentDepth() > 0)) {
-                  try {
-                     openOrCloseParent(item);
-                  } catch (IOException ex) {
-                     LOG.error(ex.getLocalizedMessage(), ex);
-                  }
-               }
-            }
-         }
-      }
-   }
 
    @Override
    public String toString() {
       if (conceptDescriptionText == null) {
-         MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
+         MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
          conceptDescriptionText = treeItem.toString();
       }
       return conceptDescriptionText;

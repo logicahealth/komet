@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -102,6 +103,8 @@ public class ChangeSetWriterHandler
    private static final String CHANGESETS = "changesets";
 
    //~--- fields --------------------------------------------------------------
+   private static final int MAX_AVAILABLE = Runtime.getRuntime().availableProcessors() * 2;
+   private final Semaphore writePermits = new Semaphore(MAX_AVAILABLE);
 
    /** The change set writer handler uuid. */
    private final UUID changeSetWriterHandlerUuid = UUID.randomUUID();
@@ -175,18 +178,16 @@ public class ChangeSetWriterHandler
    @Override
    public void handlePostCommit(CommitRecord commitRecord) {
       LOG.info("handle Post Commit");
-
+      writePermits.acquireUninterruptibly();
+      try {
       if (this.dbBuildMode == null) {
          this.dbBuildMode = Get.configurationService()
                                .inDBBuildMode();
-
-         if (this.dbBuildMode) {
-            stopMe();
-         }
       }
 
       if (this.writeEnabled &&!this.dbBuildMode) {
          // Do in the backgound
+         writePermits.acquireUninterruptibly();
          final Runnable r = () -> {
                                try {
                                   if ((commitRecord.getConceptsInCommit() != null) &&
@@ -200,19 +201,29 @@ public class ChangeSetWriterHandler
                                   if ((commitRecord.getSemanticNidsInCommit() != null) &&
                                       (commitRecord.getSemanticNidsInCommit().size() > 0)) {
                                      semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
-                                     LOG.debug("handle Post Commit: {} sememes",
+                                     LOG.debug("handle Post Commit: {} semantics",
                                                commitRecord.getSemanticNidsInCommit()
                                                      .size());
                                   }
                                } catch (final Exception e) {
                                   LOG.error("Error in Change set writer handler ", e.getMessage());
                                   throw new RuntimeException(e);
+                               } finally {
+                                  writePermits.release();
                                }
                             };
 
          this.changeSetWriteExecutor.execute(r);
       } else {
-         LOG.info("ChangeSetWriter ignoring commit");
+         if (this.dbBuildMode) {
+            LOG.info("ChangeSetWriter ignoring commit because in db build mode. ");
+         }
+         if (!this.writeEnabled) {
+            LOG.info("ChangeSetWriter ignoring commit because write disabled. ");
+         }
+      }
+      } finally {
+         writePermits.release();
       }
    }
 

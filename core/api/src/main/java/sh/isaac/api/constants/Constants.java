@@ -74,6 +74,9 @@ public class Constants {
    /** Used to specify the location of the data store folder, which contains subfolders for 'object-chronicles' and 'search'. */
    public static final String DATA_STORE_ROOT_LOCATION_PROPERTY = "sh.isaac.api.constants.data-store-root-location";
 
+   /** Used to specify how the datastore should use memory */
+   public static final String DATA_STORE_MEMORY_CONFIG_PROPERTY = "sh.isaac.api.constants.DATA_STORE_MEMORY_CONFIGURATION_PROPERTY";
+
    /** Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}. */
    public static final String DEFAULT_CHRONICLE_FOLDER = "object-chronicles";
 
@@ -87,5 +90,10 @@ public class Constants {
     * This typically turns on and off things that were hacked in with System.Out calls for tracing ugly problems....
     */
    public static final String ISAAC_DEBUG = "sh.isaac.api.constants.isaac-debug";
+   
+   public static final String IMPORT_FOLDER_LOCATION = "sh.isaac.api.constants.IMPORT_FOLDER_LOCATION";
+   public static final String AFTER_IMPORT_FOLDER_LOCATION = "sh.isaac.api.constants.AFTER_IMPORT_FOLDER_LOCATION";
+
+   public static final String PREFERENCES_FOLDER_LOCATION = "sh.isaac.api.constants.PREFERENCES_FILE_LOCATION";
 }
 

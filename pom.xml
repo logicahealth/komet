@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.41</version>
+   <version>4.42</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -147,6 +147,15 @@
       <system>Jira</system>
       <url>http://issues.osehra.org/projects/ISAAC/summary</url>
    </issueManagement>
+
+   <repositories>
+      <repository>
+         <!-- Fontawesomefx -->
+         <id>bintray-jerady-maven</id>
+         <name>bintray-plugins</name>
+         <url>http://dl.bintray.com/jerady/maven</url>
+      </repository>
+   </repositories>
 
    <dependencyManagement>
       <dependencies>

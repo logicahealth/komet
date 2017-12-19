@@ -70,7 +70,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.PropertySheet;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
@@ -153,7 +153,7 @@ public abstract class BadgedVersionPanel
       this.manifold = manifold;
       this.stampOrderHashMap = stampOrderHashMap;
       this.categorizedVersion = categorizedVersion;
-      isInactive.set(categorizedVersion.getState() == State.INACTIVE);
+      isInactive.set(categorizedVersion.getState() == Status.INACTIVE);
       expandControl.expandActionProperty()
               .addListener(this::expand);
       this.getChildren()
@@ -166,7 +166,7 @@ public abstract class BadgedVersionPanel
       componentText.layoutBoundsProperty()
               .addListener(this::textLayoutChanged);
       componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
-      isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
+      isInactive.set(this.categorizedVersion.getState() != Status.ACTIVE);
       if (stampOrderHashMap.containsKey(categorizedVersion.getStampSequence())) {
          this.stampControl.setStampedVersion(
                  categorizedVersion.getStampSequence(),
@@ -462,7 +462,8 @@ public abstract class BadgedVersionPanel
             case MEMBER:
                componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                break;
-
+               
+            case RF2_RELATIONSHIP:
             case DYNAMIC:
             case UNKNOWN:
             case DESCRIPTION:

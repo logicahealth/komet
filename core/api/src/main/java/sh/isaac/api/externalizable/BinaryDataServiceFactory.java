@@ -43,6 +43,7 @@ package sh.isaac.api.externalizable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.nio.file.Path;
 
@@ -77,6 +78,16 @@ public interface BinaryDataServiceFactory {
     * @throws FileNotFoundException the file not found exception
     */
    BinaryDataReaderService getReader(Path dataPath)
+            throws FileNotFoundException;
+
+   /**
+    * Gets the reader.
+    *
+    * @param inputStream data stream to process
+    * @return the BinaryDataReaderService for the given dataPath
+    * @throws FileNotFoundException the file not found exception
+    */
+   BinaryDataReaderService getReader(InputStream inputStream)
             throws FileNotFoundException;
 
    /**

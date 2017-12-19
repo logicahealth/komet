@@ -37,6 +37,7 @@
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
+import javafx.scene.image.Image;
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -84,13 +86,14 @@ import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.QueryViewFactory;
-import sh.komet.gui.search.SimpleSearchViewFactory;
+import sh.komet.gui.search.flowr.FLOWRQueryViewFactory;
+import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -137,6 +140,8 @@ public class KometStageController
    private GridPane topGridPane;                      // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="classifierMenuButton"
    private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
+
+   private final ImageView vanityImage = new ImageView();
 
    //~--- methods -------------------------------------------------------------
    /**
@@ -193,11 +198,48 @@ public class KometStageController
               .add(createWrappedTabPane());
       classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
       classifierMenuButton.getItems().clear();
-      classifierMenuButton.getItems().addAll(getClassifyMenuItems());
+      classifierMenuButton.getItems().addAll(getTaskMenuItems());
+      
+      
+      Image image = new Image(KometStageController.class.getResourceAsStream("/images/viewer-logo-b@2.png"));
+      vanityImage.setImage(image);
+      vanityImage.setFitHeight(36);
+      vanityImage.setPreserveRatio(true);
+      vanityImage.setSmooth(true);
+      vanityImage.setCache(true);
+      vanityBox.setGraphic(vanityImage);
    }
 
-   private List<MenuItem> getClassifyMenuItems() {
+   private List<MenuItem> getTaskMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
+      
+      
+      MenuItem importTransform = new MenuItem("Import and transform");
+              
+      importTransform.setOnAction((ActionEvent event) -> {
+         ImportAndTransformTask itcTask = new ImportAndTransformTask(TAXONOMY_MANIFOLD);
+         Get.executor().submit(itcTask);
+      });
+      
+      items.add(importTransform);
+      
+      MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
+      setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+         ChangeDatabaseMemoryConfigurationAndQuit task = 
+                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+         task.run();
+      });
+      items.add(setLowMemConfigAndQuit);
+
+      MenuItem setHighMemConfigAndQuit = new MenuItem("Set to high memory configuration, erase database, and quit");
+      setHighMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+         ChangeDatabaseMemoryConfigurationAndQuit task = 
+                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+         task.run();
+      });
+      items.add(setHighMemConfigAndQuit);
+      
+      
       MenuItem completeClassify = new MenuItem("Complete classify");
       completeClassify.setOnAction((ActionEvent event) -> {
          //TODO change how we get the edit coordinate. 
@@ -212,7 +254,19 @@ public class KometStageController
          Get.startIndexTask();
       });
       items.add(completeReindex);
-
+//
+//      MenuItem importSources = new MenuItem("Import terminology content");
+//      importSources.setOnAction((ActionEvent event) -> {
+//         Rf2DirectImporter importer = new Rf2DirectImporter();
+//         Get.executor().submit(importer);
+//      });
+//      items.add(importSources);
+//      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
+//      transformSources.setOnAction((ActionEvent event) -> {
+//         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+//         Get.executor().submit(transformer);
+//      });
+//      items.add(transformSources);
       return items;
    }
 
@@ -436,14 +490,14 @@ public class KometStageController
 
          if (tabPanelCount == 3) {
             // add FLOWR query flowrTab
-            QueryViewFactory queryViewFactory = new QueryViewFactory();
+            FLOWRQueryViewFactory FLOWRQueryViewFactory = new FLOWRQueryViewFactory();
             Tab flowrTab = new Tab();
 
-            flowrTab.setGraphic(queryViewFactory.getMenuIcon());
+            flowrTab.setGraphic(FLOWRQueryViewFactory.getMenuIcon());
             flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
 
             BorderPane searchPane = new BorderPane();
-            ExplorationNode explorationNode = queryViewFactory.createExplorationNode(
+            ExplorationNode explorationNode = FLOWRQueryViewFactory.createExplorationNode(
                     FLOWR_MANIFOLD,
                     (theNewExplorationNode) -> {
                        searchPane.setCenter(theNewExplorationNode);

@@ -34,17 +34,12 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.query.lucene.indexers;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +48,6 @@ import java.util.stream.Stream;
 import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,7 +55,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -82,35 +76,41 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
- * {@link SemanticIndexerConfiguration} Holds a cache of the configuration for the indexer (which is read from the DB, and may
- * be changed at any point the user wishes). Keeps track of which assemblage types need to be indexing, and what attributes should be indexed on them.
+ * {@link SemanticIndexerConfiguration} Holds a cache of the configuration for the indexer (which is read from the DB,
+ * and may be changed at any point the user wishes). Keeps track of which assemblage types need to be indexing, and what
+ * attributes should be indexed on them.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
 @Singleton
 public class SemanticIndexerConfiguration {
-   /** The Constant LOG. */
+
+   /**
+    * The Constant LOG.
+    */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
-
-   /** The what to index sequence to col. */
-
+   /**
+    * The what to index sequence to col.
+    */
    // store assemblage sequences that should be indexed - and then - for COLUMN_DATA keys, keep the 0 indexed column order numbers that need to be indexed.
    private HashMap<Integer, Integer[]> whatToIndexSequenceToCol = new HashMap<>();
 
-   /** The read needed. */
-   private final AtomicInteger readNeeded =
-      new AtomicInteger(1);  // 0 means no readNeeded, anything greater than 0 means it does need a re-read
+   /**
+    * The read needed.
+    */
+   private final AtomicInteger readNeeded
+           = new AtomicInteger(1);  // 0 means no readNeeded, anything greater than 0 means it does need a re-read
 
-   /** The read needed block. */
+   /**
+    * The read needed block.
+    */
    private final Semaphore readNeededBlock = new Semaphore(1);
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Builds the and configure columns to index.
     *
@@ -127,15 +127,15 @@ public class SemanticIndexerConfiguration {
            int assemblageNid,
            Integer[] columnsToIndex,
            boolean skipReindex)
-            throws RuntimeException,
-                   InterruptedException,
-                   ExecutionException {
+           throws RuntimeException,
+           InterruptedException,
+           ExecutionException {
       LookupService.get()
-                   .getService(SemanticIndexerConfiguration.class).readNeeded
-                   .incrementAndGet();
+              .getService(SemanticIndexerConfiguration.class).readNeeded
+              .incrementAndGet();
 
       final List<IndexStatusListener> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListener.class);
+              .getAllServices(IndexStatusListener.class);
 
       islList.forEach((isl) -> {
          isl.indexConfigurationChanged(LookupService.get()
@@ -143,10 +143,10 @@ public class SemanticIndexerConfiguration {
       });
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConceptChronology(assemblageNid);
+              .getConceptChronology(assemblageNid);
 
-      LOG.info("Configuring index for dynamic assemblage '" + referencedAssemblageConceptC.toUserString() +
-               "' on columns " + Arrays.deepToString(columnsToIndex));
+      LOG.info("Configuring index for dynamic assemblage '" + referencedAssemblageConceptC.toUserString()
+              + "' on columns " + Arrays.deepToString(columnsToIndex));
 
       DynamicData[] data = null;
 
@@ -158,20 +158,20 @@ public class SemanticIndexerConfiguration {
          }
 
          if (cols.length > 0) {
-            data = new DynamicData[] { new DynamicArrayImpl<>(cols) };
+            data = new DynamicData[]{new DynamicArrayImpl<>(cols)};
          }
       } else if (((columnsToIndex == null) || (columnsToIndex.length == 0))) {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
-                                                                                          .getDynamicBuilder(assemblageNid,
-                                                                                                   DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                                                         .getNid(),
-                                                                                                   data);
+              .getDynamicBuilder(assemblageNid,
+                      DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                              .getNid(),
+                      data);
 
       return sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
-               .get();
+              .get();
 
       // TODO Dan change indexer
 //    Get.commitService().commit("Index Config Change").get();
@@ -183,41 +183,42 @@ public class SemanticIndexerConfiguration {
    }
 
    /**
-    * for the given assemblage sequence, which columns should be indexed - note - columnsToIndex must be provided
-    * it doesn't make any sense to index sememes any longer in ochre without indexing column content.
+    * for the given assemblage sequence, which columns should be indexed - note - columnsToIndex must be provided it
+    * doesn't make any sense to index semantics any longer in ochre without indexing column content.
     *
     * @param assemblageNid the assemblage nid or sequence
     * @param columnsToIndex the columns to index
-    * @param skipReindex - if true - does not do a full DB reindex (useful if you are enabling an index on a new that has never been used)
-    * otherwise - leave false - so that a full reindex occurs (on this thread) and the index becomes valid.
+    * @param skipReindex - if true - does not do a full DB reindex (useful if you are enabling an index on a new that
+    * has never been used) otherwise - leave false - so that a full reindex occurs (on this thread) and the index
+    * becomes valid.
     * @throws RuntimeException the runtime exception
     * @throws InterruptedException the interrupted exception
     * @throws ExecutionException the execution exception
     */
    @SuppressWarnings("unchecked")
    public static void configureColumnsToIndex(int assemblageNid,
-         Integer[] columnsToIndex,
-         boolean skipReindex)
-            throws RuntimeException,
-                   InterruptedException,
-                   ExecutionException {
+           Integer[] columnsToIndex,
+           boolean skipReindex)
+           throws RuntimeException,
+           InterruptedException,
+           ExecutionException {
       LookupService.get()
-                   .getService(SemanticIndexerConfiguration.class).readNeeded
-                   .incrementAndGet();
+              .getService(SemanticIndexerConfiguration.class).readNeeded
+              .incrementAndGet();
 
       final List<IndexStatusListener> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListener.class);
+              .getAllServices(IndexStatusListener.class);
 
-      for (final IndexStatusListener isl: islList) {
+      for (final IndexStatusListener isl : islList) {
          isl.indexConfigurationChanged(LookupService.get()
-               .getService(SemanticIndexer.class));
+                 .getService(SemanticIndexer.class));
       }
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConceptChronology(assemblageNid);
+              .getConceptChronology(assemblageNid);
 
-      LOG.info("Configuring index for assemblage '" + referencedAssemblageConceptC.toUserString() +
-               "' on columns " + Arrays.deepToString(columnsToIndex));
+      LOG.info("Configuring index for assemblage '" + referencedAssemblageConceptC.toUserString()
+              + "' on columns " + Arrays.deepToString(columnsToIndex));
 
       DynamicData[] data = null;
 
@@ -229,31 +230,31 @@ public class SemanticIndexerConfiguration {
          }
 
          if (cols.length > 0) {
-            data = new DynamicData[] { new DynamicArrayImpl<>(cols) };
+            data = new DynamicData[]{new DynamicArrayImpl<>(cols)};
          }
       } else if (((columnsToIndex == null) || (columnsToIndex.length == 0))) {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
-                                                                                          .getDynamicBuilder(assemblageNid,
-                                                                                                   DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                                                         .getNid(),
-                                                                                                   data);
+              .getDynamicBuilder(assemblageNid,
+                      DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                              .getNid(),
+                      data);
 
       sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
-        .get();
+              .get();
       Get.commitService()
-         .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
-         .get();
+              .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
+              .get();
 
       if (!skipReindex) {
-         Get.startIndexTask(new Class[] { SemanticIndexer.class });
+         Get.startIndexTask(new Class[]{SemanticIndexer.class});
       }
    }
 
    /**
-    * Disable all indexing of the specified refex.  To change the index config, use the {@link #configureColumnsToIndex(int, Integer[]) method.
+    * Disable all indexing of the specified refex. To change the index config, use the {@link #configureColumnsToIndex(int, Integer[]) method.
     *
     * Note that this causes a full DB reindex, on this thread.
     *
@@ -262,54 +263,53 @@ public class SemanticIndexerConfiguration {
     */
    @SuppressWarnings("unchecked")
    public static void disableIndex(int assemblageConceptSequence)
-            throws RuntimeException {
+           throws RuntimeException {
       LOG.info("Disabling index for dynamic assemblage concept '" + assemblageConceptSequence + "'");
 
       final DynamicVersion rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
-      if ((rdv != null) && (rdv.getState() == State.ACTIVE)) {
+      if ((rdv != null) && (rdv.getState() == Status.ACTIVE)) {
          LookupService.get()
-                      .getService(SemanticIndexerConfiguration.class).readNeeded
-                      .incrementAndGet();
+                 .getService(SemanticIndexerConfiguration.class).readNeeded
+                 .incrementAndGet();
 
          final List<IndexStatusListener> islList = LookupService.get()
-                                                                  .getAllServices(IndexStatusListener.class);
+                 .getAllServices(IndexStatusListener.class);
 
-         for (final IndexStatusListener isl: islList) {
+         for (final IndexStatusListener isl : islList) {
             isl.indexConfigurationChanged(LookupService.get()
-                  .getService(SemanticIndexer.class));
+                    .getService(SemanticIndexer.class));
          }
 
-         ((SemanticChronology) rdv.getChronology()).createMutableVersion(
-               State.INACTIVE,
-               EditCoordinates.getDefaultUserMetadata());
+         ((SemanticChronology) rdv.getChronology()).createMutableVersion(Status.INACTIVE,
+                 EditCoordinates.getDefaultUserMetadata());
          Get.commitService()
-            .addUncommitted(rdv.getChronology());
+                 .addUncommitted(rdv.getChronology());
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change");
+                 .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change");
          LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptSequence + "'");
-         Get.startIndexTask(new Class[] { SemanticIndexer.class });
+         Get.startIndexTask(new Class[]{SemanticIndexer.class});
       } else {
-         LOG.info("No index configuration was found to disable for dynamic assemblage concept '" +
-                  assemblageConceptSequence + "'");
+         LOG.info("No index configuration was found to disable for dynamic assemblage concept '"
+                 + assemblageConceptSequence + "'");
       }
    }
 
    /**
     * Read the indexing configuration for the specified dynamic element.
     *
-    * Returns null, if the assemblage is not indexed at all.  Returns an empty array, if the assemblage is indexed (but no columns are indexed)
-    * Returns an integer array of the column positions of the refex that are indexed, if any.
+    * Returns null, if the assemblage is not indexed at all. Returns an empty array, if the assemblage is indexed (but
+    * no columns are indexed) Returns an integer array of the column positions of the refex that are indexed, if any.
     *
     * @param assemblageSequence the assemblage sequence
     * @return the integer[]
     * @throws RuntimeException the runtime exception
     */
    public static Integer[] readIndexInfo(int assemblageSequence)
-            throws RuntimeException {
+           throws RuntimeException {
       return LookupService.get()
-                          .getService(SemanticIndexerConfiguration.class)
-                          .whatColumnsToIndex(assemblageSequence);
+              .getService(SemanticIndexerConfiguration.class)
+              .whatColumnsToIndex(assemblageSequence);
    }
 
    /**
@@ -342,24 +342,22 @@ public class SemanticIndexerConfiguration {
     * @throws RuntimeException the runtime exception
     */
    private static DynamicVersion<? extends DynamicVersion> findCurrentIndexConfigRefex(int indexedSememeId)
-            throws RuntimeException {
+           throws RuntimeException {
       @SuppressWarnings("rawtypes")
       final SemanticSnapshotService<DynamicVersion> sss = Get.assemblageService()
-                                                          .getSnapshot(DynamicVersion.class,
-                                                                StampCoordinates.getDevelopmentLatest());
+              .getSnapshot(DynamicVersion.class,
+                      StampCoordinates.getDevelopmentLatest());
       @SuppressWarnings("rawtypes")
-      final Stream<LatestVersion<DynamicVersion>> sememes =
-         sss.getLatestSemanticVersionsForComponentFromAssemblage(indexedSememeId,
-                                                               DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                     .getNid());
-      @SuppressWarnings("rawtypes")
-      final Optional<LatestVersion<DynamicVersion>> ds = sememes.findAny();
+      final List<LatestVersion<DynamicVersion>> semantics
+              = sss.getLatestSemanticVersionsForComponentFromAssemblage(indexedSememeId,
+                      DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                              .getNid());
 
-      if (ds.isPresent() &&  ds.get().isPresent()) {
-         return ds.get()
-                  .get();
+      for (LatestVersion<DynamicVersion> ds : semantics) {
+         if (ds.isPresent()) {
+            return ds.get();
+         }
       }
-
       return null;
    }
 
@@ -378,48 +376,48 @@ public class SemanticIndexerConfiguration {
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
                   final Stream<SemanticChronology> sememeCs = Get.assemblageService()
-                                                                                           .getSemanticChronologyStreamFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                                                                                    .getNid());
+                          .getSemanticChronologyStreamFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                                  .getNid());
 
                   sememeCs.forEach(sememeC -> {
-                                      if (sememeC.getVersionType() == VersionType.DYNAMIC) {
-                                         @SuppressWarnings({ "unchecked", "rawtypes" })
-                                         final LatestVersion<DynamicVersion> dsv =
-                                            ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+                     if (sememeC.getVersionType() == VersionType.DYNAMIC) {
+                        @SuppressWarnings({"unchecked", "rawtypes"})
+                        final LatestVersion<DynamicVersion> dsv
+                                = ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.isPresent() && (dsv.get().getState() == State.ACTIVE)) {
-                                            final int assemblageToIndex = dsv.get()
-                                                                                   .getReferencedComponentNid();
-                                            Integer[]                 finalCols = new Integer[] {};
-                                            final DynamicData[] data      = dsv.get()
-                                                                                     .getData();
+                        if (dsv.isPresent() && (dsv.get().getState() == Status.ACTIVE)) {
+                           final int assemblageToIndex = dsv.get()
+                                   .getReferencedComponentNid();
+                           Integer[] finalCols = new Integer[]{};
+                           final DynamicData[] data = dsv.get()
+                                   .getData();
 
-                                            if ((data != null) && (data.length > 0)) {
-                                               @SuppressWarnings("unchecked")
-                                               final DynamicInteger[] colsToIndex =
-                                                  ((DynamicArray<DynamicInteger>) data[0]).getDataArray();
+                           if ((data != null) && (data.length > 0)) {
+                              @SuppressWarnings("unchecked")
+                              final DynamicInteger[] colsToIndex
+                                      = ((DynamicArray<DynamicInteger>) data[0]).getDataArray();
 
-                                               finalCols = new Integer[colsToIndex.length];
+                              finalCols = new Integer[colsToIndex.length];
 
-                                               for (int i = 0; i < colsToIndex.length; i++) {
-                                                  finalCols[i] = colsToIndex[i].getDataInteger();
-                                               }
-                                            } else {
-                                               LOG.warn(
-                                               "The assemblage concept {} was entered for indexing without specifying what columns to index.  Nothing to do!",
-                                               assemblageToIndex);
-                                            }
+                              for (int i = 0; i < colsToIndex.length; i++) {
+                                 finalCols[i] = colsToIndex[i].getDataInteger();
+                              }
+                           } else {
+                              LOG.warn(
+                                      "The assemblage concept {} was entered for indexing without specifying what columns to index.  Nothing to do!",
+                                      assemblageToIndex);
+                           }
 
-                                            updatedWhatToIndex.put(assemblageToIndex, finalCols);
-                                         }
-                                      }
-                                   });
+                           updatedWhatToIndex.put(assemblageToIndex, finalCols);
+                        }
+                     }
+                  });
                   this.whatToIndexSequenceToCol = updatedWhatToIndex;
                   this.readNeeded.decrementAndGet();
                } catch (final Exception e) {
                   LOG.error(
-                      "Unexpected error reading dynamic element Index Configuration - generated index will be incomplete!",
-                      e);
+                          "Unexpected error reading dynamic element Index Configuration - generated index will be incomplete!",
+                          e);
                }
             }
          } finally {
@@ -429,7 +427,6 @@ public class SemanticIndexerConfiguration {
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Checks if assemblage indexed.
     *
@@ -438,8 +435,8 @@ public class SemanticIndexerConfiguration {
     */
    public static boolean isAssemblageIndexed(int assemblageConceptSequence) {
       return LookupService.get()
-                          .getService(SemanticIndexerConfiguration.class)
-                          .needsIndexing(assemblageConceptSequence);
+              .getService(SemanticIndexerConfiguration.class)
+              .needsIndexing(assemblageConceptSequence);
    }
 
    /**
@@ -456,4 +453,3 @@ public class SemanticIndexerConfiguration {
       return true;
    }
 }
-

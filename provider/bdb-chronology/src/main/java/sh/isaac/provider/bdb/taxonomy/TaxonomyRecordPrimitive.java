@@ -39,14 +39,16 @@ package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.Optional;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -116,6 +118,9 @@ public class TaxonomyRecordPrimitive {
       return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
    }
 
+   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampCoordinate);
+   }
    /**
     * Contains nid via type.
     *
@@ -279,7 +284,7 @@ public class TaxonomyRecordPrimitive {
     * @return true, if concept active
     */
    public static boolean isConceptActive(int conceptNid,
-         SpinedIntObjectMap<int[]> taxonomyMap,
+         SpinedIntIntArrayMap taxonomyMap,
          StampCoordinate sc) {
       final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
@@ -351,6 +356,18 @@ public class TaxonomyRecordPrimitive {
    }
 
    /**
+    * Gets the destination nids of type.
+    *
+    * @param typeNidSet the type nid set
+    * @param tc the tc
+    * @return the destination nids of type
+    * TODO speed up by scanning native list for match, rather than unpacking taxonomy record...
+    */
+   public boolean hasDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate tc) {
+      return getTaxonomyRecordUnpacked().hasDestinationConceptNidsOfType(typeNidSet, tc);
+   }
+
+   /**
     * Gets the if active via type.
     *
     * @param conceptNid the concept nid
@@ -362,7 +379,7 @@ public class TaxonomyRecordPrimitive {
     */
    public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptNid,
          int typeNid,
-         SpinedIntObjectMap<int[]> taxonomyMap,
+         SpinedIntIntArrayMap taxonomyMap,
          ManifoldCoordinate vp,
          int flags) {
       final int[] taxonomyData = taxonomyMap.get(conceptNid);
@@ -386,7 +403,7 @@ public class TaxonomyRecordPrimitive {
     * @return the if concept active
     */
    public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptNid,
-         SpinedIntObjectMap<int[]> taxonomyMap,
+         SpinedIntIntArrayMap taxonomyMap,
          ManifoldCoordinate vp) {
       final int[] taxonomyData = taxonomyMap.get(conceptNid);
 

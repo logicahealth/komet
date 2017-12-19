@@ -75,7 +75,7 @@ public interface LogicGraphVersion
    LogicalExpression getLogicalExpression();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.LOGIC_GRAPH;
    }
 }

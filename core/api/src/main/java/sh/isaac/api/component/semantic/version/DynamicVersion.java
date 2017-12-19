@@ -107,7 +107,7 @@ public interface DynamicVersion<T extends DynamicVersion<T>>
    public DynamicUsageDescription getDynamicUsageDescription();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.DYNAMIC;
    }
 }

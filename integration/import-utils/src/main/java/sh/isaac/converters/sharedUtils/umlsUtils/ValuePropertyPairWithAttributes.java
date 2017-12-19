@@ -49,7 +49,7 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
@@ -147,7 +147,7 @@ public class ValuePropertyPairWithAttributes
                ibdfCreationUtility.addStringAnnotation(ComponentReference.fromChronology(descriptions.get(i)),
                      value,
                      attributes.getKey(),
-                     State.ACTIVE);
+                     Status.ACTIVE);
             }
          }
 
@@ -163,7 +163,7 @@ public class ValuePropertyPairWithAttributes
          for (final UUID refsetConcept: descriptionSource.get(i).refsetMembership) {
             ibdfCreationUtility.addRefsetMembership(ComponentReference.fromChronology(descriptions.get(i)),
                   refsetConcept,
-                  State.ACTIVE,
+                  Status.ACTIVE,
                   null);
          }
       }

@@ -33,13 +33,13 @@ import java.util.stream.StreamSupport;
  */
 public class SpinedNidIntMap {
 
-   private static final int DEFAULT_SPINE_SIZE = 1024;
-   private final int spineSize;
+   private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
+   private final int elementsPerSpine;
    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
    private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
 
    public SpinedNidIntMap() {
-      this.spineSize = DEFAULT_SPINE_SIZE;
+      this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
    }
    private int getSpineCount() {
       int spineCount = 0;
@@ -48,10 +48,17 @@ public class SpinedNidIntMap {
       }
       return spineCount; 
    }
+
+   public int sizeInBytes() {
+      int sizeInBytes = 0;
+
+      sizeInBytes = sizeInBytes + ((elementsPerSpine * 4) * getSpineCount());  // 4 bytes = bytes of 32 bit integer
+      return sizeInBytes;
+   }
    
 
    private AtomicIntegerArray newSpine(Integer spineKey) {
-      int[] spine = new int[spineSize];
+      int[] spine = new int[elementsPerSpine];
       Arrays.fill(spine, INITIALIZATION_VALUE);
       return new AtomicIntegerArray(spine);
    }
@@ -64,8 +71,8 @@ public class SpinedNidIntMap {
       if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index / elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       if (spineIndex > this.spines.size() + 2) {
          throw new IllegalStateException("Trying to add spine: " + spineIndex + " for: " + index);
       }
@@ -76,8 +83,8 @@ public class SpinedNidIntMap {
       if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index / elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
    }
 
@@ -85,8 +92,8 @@ public class SpinedNidIntMap {
        if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-     int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
+     int spineIndex = index / elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
    }
 
@@ -94,8 +101,8 @@ public class SpinedNidIntMap {
       if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
+      int spineIndex = index / elementsPerSpine;
+      int indexInSpine = index % elementsPerSpine;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != INITIALIZATION_VALUE;
    }
 
@@ -104,7 +111,7 @@ public class SpinedNidIntMap {
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
-         for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
+         for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
             int value = spine.get(indexInSpine);
             if (value != INITIALIZATION_VALUE) {
                processor.process(key, value);
@@ -126,6 +133,10 @@ public class SpinedNidIntMap {
 
       return StreamSupport.intStream(streamSupplier, streamSupplier.get()
               .characteristics(), false);
+   }
+
+   public void addSpine(int spineKey, AtomicIntegerArray spineData) {
+      spines.put(spineKey, spineData);
    }
 
    public interface Processor {
@@ -189,7 +200,7 @@ public class SpinedNidIntMap {
       int currentPosition;
 
       public SpinedValueSpliterator() {
-         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.end = DEFAULT_ELEMENTS_PER_SPINE * getSpineCount();
          this.currentPosition = 0;
       }
       
@@ -239,7 +250,7 @@ public class SpinedNidIntMap {
       int currentPosition;
 
       public SpinedKeySpliterator() {
-         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.end = DEFAULT_ELEMENTS_PER_SPINE * getSpineCount();
          this.currentPosition = 0;
       }
       

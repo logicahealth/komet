@@ -40,8 +40,8 @@ public interface ObservableSnapshotService {
     * Gets the observable sememe version.
     *
     * @param id either a nid or a sememe sequence
-    * @return the ObservableSememeChronology with the provided id
+    * @return the ObservableSemanticVersion with the provided id
     */
-   LatestVersion<? extends ObservableSemanticVersion> getObservableSememeVersion(int id);
+   LatestVersion<? extends ObservableSemanticVersion> getObservableSemanticVersion(int id);
 
 }

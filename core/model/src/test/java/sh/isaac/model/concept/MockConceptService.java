@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -77,14 +78,6 @@ public class MockConceptService
    UUID dbId = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
-
-   /**
-    * Clear database validity value.
-    */
-   @Override
-   public void clearDatabaseValidityValue() {
-      // Placeholder as databaseFolderExists always returns true.
-   }
 
    /**
     * Write concept.
@@ -265,6 +258,11 @@ public class MockConceptService
 
    @Override
    public IntStream getConceptNidStream(int assemblageNid) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

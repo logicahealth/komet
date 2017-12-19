@@ -87,6 +87,9 @@ public class DescriptionLuceneMatch
    @XmlElement
    String viewCoordinateKey;
 
+   private String parameterString;
+   private ManifoldCoordinate manifoldCoordinate;
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -109,6 +112,15 @@ public class DescriptionLuceneMatch
 
    //~--- methods -------------------------------------------------------------
 
+
+   public void setParameterString(String parameterString) {
+      this.parameterString = parameterString;
+   }
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+   }
+
    /**
     * Compute possible components.
     *
@@ -117,10 +129,6 @@ public class DescriptionLuceneMatch
     */
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final String luceneMatch = (String) this.enclosingQuery.getLetDeclarations()
-                                                             .get(this.luceneMatchKey);
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
       final NidSet               nids               = new NidSet();
       final List<IndexService> indexers           = LookupService.get()
                                                                    .getAllServices(IndexService.class);
@@ -137,7 +145,7 @@ public class DescriptionLuceneMatch
          throw new IllegalStateException("No description indexer found in: " + indexers);
       }
 
-      final List<SearchResult> queryResults = descriptionIndexer.query(luceneMatch, 1000);
+      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());
@@ -151,7 +159,7 @@ public class DescriptionLuceneMatch
 
                       if (chronology.isPresent()) {
                          if (!chronology.get()
-                                        .isLatestVersionActive(manifoldCoordinate)) {
+                                        .isLatestVersionActive(this.manifoldCoordinate)) {
                             getResultsCache().remove(nid);
                          }
                       } else {

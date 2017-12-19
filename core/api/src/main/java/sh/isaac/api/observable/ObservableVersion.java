@@ -52,7 +52,7 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.ConceptProxy;
 
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -102,11 +102,11 @@ public interface ObservableVersion
    ReadOnlyIntegerProperty stampSequenceProperty();
 
    /**
-    * State property.
+    * Status property.
     *
     * @return the object property
     */
-   ObjectProperty<State> stateProperty();
+   ObjectProperty<Status> stateProperty();
 
    /**
     * Time property.

@@ -41,6 +41,7 @@ package sh.isaac.provider.ibdf;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.DataSource;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
@@ -69,6 +70,7 @@ public class IsaacExternalizableUnparsed {
       this.type = externalizable.getIsaacObjectType();
       this.data = new ByteArrayDataBuffer();
       this.type.writeTypeVersionHeader(data);
+      DataSource.EXTERNAL.writeDataSourceToken(data);
       externalizable.putExternal(this.data);
       this.data.trimToSize();
       this.data.setPosition(2);
@@ -81,7 +83,17 @@ public class IsaacExternalizableUnparsed {
       this.data = data;
       this.type = IsaacObjectType.fromByteArrayDataBuffer(data);
       this.data.setObjectDataFormatVersion(this.data.getByte());
-      
+      DataSource dataSource = DataSource.fromByteArrayDataBuffer(data);
+       switch (dataSource) {
+         case EXTERNAL:
+            this.data.setExternalData(true);
+            break;
+         case INTERNAL:
+            this.data.setExternalData(false);
+            break;
+         default:
+               throw new UnsupportedOperationException("Can't handle: " + dataSource);
+      }
    }
    //~--- methods -------------------------------------------------------------
 

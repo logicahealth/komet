@@ -97,7 +97,32 @@ public enum VersionType {
    
    /** An RF2 relationship for backwards compatibility. */
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
+   
+   /** An LOINC record. */
+   LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
+   
+   // Ideally, all of the below would be represented as dynamic semantics, 
+   // but quick, removable implementation for now. 
+   Nid1_Nid2((byte) (Byte.MAX_VALUE - 10), "Component Component", "C1_C2"),
+   
+   Nid1_Nid2_Int3((byte) (Byte.MAX_VALUE - 9), "Component Component Integer", "C1_C2_Int3"),
+   
+   Nid1_Nid2_Str3((byte) (Byte.MAX_VALUE - 8), "Component Component String", "C1_C2_Str3"),
+   
+   Nid1_Int2((byte) (Byte.MAX_VALUE - 7), "Component Integer", "C1_Int2"),
+   
+   Nid1_Str2((byte) (Byte.MAX_VALUE - 6), "Component String", "C1_Str2"),
 
+   Nid1_Int2_Str3_Str4_Nid5_Nid6((byte) (Byte.MAX_VALUE - 5), "Component Integer String String Component Component", "C1_Int2_Str3_Str4_C5_C6"),
+   
+   Int1_Int2_Str3_Str4_Str5_Nid6_Nid7((byte) (Byte.MAX_VALUE - 4), "Integer Integer String String String Component Component", "Int1_Int2_Str3_Str4_Str5_C6_C7"),
+   
+   Str1_Str2((byte) (Byte.MAX_VALUE - 3), "String String", "Str1_Str2"),
+
+   Str1_Str2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 2), "String String Component Component", "Str1_Str2_C3_C4"),
+   
+   Str1_Str2_Str3_Str4_Str5_Str6_Str7((byte) (Byte.MAX_VALUE - 1), "String String String String String String String", "Str1_Str2_Str3_Str4_Str5_Str6_Str7"),
+   
    /** An unknown type of version. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");
 
@@ -205,6 +230,44 @@ public enum VersionType {
       case 7:
          return DESCRIPTION;
 
+      case 9:
+         return CONCEPT;
+
+      case 10:
+         return RF2_RELATIONSHIP;
+         
+   // Ideally, all of the below would be represented as dynamic semantics, 
+   // but quick, removable implementation for now. 
+      case Byte.MAX_VALUE - 10:
+         return Nid1_Nid2;
+
+      case Byte.MAX_VALUE - 9:
+         return Nid1_Nid2_Int3;
+
+      case Byte.MAX_VALUE - 8:
+         return Nid1_Nid2_Str3;
+
+      case Byte.MAX_VALUE - 7:
+         return Nid1_Int2;
+
+      case Byte.MAX_VALUE - 6:
+         return Nid1_Str2;
+
+      case Byte.MAX_VALUE - 5:
+         return Nid1_Int2_Str3_Str4_Nid5_Nid6;
+
+      case Byte.MAX_VALUE - 4:
+         return Int1_Int2_Str3_Str4_Str5_Nid6_Nid7;
+
+      case Byte.MAX_VALUE - 3:
+         return Str1_Str2;
+
+      case Byte.MAX_VALUE - 2:
+         return Str1_Str2_Nid3_Nid4;
+
+      case Byte.MAX_VALUE - 1:
+         return Str1_Str2_Str3_Str4_Str5_Str6_Str7;
+         
       default:
          throw new UnsupportedOperationException("d Can't handle: " + token);
       }

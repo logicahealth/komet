@@ -45,13 +45,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -68,6 +68,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -105,14 +106,15 @@ public class ConceptChronologyImpl
     */
    @Override
    public boolean containsDescription(String descriptionText) {
-      return Get.assemblageService()
-              .getDescriptionsForComponent(getNid())
-              .anyMatch(
-                      (desc) -> desc.getVersionList()
-                              .stream()
-                              .anyMatch(
-                                      (version) -> ((DescriptionVersion) version).getText()
-                                              .equals(descriptionText)));
+      for (SemanticChronology descriptionChronology: Get.assemblageService()
+              .getDescriptionsForComponent(getNid())) {
+         for (Version version: descriptionChronology.getVersionList()) {
+            if (((DescriptionVersion) version).getText().equals(descriptionText)) {
+               return true;
+            }
+         }
+      }
+      return false;
    }
 
    /**
@@ -124,12 +126,14 @@ public class ConceptChronologyImpl
     */
    @Override
    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
-      return Get.assemblageService()
+      for (LatestVersion<DescriptionVersion> descVersion: Get.assemblageService()
                 .getSnapshot(DescriptionVersion.class, stampCoordinate)
-                .getLatestDescriptionVersionsForComponent(getNid())
-                .anyMatch(
-                    (latestVersion) -> latestVersion.isPresent() &&
-                                       latestVersion.get().getText().equals(descriptionText));
+                .getLatestDescriptionVersionsForComponent(getNid())) {
+         if (descVersion.isPresent() && descVersion.get().getText().equals(descriptionText)) {
+            return true;
+         }
+      }
+      return false;
    }
 
    /**
@@ -154,7 +158,7 @@ public class ConceptChronologyImpl
     * @return the concept version impl
     */
    @Override
-   public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
+   public ConceptVersionImpl createMutableVersion(Status state, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
                                        state,
@@ -197,6 +201,11 @@ public class ConceptChronologyImpl
       builder.append(" <");
       builder.append(getNid());
       builder.append("> \n");
+      
+      builder.append("\nTaxonomy record: \n");
+      builder.append(ModelGet.taxonomyDebugService().describeTaxonomyRecord(this.getNid()));
+      builder.append("\n\n");
+
       toString(builder, true);
       return builder.toString();
    }
@@ -286,8 +295,7 @@ public class ConceptChronologyImpl
    public List<SemanticChronology> getConceptDescriptionList() {
       if (Get.assemblageServiceAvailable()) {
          return Get.assemblageService()
-                   .getDescriptionsForComponent(getNid())
-                   .collect(Collectors.toList());
+                   .getDescriptionsForComponent(getNid());
       } else {
          return new ArrayList<>();
       }
@@ -335,11 +343,15 @@ public class ConceptChronologyImpl
       } else {
          assemblageSequence = logicCoordinate.getStatedAssemblageNid();
       }
-
+      List<LatestVersion<LogicGraphVersion>> latestVersionList = Get.assemblageService()
+                .getSnapshot(LogicGraphVersion.class, stampCoordinate)
+                .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence);
+      if (latestVersionList.isEmpty()) {
+         return new LatestVersion<>();
+      }
       return Get.assemblageService()
                 .getSnapshot(LogicGraphVersion.class, stampCoordinate)
-                .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
-                .findFirstVersion();
+                .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence).get(0);
    }
 
    /**

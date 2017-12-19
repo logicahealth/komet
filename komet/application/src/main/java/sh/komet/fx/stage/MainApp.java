@@ -34,21 +34,21 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.net.MalformedURLException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import javafx.application.Application;
 import javafx.application.Platform;
 
+import javafx.concurrent.Task;
 
 import javafx.fxml.FXMLLoader;
 
@@ -62,24 +62,33 @@ import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.util.FxGet;
 
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.api.constants.MemoryConfiguration;
 
 //~--- classes ----------------------------------------------------------------
+
 public class MainApp
         extends Application {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
-
    public static final String SPLASH_IMAGE = "prism-splash.png";
 
    //~--- methods -------------------------------------------------------------
+
    /**
     * The main() method is ignored in correctly deployed JavaFX application. main() serves only as fallback in case the
     * application can not be launched through deployment artifacts, e.g., in IDEs with limited FX support. NetBeans
@@ -97,66 +106,50 @@ public class MainApp
    // for each tab group, add a + control to create new tabs...
    @Override
    public void start(Stage stage)
-           throws Exception {
+            throws Exception {
       // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
       SvgImageLoaderFactory.install();
+      LookupService.startupPreferenceProvider();
 
-      if (Files.exists(Paths.get("target", "data", "meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/meta-db.data");
-      } else if (Files.exists(Paths.get("target", "data", "solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/solor-db.data");
-      } else if (Files.exists(Paths.get("data", "meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/meta-db.data");
-      } else if (Files.exists(Paths.get("data", "solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/solor-db.data");
-      } else if (Files.exists(Paths.get("meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "meta-db.data");
-      } else if (Files.exists(Paths.get("solor-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "solor-db.data");
-      } else {
-         throw new UnsupportedOperationException(
-                 "Can't find data directory... Working dir: " + System.getProperty("user.dir"));
-      }
+      IsaacPreferences appPreferences = Get.applicationPreferences();
+      appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+      
+      appPreferences.sync();
 
-      // /Users/kec/isaac/semiotic-history/isaac/komet/css/src/main/resources/user.css
-      if (setPropertyIfFileExists(
-              USER_CSS_LOCATION_PROPERTY,
-              Paths.get(
-                      "/Users",
-                      "kec",
-                      "isaac",
-                      "semiotic-history",
-                      "isaac",
-                      "komet",
-                      "css",
-                      "src",
-                      "main",
-                      "resources",
-                      "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {
-      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {
-      } else {
-         throw new UnsupportedOperationException(
-                 "Can't find user.css file... Working dir: " + System.getProperty("user.dir"));
-      }
-
+      appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
       LookupService.startupIsaac();
 
-      FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-      Parent root = loader.load();
+      if (Get.metadataService()
+             .importMetadata()) {
+         final StampCoordinate stampCoordinate = Get.coordinateFactory()
+                                                    .createDevelopmentLatestStampCoordinate();
+         final LogicCoordinate logicCoordinate = Get.coordinateFactory()
+                                                    .createStandardElProfileLogicCoordinate();
+         final EditCoordinate  editCoordinate  = Get.coordinateFactory()
+                                                    .createClassifierSolorOverlayEditCoordinate();
+         final ClassifierService logicService = Get.logicService()
+                                                   .getClassifierService(
+                                                         stampCoordinate,
+                                                               logicCoordinate,
+                                                               editCoordinate);
+         final Task<ClassifierResults> classifyTask      = logicService.classify();
+         final ClassifierResults       classifierResults = classifyTask.get();
+      }
+
+      FXMLLoader           loader     = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+      Parent               root       = loader.load();
       KometStageController controller = loader.getController();
 
       root.setId(UUID.randomUUID()
-              .toString());
+                     .toString());
 
       Scene scene = new Scene(root);
 
       // GraphController.setSceneForControllers(scene);
       scene.getStylesheets()
-              .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+           .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
       scene.getStylesheets()
-              .add(Iconography.getStyleSheetStringUrl());
+           .add(Iconography.getStyleSheetStringUrl());
 
       // SNAPSHOT
       // Chronology
@@ -169,10 +162,10 @@ public class MainApp
       // CHILLDE
       // Knowledge, Language, Dialect, Chronology
       // KOLDAC
-      stage.setTitle("SOLOR");
+      stage.setTitle("Viewer");
       stage.setScene(scene);
       FxGet.statusMessageService()
-              .addScene(scene, controller::reportStatus);
+           .addScene(scene, controller::reportStatus);
       stage.show();
       stage.setOnCloseRequest(this::handleShutdown);
 
@@ -184,23 +177,6 @@ public class MainApp
       LookupService.shutdownSystem();
       Platform.exit();
       System.exit(0);
-
-   }
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    *
-    * @return true if the file existed, and the property was set.
-    */
-   private boolean setPropertyIfFileExists(String property, Path filePath)
-           throws MalformedURLException {
-      if (Files.exists(filePath)) {
-         System.setProperty(property, filePath.toUri()
-                 .toURL()
-                 .toString());
-         return true;
-      }
-
-      return false;
    }
 }
+

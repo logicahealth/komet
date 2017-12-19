@@ -54,35 +54,28 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
         @Override
         protected boolean test(final Object value1, final Object value2) {
 
-           try {
-              ConceptSnapshot possibleKind = null;
-              ConceptSnapshot parentKind = null;
-              
-              if (ConceptSnapshot.class.isAssignableFrom(value1.getClass())) {
-                 possibleKind = (ConceptSnapshot) value1;
-              } else {
-                 throw new UnsupportedOperationException("Can't convert: " + value1.getClass() + ": " + value1);
-              }
-              if (ConceptSnapshot.class.isAssignableFrom(value2.getClass())) {
-                 parentKind = (ConceptSnapshot) value2;
-              } else {
-                 throw new UnsupportedOperationException("Can't convert: " + value2);
-              }
-              
-              if (!possibleKind.getCoordinateUuid().equals(parentKind.getCoordinateUuid())) {
-                 throw new UnsupportedOperationException("Snapshots have different manifold coordinates: \n"
-                         + " possibleKind: " + possibleKind
-                         + " parentKind: " + parentKind
-                 );
-              }
-              ManifoldCoordinate manifoldCoordinate = parentKind;
-              
-              return this.getOperator().isNegated()
-                      ^ (Get.taxonomyService().getSnapshot(manifoldCoordinate).get().isKindOf(possibleKind.getNid(),
-                              parentKind.getNid()));
-           } catch (InterruptedException | ExecutionException ex) {
-              throw new RuntimeException(ex);
+           ConceptSnapshot possibleKind = null;
+           ConceptSnapshot parentKind = null;
+           if (ConceptSnapshot.class.isAssignableFrom(value1.getClass())) {
+              possibleKind = (ConceptSnapshot) value1;
+           } else {
+              throw new UnsupportedOperationException("Can't convert: " + value1.getClass() + ": " + value1);
            }
+           if (ConceptSnapshot.class.isAssignableFrom(value2.getClass())) {
+              parentKind = (ConceptSnapshot) value2;
+           } else {
+              throw new UnsupportedOperationException("Can't convert: " + value2);
+           }
+           if (!possibleKind.getCoordinateUuid().equals(parentKind.getCoordinateUuid())) {
+              throw new UnsupportedOperationException("Snapshots have different manifold coordinates: \n"
+                      + " possibleKind: " + possibleKind
+                      + " parentKind: " + parentKind
+              );
+           }
+           ManifoldCoordinate manifoldCoordinate = parentKind;
+           return this.getOperator().isNegated()
+                   ^ (Get.taxonomyService().getSnapshot(manifoldCoordinate).isKindOf(possibleKind.getNid(),
+                           parentKind.getNid()));
         }
 
         @Override

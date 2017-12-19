@@ -55,7 +55,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -88,7 +88,7 @@ public class ConceptDetailTreeTableController {
    @FXML  // fx:id="conceptGeneralColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> conceptGeneralColumn;
    @FXML  // fx:id="conceptStatusColumn"
-   private TreeTableColumn<ObservableCategorizedVersion, State> conceptStatusColumn;
+   private TreeTableColumn<ObservableCategorizedVersion, Status> conceptStatusColumn;
    @FXML  // fx:id="conceptAuthorTimeColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> conceptAuthorTimeColumn;
    @FXML  // fx:id="conceptTimeColumn"

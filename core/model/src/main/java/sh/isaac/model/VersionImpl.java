@@ -42,7 +42,7 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
@@ -332,7 +332,7 @@ public abstract class VersionImpl
     * @param state the new state
     */
    @Override
-   public void setStatus(State state) {
+   public void setStatus(Status state) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
@@ -416,7 +416,7 @@ public abstract class VersionImpl
     * @return the state
     */
    @Override
-   public State getState() {
+   public Status getState() {
       return Get.stampService()
               .getStatusForStamp(this.stampSequence);
    }

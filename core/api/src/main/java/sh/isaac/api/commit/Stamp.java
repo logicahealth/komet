@@ -54,13 +54,14 @@ import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.State;
+import sh.isaac.api.Status;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
  * The Class Stamp.
+ * TODO: add license and copyright nids to the class. . 
  */
 public class Stamp
          implements Comparable<Stamp> {
@@ -74,7 +75,7 @@ public class Stamp
    private final int pathNid;
 
    /** The status. */
-   private final State status;
+   private final Status status;
 
    /** The module nid. */
    private final int moduleNid;
@@ -93,7 +94,7 @@ public class Stamp
    public Stamp(DataInput in)
             throws IOException {
       super();
-      this.status         = State.values()[in.readInt()];
+      this.status         = Status.valueOf(in.readUTF());
       this.time           = in.readLong();
       this.authorNid = in.readInt();
       this.moduleNid = in.readInt();
@@ -124,7 +125,7 @@ public class Stamp
     * @param moduleNid the module nid
     * @param pathNid the path nid
     */
-   public Stamp(State status, long time, int authorNid, int moduleNid, int pathNid) {
+   public Stamp(Status status, long time, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
       this.time           = time;
@@ -275,7 +276,7 @@ public class Stamp
     * @return the stamp
     */
    public static Stamp stampFromIntStamp(int stamp) {
-      final State status         = Get.stampService()
+      final Status status         = Get.stampService()
                                       .getStatusForStamp(stamp);
       final long  time           = Get.stampService()
                                       .getTimeForStamp(stamp);
@@ -320,7 +321,7 @@ public class Stamp
     */
    public void write(DataOutput out)
             throws IOException {
-      out.writeInt(this.status.ordinal());
+      out.writeUTF(this.status.name());
       out.writeLong(this.time);
       out.writeInt(this.authorNid);
       out.writeInt(this.moduleNid);
@@ -385,7 +386,7 @@ public class Stamp
     *
     * @return the status
     */
-   public State getStatus() {
+   public Status getStatus() {
       return this.status;
    }
 
