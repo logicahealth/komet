@@ -322,18 +322,6 @@ public class BdbTaxonomyProvider
       return new TaxonomySnapshotProvider(tc, treeTask);
    }
 
-   @Override
-   public IntStream getTaxonomyChildSequences(int parentId) {
-      throw new UnsupportedOperationException(
-              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public IntStream getTaxonomyParentSequences(int childId) {
-      throw new UnsupportedOperationException(
-              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
    private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
       int conceptAssemblageNid = ModelGet.identifierService()
               .getAssemblageNidForNid(nid);

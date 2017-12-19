@@ -22,6 +22,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import sh.isaac.api.LookupService;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 
@@ -41,13 +42,14 @@ public class SolorMojo extends AbstractMojo {
 
 
    public SolorMojo() {
-      System.setProperty(IMPORT_FOLDER_LOCATION, importFolderLocation);
    }
    
    @Override
    public void execute() throws MojoExecutionException, MojoFailureException {
+      System.setProperty(IMPORT_FOLDER_LOCATION, importFolderLocation);
+      LookupService.startupIsaac();
       Rf2DirectImporter importer = new Rf2DirectImporter();
       importer.run();
+      LookupService.shutdownIsaac();
    }
-   
 }
