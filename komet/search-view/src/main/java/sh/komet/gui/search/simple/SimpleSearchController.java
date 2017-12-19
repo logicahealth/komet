@@ -59,6 +59,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.iconography.Iconography;
@@ -79,7 +80,7 @@ public class SimpleSearchController implements ExplorationNode {
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
     private final SimpleStringProperty       titleNodeProperty =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
+    private SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
     private final SimpleObjectProperty<Node> iconProperty      =
         new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
     private final ObservableList<CustomCheckListItem>         kindOfObservableList =
@@ -109,11 +110,11 @@ public class SimpleSearchController implements ExplorationNode {
 
     @FXML
     public void searchRefresh() {
+
         if(this.searchService.isRunning())
             this.searchService.cancel();
-        else
-            this.searchService.reset();
 
+        this.searchService.reset();
         this.searchTextField.clear();
         this.resultTable.getItems().clear();
         this.resultTable.setPlaceholder(new Label("No content in table"));
@@ -121,6 +122,7 @@ public class SimpleSearchController implements ExplorationNode {
         this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, false);
         this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, false);
         this.searchTextField.setDisable(false);
+        this.searchProgressBar.setProgress(0);
     }
 
     @FXML
@@ -173,6 +175,7 @@ public class SimpleSearchController implements ExplorationNode {
     private void initializeControls() {
         initializeSearchComponentStatus();
         initializeKindOfCheckListView();
+        initializeProgressBar();
         initializeSearchService();
     }
 
@@ -203,7 +206,8 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
     private void initializeProgressBar(){
-
+        this.searchService.progressProperty().addListener(
+                (observable, oldValue, newValue) -> this.searchProgressBar.setProgress(newValue.doubleValue()));
     }
 
     private void initializeSearchService(){
@@ -225,14 +229,14 @@ public class SimpleSearchController implements ExplorationNode {
                         break;
                     }
 
-                    this.searchService.getValue().stream().forEach(value -> {
+                    this.searchService.getValue().stream().forEach(nid -> {
                         LatestVersion<ObservableDescriptionVersion> latestDescription =
-                                (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(value);
+                                (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(nid);
 
                         if (latestDescription.isPresent()) {
                            tableItems.add(latestDescription.get());
                         } else {
-                           LOG.error("No latest description for: " + value);
+                           LOG.error("No latest description for: " + nid);
                         }
                     });
 

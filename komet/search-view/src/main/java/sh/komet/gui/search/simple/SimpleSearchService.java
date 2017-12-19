@@ -11,7 +11,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
@@ -27,6 +26,9 @@ public class SimpleSearchService extends Service<NidSet> {
     private final SimpleObjectProperty<IndexedCheckModel<SimpleSearchController.CustomCheckListItem>> searchableParents = new SimpleObjectProperty<>();
     private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
     private Manifold manifold;
+    private final double PROGRESS_MAX_VALUE = 100;
+    private final double PROGRESS_INCREMENT_VALUE = 33.333; //Hard Coded based on Current Filter Algorithm (3 parts)
+    private double PROGRESS_CURRENT = 0;
 
     @Override
     protected Task<NidSet> createTask() {
@@ -34,109 +36,121 @@ public class SimpleSearchService extends Service<NidSet> {
             @Override
             protected NidSet call() {
 
+                PROGRESS_CURRENT = 0;
                 final NidSet results = new NidSet();
 
-                if (!getParameter().isEmpty()) {
-                    descriptionLuceneMatch.setManifoldCoordinate(getManifold());
-                    descriptionLuceneMatch.setParameterString(getParameter());
-                    results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
+                if (!getLuceneQuery().isEmpty()) {
 
                     final NidSet filteredValues = new NidSet();
-
-                    // Get a combined set of allowed concepts...
                     TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(getManifold());
 
-                    // if the result set is small, it will be faster to use the isKindOf method call, rather than pre-computing
-                    // all allowed concepts as the kindOfSequenceSet would. You can play with changing this number to compare
-                    // performance choices.
-                    NidSet allowedConceptNids = null;
-
-                    try {
-                        if (results.size() > 500) {
-                            allowedConceptNids = new NidSet();
-
-                            for (int allowedParentNid : getSearchableParents().asArray()) {
-                                System.out.println(allowedParentNid);
-                                NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
-
-                                allowedConceptNids.addAll(kindOfSet);
-                            }
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                    // I assume this is a description nid...
-                    double progressCount = 0;
-                    for (int descriptionNid : results.asArray()) {
-
-                        SemanticChronology descriptionChronology = Get.assemblageService()
-                                                                      .getSemanticChronology(descriptionNid);
-                        LatestVersion<DescriptionVersion> description =
-                            descriptionChronology.getLatestVersion(getManifold());
-
-                        // TODO, this step probably filters out inactive descriptions, which is not always what we do.
-                        // The stamp coordinate would have to have both active and inactive status values, but I don't want to mess with the
-                        // manifold here, save that for the FLOWR query to get right.
-                        if (!description.isPresent()) {
-
-                            // move on to the next one...
-                            continue;
-                        }
-
-                        DescriptionVersion descriptionVersion = description.get();
-                        int                conceptNid         = descriptionVersion.getReferencedComponentNid();
-
-                        if (getSearchComponentStatus() != SearchComponentStatus.DONT_CARE) {
-                            boolean active = Get.conceptActiveService().isConceptActive(conceptNid, getManifold());
-
-                            if (!getSearchComponentStatus().filter(active)) {
-
-                                // move on to the next one...
-                                continue;
-                            }
-                        }
-
-                        if (!getSearchableParents().isEmpty()) {
-                            if (allowedConceptNids != null) {
-                                if (!allowedConceptNids.contains(conceptNid)) {
-
-                                    // move on to the next one...
-                                    continue;
-                                }
-                            } else {
-                                boolean allowedParentFound = false;
-
-                                for (int allowedParentNid : getSearchableParents().asArray()) {
-                                    if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
-                                        allowedParentFound = true;
-
-                                        // break the allowedParents loop
-                                        break;
-                                    }
-                                }
-
-                                if (!allowedParentFound) {
-
-                                    // move on to the next one.
-                                    continue;
-                                }
-                            }
-                        }
-
-                        if(progressCount % 5 == 0) {
-                           super.updateProgress(progressCount, results.size());
-                        }
-
-                        progressCount++;
-                        filteredValues.add(descriptionNid);
-                    }
+                    runLuceneDescriptionQuery(results);
+                    NidSet allowedConceptNids = findAllKindOfConcepts(results, taxonomySnapshot);
+                    filterAllSemanticsBasedOnReferencedConcepts(results, allowedConceptNids, filteredValues, taxonomySnapshot);
 
                     results.clear();
                     results.addAll(filteredValues);
                 }
 
                 return results;
+            }
+
+            private void runLuceneDescriptionQuery(NidSet results){
+                updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
+                descriptionLuceneMatch.setManifoldCoordinate(getManifold());
+                descriptionLuceneMatch.setParameterString(getLuceneQuery());
+                results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
+            }
+
+            private NidSet findAllKindOfConcepts(NidSet results, TaxonomySnapshotService taxonomySnapshot){
+                NidSet allowedConceptNids = new NidSet();
+
+                try {
+                    if (results.size() > 500) {
+
+                        for (int allowedParentNid : getSearchableParents().asArray()) {
+                            System.out.println(allowedParentNid);
+                            NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
+
+                            allowedConceptNids.addAll(kindOfSet);
+
+                            updateProgress(
+                                    computeProgress(PROGRESS_INCREMENT_VALUE
+                                            / getSearchableParents().asArray().length)
+                                    , PROGRESS_MAX_VALUE );
+                        }
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                if(allowedConceptNids.isEmpty())
+                    updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
+
+                return allowedConceptNids;
+            }
+
+            private void filterAllSemanticsBasedOnReferencedConcepts(NidSet results, NidSet allowedConceptNids
+                    , NidSet filteredValues, TaxonomySnapshotService taxonomySnapshot){
+
+                if(results.isEmpty())
+                    updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE );
+
+                for (int descriptionNid : results.asArray()) {
+                    updateProgress(
+                            computeProgress(PROGRESS_INCREMENT_VALUE / results.asArray().length)
+                            , PROGRESS_MAX_VALUE );
+
+                    LatestVersion<DescriptionVersion> description = Get.assemblageService()
+                            .getSemanticChronology(descriptionNid)
+                            .getLatestVersion(getManifold());
+
+                    if (!description.isPresent()) {
+                        continue;
+                    }
+
+                    DescriptionVersion descriptionVersion = description.get();
+                    int                conceptNid         = descriptionVersion.getReferencedComponentNid();
+
+                    if (getSearchComponentStatus() != SearchComponentStatus.DONT_CARE) {
+                        boolean active = Get.conceptActiveService().isConceptActive(conceptNid, getManifold());
+
+                        if (!getSearchComponentStatus().filter(active)) {
+                            continue;
+                        }
+                    }
+
+                    if (!getSearchableParents().isEmpty()) {
+                        if (!allowedConceptNids.isEmpty()) {
+                            if (!allowedConceptNids.contains(conceptNid)) {
+                                continue;
+                            }
+                        } else {
+                            boolean allowedParentFound = false;
+
+                            for (int allowedParentNid : getSearchableParents().asArray()) {
+                                if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
+                                    allowedParentFound = true;
+                                    break;
+                                }
+                            }
+
+                            if (!allowedParentFound) {
+                                continue;
+                            }
+                        }
+                    }
+                    filteredValues.add(descriptionNid);
+                }
+            }
+
+            private double computeProgress(double incrementValue){
+                if(PROGRESS_CURRENT == 0){
+                    PROGRESS_CURRENT = incrementValue;
+                }else{
+                    PROGRESS_CURRENT += incrementValue;
+                }
+                return PROGRESS_CURRENT;
             }
         };
     }
@@ -168,12 +182,14 @@ public class SimpleSearchService extends Service<NidSet> {
         this.manifold = manifold;
     }
 
-    private String getParameter() {
+    private String getLuceneQuery() {
         return luceneQuery.get();
     }
 
     private SearchComponentStatus getSearchComponentStatus() {
         return searchComponentStatus.get();
     }
+
+
 
 }
