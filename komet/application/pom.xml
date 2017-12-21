@@ -80,8 +80,13 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>bdb-chronology</artifactId>
-         <version>${project.parent.version}</version>
+         <artifactId>chronology</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>filesystem-datastore</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>sh.isaac.solor</groupId>

@@ -30,8 +30,13 @@
                <dependencies>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>
-                     <artifactId>bdb-chronology</artifactId>
-                     <version>${project.parent.version}</version>
+                     <artifactId>chronology</artifactId>
+                     <version>${project.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>filesystem-datastore</artifactId>
+                     <version>${project.version}</version>
                   </dependency>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>
@@ -60,8 +65,13 @@
                   </dependency>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>
-                     <artifactId>bdb-chronology</artifactId>
-                     <version>${project.parent.version}</version>
+                     <artifactId>chronology</artifactId>
+                     <version>${project.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>filesystem-datastore</artifactId>
+                     <version>${project.version}</version>
                   </dependency>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>
@@ -106,12 +116,17 @@
                <artifactId>solor-mojo</artifactId>
                <version>${project.parent.version}</version>
                <dependencies>
-                   <dependency>
+                  <dependency>
                      <groupId>sh.isaac.provider</groupId>
-                     <artifactId>bdb-chronology</artifactId>
-                     <version>${project.parent.version}</version>
+                     <artifactId>chronology</artifactId>
+                     <version>${project.version}</version>
                   </dependency>
-                 <dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>filesystem-datastore</artifactId>
+                     <version>${project.version}</version>
+                  </dependency>
+                  <dependency>
                      <groupId>sh.isaac.provider</groupId>
                      <artifactId>preferences</artifactId>
                      <version>${project.parent.version}</version>
@@ -138,8 +153,13 @@
                   </dependency>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>
-                     <artifactId>bdb-chronology</artifactId>
-                     <version>${project.parent.version}</version>
+                     <artifactId>chronology</artifactId>
+                     <version>${project.version}</version>
+                  </dependency>
+                  <dependency>
+                     <groupId>sh.isaac.provider</groupId>
+                     <artifactId>filesystem-datastore</artifactId>
+                     <version>${project.version}</version>
                   </dependency>
                   <dependency>
                      <groupId>sh.isaac.provider</groupId>

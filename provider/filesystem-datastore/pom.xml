@@ -3,25 +3,18 @@
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>sh.isaac</groupId>
-      <artifactId>integration</artifactId>
+      <artifactId>provider</artifactId>
       <version>4.43-SNAPSHOT</version>
    </parent>
-   <groupId>sh.isaac.integration</groupId>
-   <artifactId>tests</artifactId>
+   <groupId>sh.isaac.provider</groupId>
+   <artifactId>filesystem-datastore</artifactId>
    <packaging>jar</packaging>
-   <name>ISAAC integration: Tests</name>
+   <name>ISAAC provider: Datastore - File sytem</name>
    <dependencies>
       <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>preferences</artifactId>
-         <version>${project.parent.version}</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
          <groupId>sh.isaac.core</groupId>
-         <artifactId>metadata</artifactId>
+         <artifactId>model</artifactId>
          <version>${project.version}</version>
-         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.glassfish.hk2</groupId>
@@ -31,89 +24,67 @@
       <dependency>
          <groupId>org.testng</groupId>
          <artifactId>testng</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>ibdf</artifactId>
-         <version>${project.version}</version>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>commit</artifactId>
-         <version>${project.version}</version>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>stamp</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>chronology</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>filesystem-datastore</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>logic</artifactId>
-         <version>${project.version}</version>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>progress</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>coordinate</artifactId>
-         <version>${project.version}</version>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>query</artifactId>
-         <version>${project.version}</version>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>path</artifactId>
-         <version>${project.version}</version>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
+      <!--       Metadata -->
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>metadata-source</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
    </dependencies>
+  
    <build>
       <plugins>
+         <!-- Unpack data projects, load econcepts files,repack database -->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
             <executions>
                <execution>
-                  <id>extract-test-dependencies</id>
-                  <phase>generate-test-resources</phase>
+                  <id>extract-ibdf</id>
+                  <phase>generate-resources</phase>
                   <goals>
-                     <goal>unpack</goal>
+                     <goal>unpack-dependencies</goal>
                   </goals>
                   <configuration>
-                     <skip>${skipTests}</skip>
-                     <artifactItems>
-                        <artifact>
-                           <groupId>sh.isaac.core</groupId>
-                           <artifactId>metadata</artifactId>
-                           <version>${project.version}</version>
-                           <classifier>all</classifier>
-                           <type>ibdf.zip</type>
-                        </artifact>
-                     </artifactItems>
+                     <includeArtifactIds>metadata</includeArtifactIds>
                      <outputDirectory>${project.build.directory}/data</outputDirectory>
                   </configuration>
                </execution>
@@ -129,8 +100,8 @@
                <useSystemClassLoader>true</useSystemClassLoader>
                <useManifestOnlyJar>false</useManifestOnlyJar>
                <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
-               <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
-<!--               <debugForkedProcess>true</debugForkedProcess>-->
+               <!--                     <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+               <!--                    <debugForkedProcess>true</debugForkedProcess>-->
                <includes>
                   <!-- Let JUnit annotations decide -->
                   <include>**/*.class</include>

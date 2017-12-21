@@ -14,10 +14,10 @@
     <profile>
          <id>bdb</id>
          <activation>
-            <activeByDefault>true</activeByDefault>
+            <activeByDefault>false</activeByDefault>
          </activation>
          <modules>
-            <module>bdb-chronology</module>
+            <module>bdb-datastore</module>
          </modules>
       </profile>
     </profiles>
@@ -36,8 +36,10 @@
         <module>stamp</module>
         <module>assemblage</module>
         <module>drools</module>
-        <module>xodus-chronology</module>
         <module>alert-resolver</module>
         <module>preferences</module>
+        <module>filesystem-datastore</module>
+        <module>chronology</module>
+        <module>xodus-datastore</module>
     </modules>
 </project>

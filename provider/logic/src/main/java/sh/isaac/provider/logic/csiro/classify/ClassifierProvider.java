@@ -56,10 +56,10 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.taxonomy.GraphCollector;
 import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeWithIntArraySets;
-import sh.isaac.provider.io.taxonomy.TaxonomyProvider;
-import sh.isaac.provider.io.taxonomy.GraphCollector;
+import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 
 //~--- classes ----------------------------------------------------------------

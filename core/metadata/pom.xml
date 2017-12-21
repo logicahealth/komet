@@ -61,11 +61,16 @@
                   <artifactId>ibdf</artifactId>
                   <version>${project.version}</version>
                </dependency>
-               <dependency>
-                  <groupId>sh.isaac.provider</groupId>
-                  <artifactId>bdb-chronology</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>chronology</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>filesystem-datastore</artifactId>
+         <version>${project.version}</version>
+      </dependency>
                <dependency>
                   <groupId>sh.isaac.provider</groupId>
                   <artifactId>path</artifactId>

@@ -697,7 +697,6 @@ public class CommitProvider
                      //LOG.info("Found definition for TermAux.DESCRIPTION_ASSEMBLAGE: " + sc);
                   }
                   
-                  
                   Get.taxonomyService()
                           .updateTaxonomy(sc);
                } else {
