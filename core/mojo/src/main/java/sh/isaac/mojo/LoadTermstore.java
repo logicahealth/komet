@@ -414,6 +414,8 @@ public class LoadTermstore
             this.stampCommentCount = 0;
             this.skippedItems.clear();
          }
+         
+         
          Get.startIndexTask().get();
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 

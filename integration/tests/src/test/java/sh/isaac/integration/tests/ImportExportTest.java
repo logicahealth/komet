@@ -95,8 +95,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
-import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
+import sh.isaac.provider.io.taxonomy.TaxonomyProvider;
+import sh.isaac.provider.io.taxonomy.TaxonomyRecord;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -298,7 +298,7 @@ public class ImportExportTest {
          rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
       }
       StringBuilder rootsMessage = new StringBuilder();
-      SpinedIntIntArrayMap map = Get.service(BdbTaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
+      SpinedIntIntArrayMap map = Get.service(TaxonomyProvider.class).getTaxonomyRecordMap(rootAssemblages.findFirst().getAsInt());
       for (int root: roots) {
          rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
          

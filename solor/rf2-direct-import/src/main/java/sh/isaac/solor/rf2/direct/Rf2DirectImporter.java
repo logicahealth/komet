@@ -128,7 +128,6 @@ public class Rf2DirectImporter
 
          return null;
       } finally {
-         done();
          Get.activeTasks()
                  .remove(this);
       }

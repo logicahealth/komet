@@ -24,7 +24,6 @@
     <modules>
         <module>commit</module>
         <module>coordinate</module>
-        <module>identifier</module>
         <module>metacontent</module>
         <module>path</module>
         <module>progress</module>

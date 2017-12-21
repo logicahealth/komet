@@ -53,16 +53,6 @@
                </dependency>
                <dependency>
                   <groupId>sh.isaac.core</groupId>
-                  <artifactId>metadata-source</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>sh.isaac.provider</groupId>
-                  <artifactId>identifier</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>sh.isaac.core</groupId>
                   <artifactId>model</artifactId>
                   <version>${project.version}</version>
                </dependency>

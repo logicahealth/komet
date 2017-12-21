@@ -51,12 +51,6 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>identifier</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>test</scope>
-      </dependency><!--
--->      <dependency>
-         <groupId>sh.isaac.provider</groupId>
          <artifactId>progress</artifactId>
          <version>${project.parent.version}</version>
          <scope>test</scope>

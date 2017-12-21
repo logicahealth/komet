@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.logging.Level;
@@ -93,12 +94,14 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
       }
    }
 
-   public void write(File directory) {
+   public boolean write(File directory) {
+      AtomicBoolean wroteAny = new AtomicBoolean(false);
       spines.forEach((Integer key, AtomicReferenceArray<byte[][]> spine) -> {
          String spineKey = "spine-" + key;
          AtomicLong lastWriteSequence = lastWrite.computeIfAbsent(spineKey, (t) -> new AtomicLong());
          AtomicLong lastUpdateSequence = lastUpdate.computeIfAbsent(spineKey, (t) -> new AtomicLong());
          if (lastWriteSequence.get() < lastUpdateSequence.get()) {
+            wroteAny.set(true);
             lastWriteSequence.set(lastUpdateSequence.get());
             File spineFile = new File(directory, spineKey);
             try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
@@ -126,6 +129,7 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
          }
 
       });
+      return wroteAny.get();
    }
 
    @Override

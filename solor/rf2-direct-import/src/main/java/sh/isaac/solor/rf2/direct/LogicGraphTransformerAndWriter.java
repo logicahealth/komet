@@ -146,7 +146,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          for (IndexService indexer : indexers) {
             indexer.commitWriter();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

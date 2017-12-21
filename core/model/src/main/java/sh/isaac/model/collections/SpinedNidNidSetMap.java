@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
@@ -95,12 +96,19 @@ public class SpinedNidNidSetMap {
       }
    }
 
-   public void write(File directory) {
+   /**
+    * 
+    * @param directory
+    * @return true if data changed since last write. 
+    */
+   public boolean write(File directory) {
+      AtomicBoolean wroteAny = new AtomicBoolean(false);
       spines.forEach((Integer key, AtomicReferenceArray<int[]> spine) -> {
          String spineKey = "spine-" + key;
          AtomicLong lastWriteSequence = lastWrite.computeIfAbsent(spineKey, (t) -> new AtomicLong());
          AtomicLong lastUpdateSequence = lastUpdate.computeIfAbsent(spineKey, (t) -> new AtomicLong());
          if (lastWriteSequence.get() < lastUpdateSequence.get()) {
+            wroteAny.set(true);
             lastWriteSequence.set(lastUpdateSequence.get());
             File spineFile = new File(directory, spineKey);
             try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
@@ -124,6 +132,7 @@ public class SpinedNidNidSetMap {
          }
 
       });
+      return wroteAny.get();
    }
 
    public synchronized void add(int index, int element) {
