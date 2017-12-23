@@ -9,7 +9,7 @@
    <groupId>sh.isaac.provider</groupId>
    <artifactId>filesystem-datastore</artifactId>
    <packaging>jar</packaging>
-   <name>ISAAC provider: Datastore - File sytem</name>
+   <name>ISAAC provider: Datastore - File system</name>
    <dependencies>
       <dependency>
          <groupId>sh.isaac.core</groupId>

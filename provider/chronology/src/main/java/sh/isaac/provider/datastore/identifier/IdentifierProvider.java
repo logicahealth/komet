@@ -126,7 +126,7 @@ public class IdentifierProvider
    private void startMe() {
       LOG.info("Starting identifier provider.");
       this.store      = Get.service(DataStore.class);
-      this.uuidIntMapMap = UuidIntMapMap.create(new File(store.getDatabaseFolder().getParent().toAbsolutePath().toFile(), "uuid-nid-map"));
+      this.uuidIntMapMap = UuidIntMapMap.create(new File(store.getDatabaseFolder().toAbsolutePath().toFile(), "uuid-nid-map"));
       this.nid_AssemblageNid_Map = this.store.getNidToAssemblageNidMap();
       this.nid_ElementSequence_Map = this.store.getNidToElementSequenceMap();
        

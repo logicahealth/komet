@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
@@ -50,19 +49,24 @@ public class SpinedNidIntMap {
    private final int elementsPerSpine;
    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
    private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
-   ConcurrentHashMap<Integer, AtomicLong> lastWrite = new ConcurrentHashMap<>();
-   ConcurrentHashMap<Integer, AtomicLong> lastUpdate = new ConcurrentHashMap<>();
-
+   AtomicByteArray spineChangedArray = new AtomicByteArray(0);
 
    public SpinedNidIntMap() {
       this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
    }
 
-   public void read(File directory) {
+  /**
+    * 
+    * @param directory
+    * @return the number of spine files read. 
+    */
+   public int read(File directory) {
       File[] files = directory.listFiles((pathname) -> {
          return pathname.getName().startsWith("spine-");
       });
+      int spineFilesRead = 0;
       for (File spineFile : files) {
+          spineFilesRead++;
          int spine = Integer.parseInt(spineFile.getName().substring("spine-".length()));
          try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
             int arraySize = dis.readInt();
@@ -75,18 +79,27 @@ public class SpinedNidIntMap {
             Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
          }
       }
+      this.spineChangedArray = new AtomicByteArray(spines.size());
+      return spineFilesRead;
    }
 
    public boolean write(File directory) {
       directory.mkdirs();
       AtomicBoolean wroteAny = new AtomicBoolean(false);
+      AtomicByteArray spineChangedArrayForWrite = spineChangedArray;
+      int spineChangedArraySize = spineChangedArrayForWrite.length();
+      this.spineChangedArray = new AtomicByteArray(spines.size());
       spines.forEach((Integer key, AtomicIntegerArray spine) -> {
          String spineKey = "spine-" + key;
-         AtomicLong lastWriteSequence = lastWrite.computeIfAbsent(key, (t) -> new AtomicLong());
-         AtomicLong lastUpdateSequence = lastUpdate.computeIfAbsent(key, (t) -> new AtomicLong());
-         if (lastWriteSequence.get() < lastUpdateSequence.get()) {
+          boolean spineChanged;
+         if (key < spineChangedArraySize) {
+            spineChanged = spineChangedArrayForWrite.get(key) != 0;
+         } else {
+            spineChanged = true;
+         }
+        
+         if (spineChanged) {
             wroteAny.set(true);
-            lastWriteSequence.set(lastUpdateSequence.get());
             File spineFile = new File(directory, spineKey);
             try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
                dos.writeInt(spine.length());
@@ -139,7 +152,9 @@ public class SpinedNidIntMap {
       if (spineIndex > this.spines.size() + 2) {
          throw new IllegalStateException("Trying to add spine: " + spineIndex + " for: " + index);
       }
-      this.lastUpdate.computeIfAbsent(spineIndex, (t) -> new AtomicLong()).incrementAndGet();
+      if (spineIndex < spineChangedArray.length()) {
+         spineChangedArray.set(spineIndex, (byte) 1);
+      }
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
 
@@ -158,7 +173,9 @@ public class SpinedNidIntMap {
       }
      int spineIndex = index / elementsPerSpine;
       int indexInSpine = index % elementsPerSpine;
-      this.lastUpdate.computeIfAbsent(spineIndex, (t) -> new AtomicLong()).incrementAndGet();
+      if (spineIndex < spineChangedArray.length()) {
+         spineChangedArray.set(spineIndex, (byte) 1);
+      }
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
    }
 

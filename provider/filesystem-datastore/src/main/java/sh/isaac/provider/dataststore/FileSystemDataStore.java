@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.dataststore;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -71,16 +67,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -97,6 +90,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.DataStore;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.SpinedByteArrayArrayMap;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
@@ -104,10 +98,8 @@ import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.collections.SpinedNidNidSetMap;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.DataStore;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -115,61 +107,60 @@ import sh.isaac.model.DataStore;
 @Service
 @RunLevel(value = 0)
 public class FileSystemDataStore
-         implements DataStore {
-   private static final Logger LOG         = LogManager.getLogger();
+        implements DataStore {
+
+   private static final Logger LOG = LogManager.getLogger();
    private static final String DB_UUID_KEY = "IODataStore.uuid";
 
    //~--- fields --------------------------------------------------------------
-
-   ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map                 =
-      new ConcurrentHashMap<>();
-   private final Properties                                          properties              = new Properties();
-   private final ConcurrentHashMap<Integer, SpinedIntIntMap> assemblage_ElementToNid_Map     =
-      new ConcurrentHashMap<>();
-   private final ConcurrentHashMap<Integer, SpinedByteArrayArrayMap> spinedChronologyMapMap  =
-      new ConcurrentHashMap<>();
-   private final ConcurrentHashMap<Integer, SpinedIntIntArrayMap>    spinedTaxonomyMapMap    =
-      new ConcurrentHashMap<>();
-   private final SpinedNidNidSetMap componentToSemanticNidsMap                               = new SpinedNidNidSetMap();
-   private final ConcurrentHashMap<Integer, IsaacObjectType>         assemblageToType_Map    =
-      new ConcurrentHashMap<>();
+   ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map
+           = new ConcurrentHashMap<>();
+   private final Properties properties = new Properties();
+   private final ConcurrentHashMap<Integer, SpinedIntIntMap> assemblage_ElementToNid_Map
+           = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Integer, SpinedByteArrayArrayMap> spinedChronologyMapMap
+           = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Integer, SpinedIntIntArrayMap> spinedTaxonomyMapMap
+           = new ConcurrentHashMap<>();
+   private final SpinedNidNidSetMap componentToSemanticNidsMap = new SpinedNidNidSetMap();
+   private final ConcurrentHashMap<Integer, IsaacObjectType> assemblageToType_Map
+           = new ConcurrentHashMap<>();
    private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
-   private SyncTask                                                  lastSyncTask            = null;
-   private Future<?>                                                 lastSyncFuture          = null;
-   private final Semaphore                                           syncSemaphore           = new Semaphore(1);
-   private final Semaphore                                           pendingSync             = new Semaphore(1);
-   private final SpinedNidIntMap                                     nidToAssemblageNidMap   = new SpinedNidIntMap();
-   private final SpinedNidIntMap                                     nidToElementSequenceMap = new SpinedNidIntMap();
-   private File                                                      isaacDbDirectory;
-   private File                                                      componentToSemanticMapDirectory;
-   private File                                                      assemblageNid_ElementSequenceToNid_MapDirectory;
-   private File                                                      taxonomyMapDirectory;
-   private File                                                      chronologySpinesDirectory;
-   private File                                                      assemblageToTypeFile;
-   private File                                                      sequenceGeneratorMapFile;
-   private File                                                      propertiesFile;
-   private File                                                      nidToAssemblageNidMapDirectory;
-   private File                                                      nidToElementSequenceMapDirectory;
+   private SyncTask lastSyncTask = null;
+   private Future<?> lastSyncFuture = null;
+   private final Semaphore syncSemaphore = new Semaphore(1);
+   private final Semaphore pendingSync = new Semaphore(1);
+   private final SpinedNidIntMap nidToAssemblageNidMap = new SpinedNidIntMap();
+   private final SpinedNidIntMap nidToElementSequenceMap = new SpinedNidIntMap();
+   private File isaacDbDirectory;
+   private File componentToSemanticMapDirectory;
+   private File assemblageNid_ElementSequenceToNid_MapDirectory;
+   private File taxonomyMapDirectory;
+   private File chronologySpinesDirectory;
+   private File assemblageToTypeFile;
+   private File sequenceGeneratorMapFile;
+   private File propertiesFile;
+   private File nidToAssemblageNidMapDirectory;
+   private File nidToElementSequenceMapDirectory;
 
    //~--- methods -------------------------------------------------------------
-
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
-      int             assemblageNid = chronology.getAssemblageNid();
-      IsaacObjectType objectType    = chronology.getIsaacObjectType();
+      int assemblageNid = chronology.getAssemblageNid();
+      IsaacObjectType objectType = chronology.getIsaacObjectType();
 
       assemblageToType_Map.put(assemblageNid, objectType);
 
       int assemblageForNid = ModelGet.identifierService()
-                                     .getAssemblageNidForNid(chronology.getNid());
+              .getAssemblageNidForNid(chronology.getNid());
 
       if (assemblageForNid == Integer.MAX_VALUE) {
          ModelGet.identifierService()
                  .setupNid(chronology.getNid(), assemblageNid, objectType);
 
          if (chronology instanceof SemanticChronologyImpl) {
-            SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
-            int                    referencedComponentNid = semanticChronology.getReferencedComponentNid();
+            SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
+            int referencedComponentNid = semanticChronology.getReferencedComponentNid();
 
             componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
          }
@@ -177,7 +168,7 @@ public class FileSystemDataStore
 
       SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
       int elementSequence = ModelGet.identifierService()
-                                    .getElementSequenceForNid(chronology.getNid(), assemblageNid);
+              .getElementSequenceForNid(chronology.getNid(), assemblageNid);
 
       spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
    }
@@ -185,9 +176,9 @@ public class FileSystemDataStore
    @Override
    public Future<?> sync() {
       if (pendingSync.tryAcquire()) {
-         lastSyncTask   = new SyncTask();
+         lastSyncTask = new SyncTask();
          lastSyncFuture = Get.executor()
-                             .submit(lastSyncTask);
+                 .submit(lastSyncTask);
          return lastSyncFuture;
       }
 
@@ -195,10 +186,10 @@ public class FileSystemDataStore
    }
 
    private void readAssemblageToTypeFile()
-            throws IOException {
+           throws IOException {
       if (assemblageToTypeFile.exists()) {
          try (DataInputStream dis = new DataInputStream(
-                                        new BufferedInputStream(new FileInputStream(assemblageToTypeFile)))) {
+                 new BufferedInputStream(new FileInputStream(assemblageToTypeFile)))) {
             int mapSize = dis.readInt();
 
             for (int i = 0; i < mapSize; i++) {
@@ -209,10 +200,10 @@ public class FileSystemDataStore
    }
 
    private void readSequenceGeneratorMapFile()
-            throws IOException {
+           throws IOException {
       if (sequenceGeneratorMapFile.exists()) {
          try (DataInputStream dis = new DataInputStream(
-                                        new BufferedInputStream(new FileInputStream(sequenceGeneratorMapFile)))) {
+                 new BufferedInputStream(new FileInputStream(sequenceGeneratorMapFile)))) {
             int mapSize = dis.readInt();
 
             for (int i = 0; i < mapSize; i++) {
@@ -230,20 +221,25 @@ public class FileSystemDataStore
       try {
          LOG.info("Startings IODataStore.");
 
-         Path folderPath = LookupService.getService(ConfigurationService.class)
-                                        .getChronicleFolderPath()
-                                        .resolve("datastore");
+         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+         Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
 
-         this.isaacDbDirectory                                = new File(folderPath.toFile(), "isaac.data");
-         this.propertiesFile                                  = new File(isaacDbDirectory, "properties.txt");
-         this.componentToSemanticMapDirectory                 = new File(isaacDbDirectory, "componentToSemanticMap");
+         if (!dataStorePath.isPresent()) {
+            throw new IllegalStateException("dataStorePath is not set");
+         }
+
+         Path folderPath = dataStorePath.get();
+
+         this.isaacDbDirectory = folderPath.toFile();
+         this.chronologySpinesDirectory = new File(isaacDbDirectory, "chronologies");
+         this.propertiesFile = new File(isaacDbDirectory, "properties.txt");
+         this.componentToSemanticMapDirectory = new File(isaacDbDirectory, "componentToSemanticMap");
          this.assemblageNid_ElementSequenceToNid_MapDirectory = new File(isaacDbDirectory, "assemblageToSequenceMap");
-         this.taxonomyMapDirectory                            = new File(isaacDbDirectory, "taxonomyMap");
-         this.chronologySpinesDirectory                       = new File(isaacDbDirectory, "chronologySpines");
-         this.assemblageToTypeFile                            = new File(isaacDbDirectory, "assemblageToType");
-         this.nidToAssemblageNidMapDirectory                  = new File(isaacDbDirectory, "componentToAssemblage");
-         this.sequenceGeneratorMapFile                        = new File(isaacDbDirectory, "sequenceGeneratorMap");
-         this.nidToElementSequenceMapDirectory = new File(isaacDbDirectory, "componentToAssemblageElement");
+         this.taxonomyMapDirectory = new File(isaacDbDirectory, "taxonomyMap");
+         this.assemblageToTypeFile = new File(isaacDbDirectory, "assemblageToTypeMap");
+         this.nidToAssemblageNidMapDirectory = new File(isaacDbDirectory, "componentToAssemblageMap");
+         this.sequenceGeneratorMapFile = new File(isaacDbDirectory, "sequenceGeneratorMap");
+         this.nidToElementSequenceMapDirectory = new File(isaacDbDirectory, "componentToAssemblageElementMap");
 
          if (isaacDbDirectory.exists()) {
             if (this.propertiesFile.exists()) {
@@ -253,12 +249,14 @@ public class FileSystemDataStore
 
                this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
             } else {
-               this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID().toString());
+               this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
+                       .toString());
                this.componentToSemanticMapDirectory.mkdirs();
                this.databaseValidity = DatabaseValidity.EMPTY_DIRECTORY;
             }
          } else {
-            this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID().toString());
+            this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
+                    .toString());
             this.isaacDbDirectory.mkdirs();
             this.componentToSemanticMapDirectory.mkdirs();
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
@@ -293,12 +291,12 @@ public class FileSystemDataStore
          // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
          // with an unbounded queue.
          ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                                           4,
-                                           4,
-                                           60,
-                                           TimeUnit.SECONDS,
-                                           new LinkedBlockingQueue<>(),
-                                           new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
+                 4,
+                 4,
+                 60,
+                 TimeUnit.SECONDS,
+                 new LinkedBlockingQueue<>(),
+                 new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
 
          executor.allowCoreThreadTimeOut(true);
 
@@ -314,41 +312,40 @@ public class FileSystemDataStore
    }
 
    private void writeAssemblageToTypeFile()
-            throws IOException {
+           throws IOException {
       try (DataOutputStream dos = new DataOutputStream(
-                                      new BufferedOutputStream(new FileOutputStream(assemblageToTypeFile)))) {
+              new BufferedOutputStream(new FileOutputStream(assemblageToTypeFile)))) {
          dos.writeInt(assemblageToType_Map.size());
 
-         for (Map.Entry<Integer, IsaacObjectType> entry: assemblageToType_Map.entrySet()) {
+         for (Map.Entry<Integer, IsaacObjectType> entry : assemblageToType_Map.entrySet()) {
             dos.writeInt(entry.getKey());
             dos.writeByte(entry.getValue()
-                               .getToken());
+                    .getToken());
          }
       }
    }
 
    private void writeSequenceGeneratorMapFile()
-            throws IOException {
+           throws IOException {
       try (DataOutputStream dos = new DataOutputStream(
-                                      new BufferedOutputStream(new FileOutputStream(sequenceGeneratorMapFile)))) {
+              new BufferedOutputStream(new FileOutputStream(sequenceGeneratorMapFile)))) {
          dos.writeInt(assemblageNid_SequenceGenerator_Map.size());
 
-         for (Map.Entry<Integer, AtomicInteger> entry: assemblageNid_SequenceGenerator_Map.entrySet()) {
+         for (Map.Entry<Integer, AtomicInteger> entry : assemblageNid_SequenceGenerator_Map.entrySet()) {
             dos.writeInt(entry.getKey());
             dos.writeInt(entry.getValue()
-                              .get());
+                    .get());
          }
       }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
    public int[] getAssemblageConceptNids() {
       int[] assemblageConceptNids = new int[assemblageToType_Map.size()];
-      int   i                     = 0;
+      int i = 0;
 
-      for (Integer assemblageConceptNid: assemblageToType_Map.keySet()) {
+      for (Integer assemblageConceptNid : assemblageToType_Map.keySet()) {
          assemblageConceptNids[i++] = assemblageConceptNid;
       }
 
@@ -362,15 +359,20 @@ public class FileSystemDataStore
       }
 
       return this.assemblage_ElementToNid_Map.computeIfAbsent(
-          assemblageNid,
+              assemblageNid,
               (key) -> {
                  SpinedIntIntMap map = new SpinedIntIntMap();
-                 File directory      = getSpineDirectory(
-                                           assemblageNid_ElementSequenceToNid_MapDirectory,
-                                           assemblageNid);
+                 File directory = getSpineDirectory(
+                         assemblageNid_ElementSequenceToNid_MapDirectory,
+                         assemblageNid);
 
                  if (directory.exists()) {
-                    map.read(directory);
+                    int filesRead = map.read(directory);
+                    if (filesRead > 0) {
+                        LOG.info("Read  " + filesRead + " element to nid files for assemblage: " 
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
+                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                    }
                  }
 
                  return map;
@@ -385,14 +387,14 @@ public class FileSystemDataStore
    @Override
    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
       OptionalInt assemblageNidOptional = ModelGet.identifierService()
-                                                  .getAssemblageNid(nid);
+              .getAssemblageNid(nid);
 
       if (assemblageNidOptional.isPresent()) {
-         int                     assemblageNid           = assemblageNidOptional.getAsInt();
+         int assemblageNid = assemblageNidOptional.getAsInt();
          int elementSequence = ModelGet.identifierService()
-                                       .getElementSequenceForNid(nid, assemblageNid);
+                 .getElementSequenceForNid(nid, assemblageNid);
          SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-         byte[][]                data                    = spinedByteArrayArrayMap.get(elementSequence);
+         byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
 
          if (data == null) {
             return Optional.empty();
@@ -400,14 +402,14 @@ public class FileSystemDataStore
 
          int size = 0;
 
-         for (byte[] dataEntry: data) {
+         for (byte[] dataEntry : data) {
             size = size + dataEntry.length;
          }
 
          ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-                                              size + 4);  // room for 0 int value at end to indicate last version
+                 size + 4);  // room for 0 int value at end to indicate last version
 
-         for (byte[] dataEntry: data) {
+         for (byte[] dataEntry : data) {
             byteBuffer.put(dataEntry);
          }
 
@@ -426,18 +428,22 @@ public class FileSystemDataStore
 
    private SpinedByteArrayArrayMap getChronologySpinedMap(int assemblageNid) {
       SpinedByteArrayArrayMap spinedMap = spinedChronologyMapMap.computeIfAbsent(
-                                              assemblageNid,
-                                                    (dbKey) -> {
-               SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap();
-               File                    spineDirectory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
+              assemblageNid,
+              (dbKey) -> {
+                 SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap();
+                 File spineDirectory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
 
-               if (spineDirectory.exists()) {
-                  spinedByteArrayArrayMap.read(spineDirectory);
-               }
-
-               LOG.info("Opening " + dbKey);
-               return spinedByteArrayArrayMap;
-            });
+                 if (spineDirectory.exists()) {
+                    int filesRead = spinedByteArrayArrayMap.read(spineDirectory);
+                    if (filesRead > 0) {
+                        LOG.info("Read  " + filesRead + 
+                                " chronology files for assemblage: " 
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
+                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                    }
+                 }
+                 return spinedByteArrayArrayMap;
+              });
 
       return spinedMap;
    }
@@ -450,6 +456,7 @@ public class FileSystemDataStore
    @Override
    public UUID getDataStoreId() {
       String uuidString = this.properties.getProperty(DB_UUID_KEY);
+
       return UUID.fromString(uuidString);
    }
 
@@ -488,47 +495,48 @@ public class FileSystemDataStore
    @Override
    public SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
       SpinedIntIntArrayMap spinedMap = spinedTaxonomyMapMap.computeIfAbsent(
-                                           assemblageNid,
-                                                 (dbKey) -> {
-               SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
-               File                 spineDirectory       = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
+              assemblageNid,
+              (dbKey) -> {
+                 SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
+                 File spineDirectory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
 
-               if (spineDirectory.exists()) {
-                  spinedIntIntArrayMap.read(spineDirectory);
-               }
-
-               LOG.info("Opening " + dbKey);
-               return spinedIntIntArrayMap;
-            });
+                 if (spineDirectory.exists()) {
+                    int filesRead = spinedIntIntArrayMap.read(spineDirectory);
+                    if (filesRead > 0) {
+                        LOG.info("Read  " + filesRead + " taxonomy files for assemblage: "
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
+                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                    }
+                 }
+                 
+                 return spinedIntIntArrayMap;
+              });
 
       return spinedMap;
    }
 
    //~--- inner classes -------------------------------------------------------
-
    private class SyncTask
            extends TimedTaskWithProgressTracker<Void> {
+
       public SyncTask() {
          updateTitle("Writing data to disk");
          addToTotalWork(9);  // TODO figure out total amoutn of work...
          Get.activeTasks()
-            .add(this);
+                 .add(this);
       }
 
       //~--- methods ----------------------------------------------------------
-
       @Override
       protected Void call()
-               throws Exception {
+              throws Exception {
          pendingSync.release();
          syncSemaphore.acquireUninterruptibly();
 
          try {
-            updateMessage("Writing properties...");
+            updateMessage("Writing sequence generator map...");
+            writeSequenceGeneratorMapFile();
 
-            try (FileWriter writer = new FileWriter(propertiesFile)) {
-               FileSystemDataStore.this.properties.store(writer, null);
-            }
 
             completedUnitOfWork();  // 1
             updateMessage("Writing assemblage nids...");
@@ -537,25 +545,33 @@ public class FileSystemDataStore
             updateMessage("Writing component to semantics map...");
 
             if (componentToSemanticNidsMap.write(componentToSemanticMapDirectory)) {
-               LOG.info("Synchronized changes to component to semantics map.");
+               LOG.info("Synchronized component to semantics map changes.");
             }
 
             completedUnitOfWork();  // 3
             updateMessage("Writing chronology spines...");
             spinedChronologyMapMap.forEach(
-                (assemblageNid, spinedMap) -> {
-                   if (spinedMap.write(getSpineDirectory(chronologySpinesDirectory, assemblageNid))) {
-                      LOG.info("Syncronized chronologies: " + assemblageNid);
-                   }
-                });
+                    (assemblageNid, spinedMap) -> {
+                       File directory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
+
+                       addInfoFile(directory, assemblageNid);
+
+                       if (spinedMap.write(directory)) {
+                          LOG.info("Syncronized chronologies: " + assemblageNid);
+                       }
+                    });
             completedUnitOfWork();  // 4
             updateMessage("Writing taxonomy spines...");
             spinedTaxonomyMapMap.forEach(
-                (assemblageNid, spinedMap) -> {
-                   if (spinedMap.write(getSpineDirectory(taxonomyMapDirectory, assemblageNid))) {
-                      LOG.info("Syncronizing taxonomies: " + assemblageNid);
-                   }
-                });
+                    (assemblageNid, spinedMap) -> {
+                       File directory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
+
+                       addInfoFile(directory, assemblageNid);
+
+                       if (spinedMap.write(directory)) {
+                          LOG.info("Syncronizing taxonomies: " + assemblageNid);
+                       }
+                    });
             completedUnitOfWork();  // 5
             updateMessage("Writing component to assemblage map...");
             nidToAssemblageNidMap.write(nidToAssemblageNidMapDirectory);
@@ -567,23 +583,65 @@ public class FileSystemDataStore
             // assemblage_ElementToNid_Map
             updateMessage("Writing assemblage element to component map...");
 
-            for (Map.Entry<Integer, SpinedIntIntMap> entry: assemblage_ElementToNid_Map.entrySet()) {
+            for (Map.Entry<Integer, SpinedIntIntMap> entry : assemblage_ElementToNid_Map.entrySet()) {
+               File directory = getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey());
+
+               addInfoFile(directory, entry.getKey());
                entry.getValue()
-                    .write(getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey()));
+                       .write(directory);
             }
 
             completedUnitOfWork();  // 8
-            updateMessage("Writing sequence generator map...");
-            writeSequenceGeneratorMapFile();
+            updateMessage("Writing properties...");
+
+            try (FileWriter writer = new FileWriter(propertiesFile)) {
+               FileSystemDataStore.this.properties.store(writer, null);
+            }
             completedUnitOfWork();  // 9
             updateMessage("Write complete");
             return null;
          } finally {
             syncSemaphore.release();
             Get.activeTasks()
-               .remove(this);
+                    .remove(this);
+         }
+      }
+
+      private void addInfoFile(File directory, Integer assemblageNid) {
+         if (LookupService.getCurrentRunLevel() >= LookupService.ISAAC_STARTED_RUNLEVEL) {
+            File parentDirectory = directory.getParentFile();
+            File[] filesWithPrefix = parentDirectory.listFiles((dir, name) -> name.startsWith(directory.getName()));
+
+            if (filesWithPrefix.length < 2) {
+               try {
+                  Optional<String> descriptionOptional = Get.concept(assemblageNid)
+                          .getPreferedConceptDescriptionText();
+
+                  if (descriptionOptional.isPresent()) {
+                     String description = descriptionOptional.get();
+                     if (!description.startsWith("No description")) {
+                        properties.put(Integer.toString(assemblageNid), description);
+                        properties.put(Integer.toUnsignedString(assemblageNid), description);
+                        description = description.replace('/', '|');
+                         
+                        File descriptionFile = new File(
+                                parentDirectory,
+                                Integer.toUnsignedString(
+                                        assemblageNid) + "-" + description);
+
+                        try {
+                           descriptionFile.getParentFile().mkdirs();
+                           descriptionFile.createNewFile();
+                        } catch (IOException ex) {
+                           LOG.error(ex);
+                        }
+                     }
+                  }
+               } catch (Throwable e) {
+                  e.printStackTrace();
+               }
+            }
          }
       }
    }
 }
-

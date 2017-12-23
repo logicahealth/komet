@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +32,7 @@ import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -366,6 +368,9 @@ public class AssemblageIndexer extends LuceneIndexer
 
    @Override
    public Future<Void> sync() {
-      throw new UnsupportedOperationException();
+      return Get.executor().submit(() -> {
+         commitWriter();
+         return null;
+      });
    }
 }

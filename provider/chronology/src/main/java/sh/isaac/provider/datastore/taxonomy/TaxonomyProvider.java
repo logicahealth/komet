@@ -141,9 +141,6 @@ public class TaxonomyProvider
     */
    private IdentifierProvider identifierService;
    private DataStore store;
-   private int inferredAssemblageNid;
-   private int isaNid;
-   private int roleGroupNid;
 
    //~--- constructors --------------------------------------------------------
    public TaxonomyProvider() {
@@ -220,10 +217,6 @@ public class TaxonomyProvider
               "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-   private SpinedIntIntArrayMap loadTaxonomyFromDatabase(int assemblageKey) {
-      return store.getTaxonomyMap(assemblageKey);
-   }
-
    /**
     * Start me.
     */
@@ -231,9 +224,6 @@ public class TaxonomyProvider
    private void startMe() {
       try {
          LOG.info("Starting BdbTaxonomyProvider post-construct");
-         this.inferredAssemblageNid = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
-         this.isaNid = TermAux.IS_A.getNid();
-         this.roleGroupNid = TermAux.ROLE_GROUP.getNid();
          this.store = Get.service(DataStore.class);
          Get.commitService()
                  .addChangeListener(this);
