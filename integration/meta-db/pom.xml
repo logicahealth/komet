@@ -81,7 +81,7 @@
                      <goal>count-concepts</goal>
                   </goals>
                   <configuration>
-                     <dataStoreLocation>${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/</dataStoreLocation>
+                     <dataStoreLocation>${project.build.directory}/${project.build.finalName}.data/</dataStoreLocation>
                   </configuration>
                </execution>
                <execution>

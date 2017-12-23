@@ -370,8 +370,8 @@ public class FileSystemDataStore
                     int filesRead = map.read(directory);
                     if (filesRead > 0) {
                         LOG.info("Read  " + filesRead + " element to nid files for assemblage: " 
-                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
-                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                                + " " + properties.getProperty(Integer.toString(assemblageNid)) 
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                     }
                  }
 
@@ -437,9 +437,9 @@ public class FileSystemDataStore
                     int filesRead = spinedByteArrayArrayMap.read(spineDirectory);
                     if (filesRead > 0) {
                         LOG.info("Read  " + filesRead + 
-                                " chronology files for assemblage: " 
-                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
-                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                                " chronology files for assemblage: "  
+                                + " " + properties.getProperty(Integer.toString(assemblageNid))
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                     }
                  }
                  return spinedByteArrayArrayMap;
@@ -503,9 +503,9 @@ public class FileSystemDataStore
                  if (spineDirectory.exists()) {
                     int filesRead = spinedIntIntArrayMap.read(spineDirectory);
                     if (filesRead > 0) {
-                        LOG.info("Read  " + filesRead + " taxonomy files for assemblage: "
-                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid) 
-                                + " " + properties.getProperty(Integer.toString(assemblageNid)));
+                        LOG.info("Read  " + filesRead + " taxonomy files for assemblage: " 
+                                + " " + properties.getProperty(Integer.toString(assemblageNid))
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                     }
                  }
                  
@@ -557,7 +557,9 @@ public class FileSystemDataStore
                        addInfoFile(directory, assemblageNid);
 
                        if (spinedMap.write(directory)) {
-                          LOG.info("Syncronized chronologies: " + assemblageNid);
+                          String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
+                          LOG.info("Syncronized chronologies: " + assemblageNid
+                          + " " + assemblageDescription);
                        }
                     });
             completedUnitOfWork();  // 4
@@ -569,7 +571,9 @@ public class FileSystemDataStore
                        addInfoFile(directory, assemblageNid);
 
                        if (spinedMap.write(directory)) {
-                          LOG.info("Syncronizing taxonomies: " + assemblageNid);
+                          String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
+                          LOG.info("Syncronizing taxonomies: " + assemblageNid
+                          + " " + assemblageDescription);
                        }
                     });
             completedUnitOfWork();  // 5

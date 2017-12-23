@@ -5,14 +5,14 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<baseDirectory>${artifactId}${resultArtifactClassifierWithLeadingHyphen}.data</baseDirectory>
+	<baseDirectory>${artifactId}.data</baseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/search</directory>
+			<directory>${project.build.directory}/${project.build.finalName}.data/search</directory>
 			<outputDirectory>search</outputDirectory>
 		</fileSet>
 		<fileSet>
-			<directory>${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF</directory>
+			<directory>${project.build.directory}/${project.build.finalName}.data/META-INF</directory>
 			<outputDirectory>META-INF</outputDirectory>
 		</fileSet>
 	</fileSets>

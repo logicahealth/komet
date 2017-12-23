@@ -215,7 +215,7 @@
                      <skip>${inParent}</skip>
                      <target>
                         <!-- Copy the things necessary to reproduce the build -->
-                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/">
+                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}.data/META-INF/maven/${project.groupId}/${project.artifactId}/">
                            <fileset dir="${basedir}">
                               <include name="*.txt" />
                               <include name="*.xml" />
@@ -226,10 +226,10 @@
                         </copy>
                                 
                         <!-- Create a file with the active build properties -->
-                        <echoproperties destfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
+                        <echoproperties destfile="${project.build.directory}/${project.build.finalName}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
                                 
                         <!-- Setup the manifest, copy the license files -->
-                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
+                        <copy filtering="false" toDir="${project.build.directory}/${project.build.finalName}.data/META-INF/">
                            <fileset dir="${basedir}">
                               <include name="LICENSE.txt" />
                               <include name="NOTICE.txt" />
@@ -237,11 +237,11 @@
                         </copy>
                                 
                         <!-- Write a manifest file, with properties filled in -->
-                        <copy filtering="true" toDir="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/">
+                        <copy filtering="true" toDir="${project.build.directory}/${project.build.finalName}.data/META-INF/">
                            <fileset dir="${basedir}/src/assembly/">
                               <include name="MANIFEST.MF" />
                            </fileset>
-                           <filterset begintoken="${" endtoken="}" filtersfile="${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
+                           <filterset begintoken="${" endtoken="}" filtersfile="${project.build.directory}/${project.build.finalName}.data/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties" />
                         </copy>
                      </target>
                   </configuration>
