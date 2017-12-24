@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -54,6 +55,9 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -129,6 +133,8 @@ public class IsomorphicResultsBottomUp
 
    /** The comparison expression to reference node id map. */
    int[] comparisonExpressionToReferenceNodeIdMap;
+   
+   Logger log = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
 
@@ -252,7 +258,8 @@ public class IsomorphicResultsBottomUp
          }
       }
 
-      return scoreSolutionMap.get(maxScore);
+      HashSet<IsomorphicSolution> temp = scoreSolutionMap.get(maxScore); 
+      return temp == null ? new HashSet<>()  : temp;
    }
 
    /**
@@ -675,10 +682,21 @@ public class IsomorphicResultsBottomUp
          nodesToTry = nextSetToTry;
       }
 
-      return possibleSolutions.stream()
-                              .max((IsomorphicSolution o1,
-                                    IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()))
-                              .get();
+      Optional<IsomorphicSolution> temp = possibleSolutions.stream().max((IsomorphicSolution o1, IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore())).get();
+      if (!temp.isPresent()) {
+         // TODO this isn't at all right. But, I think we aren't hitting this any more,
+         // with Keith's other fix
+            log.error("DAN WAS HERE -> Returning an empty IsomorphicSolution because no possible solution was found - trying to compute \r\n" 
+                          + referenceExpression.toString() 
+                          + "\r\n"
+                          + "and \r\n"
+                          + comparisonExpression.toString(), new Exception("Just printing stack trace"));
+         int[] sillySolution = new int[referenceExpression.getNodeCount()];
+         Arrays.fill(sillySolution, -1);
+         return new IsomorphicSolution(sillySolution, null, null);
+      } else {
+         return temp.get();
+      }
    }
 
    /**
