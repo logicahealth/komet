@@ -77,7 +77,7 @@ import sh.isaac.api.VersionManagmentPathService;
  * @author kec
  */
 @Service(name = "Path Provider")
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VersionManagmentPathProvider
          implements VersionManagmentPathService {
    /** The Constant LOG. */
@@ -169,7 +169,7 @@ public class VersionManagmentPathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
@@ -202,7 +202,7 @@ public class VersionManagmentPathProvider
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
       return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
+                .getSemanticChronologyStreamForComponentFromAssemblages(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
                 .map((pathOrigin) -> {
                         final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();
