@@ -316,11 +316,12 @@ public class ContentConverterCreator {
             }
 
             assemblyInfo = assemblyInfo.replace("#ASSEMBLY_FILES#", assemblySnippits.toString());
+            assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER#", classifier);
 
             if (classifier.length() == 0) {
-               assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER#", classifier);
+               assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER_WILD#", classifier);
             } else {
-               assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER#", classifier + "*");
+               assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER_WILD#", classifier + "*");
             }
 
             final File assemblyFile = new File(f, "src/assembly/assembly-" + classifier + ".xml");
@@ -339,6 +340,9 @@ public class ContentConverterCreator {
                                             "/" + pomSwaps.get("#VERSION#");
 
          LOG.debug("Generated tag (without rev number): '{}'", tagWithoutRevNumber);
+         
+         //Lock over the duration where we are determining what tag to use.
+         GitPublish.lock(gitRepositoryURL);
 
          final ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
 
@@ -379,6 +383,7 @@ public class ContentConverterCreator {
          return tag;
       } finally {
          try {
+            GitPublish.unlock(gitRepositoryURL);
             FileUtil.recursiveDelete(f);
          } catch (final Exception e) {
             LOG.error("Problem cleaning up temp folder " + f, e);

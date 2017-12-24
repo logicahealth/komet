@@ -97,7 +97,7 @@ public class SrcUploadCreator {
     * a specific repository, such as http://artifactory.isaac.sh/artifactory/libs-release-local or http://artifactory.isaac.sh/artifactory/termdata-release-local
     * This should not point to a URL that represents a 'group' repository view.
     * @param repositoryUsername - The username to utilize to upload the artifact to the artifact server
-    * @param repositoryPassword - The passwordto utilize to upload the artifact to the artifact server
+    * @param repositoryPassword - The password to utilize to upload the artifact to the artifact server
     * @return the tag created in the repository that carries the created project
     * - the task handle - which will return the tag that was created in the git repository upon completion.  Note that the task is NOT yet started, when
     * it is returned.
@@ -106,7 +106,7 @@ public class SrcUploadCreator {
    public static Task<String> createSrcUploadConfiguration(SupportedConverterTypes uploadType,
          String version,
          String extensionName,
-         List<File> filesToUpload,
+         List<File> filesToUpload, 
          String gitRepositoryURL,
          String gitUsername,
          char[] gitPassword,
@@ -180,7 +180,7 @@ public class SrcUploadCreator {
                String temp = uploadType.getArtifactId();
 
                if (temp.contains("*")) {
-                  temp = temp.replace("*", extensionName);
+                  temp = temp.replace("*", extensionName.toLowerCase());
                }
 
                pomSwaps.put("#ARTIFACTID#", temp);
@@ -193,6 +193,9 @@ public class SrcUploadCreator {
                                                   "/" + pomSwaps.get("#VERSION#");
 
                LOG.debug("Desired tag (withoutRevNumber): {}", tagWithoutRevNumber);
+               
+               //Lock over the time period where we are calculating the new tag
+               GitPublish.lock(gitRepositoryURL);
 
                final ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
 
@@ -228,6 +231,7 @@ public class SrcUploadCreator {
                FileUtil.writeFile("srcUploadProjectTemplate", "pom.xml", baseFolder, pomSwaps, "");
                updateTitle("Publishing configuration to Git");
                GitPublish.publish(baseFolder, gitRepositoryURL, gitUsername, gitPassword, tag);
+               GitPublish.unlock(gitRepositoryURL);
                updateTitle("Zipping content");
                LOG.debug("Zipping content");
 
@@ -301,6 +305,7 @@ public class SrcUploadCreator {
                throw new RuntimeException(e);
             } finally {
                try {
+                  GitPublish.unlock(gitRepositoryURL);
                   FileUtil.recursiveDelete(baseFolder);
                } catch (final Exception e) {
                   LOG.error("Problem cleaning up temp folder " + baseFolder, e);

@@ -46,6 +46,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import javafx.application.Platform;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.pombuilder.GitPublish;
@@ -95,36 +97,45 @@ public class TestConversionConfiguration {
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-sct", "20150731"), 
 //            "3.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
       // sct-us-ext
-      final ConverterOptionParam[] optionTypes =
-         ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters",
-                                                                   "rf2-mojo",
-                                                                   "3.3-SNAPSHOT"),
-                                                     nexusUrl,
-                                                     nexusUsername,
-                                                     nexusPassword);
-      final HashMap<ConverterOptionParam, Set<String>> options = new HashMap<>();
-
-      for (final ConverterOptionParam x: optionTypes) {
-         if (x.getInternalName()
-              .equals("moduleUUID")) {
-            options.put(x, new HashSet<>(Arrays.asList(new String[] { "c82efad7-f4bf-5e81-b223-b5b0305f6652" })));
+      ConverterOptionParam[] optionTypes = ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters", "rf2-mojo", "3.7-SNAPSHOT"), 
+            nexusUrl, nexusUsername, nexusPassword);
+      
+      HashMap<ConverterOptionParam, Set<String>> options = new HashMap<>();
+      for (ConverterOptionParam x : optionTypes)
+      {
+         if (x.getInternalName().equals("moduleUUID"))
+         {
+            options.put(x, new HashSet<String>(Arrays.asList(new String[] {"c82efad7-f4bf-5e81-b223-b5b0305f6652"})));
          }
       }
-
-      System.out.println(
-          ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2",
-                "rf2-src-data-us-extension",
-                "20150301"),
-                "3.3-SNAPSHOT",
-                new SDOSourceContent[0],
-                new IBDFFile[] { new IBDFFile("sh.isaac.terminology.converted",
-                      "rf2-ibdf-sct",
-                      "20150731-loader-3.3-SNAPSHOT",
-                      "Snapshot") },
-                options,
-                gitTestURL,
-                gitUsername,
-                gitPassword));
+      
+      Platform.runLater(() ->
+      {
+         try
+         {
+            System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-us-extension", "aabbCcdd"), 
+                  "3.3-SNAPSHOT", 
+                  new SDOSourceContent[0], 
+                  new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
+                     options, gitTestURL, gitUsername, gitPassword));
+         }
+         catch (Exception e)
+         {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+         }
+      });
+      System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-us-extension", "aabbCcdd"), 
+         "3.3-SNAPSHOT", 
+         new SDOSourceContent[0], 
+         new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
+            options, gitTestURL, gitUsername, gitPassword));
+      
+      System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-us-extension", "aabbCcdd"), 
+            "3.3-SNAPSHOT", 
+            new SDOSourceContent[0], 
+            new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
+               options, gitTestURL, gitUsername, gitPassword));
 
       // rxnorm
 //    ConverterOptionParam[] optionTypes = ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters", "rxnorm-mojo", "5.1-SNAPSHOT"), 

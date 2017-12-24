@@ -283,7 +283,7 @@ public class ConverterOptionParam {
          try {
             FileUtil.recursiveDelete(tempFolder);
          } catch (final Exception e) {
-            LOG.error("Problem cleaning up temp folder " + tempFolder, e);
+            LOG.error("Problem cleaning up temp folder {}", tempFolder, e);
          }
       }
    }

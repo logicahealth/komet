@@ -1,0 +1,32 @@
+		<license>
+			<name>CPT License</name>
+			<url>http://www.hl7.org</url>
+			<comments>CPT codes, descriptions and other data only are copyright 2017 American Medical Association. 
+			All rights reserved. CPT is a registered trademark of the American Medical Association (AMA). 
+
+			You, your employees and agents are authorized to use CPT only as contained in the following authorized 
+			materials of Centers for Medicare and Medicaid Services (CMS) internally within your organization within 
+			the United States for the sole use by yourself, employees and agents. Use is limited to use in Medicare, 
+			Medicaid or other programs administered by CMS. You agree to take all necessary steps to insure that your 
+			employees and agents abide by the terms of this agreement. 
+
+			Any use not authorized herein is prohibited, including by way of illustration and not by way of limitation, 
+			making copies of CPT for resale and/or license, transferring copies of CPT to any party not bound by this 
+			agreement, creating any modified or derivative work of CPT, or making any commercial use of CPT. License to 
+			use CPT for any use not authorized herein must be obtained through the AMA, CPT Intellectual Property 
+			Services, 515 N. State Street, Chicago, IL 60654. Applications are available at the AMA Web site, 
+			http://www.ama-assn.org/go/cpt. 
+
+			Applicable FARS\DFARS Restrictions Apply to Government Use. This product includes CPT which is commercial 
+			technical data and/or computer data bases and/or commercial computer software and/or commercial computer 
+			software documentation, as applicable which were developed exclusively at private expense by the American 
+			Medical Association, 515 North State Street, Chicago, Illinois, 60654. U.S. Government rights to use, modify, 
+			reproduce, release, perform, display, or disclose these technical data and/or computer data bases and/or 
+			computer software and/or computer software documentation are subject to the limited rights restrictions of 
+			DFARS 252.227-7015(b)(2) (November 1995) and/or subject to the restrictions of DFARS 227.7202-1(a) (June 1995) 
+			and DFARS 227.7202-3(a) (June 1995), as applicable for U.S. Department of Defense procurements and the limited 
+			rights restrictions of FAR 52.227-14 (June 1987) and/or subject to the restricted rights provisions of FAR 
+			52.227-14 (June 1987) and FAR 52.227-19 (June 1987), as applicable, and any applicable agency FAR Supplements, 
+			for non-Department of Defense Federal procurements. 
+			</comments>
+		</license>

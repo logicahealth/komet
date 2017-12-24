@@ -77,7 +77,7 @@ public class TestSourceUploadConfiguration {
       final String gitTestURL         = "https://git.isaac.sh/git/r/junk.git";
       final String gitUsername        = "";
       final char[] gitPassword        = "".toCharArray();
-      final String artifactRepository = "https://<artifact repo dns name>/<repo path>";
+      final String artifactRepository = "https://some.nexus.server:8080/nexus/content/sites/ets_tooling_snapshot/";
       final String repositoryUsername = "";
       final String repositoryPassword = "";
 

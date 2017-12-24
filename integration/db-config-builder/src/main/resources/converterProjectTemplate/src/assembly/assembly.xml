@@ -9,14 +9,14 @@
 		<fileSet>
 			<directory>${project.build.directory}</directory>
 			<includes>
-				<include>*#CLASSIFIER#.ibdf</include>
+				<include>*#CLASSIFIER_WILD#.ibdf</include>
 			</includes>
 			<outputDirectory>/</outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>${project.build.directory}</directory>
 			<includes>
-				<include>ConsoleOutput.txt</include>
+				<include>#CLASSIFIER_WILD#ConsoleOutput.txt</include>
 			</includes>
 			<outputDirectory>/Stats_and_Debug/</outputDirectory>
 		</fileSet>
