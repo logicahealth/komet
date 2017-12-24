@@ -75,7 +75,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    private UUID primordialUuid = null;
 
    /** The sememe builders. */
-   protected final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
+   private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
    protected Status state = Status.ACTIVE;
@@ -173,13 +173,14 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * If not set, a randomly generated UUID will be automatically used.
-    *
     * @param uuid the uuid
     * @return the builder for chaining of operations in a fluent pattern.
     */
    @Override
    public IdentifiedComponentBuilder<T> setPrimordialUuid(UUID uuid) {
+      if (isPrimordialUuidSet()) {
+         throw new RuntimeException("Attempting to set primordial UUID which has already been set.");
+      }
       this.primordialUuid = uuid;
       return this;
    }
@@ -226,5 +227,15 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       }
       return uuids;
    }
+   
+    @Override
+    public List<SemanticBuilder<?>> getSemanticBuilders() {
+        return semanticBuilders;
+    }
+    
+    @Override
+    public boolean isPrimordialUuidSet() {
+        return this.primordialUuid != null;
+    }
 }
 

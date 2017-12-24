@@ -234,6 +234,11 @@ public class StampCoordinateImpl
       newAllowedStates.addAll(Arrays.asList(states));
       return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
    }
+   
+   @Override
+   public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, states);
+   }
 
    /**
     * To string.

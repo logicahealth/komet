@@ -304,8 +304,6 @@ public class DynamicUtilityImpl
                result = defaultValue;
             } else if (DynamicDataType.ARRAY == columnType) {
                result = defaultValue;
-            } else if (DynamicDataType.SEQUENCE == columnType) {
-               result = defaultValue;
             } else if (DynamicDataType.POLYMORPHIC == columnType) {
                throw new RuntimeException(
                    "Error in column - if default value is provided, the type cannot be polymorphic");

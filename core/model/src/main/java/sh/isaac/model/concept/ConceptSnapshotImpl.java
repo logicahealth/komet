@@ -297,9 +297,9 @@ public class ConceptSnapshotImpl
     * @return the state
     */
    @Override
-   public Status getState() {
+   public Status getStatus() {
       return this.snapshotVersion.get()
-                                 .getState();
+                                 .getStatus();
    }
 
    /**

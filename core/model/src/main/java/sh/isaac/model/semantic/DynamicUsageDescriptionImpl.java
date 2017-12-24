@@ -564,7 +564,7 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see DynamicUsageDescription#getDynamicSememeUsageDescription()
+    *     @see gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getDynamicUsageDescription()
     */
    @Override
    public String getDynamicUsageDescription() {
@@ -578,7 +578,7 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see DynamicUsageDescription#getDynamicSememeUsageDescriptorSequence()
+    *     @see gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getDynamicUsageDescriptorSequence()
     */
    @Override
    public int getDynamicUsageDescriptorSequence() {
@@ -611,6 +611,22 @@ public class DynamicUsageDescriptionImpl
    @Override
    public VersionType getReferencedComponentTypeSubRestriction() {
       return this.referencedComponentTypeSubRestriction;
+   }
+   
+   /**
+    * Invent DynamicSememeUsageDescription info for static sememes that are marked as type {@link TermAux#IDENTIFIER_SOURCE}
+    */
+   public static DynamicUsageDescription mockIdentifierType(int identifierAssemblageConceptId) {
+       DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
+       dsud.name = Get.conceptDescriptionText(identifierAssemblageConceptId);
+       dsud.referencedComponentTypeRestriction = null;
+       dsud.referencedComponentTypeSubRestriction = null;
+       dsud.refexUsageDescriptorNid = identifierAssemblageConceptId;
+       dsud.sememeUsageDescription = "-";
+       dsud.refexColumnInfo = new DynamicColumnInfo[]{new DynamicColumnInfo(
+           Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId).get(),
+           0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null, false)};
+        return dsud;
    }
 }
 

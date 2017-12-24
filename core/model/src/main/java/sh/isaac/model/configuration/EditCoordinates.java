@@ -93,13 +93,13 @@ public class EditCoordinates {
    }
 
    /**
-    * Gets the default user veterans administration extension.
+    * Gets the default user vhat coordinate.
     *
-    * @return the default user veterans administration extension
+    * @return the default user vhat coordinate
     */
-   public static EditCoordinate getDefaultUserVeteransAdministrationExtension() {
+   public static EditCoordinate getDefaultUserVHAT() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                                   getNid(TermAux.VHA_MODULES),
+                                                                   getNid(TermAux.VHAT_EDIT),
                                                                    getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;

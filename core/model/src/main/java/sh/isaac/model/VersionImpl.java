@@ -143,6 +143,7 @@ public abstract class VersionImpl
       return deepEquals2(otherVersion);
    }
 
+   //TODO see if this 'deep' stuff can be cleaned up.
    protected abstract boolean deepEquals2(VersionImpl other);
 
    /**
@@ -154,7 +155,7 @@ public abstract class VersionImpl
     */
    public int editDistance(VersionImpl other) {
       int editDistance = 0;
-      if (this.getState() != other.getState()) {
+      if (this.getStatus() != other.getStatus()) {
          editDistance++;
       }
       if (this.getTime() != other.getTime()) {
@@ -270,7 +271,7 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          authorSequence,
                          getModuleNid(),
@@ -317,7 +318,7 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          getAuthorNid(),
                          moduleSequence,
@@ -380,7 +381,7 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          getAuthorNid(),
                          getModuleNid(),
@@ -416,7 +417,7 @@ public abstract class VersionImpl
     * @return the state
     */
    @Override
-   public Status getState() {
+   public Status getStatus() {
       return Get.stampService()
               .getStatusForStamp(this.stampSequence);
    }
@@ -444,7 +445,7 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          time,
                          getAuthorNid(),
                          getModuleNid(),

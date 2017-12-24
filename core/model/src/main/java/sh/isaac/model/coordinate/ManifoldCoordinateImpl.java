@@ -50,6 +50,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
@@ -118,6 +121,18 @@ public class ManifoldCoordinateImpl
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
       this.uuid               = UUID.randomUUID();
+   }
+   
+   /**
+    * Instantiates a new taxonomy coordinate impl.  Calls {@link #ManifoldCoordinateImpl(PremiseType, StampCoordinate, LanguageCoordinate, LogicCoordinate)}
+    * with a {@link PremiseType#STATED} and the default Logic Coordinate from {@link ConfigurationService}
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    */
+   public ManifoldCoordinateImpl(StampCoordinate stampCoordinate,
+                                 LanguageCoordinate languageCoordinate) {
+      this(PremiseType.STATED, stampCoordinate, languageCoordinate, Get.configurationService().getDefaultLogicCoordinate());
    }
 
    //~--- methods -------------------------------------------------------------

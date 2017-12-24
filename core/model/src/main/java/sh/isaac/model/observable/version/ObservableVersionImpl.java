@@ -307,7 +307,7 @@ public abstract class ObservableVersionImpl
          this.stateProperty = new CommitAwareObjectProperty<>(
                  this,
                  ObservableFields.STATUS_FOR_VERSION.toExternalString(),
-                 getState());
+                 getStatus());
          this.stateProperty.addListener(
                  (observable, oldValue, newValue) -> {
                     this.stampedVersionProperty.get().setStatus(newValue);
@@ -393,8 +393,8 @@ public abstract class ObservableVersionImpl
          this.commitStateBinding.invalidate();
       }
 
-      if ((this.stateProperty != null) && (this.stateProperty.get() != stampedVersion.getState())) {
-         this.stateProperty.set(stampedVersion.getState());
+      if ((this.stateProperty != null) && (this.stateProperty.get() != stampedVersion.getStatus())) {
+         this.stateProperty.set(stampedVersion.getStatus());
       }
 
       if ((this.authorNidProperty != null)
@@ -595,12 +595,12 @@ public abstract class ObservableVersionImpl
     * @return the state
     */
    @Override
-   public final Status getState() {
+   public final Status getStatus() {
       if (this.stateProperty != null) {
          return this.stateProperty.get();
       }
 
-      return this.stampedVersionProperty.get().getState();
+      return this.stampedVersionProperty.get().getStatus();
    }
 
    //~--- set methods ---------------------------------------------------------

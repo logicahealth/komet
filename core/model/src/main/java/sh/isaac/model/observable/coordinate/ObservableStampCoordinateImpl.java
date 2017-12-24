@@ -147,6 +147,13 @@ public class ObservableStampCoordinateImpl
 
       return new ObservableStampCoordinateImpl(analog);
    }
+   
+   @Override
+   public ObservableStampCoordinate makeCoordinateAnalog(EnumSet<Status> states)
+   {
+      StampCoordinate analog = stampCoordinate.makeCoordinateAnalog(states);
+      return new ObservableStampCoordinateImpl(analog);
+   }
 
    /**
     * Module sequences property.

@@ -84,7 +84,7 @@ public class ConceptVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
