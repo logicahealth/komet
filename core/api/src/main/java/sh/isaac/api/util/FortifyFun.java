@@ -52,6 +52,7 @@ import java.lang.reflect.Method;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
+//TODO kill this class with a FIRE
 public class FortifyFun {
    /**
     * This hatchet job is to work around the fact that Fortify won't let us use the setAccessible method, and

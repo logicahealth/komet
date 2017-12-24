@@ -83,6 +83,7 @@ public class DownloadUnzipTask
    /** The cancel. */
    private boolean cancel = false;
 
+   //TODO fix our bad variable naming from fortifuckupcode
    /** The psswrd. */
    String username, psswrd;
 
