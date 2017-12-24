@@ -1,0 +1,1239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Modified by Michael Shin to add TreeVUID and CPDP properties to aid in GUI ease of use on 8/2017. -->
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="TerminologyConfig.xsd">
+	<Domains>
+		<Domain>
+			<Name>Allergy</Name>
+			<TreeVUID>4707202</TreeVUID>
+			<Subset>
+				<Name>Reactions</Name>
+				<TreeVUID>4712076</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>Search_Term</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<!-- added 11/8/2016 -->
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Reactants</Name>
+				<TreeVUID>4712075</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>Allergy_Type</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>Search_Term</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<!-- added 11/8/2016 -->
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>has_drug_ingredient</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>has_drug_class</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Relationship>
+				</Relationships>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Legacy Allergy Reactions</Name>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Legacy Allergy Reactants</Name>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+		</Domain>
+
+		<!-- IMMUNIZATIONS DOMAIN VIMM 2.0 -->
+		<Domain>
+			<Name>Immunizations</Name>
+			<TreeVUID>4707291</TreeVUID>
+
+			<!-- Vaccine Information Statement File 920 subset 5197409 -->
+			<Subset>
+				<Name>Imm VIS</Name>
+				<TreeVUID>5197835</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_VIS_Bar_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_VIS_Edition_Date</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_VIS_Edition_Status</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_VIS_Language</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_VIS_URL</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- Immunization Info Sources File 920.1 subset 5197406 -->
+			<Subset>
+				<Name>Imm Info Sources</Name>
+				<TreeVUID>5197428</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_HL7_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Inactive_Flag</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- Immunization Admin Routes File 920.2 subset 5197404 -->
+			<Subset>
+				<Name>Imm Admin Routes</Name>
+				<TreeVUID>5197546</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+
+					<Property>
+						<Name>VistA_FDA_NCIT_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_HL7_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Textual_Definition</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+
+			<!-- Immunization Body Sites File 920.3 subset 5197405 -->
+			<Subset>
+				<Name>Imm Body Sites</Name>
+				<TreeVUID>5197430</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_HL7_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- VIMM Contraindications File 920.4 subset 5198097 -->
+			<Subset>
+				<Name>Imm Contraindications</Name>
+				<TreeVUID>5198098</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_CDC_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_HL7_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_HL7_Code_Set</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Inactive_Flag</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Long_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Precaution</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Textual_Definition</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_applies_to</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Relationship>
+
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- VIMM Reason for Refusal File 920.5 subset 5198146 -->
+			<Subset>
+				<Name>Imm Refusal Reasons</Name>
+				<TreeVUID>5198147</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_HL7_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- Immunization Manufacturers File 9999999.04 subset 5197407 -->
+			<Subset>
+				<Name>Imm Manufacturers</Name>
+				<TreeVUID>5197937</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Inactive_Flag</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_MVX_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_MVX_Notes</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+			<!-- Immunization Procedures File 9999999.14 Subset 5197408 -->
+			<Subset>
+				<Name>Imm Procedures</Name>
+				<TreeVUID>5197590</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Acronym</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_CDC_Full_Vaccine_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_CDC_Product_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Class</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Combination_Immunization</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_CVX_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_CVX_Mapping</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Immunization_Group</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Inactive_Flag</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Max_No_In_Series</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Mnemonic</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Reading_Required</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Selectable_For_Historic</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_has_vis</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+
+			<!-- Legacy Imm Producedures subset 5199148 -->
+			<Subset>
+				<Name>Legacy Imm Procedures</Name>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+
+			<!-- Legacy Skin Tests subset 5199149 -->
+			<Subset>
+				<Name>Legacy Skin Tests</Name>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+
+			<!-- Skin Tests File 9999999.28 subset 5198077 -->
+			<Subset>
+				<Name>Skin Tests</Name>
+				<TreeVUID>4712061</TreeVUID>
+				<Active>true</Active>
+
+				<Properties>
+					<Property>
+						<Name>VistA_Class</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Inactive_Flag</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Mnemonic</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Print_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Skin_Test_Mapping</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+			</Subset>
+
+		</Domain>
+		<!-- END OF VIMM 2.0 SUBSETS -->
+
+		<Domain>
+			<Name>National Drug File</Name>
+			<TreeVUID>4707205</TreeVUID>
+			<Subset>
+				<Name>Drug Classes</Name>
+				<TreeVUID>4712073</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Drug Ingredient</Name>
+				<TreeVUID>4712074</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Drug Products</Name>
+				<TreeVUID>4890545</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Generic Drugs</Name>
+				<TreeVUID>4712524</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+		</Domain>
+
+		<Domain>
+			<Name>Pharmacy</Name>
+			<TreeVUID>4708635</TreeVUID>
+			<Subset>
+				<Name>Medication Routes</Name>
+				<TreeVUID>4712063</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>FDB_Med_Route</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+				<Designations/>
+			</Subset>
+		</Domain>
+		<Domain>
+			<Name>Orders</Name>
+			<TreeVUID>4707206</TreeVUID>
+			<Subset>
+				<Name>Order Status</Name>
+				<TreeVUID>4712066</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Short_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Abbreviation</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Description</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>Nature of Order</Name>
+				<TreeVUID>4712067</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Abbreviation</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Interaction</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Door</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Discontinued</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Create_Action</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Signature_Status</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+		</Domain>
+		<Domain>
+			<Name>TIU</Name>
+			<TreeVUID>4707207</TreeVUID>
+			<Subset>
+				<Name>TIU Status</Name>
+				<TreeVUID>4712064</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Abbreviation</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Interaction</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Description</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU Doctype</Name>
+				<TreeVUID>4712065</TreeVUID>
+				<Active>true</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU Role</Name>
+				<TreeVUID>4712068</TreeVUID>
+				<Active>true</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU SMD</Name>
+				<TreeVUID>4712071</TreeVUID>
+				<Active>true</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU Service</Name>
+				<TreeVUID>4712069</TreeVUID>
+				<Active>true</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU Setting</Name>
+				<TreeVUID>4712070</TreeVUID>
+				<Active>true</Active>
+				<Properties/>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+			<Subset>
+				<Name>TIU Titles</Name>
+				<TreeVUID>4712072</TreeVUID>
+				<Active>true</Active>
+
+				<!-- add 11/8/2016 -->
+				<Properties>
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>has_SMD</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>has_role</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>has_setting</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>has_service</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+					<Relationship>
+						<Name>has_doctype</Name>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+				</Relationships>
+				<Designations/>
+			</Subset>
+		</Domain>
+
+		<!-- Vitals domain: Added VistA_Mapping_Target to support Native Domain Standardization 5/2/2016 -->
+		<Domain>
+			<Name>Vitals</Name>
+			<TreeVUID>4707208</TreeVUID>
+			<Subset>
+				<Name>Vital Types</Name>
+				<TreeVUID>4712078</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Short_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Type_Rate</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Rate_Input_Transform</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Type_Rate_Help</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_PCE_Abbreviation</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+
+			<Subset>
+				<Name>Vital Categories</Name>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+				</Properties>
+				<Relationships/>
+				<Designations/>
+			</Subset>
+
+			<Subset>
+				<Name>Vital Qualifiers</Name>
+				<TreeVUID>4712077</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_Mapping_Target</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>true</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Short_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>has_qualifier</Name>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>true</IsList>
+						<Inverse>false</Inverse>
+						<IncludeWithChange>has_VistA_category</IncludeWithChange>
+					</Relationship>
+					<Relationship>
+						<Name>has_VistA_category</Name>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+						<Inverse>false</Inverse>
+					</Relationship>
+				</Relationships>
+				<Designations/>
+			</Subset>
+		</Domain>
+		<Domain>
+			<Name>Value Set</Name>
+			<TreeVUID>4712475</TreeVUID>
+			<Subset>
+				<Name>Allergy Types</Name>
+				<TreeVUID>4712477</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+			<Subset>
+				<Name>Genders</Name>
+				<TreeVUID>4712504</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+			<Subset>
+				<Name>Marital Statuses</Name>
+				<TreeVUID>4712506</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+			<Subset>
+				<Name>Medication Statuses</Name>
+				<TreeVUID>4712513</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+			<Subset>
+				<Name>Medication Types</Name>
+				<TreeVUID>4712511</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+			<Subset>
+				<Name>Problem Statuses</Name>
+				<TreeVUID>4712519</TreeVUID>
+				<Active>false</Active>
+				<Properties/>
+				<Relationships/>
+			</Subset>
+		</Domain>
+
+		<!-- Laboratory Domain added 5/2/2016 for Native Domain Standardization -->
+		<Domain>
+			<Name>Laboratory</Name>
+			<TreeVUID>5245593</TreeVUID>
+			<Subset>
+				<Name>Laboratory Tests</Name>
+				<TreeVUID>5245595</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+
+					<Property>
+						<Name>Component</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>Method</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>Property</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>Scale_Type</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>Specimen</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>Time_Aspect</Name>
+						<CPDP>CP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_LOINC_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>false</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+
+					<Property>
+						<Name>VistA_Short_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Relationship>
+
+				</Relationships>
+				<Designations/>
+			</Subset>
+		</Domain>
+
+
+		<!-- Radiology added 4/18/2016 -->
+		<Domain>
+			<Name>Radiology</Name>
+			<TreeVUID>5245612</TreeVUID>
+			<Subset>
+				<Name>Radiology Procedures</Name>
+				<TreeVUID>5245614</TreeVUID>
+				<Active>true</Active>
+				<Properties>
+					<Property>
+						<Name>VistA_CPT_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_LOINC_Code</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Long_Description</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Long_Name</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+					<Property>
+						<Name>VistA_Short_Description</Name>
+						<CPDP>DP</CPDP>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+					</Property>
+				</Properties>
+				<Relationships>
+					<Relationship>
+						<Name>vista_replaced_by</Name>
+						<AllowEmpty>true</AllowEmpty>
+						<IsList>false</IsList>
+						<Inverse>false</Inverse>
+					</Relationship>
+				</Relationships>
+				<Designations/>
+			</Subset>
+		</Domain>
+	</Domains>
+
+
+	<States>
+		<State>
+			<Name>Created</Name>
+			<Type>Initial</Type>
+		</State>
+		<State>
+			<Name>Ready To Review</Name>
+			<Type>Ready To Review</Type>
+		</State>
+		<State>
+			<Name>Under Review</Name>
+			<Type>Under Review</Type>
+		</State>
+		<State>
+			<Name>Failed Review</Name>
+			<Type>Failed Review</Type>
+		</State>
+		<State>
+			<Name>Ready To Test</Name>
+			<Type>Ready To Test</Type>
+		</State>
+		<State>
+			<Name>In Test</Name>
+			<Type>In Test</Type>
+		</State>
+	</States>
+	<MapSets>
+
+		<!-- GEMS with Production VUIDs -->
+		<MapSet>
+			<Name>GEM Dx ICD-9 to ICD-10</Name>
+			<VUID>4808097</VUID>
+			<GemContent>true</GemContent>
+			<WebServiceAccessible>false</WebServiceAccessible>
+			<SourceType>ConceptCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>GEM Dx ICD-10 to ICD-9</Name>
+			<VUID>4886237</VUID>
+			<GemContent>true</GemContent>
+			<WebServiceAccessible>false</WebServiceAccessible>
+			<SourceType>ConceptCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>GEM PCS ICD-9 to ICD-10</Name>
+			<VUID>4886238</VUID>
+			<GemContent>true</GemContent>
+			<WebServiceAccessible>false</WebServiceAccessible>
+			<SourceType>ConceptCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>GEM PCS ICD-10 to ICD-9</Name>
+			<VUID>4886239</VUID>
+			<GemContent>true</GemContent>
+			<WebServiceAccessible>false</WebServiceAccessible>
+			<SourceType>ConceptCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<!-- End of GEMs -->
+
+		<!-- NwHIN Phase 1 -->
+		<MapSet>
+			<Name>NHIN Gender</Name>
+			<VUID>4712465</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>INACTIVE NHIN Adverse Event Type</Name>
+			<VUID>4712468</VUID>
+			<WebServiceAccessible>false</WebServiceAccessible>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Adverse Event Type</Name>
+			<VUID>4775785</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Adverse Event Type v2</Name>
+			<VUID>4775767</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>VHAT to UCUM Limited</Name>
+			<VUID>4776492</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Marital Status</Name>
+			<VUID>4712466</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Problem Status</Name>
+			<VUID>4712469</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Type Of Medication</Name>
+			<VUID>4712470</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Vital Types</Name>
+			<VUID>4712472</VUID>
+			<SourceType>DesignationCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>NHIN Medication Status</Name>
+			<VUID>4712471</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+
+		<!-- 4 NwhIN Phase 2 map sets added with FY 2015 Q1(2) -->
+		<MapSet>
+			<Name>VHAT to <![CDATA[Race & Ethnicity - CDC]]> (Race)</Name>
+			<VUID>4783950</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>VHAT to <![CDATA[Race & Ethnicity - CDC]]> (Ethnicity)</Name>
+			<VUID>4783951</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>VHAT to Health Insurance Type Value Set</Name>
+			<VUID>4783953</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+		<MapSet>
+			<Name>VHAT to HL7 Role Code</Name>
+			<VUID>4783954</VUID>
+			<SourceType>DesignationName</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+
+		<!-- 2nd version of NHIN Vital Types. Adds Pain. -->
+		<MapSet>
+			<Name>NHIN Vital Types v2</Name>
+			<VUID>5199154</VUID>
+			<SourceType>DesignationCode</SourceType>
+			<TargetType>ConceptCode</TargetType>
+		</MapSet>
+
+	</MapSets>
+</Terminology>
