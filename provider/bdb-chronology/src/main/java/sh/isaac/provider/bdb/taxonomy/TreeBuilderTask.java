@@ -44,6 +44,9 @@ package sh.isaac.provider.bdb.taxonomy;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -67,6 +70,7 @@ public class TreeBuilderTask
    private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
 
@@ -138,6 +142,7 @@ public class TreeBuilderTask
       Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
+      LOG.debug("Tree build completed for {}", this.manifoldCoordinate);
       return tree;
    }
 }

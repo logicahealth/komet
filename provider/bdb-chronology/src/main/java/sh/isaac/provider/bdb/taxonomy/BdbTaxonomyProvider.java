@@ -105,10 +105,10 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = 5)
+@RunLevel(value = LookupService.SL_L5_ISAAC_DEPENDENTS_RUNLEVEL)  //TODO probably move this back to L4, or 3. 
 public class BdbTaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
-
+//TODO it also appears that the underlying bdb provider isn't handling the db validity checking / variables properly.
    /**
     * The Constant LOG.
     */
@@ -210,6 +210,7 @@ public class BdbTaxonomyProvider
 
    @Override
    public void updateTaxonomy(SemanticChronology logicGraphChronology) {
+      LOG.debug("Updating taxonomy for commit to " + logicGraphChronology);
       ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
    }
 
@@ -323,7 +324,7 @@ public class BdbTaxonomyProvider
    }
 
    @Override
-   public IntStream getTaxonomyChildSequences(int parentId) {
+   public IntStream getTaxonomyChildNids(int parentId) {
       throw new UnsupportedOperationException(
               "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
@@ -352,9 +353,10 @@ public class BdbTaxonomyProvider
       final Task<Tree> treeTask = this.snapshotCache.get(tc.hashCode());
 
       if (treeTask != null) {
+         LOG.trace("Returning cached tree for {}", tc);
          return treeTask;
       }
-
+      LOG.debug("Building tree for {}", tc);
       SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = bdb.getTaxonomyMap(
               tc.getLogicCoordinate()
                       .getConceptAssemblageNid());
