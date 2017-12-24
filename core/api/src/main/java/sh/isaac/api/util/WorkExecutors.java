@@ -97,7 +97,7 @@ import sh.isaac.api.LookupService;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
-@RunLevel(value = -2)
+@RunLevel(value = LookupService.SL_NEG_2_WORKERS_STARTED_RUNLEVEL)
 public class WorkExecutors {
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
@@ -246,8 +246,8 @@ public class WorkExecutors {
 
       // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.ioThreadPoolExecutor = new ThreadPoolExecutor(4,
-            4,
+      this.ioThreadPoolExecutor = new ThreadPoolExecutor(6,
+            6,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<>(),
@@ -342,8 +342,7 @@ public class WorkExecutors {
    public static WorkExecutors get() {
       log.debug("In WorkExectors.get()");
 
-      if (LookupService.isInitialized() &&
-            (LookupService.getCurrentRunLevel() >= LookupService.WORKERS_STARTED_RUNLEVEL)) {
+      if (LookupService.isInitialized() && LookupService.getCurrentRunLevel() >= LookupService.SL_NEG_2_WORKERS_STARTED_RUNLEVEL) {
          log.debug("Handing back the HK2 managed instance");
          return Get.workExecutors();
       } else {
