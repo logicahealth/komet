@@ -61,6 +61,7 @@ import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.runlevel.RunLevelController;
+import org.glassfish.hk2.runlevel.RunLevelFuture;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -70,6 +71,8 @@ import com.sun.javafx.application.PlatformImpl;
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.constants.Constants;
@@ -93,26 +96,25 @@ public class LookupService {
    /** The fx platform up. */
    private static volatile boolean fxPlatformUp = false;
 
-   /** The Constant DATABASE_SERVICES_STARTED_RUNLEVEL. */
-   public static final int DATABASE_SERVICES_STARTED_RUNLEVEL = 2;
+   public static final int SL_L5_ISAAC_DEPENDENTS_RUNLEVEL = 5;  //Anything that depends on issac as a whole to be started should be 5 - this is the fully-started state.
 
-   /** The Constant ISAAC_DEPENDENTS_RUNLEVEL. */
-   public static final int ISAAC_DEPENDENTS_RUNLEVEL = 5;
+   public static final int SL_L4_ISAAC_STARTED_RUNLEVEL = 4; //at level 3 and 4, secondary isaac services start, such as changeset providers, etc.
+   
+   public static final int SL_L3 = 3; 
+   
+   public static final int SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL = 2;  //In general, ISAAC data-store services start between 0 and 2, in an isaac specific order.
 
-   /** The Constant ISAAC_STARTED_RUNLEVEL. */
-   public static final int ISAAC_STARTED_RUNLEVEL = 4;
+   public static final int SL_L1 = 1; 
+   
+   public static final int SL_L0 = 0; 
 
-   /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
-   public static final int METADATA_STORE_STARTED_RUNLEVEL = -1;
+   //Below 0, we have utility stuff... no ISAAC services.
 
-   /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
-   public static final int PREFERENCES_PROVIDER_RUNLEVEL = -1;
+   public static final int SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL = -1;
 
-   /** The Constant WORKERS_STARTED_RUNLEVEL. */
-   public static final int WORKERS_STARTED_RUNLEVEL = -2;
+   public static final int SL_NEG_2_WORKERS_STARTED_RUNLEVEL = -2;
 
-   /** The Constant SYSTEM_STOPPED_RUNLEVEL. */
-   public static final int SYSTEM_STOPPED_RUNLEVEL = -3;
+   public static final int SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL = -3;
 
    /** The Constant STARTUP_LOCK. */
    private static final Object STARTUP_LOCK = new Object();
@@ -126,11 +128,11 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
-      setRunLevel(ISAAC_STARTED_RUNLEVEL);
-      setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
-      setRunLevel(METADATA_STORE_STARTED_RUNLEVEL);
-      setRunLevel(WORKERS_STARTED_RUNLEVEL);
-      setRunLevel(SYSTEM_STOPPED_RUNLEVEL);
+      setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
+      setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
+      setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
+      setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
+      setRunLevel(SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL);
 
       // Fully release any system locks to database
       System.gc();
@@ -141,7 +143,7 @@ public class LookupService {
     */
    public static void shutdownSystem() {
       if (isInitialized()) {
-         setRunLevel(SYSTEM_STOPPED_RUNLEVEL);
+         setRunLevel(SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL);
          looker.shutdown();
          ServiceLocatorFactory.getInstance()
                               .destroy(looker);
@@ -179,7 +181,7 @@ public class LookupService {
    }
    
    public static void startupPreferenceProvider() {
-      setRunLevel(PREFERENCES_PROVIDER_RUNLEVEL);
+      setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
    }
 
    /**
@@ -187,16 +189,20 @@ public class LookupService {
     */
    public static void startupIsaac() {
       try {
+         // So Fortify does not complain about Locale dependent comparison
+         // when the application uses .equals or
+         Locale.setDefault(Locale.US);
+
          // Set run level to startup database and associated services running on top of database
-         setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
+         setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
 
          // Validate that databases and associated services directories uniformly exist and are uniformly populated during startup
          // TODO decide if the validate database folder strategy is worthwile, and then get it working again.
          // validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
-         setRunLevel(ISAAC_STARTED_RUNLEVEL);
-         setRunLevel(ISAAC_DEPENDENTS_RUNLEVEL);
+         setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
+         setRunLevel(SL_L5_ISAAC_DEPENDENTS_RUNLEVEL);
       } catch (final Throwable e) {
          e.printStackTrace();
          // Will inform calling routines that database is corrupt
@@ -240,8 +246,8 @@ public class LookupService {
     * Start the Metadata services (without starting ISAAC core services), blocking until started (or failed).
     */
    public static void startupMetadataStore() {
-      if (getService(RunLevelController.class).getCurrentRunLevel() < METADATA_STORE_STARTED_RUNLEVEL) {
-         setRunLevel(METADATA_STORE_STARTED_RUNLEVEL);
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
+         setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
       }
    }
 
@@ -249,8 +255,8 @@ public class LookupService {
     * Start the WorkExecutor services (without starting ISAAC core services), blocking until started (or failed).
     */
    public static void startupWorkExecutors() {
-      if (getService(RunLevelController.class).getCurrentRunLevel() < WORKERS_STARTED_RUNLEVEL) {
-         setRunLevel(WORKERS_STARTED_RUNLEVEL);
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_2_WORKERS_STARTED_RUNLEVEL) {
+         setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
       }
    }
 
@@ -390,7 +396,7 @@ public class LookupService {
     * @return true, if isaac started
     */
    public static boolean isIsaacStarted() {
-      return isInitialized() ? getService(RunLevelController.class).getCurrentRunLevel() >= ISAAC_STARTED_RUNLEVEL
+      return isInitialized() ? getService(RunLevelController.class).getCurrentRunLevel() >= SL_L4_ISAAC_STARTED_RUNLEVEL
                              : false;
    }
 
@@ -429,19 +435,23 @@ public class LookupService {
     * @param runLevel the new run level
     */
    public static void setRunLevel(int runLevel) {
-      final int current = getService(RunLevelController.class).getCurrentRunLevel();
-
+      final RunLevelController rlc = getService(RunLevelController.class);
+      final int current = rlc.getCurrentRunLevel();
       if (current > runLevel) {
-         get().getAllServiceHandles(OchreCache.class).forEach(handle -> {
-                          if (handle.isActive()) {
-                             LOG.info("Clear cache for: " + handle.getActiveDescriptor().getImplementation());
-                             handle.getService()
-                                   .reset();
-                          }
-                       });
+         // Make sure we aren't still proceeding somewhere, if so, we need to wait...
+         RunLevelFuture rlf = rlc.getCurrentProceeding();
+         if (rlf != null) {
+            LOG.info("Attempting to cancel previous runlevel request");
+            rlf.cancel(true);
+            try {
+               rlf.get();
+            } catch (InterruptedException | ExecutionException e) {
+               // noop
+            }
+         }
          get().getAllServices(OchreCache.class).forEach((cache) -> {
-                          cache.reset();
-                       });
+            cache.reset();
+         });
       }
 
       getService(RunLevelController.class).proceedTo(runLevel);
