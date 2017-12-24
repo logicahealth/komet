@@ -149,12 +149,6 @@ public class DynamicConstants
                                                                                                  "318622e6-dd7a-5651-851d-2d5c2af85767")) {}
    ;
 
-   /** The dynamic dt sequence. */
-   public final MetadataConceptConstant DYNAMIC_DT_SEQUENCE = new MetadataConceptConstant("Sequence",
-                                                                                                 UUID.fromString(
-                                                                                                    "5bfd7cfb-ca7e-584d-8672-e089dbb4e912")) {}
-   ;
-
    /** The dynamic dt string. */
 
    // The following data types already exist, but I'm also adding them to our hierarchy for clarity
@@ -191,7 +185,6 @@ public class DynamicConstants
          addChild(DynamicConstants.this.DYNAMIC_DT_STRING);
          addChild(DynamicConstants.this.DYNAMIC_DT_INTEGER);
          addChild(DynamicConstants.this.DYNAMIC_DT_UUID);
-         addChild(DynamicConstants.this.DYNAMIC_DT_SEQUENCE);
       }
    };
 
@@ -316,7 +309,7 @@ public class DynamicConstants
 
    // A column to store the target of an association within a sememe
    public final MetadataConceptConstant DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT =
-      new MetadataConceptConstant("Target",
+      new MetadataConceptConstant("target",
                                   UUID.fromString("e598e12f-3d39-56ac-be68-4e9fca98fb7a"),
                                   "Stores the (optional) target concept or component of an association or mapping") {}
    ;
@@ -361,36 +354,27 @@ public class DynamicConstants
    // of the sememe
    public final MetadataDynamicConstant DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION =
       new MetadataDynamicConstant("Dynamic referenced component restriction",
-                                        UUID.fromString("0d94ceeb-e24f-5f1a-84b2-1ac35f671db5"),
-                                        "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a " +
-                                        " semantic to a particular Component Type (Concept, Description, etc).  The attached data column specifies the allowed Component Type",
-                                        new DynamicColumnInfo[] { new DynamicColumnInfo(0,
-                                              this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(),
-                                              DynamicDataType.STRING,
-                                              null,
-                                              true,
-                                              new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
-                                              new DynamicString[] {
-                                                 LookupService.getService(DynamicUtility.class).createDynamicStringData(
-                                                    ObjectChronologyType.CONCEPT.name() + "|" +
-                                                    ObjectChronologyType.SEMANTIC) },
-                                              false),
-                                              new DynamicColumnInfo(1,
-                                                    this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(),
-                                                    DynamicDataType.STRING,
-                                                    null,
-                                                    false,
-                                                    new DynamicValidatorType[] {
-                                                       DynamicValidatorType.REGEXP },
-                                                    new DynamicString[] {
-                                                       LookupService.getService(DynamicUtility.class).createDynamicStringData(VersionType.COMPONENT_NID.name() + "|" +
-                                                          VersionType.DESCRIPTION.name() + "|" +
-                                                          VersionType.DYNAMIC.name() + "|" +
-                                                          VersionType.LOGIC_GRAPH.name() + "|" +
-                                                          VersionType.LONG.name() + "|" + VersionType.MEMBER.name() 
-                                                          + "|" + VersionType.STRING.name()) },
-                                                    false) }) {}
-   ;
+        UUID.fromString("0d94ceeb-e24f-5f1a-84b2-1ac35f671db5"),
+        "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a " +
+        " semantic to a particular Component Type (Concept, Description, etc).  The attached data column specifies the allowed Component Type",
+        new DynamicColumnInfo[] { 
+              new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(), DynamicDataType.STRING, null, true, 
+                    new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
+                    new DynamicString[] {LookupService.getService(DynamicUtility.class).createDynamicStringData(
+                          ObjectChronologyType.CONCEPT.name() + "|" + ObjectChronologyType.SEMANTIC.name())},false),
+              new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(),  DynamicDataType.STRING, null, false,
+                    new DynamicValidatorType[] {DynamicValidatorType.REGEXP },
+                    new DynamicString[] {
+                       LookupService.getService(DynamicUtility.class).createDynamicStringData(
+                             VersionType.COMPONENT_NID.name() + "|" +
+                             VersionType.DESCRIPTION.name() + "|" +
+                               VersionType.DYNAMIC.name() + "|" +
+                               VersionType.LOGIC_GRAPH.name() + "|" +
+                               VersionType.LONG.name() + "|" + 
+                               VersionType.MEMBER.name()+ "|" + 
+                               VersionType.STRING.name()) },
+                    false)}) {
+   };
 
    /** The dynamic metadata. */
 
@@ -532,8 +516,10 @@ public class DynamicConstants
                                                     false,
                                                     true) }) {}
    ;  // Index the comments, and the columns
-
-   /** *  see {@link #DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT}. */
+   
+   /** 
+    * see {@link #DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT}. 
+   */
    public final MetadataDynamicConstant DYNAMIC_ASSOCIATION =
       new MetadataDynamicConstant("Represents association",
                                         UUID.fromString("5252bafb-1ba7-5a35-b1a2-48d7a65fa477"),
@@ -557,6 +543,7 @@ public class DynamicConstants
    ;
 
    /** The dynamic extended description type. */
+   //TODO this should really be merged with TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY - or take the place of it.
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_DESCRIPTION_TYPE =
       new MetadataDynamicConstant("Extended description type",
                                         UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"),
