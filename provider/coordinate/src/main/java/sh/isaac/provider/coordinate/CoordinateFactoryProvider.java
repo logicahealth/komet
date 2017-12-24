@@ -182,8 +182,8 @@ public class CoordinateFactoryProvider
     * @return the edits the coordinate
     */
    @Override
-   public EditCoordinate createDefaultUserVeteransAdministrationExtensionEditCoordinate() {
-      return EditCoordinates.getDefaultUserVeteransAdministrationExtension();
+   public EditCoordinate createDefaultUserVHATEditCoordinate() {
+      return EditCoordinates.getDefaultUserVHAT();
    }
 
    /**
