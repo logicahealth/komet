@@ -43,13 +43,12 @@ package sh.isaac.provider.commit;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -59,9 +58,7 @@ import javax.annotation.PreDestroy;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.ChangeSetLoadService;
@@ -69,9 +66,17 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
+import sh.isaac.model.configuration.EditCoordinates;
+import sh.isaac.model.configuration.StampCoordinates;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,7 +93,7 @@ import sh.isaac.api.util.metainf.MetaInfReader;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = 5)
+@RunLevel(value = LookupService.SL_L5_ISAAC_DEPENDENTS_RUNLEVEL)  //TODO 3 or 5?
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */
@@ -230,6 +235,22 @@ public class ChangeSetLoadProvider
          } catch (final IOException e) {
             LOG.error("Error writing maven artifact identity file", e);
          }
+         
+         UUID semanticDbId = readSemanticDbId();
+
+         if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
+            msg.append(" SememeDbId: ").append(semanticDbId);
+            msg.append(" Changsets DbId: ").append(changesetsDbId);
+            throw new RuntimeException(msg.toString());
+
+         }
+
+         if (changesetsDbId == null) {
+            changesetsDbId = chronicleDbId;
+            Files.write(changesetsIdPath, changesetsDbId.toString().getBytes());
+         }
 
 
          // if the semanticDbId is null, lets wait and see if it appears after processing the changesets.
@@ -237,21 +258,47 @@ public class ChangeSetLoadProvider
          // files that "appear" in this folder via the git integration, for example, we will need to process - but files that we create
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
          // files as it writes them.
-         final MetaContentService mcs = LookupService.get()
-                                                     .getService(MetaContentService.class);
+         final MetaContentService mcs = LookupService.get().getService(MetaContentService.class);
 
-         this.processedChangesets = (mcs == null) ? null
-               : mcs.<String, Boolean>openStore("processedChangesets");
+         this.processedChangesets = (mcs == null) ? null : mcs.<String, Boolean>openStore("processedChangesets");
 
          final int loaded = readChangesetFiles();
 
+         if (semanticDbId == null) {
+            semanticDbId = readSemanticDbId();
+            if (!Get.configurationService().inDBBuildMode() && semanticDbId == null) {
+               if (loaded > 0) {
+                  LOG.warn("No database identify was found stored in a sememe, after loading changesets.");
+               }
+               Get.semanticBuilderService().getStringSemanticBuilder(chronicleDbId.toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+                     .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get();
+               Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept");
+            }
+         }
 
-      } catch (final IOException | RuntimeException e) {
+
+      } catch (final IOException | RuntimeException | InterruptedException | ExecutionException e) {
          LOG.error("Error ", e);
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Change Set Load Provider", e);
          throw new RuntimeException(e);
       }
+   }
+   
+   private UUID readSemanticDbId() {
+      Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+            .findFirst();
+      if (sdic.isPresent()) {
+         LatestVersion<Version> sdi = sdic.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         if (sdi.isPresent()) {
+            try {
+               return UUID.fromString(((StringVersion) sdi.get()).getString());
+            } catch (Exception e) {
+               LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+            }
+         }
+      }
+      return null;
    }
 
    /**

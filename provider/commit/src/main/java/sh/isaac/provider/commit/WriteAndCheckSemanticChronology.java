@@ -45,6 +45,7 @@ import java.lang.ref.WeakReference;
 
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -55,6 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
+import sh.isaac.api.commit.CheckResult;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.progress.ActiveTasks;
@@ -128,20 +130,37 @@ public class WriteAndCheckSemanticChronology
    public Void call()
             throws Exception {
       try {
-         Get.assemblageService()
-            .writeSemanticChronology(this.sc);
-         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
-         this.uncommittedTracking.accept(this.sc, true);
-         updateProgress(1, 3);
-         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid());
 
+         updateProgress(1, 4);
+         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid());
+         final AtomicBoolean failure = new AtomicBoolean(false);
          if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
             this.checkers.stream().forEach((check) -> {
-                                     check.check(this.sc, CheckPhase.ADD_UNCOMMITTED);
+                                     if (check.check(this.sc, CheckPhase.ADD_UNCOMMITTED) == CheckResult.FAIL)
+                                     {
+                                    	 failure.set(true);
+                                     }
                                   });
          }
+         
+         if (failure.get())
+         {
+         	throw new RuntimeException("There is a changeChecker failure");
+         }
+//         for (Alert a : alertCollection) {
+//            if (a.getAlertType() == AlertType.ERROR) {
+//                throw new RuntimeException("There is an error: " + a.toString());
+//            }
+//        }
+         
+         updateProgress(2, 4);
+         updateMessage("writing: " + this.sc.getVersionType() + " " + this.sc.getNid());
+         Get.assemblageService().writeSemanticChronology(this.sc);
+	      this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
+	      this.uncommittedTracking.accept(this.sc, true);
+	      
 
-         updateProgress(2, 3);
+         updateProgress(3, 4);
          updateMessage("notifying: " + this.sc.getVersionType() + " " + this.sc.getNid());
          this.changeListeners.forEach((listenerRef) -> {
             try {
@@ -156,7 +175,7 @@ public class WriteAndCheckSemanticChronology
                e.printStackTrace();
             }
                                       });
-         updateProgress(3, 3);
+         updateProgress(4, 4);
          updateMessage("completed change: " + this.sc.getVersionType() + " " + this.sc.getNid());
          return null;
       } finally {

@@ -45,6 +45,7 @@ import java.time.Instant;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +57,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.alert.Alert;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
@@ -68,7 +70,6 @@ import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.task.TimedTask;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,8 +78,7 @@ import sh.isaac.api.task.TimedTask;
  *
  * @author kec
  */
-public class CommitTask
-        extends TimedTask<Optional<CommitRecord>> {
+public class CommitTask extends sh.isaac.api.commit.CommitTask{
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
@@ -113,6 +113,8 @@ public class CommitTask
 
    /** The stamp provider. */
    private final StampService stampProvider;
+   
+   private Set<Alert> alertCollection;
 
    //~--- constructors --------------------------------------------------------
 
@@ -327,6 +329,11 @@ public class CommitTask
          .getExecutor()
          .execute(task);
       return task;
+   }
+   
+   public Set<Alert> getAlerts()
+   {
+      return alertCollection;
    }
 }
 
