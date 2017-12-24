@@ -136,7 +136,7 @@ import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
  * @author kec
  */
 @Service
-@RunLevel(value = 0)
+@RunLevel(value = LookupService.SL_L0)  //TODO 0, really?
 public class BdbProvider
          implements DatabaseServices, IdentifiedObjectService, MetadataService {
    /**

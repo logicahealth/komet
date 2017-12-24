@@ -88,8 +88,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.ConcurrentObjectIntMap;
-import sh.isaac.api.collections.ConcurrentSequenceSerializedObjectMap;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
@@ -102,7 +100,7 @@ import sh.isaac.api.task.TimedTask;
  * Created by kec on 1/2/16.
  */
 @Service(name = "Stamp Provider")
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L1)
 public class StampProvider
         implements StampService {
    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);

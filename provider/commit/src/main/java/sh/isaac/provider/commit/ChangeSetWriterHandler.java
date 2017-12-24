@@ -87,7 +87,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service(name = "Change Set Writer Handler")
-@RunLevel(value = 4)
+@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)  //TODO this should be hither than ChangeSetLoadProvider, I think...
 public class ChangeSetWriterHandler
          implements ChangeSetWriterService, ChangeSetListener {
    /** The Constant LOG. */
@@ -269,8 +269,8 @@ public class ChangeSetWriterHandler
 
                                     try {
                                        writeToFile(concept);
-                                    } catch (final IOException e) {
-                                       throw new RuntimeException(e);
+                                    } catch (final Exception e) {
+                                       throw new RuntimeException("Error writing concept " + conceptSequence , e);
                                     }
                                  });
    }
@@ -291,8 +291,8 @@ public class ChangeSetWriterHandler
 
                                    try {
                                       writeToFile(sememe);
-                                   } catch (final IOException e) {
-                                      throw new RuntimeException(e);
+                                   } catch (final Exception e) {
+                                      throw new RuntimeException("Error writing semantic " + sememeSequence, e);
                                    }
                                 });
    }
