@@ -342,7 +342,7 @@ public class ConceptDetailPanelNode
 
                                                  if (latest.isPresent()) {
                                                     return latest.get()
-                                                          .getState() == Status.ACTIVE;
+                                                          .getStatus() == Status.ACTIVE;
                                                  }
                                               }
                                            default:
