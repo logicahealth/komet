@@ -39,6 +39,8 @@
 
 package sh.isaac.util;
 
+import java.util.Arrays;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.junit.Assert;
@@ -66,11 +68,10 @@ public class PasswordHashingTest {
       final String data      = "some data";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString(password, "wrong encrypted string");
+         final String decrypted = new String(PasswordHasher.decrypt("wrongPassword", encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -91,11 +92,10 @@ public class PasswordHashingTest {
       final String data      = "There was a man with a plan";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("wrongPassword", encrypted);
+          String decrypted = new String(PasswordHasher.decrypt("wrongPassword", encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -117,11 +117,10 @@ public class PasswordHashingTest {
       final String data      = "";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("wrongPassword", encrypted);
+          String decrypted = new String(PasswordHasher.decrypt("wrongPassword", encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -142,11 +141,10 @@ public class PasswordHashingTest {
       final String data      = "There was a man with a plan that wasn't very good";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("", encrypted);
+          String decrypted =  new String(PasswordHasher.decrypt("", encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -163,11 +161,11 @@ public class PasswordHashingTest {
    @Test
    public void hashTestFour()
             throws Exception {
-      final String password     = "$sentences_make_better_$$$passwords....";
+      final String password     = "$sentences_make_better_---passwords....";
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
       Assert.assertTrue(PasswordHasher.check(password, passwordHash));
-      Assert.assertFalse(PasswordHasher.check("$", passwordHash));
+      Assert.assertFalse(PasswordHasher.check("-", passwordHash));
    }
 
    /**
