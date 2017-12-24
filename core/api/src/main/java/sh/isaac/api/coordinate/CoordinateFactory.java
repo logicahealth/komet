@@ -104,7 +104,7 @@ public interface CoordinateFactory
     *
     * @return the edits the coordinate
     */
-   EditCoordinate createDefaultUserVeteransAdministrationExtensionEditCoordinate();
+   EditCoordinate createDefaultUserVHATEditCoordinate();
 
    /**
     * Creates a new Coordinate object.

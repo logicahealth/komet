@@ -99,7 +99,7 @@ public interface StampedVersion {
     *
     * @return the state of this version.
     */
-   Status getState();
+   Status getStatus();
 
    /**
     * Long.MIN_VALUE indicates a canceled transaction. Long.MAX_VALUE indicates an
