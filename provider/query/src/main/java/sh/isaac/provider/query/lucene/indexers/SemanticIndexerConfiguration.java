@@ -268,7 +268,7 @@ public class SemanticIndexerConfiguration {
 
       final DynamicVersion rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
-      if ((rdv != null) && (rdv.getState() == Status.ACTIVE)) {
+      if ((rdv != null) && (rdv.getStatus() == Status.ACTIVE)) {
          LookupService.get()
                  .getService(SemanticIndexerConfiguration.class).readNeeded
                  .incrementAndGet();
@@ -385,7 +385,7 @@ public class SemanticIndexerConfiguration {
                         final LatestVersion<DynamicVersion> dsv
                                 = ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
-                        if (dsv.isPresent() && (dsv.get().getState() == Status.ACTIVE)) {
+                        if (dsv.isPresent() && (dsv.get().getStatus() == Status.ACTIVE)) {
                            final int assemblageToIndex = dsv.get()
                                    .getReferencedComponentNid();
                            Integer[] finalCols = new Integer[]{};

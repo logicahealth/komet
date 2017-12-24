@@ -781,7 +781,7 @@ public class SearchHandler {
 
       final AtomicInteger count    = new AtomicInteger();
       final IntStream     children = Get.taxonomyService()
-                                        .getTaxonomyChildSequences(conceptSequence);
+                                        .getTaxonomyChildNids(conceptSequence);
 
       children.forEach(
           (conSequence) -> {
