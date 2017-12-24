@@ -35,13 +35,13 @@
  *
  */
 
-
-
 package sh.isaac.provider.sync.git;
 
+import org.junit.Assert;
+import org.junit.Test;
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.junit.Test;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,19 +54,36 @@ public class GitBlitUtilsTest {
    /**
     * Test base URL parse.
     *
-    * @throws Exception the exception
+    * @throws Exception
+    *            the exception
     */
    @Test
-   public void TestBaseURLParse()
-            throws Exception {}
+   public void TestBaseURLParse() {
+      Assert.assertEquals("https://servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com:8080/"));
+      Assert.assertEquals("https://Servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://Servername.not.real.com:8080"));
+      Assert.assertEquals("http://servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("http://servername.not.real.com:8080/"));
+      Assert.assertEquals("http://servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("http://servername.not.real.com:8080"));
+      Assert.assertEquals("https://servername.not.real.com/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com/"));
+      Assert.assertEquals("https://servername.not.real.com/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com"));
+      Assert.assertEquals("https://servername.not.real.com/fred/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com/fred"));
+      Assert.assertEquals("https://servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com:8080/git"));
+      Assert.assertEquals("https://servername.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com:8080/git/"));
+      Assert.assertEquals("https://servername.not.real.com:8080/fred/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com:8080/fred"));
+      Assert.assertEquals("https://servername.not.real.com:8080/fred/", GitBlitUtils.adjustBareUrlForGitBlit("https://servername.not.real.com:8080/fred/"));
+      Assert.assertEquals("HTtps://ser-ver_0.not.real.com:8080/git/", GitBlitUtils.adjustBareUrlForGitBlit("HTtps://ser-ver_0.not.real.com:8080/"));
+   }
 
    /**
     * Test URL adjust.
     *
-    * @throws Exception the exception
+    * @throws Exception
+    *            the exception
     */
    @Test
-   public void TestURLAdjust()
-            throws Exception {}
-}
+   public void TestURLAdjust() throws Exception {
+      Assert.assertEquals("https://another.server.com:4848/git/", GitBlitUtils.parseBaseRemoteAddress("https://another.server.com:4848/git/r/db_test.git"));
+      Assert.assertEquals("https://another.server.com:4848/git/", GitBlitUtils.parseBaseRemoteAddress("https://another.server.com:4848/git/r/db_test.GIT"));
+      Assert.assertEquals("Https://another.se-ve_r.com:4848/git/", GitBlitUtils.parseBaseRemoteAddress("Https://another.se-ve_r.com:4848/git/r/db_-test.git"));
 
+   }
+}

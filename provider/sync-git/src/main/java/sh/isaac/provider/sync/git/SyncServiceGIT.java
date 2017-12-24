@@ -499,11 +499,13 @@ public class SyncServiceGIT
 
                        if (t.getRemoteUpdate("refs/tags/" + tagName)
                             .getStatus() != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK) {
-                          failures.append("Push Failed: ").append(t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name()).append(" reason: ").append(t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
+                          failures.append("Push Failed: ").append(t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name())
+                             .append(" reason: ").append(t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
                        }
                     });
 
          if (failures.length() > 0) {
+            LOG.warn("Throwing IO Exception back to pushTag call because: " + failures.toString());
             throw new IOException(failures.toString());
          }
       } catch (final GitAPIException e) {
