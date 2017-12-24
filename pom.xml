@@ -65,6 +65,8 @@
    </distributionManagement>
 
    <properties>
+      <!-- https://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http#35673586 -->
+      <dependency.locations.enabled>false</dependency.locations.enabled>
       <activation.version>1.1.1</activation.version>
       <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
       <commons-lang3.version>3.5</commons-lang3.version>
