@@ -42,11 +42,16 @@ package sh.isaac.model.builder;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -55,6 +60,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -74,10 +81,9 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
    /** The preferred in dialect assemblages. */
-   private final ArrayList<ConceptSpecification> preferredInDialectAssemblages = new ArrayList<>();
-
-   /** The acceptable in dialect assemblages. */
-   private final ArrayList<ConceptSpecification> acceptableInDialectAssemblages = new ArrayList<>();
+	private final HashMap<ConceptSpecification, SemanticBuilder<?>> preferredInDialectAssemblages = new HashMap<>();
+	
+	private final HashMap<ConceptSpecification, SemanticBuilder<?>> acceptableInDialectAssemblages = new HashMap<>();
 
    /** The concept sequence. */
    private int conceptNid = Integer.MAX_VALUE;
@@ -143,7 +149,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     */
    @Override
    public DescriptionBuilder addAcceptableInDialectAssemblage(ConceptSpecification dialectAssemblage) {
-      this.acceptableInDialectAssemblages.add(dialectAssemblage);
+      this.acceptableInDialectAssemblages.put(dialectAssemblage, null);
       return this;
    }
 
@@ -155,7 +161,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     */
    @Override
    public DescriptionBuilder addPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage) {
-      this.preferredInDialectAssemblages.add(dialectAssemblage);
+      this.preferredInDialectAssemblages.put(dialectAssemblage, null);
       return this;
    }
 
@@ -188,23 +194,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       final SemanticChronology newDescription =
          (SemanticChronology) descBuilder.build(stampSequence,
                                                                          builtObjects);
-      final SemanticBuilderService sememeBuilderService = LookupService.getService(SemanticBuilderService.class);
-
-      this.preferredInDialectAssemblages.forEach((assemblageProxy) -> {
-               sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(),
-                     this,
-                     Get.identifierService()
-                        .getNidForProxy(assemblageProxy))
-                                   .build(stampSequence, builtObjects);
-            });
-      this.acceptableInDialectAssemblages.forEach((assemblageProxy) -> {
-               sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(),
-                     this,
-                     Get.identifierService()
-                        .getNidForProxy(assemblageProxy))
-                                   .build(stampSequence, builtObjects);
-            });
-      this.semanticBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
+      getSemanticBuilders().forEach((builder) -> builder.build(stampSequence, builtObjects));
       return (T) newDescription;
    }
 
@@ -246,25 +236,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 
       nestedBuilders.add(newDescription);
 
-      final SemanticBuilderService sememeBuilderService = LookupService.getService(SemanticBuilderService.class);
-
-      this.preferredInDialectAssemblages.forEach((assemblageProxy) -> {
-               nestedBuilders.add(sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(),
-                     newDescription.getNoWait()
-                                   .getNid(),
-                     Get.identifierService()
-                        .getNidForProxy(assemblageProxy))
-                     .build(editCoordinate, changeCheckerMode, builtObjects));
-            });
-      this.acceptableInDialectAssemblages.forEach((assemblageProxy) -> {
-               nestedBuilders.add(sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(),
-                     newDescription.getNoWait()
-                                   .getNid(),
-                     Get.identifierService()
-                        .getNidForProxy(assemblageProxy))
-                     .build(editCoordinate, changeCheckerMode, builtObjects));
-            });
-      this.semanticBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
+      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
@@ -280,6 +252,54 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       this.descriptionText = descriptionText;
    }
    
-   
+	@Override
+	public DescriptionBuilder setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
+		if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
+			throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random");
+		}
+
+		if (!isPrimordialUuidSet()) {
+			int assemblageSeq = TermAux.getDescriptionAssemblageConceptSequence(languageForDescription.getNid());
+			int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
+
+			setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace,
+					Get.identifierService().getUuidPrimordialForNid(assemblageSeq).get(), 
+					conceptBuilder.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(caseSigNid).get(),
+					descriptionType.getPrimordialUuid(), 
+					languageForDescription.getPrimordialUuid(), 
+					descriptionText,
+					consumer));
+			return this;
+		}
+	}
+	
+    @Override
+    public List<SemanticBuilder<?>> getSemanticBuilders() {
+        ArrayList<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + preferredInDialectAssemblages.size() 
+            + acceptableInDialectAssemblages.size());
+        
+        temp.addAll(super.getSemanticBuilders());
+        
+        SemanticBuilderService sememeBuilderService = LookupService.getService(SemanticBuilderService.class);
+        
+        for (Entry<ConceptSpecification, SemanticBuilder<?>> p : preferredInDialectAssemblages.entrySet()) {
+            if (p.getValue() == null) {
+                p.setValue(sememeBuilderService.getComponentSememeBuilder(TermAux.PREFERRED.getNid(), this,
+                    Get.identifierService().getConceptSequenceForProxy(p.getKey())));
+            }
+            temp.add(p.getValue());
+        }
+        
+        for (Entry<ConceptSpecification, SemanticBuilder<?>> a : acceptableInDialectAssemblages.entrySet()) {
+            if (a.getValue() == null) {
+                a.setValue(sememeBuilderService.getComponentSememeBuilder(TermAux.ACCEPTABLE.getNid(), this,
+                    Get.identifierService().getConceptSequenceForProxy(a.getKey())));
+            }
+            temp.add(a.getValue());
+        }
+        
+        return temp;
+    }
 }
 

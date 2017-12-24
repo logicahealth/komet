@@ -38,9 +38,11 @@ package sh.isaac.model.builder;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
@@ -48,6 +50,7 @@ import javafx.concurrent.Task;
 import org.apache.commons.lang3.StringUtils;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -63,6 +66,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
@@ -99,6 +103,9 @@ public class ConceptBuilderImpl
     * The preferred description builder.
     */
    private transient DescriptionBuilder<?, ?> preferredDescriptionBuilder = null;
+   
+   private transient HashMap<LogicalExpressionBuilder, SemanticBuilder<?>> builtLogicalExpressionBuilders = new HashMap<>();
+   private transient HashMap<LogicalExpression, SemanticBuilder<?>> builtLogicalExpressions = new HashMap<>();
 
    /**
     * The concept name.
@@ -270,39 +277,8 @@ public class ConceptBuilderImpl
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
-
-      if (getFullySpecifiedDescriptionBuilder() != null) {
-         this.descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
-      }
-
-      if (getPreferredDescriptionBuilder() != null) {
-         this.descriptionBuilders.add(getPreferredDescriptionBuilder());
-      }
-
-      this.descriptionBuilders.forEach((builder) -> {
-         builder.build(stampCoordinate, builtObjects);
-      });
-
-      if ((this.defaultLogicCoordinate == null)
-              && ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
-         throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
-      }
-
-      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
-
-      for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
-                 this,
-                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
-      }
-
-      for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
-                 this,
-                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
-      }
-
-      this.semanticBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+      getDescriptionBuilders().forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+      getSemanticBuilders().forEach((builder) -> builder.build(stampCoordinate, builtObjects));
       return conceptChronology;
    }
 
@@ -332,42 +308,9 @@ public class ConceptBuilderImpl
       conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);
 
-      if (getFullySpecifiedDescriptionBuilder() != null) {
-         this.descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
-      }
+      getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects)));
+      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects)));
 
-      if (getPreferredDescriptionBuilder() != null) {
-         this.descriptionBuilders.add(getPreferredDescriptionBuilder());
-      }
-
-      this.descriptionBuilders.forEach((builder) -> {
-         nestedBuilders.add(builder.build(editCoordinate,
-                 changeCheckerMode,
-                 builtObjects));
-      });
-
-      if ((this.defaultLogicCoordinate == null)
-              && ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
-         throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
-      }
-
-      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
-
-      for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
-                 this,
-                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
-      }
-
-      for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.semanticBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
-                 this,
-                 this.defaultLogicCoordinate.getStatedAssemblageNid()));
-      }
-
-      this.semanticBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
-              changeCheckerMode,
-              builtObjects)));
 
       Task<Void> primaryNested;
 
@@ -504,5 +447,49 @@ public class ConceptBuilderImpl
       return "ConceptBuilderImpl{" + conceptName + '}';
    }
    
+   @Override
+   public List<DescriptionBuilder<?, ?>> getDescriptionBuilders() {
+        List<DescriptionBuilder<?, ?>> temp = new ArrayList<>(descriptionBuilders.size() +2);
+        temp.addAll(descriptionBuilders);
+        if (getFullySpecifiedDescriptionBuilder() != null) {
+            temp.add(getFullySpecifiedDescriptionBuilder());
+        }
+        if (getPreferredDescriptionBuilder() != null) {
+            temp.add(getPreferredDescriptionBuilder());
+        }
+        return temp;
+    }
+
+   @Override
+   public IdentifiedComponentBuilder<ConceptChronology> setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
+      throw new UnsupportedOperationException("Concept doesn't have a full T5 implementation defined yet");
+   }
    
+	@Override
+	public List<SemanticBuilder<?>> getSemanticBuilders() {
+		List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
+		temp.addAll(super.getSemanticBuilders());
+
+		if (defaultLogicCoordinate == null && (logicalExpressions.size() > 0 || logicalExpressionBuilders.size() > 0)) {
+			throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
+		}
+
+		SemanticBuilderService<?> builderService = LookupService.getService(SemanticBuilderService.class);
+		for (LogicalExpression logicalExpression : logicalExpressions) {
+			if (!builtLogicalExpressions.containsKey(logicalExpression)) {
+				builtLogicalExpressions.put(logicalExpression,
+						builderService.getLogicalExpressionSemanticBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
+			}
+			temp.add(builtLogicalExpressions.get(logicalExpression));
+		}
+		for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
+			if (!builtLogicalExpressionBuilders.containsKey(builder)) {
+				builtLogicalExpressionBuilders.put(builder,
+						builderService.getLogicalExpressionSemanticBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
+			}
+			temp.add(builtLogicalExpressionBuilders.get(builder));
+		}
+
+		return temp;
+	}
 }
