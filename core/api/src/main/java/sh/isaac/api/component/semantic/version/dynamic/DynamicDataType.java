@@ -61,7 +61,6 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 
@@ -116,9 +115,6 @@ public enum DynamicDataType {
 
    /** The array. */
    ARRAY(111, DynamicArray.class, "Array"),
-
-   /** The sequence. */
-   SEQUENCE(112, DynamicSequence.class, "Component Sequence"),
 
    /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
@@ -200,10 +196,6 @@ public enum DynamicDataType {
 
       if (DynamicArray.class.isAssignableFrom(c)) {
          return ARRAY;
-      }
-
-      if (DynamicSequence.class.isAssignableFrom(c)) {
-         return SEQUENCE;
       }
 
       LogManager.getLogger()
@@ -315,11 +307,6 @@ public enum DynamicDataType {
       case ARRAY:
          return DynamicConstants.get().DYNAMIC_DT_ARRAY
                                       .getUUID();
-
-      case SEQUENCE:
-         return DynamicConstants.get().DYNAMIC_DT_SEQUENCE
-                                      .getUUID();
-
       default:
          throw new RuntimeException("Implementation error");
       }
@@ -385,9 +372,6 @@ public enum DynamicDataType {
 
       case 111:
          return ARRAY;
-
-      case 112:
-         return SEQUENCE;
 
       default:
          return UNKNOWN;

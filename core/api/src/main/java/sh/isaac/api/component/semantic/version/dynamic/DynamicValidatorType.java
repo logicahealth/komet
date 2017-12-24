@@ -63,7 +63,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 
@@ -209,7 +208,7 @@ public enum DynamicValidatorType {
          return DynamicValidatorType.values()[i];
       } catch (final NumberFormatException e) {
          for (final DynamicValidatorType x: DynamicValidatorType.values()) {
-            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase(Locale.ENGLISH).equals(clean)) {
                return x;
             }
          }
@@ -330,8 +329,6 @@ public enum DynamicValidatorType {
                             .getNidForUuids(((DynamicUUID) userData).getDataUUID());
             } else if (userData instanceof DynamicNid) {
                childId = ((DynamicNid) userData).getDataNid();
-            } else if (userData instanceof DynamicSequence) {
-               childId = ((DynamicSequence) userData).getDataSequence();
             } else {
                throw new RuntimeException("Userdata is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
             }
@@ -341,8 +338,6 @@ public enum DynamicValidatorType {
                              .getNidForUuids(((DynamicUUID) validatorDefinitionData).getDataUUID());
             } else if (validatorDefinitionData instanceof DynamicNid) {
                parentId = ((DynamicNid) validatorDefinitionData).getDataNid();
-            } else if (userData instanceof DynamicSequence) {
-               parentId = ((DynamicSequence) validatorDefinitionData).getDataSequence();
             } else {
                throw new RuntimeException(
                    "Validator DefinitionData is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
@@ -542,15 +537,6 @@ public enum DynamicValidatorType {
       case NID:
       case UUID: {
          if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP) || (this == COMPONENT_TYPE)) {
-            return true;
-         } else {
-            return false;
-         }
-      }
-
-      case SEQUENCE:  // can't support component type with sequence, because we don't know how to look it up
-      {
-         if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP)) {
             return true;
          } else {
             return false;
