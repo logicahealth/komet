@@ -274,7 +274,7 @@ public class DBConfigurationCreator {
       pe.setGoals(goals);
       configuration = new Configuration();
       configuration.setDataStoreLocation(
-          "${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/");
+          "${project.build.directory}/${project.build.finalName}.data/");
       pe.setConfiguration(configuration);
       executions.getExecution()
                 .add(pe);

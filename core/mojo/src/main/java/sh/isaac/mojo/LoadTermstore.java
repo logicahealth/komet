@@ -73,6 +73,7 @@ import java.util.concurrent.ExecutionException;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
@@ -90,6 +91,7 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -414,12 +416,14 @@ public class LoadTermstore
             this.stampCommentCount = 0;
             this.skippedItems.clear();
          }
+         
+         
          Get.startIndexTask().get();
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
-            if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
-                  .getOldChronologyTypeForNid(nid))) {
+            if (IsaacObjectType.SEMANTIC.equals(Get.identifierService()
+                  .getObjectTypeForComponent(nid))) {
                final SemanticChronology sc = Get.assemblageService()
                                               .getSemanticChronology(nid);
 
@@ -439,6 +443,7 @@ public class LoadTermstore
 //            Get.identifierService()
 //               .clearUnusedIds();
          }
+         LookupService.syncAll();
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +

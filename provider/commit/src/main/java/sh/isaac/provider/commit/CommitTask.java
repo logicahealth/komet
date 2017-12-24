@@ -79,8 +79,8 @@ import sh.isaac.api.task.TimedTask;
  */
 public class CommitTask
         extends TimedTask<Optional<CommitRecord>> {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 

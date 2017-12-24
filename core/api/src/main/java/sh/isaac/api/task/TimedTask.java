@@ -46,7 +46,7 @@ import java.time.Instant;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
+import java.util.concurrent.atomic.AtomicInteger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.application.Platform;
@@ -88,6 +88,8 @@ public abstract class TimedTask<T>
     * Seconds per hour.
     */
    static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+   
+   static final AtomicInteger taskSequence = new AtomicInteger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -105,6 +107,8 @@ public abstract class TimedTask<T>
 
    /** The progress message generator. */
    Consumer<TimedTask<T>> progressMessageGenerator;
+   
+   int taskSequenceId = taskSequence.incrementAndGet();
 
    public TimedTask() {
    }
@@ -133,7 +137,7 @@ public abstract class TimedTask<T>
 
       Platform.runLater(() -> {
                            this.completeMessageGenerator.accept(this);
-                           log.info(getTitle() + " " + getMessage());
+                           log.info(getClass().getSimpleName() + " " + taskSequenceId + ": " + getTitle() + " " + getMessage());
                         });
    }
 

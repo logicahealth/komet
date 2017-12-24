@@ -70,6 +70,8 @@ import com.sun.javafx.application.PlatformImpl;
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.constants.Constants;
@@ -126,6 +128,7 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
+      syncAll();
       setRunLevel(ISAAC_STARTED_RUNLEVEL);
       setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
       setRunLevel(METADATA_STORE_STARTED_RUNLEVEL);
@@ -521,6 +524,17 @@ public class LookupService {
       }
 
       return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
+   }
+
+   public static void syncAll() {
+      List<DatabaseServices> syncServiceList =  getServices(DatabaseServices.class);
+      for (DatabaseServices syncService:  syncServiceList) {
+         try {
+            syncService.sync().get();
+         } catch (Throwable ex) {
+            LOG.error(ex);
+         }
+      }
    }
 }
 

@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.42</version>
+        <version>4.44</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
@@ -14,17 +14,16 @@
     <profile>
          <id>bdb</id>
          <activation>
-            <activeByDefault>true</activeByDefault>
+            <activeByDefault>false</activeByDefault>
          </activation>
          <modules>
-            <module>bdb-chronology</module>
+            <module>bdb-datastore</module>
          </modules>
       </profile>
     </profiles>
     <modules>
         <module>commit</module>
         <module>coordinate</module>
-        <module>identifier</module>
         <module>metacontent</module>
         <module>path</module>
         <module>progress</module>
@@ -37,8 +36,10 @@
         <module>stamp</module>
         <module>assemblage</module>
         <module>drools</module>
-        <module>xodus-chronology</module>
         <module>alert-resolver</module>
         <module>preferences</module>
+        <module>filesystem-datastore</module>
+        <module>chronology</module>
+        <module>xodus-datastore</module>
     </modules>
 </project>

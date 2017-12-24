@@ -50,6 +50,7 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -215,6 +216,7 @@ public interface AssemblageService
       return getSemanticChronologyStreamFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
+   int[] getAssemblageConceptNids(); 
    
    /**
     * Gets the snapshot.

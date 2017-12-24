@@ -4,11 +4,11 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.42</version>
+        <version>4.44</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>alert-resolver</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>ISAAC provider: Alert resolver</name>
      <dependencies>
         <dependency>

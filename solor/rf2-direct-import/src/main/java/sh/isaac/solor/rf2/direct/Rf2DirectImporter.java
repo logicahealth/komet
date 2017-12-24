@@ -128,7 +128,6 @@ public class Rf2DirectImporter
 
          return null;
       } finally {
-         done();
          Get.activeTasks()
                  .remove(this);
       }
@@ -152,7 +151,8 @@ public class Rf2DirectImporter
       List<Path> zipFiles = Files.walk(contentDirectory.toPath())
               .filter(
                       p -> p.toString().endsWith(".zip")
-                      && p.toString().toUpperCase().contains("SNOMEDCT"))
+                      && (p.toString().toUpperCase().contains("SNOMEDCT") ||
+                              p.toString().toLowerCase().contains("sct")))
               .collect(Collectors.toList());
       ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
 

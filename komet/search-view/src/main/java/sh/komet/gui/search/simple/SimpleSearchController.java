@@ -44,6 +44,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -58,6 +59,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.iconography.Iconography;
@@ -68,7 +70,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
-import javafx.concurrent.Worker;
 
 /**
  * @author kec
@@ -79,7 +80,7 @@ public class SimpleSearchController implements ExplorationNode {
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
     private final SimpleStringProperty       titleNodeProperty =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
+    private SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
     private final SimpleObjectProperty<Node> iconProperty      =
         new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
     private final ObservableList<CustomCheckListItem>         kindOfObservableList =
@@ -88,8 +89,8 @@ public class SimpleSearchController implements ExplorationNode {
     private Manifold                                          manifold;
     private static final PseudoClass CSS_FAIL = PseudoClass.getPseudoClass("fail");
     private static final PseudoClass CSS_SUCESS = PseudoClass.getPseudoClass("success");
-    private static final PseudoClass CSS_NORESULT = PseudoClass.getPseudoClass("noresults");
-    private static final PseudoClass CSS_CANCELLED = PseudoClass.getPseudoClass("cancelled");
+    private static final PseudoClass CSS_NORESULT = PseudoClass.getPseudoClass("noResults");
+
     @FXML
     AnchorPane                                                mainAnchorPane;
     @FXML
@@ -105,21 +106,23 @@ public class SimpleSearchController implements ExplorationNode {
     @FXML
     private ProgressBar                                       searchProgressBar;
     @FXML
-    private Button clearButton;
+    private Button searchRefreshButton;
 
     @FXML
-    public void clearSearch() {
-        if(this.searchService.isRunning()) {
-           searchService.cancel();
-        } else{
-            this.searchTextField.clear();
-            this.resultTable.getItems().clear();
-            this.resultTable.setPlaceholder(new Label("No content in table"));
-        }
-        this.searchTextField.pseudoClassStateChanged(CSS_CANCELLED, false);
+    public void searchRefresh() {
+
+        if(this.searchService.isRunning())
+            this.searchService.cancel();
+
+        this.searchService.reset();
+        this.searchTextField.clear();
+        this.resultTable.getItems().clear();
+        this.resultTable.setPlaceholder(new Label("No content in table"));
         this.searchTextField.pseudoClassStateChanged(CSS_FAIL, false);
         this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, false);
         this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, false);
+        this.searchTextField.setDisable(false);
+        this.searchProgressBar.setProgress(0);
     }
 
     @FXML
@@ -129,12 +132,50 @@ public class SimpleSearchController implements ExplorationNode {
            this.searchService.start();
         } else {
            this.searchService.restart();
-        }       
+           this.searchService.start();
+        }
+        this.searchTextField.setDisable(true);
+    }
+
+    @FXML
+    void initialize() {
+        assert mainAnchorPane != null :
+                "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchTextField != null :
+                "fx:id=\"searchTextField\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert resultTable != null :
+                "fx:id=\"resultTable\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert resultColumn != null :
+                "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert kindOfCheckListView != null :
+                "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert statusChoiceBox != null :
+                "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchProgressBar != null :
+                "fx:id=\"searchProgressBar\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchRefreshButton != null :
+                "fx:id=\"searchRefreshButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+
+        this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
+        this.resultTable.setOnDragDone(new DragDoneEventHandler());
+        this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
+        this.resultColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion,
+                String> param) -> param.getValue()
+                .textProperty());
+        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
+                String> stringText) -> new DescriptionTableCell());
+        this.resultTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                this.manifold.setFocusedConceptChronology(
+                        Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
+            }
+        });
     }
 
     private void initializeControls() {
         initializeSearchComponentStatus();
         initializeKindOfCheckListView();
+        initializeProgressBar();
         initializeSearchService();
     }
 
@@ -165,7 +206,8 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
     private void initializeProgressBar(){
-
+        this.searchService.progressProperty().addListener(
+                (observable, oldValue, newValue) -> this.searchProgressBar.setProgress(newValue.doubleValue()));
     }
 
     private void initializeSearchService(){
@@ -187,67 +229,26 @@ public class SimpleSearchController implements ExplorationNode {
                         break;
                     }
 
-                    this.searchService.getValue().stream().forEach(value -> {
+                    this.searchService.getValue().stream().forEach(nid -> {
                         LatestVersion<ObservableDescriptionVersion> latestDescription =
-                                (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(value);
+                                (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(nid);
 
                         if (latestDescription.isPresent()) {
                            tableItems.add(latestDescription.get());
                         } else {
-                           LOG.error("No latest description for: " + value);
+                           LOG.error("No latest description for: " + nid);
                         }
                     });
 
                     this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, true);
-                    this.searchService.reset();
                     break;
                 case FAILED:
                     this.searchTextField.pseudoClassStateChanged(CSS_FAIL, true);
-                    this.searchService.reset();
-                    break;
-                case CANCELLED:
-                    this.searchTextField.pseudoClassStateChanged(CSS_CANCELLED, true);
-                    this.searchTextField.clear();
-                    this.searchService.reset();
+                    this.resultTable.setPlaceholder(new Label("Simple Search Failed..."));
                     break;
             }
 
         });
-    }
-
-    @FXML
-    void initialize() {
-        assert mainAnchorPane != null :
-               "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert searchTextField != null :
-               "fx:id=\"searchTextField\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert resultTable != null :
-               "fx:id=\"resultTable\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert resultColumn != null :
-               "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert kindOfCheckListView != null :
-               "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert statusChoiceBox != null :
-               "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert searchProgressBar != null :
-               "fx:id=\"searchProgressBar\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert clearButton != null :
-               "fx:id=\"clearButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-
-        this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
-        this.resultTable.setOnDragDone(new DragDoneEventHandler());
-        this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
-        this.resultColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion,
-                                                                            String> param) -> param.getValue()
-                                                                                                   .textProperty());
-        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
-                                                      String> stringText) -> new DescriptionTableCell());
-        this.resultTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    this.manifold.setFocusedConceptChronology(
-                        Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
-                }
-            });
     }
 
     @Override

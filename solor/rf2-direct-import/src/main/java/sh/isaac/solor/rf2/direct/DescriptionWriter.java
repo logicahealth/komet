@@ -158,7 +158,6 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          for (IndexService indexer : indexers) {
             indexer.commitWriter();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

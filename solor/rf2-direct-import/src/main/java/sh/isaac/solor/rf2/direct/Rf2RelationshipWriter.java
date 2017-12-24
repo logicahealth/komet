@@ -149,7 +149,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          for (IndexService indexer : indexers) {
             indexer.commitWriter();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

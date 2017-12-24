@@ -161,7 +161,6 @@ id	effectiveTime	active	moduleId	definitionStatusId
          for (IndexService indexer : indexers) {
             indexer.commitWriter();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

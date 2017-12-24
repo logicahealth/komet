@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>misc</artifactId>
-        <version>4.42</version>
+        <version>4.44</version>
     </parent>
     <groupId>sh.isaac.misc</groupId>
     <artifactId>exporters</artifactId>
@@ -28,11 +28,16 @@
             <artifactId>stamp</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
-            <artifactId>bdb-chronology</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>chronology</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>filesystem-datastore</artifactId>
+         <version>${project.version}</version>
+      </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
             <artifactId>assemblage</artifactId>

@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.42</version>
+      <version>4.44</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -80,13 +80,13 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>identifier</artifactId>
-         <version>${project.parent.version}</version>
+         <artifactId>chronology</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>bdb-chronology</artifactId>
-         <version>${project.parent.version}</version>
+         <artifactId>filesystem-datastore</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>sh.isaac.solor</groupId>
@@ -404,13 +404,7 @@
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
                <version>${solor.db.version}</version>
-               <type>cradle.zip</type>
-            </dependency>
-            <dependency>
-               <groupId>one.solor</groupId>
-               <artifactId>solor-db</artifactId>
-               <version>${solor.db.version}</version>
-               <type>lucene.zip</type>
+               <type>zip</type>
             </dependency>
          </dependencies>
          <build>
@@ -420,7 +414,7 @@
                   <artifactId>maven-dependency-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>extract-solor-dependencies</id>
+                        <id>extract-solor-datastore</id>
                         <phase>process-resources</phase>
                         <goals>
                            <goal>unpack</goal>
@@ -431,16 +425,10 @@
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
                                  <version>${solor.db.version}</version>
-                                 <type>lucene.zip</type>
-                              </artifact>
-                              <artifact>
-                                 <groupId>one.solor</groupId>
-                                 <artifactId>solor-db</artifactId>
-                                 <version>${solor.db.version}</version>
-                                 <type>cradle.zip</type>
+                                 <type>zip</type>
                               </artifact>
                            </artifactItems>
-                           <outputDirectory>${project.build.directory}/data</outputDirectory>
+                           <outputDirectory>${project.build.directory}/data/isaac.data/</outputDirectory>
                         </configuration>
                      </execution>
                   </executions>

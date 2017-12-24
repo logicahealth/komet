@@ -31,7 +31,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -201,44 +200,43 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          for (IndexService indexer : indexers) {
             indexer.commitWriter();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }
 
    private void addVersionNID1_NID2_INT3_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_Int3_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2]));
-      brittleVersion.setInt3(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 3]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setInt3(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
    }
    private void addVersionNID1_INT2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Int2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
    }
 
    private void addVersionNID1_INT2_STR3_STR4_NID5_NID6_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
       brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
       brittleVersion.setStr4(refsetRecord[VARIABLE_FIELD_START + 4]);
-      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5]));
-      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6]));
+      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5].trim()));
+      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6].trim()));
    }
 
    private void addVersionNID1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setComponentNid(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
+      brittleVersion.setComponentNid(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
 
    private void addVersionSTR1_STR2_NID3_NID4_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Str2_Nid3_Nid4_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
       brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
       brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
-      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3]));
-      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4]));
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
    }
 
    private void addVersionSTR1_STR2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
@@ -264,13 +262,13 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
 
    private void addVersionINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setInt1(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2]));
+      brittleVersion.setInt1(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
       brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
       brittleVersion.setStr4(refsetRecord[VARIABLE_FIELD_START + 4]);
       brittleVersion.setStr5(refsetRecord[VARIABLE_FIELD_START + 5]);
-      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6]));
-      brittleVersion.setNid7(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 7]));
+      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6].trim()));
+      brittleVersion.setNid7(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 7].trim()));
    }
 
    private void addVersionSTR1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
@@ -280,26 +278,26 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
 
    private void addVersionNID1_NID2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
    }
 
    private void addVersionNID1_NID2_STR3_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_Str3_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
       brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
    }
 
    private void addVersionNID1_STR2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Str2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1]));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
       brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
    }
 
    private void addVersionINT1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       LongVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setLongValue(Long.parseLong(refsetRecord[VARIABLE_FIELD_START + 1]));
+      brittleVersion.setLongValue(Long.parseLong(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
 
    

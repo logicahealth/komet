@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +55,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -759,14 +757,16 @@ public class SearchHandler {
    }
 
    /**
-    * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
+    * Recursively get Is a children of a concept.  
+    * May inadvertenly return the requested starting sequence when leafOnly is true, and
     * there are no children.
-    *
+    * TODO: Dead Code?
     * @param handledConceptSequenceIds the handled concept sequence ids
     * @param conceptSequence the concept sequence
     * @param recursive the recursive
     * @param leafOnly the leaf only
     * @return the all children of concept
+    * 
     */
    private static NidSet getAllChildrenOfConcept(NidSet handledConceptSequenceIds,
          int conceptSequence,
@@ -780,6 +780,15 @@ public class SearchHandler {
       }
 
       final AtomicInteger count    = new AtomicInteger();
+      throw new UnsupportedOperationException("Search needs rework here...");
+      /*
+      TODO: Dead Code?
+      
+      I'm just commenting this out for now, but I think a lot of this search functionality is redundant
+      with other search capabilities, and it does not make use of a stamp or taxonomy coordinate to 
+      know what children are current... Minimially, this method has to properly handle a stamp coordinate
+      and a taxonomy coordinate. 
+      
       final IntStream     children = Get.taxonomyService()
                                         .getTaxonomyChildSequences(conceptSequence);
 
@@ -802,7 +811,8 @@ public class SearchHandler {
 
       handledConceptSequenceIds.add(conceptSequence);
       return results;
-   }
+      */
+     }
    
 }
 

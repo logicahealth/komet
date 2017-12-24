@@ -82,17 +82,17 @@ public class BinaryDataReaderQueueProvider
    /** The objects. */
    int objects = 0;
 
-   /** The notstarted. */
+   /** The not started. */
    int NOTSTARTED = 3;
 
    /** The running. */
    int RUNNING = 2;
 
-   /** The donereading. */
+   /** The done reading. */
    int DONEREADING = 1;
 
-   /** The comlete. */
-   int COMLETE = 0;
+   /** The complete. */
+   int COMPLETE = 0;
 
    /** The complete. */
    final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
@@ -261,7 +261,7 @@ public class BinaryDataReaderQueueProvider
     */
    @Override
    public boolean isFinished() {
-      return this.complete.getCount() == this.COMLETE;
+      return this.complete.getCount() == this.COMPLETE;
    }
 
    /**
@@ -290,7 +290,7 @@ public class BinaryDataReaderQueueProvider
 
                for (int i = 0; i < threadCount; i++) {
                   this.es.execute(() -> {
-                                      while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
+                                      while ((this.complete.getCount() > this.COMPLETE) ||!this.readData.isEmpty()) {
                                          boolean accepted;
 
                                          try {
