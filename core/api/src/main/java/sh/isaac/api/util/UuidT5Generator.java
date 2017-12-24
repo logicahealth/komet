@@ -49,6 +49,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -152,6 +153,23 @@ public class UuidT5Generator {
          throw new RuntimeException(ex);
       }
    }
+   
+    
+    /**
+     * Same as {@link #get(UUID, String)} but with an optional consumer, which will get a call with the fed in name and resulting UUID.
+     * 
+     * @param namespace
+     * @param name
+     * @param consumer optional callback for debug / UUID generation tracking.
+     * @return
+     */
+    public static UUID get(UUID namespace, String name, BiConsumer<String, UUID> consumer) {
+        UUID temp = get(namespace, name);
+        if (consumer != null) {
+            consumer.accept(name,  temp);
+        }
+        return temp;
+    }
 
    /**
     * This routine adapted from org.safehaus.uuid.UUID,
