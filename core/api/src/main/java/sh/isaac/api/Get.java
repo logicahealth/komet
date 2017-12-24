@@ -787,7 +787,7 @@ public class Get
     * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexService} which match the specified
     * class list.  Classes passed in should be an extension of {@link IndexService}
     *
-    * @return Task that indicates progress.
+    * @return Task that indicates progress.  The task will already be started, when it is returned.
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {

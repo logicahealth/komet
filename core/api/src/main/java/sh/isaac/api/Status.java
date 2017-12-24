@@ -39,6 +39,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
 
+
 //~--- enums ------------------------------------------------------------------
 /**
  * The Enum Status.
@@ -197,4 +198,7 @@ public enum Status {
             throw new UnsupportedOperationException("Can't handle token: " + token);
       }
    }
+   
+   public static EnumSet<Status> ACTIVE_ONLY_SET = EnumSet.of(Status.ACTIVE);
+   public static EnumSet<Status> ANY_STATE_SET = EnumSet.allOf(Status.class);
 }

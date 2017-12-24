@@ -109,12 +109,12 @@ public interface TaxonomyService
    TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
 
    /**
-    * Gets the taxonomy child sequences.
+    * Gets the taxonomy child nids.
     *
     * @param parentId the parent id
-    * @return the taxonomy child sequences
+    * @return the taxonomy child nids
     */
-   IntStream getTaxonomyChildSequences(int parentId);
+   IntStream getTaxonomyChildNids(int parentId);
 
    /**
     * Gets the taxonomy parent sequences.

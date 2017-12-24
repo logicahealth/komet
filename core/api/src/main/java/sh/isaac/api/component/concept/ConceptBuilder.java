@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.concept;
 
+import java.util.List;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.IdentifiedComponentBuilder;
@@ -135,5 +137,11 @@ public interface ConceptBuilder
     * @return the synonym preferred description builder
     */
    DescriptionBuilder<?, ?> getPreferredDescriptionBuilder();
+   
+    /**
+     * Gets the stored description builders.  This should include the FullySpecified Description Builder if set, and the SynonymPreferredDescriptionBuilder, if set
+     * @return the description builders
+     */
+    List<DescriptionBuilder<?, ?>> getDescriptionBuilders();
 }
 

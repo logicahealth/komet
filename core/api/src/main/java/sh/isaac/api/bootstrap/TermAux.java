@@ -311,10 +311,12 @@ public class TermAux {
                                                                      UUID.fromString(
                                                                         "1f20134a-960e-11e5-8994-feff819cdc9f"));
 
-   /** ConceptProxy for: "VHA modules". */
-   public static ConceptSpecification VHA_MODULES = new ConceptProxy("VHA modules",
-                                                                     UUID.fromString(
-                                                                        "8aa5fda8-33e9-5eaf-88e8-dd8a024d2489"));
+   /** ConceptProxy for: "VHAT modules". */
+   public static ConceptSpecification VHAT_MODULES = new ConceptProxy("VHAT modules",
+         UUID.fromString("8aa5fda8-33e9-5eaf-88e8-dd8a024d2489"));
+   
+   public static ConceptSpecification VHAT_EDIT = new ConceptProxy("VHAT Edit",
+         UUID.fromString("afd3be8f-4a49-5e12-bc51-efed33aacd87"));
 
    /** ConceptProxy for: "SOLOR overlay module". */
    public static ConceptSpecification SOLOR_OVERLAY_MODULE = new ConceptProxy("SOLOR overlay module",
@@ -345,6 +347,10 @@ public class TermAux {
    public static ConceptSpecification ROLE_GROUP = new ConceptProxy("Role group",
                                                                     UUID.fromString(
                                                                        "a63f4bf2-a040-11e5-8994-feff819cdc9f"));
+   
+       
+   public static ConceptSpecification IDENTIFIER_SOURCE = new ConceptProxy("identifier source",
+         UUID.fromString("5a87935c-d654-548f-82a2-0c06e3801162"));
 
    /** ConceptProxy for: "sufficient concept definition". SCTID: 900000000000073002 */
    public static ConceptSpecification SUFFICIENT_CONCEPT_DEFINITION = new ConceptProxy("Sufficient concept definition",

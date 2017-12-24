@@ -201,5 +201,11 @@ public interface ConceptService
     * @return the ConceptSnapshotService
     */
    ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
+   
+   /**
+    * Return the UUID that was generated for this datastore when the concept store was first created.  
+    * @return
+    */
+   public UUID getDataStoreId();
 }
 

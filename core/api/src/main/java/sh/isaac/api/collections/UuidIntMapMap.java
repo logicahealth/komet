@@ -282,7 +282,7 @@ public class UuidIntMapMap
                try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
                   this.maps[i] = new MemoryManagedReference<>(SERIALIZER.deserialize(in), mapFile, SERIALIZER);
                   WriteToDiskCache.addToCache(this.maps[i]);
-                  LOG.debug("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
+                  LOG.trace("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
                } finally {
                   DiskSemaphore.release();
                }

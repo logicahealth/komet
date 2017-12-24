@@ -177,8 +177,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public Status getState() {
-      return delegate.getState();
+   public Status getStatus() {
+      return delegate.getStatus();
    }
 
    @Override

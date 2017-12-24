@@ -55,6 +55,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 
 /**
  * The Interface ChangeChecker.
+ * This must be comparable, because it gets used in ConcurrentSkipListSet in the CommitProvider, which assumes things are comparable
+
  *
  * @author kec
  */
@@ -79,5 +81,21 @@ public interface ChangeChecker
     */
    CheckResult check(SemanticChronology sc,
               CheckPhase checkPhase);
+   
+    
+    /**
+     * @return the desired ordering of your change checker, lower numbers execute first.  Used in the implementation of comparable.
+     */
+    default int getRank() {
+        return 1;
+    }
+
+    /**
+     * Sorts based on {@link #getRank()}
+     */
+    @Override
+    default int compareTo(ChangeChecker o) {
+        return Integer.compare(getRank(), o.getRank());
+    }
 }
 

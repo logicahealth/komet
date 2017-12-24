@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -153,10 +154,20 @@ public interface AssemblageService
     * Gets the SemanticChronology nids for component from assemblage.
     *
     * @param componentNid the component nid
+    * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the SemanticChronology nids for component from assemblage
+    */
+   NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
+   
+   /**
+    * Gets the SemanticChronology nids for component from assemblage.
+    *
+    * @param componentNid the component nid
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids for component from assemblage
     */
    NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
+
 
    /**
     * Gets the SemanticChronology nids from assemblage.
@@ -175,6 +186,17 @@ public interface AssemblageService
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
+   /**
+    * Gets the SemanticChronology for component from assemblage.
+    *
+    * @param <C>
+    * @param componentNid the component nid
+    * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the SemanticChronologies for component from assemblage
+    */
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
+         Set<Integer> assemblageConceptNids);
+   
    /**
     * Gets the SemanticChronology for component from assemblage.
     *

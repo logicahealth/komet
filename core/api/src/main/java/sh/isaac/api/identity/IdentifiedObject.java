@@ -87,9 +87,12 @@ public interface IdentifiedObject {
 
 
    /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
+    * If not yet set via a call to {@link IdentifiedComponentBuilder#setPrimordialUuid(UUID)},  or {@link IdentifiedComponentBuilder#setT5Uuid()}
+    * a randomly generated UUID will be created and returned.
+    * 
+    * Otherwise, return already set value.
+    * @param uuid
+    * @return the builder for chaining of operations in a fluent pattern.
     */
    default UUID getPrimordialUuid() {
       return getUuidList().get(0);
