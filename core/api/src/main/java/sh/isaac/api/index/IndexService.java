@@ -42,11 +42,11 @@ package sh.isaac.api.index;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -54,6 +54,7 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -146,10 +147,11 @@ public interface IndexService
     * @param targetGeneration (optional) target generation that must be included in the search
     * or Long.MIN_VALUE if there is no need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until
     * any in progress indexing operations are completed - and then use the latest index.  Null behaves the same as Long.MIN_VALUE
+    * @param stamp The (optional) StampCoordinate to constrain the search.
     * @return a List of {@code SearchResult} that contains the nid of the
     * component that matched, and the score of that match relative to other matches.
     */
-   List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
+   List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration, StampCoordinate stamp);
 
    /**
     * Query.
@@ -171,6 +173,7 @@ public interface IndexService
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
     * indexing operations are completed - and then use the latest index.
+    * @param stamp The (optional) StampCoordinate to constrain the search.
     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
     * to other matches.
     */
@@ -178,7 +181,57 @@ public interface IndexService
                             boolean prefixSearch,
                             Integer[] sememeConceptSequence,
                             int sizeLimit,
-                            Long targetGeneration);
+                            Long targetGeneration,
+                            StampCoordinate stamp);
+   
+   /**
+    * @param query
+    *            The query to apply.
+    * @param prefixSearch
+    *            if true, utilize a search algorithm that is optimized for
+    *            prefix searching, such as the searching that would be done to
+    *            implement a type-ahead style search. Does not use the Lucene
+    *            Query parser. Every term (or token) that is part of the query
+    *            string will be required to be found in the result.
+    * 
+    *            Note, it is useful to NOT trim the text of the query before it
+    *            is sent in - if the last word of the query has a space
+    *            character following it, that word will be required as a
+    *            complete term. If the last word of the query does not have a
+    *            space character following it, that word will be required as a
+    *            prefix match only.
+    * 
+    *            For example: The query "family test" will return results that
+    *            contain 'Family Testudinidae' The query "family test " will
+    *            not match on 'Testudinidae', so that will be excluded.
+    * 
+    * @param semeneConceptSequence
+    *            optional - The concept seqeuence of the sememes that you wish
+    *            to search within. If null, searches all indexed content. This
+    *            would be set to the concept sequence of
+    *            {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE} or the concept
+    *            sequence {@link MetaData#SCTID} for example.
+    * @param sizeLimit
+    *            The maximum size of the result list. Pass Integer.MAX_VALUE
+    *            for unlimited results.
+    * @param targetGeneration
+    *            target generation that must be included in the search or
+    *            Long.MIN_VALUE if there is no need to wait for a target
+    *            generation. Long.MAX_VALUE can be passed in to force this
+    *            query to wait until any in progress indexing operations are
+    *            completed - and then use the latest index.
+    * @param filter
+    *            The (optional) parameter that allows application of exclusionary
+    *            criteria to the returned result.
+    * @param stamp
+    *            The (optional) StampCoordinate to constrain the search.
+    *
+    * @return a List of {@link SearchResult} that contains the nid of the
+    *         component that matched, and the score of that match relative to
+    *         other matches.
+    */
+   List<SearchResult> query(String queryString, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit,
+         Long targetGeneration, Predicate<Integer> filter, StampCoordinate stamp);
 
    /**
     * Report indexed items.

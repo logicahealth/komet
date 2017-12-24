@@ -81,7 +81,7 @@ public class GenerateIndexes
    /**
     * The indexers.
     */
-   List<IndexService> indexers;
+   List<IndexService> indexers = new ArrayList<>();
 
    /**
     * The component count.
@@ -102,7 +102,6 @@ public class GenerateIndexes
          this.indexers = LookupService.get()
                  .getAllServices(IndexService.class);
       } else {
-         this.indexers = new ArrayList<>();
 
          for (final Class<?> clazz : indexersToReindex) {
             if (!IndexService.class.isAssignableFrom(clazz)) {
@@ -134,6 +133,37 @@ public class GenerateIndexes
          i.clearIndexedStatistics();
       }
    }
+   
+    /**
+     * Used to avoid circular dependencies during a re-index upon startup
+     * @param indexersToReindex
+     */
+    public GenerateIndexes(IndexService ... indexersToReindex) {
+        updateTitle("Index generation");
+        updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
+        
+        if (indexersToReindex != null)
+        {
+            for (IndexService i : indexersToReindex)
+            {
+                indexers.add(i);
+            }
+        }
+        
+        List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
+        for (IndexService i : indexers) {
+            if (islList != null)
+            {
+                for (IndexStatusListener isl : islList)
+                {
+                    isl.reindexBegan(i);
+                }
+            }            
+            log.info("Clearing index for: " + i.getIndexerName());
+            i.clearIndex();
+            i.clearIndexedStatistics();
+        }
+    }
 
    //~--- methods -------------------------------------------------------------
    /**
@@ -220,6 +250,7 @@ public class GenerateIndexes
             for (final IndexService i : this.indexers) {
                i.commitWriter();
             }
+            log.info("Indexed " + processedCount + " sememes");
          }
       }
    }
