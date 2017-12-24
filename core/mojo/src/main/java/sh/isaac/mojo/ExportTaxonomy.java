@@ -54,10 +54,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.HashMap;
 import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -118,6 +118,8 @@ public class ExportTaxonomy
 
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);
+         
+         HashMap<String, MetadataConceptConstant> constantsForYamlOnly = new HashMap<>();
 
          // Read in the MetadataConceptConstant constant objects
          // TODO: this step adds the metadata constant to the last concept on the parent stack... 
@@ -135,6 +137,22 @@ public class ExportTaxonomy
             }
 
             getLog().info("Created " + count + " concepts (+ their children)");
+            if (mpc.getConstantsForInfoOnly() != null)
+            {
+                for (MetadataConceptConstant mc : mpc.getConstantsForInfoOnly())
+               {
+                  for (Field f : mpc.getClass().getDeclaredFields()) {
+                     if (f.get(mpc) == mc) {
+                        constantsForYamlOnly.put(f.getName(), mc);
+                        break;
+                     }
+                  }
+               }
+                if (mpc.getConstantsForInfoOnly().length > 0)
+                {
+                    getLog().info("Added " + mpc.getConstantsForInfoOnly().length + " constants to the YAML file for info only");
+                }
+            }
          }
 
          final File          javaDir  = new File(this.buildDirectory, "src/generated");
@@ -166,7 +184,7 @@ public class ExportTaxonomy
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)));
             FileWriter yamlFile = new FileWriter(new File(metadataDirectory.getAbsolutePath(),
                                                           taxonomy.getClass().getSimpleName() + ".yaml"));) {
-            taxonomy.exportYamlBinding(yamlFile, this.bindingPackage, this.bindingClass);
+            taxonomy.exportYamlBinding(yamlFile, this.bindingPackage, this.bindingClass, constantsForYamlOnly);
          }
 
          final Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(),

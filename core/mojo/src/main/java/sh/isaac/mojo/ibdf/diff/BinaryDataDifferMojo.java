@@ -47,6 +47,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -98,34 +101,26 @@ public class BinaryDataDifferMojo
    /** The diff on path. */
    @Parameter
    private final Boolean diffOnPath = false;
-
-   /** The create analysis files. */
+   
    @Parameter
-   private final Boolean createAnalysisFiles = false;
+   private Boolean createAnalysisFiles = false;
+   
+   private static final Logger log = LogManager.getLogger();
 
-   /**
-    * {@code ibdf format} files to import.
-    */
    @Parameter(required = true)
    private File oldVersionFile;
 
-   /**
-    * {@code ibdf format} files to import.
-    */
+
    @Parameter(required = true)
    private File newVersionFile;
 
-   /**
-    * {@code ibdf format} files to import.
-    */
-   @Parameter(required = true)
-   private String analysisFilesOutputDir;
 
-   /**
-    * {@code ibdf format} files to import.
-    */
    @Parameter(required = true)
-   private String ibdfFileOutputDir;
+   private String inputAnalysisDir;
+
+
+   @Parameter(required = true)
+   private String comparisonAnalysisDir;
 
    /** The import date. */
    @Parameter
@@ -133,7 +128,10 @@ public class BinaryDataDifferMojo
 
    /** The changeset file name. */
    @Parameter(required = true)
-   String changesetFileName;
+   String deltaIbdfPath;
+   
+   @Parameter(required = true)
+   protected String converterSourceArtifactVersion;
 
    //~--- methods -------------------------------------------------------------
 
@@ -143,40 +141,64 @@ public class BinaryDataDifferMojo
     * @throws MojoExecutionException the mojo execution exception
     */
    @Override
-   public void execute()
-            throws MojoExecutionException {
+   public void execute() throws MojoExecutionException {
       final BinaryDataDifferService differService = LookupService.getService(BinaryDataDifferService.class);
 
-      differService.initialize(this.analysisFilesOutputDir,
-                               this.ibdfFileOutputDir,
-                               this.changesetFileName,
-                               this.createAnalysisFiles,
-                               this.diffOnStatus,
-                               this.diffOnTimestamp,
-                               this.diffOnAuthor,
-                               this.diffOnModule,
-                               this.diffOnPath,
-                               this.importDate);
+      differService.initialize(comparisonAnalysisDir, 
+            inputAnalysisDir, 
+            deltaIbdfPath, 
+            createAnalysisFiles, 
+            diffOnStatus, 
+            diffOnTimestamp, 
+            diffOnAuthor, 
+            diffOnModule, 
+            diffOnPath,
+            importDate,
+            converterSourceArtifactVersion);  //TODO Jesse had "VHAT " hardcoded here for some silly reason...
 
+      Map<IsaacObjectType, Set<IsaacExternalizable>> oldContentMap = null;
+      Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap = null;
+      
+         Map<ChangeType, List<IsaacExternalizable>> changedComponents = null;
+      
+         boolean ranInputAnalysis = false;
+         boolean ranOutputAnalysis = false;
       try {
-         final Map<IsaacObjectType, Set<IsaacExternalizable>> oldContentMap =
-            differService.processVersion(this.oldVersionFile);
-         final Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap =
-            differService.processVersion(this.newVersionFile);
-         final Map<ChangeType, List<IsaacExternalizable>> changedComponents =
-            differService.identifyVersionChanges(oldContentMap,
-                                                 newContentMap);
+         // Import Input IBDF Files
+         log.info("\n\nProcessing Old version IBDF File");
+         oldContentMap = differService.processInputIbdfFile(oldVersionFile);
+         log.info("\n\nProcessing New version IBDF File");
+         newContentMap = differService.processInputIbdfFile(newVersionFile);
 
-         differService.generateDiffedIbdfFile(changedComponents);
+               // Transform input old & new content into text & json files
+               log.info("\n\nCreating analysis files for input/output files");
+               if (createAnalysisFiles) {
+                  ranInputAnalysis = true;
+                  differService.createAnalysisFiles(oldContentMap, newContentMap, null);
+               }
+          
+               // Execute diff process
+               log.info("\n\nRunning Compute Delta");
+               changedComponents = differService.computeDelta(oldContentMap, newContentMap);
+         
+               // Create diff IBDF file
+               log.info("\n\nCreating the delta ibdf file");
+
+         differService.generateDeltaIbdfFile(changedComponents);
+               // Transform diff IBDF file into text & json files
+               log.info("\n\nCreating analysis files for diff file");
 
          if (this.createAnalysisFiles) {
-            differService.writeFilesForAnalysis(oldContentMap,
-                  newContentMap,
-                  changedComponents,
-                  this.ibdfFileOutputDir,
-                  this.analysisFilesOutputDir);
+                     ranOutputAnalysis = true;
+                     differService.createAnalysisFiles(null, null, changedComponents);
          }
       } catch (final Exception e) {
+         if (createAnalysisFiles && !ranInputAnalysis) {
+             differService.createAnalysisFiles(oldContentMap, newContentMap, null);
+          }
+      if (createAnalysisFiles && !ranOutputAnalysis) {
+         differService.createAnalysisFiles(null, null, changedComponents);
+      }
          throw new MojoExecutionException(e.getMessage(), e);
       }
    }

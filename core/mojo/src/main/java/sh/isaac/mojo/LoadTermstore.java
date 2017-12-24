@@ -44,19 +44,22 @@ package sh.isaac.mojo;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -83,13 +86,29 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
+import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.util.StringUtils;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.AndNode;
+import sh.isaac.model.logic.node.NecessarySetNode;
+import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -118,7 +137,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 )
 public class LoadTermstore
         extends AbstractMojo {
-   /** The active only. */
+   
    @Parameter(required = false)
    private boolean activeOnly = false;
 
@@ -140,6 +159,10 @@ public class LoadTermstore
     */
    @Parameter(required = false)
    private File ibdfFileFolder;
+   public void setibdfFilesFolder(File folder)
+   {
+      ibdfFileFolder = folder;
+   }
 
    /**
     * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
@@ -147,8 +170,7 @@ public class LoadTermstore
    @Parameter(required = false)
    private File[] ibdfFiles;
 
-   /** The item failure. */
-   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
+   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure, mergeCount;
 
    //~--- methods -------------------------------------------------------------
 
@@ -164,10 +186,17 @@ public class LoadTermstore
       Get.configurationService()
          .setDBBuildMode();
 
-      final int statedNid = Get.identifierService()
-                                    .getNidForUuids(
-                                        TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
-      final long loadTime = System.currentTimeMillis();
+//      UUID dbIdUUID;
+//      try {
+//         dbIdUUID = StringUtils.isNotBlank(dbId) ? UUID.fromString(dbId) : UUID.randomUUID();
+//         Files.write(Get.configurationService().getDataStoreFolderPath().get().resolve("dbid.txt"), dbIdUUID.toString().getBytes());
+//      } catch (IllegalArgumentException e1) {
+//         throw new MojoExecutionException("The provided value for the dbId configuration parameter is not a UUID!");
+//      } catch (IOException e) {
+//         throw new MojoExecutionException("Problem writing DB Identity file", e);
+//      }
+
+      final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
 
       // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
       final AtomicBoolean hasMetadata = new AtomicBoolean(false);
@@ -191,7 +220,7 @@ public class LoadTermstore
                if (!f.isFile()) {
                   getLog().info("The file " + f.getAbsolutePath() + " is not a file - ignoring.");
                } else if (!f.getName()
-                            .toLowerCase()
+                            .toLowerCase(Locale.ENGLISH)
                             .endsWith(".ibdf")) {
                   getLog().info("The file " + f.getAbsolutePath() +
                                 " does not match the expected type of ibdf - ignoring.");
@@ -223,6 +252,11 @@ public class LoadTermstore
                      }
                   });
 
+      if (temp.length == 1 && temp[0].getName().equals("IsaacMetadataAuxiliary.ibdf"))
+      {
+         hasMetadata.set(true);
+      }
+      
       if (!hasMetadata.get()) {
          getLog().warn("No Metadata IBDF file found!  This probably isn't good....");
       }
@@ -270,7 +304,7 @@ public class LoadTermstore
 
                            if (sc.getAssemblageNid() == statedNid) {
                               final NidSet sequences = Get.assemblageService()
-                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
+                                                                     .getSemanticNidsForComponentFromAssemblages(sc.getReferencedComponentNid(),
                                                                               statedNid);
 
                               if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
@@ -280,48 +314,59 @@ public class LoadTermstore
                                  final List<LogicalExpression> listToMerge = new ArrayList<>();
 
                                  listToMerge.add(getLatestLogicalExpression(sc));
-                                 getLog().info("\nDuplicate: " + sc);
+                                 getLog().debug("\nDuplicate: " + sc);
                                  sequences.stream()
                                           .forEach(
                                               (semanticSequence) -> listToMerge.add(
                                                   getLatestLogicalExpression(Get.assemblageService()
                                                         .getSemanticChronology(semanticSequence))));
-                                 getLog().info("Duplicates: " + listToMerge);
+                                 getLog().debug("Duplicates: " + listToMerge);
 
                                  if (listToMerge.size() > 2) {
                                     throw new UnsupportedOperationException("Can't merge list of size: " +
                                           listToMerge.size() + "\n" + listToMerge);
                                  }
+                                 
+                                 Set<Integer> mergedParents = new HashSet<>();
+                                 for (LogicalExpression le : listToMerge) {
+                                    mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+                                 }
 
-                                 final IsomorphicResults isomorphicResults = listToMerge.get(0)
-                                                                                        .findIsomorphisms(
-                                                                                           listToMerge.get(1));
+                                 byte[][] data;
 
-                                 getLog().info("Isomorphic results: " + isomorphicResults);
+                                 if (mergedParents.size() == 0) {
+                                    // The logic graph is too complex for our stupid merger - Use the isomorphic one.
+                                    IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                                    getLog().debug("Isomorphic results: " + isomorphicResults);
+                                    data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
+                                 } else {
+                                    // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
+                                    // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
+                                    // Note, this hack won't work at all to merge more complex logic graphs.
+                                    // Probably won't work for RF2 content.
+                                    // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
+                                    Assertion[] assertions = new Assertion[mergedParents.size()];
+                                    LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                                    int i = 0;
+                                    for (Integer parent : mergedParents) {
+                                       assertions[i++] = ConceptAssertion(parent, leb);
+                                    }
+
+                                    NecessarySet(And(assertions));
+                                    data = leb.build().getData(DataTarget.INTERNAL);
+                                 }
+                                 
+                                 mergeCount++;
 
                                  final SemanticChronology existingChronology = Get.assemblageService()
                                                                                 .getSemanticChronology(sequences.findFirst()
                                                                                       .getAsInt());
-                                 final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
-                                                                                   "9ecc154c-e490-5cf8-805d-d2865d62aef3");
-                                 final ConceptProxy pathProxy = new ConceptProxy("development path",
-                                                                                 "1f200ca6-960e-11e5-8994-feff819cdc9f");
-                                 final ConceptProxy userProxy = new ConceptProxy("user",
-                                                                                 "f7495b58-6630-3499-a44e-2052b5fcf06c");
-                                 final int stampSequence = Get.stampService()
-                                                              .getStampSequence(Status.ACTIVE,
-                                                                    loadTime,
-                                                                    userProxy.getNid(),
-                                                                    moduleProxy.getNid(),
-                                                                    pathProxy.getNid());
-                                 final MutableLogicGraphVersion newVersion =
-                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(
-                                        stampSequence);
+                              int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
+                                    TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+                              MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+                              newVersion.setGraphData(data);
 
-                                 newVersion.setGraphData(isomorphicResults.getMergedExpression()
-                                       .getData(DataTarget.INTERNAL));
-
-//                               TODO mess - this isn't merging properly - how should we merge!?
+//                               TODO mess - this isn't merging properly - how should we merge!? - I think this issue referrs to UUIDs... ?
 //                               for (UUID uuid : sc.getUuidList())
 //                               {
 //                                       Get.identifierService().addUuidForNid(uuid, newVersion.getNid());
@@ -402,12 +447,10 @@ public class LoadTermstore
                this.skippedAny = true;
             }
 
-            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
-                          this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
-                          ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
-                  : "") + ((duplicateCount > 0) ? " Duplicates " + duplicateCount
-                  : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
-                  : "") + " from file " + f.getName());
+            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount + " stampAlias, " 
+                  + stampCommentCount + " stampComments, " + mergeCount + " merged sememes" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
+                          + ((duplicateCount > 0) ? " Duplicates " + duplicateCount : "") 
+                          + ((this.itemFailure > 0) ? " Failures " + this.itemFailure : "") + " from file " + f.getName());
             this.conceptCount      = 0;
             this.semanticCount       = 0;
             this.stampAliasCount   = 0;
@@ -424,8 +467,22 @@ public class LoadTermstore
                                               .getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                  Get.taxonomyService()
-                     .updateTaxonomy(sc);
+               try
+               {
+                  Get.taxonomyService().updateTaxonomy(sc);
+               }
+               catch (Exception e)
+               {
+                  Map<String, Object> args = new HashMap<>();
+                  args.put(JsonWriter.PRETTY_PRINT, true);
+                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  JsonWriter json = new JsonWriter(baos, args);
+                  
+                  UUID primordial = sc.getPrimordialUuid();
+                  json.write(sc);
+                  getLog().error("Failed on taxonomy update for object with primoridial UUID " + primordial.toString() + ": " +  baos.toString());
+                  json.close();
+               }
                } else {
                   throw new UnsupportedOperationException("1 Unexpected nid in deferred set: " + nid + " " + sc);
                }
@@ -435,10 +492,20 @@ public class LoadTermstore
          }
 
          if (this.skippedAny) {
-            // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
-//            Get.identifierService()
-//               .clearUnusedIds();
+            // Loading with activeOnly set to true causes a number of gaps in the concept /
+            // semantic providers
+            // Get.identifierService().clearUnusedIds();
          }
+
+//         // Add a sememe to isaac root, that carries that db id
+//         getLog().info("Writing DB ID of '" + dbIdUUID.toString() + "' to root concept");
+//         int ss = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(), TermAux.SOLOR_MODULE.getNid(),
+//               TermAux.DEVELOPMENT_PATH.getNid());
+//         ArrayList<CommittableComponent> builtObjects = new ArrayList<>();
+//         ((SemanticBuilder) Get.semanticBuilderService().getStringSemanticBuilder(dbIdUUID.toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid()))
+//               .build(ss, builtObjects);
+//         Get.assemblageService().writeSemanticChronology((SemanticChronology) builtObjects.get(0));
+//         
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
@@ -456,6 +523,14 @@ public class LoadTermstore
    public void setibdfFiles(File[] files) {
       this.ibdfFiles = files;
    }
+   
+//   @Parameter(required = false) 
+//   private String dbId = "";
+//   
+//   public void setDbId(String dbId)
+//   {
+//      this.dbId = dbId;
+//   }
 
    /**
     * Skip semantic types.
@@ -480,7 +555,7 @@ public class LoadTermstore
          throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
       } else {
          return ((StampedVersion) object.getVersionList()
-                                        .get(0)).getState() == Status.ACTIVE;
+                                        .get(0)).getStatus() == Status.ACTIVE;
       }
    }
 
@@ -517,6 +592,65 @@ public class LoadTermstore
 
       return (latestVersion != null) ? latestVersion.getLogicalExpression()
                                      : null;
+   }
+   
+   
+   /**
+    * Shamelessly copied from FRILLS, as I can't use it there, due to dependency chain issues.  But then modified a bit, 
+    * so it fails if it encounters things it can't handle.
+    */
+   private Set<Integer> getParentConceptSequencesFromLogicExpression(LogicalExpression logicExpression) {
+      Set<Integer> parentConceptSequences = new HashSet<>();
+      Stream<LogicNode> isAs = logicExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
+      int necessaryCount = 0;
+      int allCount = 1;  //start at 1, for root.
+      for (Iterator<LogicNode> necessarySetsIterator = isAs.distinct().iterator(); necessarySetsIterator.hasNext();) {
+         necessaryCount++;
+         allCount++;
+         NecessarySetNode necessarySetNode = (NecessarySetNode)necessarySetsIterator.next();
+         for (AbstractLogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
+            allCount++;
+            if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.AND) {
+               AndNode andNode = (AndNode)childOfNecessarySetNode;
+               for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
+                  allCount++;
+                  if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                     if (childOfAndNode instanceof ConceptNodeWithNids) {
+                        ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfAndNode;
+                        parentConceptSequences.add(conceptNode.getConceptNid());
+                     } else if (childOfAndNode instanceof ConceptNodeWithUuids) {
+                        ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfAndNode;
+                        parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                     } else {
+                        // Should never happen - return an empty set to our call above doesn't use this mechanism
+                        return new HashSet<>();
+                     }
+                  }
+               }
+            } else if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+               if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
+                  ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfNecessarySetNode;
+                  parentConceptSequences.add(conceptNode.getConceptNid());
+               } else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
+                  ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfNecessarySetNode;
+                  parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+               } else {
+                  // Should never happen - return an empty set to our call above doesn't use this mechanism
+                  return new HashSet<>();
+               }
+            } else {
+               // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+               return new HashSet<>();
+            }
+         }
+      }
+      
+      if (logicExpression.getRoot().getChildren().length != necessaryCount || allCount != logicExpression.getNodeCount()) {
+         // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+         return new HashSet<>();
+      }
+      
+      return parentConceptSequences;
    }
 }
 
