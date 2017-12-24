@@ -214,12 +214,12 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     * Gets the membership semantic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept sequence
     * @return the membership semantic builder
     */
    SemanticBuilder<C> getMembershipSemanticBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence);
+           int assemblageConceptNid);
 
    /**
     * Gets the membership semantic builder.

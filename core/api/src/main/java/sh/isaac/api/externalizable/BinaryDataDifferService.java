@@ -60,6 +60,7 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
+//TODO Dan needs to come back and fix all these files being passed as strings, and such.
 @Contract
 public interface BinaryDataDifferService {
    /**
@@ -84,7 +85,7 @@ public interface BinaryDataDifferService {
     * @param changedComponents the changed components
     * @throws Exception the exception
     */
-   public void generateDiffedIbdfFile(Map<ChangeType, List<IsaacExternalizable>> changedComponents)
+   public void generateDeltaIbdfFile(Map<ChangeType, List<IsaacExternalizable>> changedComponents)
             throws Exception;
 
    /**
@@ -94,16 +95,16 @@ public interface BinaryDataDifferService {
     * @param newContentMap the new content map
     * @return the map
     */
-   public Map<ChangeType, List<IsaacExternalizable>> identifyVersionChanges(Map<IsaacObjectType,
+   public Map<ChangeType, List<IsaacExternalizable>> computeDelta(Map<IsaacObjectType,
               Set<IsaacExternalizable>> oldContentMap,
          Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap);
 
    /**
     * Initialize.
     *
-    * @param analysisFilesOutputDir the analysis files output dir
-    * @param ibdfFileOutputDir the ibdf file output dir
-    * @param changesetFileName the changeset file name
+    * @param comparisonAnalysisDir the analysis files output dir
+    * @param inputFilesDir the ibdf file output dir
+    * @param deltaIbdfPath the changeset file name
     * @param createAnalysisFiles the create analysis files
     * @param diffOnStatus the diff on status
     * @param diffOnTimestamp the diff on timestamp
@@ -111,17 +112,19 @@ public interface BinaryDataDifferService {
     * @param diffOnModule the diff on module
     * @param diffOnPath the diff on path
     * @param importDate the import date
+    * @param moduleName
     */
-   public void initialize(String analysisFilesOutputDir,
-                          String ibdfFileOutputDir,
-                          String changesetFileName,
+   public void initialize(String comparisonAnalysisDir,
+                          String inputFilesDir,
+                          String deltaIbdfPath,
                           Boolean createAnalysisFiles,
                           boolean diffOnStatus,
                           boolean diffOnTimestamp,
                           boolean diffOnAuthor,
                           boolean diffOnModule,
                           boolean diffOnPath,
-                          String importDate);
+                          String importDate,
+                          String moduleName);
 
    /**
     * Process version.
@@ -130,7 +133,7 @@ public interface BinaryDataDifferService {
     * @return the map
     * @throws Exception the exception
     */
-   public Map<IsaacObjectType, Set<IsaacExternalizable>> processVersion(File versionFile)
+   public Map<IsaacObjectType, Set<IsaacExternalizable>> processInputIbdfFile(File versionFile)
             throws Exception;
 
    /**
@@ -139,13 +142,9 @@ public interface BinaryDataDifferService {
     * @param newContentMap the new content map
     * @param oldContentMap the old content map
     * @param changedComponents the changed components
-    * @param ibdfFileOutputDir the ibdf file output dir
-    * @param analysisFilesOutputDir the analysis files output dir
     */
-   public void writeFilesForAnalysis(Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap,
+   public void createAnalysisFiles(Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap,
                                      Map<IsaacObjectType, Set<IsaacExternalizable>> oldContentMap,
-                                     Map<ChangeType, List<IsaacExternalizable>> changedComponents,
-                                     String ibdfFileOutputDir,
-                                     String analysisFilesOutputDir);
+                                     Map<ChangeType, List<IsaacExternalizable>> changedComponents);
 }
 
