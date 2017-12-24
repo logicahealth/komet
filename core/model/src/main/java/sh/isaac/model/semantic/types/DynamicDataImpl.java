@@ -145,7 +145,6 @@ public abstract class DynamicDataImpl
       case INTEGER:
       case LONG:
       case NID:
-      case SEQUENCE:
       case STRING:
       case UUID:
          return getDataObject().toString();
