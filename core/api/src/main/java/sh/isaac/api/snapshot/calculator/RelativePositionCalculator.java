@@ -773,7 +773,7 @@ public class RelativePositionCalculator
 
          latestVersionSet.stream()
                          .forEach((version) -> {
-                                if (version.getState() != Status.ACTIVE) {
+                                if (version.getStatus() != Status.ACTIVE) {
                                    inactiveVersions.add(version);
                                 }
                              });

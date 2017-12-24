@@ -99,7 +99,7 @@ public class DescriptionActiveRegexMatch
       conceptChronology.getConceptDescriptionList().stream().forEach((dc) -> {
                                    dc.getVersionList()
                                      .stream()
-                                     .filter((dv) -> (((DescriptionVersion) dv).getText().matches(regex) && (dv.getState() == Status.ACTIVE)))
+                                     .filter((dv) -> (((DescriptionVersion) dv).getText().matches(regex) && (dv.getStatus() == Status.ACTIVE)))
                                      .forEach((dv) -> {
                   addToResultsCache((((DescriptionVersion) dv).getNid()));
                });
