@@ -39,16 +39,7 @@
 
 package sh.isaac.provider.identifier;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-import org.glassfish.hk2.runlevel.RunLevel;
-
-import org.jvnet.hk2.annotations.Service;
-
-
-//~--- classes ----------------------------------------------------------------
-
+//TODO can these classes be killed?
 /**
  * The Class IdentifierProvider.
  *
