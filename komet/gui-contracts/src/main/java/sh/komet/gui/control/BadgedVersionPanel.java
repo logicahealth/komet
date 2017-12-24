@@ -153,7 +153,7 @@ public abstract class BadgedVersionPanel
       this.manifold = manifold;
       this.stampOrderHashMap = stampOrderHashMap;
       this.categorizedVersion = categorizedVersion;
-      isInactive.set(categorizedVersion.getState() == Status.INACTIVE);
+      isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
       expandControl.expandActionProperty()
               .addListener(this::expand);
       this.getChildren()
@@ -166,7 +166,7 @@ public abstract class BadgedVersionPanel
       componentText.layoutBoundsProperty()
               .addListener(this::textLayoutChanged);
       componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
-      isInactive.set(this.categorizedVersion.getState() != Status.ACTIVE);
+      isInactive.set(this.categorizedVersion.getStatus() != Status.ACTIVE);
       if (stampOrderHashMap.containsKey(categorizedVersion.getStampSequence())) {
          this.stampControl.setStampedVersion(
                  categorizedVersion.getStampSequence(),
@@ -326,13 +326,13 @@ public abstract class BadgedVersionPanel
       if (isLatestPanel()) {
          componentType.setText("Concept");
          componentText.setText(
-                 "\n" + conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
+                 "\n" + conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getPathNid()));
       } else {
          componentType.setText("");
          componentText.setText(
-                 conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
+                 conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getPathNid()));
       }

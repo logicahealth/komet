@@ -61,7 +61,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
          ObservableCategorizedVersion observableVersion = row.getItem();
          pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, observableVersion.isUncommitted());
-         pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !observableVersion.getState().isActive());
+         pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !observableVersion.getStatus().isActive());
          // TODO: check for superceded. 
          pseudoClassStateChanged(SUPERCEDED_PSEUDO_CLASS, false);
          // TODO: check for contradicted.
