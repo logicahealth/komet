@@ -57,6 +57,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -76,7 +77,7 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
  * @author kec
  */
 @Service(name = "logic provider")
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class LogicProvider
         implements LogicService {
 
