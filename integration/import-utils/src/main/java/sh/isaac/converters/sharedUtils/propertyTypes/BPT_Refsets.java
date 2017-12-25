@@ -39,20 +39,28 @@
 
 package sh.isaac.converters.sharedUtils.propertyTypes;
 
+import java.util.UUID;
+
+import sh.isaac.MetaData;
+
 /**
  * Fields to treat as refsets.
  *
  * @author Daniel Armbrust
  */
-public class BPT_Refsets
-        extends BPT_DualParentPropertyType {
+public class BPT_Refsets extends PropertyType implements BPT_HasAltMetaDataParent {
    /**
     * Instantiates a new BP T refsets.
     *
-    * @param terminologyName the terminology name
+    * @param terminologyName
+    *           the terminology name
     */
    public BPT_Refsets(String terminologyName) {
-      super("Refsets", terminologyName + " Refsets", true, null);
+     super(terminologyName + " Refsets", true, null);
+   }
+
+   public UUID getAltMetaDataParentUUID() {
+     return MetaData.SOLOR_ASSEMBLAGE____SOLOR.getPrimordialUuid();
    }
 }
 

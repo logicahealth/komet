@@ -69,8 +69,8 @@ public class BPT_Associations
    /**
     * Instantiates a new BP T associations.
     */
-   public BPT_Associations() {
-      super("Association Types", false, null);
+   public BPT_Associations(String terminologyName) {
+      super(terminologyName + " Association Types", false, null);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -103,18 +103,6 @@ public class BPT_Associations
    // Override all of these as unsupported, as, we require only PropertyAssociation object here.
    @Override
    public Property addProperty(String propertyNameFQN) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
-    * Adds the property.
-    *
-    * @param propertyNameFQN the property name FQN
-    * @param propertySubType the property sub type
-    * @return the property
-    */
-   @Override
-   public Property addProperty(String propertyNameFQN, int propertySubType) {
       throw new UnsupportedOperationException();
    }
 

@@ -52,6 +52,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
@@ -165,7 +166,25 @@ public abstract class PropertyType {
     * @return the property
     */
    public Property addProperty(String propertyNameFQN) {
-      return addProperty(propertyNameFQN, -1);
+      return addProperty(propertyNameFQN, -1, false);
+   }
+   
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFQN the property name FQN
+    * @return the property
+    */
+   public Property addProperty(String propertyNameFQN, boolean isIdentifier) {
+      return addProperty(propertyNameFQN, -1, isIdentifier);
+   }
+   
+   public Property addProperty(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
+     return addProperty(new Property(owner, cs, isIdentifier));
+     }
+   
+   public Property addProperty(ConceptSpecification cs, boolean isIdentifier) {
+   return addProperty(new Property((PropertyType)null, cs, isIdentifier));
    }
 
    /**
@@ -175,8 +194,8 @@ public abstract class PropertyType {
     * @param propertySubType the property sub type
     * @return the property
     */
-   public Property addProperty(String propertyNameFQN, int propertySubType) {
-      return addProperty(propertyNameFQN, null, null, false, propertySubType, null);
+   public Property addProperty(String propertyNameFQN, int propertySubType, boolean isIdentifier) {
+      return addProperty(propertyNameFQN, null, null, false, isIdentifier, propertySubType, null);
    }
 
    /**
@@ -237,11 +256,37 @@ public abstract class PropertyType {
                                boolean disabled,
                                int propertySubType,
                                DynamicColumnInfo[] dataColumnForDynamicRefex) {
+      return addProperty(sourcePropertyNameFQN, sourcePropertyAltName, sourcePropertyDefinition, disabled, false, propertySubType, dataColumnForDynamicRefex);
+   }
+   
+   public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyAltName, String sourcePropertyDefinition, boolean isIdentifier) {
+      return addProperty(new Property(this, sourcePropertyNameFSN, sourcePropertyAltName, sourcePropertyDefinition, isIdentifier));
+   }
+   
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFQN the source property name FQN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @param dataColumnForDynamicRefex the data column for dynamic refex
+    * @return the property
+    */
+   public Property addProperty(String sourcePropertyNameFQN,
+                               String sourcePropertyAltName,
+                               String sourcePropertyDefinition,
+                               boolean disabled,
+                               boolean isIdentifier,
+                               int propertySubType,
+                               DynamicColumnInfo[] dataColumnForDynamicRefex) {
       return addProperty(new Property(this,
                                       sourcePropertyNameFQN,
                                       sourcePropertyAltName,
                                       sourcePropertyDefinition,
                                       disabled,
+                                      isIdentifier,
                                       propertySubType,
                                       dataColumnForDynamicRefex));
    }

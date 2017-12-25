@@ -46,8 +46,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
-import java.util.Hashtable;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,7 +61,6 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
@@ -81,6 +81,7 @@ public class ConverterUUID {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
+ //TODO this needs to be made non static / non global, now that is is being pulled into some runtime use cases...
    /** The disable UUID map flag. */
    public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
 
@@ -88,42 +89,64 @@ public class ConverterUUID {
    private static final ConcurrentHashMap<UUID, String> masterUUIDMap = new ConcurrentHashMap<UUID, String>();
 
    /** The namespace. */
-   private static NAMESPACE namespace = null;
+   private static UUID namespace = null;
 
-   /** The CONSTANTS. */
-   private static final ConceptSpecification[] CONSTANTS = new ConceptSpecification[] {
-      MetaData.IS_A____SOLOR, MetaData.REGULAR_NAME____SOLOR, MetaData.FULLY_QUALIFIED_NAME____SOLOR, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
-      MetaData.US_ENGLISH_DIALECT____SOLOR, MetaData.GB_ENGLISH_DIALECT____SOLOR, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR,
-      MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR, MetaData.CONVERTER_VERSION____SOLOR, MetaData.SOURCE_ARTIFACT_VERSION____SOLOR,
-      MetaData.SOURCE_RELEASE_DATE____SOLOR, MetaData.SCTID____SOLOR, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION,
-      DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION,
-      DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
-      DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION,
-      DynamicConstants.get().DYNAMIC_ASSOCIATION
-   };
-
-   //~--- enums ---------------------------------------------------------------
-
-   public enum NAMESPACE {
-      SNOMED,
-      LOINC,
-      RXNORM;
-
-      UUID namespaceUuid;
-
-      //~--- constructors -----------------------------------------------------
-
-      NAMESPACE() {
-         try {
-            this.namespaceUuid = UUID.nameUUIDFromBytes((NAMESPACE.class.getName() +
-                  name()).getBytes(UuidT3Generator.ENCODING_FOR_UUID_GENERATION));
-         } catch (UnsupportedEncodingException ex) {
-            LOG.error(ex.getLocalizedMessage(), ex);
-            throw new RuntimeException(ex);
+   private static ConceptSpecification[] CONSTANTS;
+   static {
+      List<ConceptSpecification> constantsList = new ArrayList<>();
+      try {
+         // Add MetaData static class member concepts
+         for (Field field : MetaData.class.getDeclaredFields()) {
+            if (ConceptSpecification.class.isAssignableFrom(field.getType())) {
+               constantsList.add((ConceptSpecification)field.get(MetaData.class));
+            }
          }
+         // Add DynamicSememeConstants instance member concepts
+         for (Field field : DynamicConstants.class.getDeclaredFields()) {
+            if (ConceptSpecification.class.isAssignableFrom(field.getType())) {
+               constantsList.add((ConceptSpecification)field.get(DynamicConstants.get()));
+            }
+         }
+         
+         CONSTANTS = constantsList.toArray(new ConceptSpecification[constantsList.size()]);
+      } catch (Exception e) {
+         // This is just a fall back in case the initialization by reflection fails
+         CONSTANTS = new ConceptSpecification[] { 
+               MetaData.IS_A____SOLOR, MetaData.REGULAR_NAME____SOLOR,
+               MetaData.FULLY_QUALIFIED_NAME____SOLOR, MetaData.DEFINITION____SOLOR,
+               MetaData.US_ENGLISH_DIALECT____SOLOR, MetaData.GB_ENGLISH_DIALECT____SOLOR,
+               MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR,
+               MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR, MetaData.CONVERTER_VERSION____SOLOR,
+               MetaData.SOURCE_ARTIFACT_VERSION____SOLOR, MetaData.SOURCE_RELEASE_DATE____SOLOR,
+               MetaData.SCTID____SOLOR, MetaData.IDENTIFIER_SOURCE____SOLOR, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION,
+               DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION,
+               DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION,
+               DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION, DynamicConstants.get().DYNAMIC_ASSOCIATION };
       }
    }
 
+//   //~--- enums ---------------------------------------------------------------
+//
+//   public enum NAMESPACE {
+//      SNOMED,
+//      LOINC,
+//      RXNORM;
+//
+//      UUID namespaceUuid;
+//
+//      //~--- constructors -----------------------------------------------------
+//
+//      NAMESPACE() {
+//         try {
+//            this.namespaceUuid = UUID.nameUUIDFromBytes((NAMESPACE.class.getName() +
+//                  name()).getBytes(UuidT3Generator.ENCODING_FOR_UUID_GENERATION));
+//         } catch (UnsupportedEncodingException ex) {
+//            LOG.error(ex.getLocalizedMessage(), ex);
+//            throw new RuntimeException(ex);
+//         }
+//      }
+//   }
+//TODO cleanup this namespace stuff
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -154,11 +177,11 @@ public class ConverterUUID {
     *
     * @param namespace the namespace
     */
-   public static void configureNamespace(NAMESPACE namespace) {
-      if ((ConverterUUID.namespace != null) &&!ConverterUUID.namespace.equals(namespace)) {
-         throw new RuntimeException("Reconfiguring Namespace not allowed: " + namespace);
+   public static void configureNamespace(UUID namespace) {
+      if (namespace != null)
+      {
+         ConsoleUtil.println("Reconfiguring Namespace!");
       }
-
       ConverterUUID.namespace = namespace;
    }
 
@@ -181,7 +204,7 @@ public class ConverterUUID {
     * @param name the name
     * @return the uuid
     */
-   public static UUID createNamespaceUUIDFromString(NAMESPACE namespace, String name) {
+   public static UUID createNamespaceUUIDFromString(UUID namespace, String name) {
       return createNamespaceUUIDFromString(namespace, name, false);
    }
 
@@ -211,11 +234,11 @@ public class ConverterUUID {
     * if the same UUID is generated more than once.
     * @return the uuid
     */
-   public static UUID createNamespaceUUIDFromString(NAMESPACE namespace, String name, boolean skipDupeCheck) {
+   public static UUID createNamespaceUUIDFromString(UUID namespace, String name, boolean skipDupeCheck) {
       UUID uuid;
 
       try {
-         uuid = UuidT5Generator.get(namespace.namespaceUuid, name);
+         uuid = UuidT5Generator.get(namespace, name);
       } catch (final Exception e) {
          throw new RuntimeException("Unexpected error configuring UUID generator");
       }
@@ -306,7 +329,7 @@ public class ConverterUUID {
     *
     * @return the namespace
     */
-   public static NAMESPACE getNamespace() {
+   public static UUID getNamespace() {
       return namespace;
    }
 

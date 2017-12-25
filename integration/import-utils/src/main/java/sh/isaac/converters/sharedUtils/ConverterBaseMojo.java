@@ -39,13 +39,9 @@
 
 package sh.isaac.converters.sharedUtils;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -53,9 +49,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.Get;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID.NAMESPACE;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -194,9 +188,8 @@ public abstract class ConverterBaseMojo
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService()
-         .setBootstrapMode();
-      ConverterUUID.configureNamespace(getNamespace());
+      Get.configurationService().setBootstrapMode();
+
       ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
                                        (this.createDebugUUIDMap.length() == 0)) ? false
             : Boolean.parseBoolean(this.createDebugUUIDMap));
@@ -297,9 +290,5 @@ public abstract class ConverterBaseMojo
    private boolean notEmpty(List<String> item) {
       return (item != null) && (item.size() > 0);
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   protected abstract NAMESPACE getNamespace();
 }
 

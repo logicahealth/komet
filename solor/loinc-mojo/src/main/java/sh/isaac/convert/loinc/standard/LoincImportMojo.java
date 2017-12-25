@@ -583,7 +583,7 @@ public class LoincImportMojo
 
          // Add all of the concepts to a refset
          for (final ComponentReference concept: this.concepts_.values()) {
-            this.importUtil.addRefsetMembership(concept, loincAllConceptsRefset, Status.ACTIVE, null);
+            this.importUtil.addAssemblageMembership(concept, loincAllConceptsRefset, Status.ACTIVE, null);
          }
 
          ConsoleUtil.println("Processed " + this.concepts_.size() + " concepts total");

@@ -105,7 +105,7 @@ public class UMLSFileReader
          this.nextLine = new ArrayList<>(cols.length - 1);
 
          for (final String s: cols) {
-            if ((this.nextLine.size() == cols.length - 1) && ((s.length() == 0) || (s == null))) {
+            if ((this.nextLine.size() == cols.length - 1) && (s == null || s.length() == 0)) {
                break;
             }
 

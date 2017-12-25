@@ -52,12 +52,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
  */
 public class BPT_Annotations
         extends PropertyType {
-   /**
-    * Instantiates a new BP T annotations.
-    */
-   public BPT_Annotations() {
-      super("Attribute Types", true, DynamicDataType.STRING);
-   }
 
    /**
     * Instantiates a new BP T annotations.

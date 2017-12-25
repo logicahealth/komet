@@ -642,7 +642,7 @@ public class RxNormMojo
             if (StringUtils.isNotBlank(relationship.getCvf())) {
                if (relationship.getCvf()
                                .equals("4096")) {
-                  this.importUtil.addRefsetMembership(r, this.cpcRefsetConcept.getPrimordialUuid(), Status.ACTIVE, null);
+                  this.importUtil.addAssemblageMembership(r, this.cpcRefsetConcept.getPrimordialUuid(), Status.ACTIVE, null);
                } else {
                   throw new RuntimeException("Unexpected value in RXNSAT cvf column '" + relationship.getCvf() + "'");
                }
@@ -2190,7 +2190,7 @@ public class RxNormMojo
          // there are no attributes in rxnorm without an AUI.
 //       try
 //       {
-         this.importUtil.addRefsetMembership(cuiConcept,
+         this.importUtil.addAssemblageMembership(cuiConcept,
              this.allCUIRefsetConcept.getPrimordialUuid(),
              Status.ACTIVE,
              null);
@@ -2360,7 +2360,7 @@ public class RxNormMojo
 
          if (StringUtils.isNotBlank(rxnsat.cvf)) {
             if (rxnsat.cvf.equals("4096")) {
-               this.importUtil.addRefsetMembership(attribute,
+               this.importUtil.addAssemblageMembership(attribute,
                    this.cpcRefsetConcept.getPrimordialUuid(),
                    Status.ACTIVE,
                    null);

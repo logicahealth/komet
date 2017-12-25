@@ -326,7 +326,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
 
                             conCounter++;
                             this.importUtil.addRelationshipGraph(concept, expressionId, expression, true, null, null);
-                            this.importUtil.addRefsetMembership(concept,
+                            this.importUtil.addAssemblageMembership(concept,
                                                                 PT_Refsets.Refsets.ALL.getProperty().getUUID(),
                                                                 Status.ACTIVE,
                                                                 null);
