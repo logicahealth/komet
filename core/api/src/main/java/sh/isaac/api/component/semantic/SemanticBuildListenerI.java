@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.jvnet.hk2.annotations.Contract;
 
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -66,7 +68,7 @@ public interface SemanticBuildListenerI
     * The caller is also responsible to write all build objects to the proper store. 
     * @return 
     */
-   default void applyBefore(int stampSequence, List<ObjectChronology<? extends StampedVersion>> builtObjects) {}
+   default void applyBefore(int stampSequence, List<Chronology> builtObjects) {}
 
 
    /**
@@ -79,7 +81,7 @@ public interface SemanticBuildListenerI
     * The caller is also responsible to write all build objects to the proper store. 
     * @return 
     */
-   default void applyAfter(int stampSequence, SememeVersion<?> builtSememe, List<ObjectChronology<? extends StampedVersion>> builtObjects) {}
+   default void applyAfter(int stampSequence, SemanticVersion builtSememe, List<Chronology> builtObjects) {}
 
    /**
     * A listener method that applies to a SememeBuilder before building a component with a state of ACTIVE. 
@@ -91,7 +93,7 @@ public interface SemanticBuildListenerI
    default public void applyBefore(
          EditCoordinate editCoordinate, 
          ChangeCheckerMode changeCheckerMode,
-         List<ObjectChronology<? extends StampedVersion>> builtObjects) {}
+         List<Chronology> builtObjects) {}
 
    /**
     * A listener method that applies to a SememeBuilder after building a component with a state of ACTIVE. 
@@ -104,6 +106,6 @@ public interface SemanticBuildListenerI
    default public void applyAfter(
          EditCoordinate editCoordinate, 
          ChangeCheckerMode changeCheckerMode,
-         SememeVersion<?> builtSememeVersion,
-         List<ObjectChronology<? extends StampedVersion>> builtObjects) {}
+         SemanticVersion builtSememeVersion,
+         List<Chronology> builtObjects) {}
 }

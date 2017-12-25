@@ -207,5 +207,13 @@ public interface ConceptService
     * @return
     */
    public UUID getDataStoreId();
+   
+   /**
+    * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
+    * without incurring the overhead of reading back the object. 
+    * @param conceptId the nid of the concept
+    * @return true if present, false otherwise
+    */
+   boolean hasConcept(int conceptId);
 }
 

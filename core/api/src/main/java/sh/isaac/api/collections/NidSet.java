@@ -58,6 +58,8 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public class NidSet
         extends AbstractIntSet<NidSet> {
+   
+   public final static NidSet EMPTY = new NidSet();
    /**
     * Instantiates a new nid set.
     */

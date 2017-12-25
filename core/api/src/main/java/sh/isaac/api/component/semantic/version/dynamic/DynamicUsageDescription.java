@@ -88,7 +88,7 @@ import sh.isaac.api.constants.DynamicConstants;
  * <br>
  * <br>
  * The assemblage concept may also contain a single {@link DynamicSememeVersion} annotation of type
- * {@link DynamicConstants#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as
+ * {@link DynamicConstants#DYNAMIC_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as
  * a {@link ObjectChronologyType} and a {@link VersionType}- which will restrict the type of nid that can be placed
  * into the referenced component field when creating an instance of the assemblage.
  * <br>

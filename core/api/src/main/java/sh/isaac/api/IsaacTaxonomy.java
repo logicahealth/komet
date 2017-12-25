@@ -259,7 +259,7 @@ public class IsaacTaxonomy {
             if (data != null) {
                sb = Get.semanticBuilderService()
                        .getDynamicBuilder(cb,
-                               DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+                               DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION
                                        .getNid(),
                                data);
                cb.addSemantic(sb);
@@ -350,19 +350,15 @@ public class IsaacTaxonomy {
       out.append("import sh.isaac.api.ConceptProxy;\n");
       out.append("import java.util.UUID;\n");
       
-      out.append("\n\\\\Generated " + new Date().toString() + "\n");
+      out.append("\n//Generated " + new Date().toString() + "\n");
       
 
       out.append("\n\npublic class " + className + " {\n");
       out.append("\n\tpublic static final String AUXILIARY_METADATA_VERSION = \"" + auxiliaryMetadataVersion + "\";\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String preferredName = concept.getFullySpecifiedConceptDescriptionText();
-         String constantName = preferredName.toUpperCase();
-         
-         if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
-             throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
-         }
+         final String fqn = concept.getFullySpecifiedConceptDescriptionText();
+         String constantName = fqn.toUpperCase();
 
          constantName = constantName.replace(".", "");
          constantName = constantName.replace(",", "");
@@ -374,15 +370,15 @@ public class IsaacTaxonomy {
          constantName = constantName.replace("-", "_");
          constantName = constantName.replace("+", "_PLUS");
          constantName = constantName.replace("/", "_AND");
-         out.append("\n\n   /** Java binding for the concept described as <strong><em>" + preferredName
+         out.append("\n\n   /** Java binding for the concept described as <strong><em>" + fqn
                  + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()
                  + "\">\n    * " + concept.getPrimordialUuid() + "</a>}.*/");
          out.append("\n   public static ConceptSpecification " + constantName + " =");
-         out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
+         out.append("\n             new ConceptProxy(\"" + fqn + "\", \"" + concept.getPreferedConceptDescriptionText().get() + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
-            out.append(", UUID.fromString(\"" + uuid.toString() + "\")");
+            out.append(", java.util.UUID.fromString(\"" + uuid.toString() + "\")");
          }
 
          out.append(");");
@@ -409,7 +405,7 @@ public class IsaacTaxonomy {
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String preferredName = concept.getFullySpecifiedConceptDescriptionText();
+         final String preferredName = concept.getPreferedConceptDescriptionText().get();
          String constantName = preferredName.toUpperCase();
          
          if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {

@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.semantic.version.brittle;
 
+import sh.isaac.api.Status;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.VersionType;
@@ -108,7 +110,7 @@ public interface LoincVersion
 
    //~--- get methods ---------------------------------------------------------
 
-   String getStatus();
+   Status getStatus();
 
    //~--- set methods ---------------------------------------------------------
 

@@ -352,7 +352,7 @@ public class DynamicConstants
 
    /** The dynamic referenced component restriction. */
    // of the sememe
-   public final MetadataDynamicConstant DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION =
+   public final MetadataDynamicConstant DYNAMIC_REFERENCED_COMPONENT_RESTRICTION =
       new MetadataDynamicConstant("Dynamic referenced component restriction",
         UUID.fromString("0d94ceeb-e24f-5f1a-84b2-1ac35f671db5"),
         "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a " +
@@ -385,7 +385,7 @@ public class DynamicConstants
       {
          addChild(DynamicConstants.this.DYNAMIC_NAMESPACE);
          addChild(DynamicConstants.this.DYNAMIC_COLUMNS);
-         addChild(DynamicConstants.this.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION);
+         addChild(DynamicConstants.this.DYNAMIC_REFERENCED_COMPONENT_RESTRICTION);
          addChild(DynamicConstants.this.DYNAMIC_COLUMN_DATA_TYPES);
 
          setParent(TermAux.SOLOR_METADATA);
