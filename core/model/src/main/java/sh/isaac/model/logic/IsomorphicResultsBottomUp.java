@@ -682,7 +682,7 @@ public class IsomorphicResultsBottomUp
          nodesToTry = nextSetToTry;
       }
 
-      Optional<IsomorphicSolution> temp = possibleSolutions.stream().max((IsomorphicSolution o1, IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore())).get();
+      Optional<IsomorphicSolution> temp = possibleSolutions.stream().max((IsomorphicSolution o1, IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()));
       if (!temp.isPresent()) {
          // TODO this isn't at all right. But, I think we aren't hitting this any more,
          // with Keith's other fix

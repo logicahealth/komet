@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -300,6 +301,16 @@ public class MockSemanticService
    public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+   @Override
+   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
    
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
+      Set<Integer> assemblageConceptNids) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
 }
 

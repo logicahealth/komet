@@ -295,12 +295,12 @@ public class DynamicUsageDescriptionImpl
                                  "that is parseable as a DynamicSememeDataType");
                               }
                            } else if (sememe.getAssemblageNid() ==
-                           DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
+                           DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
                               if ((refexDefinitionData == null) || (refexDefinitionData.length < 1)) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
                                  "a DynamicSememeData Refex Type.  If it contains a " +
-                                 DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getPrimaryName() +
+                                 DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getPrimaryName() +
                                  " then it must contain a single column of data, of type string, parseable as a " +
                                  ObjectChronologyType.class.getName());
                               }

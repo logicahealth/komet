@@ -178,7 +178,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
          }
       }
-      SemanticVersion version;
+      SemanticVersion version = null;
       SemanticChronologyImpl semanticChronicle;
       final int            semanticNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
@@ -458,7 +458,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
            } else if (semanticType == semanticType.MEMBER) {
               setPrimordialUuid(UuidFactory.getUuidForMemberSememe(namespace, assemblageUuid, refCompUuid, consumer));
            } else if (semanticType == semanticType.DYNAMIC) {
-              setPrimordialUuid(UuidFactory.getUuidForDynamicSememe(namespace, assemblageUuid, refCompUuid, 
+              setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid, 
                  (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>)parameters[0]).get() : null), consumer));
            } else if (semanticType == semanticType.COMPONENT_NID) {
                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]).get();

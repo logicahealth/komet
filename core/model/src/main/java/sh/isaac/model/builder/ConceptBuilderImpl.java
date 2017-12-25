@@ -351,7 +351,7 @@ public class ConceptBuilderImpl
     */
    @Override
    public String getFullySpecifiedConceptDescriptionText() {
-      return this.conceptName;
+      return getFullySpecifiedDescriptionBuilder().getDescriptionText();
    }
 
    /**
@@ -478,14 +478,14 @@ public class ConceptBuilderImpl
 		for (LogicalExpression logicalExpression : logicalExpressions) {
 			if (!builtLogicalExpressions.containsKey(logicalExpression)) {
 				builtLogicalExpressions.put(logicalExpression,
-						builderService.getLogicalExpressionSemanticBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
+						builderService.getLogicalExpressionBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
 			}
 			temp.add(builtLogicalExpressions.get(logicalExpression));
 		}
 		for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
 			if (!builtLogicalExpressionBuilders.containsKey(builder)) {
 				builtLogicalExpressionBuilders.put(builder,
-						builderService.getLogicalExpressionSemanticBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
+						builderService.getLogicalExpressionBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
 			}
 			temp.add(builtLogicalExpressionBuilders.get(builder));
 		}

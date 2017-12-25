@@ -304,7 +304,7 @@ public class LoadTermstore
 
                            if (sc.getAssemblageNid() == statedNid) {
                               final NidSet sequences = Get.assemblageService()
-                                                                     .getSemanticNidsForComponentFromAssemblages(sc.getReferencedComponentNid(),
+                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
                                                                               statedNid);
 
                               if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
@@ -537,7 +537,7 @@ public class LoadTermstore
     *
     * @param types the types
     */
-   public void skipSememeTypes(Collection<VersionType> types) {
+   public void skipVersionTypes(Collection<VersionType> types) {
       this.semanticTypesToSkip.addAll(types);
    }
 

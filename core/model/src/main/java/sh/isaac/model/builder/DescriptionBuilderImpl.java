@@ -270,8 +270,8 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 					languageForDescription.getPrimordialUuid(), 
 					descriptionText,
 					consumer));
-			return this;
 		}
+		return this;
 	}
 	
     @Override
@@ -285,16 +285,16 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         
         for (Entry<ConceptSpecification, SemanticBuilder<?>> p : preferredInDialectAssemblages.entrySet()) {
             if (p.getValue() == null) {
-                p.setValue(sememeBuilderService.getComponentSememeBuilder(TermAux.PREFERRED.getNid(), this,
-                    Get.identifierService().getConceptSequenceForProxy(p.getKey())));
+                p.setValue(sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(), this,
+                    Get.identifierService().getNidForProxy(p.getKey())));
             }
             temp.add(p.getValue());
         }
         
         for (Entry<ConceptSpecification, SemanticBuilder<?>> a : acceptableInDialectAssemblages.entrySet()) {
             if (a.getValue() == null) {
-                a.setValue(sememeBuilderService.getComponentSememeBuilder(TermAux.ACCEPTABLE.getNid(), this,
-                    Get.identifierService().getConceptSequenceForProxy(a.getKey())));
+                a.setValue(sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(), this,
+                    Get.identifierService().getNidForProxy(a.getKey())));
             }
             temp.add(a.getValue());
         }
