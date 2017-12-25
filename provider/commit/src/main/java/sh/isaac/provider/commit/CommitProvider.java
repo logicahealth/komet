@@ -637,7 +637,9 @@ public class CommitProvider
       Get.workExecutors()
               .getExecutor()
               .execute(task);
-      return task;
+      //return task;
+      return null;
+      //TODO dan needs to fix this
    }
 
    /**
@@ -974,75 +976,75 @@ public class CommitProvider
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
          
-         checkers.add(new ChangeChecker() {
-            @Override
-            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-                  // Accumulate uncommitted versions in passed chronology
-                  final List<SemanticVersion> uncommittedVersions = new ArrayList<>();
-                  for (Version version : sc.getVersionList()) {
-                     if (version.isUncommitted()) {
-                        uncommittedVersions.add(version);
-                     }
-                  }
-                  // Warn or fail if multiple uncommitted versions in passed chronology
-                  if (uncommittedVersions.size() > 0) {
-                     alertCollection
-                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in sememe chronology " 
-                                 + sc.getPrimordialUuid(), sc.getNid()));
-                  }
-                  // Warn or fail if chronology sequence in uncommitted sets
-                  if (uncommittedSemanticsWithChecksNidSet.contains(sc.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(sc.getNid())) {
-                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for sememe " 
-                           + sc.getPrimordialUuid(), sc.getNid()));
-                  }
-               }
-            }
-
-            @Override
-            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-                  // Accumulate multiple uncommitted versions in passed chronology
-                  final List<ConceptVersion> uncommittedVersions = new ArrayList<>();
-                  for (Version version : cc.getVersionList()) {
-                     if (version.isUncommitted()) {
-                        uncommittedVersions.add((ConceptVersion)version);
-                     }
-                  }
-                  // Warn or fail if multiple uncommitted versions in passed chronology
-                  if (uncommittedVersions.size() > 0) {
-                     alertCollection
-                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in concept chronology " 
-                                 + cc.getPrimordialUuid(), cc.getNid()));
-                  }
-                  // Warn or fail if chronology sequence in uncommitted sets
-                  if (uncommittedConceptsWithChecksNidSet.contains(cc.getNid()) || uncommittedConceptsNoChecksNidSet.contains(cc.getNid())) {
-                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for concept " 
-                           + cc.getPrimordialUuid(), cc.getNid()));
-                  }
-               }
-            }
-         });
-         checkers.add(new ChangeChecker() {
-            @Override
-            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-                  if (sc.getVersionType() == VersionType.DESCRIPTION) {
-                     for (Version sv : sc.getUnwrittenVersionList()) {
-                        if (((DescriptionVersion) sv).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) sv).getLanguageConceptNid() == 0
-                              || ((DescriptionVersion) sv).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) sv).getText() == null) {
-                           alertCollection.add(Alerts.error("Failed to set all required fields on a description!", sv.getNid()));
-                        }
-                     }
-                  }
-               }
-            }
-
-            @Override
-            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-               // no default concept checker
-            }
-         });
+//         checkers.add(new ChangeChecker() {
+//            @Override
+//            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
+//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+//                  // Accumulate uncommitted versions in passed chronology
+//                  final List<SemanticVersion> uncommittedVersions = new ArrayList<>();
+//                  for (Version version : sc.getVersionList()) {
+//                     if (version.isUncommitted()) {
+//                        uncommittedVersions.add(version);
+//                     }
+//                  }
+//                  // Warn or fail if multiple uncommitted versions in passed chronology
+//                  if (uncommittedVersions.size() > 0) {
+//                     alertCollection
+//                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in sememe chronology " 
+//                                 + sc.getPrimordialUuid(), sc.getNid()));
+//                  }
+//                  // Warn or fail if chronology sequence in uncommitted sets
+//                  if (uncommittedSemanticsWithChecksNidSet.contains(sc.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(sc.getNid())) {
+//                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for sememe " 
+//                           + sc.getPrimordialUuid(), sc.getNid()));
+//                  }
+//               }
+//            }
+//
+//            @Override
+//            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
+//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+//                  // Accumulate multiple uncommitted versions in passed chronology
+//                  final List<ConceptVersion> uncommittedVersions = new ArrayList<>();
+//                  for (Version version : cc.getVersionList()) {
+//                     if (version.isUncommitted()) {
+//                        uncommittedVersions.add((ConceptVersion)version);
+//                     }
+//                  }
+//                  // Warn or fail if multiple uncommitted versions in passed chronology
+//                  if (uncommittedVersions.size() > 0) {
+//                     alertCollection
+//                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in concept chronology " 
+//                                 + cc.getPrimordialUuid(), cc.getNid()));
+//                  }
+//                  // Warn or fail if chronology sequence in uncommitted sets
+//                  if (uncommittedConceptsWithChecksNidSet.contains(cc.getNid()) || uncommittedConceptsNoChecksNidSet.contains(cc.getNid())) {
+//                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for concept " 
+//                           + cc.getPrimordialUuid(), cc.getNid()));
+//                  }
+//               }
+//            }
+//         });
+//         checkers.add(new ChangeChecker() {
+//            @Override
+//            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
+//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+//                  if (sc.getVersionType() == VersionType.DESCRIPTION) {
+//                     for (Version sv : sc.getUnwrittenVersionList()) {
+//                        if (((DescriptionVersion) sv).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) sv).getLanguageConceptNid() == 0
+//                              || ((DescriptionVersion) sv).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) sv).getText() == null) {
+//                           alertCollection.add(Alerts.error("Failed to set all required fields on a description!", sv.getNid()));
+//                        }
+//                     }
+//                  }
+//               }
+//            }
+//
+//            @Override
+//            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
+//               // no default concept checker
+//            }
+//         });
          
          
       } catch (final IOException e) {
@@ -1354,4 +1356,22 @@ public class CommitProvider
    public Future<?> sync() {
       throw new UnsupportedOperationException();
    }
+
+	@Override
+	public void pause() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void resume() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public Path getWriteFolder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

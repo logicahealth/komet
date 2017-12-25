@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -97,9 +98,9 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- classes ----------------------------------------------------------------
@@ -215,7 +216,9 @@ public class SemanticIndexer
          boolean prefixSearch,
          Integer[] sememeConceptSequence,
          int sizeLimit,
-         Long targetGeneration) {
+         Long targetGeneration,
+         Predicate<Integer> filter,
+         StampCoordinate sc) {
       return query(new DynamicStringImpl(queryString),
                    prefixSearch,
                    sememeConceptSequence,
@@ -280,8 +283,7 @@ public class SemanticIndexer
          } else if ((queryData instanceof DynamicDouble) ||
                     (queryData instanceof DynamicFloat) ||
                     (queryData instanceof DynamicInteger) ||
-                    (queryData instanceof DynamicLong) ||
-                    (queryData instanceof DynamicSequence)) {
+                    (queryData instanceof DynamicLong)) {
             q = new QueryWrapperForColumnHandling() {
                @Override
                Query buildQuery(String columnName) {
@@ -503,27 +505,21 @@ public class SemanticIndexer
 
          if (fitsInInt ||
                (queryDataLower instanceof DynamicInteger) ||
-               (queryDataUpper instanceof DynamicInteger) ||
-               (queryDataLower instanceof DynamicSequence) ||
-               (queryDataUpper instanceof DynamicSequence)) {
+               (queryDataUpper instanceof DynamicInteger)) {
             final Integer upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper instanceof DynamicInteger)
                      ? ((DynamicInteger) queryDataUpper).getDataInteger()
-                     : ((queryDataUpper instanceof DynamicSequence)
-                        ? ((DynamicSequence) queryDataUpper).getDataSequence()
-                        : ((fitsInInt &&
+                     : ((fitsInInt &&
                             ((Number) queryDataUpper.getDataObject()).longValue() >
                             Integer.MAX_VALUE) ? Integer.MAX_VALUE
-                                               : ((Number) queryDataUpper.getDataObject()).intValue()))));
+                                               : ((Number) queryDataUpper.getDataObject()).intValue())));
             final Integer lowerVal = ((queryDataLower == null) ? null
                   : ((queryDataLower instanceof DynamicInteger)
                      ? ((DynamicInteger) queryDataLower).getDataInteger()
-                     : ((queryDataLower instanceof DynamicSequence)
-                        ? ((DynamicSequence) queryDataLower).getDataSequence()
-                        : ((fitsInInt &&
+                     : ((fitsInInt &&
                             ((Number) queryDataLower.getDataObject()).longValue() <
                             Integer.MIN_VALUE) ? Integer.MIN_VALUE
-                                               : ((Number) queryDataLower.getDataObject()).intValue()))));
+                                               : ((Number) queryDataLower.getDataObject()).intValue())));
 
             bqBuilder.add(IntPoint.newRangeQuery(columnName, lowerVal, upperVal),
                    Occur.SHOULD);
@@ -604,15 +600,6 @@ public class SemanticIndexer
          }
 
          incrementIndexedItemCount("Dynamic Integer");
-      } else if (dataCol instanceof DynamicSequence) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSequence) dataCol).getDataSequence()));
-
-         if (colNumber >= 0) {
-            doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                 ((DynamicSequence) dataCol).getDataSequence()));
-         }
-
-         incrementIndexedItemCount("Dynamic Sequence");
       } else if (dataCol instanceof DynamicLong) {
          doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
 
@@ -737,5 +724,12 @@ public class SemanticIndexer
    public Future<Void> sync() {
       throw new UnsupportedOperationException();
    }
+
+@Override
+public List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit,
+		Long targetGeneration, StampCoordinate sc) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
 

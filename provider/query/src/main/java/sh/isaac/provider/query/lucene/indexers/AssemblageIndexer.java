@@ -36,6 +36,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
@@ -230,7 +231,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (descriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration, null);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(),
@@ -266,7 +267,7 @@ public class AssemblageIndexer extends LuceneIndexer
          int sizeLimit,
          Long targetGeneration) {
       if (extendedDescriptionType == null) {
-         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration);
+         return super.query(query, (Integer[]) null, sizeLimit, targetGeneration, null);
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(),
@@ -310,7 +311,8 @@ public class AssemblageIndexer extends LuceneIndexer
                                    boolean prefixSearch,
                                    Integer[] sememeConceptSequence,
                                    int sizeLimit,
-                                   Long targetGeneration) {
+                                   Long targetGeneration,
+                                   StampCoordinate sc) {
       return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
                                      sememeConceptSequence),
                     sizeLimit,
@@ -354,7 +356,8 @@ public class AssemblageIndexer extends LuceneIndexer
                                    Integer[] sememeConceptSequence,
                                    int sizeLimit,
                                    Long targetGeneration,
-                                   Predicate<Integer> filter) {
+                                   Predicate<Integer> filter,
+                                   StampCoordinate sc) {
       return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
                                      sememeConceptSequence),
                     sizeLimit,

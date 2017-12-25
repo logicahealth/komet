@@ -59,6 +59,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
@@ -169,7 +170,7 @@ public class VersionManagmentPathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
@@ -202,7 +203,7 @@ public class VersionManagmentPathProvider
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
       return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblages(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
+                .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
                 .map((pathOrigin) -> {
                         final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();

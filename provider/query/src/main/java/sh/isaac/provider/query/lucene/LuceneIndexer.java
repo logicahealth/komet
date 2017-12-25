@@ -134,6 +134,7 @@ import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -491,7 +492,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public final List<SearchResult> query(String query, int sizeLimit) {
-      return query(query, null, sizeLimit, Long.MIN_VALUE);
+      return query(query, null, sizeLimit, Long.MIN_VALUE, null);
    }
 
    /**
@@ -513,8 +514,9 @@ public abstract class LuceneIndexer
    public final List<SearchResult> query(String query,
          Integer[] semeneConceptSequence,
          int sizeLimit,
-         Long targetGeneration) {
-      return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration);
+         Long targetGeneration,
+         StampCoordinate sc) {
+      return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration, sc);
    }
 
    /**
@@ -550,7 +552,8 @@ public abstract class LuceneIndexer
          boolean prefixSearch,
          Integer[] sememeConceptSequence,
          int sizeLimit,
-         Long targetGeneration);
+         Long targetGeneration,
+         StampCoordinate sc);
 
    /**
     * Report indexed items.
@@ -753,6 +756,7 @@ public abstract class LuceneIndexer
     * on the implementation of your filter
     * @return the list
     */
+   //TODO where is the stamp coord
    protected final List<SearchResult> search(Query q, int sizeLimit, Long targetGeneration, Predicate<Integer> filter) {
       try {
          IndexSearcher searcher = getIndexSearcher(targetGeneration);

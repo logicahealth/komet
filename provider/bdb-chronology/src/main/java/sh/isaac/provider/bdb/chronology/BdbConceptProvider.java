@@ -240,6 +240,10 @@ public class BdbConceptProvider
       });
    }
 
+   @Override
+   public boolean hasConcept(int conceptId) {
+	  return bdb.getChronologyData(conceptId).isPresent();
+   }
 
    /**
     * The Class ConceptSnapshotProvider.
@@ -384,6 +388,5 @@ public class BdbConceptProvider
    public Future<?> sync() {
       return this.bdb.sync();
    }
-   
 }
 

@@ -344,7 +344,7 @@ public class SearchHandler {
                                            prefixSearch,
                                            getDescriptionSememeAssemblages(),
                                            resultLimit,
-                                           Long.MIN_VALUE);
+                                           Long.MIN_VALUE, null);
                                   } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
@@ -579,7 +579,7 @@ public class SearchHandler {
                                       ((assemblageNid == null) ? (Integer[]) null
                   : new Integer[] { assemblageNid }),
                                       resultLimit,
-                                      Long.MIN_VALUE);
+                                      Long.MIN_VALUE, null);
                              } catch (final Exception e) {
                                 throw new RuntimeException(e);
                              }

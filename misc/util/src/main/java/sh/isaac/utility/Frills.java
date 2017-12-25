@@ -382,7 +382,7 @@ public class Frills
          if (data != null) {
             Get.semanticBuilderService()
                .getDynamicBuilder(newCon.getNid(),
-                   DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+                   DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION
                                          .getNid(),
                    data)
                .build(localEditCoord, ChangeCheckerMode.ACTIVE)

@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -233,6 +233,20 @@ public class BdbSemanticProvider implements AssemblageService {
    @Override
    public Future<?> sync() {
       return this.bdb.sync();
+   }
+
+   //TODO dan needs to implement these
+   @Override
+   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
+   	// TODO Auto-generated method stub
+   	return null;
+   }
+   
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
+   		Set<Integer> assemblageConceptNids) {
+   	// TODO Auto-generated method stub
+   	return null;
    }
    
 }
