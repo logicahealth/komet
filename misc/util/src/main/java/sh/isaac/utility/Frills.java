@@ -248,7 +248,7 @@ public class Frills
       definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
           columnDescription,
           builder,
-          MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+          MetaData.DEFINITION____SOLOR,
           MetaData.ENGLISH_LANGUAGE____SOLOR);
       definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
       builder.addDescription(definitionBuilder);
@@ -338,7 +338,7 @@ public class Frills
             definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                 semanticDescription,
                 builder,
-                MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+                MetaData.DEFINITION____SOLOR,
                 MetaData.ENGLISH_LANGUAGE____SOLOR);
             definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
 
@@ -2348,7 +2348,7 @@ public class Frills
 
 		// StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
 		final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-		final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getConceptSequence(), true, true);
+		final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true);
 		final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
 
 		final Set<Integer> matchingVuidSememeNids = new HashSet<>();

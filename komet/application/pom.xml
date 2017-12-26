@@ -182,13 +182,13 @@
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
-      <dependency>
+      <!--dependency>
          <groupId>javafx-packager</groupId>
          <artifactId>javafx-packager</artifactId>
          <version>1.8.0_20</version>
          <scope>system</scope>
          <systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
-      </dependency>
+      </dependency-->
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>progress-view</artifactId>

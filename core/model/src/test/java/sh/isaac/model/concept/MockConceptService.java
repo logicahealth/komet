@@ -266,5 +266,10 @@ public class MockConceptService
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
+   @Override
+   public boolean hasConcept(int conceptId) {
+     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
 }
 

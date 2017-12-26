@@ -54,13 +54,13 @@
 			<scope>compile</scope>
 		</dependency>
 		<!-- Database -->
-		<dependency>
+		<!--dependency>
 			<groupId>${database.groupId}</groupId>
 			<artifactId>${database.artifactId}</artifactId>
 			<version>${database.version}</version>
 			<classifier>${database.classifier}</classifier>
 			<type>${database.type}</type>
-		</dependency>
+		</dependency-->
 		<!-- Project Dependencies -->
 		<dependency>
 			<groupId>org.testng</groupId>

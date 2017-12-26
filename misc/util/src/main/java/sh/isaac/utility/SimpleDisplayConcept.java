@@ -65,7 +65,7 @@ public class SimpleDisplayConcept implements Comparable<SimpleDisplayConcept>
 	public SimpleDisplayConcept(ConceptChronology c, Function<ConceptChronology, String> descriptionReader)
 	{
 		Function<ConceptChronology, String> dr = (descriptionReader == null ? (conceptVersion) -> 
-			{return (conceptVersion == null ? "" : Frills.getDescription(conceptVersion.getNid()).get());} : descriptionReader);
+			{return (conceptVersion == null ? "" : Frills.getDescription(conceptVersion.getNid(), null, null).get());} : descriptionReader);
 		description_ = dr.apply(c);
 		nid_ = c == null ? 0 : c.getNid();
 		customLogic_ = null;
