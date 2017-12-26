@@ -78,14 +78,14 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link ISAACVisitor}.
+ * {@link IsaacVisitor}.
  *
  * @author Tony Weida
  */
-public class ISAACVisitor
+public class IsaacVisitor
         extends SNOMEDCTExpressionBaseVisitor<Object> {
    /** The logger. */
-   static Logger logger = LogManager.getLogger(ISAACVisitor.class);
+   static Logger logger = LogManager.getLogger(IsaacVisitor.class);
 
    //~--- fields --------------------------------------------------------------
 
@@ -102,7 +102,7 @@ public class ISAACVisitor
     *
     * @param defBuilder the def builder
     */
-   public ISAACVisitor(LogicalExpressionBuilder defBuilder) {
+   public IsaacVisitor(LogicalExpressionBuilder defBuilder) {
       this(defBuilder, null);
    }
 
@@ -112,7 +112,7 @@ public class ISAACVisitor
     * @param defBuilder the def builder
     * @param c the c
     */
-   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c) {
+   public IsaacVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c) {
       this(defBuilder, c, false);
    }
 
@@ -123,7 +123,7 @@ public class ISAACVisitor
     * @param c the c
     * @param defaultToPrimitive the default to primitive
     */
-   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c, boolean defaultToPrimitive) {
+   public IsaacVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c, boolean defaultToPrimitive) {
       super();
       this.defaultToPrimitive = defaultToPrimitive;
       this.defBuilder         = defBuilder;

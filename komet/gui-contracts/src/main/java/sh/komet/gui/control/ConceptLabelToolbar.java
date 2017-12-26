@@ -108,6 +108,9 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
+      gctb.conceptLabel.setMaxWidth(2000);      
+      gctb.conceptLabel.setPrefWidth(2000);      
+      gctb.conceptLabel.setMinWidth(100);      
       toolBarGrid.getChildren().add(gctb.conceptLabel);
       
       toolBarGrid.getStyleClass().add("concept-label-toolbar");

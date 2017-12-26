@@ -41,5 +41,6 @@
         <module>filesystem-datastore</module>
         <module>chronology</module>
         <module>xodus-datastore</module>
+        <module>memory-managment</module>
     </modules>
 </project>

@@ -62,7 +62,7 @@ import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.provider.logic.ISAACVisitor;
+import sh.isaac.provider.logic.IsaacVisitor;
 
 /**
  *
@@ -307,7 +307,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
 
                             final LogicalExpressionBuilder defBuilder = Get.logicalExpressionBuilderService()
                                                                            .getLogicalExpressionBuilder();
-                            final ISAACVisitor visitor = new ISAACVisitor(defBuilder);
+                            final IsaacVisitor visitor = new IsaacVisitor(defBuilder);
 
                             visitor.visit(parseTree);
 

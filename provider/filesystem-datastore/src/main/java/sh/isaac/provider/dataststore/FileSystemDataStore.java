@@ -434,9 +434,9 @@ public class FileSystemDataStore
                  File spineDirectory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
 
                  if (spineDirectory.exists()) {
-                    int filesRead = spinedByteArrayArrayMap.read(spineDirectory);
-                    if (filesRead > 0) {
-                        LOG.info("Read  " + filesRead + 
+                    int filesToRead = spinedByteArrayArrayMap.lazyRead(spineDirectory);
+                    if (filesToRead > 0) {
+                        LOG.info("Lazy open of " + filesToRead + 
                                 " chronology files for assemblage: "  
                                 + " " + properties.getProperty(Integer.toString(assemblageNid))
                                 + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
