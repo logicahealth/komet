@@ -581,7 +581,7 @@ public class DynamicUsageDescriptionImpl
     *     @see gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getDynamicUsageDescriptorSequence()
     */
    @Override
-   public int getDynamicUsageDescriptorSequence() {
+   public int getDynamicUsageDescriptorNid() {
       return this.refexUsageDescriptorNid;
    }
 

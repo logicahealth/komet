@@ -36,23 +36,23 @@
 
 	<dependencies>
 		<!-- Old Terminology Version -->
-		<dependency>
+		<!--dependency>
 			<groupId>${terminology.groupId}</groupId>
 			<artifactId>${terminology.artifactId}</artifactId>
 			<version>${terminology.version.old}-${terminology.loader.version.old}</version>
 			<type>ibdf.zip</type>
-			<optional>true</optional> <!-- Not needed at runtime / transitively -->
+			<optional>true</optional>
 			<scope>compile</scope>
-		</dependency>
+		</dependency-->
 		<!-- New Terminology Version -->
-		<dependency>
+		<!--dependency>
 			<groupId>${terminology.groupId}</groupId>
 			<artifactId>${terminology.artifactId}</artifactId>
 			<version>${terminology.version.new}-${terminology.loader.version.new}</version>
 			<type>ibdf.zip</type>
-			<optional>true</optional> <!-- Not needed at runtime / transitively -->
+			<optional>true</optional>
 			<scope>compile</scope>
-		</dependency>
+		</dependency-->
 		<!-- Database -->
 		<!--dependency>
 			<groupId>${database.groupId}</groupId>

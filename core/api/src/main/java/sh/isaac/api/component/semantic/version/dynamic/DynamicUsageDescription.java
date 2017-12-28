@@ -127,7 +127,7 @@ public interface DynamicUsageDescription {
     *
     * @return The sequence of the concept that the rest of the attributes of this type were read from.
     */
-   public int getDynamicUsageDescriptorSequence();
+   public int getDynamicUsageDescriptorNid();
 
    /**
     * Return the {@link ObjectChronologyType} of the restriction on referenced components for this (if any - may return null)

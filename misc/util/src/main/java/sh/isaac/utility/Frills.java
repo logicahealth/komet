@@ -176,31 +176,31 @@ public class Frills
    private static final LruCache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = new LruCache<>(50);
 
 
-	/**
-	 * Build, without committing, a new concept using the provided columnName and columnDescription values which is suitable 
-	 * for use as a column descriptor within {@link DynamicUsageDescription}.
-	 * 
-	 * see {@link DynamicUsageDescription}
-	 * 
-	 * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_SEMEME_COLUMNS}
-	 * 
-	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
-	 * to be created) would look roughly like this:
-	 * 
-	 * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
-	 *	 "The name of the Semantic", 
-	 *	 "The description of the Semantic",
-	 *	 new DynamicSememeColumnInfo[]{new DynamicColumnInfo(
-	 *		 0,
-	 *		 DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
-	 *			 "column name",
-	 *			 "column description"
-	 *			 )
-	 *		 DynamicSememeDataType.STRING,
-	 *		 new DynamicSememeStringImpl("default value")
-	 *		 )}
-	 *	 )
-	 * 
+   /**
+    * Build, without committing, a new concept using the provided columnName and columnDescription values which is suitable 
+    * for use as a column descriptor within {@link DynamicUsageDescription}.
+    * 
+    * see {@link DynamicUsageDescription}
+    * 
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_SEMEME_COLUMNS}
+    * 
+    * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
+    * to be created) would look roughly like this:
+    * 
+    * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
+    *    "The name of the Semantic", 
+    *    "The description of the Semantic",
+    *    new DynamicSememeColumnInfo[]{new DynamicColumnInfo(
+    *       0,
+    *       DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
+    *          "column name",
+    *          "column description"
+    *          )
+    *       DynamicSememeDataType.STRING,
+    *       new DynamicSememeStringImpl("default value")
+    *       )}
+    *    )
+    * 
  //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
     * @param columnName the column name
@@ -280,7 +280,7 @@ public class Frills
     * @param semanticDescription the semantic description
     * @param columns the data definitions of the columns for this dynamic semantic 
     * @param parentConceptNid - optional - the parent concept nid - if not specified, the concept will be created as a child 
-    * 	of {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} 
+    *    of {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} 
     * @param referencedComponentRestriction - optional - if specified, this semantic may only be applied to the specified type of referenced components.
     * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type sememe, then this can further restrice
     * the type of sememe this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(ObjectChronologyType, VersionType)}
@@ -396,27 +396,27 @@ public class Frills
    }
 
    /**
-	 * Create a new concept using the provided columnName and columnDescription values which is suitable 
-	 * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
-	 * 
-	 * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
-	 * 
-	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
-	 * to be created) would look roughly like this:
-	 * 
-	 * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
-	 *	 "The name of the Semantic", 
-	 *	 "The description of the Semantic",
-	 *	 new DynamicColumnInfo[]{new DynamicColumnInfo(
-	 *		 0,
-	 *		 DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
-	 *			 "column name",
-	 *			 "column description"
-	 *			 )
-	 *		 DynamicSememeDataType.STRING,
-	 *		 new DynamicStringImpl("default value")
-	 *		 )}
-	 *	 )
+    * Create a new concept using the provided columnName and columnDescription values which is suitable 
+    * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
+    * 
+    * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
+    * 
+    * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
+    * to be created) would look roughly like this:
+    * 
+    * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
+    *    "The name of the Semantic", 
+    *    "The description of the Semantic",
+    *    new DynamicColumnInfo[]{new DynamicColumnInfo(
+    *       0,
+    *       DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
+    *          "column name",
+    *          "column description"
+    *          )
+    *       DynamicSememeDataType.STRING,
+    *       new DynamicStringImpl("default value")
+    *       )}
+    *    )
 
  //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
@@ -486,7 +486,8 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic assemblage (DynamicSememeUsageDescription): NID=" +
+            .commit(newDynamicSememeUsageDescriptionConcept, Get.configurationService().getDefaultEditCoordinate(), 
+                  "creating new dynamic assemblage (DynamicSememeUsageDescription): NID=" +
                 newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
                 sememePreferredTerm + ", DESC=" + sememeDescription)
             .get();
@@ -497,25 +498,25 @@ public class Frills
       return new DynamicUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
    }
    
-	/**
-	 * Create a logical expression suitable for populating a concept's logic graph sequence
-	 * 
-	 * @param parentConceptSequences
-	 * @return
-	 */
-	public static LogicalExpression createConceptParentLogicalExpression(int... parentConceptSequences) {
-		// build logic graph
-		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
-		ArrayList<Assertion> assertions = new ArrayList<>();
-		for (int parentConceptSequence : parentConceptSequences) {
-			assertions.add(ConceptAssertion(parentConceptSequence, defBuilder));
-		}
+   /**
+    * Create a logical expression suitable for populating a concept's logic graph sequence
+    * 
+    * @param parentConceptSequences
+    * @return
+    */
+   public static LogicalExpression createConceptParentLogicalExpression(int... parentConceptSequences) {
+      // build logic graph
+      LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
+      ArrayList<Assertion> assertions = new ArrayList<>();
+      for (int parentConceptSequence : parentConceptSequences) {
+         assertions.add(ConceptAssertion(parentConceptSequence, defBuilder));
+      }
 
-		NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
-		LogicalExpression parentDef = defBuilder.build();
+      NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
+      LogicalExpression parentDef = defBuilder.build();
 
-		return parentDef;
-	}
+      return parentDef;
+   }
 
    /**
     * Defines association.
@@ -548,24 +549,24 @@ public class Frills
       return definesAssociation(sc.getAssemblageNid());
    }
    
-	/**
-	 * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE} semantic attached to it (at any coordinate)
-	 * @param assemblageNid
-	 * @return
-	 */
-	public static boolean definesIdentifierSememe(int assemblageNid) 
-	{
-		if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
-		{
-			Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
-					assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
-		if (sememe.isPresent())
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+   /**
+    * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE} semantic attached to it (at any coordinate)
+    * @param assemblageNid
+    * @return
+    */
+   public static boolean definesIdentifierSememe(int assemblageNid) 
+   {
+      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
+      {
+         Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+               assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
+      if (sememe.isPresent())
+         {
+            return true;
+         }
+      }
+      return false;
+   }
 
    /**
     * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSememe(int)}
@@ -599,26 +600,26 @@ public class Frills
       return temp;
    }
    
-	/**
-	 * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR - return it if found, otherwise, return null.
-	 */
-	private static Integer findTermTypeConcept(int conceptModuleNid)
-	{
-		OfInt parents = Get.taxonomyService().getTaxonomyParentSequences(conceptModuleNid).iterator();
-		while (parents.hasNext())
-		{
-			int current = parents.next();
-			if (current == MetaData.MODULE____SOLOR.getNid())
-			{
-				return conceptModuleNid;
-			}
-			else
-			{
-				return findTermTypeConcept(current);
-			}
-		}
-		return null;
-	}
+   /**
+    * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR - return it if found, otherwise, return null.
+    */
+   private static Integer findTermTypeConcept(int conceptModuleNid)
+   {
+      OfInt parents = Get.taxonomyService().getTaxonomyParentSequences(conceptModuleNid).iterator();
+      while (parents.hasNext())
+      {
+         int current = parents.next();
+         if (current == MetaData.MODULE____SOLOR.getNid())
+         {
+            return conceptModuleNid;
+         }
+         else
+         {
+            return findTermTypeConcept(current);
+         }
+      }
+      return null;
+   }
 
    /**
     * Checks if the SemanticChronology represents a mapping.  Passes the assemblageNid to {@link #definesMapping(int)}
@@ -630,157 +631,157 @@ public class Frills
       return definesMapping(sc.getAssemblageNid());
    }
    
-	/**
-	 * Utility method to get the best text value description for a concept, according to the passed in options, 
-	 * or the user preferences. 
-	 * @param conceptNid - The nid of the concept
-	 * @param languageCoordinate - optional - if not provided, defaults to system preferences values
-	 * @param stampCoordinate - optional - if not provided, defaults to system preference values
-	 * @return
-	 */
-	public static Optional<String> getDescription(int conceptNid, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
-		LanguageCoordinate lc = languageCoordinate == null ? Get.configurationService().getDefaultLanguageCoordinate() : languageCoordinate;
-		LatestVersion<DescriptionVersion> d = lc.getDescription(conceptNid, 
-				stampCoordinate == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoordinate);
+   /**
+    * Utility method to get the best text value description for a concept, according to the passed in options, 
+    * or the user preferences. 
+    * @param conceptNid - The nid of the concept
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @param stampCoordinate - optional - if not provided, defaults to system preference values
+    * @return
+    */
+   public static Optional<String> getDescription(int conceptNid, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+      LanguageCoordinate lc = languageCoordinate == null ? Get.configurationService().getDefaultLanguageCoordinate() : languageCoordinate;
+      LatestVersion<DescriptionVersion> d = lc.getDescription(conceptNid, 
+            stampCoordinate == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoordinate);
 
-		if (d.isPresent()) {
-			return Optional.of(d.get().getText());
-		}
-		return Optional.empty();
-	}
-	
-	/**
-	 * If this description is flagged as an extended description type, return the type concept of the extension.
-	 * @param sc - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
-	 * @param descriptionId - the nid or sequence of the description sememe to check for an extended type. 
-	 * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .  
-	 * false to only return the extended description type if it is present and active (returns EMPTY if the extended type is missing or inactive)
-	 * @return the concept identifer of the extended type
-	 */
-	public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
-	{
-		Optional<SemanticChronology> descriptionExtendedTypeAnnotationSememe =
-				getAnnotationSememe(Get.identifierService().getAssemblageNid(descriptionId).getAsInt(), 
-						DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
-		
-		if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
-		{
-			final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
-					Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATE_SET) : 
-						stampCoordinate.makeCoordinateAnalog(Status.ANY_STATE_SET);
-			
-			LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSememe.get().getLatestVersion(effectiveStampCoordinate);
-			if (! lsv.isPresent()) {
-				LOG.info("No latest version present for descriptionExtendedTypeAnnotationSememe chronology " 
-						+ descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
-						+ " stamp coordinate analog " + effectiveStampCoordinate);
-				return Optional.empty();
-			}
-			if (!lsv.contradictions().isEmpty()) {
-				//TODO handle contradictions
-				LOG.warn("Component " + descriptionId + " " + " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " + 
-				lsv.contradictions().size() + " contradictions");
-			}
-			if (!returnInactiveExtendedType && lsv.get().getStatus() != Status.ACTIVE) {
-				LOG.info("Latest version present is NOT ACTIVE for descriptionExtendedTypeAnnotationSememe chronology " 
-						+ descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
-						+ " stamp coordinate analog " + effectiveStampCoordinate);
-				return Optional.empty();	
-			}
-			
-			DynamicData[] dataColumns = ((DynamicVersion<?>)lsv.get()).getData();
-			if (dataColumns.length != 1)
-			{
-				throw new RuntimeException("Invalidly specified DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
-			}
-			
-			if (dataColumns[0].getDynamicDataType() == DynamicDataType.UUID) 
-			{
-				return Optional.of(((DynamicUUIDImpl)dataColumns[0]).getDataUUID());
-			}
-			// This isn't supposed to happen, but we have some bad data where it did.
-			else if (dataColumns[0].getDynamicDataType() == DynamicDataType.STRING) 
-			{
-				LOG.warn("Extended description type data found with type string instead of type UUID!");
-				return Optional.of(UUID.fromString(((DynamicStringImpl)dataColumns[0]).getDataString()));
-			}
-			
-			throw new RuntimeException("Failed to find UUID DynamicSememeData type in DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation dynamic sememe");
-		}
-		return Optional.empty();
-	}
-	
-	/**
-	 * Calls {@link #getConceptForUnknownIdentifier(String)} in a background thread.  returns immediately. 
-	 * 
-	 * 
-	 * @param identifier - what to search for
-	 * @param callback - who to inform when lookup completes
-	 * @param callId - An arbitrary identifier that will be returned to the caller when this completes
-	 * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
-	 * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
-	 */
-	public static void lookupConceptForUnknownIdentifier(
-			final String identifier,
-			final TaskCompleteCallback<ConceptSnapshot> callback,
-			final Integer callId,
-			final StampCoordinate stampCoord,
-			final LanguageCoordinate langCoord)
-	{
-		LOG.debug("Threaded Lookup: '{}'", identifier);
-		final long submitTime = System.currentTimeMillis();
-		Runnable r = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				ConceptSnapshot result = null;
-				Optional<? extends ConceptChronology> c = getConceptForUnknownIdentifier(identifier);
-				if (c.isPresent())
-				{
-					Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get().getNid(), stampCoord, langCoord);
-					if (temp.isPresent())
-					{
-						result = temp.get();
-					}
-					callback.taskComplete(result, submitTime, callId);
-				}
-				else {
-					callback.taskComplete(null, submitTime, callId);
-				}
-			}
-		};
-		Get.workExecutors().getExecutor().execute(r);
-	}
-	
-	/**
-	 * 
-	 * All done in a background thread, method returns immediately
-	 * 
-	 * @param identifier - The NID to search for
-	 * @param callback - who to inform when lookup completes
-	 * @param callId - An arbitrary identifier that will be returned to the caller when this completes
-	 * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
-	 * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
-	 * @return a handle to the lookup
-	 */
-	public static void lookupConceptSnapshot(final int nid, final TaskCompleteCallback<ConceptSnapshot> callback, final Integer callId, 
-			final StampCoordinate stampCoord, final LanguageCoordinate langCoord) {
-		LOG.debug("Threaded Lookup: '{}'", nid);
-		final long submitTime = System.currentTimeMillis();
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
-				if (c.isPresent()) {
-					callback.taskComplete(c.get(), submitTime, callId);
-				} else {
-					callback.taskComplete(null, submitTime, callId);
-				}
-			}
-		};
-		Get.workExecutors().getExecutor().execute(r);
-	}
+      if (d.isPresent()) {
+         return Optional.of(d.get().getText());
+      }
+      return Optional.empty();
+   }
+   
+   /**
+    * If this description is flagged as an extended description type, return the type concept of the extension.
+    * @param sc - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
+    * @param descriptionId - the nid or sequence of the description sememe to check for an extended type. 
+    * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .  
+    * false to only return the extended description type if it is present and active (returns EMPTY if the extended type is missing or inactive)
+    * @return the concept identifer of the extended type
+    */
+   public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
+   {
+      Optional<SemanticChronology> descriptionExtendedTypeAnnotationSememe =
+            getAnnotationSememe(Get.identifierService().getAssemblageNid(descriptionId).getAsInt(), 
+                  DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
+      
+      if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
+      {
+         final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
+               Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATE_SET) : 
+                  stampCoordinate.makeCoordinateAnalog(Status.ANY_STATE_SET);
+         
+         LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSememe.get().getLatestVersion(effectiveStampCoordinate);
+         if (! lsv.isPresent()) {
+            LOG.info("No latest version present for descriptionExtendedTypeAnnotationSememe chronology " 
+                  + descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+                  + " stamp coordinate analog " + effectiveStampCoordinate);
+            return Optional.empty();
+         }
+         if (!lsv.contradictions().isEmpty()) {
+            //TODO handle contradictions
+            LOG.warn("Component " + descriptionId + " " + " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " + 
+            lsv.contradictions().size() + " contradictions");
+         }
+         if (!returnInactiveExtendedType && lsv.get().getStatus() != Status.ACTIVE) {
+            LOG.info("Latest version present is NOT ACTIVE for descriptionExtendedTypeAnnotationSememe chronology " 
+                  + descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+                  + " stamp coordinate analog " + effectiveStampCoordinate);
+            return Optional.empty();   
+         }
+         
+         DynamicData[] dataColumns = ((DynamicVersion<?>)lsv.get()).getData();
+         if (dataColumns.length != 1)
+         {
+            throw new RuntimeException("Invalidly specified DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
+         }
+         
+         if (dataColumns[0].getDynamicDataType() == DynamicDataType.UUID) 
+         {
+            return Optional.of(((DynamicUUIDImpl)dataColumns[0]).getDataUUID());
+         }
+         // This isn't supposed to happen, but we have some bad data where it did.
+         else if (dataColumns[0].getDynamicDataType() == DynamicDataType.STRING) 
+         {
+            LOG.warn("Extended description type data found with type string instead of type UUID!");
+            return Optional.of(UUID.fromString(((DynamicStringImpl)dataColumns[0]).getDataString()));
+         }
+         
+         throw new RuntimeException("Failed to find UUID DynamicSememeData type in DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation dynamic sememe");
+      }
+      return Optional.empty();
+   }
+   
+   /**
+    * Calls {@link #getConceptForUnknownIdentifier(String)} in a background thread.  returns immediately. 
+    * 
+    * 
+    * @param identifier - what to search for
+    * @param callback - who to inform when lookup completes
+    * @param callId - An arbitrary identifier that will be returned to the caller when this completes
+    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
+    */
+   public static void lookupConceptForUnknownIdentifier(
+         final String identifier,
+         final TaskCompleteCallback<ConceptSnapshot> callback,
+         final Integer callId,
+         final StampCoordinate stampCoord,
+         final LanguageCoordinate langCoord)
+   {
+      LOG.debug("Threaded Lookup: '{}'", identifier);
+      final long submitTime = System.currentTimeMillis();
+      Runnable r = new Runnable()
+      {
+         @Override
+         public void run()
+         {
+            ConceptSnapshot result = null;
+            Optional<? extends ConceptChronology> c = getConceptForUnknownIdentifier(identifier);
+            if (c.isPresent())
+            {
+               Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get().getNid(), stampCoord, langCoord);
+               if (temp.isPresent())
+               {
+                  result = temp.get();
+               }
+               callback.taskComplete(result, submitTime, callId);
+            }
+            else {
+               callback.taskComplete(null, submitTime, callId);
+            }
+         }
+      };
+      Get.workExecutors().getExecutor().execute(r);
+   }
+   
+   /**
+    * 
+    * All done in a background thread, method returns immediately
+    * 
+    * @param identifier - The NID to search for
+    * @param callback - who to inform when lookup completes
+    * @param callId - An arbitrary identifier that will be returned to the caller when this completes
+    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @return a handle to the lookup
+    */
+   public static void lookupConceptSnapshot(final int nid, final TaskCompleteCallback<ConceptSnapshot> callback, final Integer callId, 
+         final StampCoordinate stampCoord, final LanguageCoordinate langCoord) {
+      LOG.debug("Threaded Lookup: '{}'", nid);
+      final long submitTime = System.currentTimeMillis();
+      Runnable r = new Runnable() {
+         @Override
+         public void run() {
+            Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
+            if (c.isPresent()) {
+               callback.taskComplete(c.get(), submitTime, callId);
+            } else {
+               callback.taskComplete(null, submitTime, callId);
+            }
+         }
+      };
+      Get.workExecutors().getExecutor().execute(r);
+   }
 
    /**
     * Make stamp coordinate analog varying by modules only.
@@ -913,215 +914,215 @@ public class Frills
                        });
    }
    
-	/**
-	 * calls {@link Frills#resetStatus(State, Chronology, EditCoordinate, StampCoordinate...) but has types specified for concepts
-	 */
-	private static VersionUpdatePair<ConceptVersion> resetConceptState(Status status, ConceptChronology chronology, 
-			EditCoordinate editCoordinate, StampCoordinate ... readCoordinates) throws Exception {	
-		return resetStatus(status, chronology, editCoordinate, readCoordinates);
-	}
-	
-	/**
-	 * 
-	 * Reset the state of the chronology IFF an existing version corresponding to passed edit and/or stamp coordinates either does not exist or differs in state.
-	 * 
-	 * @param status
-	 *           - state to which to set new version of chronology
-	 * @param chronology
-	 *           - the chronology of the object that we want to create a new version of with the specified state
-	 * @param editCoordinate
-	 *           - where to create the new version
-	 * @param readCoordinates
-	 *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
-	 *           it tries each in order, until is finds the first one that is present.
-	 * @return - null, if no change was required, or, the mutable that will need to be committed. Also returns the latestVersion that the state was read from for
-	 *         convenience.
-	 * @throws RestException
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static <T extends Version> VersionUpdatePair<T> resetStatus(Status status, Chronology chronology, EditCoordinate editCoordinate,
-			StampCoordinate... readCoordinates) throws Exception {
-		String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
-		LatestVersion<Version> latestVersion = null;
-
-		if (readCoordinates == null || readCoordinates.length == 0) {
-			latestVersion = chronology.getLatestVersion(Get.configurationService().getDefaultStampCoordinate());
-		} else {
-			for (StampCoordinate rc : readCoordinates) {
-				latestVersion = chronology.getLatestVersion(rc);
-				if (latestVersion.isPresent()) {
-					break;
-				}
-			}
-		}
-
-		if (!latestVersion.isPresent()) {
-			throw new Exception("Failed getting latest version of " + detail + ". May require different stamp or edit coordinate parameters.");
-		}
-
-		if (latestVersion.get().getStatus() == status) {
-			LOG.debug("Not resetting state of " + detail + "from " + latestVersion.get().getStatus() + " to " + status);
-			return null;
-		}
-
-		VersionUpdatePair<T> versionsHolder = new VersionUpdatePair<>();
-		if (chronology instanceof SemanticChronology) {
-			versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(status, editCoordinate), (T)latestVersion.get());
-		} else if (chronology instanceof ConceptChronology) {
-			versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(status, editCoordinate), (T)latestVersion.get());
-		} else {
-			throw new RuntimeException("Unsupported ObjectChronology type " + detail);
-		}
-		return versionsHolder;
-	}
+   /**
+    * calls {@link Frills#resetStatus(State, Chronology, EditCoordinate, StampCoordinate...) but has types specified for concepts
+    */
+   private static VersionUpdatePair<ConceptVersion> resetConceptState(Status status, ConceptChronology chronology, 
+         EditCoordinate editCoordinate, StampCoordinate ... readCoordinates) throws Exception {   
+      return resetStatus(status, chronology, editCoordinate, readCoordinates);
+   }
    
-	/**
-	 * Reset the state of an object to the new state, copying by creating a new version of the object with the same mutable values as the existing object.
-	 * 
-	 * This returns an empty optional (and does a NOOP) if the existing state is already the same as the desired state.
-	 * 
-	 * @param status
-	 *           - The desired new state
-	 * @param componentToModify
-	 *           - the id of the object to change the state of
-	 * @param editCoordinate
-	 *           - where to write the new state.
-	 * @param readCoordinates
-	 *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
-	 *           it tries each in order, until is finds the first one that is present.
-	 * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
-	 * @throws Exception
-	 */
-	@SuppressWarnings("rawtypes")
-	public static Optional<Chronology> resetStatusWithNoCommit(Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
+   /**
+    * 
+    * Reset the state of the chronology IFF an existing version corresponding to passed edit and/or stamp coordinates either does not exist or differs in state.
+    * 
+    * @param status
+    *           - state to which to set new version of chronology
+    * @param chronology
+    *           - the chronology of the object that we want to create a new version of with the specified state
+    * @param editCoordinate
+    *           - where to create the new version
+    * @param readCoordinates
+    *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
+    *           it tries each in order, until is finds the first one that is present.
+    * @return - null, if no change was required, or, the mutable that will need to be committed. Also returns the latestVersion that the state was read from for
+    *         convenience.
+    * @throws RestException
+    */
+   @SuppressWarnings({ "rawtypes", "unchecked" })
+   private static <T extends Version> VersionUpdatePair<T> resetStatus(Status status, Chronology chronology, EditCoordinate editCoordinate,
+         StampCoordinate... readCoordinates) throws Exception {
+      String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
+      LatestVersion<Version> latestVersion = null;
 
-		final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
+      if (readCoordinates == null || readCoordinates.length == 0) {
+         latestVersion = chronology.getLatestVersion(Get.configurationService().getDefaultStampCoordinate());
+      } else {
+         for (StampCoordinate rc : readCoordinates) {
+            latestVersion = chronology.getLatestVersion(rc);
+            if (latestVersion.isPresent()) {
+               break;
+            }
+         }
+      }
 
-		Chronology objectToCommit = null;
+      if (!latestVersion.isPresent()) {
+         throw new Exception("Failed getting latest version of " + detail + ". May require different stamp or edit coordinate parameters.");
+      }
 
-		Status priorState = null;
-		int nid = 0;
+      if (latestVersion.get().getStatus() == status) {
+         LOG.debug("Not resetting state of " + detail + "from " + latestVersion.get().getStatus() + " to " + status);
+         return null;
+      }
 
-		switch (type) {
-			case CONCEPT: {
-				ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
-				nid = cc.getNid();
+      VersionUpdatePair<T> versionsHolder = new VersionUpdatePair<>();
+      if (chronology instanceof SemanticChronology) {
+         versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(status, editCoordinate), (T)latestVersion.get());
+      } else if (chronology instanceof ConceptChronology) {
+         versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(status, editCoordinate), (T)latestVersion.get());
+      } else {
+         throw new RuntimeException("Unsupported ObjectChronology type " + detail);
+      }
+      return versionsHolder;
+   }
+   
+   /**
+    * Reset the state of an object to the new state, copying by creating a new version of the object with the same mutable values as the existing object.
+    * 
+    * This returns an empty optional (and does a NOOP) if the existing state is already the same as the desired state.
+    * 
+    * @param status
+    *           - The desired new state
+    * @param componentToModify
+    *           - the id of the object to change the state of
+    * @param editCoordinate
+    *           - where to write the new state.
+    * @param readCoordinates
+    *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
+    *           it tries each in order, until is finds the first one that is present.
+    * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
+    * @throws Exception
+    */
+   @SuppressWarnings("rawtypes")
+   public static Optional<Chronology> resetStatusWithNoCommit(Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
 
-				@SuppressWarnings("unchecked")
-				VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(status, cc, editCoordinate, readCoordinates);
-				if (updatePair != null) {
-					priorState = updatePair.latest.getStatus();
-					objectToCommit = cc;
-				}
-				break;
-			}
+      final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
 
-			case SEMANTIC: {
-				SemanticChronology semantic = Get.assemblageService().getSemanticChronology(componentToModify);
-				nid = semantic.getNid();
-				switch (semantic.getVersionType()) {
-					case DESCRIPTION: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<DescriptionVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+      Chronology objectToCommit = null;
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setCaseSignificanceConceptNid(sememeUpdatePair.latest.getCaseSignificanceConceptNid());
-							sememeUpdatePair.mutable.setDescriptionTypeConceptNid(sememeUpdatePair.latest.getDescriptionTypeConceptNid());
-							sememeUpdatePair.mutable.setLanguageConceptNid(sememeUpdatePair.latest.getLanguageConceptNid());
-							sememeUpdatePair.mutable.setText(sememeUpdatePair.latest.getText());
-							objectToCommit = semantic;
-						}
-						break;
-					}
-					case STRING: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<StringVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+      Status priorState = null;
+      int nid = 0;
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setString(sememeUpdatePair.latest.getString());
-							objectToCommit = semantic;
-						}
+      switch (type) {
+         case CONCEPT: {
+            ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
+            nid = cc.getNid();
 
-						break;
-					}
-					case DYNAMIC: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<DynamicImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+            @SuppressWarnings("unchecked")
+            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(status, cc, editCoordinate, readCoordinates);
+            if (updatePair != null) {
+               priorState = updatePair.latest.getStatus();
+               objectToCommit = cc;
+            }
+            break;
+         }
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setData(sememeUpdatePair.latest.getData());
-							objectToCommit = semantic;
-						}
-						break;
-					}
-					case COMPONENT_NID: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<ComponentNidVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+         case SEMANTIC: {
+            SemanticChronology semantic = Get.assemblageService().getSemanticChronology(componentToModify);
+            nid = semantic.getNid();
+            switch (semantic.getVersionType()) {
+               case DESCRIPTION: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<DescriptionVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setComponentNid(sememeUpdatePair.latest.getComponentNid());
-							objectToCommit = semantic;
-						}
-						break;
-					}
-					case LOGIC_GRAPH: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<LogicGraphVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setCaseSignificanceConceptNid(sememeUpdatePair.latest.getCaseSignificanceConceptNid());
+                     sememeUpdatePair.mutable.setDescriptionTypeConceptNid(sememeUpdatePair.latest.getDescriptionTypeConceptNid());
+                     sememeUpdatePair.mutable.setLanguageConceptNid(sememeUpdatePair.latest.getLanguageConceptNid());
+                     sememeUpdatePair.mutable.setText(sememeUpdatePair.latest.getText());
+                     objectToCommit = semantic;
+                  }
+                  break;
+               }
+               case STRING: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<StringVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setGraphData(sememeUpdatePair.latest.getGraphData());
-							objectToCommit = semantic;
-						}
-						break;
-					}
-					case LONG: {
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<LongVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setString(sememeUpdatePair.latest.getString());
+                     objectToCommit = semantic;
+                  }
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							sememeUpdatePair.mutable.setLongValue(sememeUpdatePair.latest.getLongValue());
-							objectToCommit = semantic;
-						}
-						break;
-					}
-					case MEMBER:
-						@SuppressWarnings("unchecked")
-						VersionUpdatePair<VersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  break;
+               }
+               case DYNAMIC: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<DynamicImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-						if (sememeUpdatePair != null) {
-							priorState = sememeUpdatePair.latest.getStatus();
-							objectToCommit = semantic;
-						}
-						break;
-					case UNKNOWN:
-					default:
-						String detail = semantic.getVersionType() + " (UUID=" + semantic.getPrimordialUuid() + ", SEMANTIC NID=" + semantic.getNid() + ", REF COMP NID="
-								+ semantic.getReferencedComponentNid() + ")";
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setData(sememeUpdatePair.latest.getData());
+                     objectToCommit = semantic;
+                  }
+                  break;
+               }
+               case COMPONENT_NID: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<ComponentNidVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-						throw new Exception("Unsupported semantic of type " + detail + "from id " + componentToModify);
-				}
-				break;
-			}
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setComponentNid(sememeUpdatePair.latest.getComponentNid());
+                     objectToCommit = semantic;
+                  }
+                  break;
+               }
+               case LOGIC_GRAPH: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<LogicGraphVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-			case UNKNOWN:
-			default:
-				throw new Exception("Could not locate component '" + componentToModify + "' of unexpected type " + type + " to change its state");
-		}
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setGraphData(sememeUpdatePair.latest.getGraphData());
+                     objectToCommit = semantic;
+                  }
+                  break;
+               }
+               case LONG: {
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<LongVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-		if (objectToCommit != null) {
-			LOG.debug("Built updated version of " + type + " " + componentToModify + "<" + nid + ">" + " with state changed (from " + priorState + " to " + status + ")");
-		} else {
-			LOG.debug("No need to commit update of " + type + " " + componentToModify + "<" + nid + ">" + " with unchanged state (" + status + ")");
-		}
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     sememeUpdatePair.mutable.setLongValue(sememeUpdatePair.latest.getLongValue());
+                     objectToCommit = semantic;
+                  }
+                  break;
+               }
+               case MEMBER:
+                  @SuppressWarnings("unchecked")
+                  VersionUpdatePair<VersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-		return Optional.ofNullable(objectToCommit);
-	}
+                  if (sememeUpdatePair != null) {
+                     priorState = sememeUpdatePair.latest.getStatus();
+                     objectToCommit = semantic;
+                  }
+                  break;
+               case UNKNOWN:
+               default:
+                  String detail = semantic.getVersionType() + " (UUID=" + semantic.getPrimordialUuid() + ", SEMANTIC NID=" + semantic.getNid() + ", REF COMP NID="
+                        + semantic.getReferencedComponentNid() + ")";
+
+                  throw new Exception("Unsupported semantic of type " + detail + "from id " + componentToModify);
+            }
+            break;
+         }
+
+         case UNKNOWN:
+         default:
+            throw new Exception("Could not locate component '" + componentToModify + "' of unexpected type " + type + " to change its state");
+      }
+
+      if (objectToCommit != null) {
+         LOG.debug("Built updated version of " + type + " " + componentToModify + "<" + nid + ">" + " with state changed (from " + priorState + " to " + status + ")");
+      } else {
+         LOG.debug("No need to commit update of " + type + " " + componentToModify + "<" + nid + ">" + " with unchanged state (" + status + ")");
+      }
+
+      return Optional.ofNullable(objectToCommit);
+   }
 
    /**
     * To string.
@@ -1137,64 +1138,64 @@ public class Frills
                                        version.getPathNid() + "}";
    }
    
-	/**
-	 * Get isA children of a concept.  Does not return the requested concept in any circumstance.
-	 * @param conceptNid The concept to look at
-	 * @param recursive recurse down from the concept
-	 * @param leafOnly only return leaf nodes
-	 * @return the set of concept sequence ids that represent the children
-	 */
-	public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly) {
-		Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly);
-		if (leafOnly && temp.size() == 1) {
-			temp.remove(conceptNid);
-		}
-		return temp;
-	}
-	
-	/**
-	 * Recursively get Is a children of a concept.  May inadvertently return the requested starting sequence when leafOnly is true, and 
-	 * there are no children.
-	 */
-	private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptNids, int conceptNid, boolean recursive, boolean leafOnly) {
-		Set<Integer> results = new HashSet<>();
+   /**
+    * Get isA children of a concept.  Does not return the requested concept in any circumstance.
+    * @param conceptNid The concept to look at
+    * @param recursive recurse down from the concept
+    * @param leafOnly only return leaf nodes
+    * @return the set of concept sequence ids that represent the children
+    */
+   public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly) {
+      Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly);
+      if (leafOnly && temp.size() == 1) {
+         temp.remove(conceptNid);
+      }
+      return temp;
+   }
+   
+   /**
+    * Recursively get Is a children of a concept.  May inadvertently return the requested starting sequence when leafOnly is true, and 
+    * there are no children.
+    */
+   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptNids, int conceptNid, boolean recursive, boolean leafOnly) {
+      Set<Integer> results = new HashSet<>();
 
-		// This both prevents infinite recursion and avoids processing or returning of duplicates
-		if (handledConceptNids.contains(conceptNid)) {
-			return results;
-		}
+      // This both prevents infinite recursion and avoids processing or returning of duplicates
+      if (handledConceptNids.contains(conceptNid)) {
+         return results;
+      }
 
-		AtomicInteger count = new AtomicInteger();
-		IntStream children = Get.taxonomyService().getTaxonomyChildNids(conceptNid);
+      AtomicInteger count = new AtomicInteger();
+      IntStream children = Get.taxonomyService().getTaxonomyChildNids(conceptNid);
 
-		children.forEach((conSequence) -> {
-			count.getAndIncrement();
-			if (leafOnly) {
-				Set<Integer> temp = getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly);
+      children.forEach((conSequence) -> {
+         count.getAndIncrement();
+         if (leafOnly) {
+            Set<Integer> temp = getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly);
 
-				if (recursive) {
-					results.addAll(temp);
-				} else {
-					temp.remove(conSequence); // remove itself
-					if (temp.size() == 0) {
-						// This is a leaf node. Add it to results.
-						results.add(conSequence);
-					}
-				}
-			} else {
-				results.add(conSequence);
-				if (recursive) {
-					results.addAll(getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly));
-				}
-			}
-		});
+            if (recursive) {
+               results.addAll(temp);
+            } else {
+               temp.remove(conSequence); // remove itself
+               if (temp.size() == 0) {
+                  // This is a leaf node. Add it to results.
+                  results.add(conSequence);
+               }
+            }
+         } else {
+            results.add(conSequence);
+            if (recursive) {
+               results.addAll(getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly));
+            }
+         }
+      });
 
-		if (leafOnly && count.get() == 0) {
-			results.add(conceptNid);
-		}
-		handledConceptNids.add(conceptNid);
-		return results;
-	}
+      if (leafOnly && count.get() == 0) {
+         results.add(conceptNid);
+      }
+      handledConceptNids.add(conceptNid);
+      return results;
+   }
 
 
    /**
@@ -1215,29 +1216,29 @@ public class Frills
       return Collections.unmodifiableSet(moduleSequences);
    }
    
-	/**
-	 * A convenience method to determine if a particular component has 0 or 1 annotations of a particular type.  If there is more than one 
-	 * annotation of a particular type, this method will throw a runtime exception.
-	 * @param componentNid - the component to check for the assemblage
-	 * @param assemblageConceptId - the assemblage type you are interested in
-	 * @return
-	 */
-	public static Optional<SemanticChronology> getAnnotationSememe(int componentNid, int assemblageConceptId) 
-	{
-		Set<SemanticChronology> sememeSet= Get.assemblageService()
-				.getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId).collect(Collectors.toSet());
-		switch(sememeSet.size()) 
-		{
-			case 0:
-				return Optional.empty();
-			case 1:
-				return Optional.of(sememeSet.iterator().next());
-				default:
-					LOG.fatal("Component " + componentNid + " has " + sememeSet.size() + " annotations of type " + 
-							Get.conceptDescriptionText(assemblageConceptId) + " (should only have zero or 1) - returning arbitrary result!");
-					return Optional.of(sememeSet.iterator().next());
-		}
-	}
+   /**
+    * A convenience method to determine if a particular component has 0 or 1 annotations of a particular type.  If there is more than one 
+    * annotation of a particular type, this method will throw a runtime exception.
+    * @param componentNid - the component to check for the assemblage
+    * @param assemblageConceptId - the assemblage type you are interested in
+    * @return
+    */
+   public static Optional<SemanticChronology> getAnnotationSememe(int componentNid, int assemblageConceptId) 
+   {
+      Set<SemanticChronology> sememeSet= Get.assemblageService()
+            .getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId).collect(Collectors.toSet());
+      switch(sememeSet.size()) 
+      {
+         case 0:
+            return Optional.empty();
+         case 1:
+            return Optional.of(sememeSet.iterator().next());
+            default:
+               LOG.fatal("Component " + componentNid + " has " + sememeSet.size() + " annotations of type " + 
+                     Get.conceptDescriptionText(assemblageConceptId) + " (should only have zero or 1) - returning arbitrary result!");
+               return Optional.of(sememeSet.iterator().next());
+      }
+   }
 
 
    /**
@@ -1342,108 +1343,108 @@ public class Frills
     * @param stated the stated
     * @return the optional
     */
-	public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-		final Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
-				(stated ? LogicCoordinates.getStandardElProfile().getStatedAssemblageNid() : LogicCoordinates.getStandardElProfile().getInferredAssemblageNid())
-					).findAny();
+   public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
+      final Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
+            (stated ? LogicCoordinates.getStandardElProfile().getStatedAssemblageNid() : LogicCoordinates.getStandardElProfile().getInferredAssemblageNid())
+               ).findAny();
 
-		if (sememe.isPresent()) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+      if (sememe.isPresent()) {
+         @SuppressWarnings({ "unchecked", "rawtypes" })
+         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
-			if (sv.isPresent()) {
-				return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.get()));
-			}
-		}
+         if (sv.isPresent()) {
+            return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.get()));
+         }
+      }
 
       return Optional.empty();
    }
-	
-	/**
-	 * Find the CODE(s) for a component (if it has one) {@link MetaData#CODE}
-	 *
-	 * @param componentNid
-	 * @param stamp - optional - if not provided uses default from config
-	 * service
-	 * @return the codes, if found, or empty (will not return null)
-	 */
-	@SuppressWarnings("rawtypes")
-	public static List<String> getCodes(int componentNid, StampCoordinate stamp) {
-		try 
-		{
-			ArrayList<String> codes = new ArrayList<>(1);
-			Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-					.getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
-							MetaData.CODE____SOLOR.getNid()).forEach(latestSememe ->
-							{
-								//expected path
-								if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING)
-								{
-									codes.add(((StringVersion)latestSememe.get()).getString());
-								}
-								//Data model bug path (can go away, after bug is fixed)
-								else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC)
-								{
-									codes.add(((DynamicVersion)latestSememe.get()).getData()[0].dataToString());
-								}
-							});
-			return codes;
-		}
-		catch (Exception e) 
-		{
-			LOG.error("Unexpected error trying to find CODE for nid " + componentNid, e);
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * If the passed in value is a {@link UUID}, calls {@link ConceptService#getOptionalConcept(int)} after converting the UUID to nid. Next, if no hit, if the
-	 * passed in value is parseable as a int < 0 (a nid), calls {@link ConceptService#getOptionalConcept(int)} Next, if no hit, if the passed in value is parseable
-	 * as a long, and is a valid SCTID (checksum is valid) - treats it as a SCTID and attempts to look up the SCTID in the lucene index.
-	 * 
-	 * @param identifier - the value to search for
-	 * @return The concept, if found, which carries the specified identifier.
-	 */
-	public static Optional<? extends ConceptChronology> getConceptForUnknownIdentifier(String identifier) {
-		LOG.debug("Concept Chronology lookup by string '{}'", identifier);
+   
+   /**
+    * Find the CODE(s) for a component (if it has one) {@link MetaData#CODE}
+    *
+    * @param componentNid
+    * @param stamp - optional - if not provided uses default from config
+    * service
+    * @return the codes, if found, or empty (will not return null)
+    */
+   @SuppressWarnings("rawtypes")
+   public static List<String> getCodes(int componentNid, StampCoordinate stamp) {
+      try 
+      {
+         ArrayList<String> codes = new ArrayList<>(1);
+         Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
+                     MetaData.CODE____SOLOR.getNid()).forEach(latestSememe ->
+                     {
+                        //expected path
+                        if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING)
+                        {
+                           codes.add(((StringVersion)latestSememe.get()).getString());
+                        }
+                        //Data model bug path (can go away, after bug is fixed)
+                        else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC)
+                        {
+                           codes.add(((DynamicVersion)latestSememe.get()).getData()[0].dataToString());
+                        }
+                     });
+         return codes;
+      }
+      catch (Exception e) 
+      {
+         LOG.error("Unexpected error trying to find CODE for nid " + componentNid, e);
+         throw new RuntimeException(e);
+      }
+   }
+   
+   /**
+    * If the passed in value is a {@link UUID}, calls {@link ConceptService#getOptionalConcept(int)} after converting the UUID to nid. Next, if no hit, if the
+    * passed in value is parseable as a int < 0 (a nid), calls {@link ConceptService#getOptionalConcept(int)} Next, if no hit, if the passed in value is parseable
+    * as a long, and is a valid SCTID (checksum is valid) - treats it as a SCTID and attempts to look up the SCTID in the lucene index.
+    * 
+    * @param identifier - the value to search for
+    * @return The concept, if found, which carries the specified identifier.
+    */
+   public static Optional<? extends ConceptChronology> getConceptForUnknownIdentifier(String identifier) {
+      LOG.debug("Concept Chronology lookup by string '{}'", identifier);
 
-		if (StringUtils.isBlank(identifier)) {
-			return Optional.empty();
-		}
-		String localIdentifier = identifier.trim();
+      if (StringUtils.isBlank(identifier)) {
+         return Optional.empty();
+      }
+      String localIdentifier = identifier.trim();
 
-		Optional<UUID> uuid = UUIDUtil.getUUID(localIdentifier);
-		if (uuid.isPresent()) {
-			return Get.conceptService().getOptionalConcept(uuid.get());
-		}
+      Optional<UUID> uuid = UUIDUtil.getUUID(localIdentifier);
+      if (uuid.isPresent()) {
+         return Get.conceptService().getOptionalConcept(uuid.get());
+      }
 
-		// if it is a negative integer, assume nid
-		Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
-		if (nid.isPresent()) {
-			return Get.conceptService().getOptionalConcept(nid.get());
-		}
+      // if it is a negative integer, assume nid
+      Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
+      if (nid.isPresent()) {
+         return Get.conceptService().getOptionalConcept(nid.get());
+      }
 
-		if (SctId.isValidSctId(localIdentifier)) {
+      if (SctId.isValidSctId(localIdentifier)) {
 
-			IndexService si = LookupService.get().getService(IndexService.class, "sememe indexer");
-			if (si != null) {
-				// force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-				List<SearchResult> result = si.query(localIdentifier + " ", true, new Integer[] { MetaData.SCTID____SOLOR.getNid() }, 5, Long.MIN_VALUE, null);
-				if (result.size() > 0) {
-					int componentNid = Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid();
-					if (Get.identifierService().getObjectTypeForComponent(componentNid) == IsaacObjectType.CONCEPT) {
-						return Get.conceptService().getOptionalConcept(componentNid);
-					} else {
-						LOG.warn("Passed in SCTID is not a Concept ID!");
-						return Optional.empty();
-					}
-				}
-			} else {
-				LOG.warn("Sememe Index not available - can't lookup SCTID");
-			}
-		} 
-		return Optional.empty();
-	}
+         IndexService si = LookupService.get().getService(IndexService.class, "sememe indexer");
+         if (si != null) {
+            // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
+            List<SearchResult> result = si.query(localIdentifier + " ", true, new Integer[] { MetaData.SCTID____SOLOR.getNid() }, 5, Long.MIN_VALUE, null);
+            if (result.size() > 0) {
+               int componentNid = Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid();
+               if (Get.identifierService().getObjectTypeForComponent(componentNid) == IsaacObjectType.CONCEPT) {
+                  return Get.conceptService().getOptionalConcept(componentNid);
+               } else {
+                  LOG.warn("Passed in SCTID is not a Concept ID!");
+                  return Optional.empty();
+               }
+            }
+         } else {
+            LOG.warn("Sememe Index not available - can't lookup SCTID");
+         }
+      } 
+      return Optional.empty();
+   }
 
    /**
     * Gets the concept snapshot.
@@ -1459,10 +1460,10 @@ public class Frills
 
       if (c.isPresent()) {
          try {
-         		return Optional.of(Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(
-   						stampCoord == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoord,
-   						langCoord == null ? Get.configurationService().getDefaultLanguageCoordinate() : langCoord))
-   							.getConceptSnapshot(c.get().getNid()));
+               return Optional.of(Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(
+                     stampCoord == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoord,
+                     langCoord == null ? Get.configurationService().getDefaultLanguageCoordinate() : langCoord))
+                        .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
             // TODO defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
@@ -1506,9 +1507,9 @@ public class Frills
          .forEach(nestedSememe -> {
                 if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
                    @SuppressWarnings({ "rawtypes", "unchecked" })
-						final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe)
-								.getLatestVersion(
-										(stamp == null) ? Get.configurationService().getDefaultStampCoordinate(): stamp);
+                  final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe)
+                        .getLatestVersion(
+                              (stamp == null) ? Get.configurationService().getDefaultStampCoordinate(): stamp);
 
                    if (latest.isPresent()) {
                       if (latest.get()
@@ -1585,16 +1586,16 @@ public class Frills
     * @return
     * @throws IOException
     */
-	public static List<SimpleDisplayConcept> getExtendedDescriptionTypes() throws IOException {
-		Set<Integer> extendedDescriptionTypes;
-		ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
-		extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true);
-		for (Integer seq : extendedDescriptionTypes) {
-			temp.add(new SimpleDisplayConcept(seq));
-		}
-		Collections.sort(temp);
-		return temp;
-	}
+   public static List<SimpleDisplayConcept> getExtendedDescriptionTypes() throws IOException {
+      Set<Integer> extendedDescriptionTypes;
+      ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
+      extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true);
+      for (Integer seq : extendedDescriptionTypes) {
+         temp.add(new SimpleDisplayConcept(seq));
+      }
+      Collections.sort(temp);
+      return temp;
+   }
 
    /**
     * Gets the id info.
@@ -1608,104 +1609,104 @@ public class Frills
       return getIdInfo(Integer.toString(id));
    }
 
-	/**
-	 * @param id String identifier may parse to int NID, int sequence or UUID
-	 * 
-	 * Calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)} with development latest and US English FSN
-	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
-	 * 
-	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
-	 */
-	private static IdInfo getIdInfo(String id) {
+   /**
+    * @param id String identifier may parse to int NID, int sequence or UUID
+    * 
+    * Calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)} with development latest and US English FSN
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
+    * This method should only be used for logging. The returned data structure is not meant to be parsed.
+    */
+   private static IdInfo getIdInfo(String id) {
       return getIdInfo(
           id,
           StampCoordinates.getDevelopmentLatest(),
           LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate());
    }
-	/**
-	 * @param id int identifier
-	 * @param sc
-	 * @param lc
-	 * calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)
-	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
-	 * 
-	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
-	 */
+   /**
+    * @param id int identifier
+    * @param sc
+    * @param lc
+    * calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
+    * This method should only be used for logging. The returned data structure is not meant to be parsed.
+    */
    private static IdInfo getIdInfo(int id, StampCoordinate sc, LanguageCoordinate lc) {
       return getIdInfo(Integer.toString(id), sc, lc);
    }
 
-	/**
-	 * 
-	 * @param id String identifier may parse to int NID, int sequence or UUID
-	 * @param sc The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
-	 * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
-	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
-	 * 
-	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
-	 */
-	private static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
-		Map<String, Object> idInfo = new HashMap<>();
+   /**
+    * 
+    * @param id String identifier may parse to int NID, int sequence or UUID
+    * @param sc The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
+    * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
+    * This method should only be used for logging. The returned data structure is not meant to be parsed.
+    */
+   private static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
+      Map<String, Object> idInfo = new HashMap<>();
 
-		Long sctId = null;
-		Integer nid = null;
-		UUID[] uuids = null;
-		IsaacObjectType typeOfPassedId = null;
-		
-		if (sc == null)
-		{
-			sc = StampCoordinates.getDevelopmentLatest();
-		}
-		
-		if (lc == null)
-		{
-			lc = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
-		}
+      Long sctId = null;
+      Integer nid = null;
+      UUID[] uuids = null;
+      IsaacObjectType typeOfPassedId = null;
+      
+      if (sc == null)
+      {
+         sc = StampCoordinates.getDevelopmentLatest();
+      }
+      
+      if (lc == null)
+      {
+         lc = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+      }
 
-		try {
-			Optional<Integer> intId = NumericUtils.getInt(id);
-			if (intId.isPresent())
-			{
-				if (intId.get() < 0) {
-					nid = intId.get();
-				}
+      try {
+         Optional<Integer> intId = NumericUtils.getInt(id);
+         if (intId.isPresent())
+         {
+            if (intId.get() < 0) {
+               nid = intId.get();
+            }
 
-				if (nid != null) {
-					typeOfPassedId = Get.identifierService().getObjectTypeForComponent(nid);
-					uuids = Get.identifierService().getUuidArrayForNid(nid);
-				}
-			}
-			else
-			{
-				Optional<UUID> uuidId = UUIDUtil.getUUID(id);
-				if (uuidId.isPresent())
-				{
-					// id interpreted as the id of either a sememe or a concept
-					nid = Get.identifierService().getNidForUuids(uuidId.get());
-					typeOfPassedId = Get.identifierService().getObjectTypeForComponent(nid);
-				}
-			}
+            if (nid != null) {
+               typeOfPassedId = Get.identifierService().getObjectTypeForComponent(nid);
+               uuids = Get.identifierService().getUuidArrayForNid(nid);
+            }
+         }
+         else
+         {
+            Optional<UUID> uuidId = UUIDUtil.getUUID(id);
+            if (uuidId.isPresent())
+            {
+               // id interpreted as the id of either a sememe or a concept
+               nid = Get.identifierService().getNidForUuids(uuidId.get());
+               typeOfPassedId = Get.identifierService().getObjectTypeForComponent(nid);
+            }
+         }
 
-			if (nid != null) {
-				idInfo.put("DESC", Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(sc, lc)).conceptDescriptionText(nid));
-				if (typeOfPassedId == IsaacObjectType.CONCEPT) {
-					Optional<Long> optSctId = Frills.getSctId(nid, sc);
-					if (optSctId.isPresent()) {
-						sctId = optSctId.get();
-						
-						idInfo.put("SCTID", sctId);
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOG.warn("Problem getting idInfo for \"{}\". Caught {}", e.getClass().getName(), e.getLocalizedMessage());
-		}
-		idInfo.put("PASSED_ID", id);
-		idInfo.put("NID", nid);
-		idInfo.put("UUIDs", Arrays.toString(uuids));
-		idInfo.put("TYPE", typeOfPassedId);
+         if (nid != null) {
+            idInfo.put("DESC", Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(sc, lc)).conceptDescriptionText(nid));
+            if (typeOfPassedId == IsaacObjectType.CONCEPT) {
+               Optional<Long> optSctId = Frills.getSctId(nid, sc);
+               if (optSctId.isPresent()) {
+                  sctId = optSctId.get();
+                  
+                  idInfo.put("SCTID", sctId);
+               }
+            }
+         }
+      } catch (Exception e) {
+         LOG.warn("Problem getting idInfo for \"{}\". Caught {}", e.getClass().getName(), e.getLocalizedMessage());
+      }
+      idInfo.put("PASSED_ID", id);
+      idInfo.put("NID", nid);
+      idInfo.put("UUIDs", Arrays.toString(uuids));
+      idInfo.put("TYPE", typeOfPassedId);
 
-		return new IdInfo(idInfo);
+      return new IdInfo(idInfo);
    }
 
    /**
@@ -1834,32 +1835,32 @@ public class Frills
                         .isEmpty();
    }
    
-	/**
-	 * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
-	 * @param nid 
-	 * @return the nearest concept sequence, or -1, if no concept can be found.
-	 */
-	public static Optional<Integer> getNearestConcept(int nid)
-	{
-		Optional<? extends Chronology> c = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
-		
-		if (c.isPresent())
-		{
-			if (c.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC)
-			{
-				return getNearestConcept(((SemanticChronology)c.get()).getReferencedComponentNid());
-			}
-			else if (c.get().getIsaacObjectType() == IsaacObjectType.CONCEPT)
-			{
-				return Optional.of(((ConceptChronology)c.get()).getNid());
-			}
-			else
-			{
-				LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
-			}
-		}
-		return Optional.empty();
-	}
+   /**
+    * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
+    * @param nid 
+    * @return the nearest concept sequence, or -1, if no concept can be found.
+    */
+   public static Optional<Integer> getNearestConcept(int nid)
+   {
+      Optional<? extends Chronology> c = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+      
+      if (c.isPresent())
+      {
+         if (c.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC)
+         {
+            return getNearestConcept(((SemanticChronology)c.get()).getReferencedComponentNid());
+         }
+         else if (c.get().getIsaacObjectType() == IsaacObjectType.CONCEPT)
+         {
+            return Optional.of(((ConceptChronology)c.get()).getNid());
+         }
+         else
+         {
+            LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
+         }
+      }
+      return Optional.empty();
+   }
 
    /**
     * Gets the nid for SCTID.
@@ -1918,62 +1919,62 @@ public class Frills
       return Optional.empty();
    }
    
-	/**
-	 * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
-	 * 
-	 * @param logicGraph
-	 * @return
-	 */
-	public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicGraphVersion logicGraph) {
-		Set<Integer> parentConceptSequences = new HashSet<>();
-		Stream<LogicNode> isAs = logicGraph.getLogicalExpression().getNodesOfType(NodeSemantic.NECESSARY_SET);
-		for (Iterator<LogicNode> necessarySetsIterator = isAs.distinct().iterator(); necessarySetsIterator.hasNext();) {
-			NecessarySetNode necessarySetNode = (NecessarySetNode) necessarySetsIterator.next();
-			for (AbstractLogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
-				if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.AND) {
-					AndNode andNode = (AndNode) childOfNecessarySetNode;
-					for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
-						if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
-							if (childOfAndNode instanceof ConceptNodeWithNids) {
-								ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfAndNode;
-								parentConceptSequences.add(conceptNode.getConceptNid());
-							} else if (childOfAndNode instanceof ConceptNodeWithUuids) {
-								ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfAndNode;
-								parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
-							} else {
-								// Should never happen
-								String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of AndNode logic graph node of unexpected type \""
-										+ childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
-								LOG.error(msg);
-								throw new RuntimeException(msg);
-							}
-						}
-					}
-				} else if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
-					if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
-						ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfNecessarySetNode;
-						parentConceptSequences.add(conceptNode.getConceptNid());
-					} else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
-						ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfNecessarySetNode;
-						parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
-					} else {
-						// Should never happen
-						String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-								+ childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
-						LOG.error(msg);
-						throw new RuntimeException(msg);
-					}
-				} else {
-					String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-							+ childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
-					LOG.error(msg);
-					throw new RuntimeException(msg);
-				}
-			}
-		}
+   /**
+    * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
+    * 
+    * @param logicGraph
+    * @return
+    */
+   public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicGraphVersion logicGraph) {
+      Set<Integer> parentConceptSequences = new HashSet<>();
+      Stream<LogicNode> isAs = logicGraph.getLogicalExpression().getNodesOfType(NodeSemantic.NECESSARY_SET);
+      for (Iterator<LogicNode> necessarySetsIterator = isAs.distinct().iterator(); necessarySetsIterator.hasNext();) {
+         NecessarySetNode necessarySetNode = (NecessarySetNode) necessarySetsIterator.next();
+         for (AbstractLogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
+            if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.AND) {
+               AndNode andNode = (AndNode) childOfNecessarySetNode;
+               for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
+                  if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                     if (childOfAndNode instanceof ConceptNodeWithNids) {
+                        ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfAndNode;
+                        parentConceptSequences.add(conceptNode.getConceptNid());
+                     } else if (childOfAndNode instanceof ConceptNodeWithUuids) {
+                        ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfAndNode;
+                        parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                     } else {
+                        // Should never happen
+                        String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of AndNode logic graph node of unexpected type \""
+                              + childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                        LOG.error(msg);
+                        throw new RuntimeException(msg);
+                     }
+                  }
+               }
+            } else if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+               if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
+                  ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfNecessarySetNode;
+                  parentConceptSequences.add(conceptNode.getConceptNid());
+               } else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
+                  ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfNecessarySetNode;
+                  parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+               } else {
+                  // Should never happen
+                  String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
+                        + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                  LOG.error(msg);
+                  throw new RuntimeException(msg);
+               }
+            } else {
+               String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
+                     + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
+               LOG.error(msg);
+               throw new RuntimeException(msg);
+            }
+         }
+      }
 
-		return parentConceptSequences;
-	}
+      return parentConceptSequences;
+   }
 
    /**
     * Find the SCTID for a component (if it has one).
@@ -1983,59 +1984,59 @@ public class Frills
     * service
     * @return the id, if found, or empty (will not return null)
     */
-	public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
-		try {
-			final LatestVersion<StringVersionImpl> sememe = Get.assemblageService()
-					.getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-					.getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid()).get(0);
+   public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
+      try {
+         final LatestVersion<StringVersionImpl> sememe = Get.assemblageService()
+               .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid()).get(0);
 
-			if (sememe.isPresent()) {
-				return Optional.of(Long.parseLong(sememe.get().getString()));
-			}
-		} catch (final Exception e) {
-			LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
-		}
+         if (sememe.isPresent()) {
+            return Optional.of(Long.parseLong(sememe.get().getString()));
+         }
+      } catch (final Exception e) {
+         LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
+      }
 
-		return Optional.empty();
-	}
-	
+      return Optional.empty();
+   }
+   
 
-	/**
-	 * Get all semantics for a specified component of specified assemblages restricted by VersionType
-	 * 
-	 * @param componentNid
-	 *           - referenced component nid of requested sememes
-	 * @param allowedAssemblageSequences
-	 *           - set of concept sequences of allowed assemblages
-	 * @param typesToExclude
-	 *           - set of VersionType restrictions
-	 * @return
-	 */
-	public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySememeType(int componentNid,
-			Set<Integer> allowedAssemblageNids, Set<VersionType> typesToExclude) {
-		NidSet sememeSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
-		if (typesToExclude == null || typesToExclude.size() == 0) {
-			return sememeSequences.stream().mapToObj((int sememeSequence) -> Get.assemblageService().getSemanticChronology(sememeSequence));
-		} else {
-			final ArrayList<SemanticChronology> filteredList = new ArrayList<>();
-			for (PrimitiveIterator.OfInt it = sememeSequences.getIntIterator(); it.hasNext();) {
-				SemanticChronology chronology = Get.assemblageService().getSemanticChronology(it.nextInt());
-				boolean exclude = false;
-				for (VersionType type : typesToExclude) {
-					if (chronology.getVersionType() == type) {
-						exclude = true;
-						break;
-					}
-				}
+   /**
+    * Get all semantics for a specified component of specified assemblages restricted by VersionType
+    * 
+    * @param componentNid
+    *           - referenced component nid of requested sememes
+    * @param allowedAssemblageSequences
+    *           - set of concept sequences of allowed assemblages
+    * @param typesToExclude
+    *           - set of VersionType restrictions
+    * @return
+    */
+   public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySememeType(int componentNid,
+         Set<Integer> allowedAssemblageNids, Set<VersionType> typesToExclude) {
+      NidSet sememeSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
+      if (typesToExclude == null || typesToExclude.size() == 0) {
+         return sememeSequences.stream().mapToObj((int sememeSequence) -> Get.assemblageService().getSemanticChronology(sememeSequence));
+      } else {
+         final ArrayList<SemanticChronology> filteredList = new ArrayList<>();
+         for (PrimitiveIterator.OfInt it = sememeSequences.getIntIterator(); it.hasNext();) {
+            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(it.nextInt());
+            boolean exclude = false;
+            for (VersionType type : typesToExclude) {
+               if (chronology.getVersionType() == type) {
+                  exclude = true;
+                  break;
+               }
+            }
 
-				if (!exclude) {
-					filteredList.add(chronology);
-				}
-			}
+            if (!exclude) {
+               filteredList.add(chronology);
+            }
+         }
 
-			return filteredList.stream();
-		}
-	}
+         return filteredList.stream();
+      }
+   }
 
    /**
     * Construct a stamp coordinate from an existing stamp coordinate, and the path from the edit coordinate, ensuring that the returned
@@ -2156,62 +2157,62 @@ public class Frills
                 .findAny();
    }
    
-	/**
-	 * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept or sememe in the system as a 
-	 * set of concept sequences.
-	 * 
-	 * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
-	 * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
-	 * an easy way to identify "metadata" concepts.
-	 * 
-	 * @param oc
-	 *           - the object to read modules for
-	 * @param coord
-	 *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
-	 */
-	public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate coord) {
-		HashSet<Integer> modules = new HashSet<>();
-		HashSet<Integer> terminologyTypes = new HashSet<>();
+   /**
+    * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept or sememe in the system as a 
+    * set of concept sequences.
+    * 
+    * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
+    * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
+    * an easy way to identify "metadata" concepts.
+    * 
+    * @param oc
+    *           - the object to read modules for
+    * @param coord
+    *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    */
+   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate coord) {
+      HashSet<Integer> modules = new HashSet<>();
+      HashSet<Integer> terminologyTypes = new HashSet<>();
 
-		if (coord == null) {
-			for (int stampSequence : oc.getVersionStampSequences())
-			{
-				modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
-			}
-			if (Get.taxonomyService().wasEverKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
-				terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-			}
-		} else {
-			oc.getVersionList().stream().filter(version -> {
-				return coord.getAllowedStates().contains(version.getStatus())
-						&& (coord.getModuleNids().size() == 0 ? true : coord.getModuleNids().contains(version.getModuleNid()));
-			}).forEach(version -> {
-				modules.add(version.getModuleNid());
-			});
-			
-			// lang doesn't matter for our use case.
-			if (Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(coord, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
-					.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
-			{
-				terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-			}
-		}
+      if (coord == null) {
+         for (int stampSequence : oc.getVersionStampSequences())
+         {
+            modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
+         }
+         if (Get.taxonomyService().wasEverKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
+            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+         }
+      } else {
+         oc.getVersionList().stream().filter(version -> {
+            return coord.getAllowedStates().contains(version.getStatus())
+                  && (coord.getModuleNids().size() == 0 ? true : coord.getModuleNids().contains(version.getModuleNid()));
+         }).forEach(version -> {
+            modules.add(version.getModuleNid());
+         });
+         
+         // lang doesn't matter for our use case.
+         if (Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(coord, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
+               .isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
+         {
+            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+         }
+      }
 
-		for (int moduleNid : modules) {
-			if (MODULE_TO_TERM_TYPE_CACHE.containsKey(moduleNid)) {
-				terminologyTypes.add(MODULE_TO_TERM_TYPE_CACHE.get(moduleNid));
-			} else {
-				if (Get.taxonomyService().wasEverKindOf(moduleNid, MetaData.MODULE____SOLOR.getNid())) {
-					Integer termTypeConcept = findTermTypeConcept(moduleNid);
-					if (termTypeConcept != null) {
-						terminologyTypes.add(termTypeConcept);
-						MODULE_TO_TERM_TYPE_CACHE.put(moduleNid, termTypeConcept);
-					}
-				}
-			}
-		}
-		return terminologyTypes;
-	}
+      for (int moduleNid : modules) {
+         if (MODULE_TO_TERM_TYPE_CACHE.containsKey(moduleNid)) {
+            terminologyTypes.add(MODULE_TO_TERM_TYPE_CACHE.get(moduleNid));
+         } else {
+            if (Get.taxonomyService().wasEverKindOf(moduleNid, MetaData.MODULE____SOLOR.getNid())) {
+               Integer termTypeConcept = findTermTypeConcept(moduleNid);
+               if (termTypeConcept != null) {
+                  terminologyTypes.add(termTypeConcept);
+                  MODULE_TO_TERM_TYPE_CACHE.put(moduleNid, termTypeConcept);
+               }
+            }
+         }
+      }
+      return terminologyTypes;
+   }
 
    /**
     * Gets the version type.
@@ -2219,51 +2220,51 @@ public class Frills
     * @param obj the obj
     * @return the version type
     */
-	public static Class<? extends StampedVersion> getVersionType(Chronology obj) {
-		switch (obj.getIsaacObjectType()) {
-			case SEMANTIC: {
-				@SuppressWarnings({ "unchecked" })
-				final SemanticChronology semanticChronology = (SemanticChronology) obj;
+   public static Class<? extends StampedVersion> getVersionType(Chronology obj) {
+      switch (obj.getIsaacObjectType()) {
+         case SEMANTIC: {
+            @SuppressWarnings({ "unchecked" })
+            final SemanticChronology semanticChronology = (SemanticChronology) obj;
 
-				switch (semanticChronology.getVersionType()) {
-					case COMPONENT_NID:
-						return ComponentNidVersionImpl.class;
+            switch (semanticChronology.getVersionType()) {
+               case COMPONENT_NID:
+                  return ComponentNidVersionImpl.class;
 
-					case DESCRIPTION:
-						return DescriptionVersionImpl.class;
+               case DESCRIPTION:
+                  return DescriptionVersionImpl.class;
 
-					case DYNAMIC:
-						return DynamicImpl.class;
+               case DYNAMIC:
+                  return DynamicImpl.class;
 
-					case LOGIC_GRAPH:
-						return LogicGraphVersionImpl.class;
+               case LOGIC_GRAPH:
+                  return LogicGraphVersionImpl.class;
 
-					case LONG:
-						return LongVersionImpl.class;
+               case LONG:
+                  return LongVersionImpl.class;
 
-					case STRING:
-						return StringVersionImpl.class;
+               case STRING:
+                  return StringVersionImpl.class;
 
-					case MEMBER:
-						return VersionImpl.class;
-					case UNKNOWN:
-					default:
-						throw new RuntimeException("Semantic with NID=" + obj.getNid() + " is of unsupported SememeType " + semanticChronology.getVersionType());
-				}
-			}
+               case MEMBER:
+                  return VersionImpl.class;
+               case UNKNOWN:
+               default:
+                  throw new RuntimeException("Semantic with NID=" + obj.getNid() + " is of unsupported SememeType " + semanticChronology.getVersionType());
+            }
+         }
 
-			case CONCEPT:
-				return ConceptVersionImpl.class;
-			
-			case LOGICAL_EXPRESSION:
-			case STAMP:
-			case STAMP_ALIAS:
-			case STAMP_COMMENT:
-			case UNKNOWN:
+         case CONCEPT:
+            return ConceptVersionImpl.class;
+         
+         case LOGICAL_EXPRESSION:
+         case STAMP:
+         case STAMP_ALIAS:
+         case STAMP_COMMENT:
+         case UNKNOWN:
 
-			default:
-				throw new RuntimeException("Object with NID=" + obj.getNid() + " is unsupported by this utility: " + obj.getIsaacObjectType());
-		}
+         default:
+            throw new RuntimeException("Object with NID=" + obj.getNid() + " is unsupported by this utility: " + obj.getIsaacObjectType());
+      }
    }
 
    /**
@@ -2282,17 +2283,17 @@ public class Frills
       return getVersionType(obj.get());
    }
    
-	/**
-	 * Find the VUID for a component (if it has one)
-	 * 
-	 * Calls {@link #getVuId(int, StampCoordinate)} with a null (default) stamp coordinate
-	 *
-	 * @param componentNid
-	 * @return the id, if found, or empty (will not return null)
-	 */
-	public static Optional<Long> getVuId(int componentNid) {
-		return getVuId(componentNid, null);
-	}
+   /**
+    * Find the VUID for a component (if it has one)
+    * 
+    * Calls {@link #getVuId(int, StampCoordinate)} with a null (default) stamp coordinate
+    *
+    * @param componentNid
+    * @return the id, if found, or empty (will not return null)
+    */
+   public static Optional<Long> getVuId(int componentNid) {
+      return getVuId(componentNid, null);
+   }
 
    /**
     * Find the VUID for a component (if it has one).
@@ -2301,88 +2302,88 @@ public class Frills
     * @param stamp - optional - if not provided uses default from config service
     * @return the id, if found, or empty (will not return null)
     */
-	public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
-		try {
-			final ArrayList<Long> vuids = new ArrayList<>(1);
+   public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
+      try {
+         final ArrayList<Long> vuids = new ArrayList<>(1);
 
-			Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-					.getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSememe -> {
-						// expected path
-						if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING) {
-							vuids.add(Long.parseLong(((StringVersion) latestSememe.get()).getString()));
-						}
+         Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSememe -> {
+                  // expected path
+                  if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING) {
+                     vuids.add(Long.parseLong(((StringVersion) latestSememe.get()).getString()));
+                  }
 
-						// Data model bug path (can go away, after bug is fixed)
-						else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
-							vuids.add(Long.parseLong(((DynamicVersion) latestSememe.get()).getData()[0].dataToString()));
-						}
-					});
+                  // Data model bug path (can go away, after bug is fixed)
+                  else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
+                     vuids.add(Long.parseLong(((DynamicVersion) latestSememe.get()).getData()[0].dataToString()));
+                  }
+               });
 
-			if (vuids.size() > 1) {
-				LOG.warn("Found multiple VUIDs on component " + Get.identifierService().getUuidPrimordialForNid(componentNid));
-			}
+         if (vuids.size() > 1) {
+            LOG.warn("Found multiple VUIDs on component " + Get.identifierService().getUuidPrimordialForNid(componentNid));
+         }
 
-			if (vuids.size() > 0) {
-				return Optional.of(vuids.get(0));
-			}
-		} catch (final Exception e) {
-			LOG.error("Unexpected error trying to find VUID for nid " + componentNid, e);
-		}
+         if (vuids.size() > 0) {
+            return Optional.of(vuids.get(0));
+         }
+      } catch (final Exception e) {
+         LOG.error("Unexpected error trying to find VUID for nid " + componentNid, e);
+      }
 
-		return Optional.empty();
-	}
-	
-	/**
-	 * Returns the nids of all matching vuid sememes (if any found on view coordinate).
-	 * 
-	 * @param vuID the vuID to lookup
-	 * @return
-	 */
-	public static Set<Integer> getVuidSemanticNidsForVUID(long vuID) {
-		final SemanticIndexer si = LookupService.get().getService(SemanticIndexer.class);
-		if (si == null) {
-			final String msg = "Sememe Index not available - can't lookup VUID " + vuID;
-			LOG.error(msg);
-			throw new RuntimeException(msg);
-		}
+      return Optional.empty();
+   }
+   
+   /**
+    * Returns the nids of all matching vuid sememes (if any found on view coordinate).
+    * 
+    * @param vuID the vuID to lookup
+    * @return
+    */
+   public static Set<Integer> getVuidSemanticNidsForVUID(long vuID) {
+      final SemanticIndexer si = LookupService.get().getService(SemanticIndexer.class);
+      if (si == null) {
+         final String msg = "Sememe Index not available - can't lookup VUID " + vuID;
+         LOG.error(msg);
+         throw new RuntimeException(msg);
+      }
 
-		// StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
-		final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-		final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true);
-		final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
+      // StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
+      final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true);
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
 
-		final Set<Integer> matchingVuidSememeNids = new HashSet<>();
+      final Set<Integer> matchingVuidSememeNids = new HashSet<>();
 
-		final Predicate<Integer> filter = new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer t) {
-				final Optional<SemanticChronology> SemanticChronologyToCheck = (Optional<SemanticChronology>) Get.assemblageService().getOptionalSemanticChronology(t);
-				if (SemanticChronologyToCheck.isPresent() && SemanticChronologyToCheck.get().getAssemblageNid() == MetaData.VUID____SOLOR.getNid() // This check should be redundant
-				) {
-					final SemanticChronology existingVuidSememe = ((SemanticChronology) SemanticChronologyToCheck.get());
-					LatestVersion<Version> latestVersionOptional = existingVuidSememe.getLatestVersion(stampCoordinate);
+      final Predicate<Integer> filter = new Predicate<Integer>() {
+         @Override
+         public boolean test(Integer t) {
+            final Optional<SemanticChronology> SemanticChronologyToCheck = (Optional<SemanticChronology>) Get.assemblageService().getOptionalSemanticChronology(t);
+            if (SemanticChronologyToCheck.isPresent() && SemanticChronologyToCheck.get().getAssemblageNid() == MetaData.VUID____SOLOR.getNid() // This check should be redundant
+            ) {
+               final SemanticChronology existingVuidSememe = ((SemanticChronology) SemanticChronologyToCheck.get());
+               LatestVersion<Version> latestVersionOptional = existingVuidSememe.getLatestVersion(stampCoordinate);
 
-					if (latestVersionOptional.isPresent()) {
-						// TODO do we care about contradictions?
-						StringVersion sememeVersion = ((StringVersion)latestVersionOptional.get());
-						if ((vuID + "").equals(sememeVersion.getString())) {
-							return true;
-						}
-					}
-				}
-				return false;
-			}
-		};
-		// force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-		List<SearchResult> results = si.query(vuID + " ", true, new Integer[] { MetaData.VUID____SOLOR.getNid() }, 1000, Long.MAX_VALUE, filter, null);
-		if (results.size() > 0) {
-			for (SearchResult result : results) {
-				matchingVuidSememeNids.add(result.getNid());
-			}
-		}
+               if (latestVersionOptional.isPresent()) {
+                  // TODO do we care about contradictions?
+                  StringVersion sememeVersion = ((StringVersion)latestVersionOptional.get());
+                  if ((vuID + "").equals(sememeVersion.getString())) {
+                     return true;
+                  }
+               }
+            }
+            return false;
+         }
+      };
+      // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
+      List<SearchResult> results = si.query(vuID + " ", true, new Integer[] { MetaData.VUID____SOLOR.getNid() }, 1000, Long.MAX_VALUE, filter, null);
+      if (results.size() > 0) {
+         for (SearchResult result : results) {
+            matchingVuidSememeNids.add(result.getNid());
+         }
+      }
 
-		return Collections.unmodifiableSet(matchingVuidSememeNids);
-	}
+      return Collections.unmodifiableSet(matchingVuidSememeNids);
+   }
 
    /**
     * {@link IdInfo}.
@@ -2415,14 +2416,14 @@ public class Frills
       }
    }
    
-	private static class VersionUpdatePair<T extends StampedVersion> {
-		T mutable;
-		T latest;
+   private static class VersionUpdatePair<T extends StampedVersion> {
+      T mutable;
+      T latest;
 
-		public void set(T mutable, T latest) {
-			this.mutable = mutable;
-			this.latest = latest;
-		}
-	}
+      public void set(T mutable, T latest) {
+         this.mutable = mutable;
+         this.latest = latest;
+      }
+   }
 }
 
