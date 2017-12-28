@@ -14,5 +14,6 @@
        <module>exporters</module>
        <module>util</module>
        <module>vhat-constants</module>
+       <module>vhat-util</module>
     </modules>
 </project>
