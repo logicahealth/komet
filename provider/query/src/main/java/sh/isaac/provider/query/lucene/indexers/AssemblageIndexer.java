@@ -31,6 +31,10 @@ import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -71,7 +75,7 @@ import sh.isaac.api.index.IndexService;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service(name = "assemblage index")
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class AssemblageIndexer extends LuceneIndexer
         implements IndexService {
    
@@ -160,6 +164,13 @@ public class AssemblageIndexer extends LuceneIndexer
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
+      
+      // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
+      // support in the isaac-rest API
+      if (Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), MetaData.METADATA____SOLOR.getNid())) {
+         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+      }
+       
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
       for (final StampedVersion stampedVersion:
@@ -235,7 +246,7 @@ public class AssemblageIndexer extends LuceneIndexer
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(),
-               false),
+               false, false),
                        sizeLimit,
                        targetGeneration,
                        null);
@@ -271,7 +282,7 @@ public class AssemblageIndexer extends LuceneIndexer
       } else {
          return search(buildTokenizedStringQuery(query,
                FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(),
-               false),
+               false, false),
                        sizeLimit,
                        targetGeneration,
                        null);
@@ -313,7 +324,7 @@ public class AssemblageIndexer extends LuceneIndexer
                                    int sizeLimit,
                                    Long targetGeneration,
                                    StampCoordinate sc) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch, false),
                                      sememeConceptSequence),
                     sizeLimit,
                     targetGeneration,
@@ -348,6 +359,9 @@ public class AssemblageIndexer extends LuceneIndexer
     * @param filter - an optional filter on results - if provided, the filter should expect nids, and can return true, if
     * the nid should be allowed in the result, false otherwise.  Note that this may cause large performance slowdowns, depending
     * on the implementation of your filter
+    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#ISAAC_METADATA} tree when true, 
+     * otherwise, search all descriptions.
+     * @param sc - the optional stamp coordinate to use during the search.
     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
     * to other matches.
     */
@@ -357,8 +371,9 @@ public class AssemblageIndexer extends LuceneIndexer
                                    int sizeLimit,
                                    Long targetGeneration,
                                    Predicate<Integer> filter,
+                                   boolean metadataOnly,
                                    StampCoordinate sc) {
-      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch),
+      return search(restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly),
                                      sememeConceptSequence),
                     sizeLimit,
                     targetGeneration,

@@ -162,17 +162,18 @@ public abstract class LuceneIndexer
    }
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
-
-   /** The Constant FIELD_SEMEME_ASSEMBLAGE_SEQUENCE. */
    // exact matches.
-   protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" +
-                                                                    PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
-
-   /** The Constant FIELD_COMPONENT_NID. */
+   protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
+   
+ //don't need to analyze, we only ever put a single char here - "t" - when a description is on a concept that is a part of the metadata tree.
+   protected static final String FIELD_CONCEPT_IS_METADATA = "_concept_metadata_marker_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
+   protected static final String FIELD_CONCEPT_IS_METADATA_VALUE = "t";
 
    // this isn't indexed
    public static final String FIELD_COMPONENT_NID = "_component_nid_";
-      public static final String DOCVALUE_COMPONENT_NID = "_docvalue_component_nid_";
+   
+   
+   public static final String DOCVALUE_COMPONENT_NID = "_docvalue_component_nid_";
 
    //~--- fields --------------------------------------------------------------
 
@@ -627,10 +628,14 @@ public abstract class LuceneIndexer
     * @param prefixSearch the prefix search
     * @return the query
     */
-   protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch) {
+   protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch, boolean metadataOnly) {
       try {
 
          BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
+         
+         if (metadataOnly) {
+            booleanQueryBuilder.add(new TermQuery(new Term(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE)), Occur.MUST);
+         }
 
          if (prefixSearch) {
             booleanQueryBuilder.add(buildPrefixQuery(query, field, new PerFieldAnalyzer()), Occur.SHOULD);

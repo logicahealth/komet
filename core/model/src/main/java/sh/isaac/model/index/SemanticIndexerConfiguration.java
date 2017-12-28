@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.provider.query.lucene.indexers;
+package sh.isaac.model.index;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
@@ -67,6 +67,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.api.index.IndexStatusListener;
+import sh.isaac.api.index.SemanticIndexer;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
@@ -122,7 +123,6 @@ public class SemanticIndexerConfiguration {
     * @throws InterruptedException the interrupted exception
     * @throws ExecutionException the execution exception
     */
-   @SuppressWarnings("unchecked")
    public static SemanticChronology buildAndConfigureColumnsToIndex(
            int assemblageNid,
            Integer[] columnsToIndex,
@@ -242,10 +242,10 @@ public class SemanticIndexerConfiguration {
                               .getNid(),
                       data);
 
-      sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
+      SemanticChronology sc = sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
               .get();
       Get.commitService()
-              .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
+              .commit(sc, Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
               .get();
 
       if (!skipReindex) {
@@ -266,7 +266,7 @@ public class SemanticIndexerConfiguration {
            throws RuntimeException {
       LOG.info("Disabling index for dynamic assemblage concept '" + assemblageConceptSequence + "'");
 
-      final DynamicVersion rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
+      final DynamicVersion<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
       if ((rdv != null) && (rdv.getStatus() == Status.ACTIVE)) {
          LookupService.get()

@@ -72,10 +72,14 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.glassfish.hk2.runlevel.RunLevel;
+import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.LookupService;
+import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
@@ -116,10 +120,10 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * TODO much of this functionality has been replaced by the single assemblage indexer. 
  * Need to see what aspects of the Dynamic data types need to be migrated. 
  */
-//@Service(name = "sememe indexer")
-//@RunLevel(value = 2)
+@Service(name = "sememe indexer")
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class SemanticIndexer
-        extends LuceneIndexer {
+        extends LuceneIndexer implements sh.isaac.api.indexSemanticIndexer{
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -266,7 +270,7 @@ public class SemanticIndexer
 
                queryString = queryString.replaceAll("\\s-", " \\\\-");
                LOG.debug("Modified search string is: ''{}''", queryString);
-               return buildTokenizedStringQuery(queryString, columnName, prefixSearch);
+               return buildTokenizedStringQuery(queryString, columnName, prefixSearch, false);
             }
          }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
       } else {
