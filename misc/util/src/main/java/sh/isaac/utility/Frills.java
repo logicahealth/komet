@@ -667,8 +667,8 @@ public class Frills
       if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
       {
          final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
-               Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATE_SET) : 
-                  stampCoordinate.makeCoordinateAnalog(Status.ANY_STATE_SET);
+               Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATUS_SET) : 
+                  stampCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET);
          
          LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSememe.get().getLatestVersion(effectiveStampCoordinate);
          if (! lsv.isPresent()) {
@@ -845,7 +845,7 @@ public class Frills
             @SuppressWarnings("rawtypes")
             final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
                                                                                          .getDefaultStampCoordinate()
-                                                                                         .makeCoordinateAnalog(Status.ANY_STATE_SET));
+                                                                                         .makeCoordinateAnalog(Status.ANY_STATUS_SET));
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();

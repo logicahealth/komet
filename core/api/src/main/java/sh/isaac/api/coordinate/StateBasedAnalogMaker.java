@@ -62,8 +62,8 @@ public interface StateBasedAnalogMaker<T> {
    T makeCoordinateAnalog(Status... state);
    
    
-   default T makeCoordinateAnalog(EnumSet<Status> stateSet) {
-      return makeCoordinateAnalog(stateSet.toArray(new Status[stateSet.size()]));
+   default T makeCoordinateAnalog(EnumSet<Status> statusSet) {
+      return makeCoordinateAnalog(statusSet.toArray(new Status[statusSet.size()]));
    }
 }
 

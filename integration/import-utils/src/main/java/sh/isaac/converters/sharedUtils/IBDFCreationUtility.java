@@ -314,7 +314,7 @@ public class IBDFCreationUtility
       this.defaultTime = defaultTime;
       
       StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, terminologyPathNid);
-      IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATE_SET);
+      IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATUS_SET);
       
       UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, moduleToCreate.get()) : 
          preExistingModule.get().getPrimordialUuid();
@@ -382,7 +382,7 @@ public class IBDFCreationUtility
       this.defaultTime = Long.MAX_VALUE;
       
       StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, terminologyPathNid);
-      IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATE_SET);
+      IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATUS_SET);
       
       if (ConverterUUID.getNamespace() == null)
       {
