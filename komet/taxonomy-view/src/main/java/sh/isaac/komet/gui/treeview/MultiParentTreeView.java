@@ -152,6 +152,7 @@ public class MultiParentTreeView
    private final ChoiceBox<ConceptSpecification> premiseChoiceBox;
    private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
    private final UUID uuid = UUID.randomUUID();
+   private final Label titleLabel = new Label();
 
    //~--- constructors --------------------------------------------------------
 
@@ -226,6 +227,10 @@ public class MultiParentTreeView
       setupTopPane();
       // Not a leak, since the taxonomy service adds a weak reference to the listener. 
       Get.taxonomyService().addTaxonomyRefreshListener(this);
+      this.titleLabel.graphicProperty()
+                .bind(iconProperty);
+      this.titleLabel.textProperty()
+                .bind(titleProperty);
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
    }
 
@@ -673,12 +678,6 @@ public class MultiParentTreeView
 
    @Override
    public Optional<Node> getTitleNode() {
-      Label titleLabel = new Label();
-
-      titleLabel.graphicProperty()
-                .bind(iconProperty);
-      titleLabel.textProperty()
-                .bind(titleProperty);
       return Optional.of(titleLabel);
    }
 

@@ -37,11 +37,13 @@
 
 
 
-package sh.komet.gui.cell;
+package sh.komet.gui.cell.treetable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableCell;
+
 import javafx.scene.control.TreeTableColumn;
 
 import javafx.util.Callback;
@@ -56,21 +58,31 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class TreeTableConceptCellFactory
-         implements Callback<TreeTableColumn, TreeTableCell<ObservableCategorizedVersion, Integer>> {
+public class TreeTableWhatCellFactory
+         implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
+                             TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion>> {
    private final Manifold manifold;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeTableConceptCellFactory(Manifold manifold) {
+   public TreeTableWhatCellFactory(Manifold manifold) {
       this.manifold = manifold;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public TreeTableConceptCell call(TreeTableColumn param) {
-      return new TreeTableConceptCell(this.manifold);
+   public TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion> call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
+      return new TreeTableWhatCell(this.manifold);
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public ObservableValue<ObservableCategorizedVersion> getCellValue(
+                       TreeTableColumn.CellDataFeatures<ObservableCategorizedVersion,
+                          ObservableCategorizedVersion> param) {
+      return param.getValue()
+                  .valueProperty();
    }
 }
 

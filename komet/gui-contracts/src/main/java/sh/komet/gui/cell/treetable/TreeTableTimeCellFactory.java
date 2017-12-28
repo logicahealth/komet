@@ -14,29 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.cell;
+package sh.komet.gui.cell.treetable;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
+import javafx.util.Callback;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 
 /**
  *
  * @author kec
  */
-public class TreeTableTimeCell  extends KometTreeTableCell<Long> {
-   private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-   public TreeTableTimeCell() {
-      getStyleClass().add("komet-version-time-cell");
-      getStyleClass().add("isaac-version");
-   }
+public class TreeTableTimeCellFactory implements Callback<TreeTableColumn, TreeTableCell<ObservableCategorizedVersion, Long>>{
 
    @Override
-   protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, Long cellValue) {
-         setText(formatter.format(Instant.ofEpochMilli(cellValue).atZone(ZoneOffset.UTC)));
+   public TreeTableTimeCell call(TreeTableColumn param) {
+      return new TreeTableTimeCell();
    }
    
 }

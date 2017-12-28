@@ -132,6 +132,7 @@
       <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
       <sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
       <testng.version>6.10</testng.version>
+      <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>2.12</wagon-provider-api.version>
    </properties>
 
@@ -167,6 +168,11 @@
             <version>${disruptor.version}</version>
          </dependency>        
          <dependency>
+            <groupId>eu.hansolo</groupId>
+            <artifactId>tilesfx</artifactId>
+            <version>${tilesfx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-bom</artifactId>
             <version>${log4j.version}</version>

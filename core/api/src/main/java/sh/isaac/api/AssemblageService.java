@@ -50,13 +50,13 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -133,6 +133,14 @@ public interface AssemblageService
     * @return count of all the semantic chronologies in the assemblage, active, or inactive. 
     */
    int getSemanticCount(int assemblageNid);
+
+   
+   /**
+    * 
+    * @param assemblageNid
+    * @return the type of object contained within the assemblage. 
+    */
+   IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
 
    /**
     * Gets the SemanticChronology key stream.

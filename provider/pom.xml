@@ -34,7 +34,6 @@
         <module>observable</module>
         <module>query</module>
         <module>stamp</module>
-        <module>assemblage</module>
         <module>drools</module>
         <module>alert-resolver</module>
         <module>preferences</module>

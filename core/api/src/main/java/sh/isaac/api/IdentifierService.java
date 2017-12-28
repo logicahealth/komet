@@ -119,13 +119,6 @@ public interface IdentifierService
    
    /**
     * 
-    * @param assemblageNid
-    * @return the type of object contained within the assemblage. 
-    */
-   IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
-   
-   /**
-    * 
     * @param componentNid the identifier that the object type is requested for. 
     * @return the type of object identified by the componentNid. 
     */

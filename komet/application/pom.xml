@@ -342,6 +342,22 @@
             </dependency>
          </dependencies>
       </profile>
+        <profile>
+            <id>test-yfiles</id>
+            <activation>
+                <property>
+                    <name>test.yfiles</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>yfiles</groupId>
+                    <artifactId>yfiles-for-javafx</artifactId>
+                    <version>3.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
       <profile>
          <id>meta-database</id>
          <activation>

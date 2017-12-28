@@ -131,8 +131,8 @@ public class IdentifierProvider
       this.nid_ElementSequence_Map = this.store.getNidToElementSequenceMap();
        
       this.assemblageNid_SequenceGenerator_Map = store.getSequenceGeneratorMap();
-
       this.assemblageNid_ObjectType_Map = store.getAssemblageTypeMap();
+ 
    }
 
    /**
@@ -159,9 +159,7 @@ public class IdentifierProvider
       assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
       nid_AssemblageNid_Map.put(nid, assemblageNid);
    }
-
-   @Override
-   public IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
+  private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
       return assemblageNid_ObjectType_Map.getOrDefault(assemblageNid, IsaacObjectType.UNKNOWN);
    }
 

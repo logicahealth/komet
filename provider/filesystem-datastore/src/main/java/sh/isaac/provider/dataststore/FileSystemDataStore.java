@@ -110,7 +110,7 @@ public class FileSystemDataStore
         implements DataStore {
 
    private static final Logger LOG = LogManager.getLogger();
-   private static final String DB_UUID_KEY = "IODataStore.uuid";
+   private static final String DB_UUID_KEY = "FileSystemDataStore.uuid";
 
    //~--- fields --------------------------------------------------------------
    ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map
@@ -219,7 +219,7 @@ public class FileSystemDataStore
    @PostConstruct
    private void startMe() {
       try {
-         LOG.info("Startings IODataStore.");
+         LOG.info("Startings FileSystemDataStore.");
 
          ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
          Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
@@ -245,6 +245,10 @@ public class FileSystemDataStore
             if (this.propertiesFile.exists()) {
                try (Reader reader = new FileReader(propertiesFile)) {
                   this.properties.load(reader);
+               }
+               if (this.properties.getProperty(DB_UUID_KEY) == null) {
+                   this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
+                       .toString());
                }
 
                this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
@@ -286,7 +290,7 @@ public class FileSystemDataStore
    @PreDestroy
    private void stopMe() {
       try {
-         LOG.info("Stopping IODataStore.");
+         LOG.info("Stopping FileSystemDataStore.");
 
          // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
          // with an unbounded queue.

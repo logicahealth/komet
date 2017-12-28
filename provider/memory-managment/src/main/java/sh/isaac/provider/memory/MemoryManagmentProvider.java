@@ -21,6 +21,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryConfigurations;
 import sh.isaac.api.memory.MemoryManagementService;
+import sh.isaac.api.memory.SpineReference;
 import sh.isaac.api.memory.WriteToDiskCache;
 
 /**
@@ -51,4 +52,16 @@ public class MemoryManagmentProvider implements MemoryManagementService {
       default:
       }
    }
+
+    @Override
+    public int managedMemoryInBytes() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addSpine(SpineReference spine) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   
+   
 }

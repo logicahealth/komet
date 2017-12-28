@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.cell;
+package sh.komet.gui.cell.treetable;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
@@ -26,22 +26,22 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class TreeTableAuthorTimeCellFactory  
+public class TreeTableGeneralCellFactory 
          implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
-                             TreeTableAuthorTimeCell> {
+                             TreeTableGeneralCell> {
    private final Manifold manifold;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeTableAuthorTimeCellFactory(Manifold manifold) {
+   public TreeTableGeneralCellFactory(Manifold manifold) {
       this.manifold = manifold;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public TreeTableAuthorTimeCell call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
-      return new TreeTableAuthorTimeCell(this.manifold);
+   public TreeTableGeneralCell call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
+      return new TreeTableGeneralCell(this.manifold);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -52,5 +52,4 @@ public class TreeTableAuthorTimeCellFactory
       return param.getValue()
                   .valueProperty();
    }
-   
 }

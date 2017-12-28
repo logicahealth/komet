@@ -37,20 +37,40 @@
 
 
 
-package sh.isaac.provider.assemblage;
+package sh.komet.gui.cell.treetable;
 
-//~--- JDK imports ------------------------------------------------------------
+//~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.semantic.version.SemanticVersion;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
+
+import javafx.util.Callback;
+
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+
+import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class AssemblageSnapshotProvider.
  *
  * @author kec
- * @param <V> the value type
  */
-public class AssemblageSnapshotProvider<V extends SemanticVersion>
-          {}
+public class TreeTableConceptCellFactory
+         implements Callback<TreeTableColumn, TreeTableCell<ObservableCategorizedVersion, Integer>> {
+   private final Manifold manifold;
+
+   //~--- constructors --------------------------------------------------------
+
+   public TreeTableConceptCellFactory(Manifold manifold) {
+      this.manifold = manifold;
+   }
+
+   //~--- methods -------------------------------------------------------------
+
+   @Override
+   public TreeTableConceptCell call(TreeTableColumn param) {
+      return new TreeTableConceptCell(this.manifold);
+   }
+}
 

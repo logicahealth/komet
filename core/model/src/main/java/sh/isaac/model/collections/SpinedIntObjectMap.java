@@ -16,6 +16,7 @@
  */
 package sh.isaac.model.collections;
 
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,7 +34,7 @@ import sh.isaac.model.ModelGet;
  * @author kec
  * @param <E> the generic type for the spined list. 
  */
- class SpinedIntObjectMap<E>   {
+ public class SpinedIntObjectMap<E>   {
    private static final int DEFAULT_SPINE_SIZE = 1024;
    protected final int spineSize;
    protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
@@ -41,6 +42,10 @@ import sh.isaac.model.ModelGet;
 
    public void setElementStringConverter(Function<E, String> elementStringConverter) {
       this.elementStringConverter = elementStringConverter;
+   }
+   
+   public void clear() {
+       spines.clear();
    }
    
    public void printToConsole() {
@@ -97,6 +102,15 @@ import sh.isaac.model.ModelGet;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
    }
 
+   public Optional<E> getOptional(int index) {
+      if (index < 0) {
+         index = ModelGet.identifierService().getElementSequenceForNid(index);
+      }
+      int spineIndex = index/spineSize;
+      int indexInSpine = index % spineSize;
+      return Optional.ofNullable(this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine));
+   }
+
    public boolean containsKey(int index) {
       if (index < 0) {
          index = ModelGet.identifierService().getElementSequenceForNid(index);
@@ -104,6 +118,21 @@ import sh.isaac.model.ModelGet;
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
+   }
+   
+   public int size() {
+       int size = 0;
+      int currentSpineCount = getSpineCount();
+      for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
+         AtomicReferenceArray<E> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+         for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
+            E element = spine.get(indexInSpine);
+            if (element != null) {
+               size++;
+            }
+         }       
+      }
+      return size;
    }
    
    public void forEach(Processor<E> processor) {

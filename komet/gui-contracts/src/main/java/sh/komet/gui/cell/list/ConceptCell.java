@@ -14,22 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.cell;
+package sh.komet.gui.cell.list;
 
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.util.Callback;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
+import javafx.scene.control.ListCell;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
  * @author kec
  */
-public class TreeTableTimeCellFactory implements Callback<TreeTableColumn, TreeTableCell<ObservableCategorizedVersion, Long>>{
+public class ConceptCell extends ListCell<Integer> {
+    
+   private final ManifoldCoordinate manifold;
 
-   @Override
-   public TreeTableTimeCell call(TreeTableColumn param) {
-      return new TreeTableTimeCell();
+   public ConceptCell(ManifoldCoordinate manifold) {
+      this.manifold = manifold;
+      getStyleClass().add("komet-version-concept-cell");
+      getStyleClass().add("isaac-version");
    }
    
+    @Override
+    public void updateItem(Integer conceptNid, boolean empty) {
+        super.updateItem(conceptNid, empty);
+        if (empty) {
+            setText("");
+        } else {
+            setText(manifold.getPreferredDescriptionText(conceptNid));
+        }
+         
+    }
+
 }

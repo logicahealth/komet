@@ -52,6 +52,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -118,6 +119,8 @@ public class ChronologyProvider
    //~--- fields --------------------------------------------------------------
 
    private DataStore store;
+   private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map =
+      new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -184,7 +187,8 @@ public class ChronologyProvider
    private void startMe() {
       LOG.info("Starting chronology provider.");
       store = Get.service(DataStore.class);
-   }
+        this.assemblageNid_ObjectType_Map = store.getAssemblageTypeMap();
+ }
 
    /**
     * Stop me.
@@ -195,6 +199,11 @@ public class ChronologyProvider
    }
 
    //~--- get methods ---------------------------------------------------------
+
+   @Override
+   public IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
+      return assemblageNid_ObjectType_Map.getOrDefault(assemblageNid, IsaacObjectType.UNKNOWN);
+   }
 
    @Override
    public int[] getAssemblageConceptNids() {

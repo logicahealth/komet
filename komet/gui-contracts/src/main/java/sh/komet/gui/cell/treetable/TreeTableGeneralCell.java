@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.cell;
+package sh.komet.gui.cell.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.time.Instant;

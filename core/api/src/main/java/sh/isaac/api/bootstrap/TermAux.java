@@ -406,6 +406,7 @@ public class TermAux {
    public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage", UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
    public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage", UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
    public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage", UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
+   public static ConceptSpecification UUID_NID_MAP = new ConceptProxy("UUID to internal identifier map", "UUID to internal identifier map", UUID.fromString("e4f98192-bcaf-5e41-b91f-2b0d56f9050a"));
 
    public static ConceptSpecification CONTENT_LICENSE = new ConceptProxy("Content license", "Content license", UUID.fromString("b3305461-6954-574e-9124-285a02d4ecae"));
    public static ConceptSpecification SCT_AFFILIATES_LICENSE = new ConceptProxy("SNOMED® affiliates license", "SNOMED® affiliates license", UUID.fromString("4e7d8a63-1f36-56bb-9217-daa6da1b47e7"));

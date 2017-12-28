@@ -212,11 +212,12 @@ public class IsaacMetadataAuxiliary
          createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
          createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
          popParent();
-         createConcept("Identifier assemblage");
+         createConcept("Identifier collection");
          pushParent(current());
          createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
          createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
          createConcept(TermAux.RXNORM_IDENTIFIER_ASSEMBLAGE);
+         createConcept(TermAux.UUID_NID_MAP);
          popParent();
          createConcept("Identifier source");
          pushParent(current());
