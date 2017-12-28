@@ -248,5 +248,13 @@ public interface AssemblageService
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
+   
+   /**
+    * Use in circumstances when not all sememes may have been loaded to find out if a sememe is present,
+    * without incurring the overhead of reading back the object. 
+    * @param semanticId nid or semantic instance
+    * @return true if present, false otherwise
+    */
+   boolean hasSemantic(int semanticId);
 }
 
