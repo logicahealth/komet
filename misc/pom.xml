@@ -12,6 +12,7 @@
     <description>Aggregator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>
+       <module>importers</module>
        <module>util</module>
        <module>vhat-constants</module>
        <module>vhat-util</module>

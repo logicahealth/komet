@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+
+<CodedConcepts>
+
+<!-- Add new reactant SCORPION VENOM -->
+<CodedConcept>
+<Action>add</Action>
+<Code>5192389</Code>
+<VUID>5192389</VUID>
+<Active>1</Active>
+<Designations><Designation>
+  <Action>add</Action>
+  <Code>5192390</Code>
+  <TypeName>Preferred Name</TypeName>
+  <VUID>5192390</VUID>
+  <ValueNew>SCORPION VENOM</ValueNew>
+  <Active>true</Active>
+  <SubsetMemberships><SubsetMembership>
+    <Action>add</Action>
+    <VUID>4707831</VUID>
+    <Active>1</Active>
+  </SubsetMembership></SubsetMemberships>
+</Designation></Designations> 
+<Properties><Property>
+  <Action>add</Action>
+  <TypeName>Allergy_Type</TypeName>
+  <ValueNew>OTHER</ValueNew>
+  <Active>1</Active>
+</Property></Properties>
+<Relationships><Relationship>
+  <Action>add</Action>
+  <TypeName>has_parent</TypeName>
+  <NewTargetCode>4712075</NewTargetCode>
+  <Active>1</Active>
+</Relationship></Relationships>
+</CodedConcept>
+
+<!-- Add new reaction PERICARDIAL EFFUSION -->
+<CodedConcept>
+<Action>add</Action>
+<Code>5192391</Code>
+<VUID>5192391</VUID>
+<Active>1</Active>
+<Designations><Designation>
+  <Action>add</Action>
+  <Code>5192392</Code>
+  <TypeName>Preferred Name</TypeName>
+  <VUID>5192392</VUID>
+  <ValueNew>PERICARDIAL EFFUSION</ValueNew>
+  <Active>true</Active>
+  <SubsetMemberships><SubsetMembership>
+    <Action>add</Action>
+    <VUID>4708610</VUID>
+    <Active>1</Active>
+  </SubsetMembership></SubsetMemberships>
+</Designation></Designations> 
+<Relationships><Relationship>
+  <Action>add</Action>
+  <TypeName>has_parent</TypeName>
+  <NewTargetCode>4712076</NewTargetCode>
+  <Active>1</Active>
+</Relationship></Relationships>
+</CodedConcept>
+
+<!-- close file -->
+</CodedConcepts></Version></CodeSystem></Terminology>

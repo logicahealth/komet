@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+	<Types>
+		<Type>
+			<Kind>PropertyType</Kind>
+			<Name>VistA_VA_Code</Name>
+		</Type>
+		<Type>
+			<Kind>PropertyType</Kind>
+			<Name>VistA_ASC_X12_Code</Name>
+		</Type>
+		<Type>
+			<Kind>PropertyType</Kind>
+			<Name>VistA_Area_Of_Specialization</Name>
+		</Type>
+		<Type>
+			<Kind>PropertyType</Kind>
+			<Name>VistA_Specialty_Code</Name>
+		</Type>
+	</Types>
+
+	<Subsets>
+		<Subset>
+			<Action>add</Action>
+			<Name>Person Class</Name>
+			<VUID>5256018</VUID>
+			<Active>1</Active>
+		</Subset>
+	</Subsets>
+
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts>
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>5256016</Code>
+					<VUID>5256016</VUID>
+					<Active>1</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>5256017</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>5256017</VUID>
+							<ValueNew>Person Class</ValueNew>
+							<Active>1</Active>
+						</Designation>
+					</Designations>
+					<Relationships>
+						<Relationship>
+							<Action>add</Action>
+							<TypeName>has_parent</TypeName>
+							<NewTargetCode>4707201</NewTargetCode>
+							<Active>1</Active>
+						</Relationship>
+					</Relationships>
+				</CodedConcept>
+			</CodedConcepts>
+		</Version>
+	</CodeSystem>
+</Terminology>

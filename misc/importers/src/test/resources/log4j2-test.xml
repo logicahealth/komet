@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Appenders>
+		<!-- the standard-console-appender -->
+		<Console name="appender-Console-all" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{DEFAULT} %-5level [%t] %logger{4} - %msg%n" />
+		</Console>
+		<!-- the appenders for root -->
+		<File name="appender-root-all" fileName="target/logs/isaac-rest-debug.log" append="false">
+			<PatternLayout pattern="%d{DEFAULT} %-5level [%t] %logger{4} - %msg%n" />
+		</File>
+	</Appenders>
+
+	<Loggers>
+		<!-- Every configuration must have a root logger. If one is not configured the default root LoggerConfig is ERROR with Console appender attached. -->
+		<Root level="DEBUG">
+			<AppenderRef ref="appender-Console-all" level="INFO" />
+			<AppenderRef ref="appender-root-all" level="ALL" />
+		</Root>
+
+		<!-- By default, all loggers in the system are set to WARN or worse.  To enable more verbose logging
+			for a specific logger, or a logger package - define a 'logger' configuration as below, with the desired level. -->
+		<logger name="gov.va.isaac" level="TRACE" />
+		<logger name="gov.va.legoEdit" level="TRACE" />
+		<logger name="org.ihtsdo" level="INFO" />
+		<logger name="gov.vha" level="TRACE" />
+		<Logger name="org.jvnet.hk2.logger" level="OFF"/>  <!-- HK2 is logging a debug message that is being mis-translated into an error by LOG4J2 https://issues.apache.org/jira/browse/LOG4J2-1003 -->
+	</Loggers>
+</Configuration>
