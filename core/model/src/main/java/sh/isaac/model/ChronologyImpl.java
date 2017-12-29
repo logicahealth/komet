@@ -191,7 +191,8 @@ public abstract class ChronologyImpl
       this.nid = nid;
       this.assemblageNid = assemblageNid;
       this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
-      ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
+      ModelGet.identifierService().setupNid(this.nid, assemblageNid, 
+              this.getIsaacObjectType(), this.getVersionType());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -535,10 +536,11 @@ public abstract class ChronologyImpl
                     Get.identifierService()
                             .addUuidForNid(uuid, this.nid);
                  });
-         ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
          this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
          setAdditionalChronicleFieldsFromBuffer(data);
          readVersionList(data);
+         ModelGet.identifierService().setupNid(this.nid, assemblageNid, 
+                 this.getIsaacObjectType(), this.getVersionType());
       } else {
          this.nid = data.getNid();
          this.elementSequence = data.getInt();

@@ -121,6 +121,8 @@ public class ChronologyProvider
    private DataStore store;
    private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map =
       new ConcurrentHashMap<>();
+   private ConcurrentHashMap<Integer, VersionType> assemblageNid_VersionType_Map =
+      new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -187,7 +189,8 @@ public class ChronologyProvider
    private void startMe() {
       LOG.info("Starting chronology provider.");
       store = Get.service(DataStore.class);
-        this.assemblageNid_ObjectType_Map = store.getAssemblageTypeMap();
+        this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
+        this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
  }
 
    /**
@@ -546,15 +549,22 @@ public class ChronologyProvider
     // TODO implement with a persistent cache of version types...
     @Override
     public VersionType getVersionTypeForAssemblage(int assemblageNid) {
+        VersionType versionType = assemblageNid_VersionType_Map.get(assemblageNid);
+        if (versionType != null && versionType != VersionType.UNKNOWN) {
+            return versionType;
+        }
+        
         IsaacObjectType objectType = getObjectTypeForAssemblage(assemblageNid);
         switch (objectType) {
             case CONCEPT:
+                assemblageNid_VersionType_Map.put(assemblageNid, VersionType.CONCEPT);
                 return VersionType.CONCEPT;
             default:
                 // fall through. 
         }
         Optional<SemanticChronology> semanticChronologyOptional = getSemanticChronologyStreamFromAssemblage(assemblageNid).findFirst();
         if (semanticChronologyOptional.isPresent()) {
+            assemblageNid_VersionType_Map.put(assemblageNid, semanticChronologyOptional.get().getVersionType());
             return semanticChronologyOptional.get().getVersionType();
         }
         return VersionType.UNKNOWN;

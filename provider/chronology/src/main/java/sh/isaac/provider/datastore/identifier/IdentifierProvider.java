@@ -73,6 +73,7 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.api.collections.UuidIntMapMap;
@@ -111,6 +112,8 @@ public class IdentifierProvider
    private UuidIntMapMap uuidIntMapMap;
    private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map =
       new ConcurrentHashMap<>();
+   private ConcurrentHashMap<Integer, VersionType> assemblageNid_VersionType_Map =
+      new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -131,7 +134,8 @@ public class IdentifierProvider
       this.nid_ElementSequence_Map = this.store.getNidToElementSequenceMap();
        
       this.assemblageNid_SequenceGenerator_Map = store.getSequenceGeneratorMap();
-      this.assemblageNid_ObjectType_Map = store.getAssemblageTypeMap();
+      this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
+      this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
  
    }
 
@@ -155,9 +159,11 @@ public class IdentifierProvider
    
 
    @Override
-   public void setupNid(int nid, int assemblageNid, IsaacObjectType objectType) {
-      assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
-      nid_AssemblageNid_Map.put(nid, assemblageNid);
+   public void setupNid(int nid, int assemblageNid, 
+           IsaacObjectType objectType, VersionType versionType) {
+      this.assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
+      this.nid_AssemblageNid_Map.put(nid, assemblageNid);
+      this.assemblageNid_VersionType_Map.computeIfAbsent(assemblageNid, (Integer t) -> versionType);
    }
   private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
       return assemblageNid_ObjectType_Map.getOrDefault(assemblageNid, IsaacObjectType.UNKNOWN);

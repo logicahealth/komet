@@ -50,6 +50,7 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
@@ -72,7 +73,7 @@ public interface DataStore
 
    int[] getAssemblageConceptNids();
 
-   ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap();
+   ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap();
 
    Optional<ByteArrayDataBuffer> getChronologyData(int nid);
 
@@ -87,5 +88,7 @@ public interface DataStore
    SpinedNidIntMap getNidToElementSequenceMap();
 
    SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid);
+
+   ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap();
 }
 

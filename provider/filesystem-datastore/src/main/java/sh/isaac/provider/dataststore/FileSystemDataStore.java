@@ -85,6 +85,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -123,7 +124,9 @@ public class FileSystemDataStore
    private final ConcurrentHashMap<Integer, SpinedIntIntArrayMap> spinedTaxonomyMapMap
            = new ConcurrentHashMap<>();
    private final SpinedNidNidSetMap componentToSemanticNidsMap = new SpinedNidNidSetMap();
-   private final ConcurrentHashMap<Integer, IsaacObjectType> assemblageToType_Map
+   private final ConcurrentHashMap<Integer, IsaacObjectType> assemblageToObjectType_Map
+           = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Integer, VersionType> assemblageToVersionType_Map
            = new ConcurrentHashMap<>();
    private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
    private SyncTask lastSyncTask = null;
@@ -137,7 +140,8 @@ public class FileSystemDataStore
    private File assemblageNid_ElementSequenceToNid_MapDirectory;
    private File taxonomyMapDirectory;
    private File chronologySpinesDirectory;
-   private File assemblageToTypeFile;
+   private File assemblageToObjectTypeFile;
+   private File assemblageToVersionTypeFile;
    private File sequenceGeneratorMapFile;
    private File propertiesFile;
    private File nidToAssemblageNidMapDirectory;
@@ -149,14 +153,15 @@ public class FileSystemDataStore
       int assemblageNid = chronology.getAssemblageNid();
       IsaacObjectType objectType = chronology.getIsaacObjectType();
 
-      assemblageToType_Map.put(assemblageNid, objectType);
+      assemblageToObjectType_Map.put(assemblageNid, objectType);
 
       int assemblageForNid = ModelGet.identifierService()
               .getAssemblageNidForNid(chronology.getNid());
 
       if (assemblageForNid == Integer.MAX_VALUE) {
          ModelGet.identifierService()
-                 .setupNid(chronology.getNid(), assemblageNid, objectType);
+                 .setupNid(chronology.getNid(), assemblageNid, objectType, 
+                         chronology.getVersionType());
 
          if (chronology instanceof SemanticChronologyImpl) {
             SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
@@ -185,15 +190,29 @@ public class FileSystemDataStore
       return lastSyncFuture;
    }
 
-   private void readAssemblageToTypeFile()
+   private void readAssemblageToObjectTypeFile()
            throws IOException {
-      if (assemblageToTypeFile.exists()) {
+      if (assemblageToObjectTypeFile.exists()) {
          try (DataInputStream dis = new DataInputStream(
-                 new BufferedInputStream(new FileInputStream(assemblageToTypeFile)))) {
+                 new BufferedInputStream(new FileInputStream(assemblageToObjectTypeFile)))) {
             int mapSize = dis.readInt();
 
             for (int i = 0; i < mapSize; i++) {
-               assemblageToType_Map.put(dis.readInt(), IsaacObjectType.fromToken(dis.readByte()));
+               assemblageToObjectType_Map.put(dis.readInt(), IsaacObjectType.fromToken(dis.readByte()));
+            }
+         }
+      }
+   }
+
+   private void readAssemblageToVersionTypeFile()
+           throws IOException {
+      if (assemblageToVersionTypeFile.exists()) {
+         try (DataInputStream dis = new DataInputStream(
+                 new BufferedInputStream(new FileInputStream(assemblageToVersionTypeFile)))) {
+            int mapSize = dis.readInt();
+
+            for (int i = 0; i < mapSize; i++) {
+               assemblageToVersionType_Map.put(dis.readInt(), VersionType.getFromToken(dis.readByte()));
             }
          }
       }
@@ -236,7 +255,8 @@ public class FileSystemDataStore
          this.componentToSemanticMapDirectory = new File(isaacDbDirectory, "componentToSemanticMap");
          this.assemblageNid_ElementSequenceToNid_MapDirectory = new File(isaacDbDirectory, "assemblageToSequenceMap");
          this.taxonomyMapDirectory = new File(isaacDbDirectory, "taxonomyMap");
-         this.assemblageToTypeFile = new File(isaacDbDirectory, "assemblageToTypeMap");
+         this.assemblageToObjectTypeFile = new File(isaacDbDirectory, "assemblageToTypeMap");
+         this.assemblageToVersionTypeFile = new File(isaacDbDirectory, "assemblageToVersionTypeMap");
          this.nidToAssemblageNidMapDirectory = new File(isaacDbDirectory, "componentToAssemblageMap");
          this.sequenceGeneratorMapFile = new File(isaacDbDirectory, "sequenceGeneratorMap");
          this.nidToElementSequenceMapDirectory = new File(isaacDbDirectory, "componentToAssemblageElementMap");
@@ -266,7 +286,8 @@ public class FileSystemDataStore
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
 
-         readAssemblageToTypeFile();
+         readAssemblageToObjectTypeFile();
+         readAssemblageToVersionTypeFile();
          readSequenceGeneratorMapFile();
          componentToSemanticNidsMap.read(this.componentToSemanticMapDirectory);
 
@@ -315,19 +336,32 @@ public class FileSystemDataStore
       }
    }
 
-   private void writeAssemblageToTypeFile()
+   private void writeAssemblageToObjectTypeFile()
            throws IOException {
       try (DataOutputStream dos = new DataOutputStream(
-              new BufferedOutputStream(new FileOutputStream(assemblageToTypeFile)))) {
-         dos.writeInt(assemblageToType_Map.size());
+              new BufferedOutputStream(new FileOutputStream(assemblageToObjectTypeFile)))) {
+         dos.writeInt(assemblageToObjectType_Map.size());
 
-         for (Map.Entry<Integer, IsaacObjectType> entry : assemblageToType_Map.entrySet()) {
+         for (Map.Entry<Integer, IsaacObjectType> entry : assemblageToObjectType_Map.entrySet()) {
             dos.writeInt(entry.getKey());
             dos.writeByte(entry.getValue()
                     .getToken());
          }
       }
    }
+   private void writeAssemblageToVersionTypeFile()
+           throws IOException {
+      try (DataOutputStream dos = new DataOutputStream(
+              new BufferedOutputStream(new FileOutputStream(assemblageToVersionTypeFile)))) {
+         dos.writeInt(assemblageToVersionType_Map.size());
+
+         for (Map.Entry<Integer, VersionType> entry : assemblageToVersionType_Map.entrySet()) {
+            dos.writeInt(entry.getKey());
+            dos.writeByte(entry.getValue().getVersionTypeToken());
+         }
+      }
+   }
+
 
    private void writeSequenceGeneratorMapFile()
            throws IOException {
@@ -346,10 +380,10 @@ public class FileSystemDataStore
    //~--- get methods ---------------------------------------------------------
    @Override
    public int[] getAssemblageConceptNids() {
-      int[] assemblageConceptNids = new int[assemblageToType_Map.size()];
+      int[] assemblageConceptNids = new int[assemblageToObjectType_Map.size()];
       int i = 0;
 
-      for (Integer assemblageConceptNid : assemblageToType_Map.keySet()) {
+      for (Integer assemblageConceptNid : assemblageToObjectType_Map.keySet()) {
          assemblageConceptNids[i++] = assemblageConceptNid;
       }
 
@@ -384,9 +418,14 @@ public class FileSystemDataStore
    }
 
    @Override
-   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap() {
-      return assemblageToType_Map;
+   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap() {
+      return assemblageToObjectType_Map;
    }
+
+    @Override
+    public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
+        return assemblageToVersionType_Map;
+    }
 
    @Override
    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
@@ -544,7 +583,8 @@ public class FileSystemDataStore
 
             completedUnitOfWork();  // 1
             updateMessage("Writing assemblage nids...");
-            writeAssemblageToTypeFile();
+            writeAssemblageToObjectTypeFile();
+            writeAssemblageToVersionTypeFile();
             completedUnitOfWork();  // 2
             updateMessage("Writing component to semantics map...");
 

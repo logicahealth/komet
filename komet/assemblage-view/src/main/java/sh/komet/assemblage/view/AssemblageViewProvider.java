@@ -149,6 +149,15 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
             VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
             versionTypeMenuMap.get(versionType).getItems().add(menu2);
         }
+        assemblagesMenu.getItems().sort((o1, o2) -> {
+                return o1.getText().compareTo(o2.getText()); 
+            });
+        for (Menu menu: versionTypeMenuMap.values()) {
+            menu.getItems().sort((o1, o2) -> {
+                return o1.getText().compareTo(o2.getText()); 
+            });
+        }
+        
         return assemblageMenuList;
     }
 }
