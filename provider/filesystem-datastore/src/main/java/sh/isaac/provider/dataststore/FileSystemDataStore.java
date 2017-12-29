@@ -468,6 +468,16 @@ public class FileSystemDataStore
 
       throw new IllegalStateException("Assemblage nid is not present. ");
    }
+   
+   @Override
+   public int getAssemblageMemoryInUse(int assemblageNid) {
+       return getChronologySpinedMap(assemblageNid).memoryInUse();
+   }
+
+    @Override
+    public int getAssemblageSizeOnDisk(int assemblageNid) {
+        return getChronologySpinedMap(assemblageNid).sizeOnDisk();
+    }
 
    private SpinedByteArrayArrayMap getChronologySpinedMap(int assemblageNid) {
       SpinedByteArrayArrayMap spinedMap = spinedChronologyMapMap.computeIfAbsent(

@@ -39,6 +39,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -84,38 +88,78 @@ public class DashboardView
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("System Dashboard");
     private final Label titleLabel = new Label();
     private final Manifold manifold;
-    private final ListView<Integer> assemblageListView;
+    private final TableView<AssemblageDashboardRow> assemblageTableView;
     private AssemblageDashboardStats assemblageStats;
     private Future<?> statsFuture;
 
     public DashboardView(Manifold manifold) {
         this.manifold = manifold;
         this.titleLabel.graphicProperty().set(Iconography.DASHBOARD.getIconographic());
+        
+        ObservableList<AssemblageDashboardRow> assemblageTableData = FXCollections.observableArrayList();
 
-        ObservableList<Integer> assemblageList = FXCollections.observableArrayList();
 
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            assemblageList.add(assemblageNid);
+            assemblageTableData.add(new AssemblageDashboardRow(assemblageNid, manifold));
         }
-        assemblageList.sort((o1, o2) -> {
-            return manifold.getPreferredDescriptionText(o1)
-                    .compareTo(manifold.getPreferredDescriptionText(o2));
+        
+        assemblageTableData.sort((o1, o2) -> {
+            return o1.getAssemblageName()
+                    .compareTo(o2.getAssemblageName());
         });
-        assemblageListView = new ListView(assemblageList);
-        assemblageListView.setCellFactory((ListView<Integer> list) -> new ConceptCell(this.manifold));
-        this.setLeft(assemblageListView);
-        assemblageListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        assemblageListView.getSelectionModel().selectedItemProperty().addListener(this::selectionListener);
+        
+        assemblageTableView = new TableView(assemblageTableData);
+        
+        TableColumn<AssemblageDashboardRow,String> nameColumn = new TableColumn("Assemblage");
+        nameColumn.setCellValueFactory(new PropertyValueFactory("assemblageName"));
+        
+        TableColumn<AssemblageDashboardRow,Integer> countColumn = new TableColumn("Count");
+        countColumn.setCellValueFactory(new PropertyValueFactory("semanticCount"));
+        
+        TableColumn<AssemblageDashboardRow,Integer> memoryUsedColumn = new TableColumn("Memory Use");
+        memoryUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageMemoryUsage"));
+        
+        memoryUsedColumn.setCellFactory((param) -> {
+            return new TableCell<AssemblageDashboardRow,Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty); 
+                    if (!empty) {
+                        setText(NumberUtil.formatWithGrouping(item));
+                    }
+                }
+            }; 
+        });
+        
+        TableColumn<AssemblageDashboardRow,Integer> diskSpaceUsedColumn = new TableColumn("Disk Space");
+        diskSpaceUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageDiskSpaceUsage"));
+        diskSpaceUsedColumn.setCellFactory((param) -> {
+            return new TableCell<AssemblageDashboardRow,Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty); 
+                    if (!empty) {
+                        setText(NumberUtil.formatWithGrouping(item));
+                    }
+                }
+            }; 
+        });
+
+        assemblageTableView.getColumns().setAll(nameColumn, countColumn, memoryUsedColumn, diskSpaceUsedColumn);
+        
+        this.setCenter(assemblageTableView);
+        assemblageTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        assemblageTableView.getSelectionModel().selectedItemProperty().addListener(this::selectionListener);
 
     }
 
-    private void selectionListener(Observable observable, Integer oldValue, Integer newAssemblageValue) {
+    private void selectionListener(Observable observable, AssemblageDashboardRow oldValue, AssemblageDashboardRow newAssemblageValue) {
         assemblageStats = null;
 
         TilePane pane = new TilePane();
         pane.setBackground(new Background(new BackgroundFill(Color.web("#c3cdd3"), CornerRadii.EMPTY, Insets.EMPTY)));
-        this.setCenter(pane);
-        assemblageStats = new AssemblageDashboardStats(newAssemblageValue);
+        this.setBottom(pane);
+        assemblageStats = new AssemblageDashboardStats(newAssemblageValue.getAssemblageNid());
         assemblageStats.stateProperty().addListener(this::stateChangedListener);
         statsFuture = Get.executor().submit(assemblageStats);
     }
@@ -165,7 +209,7 @@ public class DashboardView
                         for (Tile tile : tiles) {
                             pane.getChildren().add(tile);
                         }
-                        this.setCenter(pane);
+                        this.setBottom(pane);
                     }
 
                 });

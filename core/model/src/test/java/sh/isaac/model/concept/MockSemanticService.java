@@ -316,6 +316,16 @@ public class MockSemanticService
     public VersionType getVersionTypeForAssemblage(int assemblageNid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public int getAssemblageMemoryInUse(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageSizeOnDisk(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
    
 }
 

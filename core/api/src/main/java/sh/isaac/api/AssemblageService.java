@@ -239,5 +239,18 @@ public interface AssemblageService
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
+
+   /**
+    * 
+    * @param assemblageNid
+    * @return memory used in bytes
+    */
+    int getAssemblageMemoryInUse(int assemblageNid);
+    /**
+     * 
+     * @param assemblageNid
+     * @return disk space used in bytes
+     */
+    int getAssemblageSizeOnDisk(int assemblageNid);
 }
 

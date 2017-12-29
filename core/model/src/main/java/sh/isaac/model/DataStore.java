@@ -90,5 +90,9 @@ public interface DataStore
    SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid);
 
    ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap();
+   
+   int getAssemblageMemoryInUse(int assemblageNid);
+
+   int getAssemblageSizeOnDisk(int assemblageNid);
 }
 

@@ -186,7 +186,7 @@ public class ChronologyProvider
     * Start me.
     */
    @PostConstruct
-   private void startMe() {
+   private void startMe() { 
       LOG.info("Starting chronology provider.");
       store = Get.service(DataStore.class);
         this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
@@ -568,6 +568,16 @@ public class ChronologyProvider
             return semanticChronologyOptional.get().getVersionType();
         }
         return VersionType.UNKNOWN;
+    }
+
+    @Override
+    public int getAssemblageMemoryInUse(int assemblageNid) {
+        return store.getAssemblageMemoryInUse(assemblageNid);
+    }
+
+    @Override
+    public int getAssemblageSizeOnDisk(int assemblageNid) {
+        return store.getAssemblageSizeOnDisk(assemblageNid);
     }
 
    //~--- inner classes -------------------------------------------------------

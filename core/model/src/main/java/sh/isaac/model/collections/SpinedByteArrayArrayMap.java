@@ -46,8 +46,23 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
    
    public SpinedByteArrayArrayMap() {
    }
-   
-   public int sizeInBytes() {
+   public int sizeOnDisk() {
+       if (directory == null) {
+           return 0;
+       }
+      File[] files = directory.listFiles((pathname) -> {
+         return pathname.getName().startsWith("spine-");
+      });
+      int spineFilesProcessed = 0;
+      int size = 0;
+      for (File spineFile : files) {
+          size = (int) (size + spineFile.length());
+          spineFilesProcessed++;
+      }
+      return size;
+   }
+
+   public int memoryInUse() {
       int sizeInBytes = 0;
       sizeInBytes = sizeInBytes + ((spineSize * 8) * spines.size()); // 8 bytes = pointer to an object
       for (AtomicReferenceArray<byte[][]> spine: spines.values()) {
@@ -273,4 +288,5 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
    public void put(int elementSequence, List<byte[]> dataList) {
       put(elementSequence, dataList.toArray(new byte[dataList.size()][]));
    }
+
 }
