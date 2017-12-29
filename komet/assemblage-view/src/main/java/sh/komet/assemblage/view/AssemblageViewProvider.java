@@ -18,6 +18,7 @@ package sh.komet.assemblage.view;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -30,7 +31,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.ConceptLabel;
 import sh.komet.gui.control.ConceptLabelToolbar;
@@ -82,7 +85,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       }
       toolTipProperty.set("View of all " + manifold.getPreferredDescriptionText(newValue) + " assemblage members");
       int count = Get.assemblageService().getSemanticCount(newValue.getNid());
-      this.conceptLabelToolbar.getRightInfoLabel().setText(newValue + " semantics");
+      this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " semantics");
 
    }
    
@@ -120,6 +123,17 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         List<MenuItem> assemblageMenuList = new ArrayList<>();
         Menu assemblagesMenu = new Menu("Populated assemblages");
         assemblageMenuList.add(assemblagesMenu);
+        Menu versionByTypeMenu = new Menu("Assemblages by version type");
+        assemblageMenuList.add(versionByTypeMenu);
+        HashMap<VersionType, Menu> versionTypeMenuMap = new HashMap();
+ 
+        
+        for (VersionType versionType: VersionType.values()) {
+            Menu versionTypeMenu = new Menu(versionType.toString());
+            versionTypeMenuMap.put(versionType, versionTypeMenu);
+            versionByTypeMenu.getItems().add(versionTypeMenu);
+        }
+        
         
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
             MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
@@ -127,6 +141,13 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
                 this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
             });
             assemblagesMenu.getItems().add(menu);
+            
+            MenuItem menu2 = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
+            menu2.setOnAction((event) -> {
+                this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
+            });
+            VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
+            versionTypeMenuMap.get(versionType).getItems().add(menu2);
         }
         return assemblageMenuList;
     }

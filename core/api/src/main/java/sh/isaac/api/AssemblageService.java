@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -141,6 +142,8 @@ public interface AssemblageService
     * @return the type of object contained within the assemblage. 
     */
    IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
+   
+   VersionType getVersionTypeForAssemblage(int assemblageNid);
 
    /**
     * Gets the SemanticChronology key stream.

@@ -189,6 +189,12 @@ limitations under the License.
 .concept-label-toolbar  .concept-label { 
       -fx-text-fill: white;
 }
+
+.concept-label-toolbar .label { 
+      -fx-text-fill: #eef1f3;
+}
+
+
 .komet-version-what-cell {
    
 }

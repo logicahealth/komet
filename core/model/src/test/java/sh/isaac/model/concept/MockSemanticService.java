@@ -311,6 +311,11 @@ public class MockSemanticService
     public IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public VersionType getVersionTypeForAssemblage(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
    
 }
 

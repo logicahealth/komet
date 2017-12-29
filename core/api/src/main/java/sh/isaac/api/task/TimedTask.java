@@ -57,6 +57,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.ticker.Ticker;
+import sh.isaac.api.util.time.DurationUtil;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -131,7 +132,7 @@ public abstract class TimedTask<T>
 
       if (this.completeMessageGenerator == null) {
          setCompleteMessageGenerator((task) -> {
-                                        updateMessage(getState() + " in " + formatDuration(getDuration()));
+                                        updateMessage(getState() + " in " + DurationUtil.format(getDuration()));
                                      });
       }
 
@@ -166,58 +167,6 @@ public abstract class TimedTask<T>
                                     this.progressMessageGenerator.accept(this);
                                  }
                               });
-   }
-
-   /**
-    * Format duration.
-    *
-    * @param d the d
-    * @return the string
-    */
-   private String formatDuration(Duration d) {
-      final StringBuilder builder = new StringBuilder();
-      final long          seconds = d.getSeconds();
-
-      if (seconds > 0) {
-         final long hours   = seconds / SECONDS_PER_HOUR;
-         final int  minutes = (int) ((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
-         final int  secs    = (int) (seconds % SECONDS_PER_MINUTE);
-
-         if (hours != 0) {
-            builder.append(hours)
-                   .append("h ");
-         }
-
-         if (minutes != 0) {
-            builder.append(minutes)
-                   .append("m ");
-         }
-
-         builder.append(secs)
-                .append("s");
-         return builder.toString();
-      }
-
-      final int  nanos = d.getNano();
-      final long milis = TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS);
-
-      if (milis > 0) {
-         return builder.append(milis)
-                       .append(" ms")
-                       .toString();
-      }
-
-      final long micro = TimeUnit.MICROSECONDS.convert(nanos, TimeUnit.NANOSECONDS);
-
-      if (micro > 0) {
-         return builder.append(micro)
-                       .append(" μs")
-                       .toString();
-      }
-
-      return builder.append(nanos)
-                    .append(" ns")
-                    .toString();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -256,7 +205,7 @@ public abstract class TimedTask<T>
     * @return the formatted duration
     */
    public String getFormattedDuration() {
-      return formatDuration(getDuration());
+      return DurationUtil.format(getDuration());
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -543,6 +543,23 @@ public class ChronologyProvider
       return new AssemblageSnapshotProvider<>(versionType, stampCoordinate, this);
    }
 
+    // TODO implement with a persistent cache of version types...
+    @Override
+    public VersionType getVersionTypeForAssemblage(int assemblageNid) {
+        IsaacObjectType objectType = getObjectTypeForAssemblage(assemblageNid);
+        switch (objectType) {
+            case CONCEPT:
+                return VersionType.CONCEPT;
+            default:
+                // fall through. 
+        }
+        Optional<SemanticChronology> semanticChronologyOptional = getSemanticChronologyStreamFromAssemblage(assemblageNid).findFirst();
+        if (semanticChronologyOptional.isPresent()) {
+            return semanticChronologyOptional.get().getVersionType();
+        }
+        return VersionType.UNKNOWN;
+    }
+
    //~--- inner classes -------------------------------------------------------
 
    /**
@@ -684,6 +701,8 @@ public class ChronologyProvider
       public LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
          return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
       }
+      
+      
    }
 }
 

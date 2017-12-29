@@ -19,10 +19,6 @@ package sh.komet.gui.action.dashboard;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.skins.BarChartItem;
-import java.text.NumberFormat;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +33,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -53,6 +47,8 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.util.number.NumberUtil;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.list.ConceptCell;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -137,11 +133,9 @@ public class DashboardView
                 Platform.runLater(() -> {
                     AssemblageDashboardStats localStats = assemblageStats;
                     if (localStats != null) {
-                        NumberFormat groupedFormat = NumberFormat.getIntegerInstance();
-                        groupedFormat.setGroupingUsed(true);
                         List<Tile> tiles = new ArrayList<>();
 
-                        String semanticCountString = groupedFormat.format(localStats.getSemanticCount().get());
+                        String semanticCountString = NumberUtil.formatWithGrouping(localStats.getSemanticCount().get());
                         setupTile(TileBuilder.create()
                                 .skinType(Tile.SkinType.TEXT)
                                 .title("Semantics in Assemblage")
@@ -149,7 +143,7 @@ public class DashboardView
                                 .textVisible(true)
                                 .build(), tiles);
                         int versionCount = localStats.getVersionCount().get();
-                        String versionCountString = groupedFormat.format(versionCount);
+                        String versionCountString = NumberUtil.formatWithGrouping(versionCount);
                         setupTile(TileBuilder.create()
                                 .skinType(Tile.SkinType.TEXT)
                                 .title("Versions in Assemblage")
@@ -183,9 +177,8 @@ public class DashboardView
         BarChartItem[] barsForTimes = new BarChartItem[localStats.getCommitTimes().size()];
         int index = 0;
         int colorIndex = 0;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         for (Map.Entry<Long, AtomicInteger> entry : localStats.getCommitTimes().entrySet()) {
-            String commitTimeString = formatter.format(Instant.ofEpochMilli(entry.getKey()).atZone(ZoneOffset.UTC));
+            String commitTimeString = DateTimeUtil.format(entry.getKey());
             double value = entry.getValue().get() * 100 / versionCount;
             barsForTimes[index++] = new BarChartItem(commitTimeString, value, COLORS[colorIndex++]);
             if (colorIndex >= COLORS.length) {

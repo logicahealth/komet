@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.action.dashboard;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -24,13 +23,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 /**
  *
  * @author kec
  */
-public class AssemblageDashboardStats extends TimedTask<Void> {
+public class AssemblageDashboardStats extends TimedTaskWithProgressTracker<Void> {
     
     private final int assemblageNid;
     private final AtomicInteger semanticCount = new AtomicInteger();
@@ -41,17 +40,22 @@ public class AssemblageDashboardStats extends TimedTask<Void> {
     
     public AssemblageDashboardStats(int assemblageNid) {
         this.assemblageNid = assemblageNid;
+        updateTitle("Computing assemblage statistics");
         Get.activeTasks().add(this);
+        
     }
     
     @Override
     protected Void call() throws Exception {
         try {
+            int count = Get.assemblageService().getSemanticCount(assemblageNid);
+            addToTotalWork(count);
             Stream<SemanticChronology> semanticStream
                     = Get.assemblageService().getSemanticChronologyStreamFromAssemblage(assemblageNid);
             
             semanticStream.forEach((SemanticChronology chronology) -> {
                 semanticCount.incrementAndGet();
+                completedUnitOfWork();
                 for (Version version : chronology.getVersionList()) {
                     versionCount.incrementAndGet();
                     commitTimes.computeIfAbsent(version.getTime(), (t) -> new AtomicInteger()).incrementAndGet();
