@@ -58,28 +58,15 @@
             <artifactId>query</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>vhat-constants</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>associations</artifactId>
+            <version>${project.version}</version>
+        </dependency>
      </dependencies>
-     <build>
-         <plugins>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source-for-demoapp</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <schemaDirectory>src/main/resources/</schemaDirectory>
-                            <schemaIncludes>
-                                <include>TerminologyData.xsd.hidden</include>
-                            </schemaIncludes>
-                            <generatePackage>gov.va.med.term.vhat.xml.model</generatePackage>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
