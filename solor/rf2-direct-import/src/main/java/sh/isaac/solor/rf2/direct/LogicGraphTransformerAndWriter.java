@@ -46,7 +46,8 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
@@ -99,14 +100,14 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
    private final Semaphore writeSemaphore;
    private final List<TransformationGroup> transformationRecords;
-   private final List<IndexService> indexers;
+   private final List<IndexBuilderService> indexers;
 
    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords, Semaphore writeSemaphore) {
       this.transformationRecords = transformationRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
       this.taxonomyService = Get.taxonomyService();
-      indexers = LookupService.get().getAllServices(IndexService.class);
+      indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("EL++ transformation");
       updateMessage("");
       addToTotalWork(transformationRecords.size());
@@ -118,7 +119,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
       if (chronicle instanceof SemanticChronology) {
          this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
       }
-      for (IndexService indexer: indexers) {
+      for (IndexBuilderService indexer: indexers) {
          try {
             indexer.index(chronicle).get();
          } catch (InterruptedException | ExecutionException ex) {
@@ -143,8 +144,8 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexService indexer : indexers) {
-            indexer.commitWriter();
+         for (IndexBuilderService indexer : indexers) {
+            indexer.sync().get();
          }
          this.done();
          Get.activeTasks().remove(this);

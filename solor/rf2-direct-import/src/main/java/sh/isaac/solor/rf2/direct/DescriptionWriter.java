@@ -33,7 +33,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -68,13 +68,13 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
 
    private final List<String[]> descriptionRecords;
    private final Semaphore writeSemaphore;
-   private final List<IndexService> indexers;
+   private final List<IndexBuilderService> indexers;
 
    public DescriptionWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message) {
       this.descriptionRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
-      indexers = LookupService.get().getAllServices(IndexService.class);
+      indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing description batch of size: " + descriptionRecords.size());
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());
@@ -83,7 +83,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
    
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
-      for (IndexService indexer: indexers) {
+      for (IndexBuilderService indexer: indexers) {
          try {
             indexer.index(chronicle).get();
          } catch (InterruptedException | ExecutionException ex) {
@@ -155,8 +155,8 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexService indexer : indexers) {
-            indexer.commitWriter();
+         for (IndexBuilderService indexer : indexers) {
+            indexer.sync().get();
          }
          this.done();
          Get.activeTasks().remove(this);

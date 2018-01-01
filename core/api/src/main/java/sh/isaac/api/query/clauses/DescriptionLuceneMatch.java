@@ -64,7 +64,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
 
@@ -130,11 +130,11 @@ public class DescriptionLuceneMatch
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final NidSet               nids               = new NidSet();
-      final List<IndexService> indexers           = LookupService.get()
-                                                                   .getAllServices(IndexService.class);
-      IndexService             descriptionIndexer = null;
+      final List<IndexQueryService> indexers           = LookupService.get()
+                                                                   .getAllServices(IndexQueryService.class);
+      IndexQueryService             descriptionIndexer = null;
 
-      for (final IndexService li: indexers) {
+      for (final IndexQueryService li: indexers) {
          if (li.getIndexerName()
                .equals("assemblage-index")) {
             descriptionIndexer = li;

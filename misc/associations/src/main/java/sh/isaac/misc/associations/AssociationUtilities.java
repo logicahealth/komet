@@ -54,7 +54,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.index.SemanticIndexer;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
@@ -128,7 +128,7 @@ public class AssociationUtilities
    {
       ArrayList<AssociationInstance> result = new ArrayList<>();
 
-      SemanticIndexer indexer = LookupService.getService(SemanticIndexer.class);
+      IndexSemanticQueryService indexer = LookupService.getService(IndexSemanticQueryService.class);
       if (indexer == null)
       {
          throw new RuntimeException("Required index is not available");
@@ -149,8 +149,8 @@ public class AssociationUtilities
          }
          
          //TODO when issue with colIndex restrictions is fixed, put it back.
-         List<SearchResult> refexes = indexer.query(new DynamicStringImpl(componentNid + (uuid == null ? "" : " OR " + uuid)),
-               false, associationTypes.toArray(new Integer[associationTypes.size()]), null, Integer.MAX_VALUE, null, null);
+         List<SearchResult> refexes = indexer.queryData(new DynamicStringImpl(componentNid + (uuid == null ? "" : " OR " + uuid)),
+               false, associationTypes.toArray(new Integer[associationTypes.size()]), null, null, null, null, null);
          for (SearchResult sr : refexes)
          {
             @SuppressWarnings("rawtypes")

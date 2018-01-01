@@ -32,7 +32,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -64,7 +64,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
 
    private final List<String[]> relationshipRecords;
    private final Semaphore writeSemaphore;
-   private final List<IndexService> indexers;
+   private final List<IndexBuilderService> indexers;
 
    private final ImportStreamType importStreamType;
 
@@ -72,7 +72,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
       this.relationshipRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
-      indexers = LookupService.get().getAllServices(IndexService.class);
+      indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       this.importStreamType = importStreamType;
       updateTitle("Importing rf2 relationship batch of size: " + descriptionRecords.size());
       updateMessage(message);
@@ -146,8 +146,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexService indexer : indexers) {
-            indexer.commitWriter();
+         for (IndexBuilderService indexer : indexers) {
+            indexer.sync().get();
          }
          this.done();
          Get.activeTasks().remove(this);

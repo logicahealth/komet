@@ -98,7 +98,7 @@ import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
@@ -778,19 +778,19 @@ public class Get
    /**
     * Perform indexing according to all installed indexers.
     *
-    * Cause all index generators implementing the {@link IndexService} to first
+    * Cause all index generators implementing the {@link IndexBuilderService} to first
     * <code>clearIndex()</code> then iterate over all semanticChronologies in the database
-    * and pass those chronicles to {@link IndexService#index(sh.isaac.api.chronicle.ObjectChronology)}
+    * and pass those chronicles to {@link IndexBuilderService#index(sh.isaac.api.chronicle.ObjectChronology)}
     * and when complete, to call <code>commitWriter()</code>.
-    * {@link IndexService} services will be discovered using the HK2 dependency injection framework.
+    * {@link IndexBuilderService} services will be discovered using the HK2 dependency injection framework.
     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
-    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexService} which match the specified
-    * class list.  Classes passed in should be an extension of {@link IndexService}
+    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexBuilderService} which match the specified
+    * class list.  Classes passed in should be an extension of {@link IndexBuilderService}
     *
     * @return Task that indicates progress.  The task will already be started, when it is returned.
     */
    public static Task<Void> startIndexTask(
-         @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {
+         @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)

@@ -63,6 +63,7 @@ import sh.isaac.api.progress.PersistTaskResult;
  * The Class GenerateIndexes.
  *
  * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GenerateIndexes
         extends TimedTask<Void> implements PersistTaskResult {
@@ -81,14 +82,13 @@ public class GenerateIndexes
    /**
     * The indexers.
     */
-   List<IndexService> indexers = new ArrayList<>();
+   List<IndexBuilderService> indexers = new ArrayList<>();
 
    /**
     * The component count.
     */
    long componentCount;
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new generate indexes.
     *
@@ -96,41 +96,23 @@ public class GenerateIndexes
     */
    public GenerateIndexes(Class<?>... indexersToReindex) {
       updateTitle("Index generation");
-      updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
+      updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
       if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
-         this.indexers = LookupService.get()
-                 .getAllServices(IndexService.class);
+         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       } else {
 
          for (final Class<?> clazz : indexersToReindex) {
-            if (!IndexService.class.isAssignableFrom(clazz)) {
-               throw new RuntimeException(
-                       "Invalid Class passed in to the index generator.  Classes must implement IndexService ");
+            if (!IndexBuilderService.class.isAssignableFrom(clazz)) {
+               throw new RuntimeException("Invalid Class passed in to the index generator.  Classes must implement IndexBuilderService ");
             }
 
-            final IndexService temp = (IndexService) LookupService.get()
-                    .getService(clazz);
+            final IndexBuilderService temp = (IndexBuilderService) LookupService.get().getService(clazz);
 
             if (temp != null) {
                this.indexers.add(temp);
             }
          }
-      }
-
-      final List<IndexStatusListener> islList = LookupService.get()
-              .getAllServices(IndexStatusListener.class);
-
-      for (final IndexService i : this.indexers) {
-         if (islList != null) {
-            for (final IndexStatusListener isl : islList) {
-               isl.reindexBegan(i);
-            }
-         }
-
-         LOG.info("Clearing index for: " + i.getIndexerName());
-         i.clearIndex();
-         i.clearIndexedStatistics();
       }
    }
    
@@ -138,100 +120,88 @@ public class GenerateIndexes
      * Used to avoid circular dependencies during a re-index upon startup
      * @param indexersToReindex
      */
-    public GenerateIndexes(IndexService ... indexersToReindex) {
-        updateTitle("Index generation");
-        updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
-        
-        if (indexersToReindex != null)
-        {
-            for (IndexService i : indexersToReindex)
-            {
-                indexers.add(i);
-            }
-        }
-        
-        List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
-        for (IndexService i : indexers) {
-            if (islList != null)
-            {
-                for (IndexStatusListener isl : islList)
-                {
-                    isl.reindexBegan(i);
-                }
-            }            
-            log.info("Clearing index for: " + i.getIndexerName());
-            i.clearIndex();
-            i.clearIndexedStatistics();
-        }
-    }
+   public GenerateIndexes(IndexBuilderService... indexersToReindex) {
+      updateTitle("Index generation");
+      updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
-   //~--- methods -------------------------------------------------------------
+      if (indexersToReindex != null) {
+         for (IndexBuilderService i : indexersToReindex) {
+            indexers.add(i);
+         }
+      }
+   }
+
    /**
-    * Call.
+    * Called by a threaded executor to begin the reindex.
     *
     * @return the void
     * @throws Exception the exception
     */
    @Override
-   protected Void call()
-           throws Exception {
-      Get.activeTasks()
-              .add(this);
+   protected Void call() throws Exception {
+      Get.activeTasks().add(this);
 
       try {
-         // We only need to indexe semantics now
+
+         final List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
+
+         for (final IndexBuilderService i : this.indexers) {
+            if (islList != null) {
+               for (final IndexStatusListener isl : islList) {
+                  isl.reindexBegan(i);
+               }
+            }
+
+            LOG.info("Clearing index for: " + i.getIndexerName());
+            i.startBatchReindex();
+         }
+
+         // We only need to index semantics now
          // In the future, there may be a need for indexing Concepts from the concept service - for instance, if we wanted to index the concepts
-         // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
-         // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
+         // by user, or by some other attribute that is attached to the concept. But there simply isn't much on the concept at present, and I have
+         // no use case for indexing the concepts. The IndexBuilderService APIs would need enhancement if we allowed indexing things other than sememes.
          final long semanticCount = (int) Get.assemblageService().getSemanticCount();
 
          LOG.info("Semantic elements to index: " + semanticCount);
          this.componentCount = semanticCount;
 
-         Get.assemblageService()
-                 .getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
-                    for (final IndexService i : this.indexers) {
-                       try {
-                          if (semantic == null) {
-                             // noop - this error is already logged elsewhere.  Just skip.
-                          } else {
-                             i.index(semantic)
-                                     .get();
-                          }
-                       } catch (final InterruptedException | ExecutionException e) {
-                          throw new RuntimeException(e);
-                       }
-                    }
+         Get.assemblageService().getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
+            for (final IndexBuilderService i : this.indexers) {
+               try {
+                  if (semantic == null) {
+                     // noop - this error is already logged elsewhere. Just skip.
+                  } else {
+                     i.index(semantic).get();
+                  }
+               } catch (final InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+               }
+            }
 
-                    updateProcessedCount();
-                 });
+            updateProcessedCount();
+         });
 
-         final List<IndexStatusListener> islList = LookupService.get()
-                 .getAllServices(IndexStatusListener.class);
-
-         for (final IndexService i : this.indexers) {
+         for (final IndexBuilderService i : this.indexers) {
             if (islList != null) {
                for (final IndexStatusListener isl : islList) {
                   isl.reindexCompleted(i);
                }
             }
 
-            i.commitWriter();
+            i.sync().get();
             i.forceMerge();
             LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
-
-            for (final Map.Entry<String, Integer> entry : i.reportIndexedItems()
-                    .entrySet()) {
+            for (final Map.Entry<String, Integer> entry : i.reportIndexedItems().entrySet()) {
                LOG.info(entry.getKey() + ": " + entry.getValue());
             }
-
-            i.clearIndexedStatistics();
          }
 
          return null;
       } finally {
-         Get.activeTasks()
-                 .remove(this);
+         Get.activeTasks().remove(this);
+         for (final IndexBuilderService i : this.indexers) {
+            i.finishBatchReindex();
+         }
       }
    }
 
@@ -247,10 +217,10 @@ public class GenerateIndexes
 
          // We were committing too often every 1000 components, it was bad for performance.
          if (processedCount % 100000 == 0) {
-            for (final IndexService i : this.indexers) {
-               i.commitWriter();
+            for (final IndexBuilderService i : this.indexers) {
+               i.sync();
             }
-            log.info("Indexed " + processedCount + " sememes");
+            log.info("Indexed " + processedCount + " semantics");
          }
       }
    }

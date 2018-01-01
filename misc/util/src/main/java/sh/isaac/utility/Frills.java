@@ -110,9 +110,9 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.index.SemanticIndexer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -633,6 +633,20 @@ public class Frills
    
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options, 
+    * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values 
+    * extracted from the taxonomyCoordinate, or null. 
+    * @param conceptId - UUID for a concept
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @param stampCoordinate - optional - if not provided, defaults to system preference values
+    * @return
+    */
+   public static Optional<String> getDescription(UUID conceptUUID, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) 
+   {
+      return getDescription(Get.identifierService().getNidForUuids(conceptUUID), stampCoordinate, languageCoordinate);
+   }
+   
+   /**
+    * Utility method to get the best text value description for a concept, according to the passed in options, 
     * or the user preferences. 
     * @param conceptNid - The nid of the concept
     * @param languageCoordinate - optional - if not provided, defaults to system preferences values
@@ -905,12 +919,12 @@ public class Frills
     */
    public static void refreshIndexes() {
       LookupService.get()
-                   .getAllServiceHandles(IndexService.class)
+                   .getAllServiceHandles(IndexQueryService.class)
                    .forEach(
                        index -> {
          // Making a query, with long.maxValue, causes the index to refresh itself, and look at the latest updates, if there have been updates.
                           index.getService()
-                               .query("hi", null, 1, Long.MAX_VALUE, null);
+                               .query("hi", null, null, null, 1, Long.MAX_VALUE);
                        });
    }
    
@@ -1426,10 +1440,10 @@ public class Frills
 
       if (SctId.isValidSctId(localIdentifier)) {
 
-         IndexService si = LookupService.get().getService(IndexService.class, "sememe indexer");
+         IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
          if (si != null) {
             // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-            List<SearchResult> result = si.query(localIdentifier + " ", true, new Integer[] { MetaData.SCTID____SOLOR.getNid() }, 5, Long.MIN_VALUE, null);
+            List<SearchResult> result = si.query(localIdentifier + " ", true, new Integer[] { MetaData.SCTID____SOLOR.getNid() }, null, null, 5, Long.MIN_VALUE);
             if (result.size() > 0) {
                int componentNid = Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid();
                if (Get.identifierService().getObjectTypeForComponent(componentNid) == IsaacObjectType.CONCEPT) {
@@ -1869,15 +1883,17 @@ public class Frills
     * @return the nid for SCTID
     */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      final IndexService si = LookupService.get().getService(IndexService.class, "semantic indexer");
+      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "semantic indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(sctID + " ",
                                                      true,
                                                      new Integer[] { MetaData.SCTID____SOLOR.getNid() },
+                                                     null,
+                                                     null,
                                                      5,
-                                                     Long.MIN_VALUE, null);
+                                                     Long.MIN_VALUE);
 
          if (result.size() > 0) {
             return Optional.of(Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid());
@@ -1896,15 +1912,17 @@ public class Frills
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
-      final IndexService si = LookupService.get().getService(IndexService.class, "sememe indexer");
+      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(vuID + " ",
                                                      true,
                                                      new Integer[] { MetaData.VUID____SOLOR.getNid() },
+                                                     null, 
+                                                     null,
                                                      5,
-                                                     Long.MIN_VALUE, null);
+                                                     Long.MIN_VALUE);
 
          if (result.size() > 0) {
             return Optional.of(Get.assemblageService()
@@ -2340,7 +2358,7 @@ public class Frills
     * @return
     */
    public static Set<Integer> getVuidSemanticNidsForVUID(long vuID) {
-      final SemanticIndexer si = LookupService.get().getService(SemanticIndexer.class);
+      final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
       if (si == null) {
          final String msg = "Sememe Index not available - can't lookup VUID " + vuID;
          LOG.error(msg);
@@ -2375,7 +2393,7 @@ public class Frills
          }
       };
       // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-      List<SearchResult> results = si.query(vuID + " ", true, new Integer[] { MetaData.VUID____SOLOR.getNid() }, 1000, Long.MAX_VALUE, filter, null);
+      List<SearchResult> results = si.query(vuID + " ", true, new Integer[] { MetaData.VUID____SOLOR.getNid() }, filter, null, null, 1000, Long.MAX_VALUE);
       if (results.size() > 0) {
          for (SearchResult result : results) {
             matchingVuidSememeNids.add(result.getNid());

@@ -97,7 +97,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -619,9 +619,9 @@ public class RxNormLogicGraphsMojo
 //         }
 //         throw new RuntimeException("Can't find assemblage nid with the name " + uniqueName);
 // }
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.RXNORM;
-   }
+//   @Override
+//   protected ConverterUUID.NAMESPACE getNamespace() {
+//      return ConverterUUID.NAMESPACE.RXNORM;
+//   }
 }
 

@@ -105,7 +105,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -1953,11 +1953,11 @@ public class VHATDeltaImport extends ConverterBaseMojo
 	
 	private Optional<UUID> findConcept(String conceptCode)
 	{
-		IndexService si = LookupService.get().getService(IndexService.class, "sememe indexer");
+		IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
 		if (si != null) {
 			//force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
 			ArrayList<SemanticChronology> candidates = new ArrayList<>();
-			List<SearchResult> result = si.query(conceptCode + " ", true, new Integer[] {MetaData.CODE____SOLOR.getNid()}, 50, Long.MAX_VALUE, null);
+			List<SearchResult> result = si.query(conceptCode + " ", true, new Integer[] {MetaData.CODE____SOLOR.getNid()}, null, null, 50, Long.MAX_VALUE);
 			result.forEach(sr -> 
 			{
 				SemanticChronology sc = Get.assemblageService().getSemanticChronology(sr.getNid());

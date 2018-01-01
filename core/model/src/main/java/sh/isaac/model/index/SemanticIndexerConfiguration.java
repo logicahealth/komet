@@ -67,7 +67,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.api.index.IndexStatusListener;
-import sh.isaac.api.index.SemanticIndexer;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
@@ -139,7 +139,7 @@ public class SemanticIndexerConfiguration {
 
       islList.forEach((isl) -> {
          isl.indexConfigurationChanged(LookupService.get()
-                 .getService(SemanticIndexer.class));
+                 .getService(IndexSemanticQueryService.class));
       });
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
@@ -211,7 +211,7 @@ public class SemanticIndexerConfiguration {
 
       for (final IndexStatusListener isl : islList) {
          isl.indexConfigurationChanged(LookupService.get()
-                 .getService(SemanticIndexer.class));
+                 .getService(IndexSemanticQueryService.class));
       }
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
@@ -249,7 +249,7 @@ public class SemanticIndexerConfiguration {
               .get();
 
       if (!skipReindex) {
-         Get.startIndexTask(new Class[]{SemanticIndexer.class});
+         Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       }
    }
 
@@ -278,7 +278,7 @@ public class SemanticIndexerConfiguration {
 
          for (final IndexStatusListener isl : islList) {
             isl.indexConfigurationChanged(LookupService.get()
-                    .getService(SemanticIndexer.class));
+                    .getService(IndexSemanticQueryService.class));
          }
 
          ((SemanticChronology) rdv.getChronology()).createMutableVersion(Status.INACTIVE,
@@ -288,7 +288,7 @@ public class SemanticIndexerConfiguration {
          Get.commitService()
                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change");
          LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptSequence + "'");
-         Get.startIndexTask(new Class[]{SemanticIndexer.class});
+         Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       } else {
          LOG.info("No index configuration was found to disable for dynamic assemblage concept '"
                  + assemblageConceptSequence + "'");

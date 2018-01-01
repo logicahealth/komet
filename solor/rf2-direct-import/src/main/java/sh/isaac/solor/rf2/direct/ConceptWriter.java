@@ -34,7 +34,8 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -65,13 +66,13 @@ id	effectiveTime	active	moduleId	definitionStatusId
 
    private final List<String[]> conceptRecords;
    private final Semaphore writeSemaphore;
-   private final List<IndexService> indexers;
+   private final List<IndexBuilderService> indexers;
 
    public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, String message) {
       this.conceptRecords = conceptRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
-      indexers = LookupService.get().getAllServices(IndexService.class);
+      indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing concept batch of size: " + conceptRecords.size());
       updateMessage(message);
       addToTotalWork(conceptRecords.size());
@@ -79,7 +80,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
    }
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
-      for (IndexService indexer: indexers) {
+      for (IndexBuilderService indexer: indexers) {
          try {
             indexer.index(chronicle).get();
          } catch (InterruptedException | ExecutionException ex) {
@@ -158,8 +159,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexService indexer : indexers) {
-            indexer.commitWriter();
+         for (IndexBuilderService indexer : indexers) {
+            indexer.sync().get();
          }
          this.done();
          Get.activeTasks().remove(this);
