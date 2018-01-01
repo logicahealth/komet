@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.task;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 
@@ -48,21 +44,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import static java.lang.invoke.MethodHandles.publicLookup;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.ProgressTracker;
-import sh.isaac.api.ticker.Ticker;
 import sh.isaac.api.util.FortifyFun;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class TimedTaskWithProgressTracker.
  *
@@ -71,137 +62,132 @@ import sh.isaac.api.util.FortifyFun;
  */
 public abstract class TimedTaskWithProgressTracker<T>
         extends TimedTask<T>
-         implements ProgressTracker {
-   /** The Constant MH_SET_TOTAL_WORK. */
-   static final MethodHandle MH_SET_TOTAL_WORK;
+        implements ProgressTracker {
 
-   /** The Constant MH_SET_PROGRESS. */
-   static final MethodHandle MH_SET_PROGRESS;
+    /**
+     * The Constant MH_SET_TOTAL_WORK.
+     */
+    static final MethodHandle MH_SET_TOTAL_WORK;
 
-   /** The Constant MH_SET_WORK_DONE. */
-   static final MethodHandle MH_SET_WORK_DONE;
+    /**
+     * The Constant MH_SET_PROGRESS.
+     */
+    static final MethodHandle MH_SET_PROGRESS;
 
-   //~--- static initializers -------------------------------------------------
+    /**
+     * The Constant MH_SET_WORK_DONE.
+     */
+    static final MethodHandle MH_SET_WORK_DONE;
 
-   static {
-      try {
-         final Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
+    //~--- static initializers -------------------------------------------------
+    static {
+        try {
+            final Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
 
-         FortifyFun.fixAccessible(setTotalWork);  // setTotalWork.setAccessible(true);
-         MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
+            FortifyFun.fixAccessible(setTotalWork);  // setTotalWork.setAccessible(true);
+            MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
 
-         final Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
+            final Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
 
-         FortifyFun.fixAccessible(setProgress);   // setProgress.setAccessible(true);
-         MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
+            FortifyFun.fixAccessible(setProgress);   // setProgress.setAccessible(true);
+            MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
 
-         final Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
+            final Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
 
-         FortifyFun.fixAccessible(setWorkDone);   // setWorkDone.setAccessible(true);
-         MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
-      } catch (IllegalAccessException | NoSuchMethodException | SecurityException ex) {
-         throw new RuntimeException(ex);
-      }
-   }
+            FortifyFun.fixAccessible(setWorkDone);   // setWorkDone.setAccessible(true);
+            MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
+        } catch (IllegalAccessException | NoSuchMethodException | SecurityException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-   //~--- fields --------------------------------------------------------------
+    //~--- fields --------------------------------------------------------------
+    /**
+     * The completed units of work.
+     */
+    LongAdder completedUnitsOfWork = new LongAdder();
 
-   /** The progress ticker. */
-   private final Ticker progressTicker = new Ticker();
+    /**
+     * The total work.
+     */
+    AtomicLong totalWork = new AtomicLong();
 
-   /** The completed units of work. */
-   LongAdder completedUnitsOfWork = new LongAdder();
+    /**
+     * The last total work.
+     */
+    AtomicLong lastTotalWork = new AtomicLong();
+    //~--- methods -------------------------------------------------------------
 
-   /** The total work. */
-   AtomicLong totalWork = new AtomicLong();
+    /**
+     * Adds the to total work.
+     *
+     * @param amountOfWork the amount of work
+     */
+    @Override
+    public void addToTotalWork(long amountOfWork) {
+        this.totalWork.addAndGet(amountOfWork);
+    }
 
-   /** The last total work. */
-   AtomicLong lastTotalWork = new AtomicLong();
-   //~--- methods -------------------------------------------------------------
+    /**
+     * Completed unit of work.
+     */
+    @Override
+    public void completedUnitOfWork() {
+        this.completedUnitsOfWork.increment();
+    }
 
-   /**
-    * Adds the to total work.
-    *
-    * @param amountOfWork the amount of work
-    */
-   @Override
-   public void addToTotalWork(long amountOfWork) {
-      this.totalWork.addAndGet(amountOfWork);
-   }
+    /**
+     * Completed units of work.
+     *
+     * @param unitsCompleted the units completed
+     */
+    @Override
+    public void completedUnitsOfWork(long unitsCompleted) {
+        this.completedUnitsOfWork.add(unitsCompleted);
+    }
 
-   /**
-    * Completed unit of work.
-    */
-   @Override
-   public void completedUnitOfWork() {
-      this.completedUnitsOfWork.increment();
-   }
+    @Override
+    protected void generateProgressMessage() {
+        super.generateProgressMessage();
+        try {
+            if (this.totalWork.get() > 0) {
+                MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
+                MH_SET_PROGRESS.invoke(this,
+                        this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
+                MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
+            } else {
+                MH_SET_WORK_DONE.invoke(this, -1d);
+                MH_SET_PROGRESS.invoke(this, -1d);
+                MH_SET_TOTAL_WORK.invoke(this, -1d);
+            }
+        } catch (final Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
 
-   /**
-    * Completed units of work.
-    *
-    * @param unitsCompleted the units completed
-    */
-   @Override
-   public void completedUnitsOfWork(long unitsCompleted) {
-      this.completedUnitsOfWork.add(unitsCompleted);
-   }
+    /**
+     * Will throw an UnsupportedOperationException("call completedUnitOfWork and
+     * addToTotalWork instead. "); Use {@code completedUnitOfWork()} and
+     * {@code addToTotalWork(long amountOfWork)} to update progress.
+     *
+     * @param workDone not used
+     * @param max not used
+     */
+    @Override
+    protected void updateProgress(double workDone, double max) {
+        throw new UnsupportedOperationException("call completedUnitOfWork() and addToTotalWork instead. ");
+    }
 
-   /**
-    * Done.
-    */
-   @Override
-   protected void done() {
-      super.done();
-      this.progressTicker.stop();
-   }
-
-   /**
-    * Running.
-    */
-   @Override
-   protected void running() {
-      super.running();
-
-      this.progressTicker.start(progressUpdateDuration,
-                                (value) -> {
-                                   try {
-                                      if (this.totalWork.get() > 0) {
-                                         MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
-                                         MH_SET_PROGRESS.invoke(this,
-                                               this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
-                                         MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
-                                      } else {
-                                         MH_SET_WORK_DONE.invoke(this, -1d);
-                                         MH_SET_PROGRESS.invoke(this, -1d);
-                                         MH_SET_TOTAL_WORK.invoke(this, -1d);
-                                      }
-                                   } catch (final Throwable throwable) {
-                                      throw new RuntimeException(throwable);
-                                   }
-                                });
-   }
-
-   /**
-    * Will throw an  UnsupportedOperationException("call completedUnitOfWork and addToTotalWork instead. ");
-    * Use {@code completedUnitOfWork()} and {@code addToTotalWork(long amountOfWork)} to update progress.
-    * @param workDone not used
-    * @param max not used
-    */
-   @Override
-   protected void updateProgress(double workDone, double max) {
-      throw new UnsupportedOperationException("call completedUnitOfWork() and addToTotalWork instead. ");
-   }
-
-   /**
-    * Will throw an  UnsupportedOperationException("call completedUnitOfWork and addToTotalWork instead. ");
-    * Use {@code completedUnitOfWork()} and {@code addToTotalWork(long amountOfWork)} to update progress.
-    * @param workDone not used
-    * @param max not used
-    */
-   @Override
-   protected void updateProgress(long workDone, long max) {
-      throw new UnsupportedOperationException("call completedUnitOfWork() and addToTotalWork instead. ");
-   }
+    /**
+     * Will throw an UnsupportedOperationException("call completedUnitOfWork and
+     * addToTotalWork instead. "); Use {@code completedUnitOfWork()} and
+     * {@code addToTotalWork(long amountOfWork)} to update progress.
+     *
+     * @param workDone not used
+     * @param max not used
+     */
+    @Override
+    protected void updateProgress(long workDone, long max) {
+        throw new UnsupportedOperationException("call completedUnitOfWork() and addToTotalWork instead. ");
+    }
 }
-

@@ -441,5 +441,23 @@ public class IdentifierProvider
    public Future<?> sync() {
      return this.store.sync();
    }
+
+    @Override
+    public int getMemoryInUse() {
+        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+        sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
+        sizeInBytes += uuidIntMapMap.getMemoryInUse();
+        return sizeInBytes;
+    }
+
+    @Override
+    public int getSizeOnDisk() {
+        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+        sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
+        sizeInBytes += uuidIntMapMap.getDiskSpaceUsed();
+        return sizeInBytes;
+    }
+   
+   
 }
 

@@ -102,6 +102,15 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord : descriptionRecords) {
+             if ("2794659017".equals(descriptionRecord[DESCRIPITON_SCT_ID_INDEX])) {
+                 // check for unicode copyright and registered trademark...
+                 // © 2002-2009 International Health Terminology Standards Development Organisation (IHTSDO). 
+                 // All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. 
+                 // "SNOMED" and "SNOMED CT" are registered trademarks of the IHTSDO.
+                 LOG.info("Unicode check string: " + descriptionRecord[DESCRIPTION_TEXT_INDEX]);
+             }
+             
+             
             int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             int languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             UUID descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);

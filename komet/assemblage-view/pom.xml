@@ -22,12 +22,6 @@
          <artifactId>metadata</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
-         <exclusions>
-            <exclusion>
-               <groupId>org.reactfx</groupId>
-               <artifactId>reactfx</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
     
       <!-- ISAAC App Utils. -->

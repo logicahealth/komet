@@ -18,7 +18,11 @@ package sh.komet.gui.action.dashboard;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.skins.BarChartItem;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +40,11 @@ import javafx.concurrent.Worker;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedAreaChart;
+import javafx.scene.control.Cell;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -49,12 +56,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.cell.list.ConceptCell;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
@@ -95,67 +102,148 @@ public class DashboardView
     public DashboardView(Manifold manifold) {
         this.manifold = manifold;
         this.titleLabel.graphicProperty().set(Iconography.DASHBOARD.getIconographic());
-        
-        ObservableList<AssemblageDashboardRow> assemblageTableData = FXCollections.observableArrayList();
 
+        ObservableList<AssemblageDashboardRow> assemblageTableData = FXCollections.observableArrayList();
 
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
             assemblageTableData.add(new AssemblageDashboardRow(assemblageNid, manifold));
         }
-        
+
         assemblageTableData.sort((o1, o2) -> {
             return o1.getAssemblageName()
                     .compareTo(o2.getAssemblageName());
         });
-        
+
         assemblageTableView = new TableView(assemblageTableData);
-        
-        TableColumn<AssemblageDashboardRow,String> nameColumn = new TableColumn("Assemblage");
+
+        TableColumn<AssemblageDashboardRow, String> nameColumn = new TableColumn("Assemblage");
         nameColumn.setCellValueFactory(new PropertyValueFactory("assemblageName"));
-        
-        TableColumn<AssemblageDashboardRow,Integer> countColumn = new TableColumn("Count");
+
+        TableColumn<AssemblageDashboardRow, Integer> countColumn = new TableColumn("Count");
         countColumn.setCellValueFactory(new PropertyValueFactory("semanticCount"));
-        
-        TableColumn<AssemblageDashboardRow,Integer> memoryUsedColumn = new TableColumn("Memory Use");
-        memoryUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageMemoryUsage"));
-        
-        memoryUsedColumn.setCellFactory((param) -> {
-            return new TableCell<AssemblageDashboardRow,Integer>() {
+
+        countColumn.setCellFactory((param) -> {
+            return new TableCell<AssemblageDashboardRow, Integer>() {
                 @Override
                 protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty); 
+                    super.updateItem(item, empty);
                     if (!empty) {
                         setText(NumberUtil.formatWithGrouping(item));
+                        setCellAlignment(this);
                     }
                 }
-            }; 
+
+            };
         });
-        
-        TableColumn<AssemblageDashboardRow,Integer> diskSpaceUsedColumn = new TableColumn("Disk Space");
+
+        TableColumn<AssemblageDashboardRow, Integer> memoryUsedColumn = new TableColumn("Memory Use");
+        memoryUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageMemoryUsage"));
+
+        memoryUsedColumn.setCellFactory((param) -> {
+            return new TableCell<AssemblageDashboardRow, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        setText(NumberUtil.formatWithGrouping(item));
+                        setCellAlignment(this);
+                    }
+                }
+            };
+        });
+
+        TableColumn<AssemblageDashboardRow, Integer> diskSpaceUsedColumn = new TableColumn("Disk Space");
         diskSpaceUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageDiskSpaceUsage"));
         diskSpaceUsedColumn.setCellFactory((param) -> {
-            return new TableCell<AssemblageDashboardRow,Integer>() {
+            return new TableCell<AssemblageDashboardRow, Integer>() {
                 @Override
                 protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty); 
+                    super.updateItem(item, empty);
                     if (!empty) {
                         setText(NumberUtil.formatWithGrouping(item));
+                        setCellAlignment(this);
                     }
                 }
-            }; 
+            };
         });
 
         assemblageTableView.getColumns().setAll(nameColumn, countColumn, memoryUsedColumn, diskSpaceUsedColumn);
-        
+
         this.setCenter(assemblageTableView);
         assemblageTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         assemblageTableView.getSelectionModel().selectedItemProperty().addListener(this::selectionListener);
+        updateSystemTiles();
+    }
 
+    private void setCellAlignment(Cell cell) {
+        cell.setContentDisplay(ContentDisplay.TEXT_ONLY);
+        cell.setTextAlignment(TextAlignment.RIGHT);
+        cell.setAlignment(Pos.BOTTOM_RIGHT);
+    }
+
+    private void updateSystemTiles() {
+        List<Node> tiles = new ArrayList<>();
+
+        StackedMemoryChartData.start(5);
+
+        NumberAxis timeAxis = new NumberAxis();
+        timeAxis.setLabel("Time");
+        timeAxis.setAnimated(true);
+        timeAxis.setAutoRanging(true);
+
+        NumberAxis memoryAxis = new NumberAxis();
+        memoryAxis.setLabel("Memory Used (MB)");
+        memoryAxis.setAnimated(true);
+        memoryAxis.setAutoRanging(true);
+
+        StackedAreaChart memoryChart
+                = new StackedAreaChart(timeAxis, memoryAxis, StackedMemoryChartData.getMemoryChartData());
+
+        tiles.add(memoryChart);
+
+        //setupMemoryDonutChart(tiles);
+        TilePane pane = new TilePane();
+        pane.setHgap(5);
+        pane.setVgap(5);
+        pane.setAlignment(Pos.TOP_LEFT);
+        pane.setCenterShape(true);
+        pane.setPadding(new Insets(5));
+        //pane.setPrefSize(800, 600);
+        pane.setBackground(new Background(new BackgroundFill(Color.web("#c3cdd3"), CornerRadii.EMPTY, Insets.EMPTY)));
+        for (Node tile : tiles) {
+            pane.getChildren().add(tile);
+        }
+        this.setTop(pane);
+    }
+
+    private void setupMemoryDonutChart(List<Tile> tiles) {
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+        MemoryUsage memoryUsage = memoryBean.getHeapMemoryUsage();
+        long usedMemory = memoryUsage.getUsed();
+        long maxMemory = memoryUsage.getMax();
+        long oneMillion = 1000000;
+
+        double assemblageMemoryUsed = 0;
+        for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
+            assemblageMemoryUsed = assemblageMemoryUsed + Get.assemblageService().getAssemblageMemoryInUse(assemblageNid);
+        }
+
+        // convert to megabytes of memory use. 
+        ChartData assemblageMemoryUsedData = new ChartData("Assemblage", assemblageMemoryUsed / oneMillion, Tile.RED);
+        ChartData unusedMemory = new ChartData("Unused", (maxMemory - usedMemory) / oneMillion, Tile.GREEN);
+        ChartData otherMemory = new ChartData("Other", (usedMemory - assemblageMemoryUsed) / oneMillion, Tile.BLUE);
+
+        setupTile(TileBuilder.create()
+                .skinType(Tile.SkinType.DONUT_CHART)
+                .prefSize(TILE_WIDTH, TILE_HEIGHT)
+                .title("Memory Use")
+                .chartData(assemblageMemoryUsedData, otherMemory, unusedMemory)
+                .build(), tiles);
     }
 
     private void selectionListener(Observable observable, AssemblageDashboardRow oldValue, AssemblageDashboardRow newAssemblageValue) {
         assemblageStats = null;
-
+        updateSystemTiles();
         TilePane pane = new TilePane();
         pane.setBackground(new Background(new BackgroundFill(Color.web("#c3cdd3"), CornerRadii.EMPTY, Insets.EMPTY)));
         this.setBottom(pane);
@@ -179,21 +267,21 @@ public class DashboardView
                     if (localStats != null) {
                         List<Tile> tiles = new ArrayList<>();
 
-                        String semanticCountString = NumberUtil.formatWithGrouping(localStats.getSemanticCount().get());
-                        setupTile(TileBuilder.create()
-                                .skinType(Tile.SkinType.TEXT)
-                                .title("Semantics in Assemblage")
-                                .description(semanticCountString + "\nelements")
-                                .textVisible(true)
-                                .build(), tiles);
+//                        String semanticCountString = NumberUtil.formatWithGrouping(localStats.getSemanticCount().get());
+//                        setupTile(TileBuilder.create()
+//                                .skinType(Tile.SkinType.TEXT)
+//                                .title("Semantics in Assemblage")
+//                                .description(semanticCountString + "\nelements")
+//                                .textVisible(true)
+//                                .build(), tiles);
                         int versionCount = localStats.getVersionCount().get();
-                        String versionCountString = NumberUtil.formatWithGrouping(versionCount);
-                        setupTile(TileBuilder.create()
-                                .skinType(Tile.SkinType.TEXT)
-                                .title("Versions in Assemblage")
-                                .description(versionCountString + "\nversions")
-                                .textVisible(true)
-                                .build(), tiles);
+//                        String versionCountString = NumberUtil.formatWithGrouping(versionCount);
+//                        setupTile(TileBuilder.create()
+//                                .skinType(Tile.SkinType.TEXT)
+//                                .title("Versions in Assemblage")
+//                                .description(versionCountString + "\nversions")
+//                                .textVisible(true)
+//                                .build(), tiles);
 
                         setupModuleBarChart(localStats, versionCount, tiles);
                         setupTimeBarChart(localStats, versionCount, tiles);
@@ -258,7 +346,6 @@ public class DashboardView
                 .decimals(0)
                 .build(), tiles);
     }
-
 
     private void setupSemanticTypeBarChart(AssemblageDashboardStats localStats, int versionCount, List<Tile> tiles) {
         BarChartItem[] barsForModules = new BarChartItem[localStats.getSemanticTypes().size()];

@@ -234,5 +234,7 @@ public interface IndexService
     * @return the name of this indexer.
     */
    String getIndexerName();
+   
+   int getIndexMemoryInUse();
 }
 

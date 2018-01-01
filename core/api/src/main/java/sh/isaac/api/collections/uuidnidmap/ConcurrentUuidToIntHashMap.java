@@ -255,5 +255,14 @@ public class ConcurrentUuidToIntHashMap
       return "distinct: " + getDistinct() + " free: " + getFreeEntries() + " utilization: " +
              getDistinct() * 100 / (getDistinct() + getFreeEntries());
    }
+   
+   
+   
+   public int getMemoryInUse() {
+       int bytesInUse = state.length;
+       bytesInUse = bytesInUse + (table.length * 8);
+       return bytesInUse + (values.length * 4);
+   }
+   
 }
 

@@ -203,5 +203,16 @@ public interface IdentifierService
     * @return the uuids for nid
     */
    List<UUID> getUuidsForNid(int nid);
+
+   /**
+    * 
+    * @return memory used in bytes
+    */
+    int getMemoryInUse();
+    /**
+     * 
+     * @return disk space used in bytes
+     */
+    int getSizeOnDisk();
 }
 

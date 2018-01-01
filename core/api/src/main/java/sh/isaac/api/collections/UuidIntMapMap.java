@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -54,7 +50,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,429 +62,477 @@ import sh.isaac.api.memory.WriteToDiskCache;
 import sh.isaac.api.util.UUIDUtil;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Created by kec on 7/27/14.
  */
 public class UuidIntMapMap
-         implements UuidToIntMap {
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+        implements UuidToIntMap {
 
-   /** The Constant DEFAULT_TOTAL_MAP_SIZE. */
-   private static final int DEFAULT_TOTAL_MAP_SIZE = 15000000;
+    /**
+     * The Constant LOG.
+     */
+    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant NUMBER_OF_MAPS. */
-   public static final int NUMBER_OF_MAPS = 256;
+    /**
+     * The Constant DEFAULT_TOTAL_MAP_SIZE.
+     */
+    private static final int DEFAULT_TOTAL_MAP_SIZE = 15000000;
 
-   /** The nid to uuid cache size. */
-   public static int NID_TO_UUID_CACHE_SIZE = 0;  // defaults to disabled / not normally used.
+    /**
+     * The Constant NUMBER_OF_MAPS.
+     */
+    public static final int NUMBER_OF_MAPS = 256;
 
-   // Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
-   // when the data isn't being written to the DB.
+    /**
+     * The nid to uuid cache size.
+     */
+    public static int NID_TO_UUID_CACHE_SIZE = 0;  // defaults to disabled / not normally used.
 
-   /** The Constant DEFAULT_MAP_SIZE. */
-   private static final int DEFAULT_MAP_SIZE = DEFAULT_TOTAL_MAP_SIZE / NUMBER_OF_MAPS;
+    // Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
+    // when the data isn't being written to the DB.
+    /**
+     * The Constant DEFAULT_MAP_SIZE.
+     */
+    private static final int DEFAULT_MAP_SIZE = DEFAULT_TOTAL_MAP_SIZE / NUMBER_OF_MAPS;
 
-   /** The Constant MIN_LOAD_FACTOR. */
-   private static final double MIN_LOAD_FACTOR = 0.75;
+    /**
+     * The Constant MIN_LOAD_FACTOR.
+     */
+    private static final double MIN_LOAD_FACTOR = 0.75;
 
-   /** The Constant MAX_LOAD_FACTOR. */
-   private static final double MAX_LOAD_FACTOR = 0.9;
+    /**
+     * The Constant MAX_LOAD_FACTOR.
+     */
+    private static final double MAX_LOAD_FACTOR = 0.9;
 
-   /** The Constant NEXT_NID_PROVIDER. */
-   private static final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
+    /**
+     * The Constant NEXT_NID_PROVIDER.
+     */
+    private static final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
 
-   /** The Constant SERIALIZER. */
-   private static final ConcurrentUuidIntMapSerializer SERIALIZER = new ConcurrentUuidIntMapSerializer();
+    /**
+     * The Constant SERIALIZER.
+     */
+    private static final ConcurrentUuidIntMapSerializer SERIALIZER = new ConcurrentUuidIntMapSerializer();
 
-   //~--- fields --------------------------------------------------------------
+    //~--- fields --------------------------------------------------------------
+    /**
+     * The shutdown.
+     */
+    public boolean shutdown = false;
 
-   /** The shutdown. */
-   public boolean shutdown = false;
+    /**
+     * The maps.
+     */
+    private final MemoryManagedReference<ConcurrentUuidToIntHashMap>[] maps = new MemoryManagedReference[NUMBER_OF_MAPS];
 
-   /** The maps. */
-   private final MemoryManagedReference<ConcurrentUuidToIntHashMap>[] maps = new MemoryManagedReference[NUMBER_OF_MAPS];
+    /**
+     * The nid to primoridial cache.
+     */
+    private LruCache<Integer, UUID[]> nidToPrimoridialCache = null;
 
-   /** The nid to primoridial cache. */
-   private LruCache<Integer, UUID[]> nidToPrimoridialCache = null;
+    /**
+     * The lock.
+     */
+    ReentrantLock lock = new ReentrantLock();
 
-   /** The lock. */
-   ReentrantLock lock = new ReentrantLock();
+    /**
+     * The folder.
+     */
+    private final File folder;
 
-   /** The folder. */
-   private final File folder;
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new uuid int map map.
+     *
+     * @param folder the folder
+     */
+    private UuidIntMapMap(File folder) {
+        folder.mkdirs();
+        this.folder = folder;
 
-   //~--- constructors --------------------------------------------------------
+        for (int i = 0; i < this.maps.length; i++) {
+            this.maps[i] = new MemoryManagedReference<>(null, new File(folder, i + "-uuid-nid.map"), SERIALIZER);
+            WriteToDiskCache.addToCache(this.maps[i]);
+        }
 
-   /**
-    * Instantiates a new uuid int map map.
-    *
-    * @param folder the folder
-    */
-   private UuidIntMapMap(File folder) {
-      folder.mkdirs();
-      this.folder = folder;
+        if (NID_TO_UUID_CACHE_SIZE > 0) {
+            this.nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
+        }
 
-      for (int i = 0; i < this.maps.length; i++) {
-         this.maps[i] = new MemoryManagedReference<>(null, new File(folder, i + "-uuid-nid.map"), SERIALIZER);
-         WriteToDiskCache.addToCache(this.maps[i]);
-      }
+        LOG.debug("Created UuidIntMapMap: " + this);
+    }
 
-      if (NID_TO_UUID_CACHE_SIZE > 0) {
-         this.nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
-      }
+    //~--- methods -------------------------------------------------------------
+    /**
+     * This method is an optimization for loader patterns, where it can be
+     * faster to read the nid to UUID from this cache, but only if the cache
+     * actually as the value.
+     *
+     * @param nid the nid
+     * @return true, if successful
+     */
+    public boolean cacheContainsNid(int nid) {
+        if (this.nidToPrimoridialCache != null) {
+            return this.nidToPrimoridialCache.containsKey(nid);
+        }
 
-      LOG.debug("Created UuidIntMapMap: " + this);
-   }
+        return false;
+    }
 
-   //~--- methods -------------------------------------------------------------
+    /**
+     * Contains key.
+     *
+     * @param key the key
+     * @return true, if successful
+     */
+    @Override
+    public boolean containsKey(UUID key) {
+        return getMap(key).containsKey(key);
+    }
 
-   /**
-    * This method is an optimization for loader patterns, where it can be faster to read the nid to UUID from this cache,
-    * but only if the cache actually as the value.
-    *
-    * @param nid the nid
-    * @return true, if successful
-    */
-   public boolean cacheContainsNid(int nid) {
-      if (this.nidToPrimoridialCache != null) {
-         return this.nidToPrimoridialCache.containsKey(nid);
-      }
+    /**
+     * Contains value.
+     *
+     * @param value the value
+     * @return true, if successful
+     */
+    @Override
+    public boolean containsValue(int value) {
+        throw new UnsupportedOperationException();
+    }
 
-      return false;
-   }
+    /**
+     * Creates the.
+     *
+     * @param folder the folder
+     * @return the uuid int map map
+     */
+    public static UuidIntMapMap create(File folder) {
+        return new UuidIntMapMap(folder);
+    }
 
-   /**
-    * Contains key.
-    *
-    * @param key the key
-    * @return true, if successful
-    */
-   @Override
-   public boolean containsKey(UUID key) {
-      return getMap(key).containsKey(key);
-   }
+    /**
+     * Put.
+     *
+     * @param uuidKey the uuid key
+     * @param value the value
+     * @return true, if successful
+     */
+    @Override
+    public boolean put(UUID uuidKey, int value) {
+        updateCache(value, uuidKey);
 
-   /**
-    * Contains value.
-    *
-    * @param value the value
-    * @return true, if successful
-    */
-   @Override
-   public boolean containsValue(int value) {
-      throw new UnsupportedOperationException();
-   }
+        final int mapIndex = getMapIndex(uuidKey);
+        final long[] keyAsArray = UUIDUtil.convert(uuidKey);
+        final ConcurrentUuidToIntHashMap map = getMap(mapIndex);
+        final long stamp = map.getStampedLock()
+                .writeLock();
 
-   /**
-    * Creates the.
-    *
-    * @param folder the folder
-    * @return the uuid int map map
-    */
-   public static UuidIntMapMap create(File folder) {
-      return new UuidIntMapMap(folder);
-   }
+        try {
+            final boolean returnValue = map.put(keyAsArray, value, stamp);
 
-   /**
-    * Put.
-    *
-    * @param uuidKey the uuid key
-    * @param value the value
-    * @return true, if successful
-    */
-   @Override
-   public boolean put(UUID uuidKey, int value) {
-      updateCache(value, uuidKey);
+            this.maps[mapIndex].elementUpdated();
+            return returnValue;
+        } finally {
+            map.getStampedLock()
+                    .unlockWrite(stamp);
+        }
+    }
 
-      final int                        mapIndex   = getMapIndex(uuidKey);
-      final long[]                     keyAsArray = UUIDUtil.convert(uuidKey);
-      final ConcurrentUuidToIntHashMap map        = getMap(mapIndex);
-      final long                       stamp      = map.getStampedLock()
-                                                       .writeLock();
+    /**
+     * Report stats.
+     *
+     * @param log the log
+     */
+    public void reportStats(Logger log) {
+        for (int i = 0; i < NUMBER_OF_MAPS; i++) {
+            log.info("UUID map: " + i + " " + getMap(i).getStats());
+        }
+    }
 
-      try {
-         final boolean returnValue = map.put(keyAsArray, value, stamp);
+    /**
+     * The number of UUIDs mapped to nids.
+     *
+     * @return the int
+     */
+    public int size() {
+        int size = 0;
 
-         this.maps[mapIndex].elementUpdated();
-         return returnValue;
-      } finally {
-         map.getStampedLock()
-            .unlockWrite(stamp);
-      }
-   }
+        for (int i = 0; i < this.maps.length; i++) {
+            size += getMap(i).size();
+        }
 
-   /**
-    * Report stats.
-    *
-    * @param log the log
-    */
-   public void reportStats(Logger log) {
-      for (int i = 0; i < NUMBER_OF_MAPS; i++) {
-         log.info("UUID map: " + i + " " + getMap(i).getStats());
-      }
-   }
+        return size;
+    }
 
-   /**
-    * Size.
-    *
-    * @return the int
-    */
-   public int size() {
-      int size = 0;
-
-      for (int i = 0; i < this.maps.length; i++) {
-         size += getMap(i).size();
-      }
-
-      return size;
-   }
-
-   /**
-    * Write.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   public void write()
+    /**
+     * Write.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    public void write()
             throws IOException {
-      for (int i = 0; i < NUMBER_OF_MAPS; i++) {
-         final ConcurrentUuidToIntHashMap map = this.maps[i].get();
+        for (int i = 0; i < NUMBER_OF_MAPS; i++) {
+            final ConcurrentUuidToIntHashMap map = this.maps[i].get();
 
-         if ((map != null) && this.maps[i].hasUnwrittenUpdate()) {
-            this.maps[i].write();
-         }
-      }
-   }
-
-   /**
-    * Read map from disk.
-    *
-    * @param i the i
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   protected void readMapFromDisk(int i)
-            throws IOException {
-      this.lock.lock();
-
-      try {
-         if (this.maps[i].get() == null) {
-            final File mapFile = new File(this.folder, i + "-uuid-nid.map");
-
-            if (mapFile.exists()) {
-               DiskSemaphore.acquire();
-
-               try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
-                  this.maps[i] = new MemoryManagedReference<>(SERIALIZER.deserialize(in), mapFile, SERIALIZER);
-                  WriteToDiskCache.addToCache(this.maps[i]);
-                  LOG.debug("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
-               } finally {
-                  DiskSemaphore.release();
-               }
-            } else {
-               this.maps[i] = new MemoryManagedReference<>(new ConcurrentUuidToIntHashMap(DEFAULT_MAP_SIZE,
-                     MIN_LOAD_FACTOR,
-                     MAX_LOAD_FACTOR),
-                     new File(this.folder, i + "-uuid-nid.map"),
-                     SERIALIZER);
-               WriteToDiskCache.addToCache(this.maps[i]);
+            if ((map != null) && this.maps[i].hasUnwrittenUpdate()) {
+                this.maps[i].write();
             }
-         }
-      } finally {
-         this.lock.unlock();
-      }
-   }
+        }
+    }
 
-   /**
-    * Update cache.
-    *
-    * @param nid the nid
-    * @param uuidKey the uuid key
-    */
-   private void updateCache(int nid, UUID uuidKey) {
-      if (this.nidToPrimoridialCache != null) {
-         final UUID[] temp = this.nidToPrimoridialCache.get(nid);
-         UUID[]       temp1;
+    public int getMemoryInUse() {
+        int memoryInUse = 0;
+        for (MemoryManagedReference<ConcurrentUuidToIntHashMap> map : maps) {
+            if (map.get() != null) {
+                memoryInUse += map.get().getMemoryInUse();
+            }
+        }
+        return memoryInUse;
+    }
 
-         if (temp == null) {
-            temp1 = new UUID[] { uuidKey };
-         } else {
-            temp1              = Arrays.copyOf(temp, temp.length + 1);
-            temp1[temp.length] = uuidKey;
-         }
+    public int getDiskSpaceUsed() {
+        int memoryInUse = 0;
+        for (int mapIndex = 0; mapIndex < this.maps.length; mapIndex++) {
+            memoryInUse += getMapDiskUsage(mapIndex);
+        }
+        return memoryInUse;
+    }
 
-         this.nidToPrimoridialCache.put(nid, temp1);
-      }
-   }
+    protected int getMapDiskUsage(int i) {
+        final File mapFile = new File(this.folder, i + "-uuid-nid.map");
 
-   //~--- get methods ---------------------------------------------------------
+        if (mapFile.exists()) {
+            return (int) mapFile.length();
+        }
+        return 0;
+    }
 
-   /**
-    * Gets the.
-    *
-    * @param key the key
-    * @return the int
-    */
-   @Override
-   public int get(UUID key) {
-      return getMap(key).get(key);
-   }
+    /**
+     * Read map from disk.
+     *
+     * @param i the i
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    protected void readMapFromDisk(int i)
+            throws IOException {
+        this.lock.lock();
 
-   /**
-    * Gets the keys for value.
-    *
-    * @param value the value
-    * @return the keys for value
-    */
-   public UUID[] getKeysForValue(int value) {
-      if (this.nidToPrimoridialCache != null) {
-         final UUID[] cacheHit = this.nidToPrimoridialCache.get(value);
+        try {
+            if (this.maps[i].get() == null) {
+                final File mapFile = new File(this.folder, i + "-uuid-nid.map");
 
-         if ((cacheHit != null) && (cacheHit.length > 0)) {
-            return cacheHit;
-         }
-      }
+                if (mapFile.exists()) {
+                    DiskSemaphore.acquire();
 
-      final ArrayList<UUID> uuids = new ArrayList<>();
+                    try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
+                        this.maps[i] = new MemoryManagedReference<>(SERIALIZER.deserialize(in), mapFile, SERIALIZER);
+                        WriteToDiskCache.addToCache(this.maps[i]);
+                        LOG.debug("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
+                    } finally {
+                        DiskSemaphore.release();
+                    }
+                } else {
+                    this.maps[i] = new MemoryManagedReference<>(new ConcurrentUuidToIntHashMap(DEFAULT_MAP_SIZE,
+                            MIN_LOAD_FACTOR,
+                            MAX_LOAD_FACTOR),
+                            new File(this.folder, i + "-uuid-nid.map"),
+                            SERIALIZER);
+                    WriteToDiskCache.addToCache(this.maps[i]);
+                }
+            }
+        } finally {
+            this.lock.unlock();
+        }
+    }
 
-      for (int index = 0; index < this.maps.length; index++) {
-         getMap(index).keysOf(value)
-                      .stream()
-                      .forEach(uuid -> {
-                                  uuids.add(uuid);
-                               });
-      }
+    /**
+     * Update cache.
+     *
+     * @param nid the nid
+     * @param uuidKey the uuid key
+     */
+    private void updateCache(int nid, UUID uuidKey) {
+        if (this.nidToPrimoridialCache != null) {
+            final UUID[] temp = this.nidToPrimoridialCache.get(nid);
+            UUID[] temp1;
 
-      final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
+            if (temp == null) {
+                temp1 = new UUID[]{uuidKey};
+            } else {
+                temp1 = Arrays.copyOf(temp, temp.length + 1);
+                temp1[temp.length] = uuidKey;
+            }
 
-      if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
-         this.nidToPrimoridialCache.put(value, temp);
-      }
+            this.nidToPrimoridialCache.put(nid, temp1);
+        }
+    }
 
-      return temp;
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the.
+     *
+     * @param key the key
+     * @return the int
+     */
+    @Override
+    public int get(UUID key) {
+        return getMap(key).get(key);
+    }
 
-   /**
-    * Gets the map.
-    *
-    * @param index the index
-    * @return the map
-    * @throws RuntimeException the runtime exception
-    */
-   protected ConcurrentUuidToIntHashMap getMap(int index)
+    /**
+     * Gets the keys for value.
+     *
+     * @param value the value
+     * @return the keys for value
+     */
+    public UUID[] getKeysForValue(int value) {
+        if (this.nidToPrimoridialCache != null) {
+            final UUID[] cacheHit = this.nidToPrimoridialCache.get(value);
+
+            if ((cacheHit != null) && (cacheHit.length > 0)) {
+                return cacheHit;
+            }
+        }
+
+        final ArrayList<UUID> uuids = new ArrayList<>();
+
+        for (int index = 0; index < this.maps.length; index++) {
+            getMap(index).keysOf(value)
+                    .stream()
+                    .forEach(uuid -> {
+                        uuids.add(uuid);
+                    });
+        }
+
+        final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
+
+        if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
+            this.nidToPrimoridialCache.put(value, temp);
+        }
+
+        return temp;
+    }
+
+    /**
+     * Gets the map.
+     *
+     * @param index the index
+     * @return the map
+     * @throws RuntimeException the runtime exception
+     */
+    protected ConcurrentUuidToIntHashMap getMap(int index)
             throws RuntimeException {
-      ConcurrentUuidToIntHashMap result = this.maps[index].get();
+        ConcurrentUuidToIntHashMap result = this.maps[index].get();
 
-      while (result == null) {
-         try {
-            readMapFromDisk(index);
-            result = this.maps[index].get();
-         } catch (final IOException ex) {
-            throw new RuntimeException(ex);
-         }
-      }
+        while (result == null) {
+            try {
+                readMapFromDisk(index);
+                result = this.maps[index].get();
+            } catch (final IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
-      this.maps[index].elementRead();
-      HoldInMemoryCache.addToCache(this.maps[index]);
-      return result;
-   }
+        this.maps[index].elementRead();
+        HoldInMemoryCache.addToCache(this.maps[index]);
+        return result;
+    }
 
-   /**
-    * Gets the map.
-    *
-    * @param key the key
-    * @return the map
-    */
-   private ConcurrentUuidToIntHashMap getMap(UUID key) {
-      if (key == null) {
-         throw new IllegalStateException("UUIDs cannot be null. ");
-      }
+    /**
+     * Gets the map.
+     *
+     * @param key the key
+     * @return the map
+     */
+    private ConcurrentUuidToIntHashMap getMap(UUID key) {
+        if (key == null) {
+            throw new IllegalStateException("UUIDs cannot be null. ");
+        }
 
-      final int index = getMapIndex(key);
+        final int index = getMapIndex(key);
 
-      return getMap(index);
-   }
+        return getMap(index);
+    }
 
-   /**
-    * Gets the map index.
-    *
-    * @param key the key
-    * @return the map index
-    */
-   private int getMapIndex(UUID key) {
-      return (((byte) key.hashCode())) - Byte.MIN_VALUE;
-   }
+    /**
+     * Gets the map index.
+     *
+     * @param key the key
+     * @return the map index
+     */
+    private int getMapIndex(UUID key) {
+        return (((byte) key.hashCode())) - Byte.MIN_VALUE;
+    }
 
-   /**
-    * Gets the next nid provider.
-    *
-    * @return the next nid provider
-    */
-   public static AtomicInteger getNextNidProvider() {
-      return NEXT_NID_PROVIDER;
-   }
+    /**
+     * Gets the next nid provider.
+     *
+     * @return the next nid provider
+     */
+    public static AtomicInteger getNextNidProvider() {
+        return NEXT_NID_PROVIDER;
+    }
 
-   /**
-    * Checks if shutdown.
-    *
-    * @return true, if shutdown
-    */
-   public boolean isShutdown() {
-      return this.shutdown;
-   }
+    /**
+     * Checks if shutdown.
+     *
+     * @return true, if shutdown
+     */
+    public boolean isShutdown() {
+        return this.shutdown;
+    }
 
-   //~--- set methods ---------------------------------------------------------
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Sets the shutdown.
+     *
+     * @param shutdown the new shutdown
+     */
+    public void setShutdown(boolean shutdown) {
+        this.shutdown = shutdown;
+    }
 
-   /**
-    * Sets the shutdown.
-    *
-    * @param shutdown the new shutdown
-    */
-   public void setShutdown(boolean shutdown) {
-      this.shutdown = shutdown;
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the with generation.
+     *
+     * @param uuidKey the uuid key
+     * @return the with generation
+     */
+    public int getWithGeneration(UUID uuidKey) {
+        final long[] keyAsArray = UUIDUtil.convert(uuidKey);
+        final int mapIndex = getMapIndex(uuidKey);
+        int nid = getMap(mapIndex).get(keyAsArray);
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the with generation.
-    *
-    * @param uuidKey the uuid key
-    * @return the with generation
-    */
-   public int getWithGeneration(UUID uuidKey) {
-      final long[] keyAsArray = UUIDUtil.convert(uuidKey);
-      final int    mapIndex   = getMapIndex(uuidKey);
-      int          nid        = getMap(mapIndex).get(keyAsArray);
-
-      if (nid != Integer.MAX_VALUE) {
-         return nid;
-      }
-
-      final ConcurrentUuidToIntHashMap map   = getMap(mapIndex);
-      final long                       stamp = map.getStampedLock()
-                                                  .writeLock();
-
-      try {
-         nid = map.get(keyAsArray, stamp);
-
-         if (nid != Integer.MAX_VALUE) {
+        if (nid != Integer.MAX_VALUE) {
             return nid;
-         }
+        }
 
-         nid = NEXT_NID_PROVIDER.incrementAndGet();
-         
+        final ConcurrentUuidToIntHashMap map = getMap(mapIndex);
+        final long stamp = map.getStampedLock()
+                .writeLock();
+
+        try {
+            nid = map.get(keyAsArray, stamp);
+
+            if (nid != Integer.MAX_VALUE) {
+                return nid;
+            }
+
+            nid = NEXT_NID_PROVIDER.incrementAndGet();
+
 //       if (nid == -2147483637) {
 //           System.out.println(nid + "->" + key);
 //       }
-         this.maps[mapIndex].elementUpdated();
-         map.put(keyAsArray, nid, stamp);
-         updateCache(nid, uuidKey);
-         return nid;
-      } finally {
-         map.getStampedLock()
-            .unlockWrite(stamp);
-      }
-   }
+            this.maps[mapIndex].elementUpdated();
+            map.put(keyAsArray, nid, stamp);
+            updateCache(nid, uuidKey);
+            return nid;
+        } finally {
+            map.getStampedLock()
+                    .unlockWrite(stamp);
+        }
+    }
 }
-

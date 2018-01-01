@@ -423,7 +423,7 @@ public class KometStageController
            IdentifiedObject newValue) {
       Get.executor().submit(() -> {
          StringBuffer buff = new StringBuffer();
-         buff.append("selected:\n");
+         buff.append("selected (processed in background):\n");
          if (newValue instanceof ConceptChronology) {
             ConceptChronology concept = (ConceptChronology) newValue;
             buff.append(concept.toString());
