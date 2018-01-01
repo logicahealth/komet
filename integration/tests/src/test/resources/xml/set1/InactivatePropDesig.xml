@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+    <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+			<Append>true</Append>
+            <Name>Authoring Version</Name>
+            <CodedConcepts>
+                <CodedConcept>
+                    <Action>none</Action>
+                    <Code>-505</Code> <!-- concept VUID here -->
+                    <VUID>-505</VUID>
+                    <Active>true</Active>
+           
+           <Designations>
+						<Designation>
+							<Action>none</Action>
+							<Code>-506</Code> <!-- designation VUID here -->
+              <TypeName>Preferred Name</TypeName> <!-- designation type here -->
+              <VUID>-506</VUID>
+              <Active>true</Active>
+							 
+              <Properties>
+								<Property>
+									<Action>update</Action>
+									<TypeName>AAA_VistA_CVX_Code</TypeName> <!-- property type here -->
+									<ValueOld>184</ValueOld> <!-- This value is required -->
+									<ValueNew>184NewValue</ValueNew> <!-- property value here -->
+									<Active>false</Active>
+								</Property>
+							</Properties>
+						</Designation>
+                    </Designations>                   
+                </CodedConcept>
+            </CodedConcepts>
+        </Version>
+    </CodeSystem>
+</Terminology>

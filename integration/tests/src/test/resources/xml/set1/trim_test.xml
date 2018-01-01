@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<CodedConcept>
+  <Action>add</Action>
+  <Code>190</Code>  
+  <VUID>190</VUID>   
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>191</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>191</VUID>  
+    <ValueNew>A0 AAA</ValueNew>  
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>  2 LEADING SPACE</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew> 1 LEADING SPACE</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>  2 LEADING SPACE AND 2 END SPACE  </ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew> 1 LEADING SPACE AND 1 END SPACE </ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>2 END SPACE  </ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>1 END SPACE </ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>LEADING   SPACE IN MIDDLE</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>4707831</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>192</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>192</VUID>  
+    <ValueNew>  A0 BBB 2 SPACES IN FRONT</ValueNew>  
+    <Active>1</Active>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>193</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>193</VUID>  
+    <ValueNew> A0 CCC 1 SPACES IN FRONT</ValueNew>  
+    <Active>1</Active>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>194</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>194</VUID>  
+    <ValueNew>A0 DDD 2 SPACES IN BACK  </ValueNew>  
+    <Active>1</Active>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>195</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>195</VUID>  
+    <ValueNew>A0 EEE 1 SPACES IN BACK </ValueNew>  
+    <Active>1</Active>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>196</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>196</VUID>  
+    <ValueNew>A0 FFF 2 SPACES  HERE</ValueNew>  
+    <Active>1</Active>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>197</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>197</VUID>  
+    <ValueNew>A0 SUBSET TEST</ValueNew>  
+    <Active>1</Active>
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>  4708487</VUID>
+      <Active>1</Active>
+    </SubsetMembership>
+
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID> 4712514</VUID>
+      <Active>1</Active>
+    </SubsetMembership>
+
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID>4712512  </VUID>
+      <Active>1</Active>
+    </SubsetMembership>
+
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID>4708360 </VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>	
+
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>VistA_Combination_Immunization</TypeName>
+	    <ValueNew>  2 SPACE FRONT</ValueNew>
+	    <Active>1</Active>
+    </Property>
+
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>VistA_Combination_Immunization</TypeName>
+	    <ValueNew> 1 SPACE FRONT</ValueNew>
+	    <Active>1</Active>
+    </Property>
+
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>VistA_Combination_Immunization</TypeName>
+	    <ValueNew>1 SPACE BACK </ValueNew>
+	    <Active>1</Active>
+    </Property>
+
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>VistA_Combination_Immunization</TypeName>
+	    <ValueNew>2 SPACE BACK  </ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>  <!-- LAB TESTS BRANCH -->
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

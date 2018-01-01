@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- CREATES A BASIC ALLERGY REACTANTS CONCEPT WITH ONE DESIGNATION AND ONE RELATIONSHIP TO REACTANTS -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>606000</Code>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <VUID>606000</VUID>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>606001</Code>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <TypeName>Mike Name</TypeName>
+    <VUID>606001</VUID>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <ValueNew>A1 MIKE</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+  </Designation></Designations>	
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

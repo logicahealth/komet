@@ -51,6 +51,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.testing.hk2testng.HK2;
 
 import org.testng.annotations.AfterGroups;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeGroups;
 
 import sh.isaac.api.LookupService;
@@ -81,7 +82,7 @@ public class IntegrationSuiteManagement {
     *
     * @throws Exception the exception
     */
-   @AfterGroups(groups = { "db", "load", "wf" })
+   @AfterSuite
    public void tearDownSuite()
             throws Exception {
       LOG.info("IntegrationSuiteManagement teardown");
@@ -97,7 +98,7 @@ public class IntegrationSuiteManagement {
     *
     * @throws Exception the exception
     */
-   @BeforeGroups(groups = { "db", "load", "wf" })
+   @BeforeGroups(groups = { "db", "load", "frills", "vhat-xml" })
    public void setUpSuite()
             throws Exception {
       LOG.info("IntegrationSuiteManagement setup");

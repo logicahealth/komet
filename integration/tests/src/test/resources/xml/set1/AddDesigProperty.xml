@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts>
+				<CodedConcept>
+					<Action>none</Action>
+					<Code>-505</Code> <!-- concept VUID here -->
+					<VUID>-505</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>none</Action>
+							<Code>-506</Code> <!-- designation VUID here -->
+							<TypeName>Preferred Name</TypeName>
+							<VUID>-506</VUID>
+							<Active>true</Active>
+							<Properties>
+								<Property>
+									<Action>add</Action>
+									<TypeName>VistA_Combination_Immunization</TypeName> <!-- property type name here -->
+									<ValueNew>N</ValueNew> <!-- new property value here -->
+									<Active>true</Active>
+								</Property>
+							</Properties>
+						</Designation>
+					</Designations>
+				</CodedConcept>
+			</CodedConcepts>
+		</Version>
+	</CodeSystem>
+</Terminology>

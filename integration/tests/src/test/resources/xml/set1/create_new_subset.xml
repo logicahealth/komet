@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+	<Subsets>
+		<Subset>
+			<Action>add</Action>
+			<Name>A1 Mike Subset2</Name> <!-- new subset name here -->
+			<VUID>-800</VUID>
+			<Active>1</Active>
+		</Subset>
+	</Subsets>
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts/>
+		</Version>
+	</CodeSystem>
+</Terminology>

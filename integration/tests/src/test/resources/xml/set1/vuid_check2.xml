@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- When you load this, it should fail since designation VUID was used in VUID check 1 -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>813</Code>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <VUID>813</VUID>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <Active>1</Active>
+
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>812</Code>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>812</VUID>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <ValueNew>A1 VUID IN USE</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+  </Designation></Designations>
+
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>4712075</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

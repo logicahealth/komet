@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>190</Code>  
+  <VUID>190</VUID>   
+  <Active>1</Active>
+
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>191</Code>  
+    <TypeName>Preferred Name</TypeName>
+    <VUID>191</VUID>  
+    <ValueNew>A0 A</ValueNew>  
+    <ValueOld> A0 AAAAA</ValueOld> 
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>update</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueOld> NO SPACE </ValueOld> 
+        <ValueNew>NO NO NO NO</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+  </Designation></Designations>	
+
+  <Properties>
+    <Property>
+	    <Action>update</Action>
+	    <TypeName>VistA_Combination_Immunization</TypeName>
+            <ValueOld>2 SPACE BACK  </ValueOld>
+	    <ValueNew>HOWDY</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

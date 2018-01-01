@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+    
+  <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+			<Append>true</Append>
+            <Name>Authoring Version</Name>
+            <CodedConcepts>
+                <CodedConcept>
+                    <Action>none</Action>
+                    <Code>-505</Code> <!-- concept VUID here -->
+                    <VUID>-505</VUID>
+                    <Active>true</Active>
+        <Designations>
+				  <Designation>
+							<Action>none</Action>
+							<Code>-506</Code> <!-- designation VUID here -->
+							<TypeName>Preferred Name</TypeName>
+              <VUID>-506</VUID>
+              <Active>true</Active>
+					 <Properties>
+							<Property>
+									<Action>update</Action>
+									<TypeName>VistA_Combination_Immunization</TypeName> <!-- property type name here -->
+									<ValueOld>N</ValueOld> <!-- old property value here. The reason we need to specify the old and new value is because we don't have a unique key like a VUID, so this is how the importer finds the right property to change -->
+									<ValueNew>Y</ValueNew> <!-- new property value here -->
+									<Active>true</Active>
+							</Property>
+					  </Properties>
+           </Designation>
+          </Designations>
+          
+          <Relationships>
+             <Relationship>
+                  <Action>update</Action>
+                  <TypeName>aaa_vista_has_newflag</TypeName>
+                  <!-- relationship type here -->
+                  <OldTargetCode>5197590</OldTargetCode>
+                  <!-- old target concept VUID here -->
+                  <NewTargetCode>4712477</NewTargetCode>
+                  <!-- new target concept VUID here.  The reason we change a target code instead of inactivating the old relationship and creating a new relationship?  So we can track the change to the relationship. -->
+                  <Active>true</Active>
+             </Relationship>
+          </Relationships>                  
+        </CodedConcept>
+       </CodedConcepts>
+      </Version>
+    </CodeSystem>
+</Terminology>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+  <CodeSystem>
+    <Action>none</Action>
+    <Name>VHAT</Name>
+    <Version>
+      <Append>true</Append>
+      <Name>Authoring Version</Name>
+      
+      <CodedConcepts>
+        <CodedConcept>
+          <Action>none</Action>
+          <Code>-505</Code>
+          <VUID>-505</VUID>
+          <Active>true</Active>
+          
+          <!--  add Concept Properties -->
+          <Properties>
+            <Property>
+              <Action>add</Action>
+              <TypeName>AAA_VistA_CVX_Code</TypeName>  <!-- this is the new prop added earlier -->
+              <ValueNew>183</ValueNew>
+              <Active>true</Active>
+            </Property>
+			<!-- These can't be added here as they were previously added to the concept in AddConceptProperies.xml -->
+            <!--Property>
+              <Action>add</Action>
+              <TypeName>VistA_Combination_Immunization</TypeName>
+              <ValueNew>N</ValueNew>
+              <Active>true</Active>
+            </Property>
+            <Property>
+              <Action>add</Action>
+              <TypeName>VistA_Immunization_Group</TypeName>
+              <ValueNew>ZOSTER</ValueNew>
+              <Active>true</Active>
+            </Property-->
+          </Properties>
+          
+          <!-- add Relationships -->
+          <Relationships>
+            <Relationship>
+              <Action>add</Action>
+              <TypeName>aaa_vista_has_newflag</TypeName>
+              <NewTargetCode>5197590</NewTargetCode> <!-- same as has_parent id -->
+              <Active>true</Active>
+            </Relationship>
+            <Relationship>
+              <Action>add</Action>
+              <TypeName>vista_has_vis</TypeName>
+              <NewTargetCode>5198344</NewTargetCode>
+              <Active>true</Active>
+            </Relationship>
+            <Relationship>
+              <Action>add</Action>
+              <TypeName>vista_has_vis</TypeName>
+              <NewTargetCode>5198346</NewTargetCode>
+              <Active>true</Active>
+            </Relationship>
+          </Relationships>
+        
+        </CodedConcept>   
+      </CodedConcepts>
+    </Version>
+  </CodeSystem>
+</Terminology>

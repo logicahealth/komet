@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- CREATES A BASIC ALLERGY REACTANTS CONCEPT WITH ONE DESIGNATION AND ONE RELATIONSHIP TO REACTANTS -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>5001</Code>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <VUID>5001</VUID>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>5002</Code>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5002</VUID>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <ValueNew>A1 INACTIVATE ME</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>COMPLEX</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>4707831</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>	
+
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_LOINC_Code</TypeName>
+        <ValueNew>1234-5</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>4712075</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>
