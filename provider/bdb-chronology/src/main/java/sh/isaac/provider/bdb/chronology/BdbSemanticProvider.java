@@ -238,15 +238,21 @@ public class BdbSemanticProvider implements AssemblageService {
    //TODO dan needs to implement these
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
-   	// TODO Auto-generated method stub
-   	return null;
+      // TODO Auto-generated method stub
+      return null;
    }
    
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-   		Set<Integer> assemblageConceptNids) {
-   	// TODO Auto-generated method stub
-   	return null;
+         Set<Integer> assemblageConceptNids) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public boolean hasSemantic(int semanticId) {
+      // TODO Auto-generated method stub
+      return false;
    }
    
 }

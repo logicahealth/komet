@@ -312,5 +312,10 @@ public class MockSemanticService
       Set<Integer> assemblageConceptNids) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
+
+	@Override
+	public boolean hasSemantic(int semanticId) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 }
 

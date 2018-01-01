@@ -18,6 +18,8 @@
       <inParent>true</inParent>
       <chronicles.type>cradle.zip</chronicles.type>
       <index.type>lucene.zip</index.type>
+      <!-- TODO see if this is still needed -->
+      <project.organization.name>${project.organization.name}</project.organization.name> <!-- Maven is broken and doesn't replace this properly if not redeclared -->
    </properties>
 
    <build>

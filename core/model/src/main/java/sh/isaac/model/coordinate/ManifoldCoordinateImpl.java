@@ -128,11 +128,12 @@ public class ManifoldCoordinateImpl
     * with a {@link PremiseType#STATED} and the default Logic Coordinate from {@link ConfigurationService}
     *
     * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
+    * @param languageCoordinate - optional - uses default if not provided.  the language coordinate
     */
    public ManifoldCoordinateImpl(StampCoordinate stampCoordinate,
                                  LanguageCoordinate languageCoordinate) {
-      this(PremiseType.STATED, stampCoordinate, languageCoordinate, Get.configurationService().getDefaultLogicCoordinate());
+      this(PremiseType.STATED, stampCoordinate, languageCoordinate == null ? Get.configurationService().getDefaultLanguageCoordinate() : languageCoordinate,
+          Get.configurationService().getDefaultLogicCoordinate());
    }
 
    //~--- methods -------------------------------------------------------------

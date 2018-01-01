@@ -43,8 +43,8 @@
                      <schemaIncludes>
                         <!-- This is a tweaked version of the maven pom to make it easier to deal with the xs:any inside 
                         of <xs:element name="configuration" -->
-                        <include>maven-4.0.0-tweaked.xsd.hidden</include>
-                        <include>assembly-1.1.2.xsd.hidden</include>
+                        <include>maven-4.0.0-tweaked.xsd</include>
+                        <include>assembly-1.1.2.xsd</include>
                      </schemaIncludes>
                   </configuration>
                </execution>
