@@ -40,11 +40,6 @@
       </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
-            <artifactId>assemblage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
             <artifactId>coordinate</artifactId>
             <version>${project.version}</version>
         </dependency>
