@@ -329,7 +329,7 @@ public class SemanticIndexerConfiguration {
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the integer[]
     */
-   protected Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
+   public Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
       initCheck();
       return this.whatToIndexSequenceToCol.get(assemblageConceptSequence);
    }

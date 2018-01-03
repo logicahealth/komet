@@ -67,11 +67,14 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     * @param queryDataUpper - optional - defaults to appropriate MAX_VALUE of the queryDataLower data type. If not provided queryDataLower must
     *           be provided.
     * @param queryDataUpperInclusive - true to have the search be inclusive of the queryDataLower, false to be exclusive.
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param searchColumns - optional limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
     *           assemblageConcept is provided. May not be provided if 0 or more than 1 assemblageConcept values are provided.
+    * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
+    *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
+    *           true, or false, to have the item excluded. 
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
@@ -87,11 +90,12 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          boolean queryDataLowerInclusive,
          Number queryDataUpper,
          boolean queryDataUpperInclusive,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          Integer[] searchColumns,
+         Predicate<Integer> filter,
          AmpRestriction amp,
-         int pageNum,
-         int sizeLimit,
+         Integer pageNum,
+         Integer sizeLimit,
          Long targetGeneration);
 
    /**
@@ -106,11 +110,14 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     * If searching a logic graph semantic, it will find a match in any concept that is involved in the graph, except for the root concept.
     * 
     * @param nid the id reference to search for
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR} for example, to limit
     *           a search to content in those particular assemblages.
     * @param searchColumns - optional - limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
     *           assemblageConcept is provided. May not be provided if 0 or more than 1 assemblageConcept values are provided.
+    * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
+    *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
+    *           true, or false, to have the item excluded.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
@@ -123,11 +130,12 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *         matches. Note that scores are pointless for exact id matches - they will all be the same.
     */
    public List<SearchResult> queryNidReference(int nid,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          Integer[] searchColumns,
+         Predicate<Integer> filter,
          AmpRestriction amp,
-         int pageNum,
-         int sizeLimit,
+         Integer pageNum,
+         Integer sizeLimit,
          Long targetGeneration);
 
    /**
@@ -147,7 +155,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
     *           match on 'Testudinidae', so that will be excluded.
     * 
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param searchColumns - optional - limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
@@ -166,7 +174,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
    // TODO fix this limitation on the column restriction...
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          Integer[] searchColumns,
          AmpRestriction amp,
          Integer pageNum,
@@ -193,7 +201,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
     *           match on 'Testudinidae', so that will be excluded.
     * 
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param searchColumns - optional - limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
@@ -214,7 +222,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     */
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          Integer[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
@@ -241,7 +249,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
     *           match on 'Testudinidae', so that will be excluded.
     * 
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
@@ -257,7 +265,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     */
    public List<SearchResult> queryData(String queryString,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
