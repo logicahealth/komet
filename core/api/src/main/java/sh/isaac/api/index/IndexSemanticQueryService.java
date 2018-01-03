@@ -72,6 +72,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param searchColumns - optional limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
     *           assemblageConcept is provided. May not be provided if 0 or more than 1 assemblageConcept values are provided.
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
     *           size limit with and passing pageNum is the recommended way of handling large result sets.
@@ -88,7 +89,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          boolean queryDataUpperInclusive,
          Integer[] assemblageConcept,
          Integer[] searchColumns,
-         StampCoordinate stamp,
+         AmpRestriction amp,
          int pageNum,
          int sizeLimit,
          Long targetGeneration);
@@ -110,6 +111,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           a search to content in those particular assemblages.
     * @param searchColumns - optional - limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
     *           assemblageConcept is provided. May not be provided if 0 or more than 1 assemblageConcept values are provided.
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
     *           size limit with and passing pageNum is the recommended way of handling large result sets.
@@ -123,10 +125,10 @@ public interface IndexSemanticQueryService extends IndexQueryService {
    public List<SearchResult> queryNidReference(int nid,
          Integer[] assemblageConcept,
          Integer[] searchColumns,
+         AmpRestriction amp,
          int pageNum,
          int sizeLimit,
-         Long targetGeneration,
-         StampCoordinate stamp);
+         Long targetGeneration);
 
    /**
     * Search for matches to the specified queryData, across all semantic types which carry data.
@@ -150,7 +152,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param searchColumns - optional - limit the search to the specified columns of attached data. May ONLY be provided if ONE and only one
     *           assemblageConcept is provided. May not be provided if 0 or more than 1 assemblageConcept values are provided.
-    * @param stamp - optional - The StampCoordinate to constrain the search. Uses the system defaults if not provided.
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
     *           size limit with and passing pageNum is the recommended way of handling large result sets.
@@ -166,7 +168,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          boolean prefixSearch,
          Integer[] assemblageConcept,
          Integer[] searchColumns,
-         StampCoordinate stamp,
+         AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -199,7 +201,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
     *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
     *           true, or false, to have the item excluded.
-    * @param stamp - optional - The StampCoordinate to constrain the search. Uses the system defaults if not provided.
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
     *           size limit with and passing pageNum is the recommended way of handling large result sets.
@@ -215,7 +217,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          Integer[] assemblageConcept,
          Integer[] searchColumns,
          Predicate<Integer> filter,
-         StampCoordinate stamp,
+         AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -242,7 +244,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
-    * @param stamp - optional - The StampCoordinate to constrain the search. Uses the system defaults if not provided.
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
     *           size limit with and passing pageNum is the recommended way of handling large result sets.
@@ -256,7 +258,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
    public List<SearchResult> queryData(String queryString,
          boolean prefixSearch,
          Integer[] assemblageConcept,
-         StampCoordinate stamp,
+         AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);

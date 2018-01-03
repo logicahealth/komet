@@ -137,12 +137,5 @@ public interface IndexBuilderService
     * @param enabled true if the indexer is enabled, otherwise false.
     */
    void setEnabled(boolean enabled);
-
-   /**
-    * Gets the indexer folder.
-    *
-    * @return File representing the folder where the indexer stores its files.
-    */
-   File getIndexerFolder();
 }
 

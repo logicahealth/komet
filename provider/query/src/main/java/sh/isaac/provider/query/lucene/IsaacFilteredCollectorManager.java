@@ -19,9 +19,12 @@ package sh.isaac.provider.query.lucene;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.function.Predicate;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.CollectorManager;
@@ -29,26 +32,35 @@ import org.apache.lucene.search.LeafCollector;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.util.PriorityQueue;
+import org.apache.lucene.search.TopScoreDocCollector;
 
 /**
  *
  * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilteredCollectorManager.IsaacFilteredCollector, TopDocs> {
 
    final Predicate<Integer> filter;
    final int sizeLimit;
+   final ScoreDoc after;
    final ArrayList<IsaacFilteredCollector> collectors = new ArrayList<>();
+   protected static final Logger LOG = LogManager.getLogger();
 
-   public IsaacFilteredCollectorManager(Predicate<Integer> filter, int sizeLimit) {
+   /**
+    * 
+    * @param filter - optional - arbitrary filtering
+    * @param sizeLimit - max number of results to return
+    * @param after - optional - specify to begin on a future page of results.  Should be the last ScoreDoc from a previous query.
+    */
+   public IsaacFilteredCollectorManager(Predicate<Integer> filter, int sizeLimit, ScoreDoc after) {
       this.filter = filter;
       this.sizeLimit = sizeLimit;
+      this.after = after;
    }
    
    TopDocs getTopDocs() throws IOException {
       return reduce(collectors);
-      
    }
 
    @Override
@@ -71,99 +83,68 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
    }
 
    public class IsaacFilteredCollector implements Collector {
-      IsaacFilteredLeafCollector leafCollector;
+      HashMap<LeafReaderContext, LeafCollector> leafDelegates = new HashMap<>();
+      TopScoreDocCollector delegateCollector = TopScoreDocCollector.create(sizeLimit, after);
       
       @Override
-      public IsaacFilteredLeafCollector getLeafCollector(LeafReaderContext context) throws IOException {
-         leafCollector = new IsaacFilteredLeafCollector(context, filter);
-         return leafCollector;
+      public LeafCollector getLeafCollector(LeafReaderContext context) throws IOException {
+         if (leafDelegates.get(context) == null)
+         {
+            leafDelegates.put(context, new LeafCollector() 
+            {
+               LeafCollector internalDelegate = delegateCollector.getLeafCollector(context);
+               
+               @Override
+               public void setScorer(Scorer scorer) throws IOException {
+                  internalDelegate.setScorer(scorer);
+                  
+               }
+               
+               @Override
+               public void collect(int doc) throws IOException {
+                  boolean filterPass = false;
+                  if (filter != null)
+                  {
+                  	//This little optimization prevents us from re-evaluating filters 
+                     int afterDoc = after.doc - context.docBase;
+                     if (doc <= afterDoc)
+                     {
+                     	//TODO need to test this optimization, it differs slightly from what they do in Lucene (where they calc score first)
+                     	//but I can't see that is necessary...
+                         LOG.trace("skipping filter eval for item before page 1");
+                         filterPass = true;
+                     }
+                     else
+                     {
+	                     final Document document = context.reader().document(doc);
+	                     final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
+	                             .numericValue()
+	                             .intValue();
+	                     filterPass = filter.test(componentNid);
+                     }
+                  }
+                  else
+                  {
+                     filterPass = true;
+                  }
+                  
+                  if (filterPass)
+                  {
+                     internalDelegate.collect(doc);
+                  }
+               }
+            });
+         }
+         return leafDelegates.get(context);
       }
 
       @Override
       public boolean needsScores() {
-         return true;
+         return delegateCollector.needsScores();
       }
       
       public TopDocs topDocs() {
-         return leafCollector.topDocs();
-      }
-
-   }
-
-   public static class IsaacFilteredLeafCollector implements LeafCollector {
-
-      final int docBase;
-      final LeafReader reader;
-      Scorer scorer;
-      final Predicate<Integer> filter;
-      final ArrayList<ScoreDoc> results = new ArrayList<>();
-      float maxScore = 0;
-      int totalHits = 0;
-
-      private IsaacFilteredLeafCollector(final LeafReaderContext context, Predicate<Integer> filter) throws IOException {
-         docBase = context.docBase;
-         reader = context.reader();
-         this.filter = filter;
-      }
-
-      @Override
-      final public void setScorer(final Scorer scorer) throws IOException {
-         this.scorer = scorer;
-      }
-
-      @Override
-      final public void collect(final int doc) throws IOException {
-         final Document document = reader.document(doc);
-         final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
-                 .numericValue()
-                 .intValue();
-         totalHits++;
-         if (filter.test(componentNid)) {
-            maxScore = Math.max(maxScore, scorer.score());
-            results.add(new ScoreDoc(scorer.docID(), scorer.score()));
-         }
-      }
-
-      public TopDocs topDocs() {
-
-         results.sort((ScoreDoc hitA, ScoreDoc hitB) -> {
-            if (hitA.score == hitB.score) {
-               if (hitA.doc < hitB.doc) {
-                  return -1;
-               }
-               return 1;
-            } else {
-               if (hitA.score > hitB.score) {
-                  return -1;
-               } else if (hitA.score < hitB.score) {
-                  return 1;
-               }
-               return 0;
-            }
-         });
-
-         ScoreDoc[] resultArray = results.toArray(new ScoreDoc[results.size()]);
-
- 
-         return new TopDocs(totalHits, resultArray, maxScore);
-      }
-
-   }
-
-   static class IsaacFilteredPriorityQueue extends PriorityQueue<ScoreDoc> {
-
-      public IsaacFilteredPriorityQueue(int maxSize) {
-         super(maxSize, false);
-      }
-
-      @Override
-      protected final boolean lessThan(ScoreDoc hitA, ScoreDoc hitB) {
-         if (hitA.score == hitB.score) {
-            return hitA.doc > hitB.doc;
-         } else {
-            return hitA.score < hitB.score;
-         }
+         return delegateCollector.topDocs();
       }
    }
-
 }

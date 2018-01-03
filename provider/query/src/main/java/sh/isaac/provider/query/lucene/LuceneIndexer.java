@@ -41,43 +41,31 @@ package sh.isaac.provider.query.lucene;
 
 //~--- JDK imports ------------------------------------------------------------
 
-/**
- * Copyright Notice
- *
- * This is a work of the U.S. Government and is not subject to copyright
- * protection in the United States. Foreign copyrights may apply.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-
+import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -93,8 +81,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexFormatTooOldException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LogByteSizeMergePolicy;
@@ -110,50 +101,56 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ReferenceManager;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.util.Version;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
+import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
+import sh.isaac.api.index.GenerateIndexes;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexedGenerationCallable;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
-import sh.isaac.api.index.IndexService;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
-
-//~--- classes ----------------------------------------------------------------
-
-//See example for help with the Controlled Real-time indexing...
 
 /**
- * The Class LuceneIndexer.
+ * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-//http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top
+
 public abstract class LuceneIndexer
-         implements IndexService {
+         implements IndexBuilderService {
+
    /** The Constant DEFAULT_LUCENE_FOLDER. */
    public static final String DEFAULT_LUCENE_FOLDER = "lucene";
+   
+   public static final String DATASTORE_ID = "dataStoreId.txt";
 
    /** The Constant LOG. */
    protected static final Logger LOG = LogManager.getLogger();
-
-   /** The Constant LUCENE_VERSION. */
-   public static final Version LUCENE_VERSION = Version.LUCENE_7_0_0;
 
    /** The Constant UNINDEXED_FUTURE. */
    private static final CompletableFuture<Long> UNINDEXED_FUTURE = new CompletableFuture<>();
@@ -163,17 +160,19 @@ public abstract class LuceneIndexer
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
    // exact matches.
-   protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
+   protected static final String FIELD_SEMANTIC_ASSEMBLAGE_NID = "_semantic_type_sequence_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
    
- //don't need to analyze, we only ever put a single char here - "t" - when a description is on a concept that is a part of the metadata tree.
+   //don't need to analyze, we only ever put a single char here - "t" - when a description is on a concept that is a part of the metadata tree.
    protected static final String FIELD_CONCEPT_IS_METADATA = "_concept_metadata_marker_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
    protected static final String FIELD_CONCEPT_IS_METADATA_VALUE = "t";
 
    // this isn't indexed
    public static final String FIELD_COMPONENT_NID = "_component_nid_";
+   private static final String FIELD_INDEXED_MODULE_NID = "_module_content_";
+   private static final String FIELD_INDEXED_PATH_NID = "_path_content_";
+   private static final String FIELD_INDEXED_AUTHOR_NID = "_author_content_";
    
-   
-   public static final String DOCVALUE_COMPONENT_NID = "_docvalue_component_nid_";
+   private final Map<Integer, ScoreDoc> lastDocCache = Collections.synchronizedMap(new LruCache<>(100));
 
    //~--- fields --------------------------------------------------------------
 
@@ -196,7 +195,7 @@ public abstract class LuceneIndexer
    private Boolean dbBuildMode = null;
 
    /** The database validity. */
-   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+   private SimpleObjectProperty<DatabaseValidity> databaseValidity = new SimpleObjectProperty<DatabaseServices.DatabaseValidity>(DatabaseValidity.NOT_YET_CHECKED);
 
    /** The change listener ref. */
    private ChronologyChangeListener changeListenerRef;
@@ -208,17 +207,19 @@ public abstract class LuceneIndexer
    protected ExecutorService luceneWriterFutureCheckerService;
 
    /** The reopen thread. */
-   private final ControlledRealTimeReopenThread<IndexSearcher> reopenThread;
+   private ControlledRealTimeReopenThread<IndexSearcher> reopenThread;
 
    /** The index writer. */
-   private final IndexWriter indexWriter;
+   private IndexWriter indexWriter;
 
    /** The searcher manager. */
-   private final ReferenceManager<IndexSearcher> searcherManager;
+   private ReferenceManager<IndexSearcher> referenceManager;
 
    /** The index name. */
    private final String indexName;
-
+   
+   private final ReentrantLock reindexLock = new ReentrantLock();
+   
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -227,118 +228,21 @@ public abstract class LuceneIndexer
     * @param indexName the index name
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   protected LuceneIndexer(String indexName)
-            throws IOException {
-      try {
+   protected LuceneIndexer(String indexName) {
          this.indexName          = indexName;
          this.luceneWriterService = LookupService.getService(WorkExecutors.class)
                .getIOExecutor();
-         this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
-               new NamedThreadFactory(indexName + " Lucene future checker", false));
+   }
+   
+   private IndexWriterConfig getIndexWriterConfig()
+   {
+      IndexWriterConfig config = new IndexWriterConfig(new PerFieldAnalyzer());
+      config.setRAMBufferSizeMB(256);
+      MergePolicy mergePolicy = new LogByteSizeMergePolicy();
 
-         final Path searchFolder     = LookupService.getService(ConfigurationService.class)
-                                                    .getSearchFolderPath();
-         final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
-
-         luceneRootFolder.mkdirs();
-         this.indexFolder = new File(luceneRootFolder, indexName);
-
-         if (!this.indexFolder.exists()) {
-            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
-            LOG.info("Index folder missing: " + this.indexFolder.getAbsolutePath());
-         } else if (this.indexFolder.list().length > 0) {
-            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
-         }
-
-         this.indexFolder.mkdirs();
-         LOG.info("Index: " + this.indexFolder.getAbsolutePath());
-
-         final MMapDirectory indexDirectory =
-            new MMapDirectory(this.indexFolder.toPath());  // switch over to MMapDirectory - in theory - this gives us back some
-         // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
-         // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
-         // the default value of SimpleFSDirectory is a huge bottleneck.
-
-         final IndexWriterConfig config = new IndexWriterConfig(new PerFieldAnalyzer());
-
-         config.setRAMBufferSizeMB(256);
-
-         final MergePolicy mergePolicy = new LogByteSizeMergePolicy();
-
-         config.setMergePolicy(mergePolicy);
-         config.setSimilarity(new ShortTextSimilarity());
-
-         this.indexWriter = new IndexWriter(indexDirectory, config);
-
-         final boolean applyAllDeletes = false;
-         final boolean writeAllDeletes = false;
-
-         this.searcherManager = new SearcherManager(indexWriter, applyAllDeletes, writeAllDeletes, null);
-
-         // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically taking into
-         // account the changes made to the index and tracked by the TrackingIndexWriter instance
-         // The index is refreshed every 60sc when nobody is waiting
-         // and every 100 millis whenever is someone waiting (see search method)
-         // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
-         this.reopenThread = new ControlledRealTimeReopenThread<>(this.indexWriter,
-               this.searcherManager,
-               60.00,
-               0.1);
-         this.startThread();
-
-         // Register for commits:
-         LOG.info("Registering indexer " + indexName + " for commits");
-         this.changeListenerRef = new ChronologyChangeListener() {
-            @Override
-            public void handleCommit(CommitRecord commitRecord) {
-               if (LuceneIndexer.this.dbBuildMode == null) {
-                  LuceneIndexer.this.dbBuildMode = Get.configurationService()
-                        .inDBBuildMode();
-               }
-
-               if (LuceneIndexer.this.dbBuildMode) {
-                  LOG.debug("Ignore commit due to db build mode");
-                  return;
-               }
-
-               final int size = commitRecord.getSemanticNidsInCommit()
-                                            .size();
-
-               if (size < 100) {
-                  LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " +
-                           getIndexerName() + " due to commit");
-               } else {
-                  LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
-               }
-
-               commitRecord.getSemanticNidsInCommit().stream().forEach(sememeId -> {
-                                       final SemanticChronology sc = Get.assemblageService()
-                                                                         .getSemanticChronology(sememeId);
-
-                                       index(sc);
-                                    });
-                  LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
-            }
-            @Override
-            public void handleChange(SemanticChronology sc) {
-               // noop
-            }
-            @Override
-            public void handleChange(ConceptChronology cc) {
-               // noop
-            }
-            @Override
-            public UUID getListenerUuid() {
-               return UuidT5Generator.get(getIndexerName());
-            }
-         };
-         Get.commitService()
-            .addChangeListener(this.changeListenerRef);
-      } catch (final IOException e) {
-         LookupService.getService(SystemStatusService.class)
-                      .notifyServiceConfigurationFailure(indexName, e);
-         throw e;
-      }
+      config.setMergePolicy(mergePolicy);
+      config.setSimilarity(new ShortTextSimilarity());
+      return config;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -346,10 +250,12 @@ public abstract class LuceneIndexer
    /**
     * Clear index.
     */
-   @Override
-   public final void clearIndex() {
+   private final void clearIndex() {
       try {
          this.indexWriter.deleteAll();
+         this.lastDocCache.clear();
+         //When we wipe the index, write out the data store ID that we know will apply to anything we index going forward
+         Files.write(getDatabaseFolder().resolve(DATASTORE_ID), Get.assemblageService().getDataStoreId().toString().getBytes());
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
@@ -358,60 +264,37 @@ public abstract class LuceneIndexer
    /**
     * Clear indexed statistics.
     */
-   @Override
-   public void clearIndexedStatistics() {
+   private void clearIndexedStatistics() {
       this.indexedComponentStatistics.clear();
-   }
-
-   /**
-    * Close writer.
-    */
-   @Override
-   public final void closeWriter() {
-      try {
-         this.reopenThread.close();
-
-         // We don't shutdown the writer service we are using, because it is the core isaac thread pool.
-         // waiting for the future checker service is sufficient to ensure that all write operations are complete.
-         this.luceneWriterFutureCheckerService.shutdown();
-         this.luceneWriterFutureCheckerService.awaitTermination(15, TimeUnit.MINUTES);
-         this.indexWriter.close();
-      } catch (InterruptedException | IOException ex) {
-         throw new RuntimeException(ex);
-      }
    }
 
    /**
     * Commit writer.
     */
-   @Override
-   public final void commitWriter() {
+   private final void commitWriter() {
       try {
          this.indexWriter.commit();
-         this.searcherManager.maybeRefreshBlocking();
+         this.referenceManager.maybeRefreshBlocking();
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
    /**
-    * Force merge.
+    * {@inheritDoc}
     */
    @Override
    public void forceMerge() {
       try {
          this.indexWriter.forceMerge(1);
-         this.searcherManager.maybeRefreshBlocking();
+         this.referenceManager.maybeRefreshBlocking();
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
    /**
-    * Index.
-    *
-    * @param chronicle the chronicle
-    * @return the future
+    * {@inheritDoc}
     */
    @Override
    public final CompletableFuture<Long> index(Chronology chronicle) {
@@ -419,10 +302,7 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Merge results on concept.
-    *
-    * @param searchResult the search result
-    * @return the list
+    * {@inheritDoc}
     */
    @Override
    public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult) {
@@ -430,17 +310,17 @@ public abstract class LuceneIndexer
       final List<ConceptSearchResult>             result = new ArrayList<>();
 
       searchResult.forEach((sr) -> {
-         final int conSequence = findConcept(sr.getNid());
+         final int conNid = findConcept(sr.getNid());
 
-         if (conSequence < 0) {
+         if (conNid < 0) {
             LOG.error("Failed to find a concept that references nid " + sr.getNid());
-         } else if (merged.containsKey(conSequence)) {
-            merged.get(conSequence)
+         } else if (merged.containsKey(conNid)) {
+            merged.get(conNid)
                     .merge(sr);
          } else {
-            final ConceptSearchResult csr = new ConceptSearchResult(conSequence, sr.getNid(), sr.getScore());
+            final ConceptSearchResult csr = new ConceptSearchResult(conNid, sr.getNid(), sr.getScore());
 
-            merged.put(conSequence, csr);
+            merged.put(conNid, csr);
             result.add(csr);
          }
       });
@@ -481,85 +361,7 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Query index with no specified target generation of the index.
-    *
-    * Calls {@link #query(String, Integer, int, long)} with the semeneConceptSequence set to null and
-    * the targetGeneration field set to Long.MIN_VALUE
-    *
-    * @param query The query to apply.
-    * @param sizeLimit The maximum size of the result list.
-    * @return a List of {@code SearchResult} that contains the nid of the
-    * component that matched, and the score of that match relative to other matches.
-    */
-   @Override
-   public final List<SearchResult> query(String query, int sizeLimit) {
-      return query(query, null, sizeLimit, Long.MIN_VALUE, null);
-   }
-
-   /**
-    *
-    * Calls {@link #query(String, boolean, Integer, int, long)} with the prefixSearch field set to false.
-    *
-    * @param query The query to apply.
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null,
-    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
-    * or the concept sequence {@link MetaData#SCTID} for example.
-    * @param sizeLimit The maximum size of the result list.
-    * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no
-    * need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any
-    * in-progress indexing operations are completed - and then use the latest index.
-    * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of
-    * that match relative to other matches.
-    */
-   @Override
-   public final List<SearchResult> query(String query,
-         Integer[] semeneConceptSequence,
-         int sizeLimit,
-         Long targetGeneration,
-         StampCoordinate sc) {
-      return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration, sc);
-   }
-
-   /**
-    * A generic query API that handles most common cases.  The cases handled for various component property types
-    * are detailed below.
-    *
-    * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
-    * queries.  Specifically both {@link SemanticIndexer} and {@link DescriptionIndexer} have their own
-    * query(...) methods which allow for more advanced queries.
-    *
-    * @param query The query to apply.
-    * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
-    * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
-    * that is part of the query string will be required to be found in the result.
-    *
-    * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
-    * space character following it, that word will be required as a complete term.  If the last word of the query does not
-    * have a space character following it, that word will be required as a prefix match only.
-    *
-    * For example:
-    * The query "family test" will return results that contain 'Family Testudinidae'
-    * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    * @param sememeConceptSequence the sememe concept sequence
-    * @param sizeLimit The maximum size of the result list.
-    * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
-    * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
-    * indexing operations are completed - and then use the latest index.
-    * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
-    * to other matches.
-    */
-   @Override
-   public abstract List<SearchResult> query(String query,
-         boolean prefixSearch,
-         Integer[] sememeConceptSequence,
-         int sizeLimit,
-         Long targetGeneration,
-         StampCoordinate sc);
-
-   /**
-    * Report indexed items.
-    *
-    * @return the hash map
+    * {@inheritDoc}
     */
    @Override
    public HashMap<String, Integer> reportIndexedItems() {
@@ -572,7 +374,7 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Adds the fields.
+    * Subclasses must implement this, with their own indexer-specific fields and formats.
     *
     * @param chronicle the chronicle
     * @param doc the doc
@@ -661,9 +463,67 @@ public abstract class LuceneIndexer
          throw new RuntimeException(e);
       }
    }
+   
+   /**
+    * Return a Query adding the appropriate Stamp criteria for Path and/or Module(s).
+    * 
+    * @param query The query base to add Stamp parameters to
+    * @param stamp The StampCoordinate to further restrict the query
+    * @return
+    */
+   protected Query addAmpRestriction(Query query, AmpRestriction amp)
+   {
+      if (amp == null)
+      {
+         return query;
+      }
+
+      BooleanQuery.Builder bq = new BooleanQuery.Builder();
+
+      // Original query
+      bq.add(query, Occur.MUST);
+
+      if (amp.getAuthors() != null && !amp.getAuthors().isEmpty())
+      {
+         BooleanQuery.Builder inner = new BooleanQuery.Builder();
+
+         for (Integer authorNid : amp.getAuthors().asArray())
+         {
+            inner.add(new TermQuery(new Term(FIELD_INDEXED_AUTHOR_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+                  authorNid.toString())), Occur.SHOULD);
+         }
+         bq.add(inner.build(), Occur.MUST);
+      }
+
+      if (amp.getModules() != null && !amp.getModules().isEmpty())
+      {
+         BooleanQuery.Builder inner = new BooleanQuery.Builder();
+
+         for (Integer moduleNid : amp.getModules().asArray())
+         {
+            inner.add(new TermQuery(new Term(FIELD_INDEXED_MODULE_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+                  moduleNid.toString())), Occur.SHOULD);
+         }
+         bq.add(inner.build(), Occur.MUST);
+      }
+      
+      if (amp.getPaths() != null && !amp.getPaths().isEmpty())
+      {
+         BooleanQuery.Builder inner = new BooleanQuery.Builder();
+
+         for (Integer pathNid : amp.getPaths().asArray())
+         {
+            inner.add(new TermQuery(new Term(FIELD_INDEXED_PATH_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+                  pathNid.toString())), Occur.SHOULD);
+         }
+         bq.add(inner.build(), Occur.MUST);
+      }
+
+      return bq.build();
+   }
 
    /**
-    * Increment indexed item count.
+    * Increment indexed item count.  Just increments the stats counters.
     *
     * @param name the name
     */
@@ -685,12 +545,10 @@ public abstract class LuceneIndexer
       } else {
          temp.incrementAndGet();
       }
-
-      
    }
 
    /**
-    * Determine if the chronicle should be indexed.
+    * Allows implementations to specify whether a chronology should be indexed by that particular indexer at all.
     *
     * @param chronicle the chronicle to decide if it should be indexed
     * @return true, if the chronicle should be indexed
@@ -703,7 +561,7 @@ public abstract class LuceneIndexer
     * @param latchNid the latch nid
     * @param indexGeneration the index generation
     */
-   protected void releaseLatch(int latchNid, long indexGeneration) {
+   private void releaseLatch(int latchNid, long indexGeneration) {
       final IndexedGenerationCallable latch = this.componentNidLatch.remove(latchNid);
 
       if (latch != null) {
@@ -712,17 +570,17 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Restrict to sememe.
+    * Restrict to assemblage(s) of a particular type.
     *
     * @param query the query
-    * @param sememeConceptSequence the sememe concept sequence
-    * @return the query
+    * @param semanticAssemblageNid the semantic assemblage concept
+    * @return the query newly modified query that takes into account the semantic restriction
     */
-   protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence) {
+   protected Query restrictToSemantic(Query query, Integer[] semanticAssemblageNid) {
       final ArrayList<Integer> nullSafe = new ArrayList<>();
 
-      if (sememeConceptSequence != null) {
-         for (final Integer i: sememeConceptSequence) {
+      if (semanticAssemblageNid != null) {
+         for (final Integer i: semanticAssemblageNid) {
             if (i != null) {
                nullSafe.add(i);
             }
@@ -737,9 +595,9 @@ public abstract class LuceneIndexer
 
          final BooleanQuery.Builder wrapBuilder = new BooleanQuery.Builder();
 
-         // or together the sememeConceptSequences, but require at least one of them to match.
+         // or together the semanticAssemblageNid, but require at least one of them to match.
          nullSafe.forEach((i) -> {
-            wrapBuilder.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
+            wrapBuilder.add(new TermQuery(new Term(FIELD_SEMANTIC_ASSEMBLAGE_NID, i.toString())), Occur.SHOULD);
          });
 
          return outerWrapQueryBuilder.add(wrapBuilder.build(), Occur.MUST).build();
@@ -749,77 +607,195 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Subclasses may call this method with much more specific queries than this generic class is capable of constructing.
+    * This method does the actual lucene search, collecting the results, merging them on NID and handling paging.
     *
     * @param q - the query
-    * @param sizeLimit - how many results to return (at most)
-    * @param targetGeneration - target generation that must be included in the search or Long.MIN_VALUE if there is no need
-    * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
-    * indexing operations are completed - and then use the latest index.
-    * @param filter - an optional filter on results - if provided, the filter should expect nids, and can return true, if
-    * the nid should be allowed in the result, false otherwise.  Note that this may cause large performance slowdowns, depending
-    * on the implementation of your filter
+    * @param filter - an optional filter on results - if provided, the filter should expect nids, and can return true, if the nid should be
+    *           allowed in the result, false otherwise. Note that this may cause large performance slowdowns, depending on the implementation
+    *           of your filter.  If you are utilizing filters along with paging, ensure that your filter has a proper implementation of hashCode()
+    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
+    * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
+    * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
+    *           size limit with and passing pageNum is the recommended way of handling large result sets.
+    * @param targetGeneration - optional - target generation that must be waited for prior to performing the search or Long.MIN_VALUE if there
+    *           is no need to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in progress
+    *           indexing operations are completed - and then use the latest index. Null behaves the same as Long.MIN_VALUE. See
+    *           {@link IndexQueryService#getIndexedGenerationCallable(int)}
+
     * @return the list
     */
-   //TODO where is the stamp coord
-   protected final List<SearchResult> search(Query q, int sizeLimit, Long targetGeneration, Predicate<Integer> filter) {
+   protected final List<SearchResult> search(Query q,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) 
+   {
+      return searchInternal(q, filter, amp, pageNum, sizeLimit, targetGeneration, null);
+   }
+   
+   /**
+    * see {@link #search(Query, Predicate, AmpRestriction, Integer, Integer, Long)} for details on this method.
+    * 
+    * This API variation is simply so a second object can be returned to the caller (via the lastDoc reference)
+    * for special cases.  
+    * 
+    * @param lastDoc - the passed reference will be updated with the last ScoreDoc of the search.
+    */
+   private final List<SearchResult> searchInternal(Query q,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration, 
+         AtomicReference<ScoreDoc> lastDoc) {
+
+      IndexSearcher searcher = null;
       try {
-         IndexSearcher searcher = getIndexSearcher(targetGeneration);
+         searcher = getIndexSearcher(targetGeneration);
+         // Include the module and path selelctions
+         q = this.addAmpRestriction(q, amp);
 
-         try {
-            LOG.debug("Running query: {}", q.toString());
+         LOG.debug("Running query: {}", q.toString());
 
-            // Since the index carries some duplicates by design, which we will remove - get a few extra results up front.
-            // so we are more likely to come up with the requested number of results
-            final long limitWithExtras = sizeLimit + (long) (sizeLimit * 0.25d);
-            final int  adjustedLimit   = ((limitWithExtras > Integer.MAX_VALUE) ? sizeLimit
-                  : (int) limitWithExtras);
-            TopDocs    topDocs;
+         int internalPage = pageNum == null ? 1 : pageNum < 1 ? 1 : pageNum.intValue();
+         int internalSize = sizeLimit == null ? 100 : sizeLimit < 1 ? 1 : sizeLimit.intValue();
 
-            if (filter != null) {
-               IsaacFilteredCollectorManager ifcf = new IsaacFilteredCollectorManager(filter, adjustedLimit);
+         // We're only going to return up to what was requested
+         List<SearchResult> results = new ArrayList<>(Math.min(500, internalSize)); // Use page size, only up to 500 for our pre-allocation
+         HashSet<Integer> includedComponentNids = new HashSet<>();
+         boolean complete = false; // i.e., results.size() < sizeLimit
 
-               searcher.search(q, ifcf);
-               topDocs = ifcf.getTopDocs();
+         ScoreDoc after = getAfterScoreDoc(q, filter, internalPage, internalSize, targetGeneration);
+
+         // Note, we cannot just ask lucene for the same page size / result count as we are asked for, because lucene may have multiple versoins
+         // of a component indexed, which each match the query. However, since we only return nids, not versions, these results get merged.
+         // We will ask lucene for a few extra results up front, and then keep going until the requested number of docs are found, or no more
+         // matches/results
+         while (!complete) {
+            
+            //We use this API for search even when we don't have a filter, because this also enables parallel searching in the lower levels of lucene.
+            TopDocs topDocs = searcher.search(q, new IsaacFilteredCollectorManager(filter, internalSize + 10, after));
+
+            // If no scoreDocs exist, we're done
+            if (topDocs.scoreDocs.length == 0) {
+               complete = true;
+               LOG.debug("Search exhausted after finding only {} results (of {} requested) from query", results.size(), internalSize);
             } else {
-               topDocs = searcher.search(q, adjustedLimit);
-            }
+               for (ScoreDoc hit : topDocs.scoreDocs) {
+                  LOG.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
 
-            final List<SearchResult> results               = new ArrayList<>((int) topDocs.totalHits);
-            final HashSet<Integer>   includedComponentNids = new HashSet<>();
-
-            for (final ScoreDoc hit: topDocs.scoreDocs) {
-               LOG.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
-
-               final Document doc          = searcher.doc(hit.doc);
-               final int      componentNid = doc.getField(FIELD_COMPONENT_NID)
-                                                .numericValue()
-                                                .intValue();
-
-               if (!includedComponentNids.contains(componentNid)) {
-                  includedComponentNids.add(componentNid);
-                  results.add(new ComponentSearchResult(componentNid, hit.score));
-
-                  if (results.size() == sizeLimit) {
-                     break;
+                  // Save the last doc to search after later, if needed
+                  after = hit;
+                  Document doc = searcher.doc(hit.doc);
+                  int componentNid = doc.getField(FIELD_COMPONENT_NID).numericValue().intValue();
+                  if (includedComponentNids.contains(componentNid)) {
+                     continue;
+                  } else {
+                     includedComponentNids.add(componentNid);
+                     results.add(new ComponentSearchResult(componentNid, hit.score));
+                     if (results.size() == internalPage) {
+                        complete = true;
+                        break;
+                     }
                   }
                }
             }
-
-            LOG.debug("Returning {} results from query", results.size());
-            return results;
-         } finally {
-            this.searcherManager.release(searcher);
          }
-      } catch (final IOException ex) {
-         throw new RuntimeException(ex);
+         LOG.debug("Returning {} results from query", results.size());
+         if (lastDoc != null)
+         {
+            lastDoc.set(after);
+         }
+         this.lastDocCache.put(hashQueryForCache(q, filter, pageNum, sizeLimit), after);
+         return results;
+
+      } catch (IOException e) {
+         LOG.error("Unexpected error during search", e);
+         throw new RuntimeException(e);
+      }
+
+      finally {
+         if (searcher != null) {
+            try {
+               this.referenceManager.release(searcher);
+            } catch (IOException e) {
+               LOG.error("Unexpected error releasing searcher", e);
+               throw new RuntimeException(e);
+            }
+         }
       }
    }
 
-   public IndexSearcher getIndexSearcher(Long targetGeneration) throws RuntimeException, IOException {
+   /**
+    * Read the previous page's last doc from the cache (or calculate it, if the cache hit fails)
+    * @param q
+    * @param filter
+    * @param pageNum
+    * @param sizeLimit
+    * @param targetGeneration
+    * @return
+    */
+   private ScoreDoc getAfterScoreDoc(Query q,
+         Predicate<Integer> filter,
+         int pageNum,
+         int sizeLimit,
+         Long targetGeneration) {
+      
+      if (pageNum == 1)
+      {
+         return null;
+      }
+      else
+      {
+         ScoreDoc lastDoc = this.lastDocCache.get(hashQueryForCache(q, filter, (pageNum - 1), sizeLimit));
+         if (lastDoc != null)
+         {
+            LOG.debug("Cache hit for last doc");
+            return lastDoc;
+         }
+         else
+         {
+            //The cache doesn't know what the last doc was of the previous page.  Need to run a full search, and 
+            //get the last doc hit.  Just do a single page search, as it is likely that none of the previous pages 
+            //are in the cache, and its likely cheapest just to get straight to the result we want, rather than paging 
+            //our way up.  If, for some reason, we needed to jump over very large result sets, we may need to reevaluate this
+            //to do this in multiple-page jumps to keep memory usage down.
+            //Note, we don't pass the AmpRestriction parameter, as it was already integrated into the query we were passed.
+            AtomicReference<ScoreDoc> temp = new AtomicReference<ScoreDoc>();
+            searchInternal(q, filter, null, 1, ((pageNum - 1) * sizeLimit), targetGeneration, temp);
+            return temp.get();
+         }
+      }
+   }
+   
+   /**
+    * Calculate a hash code for a query.  Note that a filter needs to have a reasonable hashcode for this to be effective.
+    * @param q
+    * @param filter
+    * @param pageNum
+    * @param sizeLimit
+    * @return
+    */
+   private int hashQueryForCache(Query q, Predicate<Integer> filter, int pageNum, int sizeLimit)
+   {
+      return q.hashCode() ^ 
+            (filter == null ? 0 : filter.hashCode()) ^
+            (pageNum - 1) ^
+            sizeLimit;
+   }
+
+   /**
+    * Get the index search, waiting if requested and necessary for a reopen.
+    * @param targetGeneration
+    * @return
+    * @throws RuntimeException
+    * @throws IOException
+    */
+   private IndexSearcher getIndexSearcher(Long targetGeneration) throws RuntimeException, IOException {
       if ((targetGeneration != null) && (targetGeneration != Long.MIN_VALUE)) {
          if (targetGeneration == Long.MAX_VALUE) {
-            this.searcherManager.maybeRefreshBlocking();
+            this.referenceManager.maybeRefreshBlocking();
          } else {
             try {
                this.reopenThread.waitForGeneration(targetGeneration);
@@ -828,7 +804,7 @@ public abstract class LuceneIndexer
             }
          }
       }
-      final IndexSearcher searcher = this.searcherManager.acquire();
+      final IndexSearcher searcher = this.referenceManager.acquire();
       return searcher;
    }
 
@@ -840,7 +816,7 @@ public abstract class LuceneIndexer
     * @param chronicleNid the chronicle nid
     * @return the future
     */
-   //TODO: consistently use CompletableFuture elsewhere...
+   //TODO: [KEC] consistently use CompletableFuture elsewhere...
    // See: https://tbeernot.wordpress.com/2017/06/05/the-art-of-waiting/
    // https://stackoverflow.com/questions/30559707/completablefuture-from-callable
    // http://www.nurkiewicz.com/2013/05/java-8-completablefuture-in-action.html
@@ -854,6 +830,7 @@ public abstract class LuceneIndexer
 
       if (indexChronicle.getAsBoolean()) {
          final CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(documentSupplier.get(), luceneWriterService);
+         luceneWriterFutureCheckerService.execute(new FutureChecker(completableFuture));
          return completableFuture;
       } else {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
@@ -868,12 +845,171 @@ public abstract class LuceneIndexer
    @PostConstruct
    private void startMe() {
       LOG.info("Starting " + getIndexerName() + " post-construct");
+      
+      try
+      {
+         final Path searchFolder     = LookupService.getService(ConfigurationService.class)
+               .getSearchFolderPath();
+         final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
+         
+         this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
+               new NamedThreadFactory(indexName + " Lucene future checker", false));
+
+         luceneRootFolder.mkdirs();
+         this.indexFolder = new File(luceneRootFolder, indexName);
+
+         if (!this.indexFolder.exists() || this.indexFolder.list().length == 0) {
+            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+            LOG.info("Index folder missing or empty: " + this.indexFolder.getAbsolutePath());
+         } else if (this.indexFolder.list().length > 0) {
+            this.databaseValidity.set(DatabaseValidity.EXISTING_DATASTORE);
+         }
+         else {
+             LOG.error("Unexpected logic");
+             this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+         }
+
+         this.indexFolder.mkdirs();
+         LOG.info("Index: " + this.indexFolder.getAbsolutePath());
+
+         final Directory indexDirectory = new MMapDirectory(this.indexFolder.toPath()); // switch over to MMapDirectory - in theory - this gives us back some
+         // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
+         // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
+         // the default value of SimpleFSDirectory is a huge bottleneck.
+
+         boolean reindexRequired = this.databaseValidity.get() == DatabaseValidity.NO_DATASTORE;
+         
+         try {
+            this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
+            
+            UUID temp = getDataStoreId();
+            LOG.info("Opened an index with a data store id of {}", temp);
+            
+            if (temp != null && !temp.equals(Get.assemblageService().getDataStoreId()))
+            {
+                LOG.error("Index ID {} does not match assemblage service ID {}.  Did someone swap indexes?  Reindexing...", 
+                      temp, Get.assemblageService().getDataStoreId());
+                throw new IndexFormatTooOldException("Index Mismatch", "Index mismatch");
+            }
+            
+            this.databaseValidity.set(DatabaseValidity.VALID_DATASTORE);
+         } catch (IndexFormatTooOldException e) {  //TODO [DAN] we should be able to catch other corrupt index issues here, and also solve by just reindexing... need to test
+            LOG.warn("Lucene index format was too old or didn't match the assemblage service in'" + getIndexerName() + "'.  Reindexing!");
+            RecursiveDelete.delete(this.indexFolder);
+            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+            this.indexFolder.mkdirs();
+            this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
+            reindexRequired = true;
+            // Will leave the validity on NO_DATASTORE until the reindex completes
+         }
+
+         // In the case of a blank index, we need to kick it to disk, otherwise, the search manager constructor fails.
+         this.indexWriter.commit();
+
+         final boolean applyAllDeletes = false;
+         final boolean writeAllDeletes = false;
+
+         // To get concurrent search, we have to provide an executor service (and use the IsaacFilteredCollectorManager)
+         this.referenceManager = new SearcherManager(this.indexWriter, applyAllDeletes, writeAllDeletes, new SearcherFactory() {
+            @Override
+            public IndexSearcher newSearcher(IndexReader reader,
+                  IndexReader previousReader) throws IOException {
+               return new IndexSearcher(reader, Get.workExecutors().getIOExecutor());
+            }
+
+         });
+
+         // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically taking into
+         // account the changes made to the index and tracked by the TrackingIndexWriter instance
+         // The index is refreshed every 60sc when nobody is waiting
+         // and every 100 millis whenever is someone waiting (see search method)
+         // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
+         this.reopenThread = new ControlledRealTimeReopenThread<>(this.indexWriter, this.referenceManager, 60.00, 0.1);
+         this.startReopenThread();
+
+         // Register for commits:
+         LOG.info("Registering indexer " + indexName + " for commits");
+         this.changeListenerRef = new ChronologyChangeListener() {
+            @Override
+            public void handleCommit(CommitRecord commitRecord) {
+               if (LuceneIndexer.this.dbBuildMode == null) {
+                  LuceneIndexer.this.dbBuildMode = Get.configurationService().inDBBuildMode();
+               }
+
+               if (LuceneIndexer.this.dbBuildMode) {
+                  LOG.debug("Ignore commit due to db build mode");
+                  return;
+               }
+
+               final int size = commitRecord.getSemanticNidsInCommit().size();
+
+               if (size < 100) {
+                  LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " + getIndexerName() + " due to commit");
+               } else {
+                  LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
+               }
+
+               ArrayList<Future<Long>> futures = new ArrayList<>();
+               commitRecord.getSemanticNidsInCommit().stream().forEach(sememeId -> {
+                  final SemanticChronology sc = Get.assemblageService().getSemanticChronology(sememeId);
+
+                  futures.add(index(sc));
+               });
+               // wait for all indexing operations to complete
+               for (Future<Long> f : futures) {
+                  try {
+                     f.get();
+                  } catch (InterruptedException | ExecutionException e) {
+                     log.error("Unexpected error waiting for index update", e);
+                  }
+               }
+               commitWriter();
+               LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
+            }
+
+            @Override
+            public void handleChange(SemanticChronology sc) {
+               // noop
+            }
+
+            @Override
+            public void handleChange(ConceptChronology cc) {
+               // noop
+            }
+
+            @Override
+            public UUID getListenerUuid() {
+               return UuidT5Generator.get(getIndexerName());
+            }
+         };
+         Get.commitService().addChangeListener(this.changeListenerRef);
+         
+         if (reindexRequired)
+         {
+            LOG.info("Starting reindex of '" + getIndexerName() + "' due to out-of-date index");
+            GenerateIndexes gi = new GenerateIndexes(this);
+            LookupService.getService(WorkExecutors.class).getExecutor().execute(gi);
+            gi.get();
+            LOG.info("Reindex complete");
+            if (this.databaseValidity.get() != DatabaseValidity.VALID_DATASTORE)
+            {
+               this.databaseValidity.set(DatabaseValidity.VALID_DATASTORE);
+            }
+         }
+      }
+      catch (InterruptedException | ExecutionException | IOException e) {
+         LOG.fatal("Error during indexer start", e);
+         LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure(indexName, e);
+         throw new RuntimeException(e);
+      }
+      
+      LOG.info("Indexer {} Started", this.indexName);
    }
 
    /**
     * Start thread.
     */
-   private void startThread() {
+   private void startReopenThread() {
       this.reopenThread.setName("Lucene " + this.indexName + " Reopen Thread");
       this.reopenThread.setPriority(Math.min(Thread.currentThread()
             .getPriority() + 2, Thread.MAX_PRIORITY));
@@ -887,16 +1023,29 @@ public abstract class LuceneIndexer
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
+      Get.commitService().removeChangeListener(this.changeListenerRef);
       commitWriter();
-      closeWriter();
+      try {
+         this.reopenThread.close();
+         this.referenceManager.close();
+
+         // We don't shutdown the writer service we are using, because it is the core isaac thread pool.
+         // waiting for the future checker service is sufficient to ensure that all write operations are complete.
+         this.luceneWriterFutureCheckerService.shutdown();
+         this.luceneWriterFutureCheckerService.awaitTermination(15, TimeUnit.MINUTES);
+         this.indexWriter.close();
+      } catch (InterruptedException | IOException ex) {
+         throw new RuntimeException(ex);
+      }
+      this.databaseValidity.set(DatabaseValidity.NOT_YET_CHECKED);
+      this.lastDocCache.clear();
+      
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the database folder.
-    *
-    * @return the database folder
+    * {@inheritDoc}
     */
    @Override
    public Path getDatabaseFolder() {
@@ -904,19 +1053,15 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Gets the database validity status.
-    *
-    * @return the database validity status
+    * {@inheritDoc}
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
    /**
-    * Checks if enabled.
-    *
-    * @return true, if enabled
+    * {@inheritDoc}
     */
    @Override
    public boolean isEnabled() {
@@ -926,9 +1071,7 @@ public abstract class LuceneIndexer
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the enabled.
-    *
-    * @param enabled the new enabled
+    * {@inheritDoc}
     */
    @Override
    public void setEnabled(boolean enabled) {
@@ -938,13 +1081,7 @@ public abstract class LuceneIndexer
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the indexed generation callable.
-    *
-    * @param nid for the component that the caller wished to wait until it's document is added to the index.
-    * @return a {@link IndexedGenerationCallable} object that will block until this indexer has added the
-    * document to the index. The {@link IndexedGenerationCallable#call()} method on the object will return the
-    * index generation that contains the document, which can be used in search calls to make sure the generation
-    * is available to the searcher.
+    * {@inheritDoc}
     */
    @Override
    public IndexedGenerationCallable getIndexedGenerationCallable(int nid) {
@@ -959,27 +1096,100 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Gets the indexer folder.
-    *
-    * @return the indexer folder
-    */
-   @Override
-   public File getIndexerFolder() {
-      return this.indexFolder;
-   }
-
-   /**
-    * Gets the indexer name.
-    *
-    * @return the indexer name
+    * {@inheritDoc}
     */
    @Override
    public String getIndexerName() {
       return this.indexName;
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Future<Void> sync() {
+      Task<Void> t = new Task<Void>() {
+         @Override
+         protected Void call() throws Exception {
+            commitWriter();
+            return null;
+         }
+      };
+      
+      Get.executor().submit(t);
+      return t;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public UUID getDataStoreId() {
+      Path p = getDatabaseFolder().resolve(DATASTORE_ID);
+      try {
+         if (p.toFile().isFile())
+         {
+            return UUID.fromString(new String(Files.readAllBytes(p)));
+         }
+      } catch (IOException e) {
+         LOG.error("Error reading dataStoreId from {}", p);
+      }
+      return null;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void startBatchReindex() {
+      LOG.info("locking for reindex");
+      if (!reindexLock.isHeldByCurrentThread()) {
+         reindexLock.lock();
+      }
+      clearIndexedStatistics();
+      clearIndex();
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void finishBatchReindex() {
+      if (reindexLock.isHeldByCurrentThread()) {
+         reindexLock.unlock();
+      }
+   }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * Class to ensure that any exceptions associated with indexingFutures are properly logged.
+    */
+   private static class FutureChecker implements Runnable
+   {
+
+      CompletableFuture<Long> future;
+
+      public FutureChecker(CompletableFuture<Long> future) {
+         this.future = future;
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public void run()
+      {
+         try
+         {
+            this.future.get();
+         } catch (InterruptedException | ExecutionException ex)
+         {
+            LOG.fatal("Unexpected error in future checker!", ex);
+         }
+      }
+   }
+   
    /**
     * The Class AddDocument.
     */
@@ -1001,13 +1211,16 @@ public abstract class LuceneIndexer
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * {@inheritDoc}
+       */
       @Override
       public Long get() {
          try {
             final Document doc = new Document();
             doc.add(new StoredField(FIELD_COMPONENT_NID,
                     this.chronicle.getNid()));
-            doc.add(new NumericDocValuesField(DOCVALUE_COMPONENT_NID, this.chronicle.getNid()));
+            indexStamp(chronicle, doc);
             addFields(this.chronicle, doc);
             // Note that the addDocument operation could cause duplicate documents to be
             // added to the index if a new version is added after initial index
@@ -1025,6 +1238,45 @@ public abstract class LuceneIndexer
             return indexGeneration;
          } catch (IOException ex) {
             throw new RuntimeException(ex);
+         }
+      }
+      
+      /**
+       * Add the necessary ids to the index to represent author, module and path
+       * @param chron
+       * @param doc
+       */
+      private void indexStamp(Chronology chron, Document doc)
+      {
+         Set<Integer> uniqPathNid = new HashSet<>();
+         Set<Integer> uniqModuleNid = new HashSet<>();
+         Set<Integer> uniqAuthorNid = new HashSet<>();
+         
+         for (Version sv : chron.getVersionList())
+         {
+            if (!uniqAuthorNid.contains(sv.getAuthorNid()))
+            {
+               doc.add(new TextField(FIELD_INDEXED_AUTHOR_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, 
+                     sv.getAuthorNid() + "", Field.Store.NO));
+               incrementIndexedItemCount("Author");
+               uniqAuthorNid.add(sv.getAuthorNid());
+            }
+            
+            if (!uniqModuleNid.contains(sv.getModuleNid()))
+            {
+               doc.add(new TextField(FIELD_INDEXED_MODULE_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, 
+                     sv.getModuleNid() + "", Field.Store.NO));
+               incrementIndexedItemCount("Module");
+               uniqModuleNid.add(sv.getModuleNid());
+            }
+            
+            if (!uniqPathNid.contains(sv.getPathNid()))
+            {
+               doc.add(new TextField(FIELD_INDEXED_PATH_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, 
+                     sv.getPathNid() + "", Field.Store.NO));
+               incrementIndexedItemCount("Path");
+               uniqPathNid.add(sv.getPathNid());
+            }
          }
       }
 

@@ -35,60 +35,63 @@
  *
  */
 
+package sh.isaac.api.index;
 
-
-package sh.isaac.provider.query.lucene.indexers;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.LeafCollector;
-import org.apache.lucene.search.Scorer;
-
-import sh.isaac.api.collections.SequenceSet;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.collections.NidSet;
 
 /**
+ * A class for passing Author, Module and/or Path restrictions into lucene queries.
+ * 
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  *
- * @author kec
  */
-public class NoScoreCollector
-         implements Collector {
-   final SequenceSet docIds = new SequenceSet();
+public class AmpRestriction {
 
-   //~--- methods -------------------------------------------------------------
+   private NidSet authors;
+   private NidSet modules;
+   private NidSet paths;
 
-   @Override
-   public boolean needsScores() {
-      return false;
+   private AmpRestriction() {
+
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   public SequenceSet getDocIds() {
-      return docIds;
+   public static AmpRestriction restrictAuthor(NidSet authors) {
+      AmpRestriction ar = new AmpRestriction();
+      ar.authors = authors;
+      return ar;
    }
 
-   @Override
-   public LeafCollector getLeafCollector(LeafReaderContext context)
-            throws IOException {
-      final int docBase = context.docBase;
+   public static AmpRestriction restrictModule(NidSet modules) {
+      AmpRestriction ar = new AmpRestriction();
+      ar.modules = modules;
+      return ar;
+   }
 
-      return new LeafCollector() {
-         // ignore scorer
-         public void setScorer(Scorer scorer)
-                  throws IOException {}
-         public void collect(int doc)
-                  throws IOException {
-            docIds.add(docBase + doc);
-         }
-      };
+   public static AmpRestriction restrictPath(NidSet paths) {
+      AmpRestriction ar = new AmpRestriction();
+      ar.paths = paths;
+      return ar;
+   }
+
+   public static AmpRestriction restrict(NidSet authors,
+         NidSet modules,
+         NidSet paths) {
+      AmpRestriction ar = new AmpRestriction();
+      ar.authors = authors;
+      ar.modules = modules;
+      ar.paths = paths;
+      return ar;
+   }
+
+   public NidSet getAuthors() {
+      return authors;
+   }
+
+   public NidSet getModules() {
+      return modules;
+   }
+
+   public NidSet getPaths() {
+      return paths;
    }
 }
-
