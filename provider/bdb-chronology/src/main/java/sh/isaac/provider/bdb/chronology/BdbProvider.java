@@ -161,7 +161,7 @@ public class BdbProvider
    /**
     * The database validity.
     */
-   private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
+   private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_YET_CHECKED;
 
    // TODO persist dataStoreId.
    private final UUID         dataStoreId        = UUID.randomUUID();
@@ -192,7 +192,7 @@ public class BdbProvider
    @Override
    public boolean importMetadata()
             throws Exception {
-      if (this.databaseValidity == DatabaseValidity.MISSING_DIRECTORY) {
+      if (this.databaseValidity == DatabaseValidity.NO_DATASTORE) {
          Optional<DatabaseInitialization> initializationPreference = Get.applicationPreferences()
                                                                         .getEnum(DatabaseInitialization.class);
 
@@ -543,7 +543,7 @@ public class BdbProvider
             } else if (metaDbFolder.exists()) {
                metaDbFolder.renameTo(isaacDbFolder);
             } else {
-               this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+               this.databaseValidity = DatabaseValidity.NO_DATASTORE;
             }
          }
 

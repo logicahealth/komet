@@ -44,11 +44,12 @@ package sh.isaac.api;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import javafx.concurrent.Task;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+
+import javafx.beans.value.ObservableObjectValue;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -64,43 +65,34 @@ public interface DatabaseServices {
     * The Enum DatabaseValidity.
     */
    public enum DatabaseValidity {
-      /** The not set. */
-      NOT_SET,
+      /** the starting point. */
+      NOT_YET_CHECKED,
 
-      /** The missing directory. */
-      MISSING_DIRECTORY,
+      /** The datastore directory is missing or empty */
+      NO_DATASTORE,
 
-      /** The empty directory. */
-      EMPTY_DIRECTORY,
-
-      /** The populated directory. */
-      POPULATED_DIRECTORY
+      /** An existing data store is present */
+      EXISTING_DATASTORE,
+      
+      /** The existing data store has been read and validated */
+      VALID_DATASTORE
    }
 
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the database folder.
-    *
-    * @return the database folder
-    */
-
-   /*
     * Flag indicating that folder path of the database.
     */
    public Path getDatabaseFolder();
 
    /**
-    * Gets the database validity status.
+    * Gets the database validity status.  This should never return null.  Implementations should start by returning {@link DatabaseValidity#NOT_YET_CHECKED}.  
+    * When a datastore starts, it should set this appropriately, as it starts up.  When it shuts down, it should return {@link DatabaseValidity#NOT_YET_CHECKED}
     *
     * @return the database validity status
     */
-
-   /*
-    * get database validity status
-    */
-   public DatabaseValidity getDatabaseValidityStatus();
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus();
    
    /**
     * Return the UUID that was generated when the database was first created.

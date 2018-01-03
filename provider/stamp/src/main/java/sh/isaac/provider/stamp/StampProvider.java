@@ -158,7 +158,7 @@ public class StampProvider
    /**
     * The database validity.
     */
-   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_YET_CHECKED;
 
    /**
     * The stamp sequence path sequence map.
@@ -197,7 +197,7 @@ public class StampProvider
       this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
 
       if (!Files.exists(this.stampManagerFolder)) {
-         this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+         this.databaseValidity = DatabaseValidity.NO_DATASTORE;
       }
 
       Files.createDirectories(this.stampManagerFolder);
@@ -236,7 +236,7 @@ public class StampProvider
                }
             }
 
-            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+            this.databaseValidity = DatabaseValidity.EXISTING_DATASTORE;
          }
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)

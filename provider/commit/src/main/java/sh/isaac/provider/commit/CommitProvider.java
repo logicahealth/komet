@@ -261,7 +261,7 @@ public class CommitProvider
    /**
     * The database validity.
     */
-   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_YET_CHECKED;
 
    /**
     * The db folder path.
@@ -290,7 +290,7 @@ public class CommitProvider
          this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
 
          if (!Files.exists(this.commitManagerFolder)) {
-            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+            this.databaseValidity = DatabaseValidity.NO_DATASTORE;
          }
 
          Files.createDirectories(this.commitManagerFolder);
@@ -973,7 +973,7 @@ public class CommitProvider
             this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
             LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+            this.databaseValidity = DatabaseValidity.EXISTING_DATASTORE;
          }
          
 //         checkers.add(new ChangeChecker() {
