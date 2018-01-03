@@ -60,10 +60,13 @@ import java.util.zip.ZipFile;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.MetaData;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
@@ -110,6 +113,13 @@ public class Rf2DirectImporter
       try {
          File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
 
+         System.out.println("Adding all metadata to identifier cache.");
+         
+         IdentifierService idService = Get.identifierService();
+         for (ConceptSpecification metadataSpec: MetaData.META_DATA_CONCEPTS) {
+             idService.getCachedNidForProxy(metadataSpec);
+         }
+        
          System.out.println("Trying to import from: " + importDirectory.getAbsolutePath());
 
          int fileCount = loadDatabase(importDirectory);

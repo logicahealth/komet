@@ -27,7 +27,14 @@ import sh.komet.gui.manifold.Manifold;
 public class TreeTableConceptCell extends KometTreeTableCell<Integer> {
    private final Manifold manifold;
 
+   protected TreeTableConceptCell() {
+       throw new UnsupportedOperationException(
+               "Manifold must be set. No arg constructor not allowed");
+   }
    public TreeTableConceptCell(Manifold manifold) {
+      if (manifold == null) {
+         throw new IllegalArgumentException("manifold cannot be null");
+      }
       this.manifold = manifold;
       getStyleClass().add("komet-version-concept-cell");
       getStyleClass().add("isaac-version");
@@ -35,7 +42,10 @@ public class TreeTableConceptCell extends KometTreeTableCell<Integer> {
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, Integer cellValue) {
-         setText(manifold.getPreferredDescriptionText(cellValue));
+       if (cellValue!= null) {
+           setText(manifold.getPreferredDescriptionText(cellValue));
+       }
+         
    }
    
 }

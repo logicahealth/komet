@@ -49,6 +49,7 @@ import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -150,6 +151,11 @@ public abstract class Clause implements ConceptSpecification {
    public List<UUID> getUuidList() {
       return getClauseConcept().getUuidList();
    }
+
+    @Override
+    public int getNid() {
+        return Get.identifierService().getCachedNidForProxy(this);
+    }
 
    //~--- methods -------------------------------------------------------------
 

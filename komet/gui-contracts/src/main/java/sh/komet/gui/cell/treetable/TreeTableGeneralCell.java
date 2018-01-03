@@ -143,27 +143,25 @@ public class TreeTableGeneralCell
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
         setWrapText(false);
 
-        SemanticVersion sememeVersion = version.unwrap();
-        VersionType semanticType = sememeVersion.getChronology()
+        SemanticVersion semanticVersion = version.unwrap();
+        VersionType semanticType = semanticVersion.getChronology()
                 .getVersionType();
 
         this.setGraphic(null);
         this.setContentDisplay(ContentDisplay.TEXT_ONLY);
 
         Text assemblageNameText = new Text(
-                manifold.getPreferredDescriptionText(sememeVersion.getAssemblageNid()) + "\n");
+                manifold.getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n");
 
         assemblageNameText.getStyleClass()
                 .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
 
-        String referencedComponentString = manifold.getPreferredDescriptionText(
-                sememeVersion.getReferencedComponentNid());
+        String referencedComponentString = manifold.getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
         Text referencedComponentText = new Text("\n" + referencedComponentString);
         Text referencedComponentTextNoNewLine = new Text(
-                manifold.getPreferredDescriptionText(
-                        sememeVersion.getReferencedComponentNid()));
+                manifold.getPreferredDescriptionText(semanticVersion.getReferencedComponentNid()));
 
-        switch (Get.identifierService().getObjectTypeForComponent(sememeVersion.getReferencedComponentNid())) {
+        switch (Get.identifierService().getObjectTypeForComponent(semanticVersion.getReferencedComponentNid())) {
             case CONCEPT:
                 referencedComponentText.getStyleClass()
                         .add(StyleClasses.CONCEPT_COMPONENT_REFERENCE.toString());

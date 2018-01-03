@@ -315,7 +315,7 @@ public class UuidIntMapMap
      * @param i the i
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    protected void readMapFromDisk(int i)
+    private void readMapFromDisk(int i)
             throws IOException {
         this.lock.lock();
 

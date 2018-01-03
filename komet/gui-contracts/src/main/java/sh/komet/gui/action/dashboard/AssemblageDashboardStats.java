@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 /**
@@ -50,10 +50,11 @@ public class AssemblageDashboardStats extends TimedTaskWithProgressTracker<Void>
         try {
             int count = Get.assemblageService().getSemanticCount(assemblageNid);
             addToTotalWork(count);
-            Stream<SemanticChronology> semanticStream
-                    = Get.assemblageService().getSemanticChronologyStreamFromAssemblage(assemblageNid);
             
-            semanticStream.forEach((SemanticChronology chronology) -> {
+            Stream<Chronology> chronologyStream
+                    = Get.assemblageService().getChronologyStream(assemblageNid);
+            
+            chronologyStream.forEach((Chronology chronology) -> {
                 semanticCount.incrementAndGet();
                 completedUnitOfWork();
                 for (Version version : chronology.getVersionList()) {

@@ -343,8 +343,13 @@ public class ImportExportTest {
                      SemanticChronology sc = (SemanticChronology) object;
                      if (sc.getReferencedComponentNid() == chroniclePropertiesNid || sc.getReferencedComponentNid() == descriptionAssemblageNid) {
                         if (sc.getAssemblageNid() == statedAssemblageNid) {
-                           System.out.println(sc.toString());
-                           LOG.info("Found watch def: " + sc);
+                            try {
+                                System.out.println(sc.toString());
+                                LOG.info("Found watch def: " + sc);
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                                throw e;
+                            }
                         }
                         
                      }

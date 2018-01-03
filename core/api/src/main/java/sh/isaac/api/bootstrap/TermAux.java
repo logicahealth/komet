@@ -170,16 +170,27 @@ public class TermAux {
    public static ConceptSpecification RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY =
       new ConceptProxy("Relationship type in source terminology",
                        UUID.fromString("46bc0e6b-0e64-5aa6-af27-a823e9156dfc"));
+   public static ConceptSpecification ENGLISH_DIALECT_ASSEMBLAGE =
+      new ConceptProxy("English dialect assemblage",
+                       UUID.fromString("c0836284-f631-3c86-8cfc-56a67814efab"));
 
    /** ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English language reference set" */
    public static ConceptSpecification US_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("United States of America English language assemblage",
+      new ConceptProxy("United States of America English dialect assemblage",
                        UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
 
    /** ConceptProxy for: "Great Britain dialect assemblage". IsaacMetadataAuxiliary has "GB English dialect", TermAux has "Great Britain English language reference set" */
    public static ConceptSpecification GB_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("Great Britain English language assemblage",
+      new ConceptProxy("Great Britain English dialect assemblage",
                        UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
+   
+   public static ConceptSpecification SPANISH_DIALECT_ASSEMBLAGE =
+      new ConceptProxy("Spanish dialect assemblage",
+                       UUID.fromString("03615ef2-aa56-336d-89c5-a1b5c4cee8f6"));
+
+   public static ConceptSpecification SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE =
+      new ConceptProxy("Latin american spanish dialect assemblage",
+                       UUID.fromString("835d3fe2-7bd7-3aa8-a52a-25e203b0afbe"));
 
    /** ConceptProxy for: "English language". */
    public static ConceptSpecification ENGLISH_LANGUAGE = new ConceptProxy("English language",
@@ -396,7 +407,7 @@ public class TermAux {
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
    public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
   
-   public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "concepts", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
+   public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "Concept assemblage", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
    public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR concept assemblage", "SOLOR concepts", UUID.fromString("d39b3ecd-9a80-5009-a8ac-0b947f95ca7c"));
    public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts", UUID.fromString("d4d1bb43-bf2f-5c4e-b8b8-f0be8a5cca83"));
    public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts", UUID.fromString("914cd34d-c97a-5fc5-abac-53bfb161eca0"));

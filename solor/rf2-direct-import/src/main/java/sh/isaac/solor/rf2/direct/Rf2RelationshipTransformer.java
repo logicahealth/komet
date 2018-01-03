@@ -118,7 +118,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
    private SpinedIntIntArrayMap setupRelSpinedMap(int relationshipAssemblageNid, int conceptAssemblageNid) {
       SpinedIntIntArrayMap conceptElementSequence_RelationshipNids_Map = new SpinedIntIntArrayMap();
-      Get.assemblageService().getSemanticChronologyStreamFromAssemblage(relationshipAssemblageNid)
+      Get.assemblageService().getSemanticChronologyStream(relationshipAssemblageNid)
               .forEach((semanticChronology) -> {
                  int conceptNid = semanticChronology.getReferencedComponentNid();
                  int conceptAssemblageNidFound = containerService.getAssemblageNidForNid(conceptNid);

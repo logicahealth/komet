@@ -132,6 +132,7 @@ public interface IdentifierService
     */
    int getNidForProxy(ConceptSpecification conceptProxy);
 
+   int getCachedNidForProxy(ConceptSpecification conceptProxy);
    /**
     * Gets the concept sequence for uuids.
     *

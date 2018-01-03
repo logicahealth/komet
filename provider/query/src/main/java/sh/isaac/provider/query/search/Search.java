@@ -113,7 +113,7 @@ public class Search {
                            final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
                            final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                           Get.assemblageService().getSemanticChronologyStreamFromAssemblage(memberOfRefsetNid).forEach(sememeC -> {
+                           Get.assemblageService().getSemanticChronologyStream(memberOfRefsetNid).forEach(sememeC -> {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
 

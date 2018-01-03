@@ -312,9 +312,20 @@ public class IsaacMetadataAuxiliary
          popParent();
          createConcept("Dialect assemblage");
          pushParent(current());
+         
+         createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE);
+         pushParent(current());
          createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
          createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE);
          createConcept("US Nursing dialect");
+         popParent();
+         createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE);
+         
+         pushParent(current());
+         createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE);
+         popParent();
+         
+         
          popParent();
          createConcept("Logic assemblage");
          pushParent(current());

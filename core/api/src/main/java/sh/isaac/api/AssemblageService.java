@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 
@@ -205,7 +206,16 @@ public interface AssemblageService
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptSequence);
+
+   /**
+    * Gets the SemanticChronologies from assemblage.
+    *
+    * @param <C>
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the SemanticChronologies from assemblage
+    */
+   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptSequence);
 
    /**
     * Gets the referenced component nids from assemblage.
@@ -224,7 +234,7 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
-      return getSemanticChronologyStreamFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+      return getSemanticChronologyStream(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    int[] getAssemblageConceptNids(); 

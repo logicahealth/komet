@@ -69,6 +69,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
@@ -399,5 +400,17 @@ public class Manifold
          EDITS_IN_PROCESS.remove(editInFlight);
       });
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return this.observableManifoldCoordinate.getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        this.observableManifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    }
+   
+   
 }
 

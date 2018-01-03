@@ -41,6 +41,9 @@ package sh.isaac.api.collections.uuidnidmap;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 
@@ -263,6 +266,62 @@ public class ConcurrentUuidToIntHashMap
        bytesInUse = bytesInUse + (table.length * 8);
        return bytesInUse + (values.length * 4);
    }
+   
+  //~--- methods -------------------------------------------------------------
+
+   public static ConcurrentUuidToIntHashMap deserialize(DataInput input) {
+      try {
+         final int                        size  = input.readInt();
+         final ConcurrentUuidToIntHashMap map   = new ConcurrentUuidToIntHashMap(size);
+         final long                       stamp = map.getStampedLock()
+                                                     .writeLock();
+
+         try {
+            final long[] uuidData = new long[2];
+
+            for (int i = 0; i < size; i++) {
+               uuidData[0] = input.readLong();
+               uuidData[1] = input.readLong();
+
+               final int nid = input.readInt();
+
+               map.put(uuidData, nid, stamp);
+            }
+         } finally {
+            map.getStampedLock()
+               .unlockWrite(stamp);
+         }
+
+         return map;
+      } catch (final IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+
+   /**
+    * Serialize.
+    *
+    * @param out the out
+    */
+   public void serialize(DataOutput out) {
+      try {
+         out.writeInt(size());
+         forEachPair((long[] uuid,
+                          int nid) -> {
+                            try {
+                               out.writeLong(uuid[0]);
+                               out.writeLong(uuid[1]);
+                               out.writeInt(nid);
+                            } catch (final IOException ex) {
+                               throw new RuntimeException(ex);
+                            }
+
+                            return true;
+                         });
+      } catch (final IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }   
    
 }
 
