@@ -39,31 +39,24 @@
 
 package sh.isaac.api.component.semantic.version.dynamic.types;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.beans.property.ReadOnlyObjectProperty;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * {@link DynamicInteger}.
+ * {@link DynamicNumeric}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface DynamicInteger
-        extends DynamicNumeric {
+public interface DynamicNumeric extends DynamicData {
    /**
-    * Gets the data integer.
+    * Gets the data as a Number
     *
-    * @return the data integer
+    * @return the data as a number
     */
-   public int getDataInteger();
-
-   /**
-    * Gets the data integer property.
-    *
-    * @return the data integer property
-    */
-   public ReadOnlyObjectProperty<Integer> getDataIntegerProperty();
+   public default Number getDataNumeric()
+   {
+      return (Number)getDataObject();
+   }
 }
 
