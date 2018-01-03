@@ -41,9 +41,7 @@ package sh.isaac.model.configuration;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 
@@ -59,9 +57,9 @@ public class EditCoordinates {
     * @return the classifier solor overlay
     */
    public static EditCoordinate getClassifierSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.IHTSDO_CLASSIFIER),
-                                                                   getNid(TermAux.SOLOR_OVERLAY_MODULE),
-                                                                   getNid(TermAux.DEVELOPMENT_PATH));
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.IHTSDO_CLASSIFIER.getNid(),
+                                                                   TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                                                                   TermAux.DEVELOPMENT_PATH.getNid());
 
       return editCoordinate;
    }
@@ -72,9 +70,9 @@ public class EditCoordinates {
     * @return the default user metadata
     */
    public static EditCoordinate getDefaultUserMetadata() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                                   getNid(TermAux.SOLOR_MODULE),
-                                                                   getNid(TermAux.DEVELOPMENT_PATH));
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
+                                                                   TermAux.SOLOR_MODULE.getNid(),
+                                                                   TermAux.DEVELOPMENT_PATH.getNid());
 
       return editCoordinate;
    }
@@ -85,9 +83,9 @@ public class EditCoordinates {
     * @return the default user solor overlay
     */
    public static EditCoordinate getDefaultUserSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                                   getNid(TermAux.SOLOR_OVERLAY_MODULE),
-                                                                   getNid(TermAux.DEVELOPMENT_PATH));
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
+                                                                   TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                                                                   TermAux.DEVELOPMENT_PATH.getNid());
 
       return editCoordinate;
    }
@@ -98,22 +96,11 @@ public class EditCoordinates {
     * @return the default user veterans administration extension
     */
    public static EditCoordinate getDefaultUserVeteransAdministrationExtension() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                                   getNid(TermAux.VHA_MODULES),
-                                                                   getNid(TermAux.DEVELOPMENT_PATH));
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
+                                                                   TermAux.VHA_MODULES.getNid(),
+                                                                   TermAux.DEVELOPMENT_PATH.getNid());
 
       return editCoordinate;
-   }
-
-   /**
-    * Gets the nid.
-    *
-    * @param spec the spec
-    * @return the nid
-    */
-   private static int getNid(ConceptSpecification spec) {
-      return Get.identifierService()
-                .getNidForUuids(spec.getUuids());
    }
 }
 

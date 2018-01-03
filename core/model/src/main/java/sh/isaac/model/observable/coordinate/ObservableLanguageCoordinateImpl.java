@@ -34,17 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
+import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -54,14 +50,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -72,7 +66,6 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableLanguageCoordinateImpl.
  *
@@ -82,236 +75,254 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 @XmlAccessorType(XmlAccessType.FIELD)
 public final class ObservableLanguageCoordinateImpl
         extends ObservableCoordinateImpl
-         implements ObservableLanguageCoordinate {
-   /** The language concept sequence property. */
-   @XmlTransient
-   IntegerProperty languageConceptSequenceProperty = null;
+        implements ObservableLanguageCoordinate {
 
-   /** The dialect assemblage preference list property. */
-   @XmlTransient
-   ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
+    /**
+     * The language concept sequence property.
+     */
+    @XmlTransient
+    IntegerProperty languageConceptSequenceProperty = null;
 
-   /** The description type preference list property. */
-   @XmlTransient
-   ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
+    /**
+     * The dialect assemblage preference list property.
+     */
+    @XmlTransient
+    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
 
-   /** The language coordinate. */
-   private LanguageCoordinate languageCoordinate;
+    /**
+     * The description type preference list property.
+     */
+    @XmlTransient
+    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
 
-   //~--- constructors --------------------------------------------------------
+    @XmlTransient
+    ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty = null;
 
-   /**
-    * Instantiates a new observable language coordinate impl.
-    */
-   private ObservableLanguageCoordinateImpl() {
-      // for jaxb
-   }
+    /**
+     * The language coordinate.
+     */
+    private LanguageCoordinateImpl languageCoordinate;
 
-   /**
-    * Instantiates a new observable language coordinate impl.
-    *
-    * @param languageCoordinate the language coordinate
-    */
-   public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
-      if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
-         throw new IllegalStateException("Trying to wrap an observable coordinate in an observable coordinate...");
-                 
-      }
-      this.languageCoordinate = languageCoordinate;
-      if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
-         ObservableLanguageCoordinateImpl observableLanguageCoordinate = (ObservableLanguageCoordinateImpl) languageCoordinate;
-         languageConceptSequenceProperty = observableLanguageCoordinate.languageConceptSequenceProperty;
-         dialectAssemblagePreferenceListProperty = observableLanguageCoordinate.dialectAssemblagePreferenceListProperty;
-         descriptionTypePreferenceListProperty = observableLanguageCoordinate.descriptionTypePreferenceListProperty;
-      }
-   }
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new observable language coordinate impl.
+     */
+    private ObservableLanguageCoordinateImpl() {
+        // for jaxb
+    }
 
-   //~--- methods -------------------------------------------------------------
+    /**
+     * Instantiates a new observable language coordinate impl.
+     *
+     * @param languageCoordinate the language coordinate
+     */
+    public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
+        if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+            throw new IllegalStateException("Trying to wrap an observable coordinate in an observable coordinate...");
 
-   /**
-    * Description type preference list property.
-    *
-    * @return the object property
-    */
-   @Override
-   public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
-      if (this.descriptionTypePreferenceListProperty == null) {
-         this.descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
-               FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
-         
-         this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
-            this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
-         });
-      }
+        }
+        this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+    }
 
-      return this.descriptionTypePreferenceListProperty;
-   }
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Description type preference list property.
+     *
+     * @return the object property
+     */
+    @Override
+    public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
+        if (this.descriptionTypePreferenceListProperty == null) {
+            this.descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
+                    FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
 
-   /**
-    * Dialect assemblage preference list property.
-    *
-    * @return the object property
-    */
-   @Override
-   public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
-      if (this.dialectAssemblagePreferenceListProperty == null) {
-         this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
-               FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
-         
-         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
-            addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setDialectAssemblagePreferenceListProperty(
-                 this.dialectAssemblagePreferenceListProperty));
-         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
-            LanguageCoordinateImpl languageCoordinateImpl = 
-                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
-            languageCoordinateImpl.setDialectAssemblagePreferenceListProperty(
-                 this.dialectAssemblagePreferenceListProperty);
-         }
-         
-      }
+            this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
+                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
+            });
+        }
 
-      return this.dialectAssemblagePreferenceListProperty;
-   }
+        return this.descriptionTypePreferenceListProperty;
+    }
 
-   /**
-    * Language concept sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty languageConceptNidProperty() {
-      if (this.languageConceptSequenceProperty == null) {
-         this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.LANGUAGE_NID_FOR_LANGUAGE_COORDINATE.toExternalString(),
-               getLanguageConceptNid());
-         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
-            addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptNidProperty(
-                 this.languageConceptSequenceProperty));
-         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
-            LanguageCoordinateImpl languageCoordinateImpl = 
-                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
-            languageCoordinateImpl.setLanguageConceptNidProperty(
-                 this.languageConceptSequenceProperty);
-         }
-      }
-      return this.languageConceptSequenceProperty;
-   }
+    /**
+     * Dialect assemblage preference list property.
+     *
+     * @return the object property
+     */
+    @Override
+    public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
+        if (this.dialectAssemblagePreferenceListProperty == null) {
+            this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
+                    FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
 
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      return "ObservableLanguageCoordinateImpl{" + this.languageCoordinate + '}';
-   }
+            addListenerReference(this.languageCoordinate.setDialectAssemblagePreferenceListProperty(
+                    this.dialectAssemblagePreferenceListProperty));
+        }
 
-   //~--- get methods ---------------------------------------------------------
+        return this.dialectAssemblagePreferenceListProperty;
+    }
 
-   /**
-    * Gets the description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the description
-    */
-   @Override
-   public LatestVersion<DescriptionVersion> getDescription(
-           List<SemanticChronology> descriptionList,
-           StampCoordinate stampCoordinate) {
-      return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
-   }
+    @Override
+    public ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty() {
+        if (this.nextProrityLanguageCoordinateProperty == null) {
+            ObservableLanguageCoordinate nextPriorityLanguageCoordinate = null;
+            Optional<LanguageCoordinate> nextPriorityOption = languageCoordinate.getNextProrityLanguageCoordinate();
+            if (nextPriorityOption.isPresent()) {
+                nextPriorityLanguageCoordinate = new ObservableLanguageCoordinateImpl(nextPriorityOption.get());
+            }
+            this.nextProrityLanguageCoordinateProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.NEXT_PRIORITY_LANGUAGE_COORDINATE.toExternalString(),
+                    nextPriorityLanguageCoordinate);
 
-   /**
-    * Gets the description type preference list.
-    *
-    * @return the description type preference list
-    */
-   @Override
-   public int[] getDescriptionTypePreferenceList() {
-      if (this.descriptionTypePreferenceListProperty != null) {
-         return this.descriptionTypePreferenceListProperty.get()
-               .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
-      }
+            addListenerReference(this.languageCoordinate
+                    .setNextProrityLanguageCoordinateProperty(nextProrityLanguageCoordinateProperty));
 
-      return this.languageCoordinate.getDescriptionTypePreferenceList();
-   }
+        }
 
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      if (this.descriptionTypePreferenceListProperty != null) {
-         this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
-      } else {
-         this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-      }
-   }
+        return this.nextProrityLanguageCoordinateProperty;
+    }
 
-   /**
-    * Gets the dialect assemblage preference list.
-    *
-    * @return the dialect assemblage preference list
-    */
-   @Override
-   public int[] getDialectAssemblagePreferenceList() {
-      if (this.dialectAssemblagePreferenceListProperty != null) {
-         return this.dialectAssemblagePreferenceListProperty.get()
-               .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
-      }
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
-      return this.languageCoordinate.getDialectAssemblagePreferenceList();
-   }
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
-   /**
-    * Gets the fully specified description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the fully specified description
-    */
-   @Override
-   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SemanticChronology> descriptionList,
-           StampCoordinate stampCoordinate) {
-      return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
-   }
+    /**
+     * Language concept sequence property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public IntegerProperty languageConceptNidProperty() {
+        if (this.languageConceptSequenceProperty == null) {
+            this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
+                    ObservableFields.LANGUAGE_NID_FOR_LANGUAGE_COORDINATE.toExternalString(),
+                    getLanguageConceptNid());
+            addListenerReference(this.languageCoordinate.setLanguageConceptNidProperty(
+                    this.languageConceptSequenceProperty));
+        }
+        return this.languageConceptSequenceProperty;
+    }
 
-   /**
-    * Gets the language concept sequence.
-    *
-    * @return the language concept sequence
-    */
-   @Override
-   public int getLanguageConceptNid() {
-      if (this.languageConceptSequenceProperty != null) {
-         return this.languageConceptSequenceProperty.get();
-      }
+    /**
+     * To string.
+     *
+     * @return the string
+     */
+    @Override
+    public String toString() {
+        return "ObservableLanguageCoordinateImpl{" + this.languageCoordinate + '}';
+    }
 
-      return this.languageCoordinate.getLanguageConceptNid();
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the description.
+     *
+     * @param descriptionList the description list
+     * @param stampCoordinate the stamp coordinate
+     * @return the description
+     */
+    @Override
+    public LatestVersion<DescriptionVersion> getDescription(
+            List<SemanticChronology> descriptionList,
+            StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
+    }
 
-   /**
-    * Gets the preferred description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the preferred description
-    */
-   @Override
-   public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SemanticChronology> descriptionList,
-           StampCoordinate stampCoordinate) {
-      return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
-   }
+    /**
+     * Gets the description type preference list.
+     *
+     * @return the description type preference list
+     */
+    @Override
+    public int[] getDescriptionTypePreferenceList() {
+        if (this.descriptionTypePreferenceListProperty != null) {
+            return this.descriptionTypePreferenceListProperty.get()
+                    .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
+        }
 
-   @Override
-   public ObservableLanguageCoordinateImpl deepClone() {
-      return new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
-   }
-   
+        return this.languageCoordinate.getDescriptionTypePreferenceList();
+    }
+
+    @Override
+    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+        if (this.descriptionTypePreferenceListProperty != null) {
+            this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
+        } else {
+            this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
+        }
+    }
+
+    /**
+     * Gets the dialect assemblage preference list.
+     *
+     * @return the dialect assemblage preference list
+     */
+    @Override
+    public int[] getDialectAssemblagePreferenceList() {
+        if (this.dialectAssemblagePreferenceListProperty != null) {
+            return this.dialectAssemblagePreferenceListProperty.get()
+                    .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
+        }
+
+        return this.languageCoordinate.getDialectAssemblagePreferenceList();
+    }
+
+    /**
+     * Gets the fully specified description.
+     *
+     * @param descriptionList the description list
+     * @param stampCoordinate the stamp coordinate
+     * @return the fully specified description
+     */
+    @Override
+    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
+            List<SemanticChronology> descriptionList,
+            StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
+    }
+
+    /**
+     * Gets the language concept sequence.
+     *
+     * @return the language concept sequence
+     */
+    @Override
+    public int getLanguageConceptNid() {
+        if (this.languageConceptSequenceProperty != null) {
+            return this.languageConceptSequenceProperty.get();
+        }
+
+        return this.languageCoordinate.getLanguageConceptNid();
+    }
+
+    /**
+     * Gets the preferred description.
+     *
+     * @param descriptionList the description list
+     * @param stampCoordinate the stamp coordinate
+     * @return the preferred description
+     */
+    @Override
+    public LatestVersion<DescriptionVersion> getPreferredDescription(
+            List<SemanticChronology> descriptionList,
+            StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
+    }
+
+    @Override
+    public ObservableLanguageCoordinateImpl deepClone() {
+        return new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
+    }
+
+    public LanguageCoordinateImpl unwrap() {
+        return languageCoordinate;
+    }
 }
-

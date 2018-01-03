@@ -38,6 +38,7 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.List;
+import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
@@ -54,6 +55,20 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public interface LanguageCoordinate extends Coordinate {
 
+    /**
+     * If the current language coordinate fails to return a requested description, 
+     * then the next priority language coordinate will be tried until a description is found, 
+     * or until there are no next priority language coordinates left. 
+     * 
+     * @return 
+     */
+    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
+    
+    /**
+     * 
+     * @param languageCoordinate the next in priority language coordinate. 
+     */
+    void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate);
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *

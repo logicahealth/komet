@@ -418,7 +418,6 @@ public class LoadTermstore
          }
          
          
-         Get.startIndexTask().get();
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
@@ -439,13 +438,15 @@ public class LoadTermstore
          }
 
          if (this.skippedAny) {
+             getLog().warn("Skipped components during import.");
             // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
 //            Get.identifierService()
 //               .clearUnusedIds();
          }
+         Get.startIndexTask().get();
          LookupService.syncAll();
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
-         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
+         getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));

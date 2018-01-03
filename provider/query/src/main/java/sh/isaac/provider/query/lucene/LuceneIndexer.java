@@ -1029,5 +1029,13 @@ public abstract class LuceneIndexer
          return this.chronicle.getNid();
       }
    }
+   
+   
+    @Override
+    public int getIndexMemoryInUse() {
+        return (int) indexWriter.ramBytesUsed();
+    }
+   
+
 }
 

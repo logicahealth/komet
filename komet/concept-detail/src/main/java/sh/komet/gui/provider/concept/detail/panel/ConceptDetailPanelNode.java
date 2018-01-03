@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -70,6 +71,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
@@ -127,7 +130,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  * @author kec
  */
 public class ConceptDetailPanelNode
-         implements DetailNode, ChronologyChangeListener {
+         implements DetailNode, ChronologyChangeListener, Supplier<List<MenuItem>>   {
    private static final int TRANSITION_OFF_TIME = 250;
    private static final int TRANSITION_ON_TIME  = 750;
 
@@ -151,6 +154,7 @@ public class ConceptDetailPanelNode
    private ConceptLabel               titleLabel           = null;
    private final Manifold             conceptDetailManifold;
    private final ScrollPane           scrollPane;
+   private final ConceptLabelToolbar conceptLabelToolbar;
 
    //~--- initializers --------------------------------------------------------
 
@@ -166,7 +170,8 @@ public class ConceptDetailPanelNode
       updateManifoldHistoryStates();
       conceptDetailManifold.focusedConceptProperty()
                            .addListener(this::setConcept);
-      conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
+      this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this);
+      conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
       conceptDetailPane.getStyleClass()
                        .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
       conceptDetailPane.setCenter(componentPanelBox);
@@ -619,7 +624,7 @@ public class ConceptDetailPanelNode
    @Override
    public Optional<Node> getTitleNode() {
       if (titleLabel == null) {
-         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText);
+         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText, this);
          this.titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
          this.titleProperty.set("");
       }
@@ -631,5 +636,11 @@ public class ConceptDetailPanelNode
    public ReadOnlyProperty<String> getToolTip() {
       return this.toolTipProperty;
    }
+    @Override
+    public List<MenuItem> get() {
+        List<MenuItem> assemblageMenuList = new ArrayList<>();
+        // No extra menu items added yet. 
+        return assemblageMenuList;
+    }
 }
 

@@ -41,7 +41,8 @@ package sh.isaac.api.memory;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.ticker.Ticker;
+import java.time.Duration;
+import sh.isaac.api.util.FxTimer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -49,8 +50,7 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class HeapUseTicker {
-   /** The Constant ticker. */
-   private static final Ticker ticker = new Ticker();
+   private static FxTimer fxTimer;
 
    //~--- methods -------------------------------------------------------------
 
@@ -60,14 +60,21 @@ public class HeapUseTicker {
     * @param intervalInSeconds the interval in seconds
     */
    public static void start(int intervalInSeconds) {
-      ticker.start(intervalInSeconds, (tick) -> System.out.println(MemoryUtil.getHeapPercentUse()));
+       if (fxTimer != null) {
+           fxTimer.stop();
+       }
+       fxTimer = FxTimer.createPeriodic(Duration.ofSeconds(intervalInSeconds), HeapUseTicker::printHeapUse);
+   }
+   
+   private static void printHeapUse() {
+       System.out.println(MemoryUtil.getHeapPercentUse());
    }
 
    /**
     * Stop.
     */
    public static void stop() {
-      ticker.stop();
+      fxTimer.stop();
    }
 }
 

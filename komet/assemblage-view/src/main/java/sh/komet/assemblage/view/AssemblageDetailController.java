@@ -34,12 +34,12 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.komet.gui.cell.TreeTableAuthorTimeCellFactory;
-import sh.komet.gui.cell.TreeTableConceptCellFactory;
-import sh.komet.gui.cell.TreeTableGeneralCellFactory;
-import sh.komet.gui.cell.TreeTableModulePathCellFactory;
-import sh.komet.gui.cell.TreeTableTimeCellFactory;
-import sh.komet.gui.cell.TreeTableWhatCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableConceptCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableGeneralCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableModulePathCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
+import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
@@ -219,4 +219,5 @@ public class AssemblageDetailController {
       assemblagePathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
       assemblagePathColumn.setCellFactory(this.assemblageCellFactory::call);
    }
+
 }

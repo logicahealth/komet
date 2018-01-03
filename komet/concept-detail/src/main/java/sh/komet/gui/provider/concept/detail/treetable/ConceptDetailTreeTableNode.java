@@ -38,8 +38,11 @@ package sh.komet.gui.provider.concept.detail.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
@@ -49,6 +52,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 
 import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Status;
 
@@ -67,13 +71,14 @@ import sh.komet.gui.style.StyleClasses;
  * @author kec
  */
 public class ConceptDetailTreeTableNode
-        implements DetailNode {
+        implements DetailNode, Supplier<List<MenuItem>> {
 
    private final BorderPane conceptDetailPane = new BorderPane();
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
    private final Manifold conceptDetailManifold;
    private ConceptLabel titleLabel = null;
+   private final ConceptLabelToolbar conceptLabelToolbar;
 
    //~--- constructors --------------------------------------------------------
    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
@@ -100,7 +105,8 @@ public class ConceptDetailTreeTableNode
                             }
 
                          });
-         conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
+         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this);
+         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
          conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
          if (nodeConsumer != null) {
             nodeConsumer.accept(conceptDetailPane);
@@ -129,7 +135,7 @@ public class ConceptDetailTreeTableNode
    @Override
    public Optional<Node> getTitleNode() {
       if (titleLabel == null) {
-         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText);
+         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText, this);
          this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
          this.titleProperty.set("");
       }
@@ -140,4 +146,10 @@ public class ConceptDetailTreeTableNode
    public ReadOnlyProperty<String> getToolTip() {
       return this.toolTipProperty;
    }
+    @Override
+    public List<MenuItem> get() {
+        List<MenuItem> assemblageMenuList = new ArrayList<>();
+        // No extra menu items added yet. 
+        return assemblageMenuList;
+    }
 }

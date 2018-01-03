@@ -43,6 +43,7 @@ package sh.isaac.model.coordinate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -69,6 +70,8 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,6 +92,8 @@ public class LanguageCoordinateImpl
 
    /** The description type preference list. */
    int[] descriptionTypePreferenceList;
+   
+   LanguageCoordinateImpl nextProrityLanguageCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -288,6 +293,18 @@ public class LanguageCoordinateImpl
       return listener;
    }
 
+   public ChangeListener<ObservableLanguageCoordinate> setNextProrityLanguageCoordinateProperty(
+           ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty) {
+       
+      final ChangeListener<ObservableLanguageCoordinate> listener = (ObservableValue<? extends ObservableLanguageCoordinate> observable,
+                                               ObservableLanguageCoordinate oldValue,
+                                               ObservableLanguageCoordinate newValue) -> {
+               this.nextProrityLanguageCoordinate = ((ObservableLanguageCoordinateImpl)newValue).unwrap();
+            };
+
+      nextProrityLanguageCoordinateProperty.addListener(new WeakChangeListener<>(listener));
+      return listener;
+   }
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -314,7 +331,20 @@ public class LanguageCoordinateImpl
       LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
                                  dialectAssemblagePreferenceList.clone(),
                                  descriptionTypePreferenceList.clone());
+      if (this.nextProrityLanguageCoordinate != null) {
+          newCoordinate.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) this.nextProrityLanguageCoordinate.deepClone();
+      }
       return newCoordinate;
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return Optional.ofNullable(this.nextProrityLanguageCoordinate);
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+    }
 }
 

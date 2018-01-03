@@ -5,7 +5,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.44</version>
+      <version>4.45</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>assemblage-view</artifactId>
@@ -22,12 +22,6 @@
          <artifactId>metadata</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
-         <exclusions>
-            <exclusion>
-               <groupId>org.reactfx</groupId>
-               <artifactId>reactfx</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
     
       <!-- ISAAC App Utils. -->

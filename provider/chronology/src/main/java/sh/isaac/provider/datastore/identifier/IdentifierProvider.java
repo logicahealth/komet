@@ -41,6 +41,10 @@ package sh.isaac.provider.datastore.identifier;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +66,9 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.OptionalInt;
@@ -73,14 +80,17 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.api.collections.UuidIntMapMap;
+import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.DataStore;
@@ -111,6 +121,13 @@ public class IdentifierProvider
    private UuidIntMapMap uuidIntMapMap;
    private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map =
       new ConcurrentHashMap<>();
+   private ConcurrentHashMap<Integer, VersionType> assemblageNid_VersionType_Map =
+      new ConcurrentHashMap<>();
+   
+   ConcurrentUuidToIntHashMap proxyUuidNidMapCache;
+   
+   private File uuidNidMapProxyCacheFile;
+   private File uuidNidMapDirectory;
 
    //~--- methods -------------------------------------------------------------
 
@@ -126,13 +143,31 @@ public class IdentifierProvider
    private void startMe() {
       LOG.info("Starting identifier provider.");
       this.store      = Get.service(DataStore.class);
-      this.uuidIntMapMap = UuidIntMapMap.create(new File(store.getDatabaseFolder().toAbsolutePath().toFile(), "uuid-nid-map"));
+      uuidNidMapDirectory = new File(store.getDatabaseFolder().toAbsolutePath().toFile(), "uuid-nid-map");
+      uuidNidMapProxyCacheFile = new File(store.getDatabaseFolder().toAbsolutePath().toFile(), "uuid-nid-map-proxy-cache");
+
+      this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
+      
+      if (uuidNidMapProxyCacheFile.exists() && uuidNidMapProxyCacheFile.length() > 0) {
+          try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(uuidNidMapProxyCacheFile)))) {
+              this.proxyUuidNidMapCache = ConcurrentUuidToIntHashMap.deserialize(in);
+          } catch (IOException ex) {
+             LOG.error(ex);
+             throw new RuntimeException(ex);
+          }
+          
+      } else {
+          this.proxyUuidNidMapCache = new ConcurrentUuidToIntHashMap();
+      }
+      
+      
       this.nid_AssemblageNid_Map = this.store.getNidToAssemblageNidMap();
       this.nid_ElementSequence_Map = this.store.getNidToElementSequenceMap();
        
       this.assemblageNid_SequenceGenerator_Map = store.getSequenceGeneratorMap();
-
-      this.assemblageNid_ObjectType_Map = store.getAssemblageTypeMap();
+      this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
+      this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
+ 
    }
 
    /**
@@ -145,6 +180,10 @@ public class IdentifierProvider
          this.uuidIntMapMap.setShutdown(true);
          LOG.info("writing uuid-nid-map.");
          this.uuidIntMapMap.write();
+         try (DataOutputStream out =
+               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(uuidNidMapProxyCacheFile)))) {
+            this.proxyUuidNidMapCache.serialize(out);
+         }
          
       } catch (Throwable ex) {
          LOG.error(ex);
@@ -155,13 +194,22 @@ public class IdentifierProvider
    
 
    @Override
-   public void setupNid(int nid, int assemblageNid, IsaacObjectType objectType) {
-      assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
-      nid_AssemblageNid_Map.put(nid, assemblageNid);
+   public void setupNid(int nid, int assemblageNid, 
+           IsaacObjectType objectType, VersionType versionType) {
+      if (versionType == VersionType.UNKNOWN) {
+          throw new IllegalStateException("versionType may not be unknown. ");
+      }
+      this.assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
+      this.nid_AssemblageNid_Map.put(nid, assemblageNid);
+      this.assemblageNid_VersionType_Map.computeIfAbsent(assemblageNid, (Integer t) -> versionType);
+      if (this.assemblageNid_VersionType_Map.get(assemblageNid) != versionType) {
+          throw new IllegalStateException("Version types don't match: " +
+                  this.assemblageNid_VersionType_Map.get(assemblageNid) + " " +
+                  versionType
+          );
+      }
    }
-
-   @Override
-   public IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
+  private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
       return assemblageNid_ObjectType_Map.getOrDefault(assemblageNid, IsaacObjectType.UNKNOWN);
    }
 
@@ -225,6 +273,27 @@ public class IdentifierProvider
    @Override
    public int getNidForProxy(ConceptSpecification conceptProxy) {
       return getNidForUuids(conceptProxy.getUuidList());
+   }
+
+   @Override
+   public int getCachedNidForProxy(ConceptSpecification conceptProxy) {
+       for (UUID uuid: conceptProxy.getUuids()) {
+        if (this.proxyUuidNidMapCache.containsKey(uuid)) {
+           return this.proxyUuidNidMapCache.get(uuid);
+        }
+       }
+       int nid = getNidForUuids(conceptProxy.getUuidList());
+       for (UUID uuid: conceptProxy.getUuids()) {
+           final long stamp = proxyUuidNidMapCache.getStampedLock()
+                .writeLock();
+           try {
+                this.proxyUuidNidMapCache.put(UUIDUtil.convert(uuid), nid, stamp);
+           } finally {
+               proxyUuidNidMapCache.getStampedLock()
+                    .unlockWrite(stamp);
+           }
+       }
+      return nid;
    }
 
    @Override
@@ -374,7 +443,7 @@ public class IdentifierProvider
 
       final UUID[] uuids = this.uuidIntMapMap.getKeysForValue(nid);
 
-      LOG.warn("[3] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
+      LOG.warn("[3] No object for nid: " + nid + ". No assemblage found for nid. Found uuids: " + Arrays.asList(uuids));
       return Arrays.asList(uuids);
    }
 
@@ -437,5 +506,23 @@ public class IdentifierProvider
    public Future<?> sync() {
      return this.store.sync();
    }
+
+    @Override
+    public int getMemoryInUse() {
+        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+        sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
+        sizeInBytes += uuidIntMapMap.getMemoryInUse();
+        return sizeInBytes;
+    }
+
+    @Override
+    public int getSizeOnDisk() {
+        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+        sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
+        sizeInBytes += uuidIntMapMap.getDiskSpaceUsed();
+        return sizeInBytes;
+    }
+   
+   
 }
 

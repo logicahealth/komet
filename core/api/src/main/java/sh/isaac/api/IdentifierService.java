@@ -119,13 +119,6 @@ public interface IdentifierService
    
    /**
     * 
-    * @param assemblageNid
-    * @return the type of object contained within the assemblage. 
-    */
-   IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
-   
-   /**
-    * 
     * @param componentNid the identifier that the object type is requested for. 
     * @return the type of object identified by the componentNid. 
     */
@@ -139,6 +132,7 @@ public interface IdentifierService
     */
    int getNidForProxy(ConceptSpecification conceptProxy);
 
+   int getCachedNidForProxy(ConceptSpecification conceptProxy);
    /**
     * Gets the concept sequence for uuids.
     *
@@ -210,5 +204,16 @@ public interface IdentifierService
     * @return the uuids for nid
     */
    List<UUID> getUuidsForNid(int nid);
+
+   /**
+    * 
+    * @return memory used in bytes
+    */
+    int getMemoryInUse();
+    /**
+     * 
+     * @return disk space used in bytes
+     */
+    int getSizeOnDisk();
 }
 

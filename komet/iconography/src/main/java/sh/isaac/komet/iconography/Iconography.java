@@ -170,6 +170,7 @@ public enum Iconography {
   CHECK(FONT_AWSOME, "check"),
   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
+  DASHBOARD(OCT_ICON, "dashboard"),
    ;
 
    String cssClass;

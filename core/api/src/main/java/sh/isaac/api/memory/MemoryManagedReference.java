@@ -74,18 +74,18 @@ public class MemoryManagedReference<T extends Object>
         extends SoftReference<T>
          implements Comparable<MemoryManagedReference> {
    /** The Constant objectIdSupplier. */
-   private static final AtomicInteger objectIdSupplier = new AtomicInteger();
+   private static final AtomicInteger OBJECT_ID_SUPPLIER = new AtomicInteger();
 
    /** The Constant referenceSequenceSupplier. */
-   private static final AtomicInteger referenceSequenceSupplier = new AtomicInteger(Integer.MIN_VALUE + 1);
+   private static final AtomicInteger REFERENCE_SEQUENCE_SUPPLIER = new AtomicInteger(Integer.MIN_VALUE + 1);
 
    //~--- fields --------------------------------------------------------------
 
    /** The object id. */
-   private final int objectId = objectIdSupplier.getAndIncrement();
+   private final int objectId = OBJECT_ID_SUPPLIER.getAndIncrement();
 
    /** The last write to disk sequence. */
-   private int lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+   private int lastWriteToDiskSequence = REFERENCE_SEQUENCE_SUPPLIER.getAndIncrement();
 
    /** The last write to disk time. */
    private long lastWriteToDiskTime = System.currentTimeMillis();
@@ -197,7 +197,7 @@ public class MemoryManagedReference<T extends Object>
     */
    public void elementUpdated() {
       this.strongReferenceForUpdate.set(this.get());
-      this.lastElementUpdateSequence = referenceSequenceSupplier.getAndIncrement();
+      this.lastElementUpdateSequence = REFERENCE_SEQUENCE_SUPPLIER.getAndIncrement();
       this.lastElementUpdateTime     = System.currentTimeMillis();
    }
 
@@ -259,7 +259,7 @@ public class MemoryManagedReference<T extends Object>
       if (objectToWrite != null) {
          this.strongReferenceForUpdate.set(null);
          DiskSemaphore.acquire();
-         this.lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+         this.lastWriteToDiskSequence = REFERENCE_SEQUENCE_SUPPLIER.getAndIncrement();
          this.lastWriteToDiskTime     = System.currentTimeMillis();
          this.diskLocation.getParentFile()
                           .mkdirs();

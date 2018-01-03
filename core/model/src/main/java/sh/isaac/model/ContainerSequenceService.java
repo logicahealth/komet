@@ -18,6 +18,7 @@ package sh.isaac.model;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 /**
@@ -34,8 +35,9 @@ public interface ContainerSequenceService extends IdentifierService {
     * @param nid
     * @param assemblageNid
     * @param objectType 
+     * @param versionType 
     */
-   void setupNid(int nid, int assemblageNid, IsaacObjectType objectType);
+   void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType);
    
    /**
     * 

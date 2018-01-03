@@ -41,6 +41,7 @@ package sh.isaac.api.progress;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.time.Duration;
 import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -51,19 +52,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.ticker.Ticker;
-
-//~--- classes ----------------------------------------------------------------
-
+import sh.isaac.api.util.FxTimer;
 /**
  * Created by kec on 4/9/15.
  */
 public class ActiveTasksTicker { 
    /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant ticker. */
-   private static final Ticker ticker = new Ticker();
+   private static FxTimer fxTimer;
 
    //~--- methods -------------------------------------------------------------
 
@@ -73,8 +71,14 @@ public class ActiveTasksTicker {
     * @param intervalInSeconds the interval in seconds
     */
    public static void start(int intervalInSeconds) {
-      ticker.start(intervalInSeconds,
-                   (tick) -> {
+       if (fxTimer != null) {
+           fxTimer.stop();
+       }
+       fxTimer = FxTimer.createPeriodic(Duration.ofSeconds(intervalInSeconds), ActiveTasksTicker::updateActiveTasks);
+       fxTimer.start();
+   }
+   
+   private static void updateActiveTasks() {
                       final Set<Task<?>> taskSet = Get.activeTasks()
                                                       .get();
 
@@ -85,20 +89,19 @@ public class ActiveTasksTicker {
                                             percentProgress = 0;
                                          }
 
-                                         log.printf(org.apache.logging.log4j.Level.INFO,
+                                         LOG.printf(org.apache.logging.log4j.Level.INFO,
                                                "%n    %s%n    %s%n    %.1f%% complete",
                                                task.getTitle(),
                                                task.getMessage(),
                                                percentProgress);
                                       });
-                   });
    }
 
    /**
     * Stop.
     */
    public static void stop() {
-      ticker.stop();
+      fxTimer.stop();
    }
 }
 

@@ -75,6 +75,9 @@ public enum ObservableFields
    /** The dialect assemblage nid preference list for language coordinate. */
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
       "dialect assemblage nid preference list for language coordinate"),
+   
+   NEXT_PRIORITY_LANGUAGE_COORDINATE(
+      "next priority language coordinate"),
 
    /** The description type nid preference list for language coordinate. */
    DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(

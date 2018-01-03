@@ -61,10 +61,12 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -258,7 +260,7 @@ public class MockSemanticService
     * @return the sememes from assemblage
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
+   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptSequence) {
       throw new UnsupportedOperationException();
    }
 
@@ -305,6 +307,31 @@ public class MockSemanticService
    public int[] getAssemblageConceptNids() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
+
+    @Override
+    public IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public VersionType getVersionTypeForAssemblage(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageMemoryInUse(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageSizeOnDisk(int assemblageNid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
    
 }
 

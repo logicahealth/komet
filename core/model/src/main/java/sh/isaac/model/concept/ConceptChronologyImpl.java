@@ -52,6 +52,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -95,6 +96,8 @@ public class ConceptChronologyImpl
     */
    public ConceptChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
       super(primordialUuid, nid, assemblageNid);
+      ModelGet.identifierService().setupNid(nid, assemblageNid, 
+              IsaacObjectType.CONCEPT, VersionType.CONCEPT);
    }
 
    //~--- methods -------------------------------------------------------------

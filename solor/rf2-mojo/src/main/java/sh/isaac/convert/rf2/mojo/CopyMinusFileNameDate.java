@@ -112,7 +112,9 @@ public class CopyMinusFileNameDate
       getLog().info("Transforming RF2 file: " + rf2WithDatesLocation.getAbsolutePath());
 
       try (ZipInputStream zipIs = new ZipInputStream(
-                                      new BufferedInputStream(new FileInputStream(rf2WithDatesLocation)));) {
+                                      new BufferedInputStream(new FileInputStream(rf2WithDatesLocation))
+      
+      )) {
          ZipEntry entry;
 
          while ((entry = zipIs.getNextEntry()) != null) {

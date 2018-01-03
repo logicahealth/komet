@@ -42,7 +42,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
 /**
  *
@@ -86,17 +85,12 @@ public abstract class XodusConceptProvider
          ArrayByteIterable key = IntegerBinding.intToEntry(concept.getNid());
          ByteIterable oldValue = store.get(txn, key);
          if (oldValue != null) {
-            int writeSequence = CasSequenceObjectMap.getWriteSequence(oldValue.getBytesUnsafe());
             // TODO: need a real compare and swap operation for Xodus...
             // maybe implement add, and have each version be a key duplicate? 
             
             // Cursors can navigate multiple values for same key
             // Cursor c = store.openCursor(txn);
             
-            
-            while (writeSequence != conceptImpl.getWriteSequence()) {
-               
-            } 
             ArrayByteIterable value = new ArrayByteIterable(conceptImpl.getDataToWrite());
             store.put(txn, key, value);
             

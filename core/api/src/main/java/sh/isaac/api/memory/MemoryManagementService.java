@@ -52,6 +52,11 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface MemoryManagementService {
+    
+   int managedMemoryInBytes();
+    
+   void addSpine(SpineReference spine);
+   
    /**
     * Sets the memory configuration.
     *

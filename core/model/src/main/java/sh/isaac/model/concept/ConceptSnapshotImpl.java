@@ -374,6 +374,16 @@ public class ConceptSnapshotImpl
    public ConceptSnapshotImpl deepClone() {
       throw new UnsupportedOperationException();
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return this.manifoldCoordinate.getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        this.manifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    }
    
 }
 

@@ -44,6 +44,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -322,8 +323,16 @@ public class IsaacTaxonomy {
       out.append("import java.util.UUID;\n");
 
       out.append("\n\npublic class " + className + " {\n");
+      
+      ArrayList<String> constantList = new ArrayList<>();
+      
+      ArrayList<ConceptBuilder> sortedBuilders = new ArrayList<>(this.conceptBuildersInInsertionOrder);
+      sortedBuilders.sort((o1, o2) -> {
+          return o1.getFullySpecifiedDescriptionBuilder().getDescriptionText()
+                  .compareTo(o2.getFullySpecifiedDescriptionBuilder().getDescriptionText()); 
+      });
 
-      for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
+      for (final ConceptBuilder concept : sortedBuilders) {
          final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
          String constantName = preferredName.toUpperCase();
 
@@ -336,12 +345,13 @@ public class IsaacTaxonomy {
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");
          constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND");
+         constantName = constantName.replace("/", "_AND_OR_");
          out.append("\n\n   /** Java binding for the concept described as <strong><em>" + preferredName
                  + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()
                  + "\">\n    * " + concept.getPrimordialUuid() + "</a>}.*/");
-         out.append("\n   public static ConceptSpecification " + constantName + " =");
+         constantList.add(constantName);
+         out.append("\n   public static final ConceptSpecification " + constantName + " =");
          out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
@@ -351,6 +361,22 @@ public class IsaacTaxonomy {
          out.append(");");
       }
 
+      out.append("\n\n   public static final ConceptSpecification[] META_DATA_CONCEPTS = {\n");
+      
+      Collections.sort(constantList);
+      for (int i = 0; i < constantList.size(); i++) {
+          String constant = constantList.get(i);
+          if (i != constantList.size() -1) {
+              out.append("          ").append(constant).append(",\n");
+          } else {
+              out.append("          ").append(constant).append("\n");
+          }
+      }
+      
+      
+      out.append("     };");
+      
+      
       out.append("\n}\n");
       out.close();
    }

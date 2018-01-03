@@ -487,7 +487,9 @@ public class Get
       if (nid >= 0) {
          throw new IllegalStateException("Nids must be < 0: " + nid);
       }
-      return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+      ConceptProxy proxy = new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+      proxy.setNid(nid);
+      return proxy;
    }
 
    /**

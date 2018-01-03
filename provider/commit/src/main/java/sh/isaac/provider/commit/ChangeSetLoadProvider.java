@@ -141,7 +141,9 @@ public class ChangeSetLoadProvider
 
       final CommitService commitService = Get.commitService();
 
-      Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() && path.toString().endsWith(".ibdf"))
+      Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() 
+              && path.toString().endsWith(".ibdf") 
+              && path.toFile().length() > 0)
            .forEach(
                path -> {
                   LOG.debug("File {}", path.toAbsolutePath());

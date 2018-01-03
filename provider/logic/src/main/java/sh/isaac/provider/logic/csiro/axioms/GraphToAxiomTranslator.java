@@ -65,9 +65,9 @@ import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
 
 import sh.isaac.api.DataSource;
-import sh.isaac.api.collections.ConcurrentSequenceObjectMap;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
@@ -96,7 +96,7 @@ public class GraphToAxiomTranslator {
    Set<Axiom> axioms = new ConcurrentSkipListSet<>();
 
    /** The sequence logic concept map. */
-   ConcurrentSequenceObjectMap<Concept> sequenceLogicConceptMap = new ConcurrentSequenceObjectMap<>();
+   SpinedIntObjectMap<Concept> sequenceLogicConceptMap = new SpinedIntObjectMap<>();
 
    /** The sequence logic role map. */
    ConcurrentHashMap<Integer, Role> sequenceLogicRoleMap = new ConcurrentHashMap<>();
@@ -149,7 +149,7 @@ public class GraphToAxiomTranslator {
    @Override
    public String toString() {
       return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", sequenceLogicConceptMap=" +
-             this.sequenceLogicConceptMap.getSequences().count() + ", sequenceLogicRoleMap=" +
+             this.sequenceLogicConceptMap.size() + ", sequenceLogicRoleMap=" +
              this.sequenceLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.sequenceLogicFeatureMap.size() +
              '}';
    }
@@ -487,13 +487,14 @@ public class GraphToAxiomTranslator {
       if (name < 0) {
          name = ModelGet.identifierService().getElementSequenceForNid(name);
       }
-      final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.get(name);
+      final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.getOptional(name);
 
       if (optionalConcept.isPresent()) {
          return optionalConcept.get();
       }
-
-      return this.sequenceLogicConceptMap.put(name, Factory.createNamedConcept(Integer.toString(name)));
+      Concept concept = Factory.createNamedConcept(Integer.toString(name));
+      this.sequenceLogicConceptMap.put(name, concept);
+      return concept;
    }
 
    /**
@@ -503,7 +504,7 @@ public class GraphToAxiomTranslator {
     * @return the concept from sequence
     */
    public Optional<Concept> getConceptFromSequence(int sequence) {
-      return this.sequenceLogicConceptMap.get(sequence);
+      return this.sequenceLogicConceptMap.getOptional(sequence);
    }
 
    /**
