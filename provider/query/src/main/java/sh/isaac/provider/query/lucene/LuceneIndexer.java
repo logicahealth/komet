@@ -554,8 +554,53 @@ public abstract class LuceneIndexer
     * @return true, if the chronicle should be indexed
     */
    protected abstract boolean indexChronicle(Chronology chronicle);
+   
 
-   /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchResult> query(String query) {
+		return query(query, false, null, null, null, null, null, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchResult> query(String query,
+			Integer sizeLimit) {
+		return query(query, false, null, null, null, null, sizeLimit, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchResult> query(String query,
+			Integer[] assemblageConcept,
+			AmpRestriction amp,
+			Integer pageNum,
+			Integer sizeLimit,
+			Long targetGeneration) {
+		return query(query, false, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SearchResult> query(String query,
+			boolean prefixSearch,
+			Integer[] assemblageConcept,
+			AmpRestriction amp,
+			Integer pageNum,
+			Integer sizeLimit,
+			Long targetGeneration) {
+		return query(query, prefixSearch, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
+	}
+
+	/**
     * Release latch.
     *
     * @param latchNid the latch nid
