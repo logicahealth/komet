@@ -294,7 +294,8 @@ public class Rf2DirectImporter
 
          try (ZipFile zipFile = new ZipFile(importSpecification.zipFile, Charset.forName("UTF-8"))) {
             try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(zipFile.getInputStream(importSpecification.zipEntry)))) {
+                    new InputStreamReader(zipFile.getInputStream(importSpecification.zipEntry),
+                                          Charset.forName("UTF-8")))) {
                fileCount++;
 
                switch (importSpecification.streamType) {
