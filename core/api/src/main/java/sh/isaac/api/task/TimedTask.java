@@ -67,7 +67,7 @@ public abstract class TimedTask<T>
     /**
      * The Constant log.
      */
-    protected static final Logger log = LogManager.getLogger();
+    protected static final Logger LOG = LogManager.getLogger();
 
     /**
      * The progress update interval.
@@ -144,7 +144,7 @@ public abstract class TimedTask<T>
 
         Platform.runLater(() -> {
             this.completeMessageGenerator.accept(this);
-            log.info(getClass().getSimpleName() + " " + taskSequenceId + ": " + getTitle() + " " + getMessage());
+            LOG.info(getClass().getSimpleName() + " " + taskSequenceId + ": " + getTitle() + " " + getMessage());
         });
     }
 
@@ -153,7 +153,7 @@ public abstract class TimedTask<T>
      */
     @Override
     protected void failed() {
-        log.warn("Timed task failed!", this.getException());
+        LOG.warn("Timed task failed!", this.getException());
     }
 
     protected void generateProgressMessage() {

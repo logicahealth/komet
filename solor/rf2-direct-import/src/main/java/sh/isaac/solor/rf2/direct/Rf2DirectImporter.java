@@ -82,7 +82,6 @@ public class Rf2DirectImporter
 
    private static final int WRITE_PERMITS = Runtime.getRuntime()
            .availableProcessors() * 2;
-   protected static final Logger LOG = LogManager.getLogger();
 
    /**
     * The date format parser.
@@ -175,7 +174,7 @@ public class Rf2DirectImporter
                String entryName = entry.getName()
                        .toLowerCase();
 
-               if (entryName.contains("/full/") && !entryName.startsWith("__macosx")) {
+               if (entryName.startsWith("rf2release/full/") || entryName.startsWith("full/")) {
                   if (entryName.contains("sct2_concept_")) {
                      entriesToImport.add(
                              new ImportSpecification(zipFilePath.toFile(), ImportStreamType.CONCEPT, entry));
@@ -287,6 +286,15 @@ public class Rf2DirectImporter
       }
 
       Collections.sort(entriesToImport);
+      StringBuilder builder = new StringBuilder();
+      builder.append("Importing the following zip entries: \n");
+      for (ImportSpecification spec: entriesToImport) {
+          builder.append("     ").append(spec.streamType);
+          builder.append(": ").append(spec.zipEntry.getName()).append("\n");
+      }
+      
+      LOG.info(builder.toString());
+      
       addToTotalWork(entriesToImport.size());
 
       for (ImportSpecification importSpecification : entriesToImport) {

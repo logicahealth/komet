@@ -208,7 +208,7 @@ public class ProcessClassificationResults
       if (inferredSemanticSequences.size() > 1) {
          classificationDuplicateCount++;
          if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-            log.error("Cannot have more than one inferred definition per concept. Found: "
+            LOG.error("Cannot have more than one inferred definition per concept. Found: "
                     + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
          }
       }
@@ -238,7 +238,7 @@ public class ProcessClassificationResults
                        .append("\n");
             });
          }
-         log.error(builder.toString());
+         LOG.error(builder.toString());
       }
    }
 
@@ -391,17 +391,17 @@ public class ProcessClassificationResults
          final Optional<CommitRecord> commitRecord = commitTask.get();
 
          if (commitRecord.isPresent()) {
-            log.info("Commit record: " + commitRecord.get());
+            LOG.info("Commit record: " + commitRecord.get());
          } else {
-            log.info("No commit record.");
+            LOG.info("No commit record.");
          }
 
          if (classificationDuplicateCount > 0) {
-            log.warn("Inferred duplicates found: " + classificationDuplicateCount);
+            LOG.warn("Inferred duplicates found: " + classificationDuplicateCount);
          }
-         log.info("Processed " + sufficientSets + " sufficient sets.");
-         log.info("stampCoordinate: " + this.stampCoordinate);
-         log.info("logicCoordinate: " + this.logicCoordinate);
+         LOG.info("Processed " + sufficientSets + " sufficient sets.");
+         LOG.info("stampCoordinate: " + this.stampCoordinate);
+         LOG.info("logicCoordinate: " + this.logicCoordinate);
          return commitRecord;
       } catch (InterruptedException | ExecutionException e) {
          throw new RuntimeException(e);
