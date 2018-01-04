@@ -137,7 +137,7 @@
                      <dataStoreLocation>${project.build.directory}/datastore</dataStoreLocation>
                      <bindingPackage>sh.isaac</bindingPackage>
                      <bindingClass>MetaData</bindingClass>
-                  </configuration>
+                  </configuration> 
                </execution>
             </executions>
          </plugin>

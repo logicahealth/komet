@@ -39,12 +39,15 @@
 
 package sh.isaac.mojo;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +60,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -70,18 +75,21 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
 
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
@@ -91,24 +99,11 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.SemanticChronology;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -185,16 +180,6 @@ public class LoadTermstore
             throws MojoExecutionException {
       Get.configurationService()
          .setDBBuildMode();
-
-//      UUID dbIdUUID;
-//      try {
-//         dbIdUUID = StringUtils.isNotBlank(dbId) ? UUID.fromString(dbId) : UUID.randomUUID();
-//         Files.write(Get.configurationService().getDataStoreFolderPath().get().resolve("dbid.txt"), dbIdUUID.toString().getBytes());
-//      } catch (IllegalArgumentException e1) {
-//         throw new MojoExecutionException("The provided value for the dbId configuration parameter is not a UUID!");
-//      } catch (IOException e) {
-//         throw new MojoExecutionException("Problem writing DB Identity file", e);
-//      }
 
       final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
 

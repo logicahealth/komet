@@ -35,20 +35,26 @@ import org.apache.lucene.search.TermQuery;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.coordinate.StampCoordinateImpl;
+import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 
@@ -122,15 +128,26 @@ public class DescriptionIndexer extends LuceneIndexer
       
       // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
       // support in the isaac-rest API
-      if (Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), MetaData.METADATA____SOLOR.getNid())) {
-         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
-      }
-       
+      //TODO DAN switch back to using wasEverKindOf
+//      if (Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid())) {
+//         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+//      }
+      
+      boolean isMetadata = false;
+      
       final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 
       for (final StampedVersion stampedVersion : semanticChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
 
+         if (!isMetadata)
+         {
+            isMetadata = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
+                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(stampedVersion.getTime(), stampedVersion.getPathNid()), 
+                        NidSet.of(stampedVersion.getModuleNid()), Status.ACTIVE_ONLY_SET), null))
+            .isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+         }
+         
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) || (lastDescType == null) || !lastDescText.equals(descriptionVersion.getText())) {
             // Add to the field that carries all text
@@ -138,6 +155,11 @@ public class DescriptionIndexer extends LuceneIndexer
             uniqueDescriptionTypes.add(descriptionVersion.getDescriptionTypeConceptNid());
             lastDescText = descriptionVersion.getText();
          }
+      }
+      
+      if (isMetadata)
+      {
+         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
       }
       
       for (Integer i : uniqueDescriptionTypes)
