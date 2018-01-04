@@ -1500,7 +1500,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 				String code = StringUtils.isBlank(d.getCode()) ? vuid : d.getCode();
 				
 				descRef = ComponentReference.fromChronology(importUtil_.addDescription(concept, createNewDescriptionUuid(concept.getPrimordialUuid(), code), 
-						newValue, DescriptionType.SYNONYM, false, extendedDescriptionTypeNameMap.get(d.getTypeName().toLowerCase()), 
+						newValue, DescriptionType.REGULAR_NAME, false, extendedDescriptionTypeNameMap.get(d.getTypeName().toLowerCase()), 
 					d.isActive() ? Status.ACTIVE : Status.INACTIVE));
 				
 				

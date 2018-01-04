@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -66,7 +67,7 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return bdb.getDatabaseValidityStatus();
    }
    

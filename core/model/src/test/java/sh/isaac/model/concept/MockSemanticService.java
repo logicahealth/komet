@@ -59,6 +59,7 @@ import org.glassfish.hk2.api.Rank;
 
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
@@ -123,7 +124,7 @@ public class MockSemanticService
     * @return the database validity status
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return null;
    }
 

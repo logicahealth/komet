@@ -275,7 +275,7 @@ public class LookupService {
                           if (discoveredValidityValue == null) {
                              // Initial time through. All other database directories and lucene directories must have same state
                              discoveredValidityValue = handle.getService()
-                                   .getDatabaseValidityStatus();
+                                   .getDatabaseValidityStatus().get();
                              LOG.info("First database service handler (" +
                                       handle.getActiveDescriptor().getImplementation() +
                                       ") has database validity value: " + discoveredValidityValue);
@@ -286,7 +286,7 @@ public class LookupService {
                                       " to see if consistent at startup.  Status: " +
                                       handle.getService().getDatabaseValidityStatus());
 
-                             if (discoveredValidityValue != handle.getService().getDatabaseValidityStatus()) {
+                             if (discoveredValidityValue != handle.getService().getDatabaseValidityStatus().get()) {
                                 // Inconsistency discovered
                                 throw new RuntimeException("Database Corruption Observed: Provider " +
                                 handle.getActiveDescriptor().getImplementation() +

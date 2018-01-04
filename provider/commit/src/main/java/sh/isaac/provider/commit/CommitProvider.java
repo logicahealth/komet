@@ -77,6 +77,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
 
@@ -261,7 +263,7 @@ public class CommitProvider
    /**
     * The database validity.
     */
-   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_YET_CHECKED;
+   private SimpleObjectProperty<DatabaseValidity> databaseValidity = new SimpleObjectProperty<>(DatabaseValidity.NOT_YET_CHECKED);
 
    /**
     * The db folder path.
@@ -290,7 +292,7 @@ public class CommitProvider
          this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
 
          if (!Files.exists(this.commitManagerFolder)) {
-            this.databaseValidity = DatabaseValidity.NO_DATASTORE;
+            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
          }
 
          Files.createDirectories(this.commitManagerFolder);
@@ -973,7 +975,7 @@ public class CommitProvider
             this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
             LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-            this.databaseValidity = DatabaseValidity.EXISTING_DATASTORE;
+            this.databaseValidity.set(DatabaseValidity.EXISTING_DATASTORE);
          }
          
 //         checkers.add(new ChangeChecker() {
@@ -1212,7 +1214,7 @@ public class CommitProvider
     * @return the database validity status
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 

@@ -43,6 +43,9 @@ package sh.isaac.provider.bdb.chronology;
 
 
 import com.sleepycat.je.Database;
+
+import javafx.beans.value.ObservableObjectValue;
+
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -106,7 +109,7 @@ public class BdbConceptProvider
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return bdb.getDatabaseValidityStatus();
    }
    /**

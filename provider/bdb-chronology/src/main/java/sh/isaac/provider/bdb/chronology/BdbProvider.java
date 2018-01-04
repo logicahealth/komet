@@ -63,6 +63,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.stream.Stream;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.concurrent.Task;
@@ -103,6 +106,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
+import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitService;
@@ -161,7 +165,8 @@ public class BdbProvider
    /**
     * The database validity.
     */
-   private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_YET_CHECKED;
+   private SimpleObjectProperty<DatabaseValidity> databaseValidity = 
+         new SimpleObjectProperty<DatabaseServices.DatabaseValidity>(DatabaseValidity.NOT_YET_CHECKED);
 
    // TODO persist dataStoreId.
    private final UUID         dataStoreId        = UUID.randomUUID();
@@ -192,7 +197,10 @@ public class BdbProvider
    @Override
    public boolean importMetadata()
             throws Exception {
-      if (this.databaseValidity == DatabaseValidity.NO_DATASTORE) {
+   	//TODO [DAN] this needs to be reworked - DatabaseValidity needs to go to VALID when the startMe completes, otherwise, 
+   	//the startup sequence can't do what its supposed to, which is set aside a corrupt env and pull a new one.
+   	//This parameter / feature got used for two different purposes while the development tracks were split... needs to be reconciled.
+      if (this.databaseValidity.get() == DatabaseValidity.NO_DATASTORE) {
          Optional<DatabaseInitialization> initializationPreference = Get.applicationPreferences()
                                                                         .getEnum(DatabaseInitialization.class);
 
@@ -543,7 +551,7 @@ public class BdbProvider
             } else if (metaDbFolder.exists()) {
                metaDbFolder.renameTo(isaacDbFolder);
             } else {
-               this.databaseValidity = DatabaseValidity.NO_DATASTORE;
+               this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
             }
          }
 
@@ -841,7 +849,7 @@ public class BdbProvider
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 

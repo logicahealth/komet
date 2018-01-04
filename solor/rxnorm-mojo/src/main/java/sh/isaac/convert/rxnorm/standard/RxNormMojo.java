@@ -2552,11 +2552,6 @@ public class RxNormMojo
 
    //~--- get methods ---------------------------------------------------------
 
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.RXNORM;
-   }
-
    /**
     * Checks if rel primary.
     *

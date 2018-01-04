@@ -583,10 +583,8 @@ public class RF2Mojo
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
             
             
-            DescriptionType descriptionType = DescriptionType.convert(typeId);
-            if (descriptionType == DescriptionType.UNKNOWN) {
-               getLog().error("Unknown description type for: " + descRS.getString("TYPEID") + "|"+ id + "|" + term);
-            }
+            DescriptionType descriptionType = DescriptionType.parse(typeId);
+
             final SemanticChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
@@ -659,7 +657,7 @@ public class RF2Mojo
                   throw new RuntimeException("Unexpected acceptibility: " + acceptabilityId);
                }
 
-               super.importUtil.addDescriptionAcceptibility(ComponentReference.fromChronology(desc),
+               super.importUtil.addDescriptionAcceptability(ComponentReference.fromChronology(desc),
                      acceptID,
                      refsetId,
                      preferred,
@@ -885,6 +883,7 @@ public class RF2Mojo
                   // TODO [graph] what if the modules are different across the graph rels?
                   super.importUtil.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0)
                         .getSourceId()),
+                        null,
                         le,
                         stated,
                         newestRelTime,
@@ -896,6 +895,7 @@ public class RF2Mojo
                      // substitute inferred expression, as early SNOMED stated expressions where lost.
                      super.importUtil.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0)
                            .getSourceId()),
+                           null,
                            le,
                            true,
                            newestRelTime,
@@ -938,11 +938,6 @@ public class RF2Mojo
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.SNOMED;
-   }
 
    /**
     * This will return batches of relationships, each item the iterator returns will be all of the relationships

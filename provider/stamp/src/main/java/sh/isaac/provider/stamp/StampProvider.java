@@ -66,6 +66,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
 
@@ -158,7 +160,7 @@ public class StampProvider
    /**
     * The database validity.
     */
-   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_YET_CHECKED;
+   private SimpleObjectProperty<DatabaseValidity> databaseValidity = new SimpleObjectProperty<>(DatabaseValidity.NOT_YET_CHECKED);
 
    /**
     * The stamp sequence path sequence map.
@@ -197,7 +199,7 @@ public class StampProvider
       this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
 
       if (!Files.exists(this.stampManagerFolder)) {
-         this.databaseValidity = DatabaseValidity.NO_DATASTORE;
+         this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
       }
 
       Files.createDirectories(this.stampManagerFolder);
@@ -236,7 +238,7 @@ public class StampProvider
                }
             }
 
-            this.databaseValidity = DatabaseValidity.EXISTING_DATASTORE;
+            this.databaseValidity.set(DatabaseValidity.EXISTING_DATASTORE);
          }
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
@@ -510,7 +512,7 @@ public class StampProvider
     * @return the database validity status
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 

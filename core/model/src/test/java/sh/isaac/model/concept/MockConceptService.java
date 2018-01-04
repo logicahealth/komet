@@ -55,6 +55,7 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -199,7 +200,7 @@ public class MockConceptService
     * @return the database validity status
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return null;
    }
 

@@ -127,15 +127,15 @@ public class IBDFCreationUtility
 {
    public static enum DescriptionType 
    {
-      FSN, SYNONYM, DEFINITION;
+      FULLY_QUALIFIED_NAME, REGULAR_NAME, DEFINITION;
       
       public ConceptSpecification getConceptSpec()
       {
-         if (DescriptionType.FSN == this)
+         if (DescriptionType.FULLY_QUALIFIED_NAME == this)
          {
             return MetaData.FULLY_QUALIFIED_NAME____SOLOR;
          }
-         else if (DescriptionType.SYNONYM == this)
+         else if (DescriptionType.REGULAR_NAME == this)
          {
             return MetaData.REGULAR_NAME____SOLOR;
          }
@@ -151,15 +151,15 @@ public class IBDFCreationUtility
 
       public static DescriptionType parse(UUID typeId)
       {
-         if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getPrimordialUuid().equals(typeId))
+         if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getUuidList().contains(typeId))
          {
-            return FSN;
+            return FULLY_QUALIFIED_NAME;
          }
-         else if (MetaData.REGULAR_NAME____SOLOR.getPrimordialUuid().equals(typeId))
+         else if (MetaData.REGULAR_NAME____SOLOR.getUuidList().contains(typeId))
          {
-            return SYNONYM;
+            return REGULAR_NAME;
          }
-         if (MetaData.DEFINITION____SOLOR.getPrimordialUuid().equals(typeId))
+         if (MetaData.DEFINITION____SOLOR.getUuidList().contains(typeId))
          {
             return DEFINITION;
          }
@@ -170,11 +170,11 @@ public class IBDFCreationUtility
       {
          if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid() == typeId)
          {
-            return FSN;
+            return FULLY_QUALIFIED_NAME;
          }
          else if ( MetaData.REGULAR_NAME____SOLOR.getNid() == typeId)
          {
-            return SYNONYM;
+            return REGULAR_NAME;
          }
          if (MetaData.DEFINITION____SOLOR.getNid() == typeId)
          {
@@ -189,7 +189,7 @@ public class IBDFCreationUtility
    private long defaultTime;
    
    private final static UUID isARelUuid_ = MetaData.IS_A____SOLOR.getPrimordialUuid();
-   public final static String metadataSemanticTag = " (ISAAC)";
+   public final static String METADATA_SEMANTIC_TAG = " (ISAAC)";
    
    private ComponentReference module = null;
    private HashMap<UUID, DynamicColumnInfo[]> refexAllowedColumnTypes = new HashMap<>();
@@ -467,8 +467,8 @@ public class IBDFCreationUtility
       addFullySpecifiedName(concept, fsn);
       if (createSynonymFromFSN)
       {
-         addDescription(concept, fsn.endsWith(metadataSemanticTag) ? fsn.substring(0, fsn.lastIndexOf(metadataSemanticTag)) : fsn, 
-               DescriptionType.SYNONYM, true, null, Status.ACTIVE);
+         addDescription(concept, fsn.endsWith(METADATA_SEMANTIC_TAG) ? fsn.substring(0, fsn.lastIndexOf(METADATA_SEMANTIC_TAG)) : fsn, 
+               DescriptionType.REGULAR_NAME, true, null, Status.ACTIVE);
       }
       return cc;
    }
@@ -528,11 +528,11 @@ public class IBDFCreationUtility
       
       if (StringUtils.isNotEmpty(preferredName))
       {
-         addDescription(ComponentReference.fromConcept(concept), preferredName, DescriptionType.SYNONYM, true, null, Status.ACTIVE);
+         addDescription(ComponentReference.fromConcept(concept), preferredName, DescriptionType.REGULAR_NAME, true, null, Status.ACTIVE);
       }
       if (StringUtils.isNotEmpty(altName) && !altName.equals(preferredName))
       {
-         addDescription(ComponentReference.fromConcept(concept), altName, DescriptionType.SYNONYM, false, null, Status.ACTIVE);
+         addDescription(ComponentReference.fromConcept(concept), altName, DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
       }
       if (StringUtils.isNotEmpty(definition))
       {
@@ -549,7 +549,7 @@ public class IBDFCreationUtility
     */
    public SemanticChronology addFullySpecifiedName(ComponentReference concept, String fullySpecifiedName)
    {
-      return addDescription(concept, fullySpecifiedName, DescriptionType.FSN, true, null, Status.ACTIVE);
+      return addDescription(concept, fullySpecifiedName, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
    }
    
    
@@ -574,7 +574,7 @@ public class IBDFCreationUtility
          
          if (!haveFSN)
          {
-            descriptionType = DescriptionType.FSN;
+            descriptionType = DescriptionType.FULLY_QUALIFIED_NAME;
             preferred = true;
             haveFSN = true;
          }
@@ -582,13 +582,13 @@ public class IBDFCreationUtility
          {
             if (vpp.getProperty().getPropertySubType() < BPT_Descriptions.SYNONYM)
             {
-               descriptionType = DescriptionType.FSN;
+               descriptionType = DescriptionType.FULLY_QUALIFIED_NAME;
                preferred = false;  //true case is handled above
             }
             else if (vpp.getProperty().getPropertySubType() >= BPT_Descriptions.SYNONYM && 
                   (vpp.getProperty().getPropertySubType() < BPT_Descriptions.DEFINITION || vpp.getProperty().getPropertySubType() == Integer.MAX_VALUE))
             {
-               descriptionType = DescriptionType.SYNONYM;
+               descriptionType = DescriptionType.REGULAR_NAME;
                if (!havePreferredSynonym)
                {
                   preferred = true;
@@ -1515,7 +1515,7 @@ public class IBDFCreationUtility
          
          if (!this.writeToDB || !Get.conceptService().hasConcept(Get.identifierService().getNidForUuids(pt.getPropertyTypeUUID())))
          {
-            groupingConcept = createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription() + IBDFCreationUtility.metadataSemanticTag, true);
+            groupingConcept = createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true);
             if (pt instanceof BPT_HasAltMetaDataParent && ((BPT_HasAltMetaDataParent)pt).getAltMetaDataParentUUID() != null) {
                addParents(ComponentReference.fromChronology(groupingConcept), parentPrimordial, ((BPT_HasAltMetaDataParent)pt).getAltMetaDataParentUUID());
             } else {
@@ -1549,7 +1549,7 @@ public class IBDFCreationUtility
             {
                //don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
                UUID secondParentToUse = p.getSecondParent();
-               ConceptChronology concept = createConcept(p.getUUID(), p.getSourcePropertyNameFQN() + IBDFCreationUtility.metadataSemanticTag, 
+               ConceptChronology concept = createConcept(p.getUUID(), p.getSourcePropertyNameFQN() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, 
                      p.getSourcePropertyNameFQN(), 
                      p.getSourcePropertyAltName(), (p instanceof PropertyAssociation ? null : p.getSourcePropertyDefinition()), 
                      pt.getPropertyTypeUUID(),
@@ -1585,9 +1585,9 @@ public class IBDFCreationUtility
                      //Need to make our own UUID here, cause there are cases where the inverse name is identical to the forward name.
                      SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(concept), 
                            ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), item.getAssociationInverseName(), 
-                                 "inverse", DescriptionType.SYNONYM.name()),
+                                 "inverse", DescriptionType.REGULAR_NAME.name()),
                            item.getAssociationInverseName(), 
-                           DescriptionType.SYNONYM, false, null, Status.ACTIVE);
+                           DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
                      
                      addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getUUID(), 
                            Status.ACTIVE, selectTime(ComponentReference.fromChronology(inverseDesc), null));
@@ -1621,7 +1621,7 @@ public class IBDFCreationUtility
     * @param converterOutputArtifactClassifier
     * @param converterVersion
     */
-   private void loadTerminologyMetadataAttributes(ComponentReference terminologyMetadataRootConcept,  String converterSourceArtifactVersion, Optional<String> converterSourceReleaseDate,
+   public void loadTerminologyMetadataAttributes(ComponentReference terminologyMetadataRootConcept,  String converterSourceArtifactVersion, Optional<String> converterSourceReleaseDate,
        String converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier, String converterVersion) {
       addStaticStringAnnotation(terminologyMetadataRootConcept, converterSourceArtifactVersion, 
             MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), Status.ACTIVE);
@@ -1690,7 +1690,7 @@ public class IBDFCreationUtility
       if (!StringUtils.isBlank(inverseName))
       {
          SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(associationTypeConcept), inverseName, 
-               DescriptionType.SYNONYM, false, null, Status.ACTIVE);
+               DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
          
          addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getUUID(), 
                Status.ACTIVE, selectTime(ComponentReference.fromChronology(inverseDesc), null));

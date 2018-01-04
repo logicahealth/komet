@@ -1055,10 +1055,5 @@ public class LoincImportMojo
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.LOINC;
-   }
 }
 

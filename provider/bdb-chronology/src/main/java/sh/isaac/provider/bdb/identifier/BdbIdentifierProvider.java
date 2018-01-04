@@ -61,6 +61,8 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.beans.value.ObservableObjectValue;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -431,7 +433,7 @@ public class BdbIdentifierProvider
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return bdb.getDatabaseValidityStatus();
    }
 

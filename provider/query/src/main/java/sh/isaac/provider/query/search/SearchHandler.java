@@ -70,7 +70,6 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
-import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -342,9 +341,15 @@ public class SearchHandler {
                                   try {
                                      return index.query(queryString,
                                            prefixSearch,
-                                           getDescriptionSememeAssemblages(),
+                                           getDescriptionSememeAssemblages(),  //TODO [DAN]this restriction doesn't make sense to me, need to see who uses this code.
+                                           null,
+                                           null,
+                                           false,
+                                           null,
+                                           null,
+                                           null,
                                            resultLimit,
-                                           Long.MIN_VALUE, null);
+                                           Long.MIN_VALUE);
                                   } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
@@ -387,7 +392,7 @@ public class SearchHandler {
    public static SearchHandle descriptionSearch(String query,
          final int resultLimit,
          final boolean prefixSearch,
-         final LuceneDescriptionType descriptionType,
+         final int descriptionTypeNid,
          Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
          final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -397,7 +402,17 @@ public class SearchHandler {
       return descriptionSearch(query,
                                (index, queryString) -> {
                                   try {
-                                     return index.query(queryString, descriptionType, resultLimit, Long.MIN_VALUE);
+                                     return index.query(queryString,
+                                           false,
+                                           null,
+                                           null,
+                                           null,
+                                           false,
+                                           new Integer[] {descriptionTypeNid},
+                                           null,
+                                           null,
+                                           resultLimit,
+                                           Long.MIN_VALUE);
                                   } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
@@ -452,7 +467,14 @@ public class SearchHandler {
                                (index, queryString) -> {
                                   try {
                                      return index.query(queryString,
-                                           extendedDescriptionType,
+                                           false,
+                                           null,
+                                           null,
+                                           null,
+                                           false,
+                                           null,
+                                           new Integer[] {Get.identifierService().getNidForUuids(extendedDescriptionType)},
+                                           null,
                                            resultLimit,
                                            Long.MIN_VALUE);
                                   } catch (final Exception e) {

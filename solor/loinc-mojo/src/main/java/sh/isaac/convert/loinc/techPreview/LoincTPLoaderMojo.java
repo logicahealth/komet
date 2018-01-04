@@ -395,10 +395,4 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             }
         }
     }
-    
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.LOINC;
-   }
-
 }

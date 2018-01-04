@@ -53,7 +53,7 @@ import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.application.Platform;
-
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 
 import javafx.concurrent.Task;
@@ -303,7 +303,7 @@ public class BdbTaxonomyProvider
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
+   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
       return this.bdb.getDatabaseValidityStatus();
    }
 
