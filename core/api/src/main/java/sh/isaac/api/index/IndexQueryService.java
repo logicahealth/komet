@@ -84,7 +84,7 @@ public interface IndexQueryService {
     * Simple query still utilizing defaults suitable for most, but allowing additional optional restrictions.
     *
     * @param query - The query to apply
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
@@ -99,7 +99,7 @@ public interface IndexQueryService {
     *         matches.
     */
    public List<SearchResult> query(String query,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -122,7 +122,7 @@ public interface IndexQueryService {
     *           The query "family test " will not match on 'Testudinidae', so that will be excluded.
     * 
     * @param query - The query to apply
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
@@ -138,7 +138,7 @@ public interface IndexQueryService {
     */
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -161,7 +161,7 @@ public interface IndexQueryService {
     *           match on 'Testudinidae', so that will be excluded.
     * 
     * @param query - The query to apply
-    * @param assemblageConcept - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
+    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
@@ -180,7 +180,7 @@ public interface IndexQueryService {
     */
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         Integer[] assemblageConcepts,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,

@@ -120,7 +120,7 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@Service(name = "sememe indexer")
+@Service(name = "semantic index")
 @RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class SemanticIndexer
         extends LuceneIndexer implements IndexSemanticQueryService {
@@ -128,7 +128,7 @@ public class SemanticIndexer
    private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant INDEX_NAME. */
-   public static final String INDEX_NAME = "semantics";
+   public static final String INDEX_NAME = "semantics-index";
 
    /** The Constant COLUMN_FIELD_DATA. */
    private static final String COLUMN_FIELD_DATA = "colData";
