@@ -159,7 +159,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
       super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
 
-      //TODO move the RF2 specific things into the RF2 loader
+//J-
+      //TODO [DAN] move the RF2 specific things into the RF2 loader
       createConcept(TermAux.SOLOR_ROOT);
       pushParent(current());
          createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8")
@@ -625,6 +626,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
       // UUIDs for anything that doesn't have a UUID listed here, causing them to be random, which breaks things in interesting ways when we 
       // have ibdf files that references the UUIDs from a MetaData file....
       generateStableUUIDs();
+//J+
    }
 
    private void addMultiparentTestConcepts() throws IllegalStateException {
