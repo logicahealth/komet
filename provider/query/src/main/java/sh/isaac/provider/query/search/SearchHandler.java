@@ -72,7 +72,7 @@ import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
-import sh.isaac.provider.query.lucene.indexers.AssemblageIndexer;
+import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -161,7 +161,7 @@ public class SearchHandler {
     * @return A handle to the running search.
     */
    public static SearchHandle descriptionSearch(String query,
-         final BiFunction<AssemblageIndexer, String, List<SearchResult>> searchFunction,
+         final BiFunction<DescriptionIndexer, String, List<SearchResult>> searchFunction,
          final boolean prefixSearch,
          final Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
@@ -200,8 +200,8 @@ public class SearchHandler {
 
                                   LOG.debug("Lucene Search: '" + localQuery + "'");
 
-                                  final AssemblageIndexer descriptionIndexer =
-                                     LookupService.getService(AssemblageIndexer.class);
+                                  final DescriptionIndexer descriptionIndexer =
+                                     LookupService.getService(DescriptionIndexer.class);
 
                                   if (descriptionIndexer == null) {
                                      LOG.warn("No description indexer found, aborting.");
@@ -576,10 +576,11 @@ public class SearchHandler {
                              try {
                                 return index.query(searchString,
                                       prefixSearch,
-                                      ((assemblageNid == null) ? (Integer[]) null
-                  : new Integer[] { assemblageNid }),
+                                      ((assemblageNid == null) ? (Integer[]) null : new Integer[] { assemblageNid }),
+                                      null,
+                                      1,
                                       resultLimit,
-                                      Long.MIN_VALUE, null);
+                                      Long.MIN_VALUE);
                              } catch (final Exception e) {
                                 throw new RuntimeException(e);
                              }
