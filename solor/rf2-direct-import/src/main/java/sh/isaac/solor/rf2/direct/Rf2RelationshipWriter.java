@@ -35,6 +35,7 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
@@ -66,14 +67,14 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
    private final Semaphore writeSemaphore;
    private final List<IndexService> indexers;
 
-   private final ImportStreamType importStreamType;
+   private final ImportSpecification importSpecification;
 
-   public Rf2RelationshipWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message, ImportStreamType importStreamType) {
+   public Rf2RelationshipWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message, ImportSpecification importSpecification) {
       this.relationshipRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
       indexers = LookupService.get().getAllServices(IndexService.class);
-      this.importStreamType = importStreamType;
+      this.importSpecification = importSpecification;
       updateTitle("Importing rf2 relationship batch of size: " + descriptionRecords.size());
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());
@@ -101,12 +102,24 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          int authorNid = TermAux.USER.getNid();
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
          int relAssemblageNid = TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
-         if (importStreamType == ImportStreamType.STATED_RELATIONSHIP) {
+         if (importSpecification.streamType == ImportStreamType.STATED_RELATIONSHIP) {
             relAssemblageNid = TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
          }
 
          for (String[] relationshipRecord : relationshipRecords) {
-            UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
+            //UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
+            UUID betterRelUuid = UuidT5Generator.get(
+                    relationshipRecord[REL_SCT_ID_INDEX] +
+                    relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX] +
+                    relationshipRecord[REL_TYPE_NID_INDEX] +
+                    relationshipRecord[DESTINATION_NID_INDEX] +
+                    relationshipRecord[REL_CHARACTERISTIC_NID_INDEX] +
+                    relationshipRecord[REL_MODIFIER_NID_INDEX]  
+                    + importSpecification.streamType    
+                    );
+//            if (betterRelUuid.equals(UUID.fromString("5ccf20b0-3673-598b-b5c0-bfaf097ce486"))) {
+//                LOG.info("Found watch uuid rel");
+//            }
             UUID moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[MODULE_SCTID_INDEX]);
             Status state = Status.fromZeroOneToken(relationshipRecord[ACTIVE_INDEX]);
             UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
@@ -120,7 +133,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
             // add to rel assemblage
-            int relNid = identifierService.getNidForUuids(relUuid);
+            int relNid = identifierService.getNidForUuids(betterRelUuid);
             int destinationNid = identifierService.getNidForUuids(destinationUuid);
             int moduleNid = identifierService.getNidForUuids(moduleUuid);
             int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
@@ -129,7 +142,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
             int relModifierNid = identifierService.getNidForUuids(relModifierUuid);
 
             SemanticChronologyImpl relationshipToWrite
-                    = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, relUuid, relNid,
+                    = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid, relNid,
                             relAssemblageNid, referencedConceptNid);
             int relStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             Rf2RelationshipImpl relVersion = relationshipToWrite.createMutableVersion(relStamp);

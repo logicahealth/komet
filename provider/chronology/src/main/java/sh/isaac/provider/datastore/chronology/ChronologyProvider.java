@@ -68,11 +68,10 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
-import sh.isaac.api.IdentifierService;
 import sh.isaac.api.MetadataService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
@@ -86,6 +85,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -155,6 +155,21 @@ public class ChronologyProvider
     @Override
     public void writeSemanticChronology(SemanticChronology semanticChronicle) {
         store.putChronologyData((ChronologyImpl) semanticChronicle);
+
+        if (semanticChronicle.getVersionType() == VersionType.RF2_RELATIONSHIP) {
+            SemanticChronology writtenChronicle = getSemanticChronology(semanticChronicle.getNid());
+            List<Version> versionList = writtenChronicle.getVersionList();
+            if (versionList.size() > 2) {
+                for (int i = 1; i < versionList.size(); i++) {
+                    Rf2Relationship rel1 = (Rf2Relationship) versionList.get(i - 1);
+                    Rf2Relationship rel2 = (Rf2Relationship) versionList.get(i);
+                    if (rel1.getTypeNid() != rel2.getTypeNid()) {
+                        LOG.warn("Rel type changed from: \n     " + Get.conceptDescriptionText(rel1.getTypeNid())
+                                + "\n to: " + Get.conceptDescriptionText(rel2.getTypeNid()));
+                    }
+                }
+            }
+        }
     }
 
     private void loadMetaData()
@@ -325,9 +340,13 @@ public class ChronologyProvider
             int assemblageNid = identifierService.getAssemblageNidForNid(semanticNid);
             VersionType versionType = getVersionTypeForAssemblage(assemblageNid);
             if (versionType == VersionType.DESCRIPTION) {
-                SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
-                if ((semanticChronology != null)) {
-                    results.add(semanticChronology);
+                try {
+                    SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
+                    if ((semanticChronology != null)) {
+                        results.add(semanticChronology);
+                    }
+                } catch (NoSuchElementException e) {
+                    LOG.error(e);
                 }
             }
         }

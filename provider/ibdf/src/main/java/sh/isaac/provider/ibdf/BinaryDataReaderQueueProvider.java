@@ -41,6 +41,7 @@ package sh.isaac.provider.ibdf;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;

@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.PremiseType;
@@ -37,7 +35,6 @@ import sh.isaac.model.collections.SpinedIntIntArrayMap;
  */
 public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
-   protected static final Logger LOG = LogManager.getLogger();
    private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
    protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
    final int transformSize = 10240;

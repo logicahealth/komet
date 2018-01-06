@@ -45,12 +45,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -70,25 +67,15 @@ import com.cedarsoftware.util.io.JsonWriter;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
-import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.logic.IsomorphicResults;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -120,21 +107,9 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 )
 public class LoadTermstore
         extends AbstractMojo {
-   /** The active only. */
-   @Parameter(required = false)
-   private boolean activeOnly = false;
 
    @Parameter(required = false)
    private int duplicatesToPrint = 20;
-
-   /** The semantic types to skip. */
-   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
-
-   /** The skipped items. */
-   private final HashSet<Integer> skippedItems = new HashSet<>();
-
-   /** The skipped any. */
-   private boolean skippedAny = false;
 
    /**
     * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
@@ -166,11 +141,6 @@ public class LoadTermstore
       Get.configurationService()
          .setDBBuildMode();
 
-      final int statedNid = Get.identifierService()
-                                    .getNidForUuids(
-                                        TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
-      final long loadTime = System.currentTimeMillis();
-
       // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
       final AtomicBoolean hasMetadata = new AtomicBoolean(false);
       Set<File>           mergedFiles;
@@ -198,6 +168,10 @@ public class LoadTermstore
                   getLog().info("The file " + f.getAbsolutePath() +
                                 " does not match the expected type of ibdf - ignoring.");
                } else {
+                  if (f.getName()
+                           .equals("IsaacMetadataAuxiliary.ibdf")) {
+                      hasMetadata.set(true);
+                  }
                   mergedFiles.add(f);
                }
             }
@@ -212,11 +186,9 @@ public class LoadTermstore
                   (o1, o2) -> {
                      if (o1.getName()
                            .equals("IsaacMetadataAuxiliary.ibdf")) {
-                        hasMetadata.set(true);
                         return -1;
                      } else if (o2.getName()
                                   .equals("IsaacMetadataAuxiliary.ibdf")) {
-                        hasMetadata.set(true);
                         return 1;
                      } else {
                         return ((o1.length() - o2.length()) > 0 ? 1
@@ -239,8 +211,7 @@ public class LoadTermstore
 
       try {
          for (final File f: temp) {
-            getLog().info("Loading termstore from " + f.getCanonicalPath() + (this.activeOnly ? " active items only"
-                  : ""));
+            getLog().info("Loading termstore from " + f.getCanonicalPath());
             
             int duplicateCount = 0;
             
@@ -248,7 +219,7 @@ public class LoadTermstore
             final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
 
             while (!queue.isEmpty() ||!reader.isFinished()) {
-               final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
+               final IsaacExternalizable object = queue.poll(1000, TimeUnit.MILLISECONDS);
 
                if (object != null) {
                   this.itemCount++;
@@ -257,95 +228,26 @@ public class LoadTermstore
                      if (null != object.getIsaacObjectType()) {
                         switch (object.getIsaacObjectType()) {
                         case CONCEPT:
-                           if (!this.activeOnly || isActive((Chronology) object)) {
                               Get.conceptService()
                                  .writeConcept(((ConceptChronology) object));
                               this.conceptCount++;
-                           } else {
-                              this.skippedItems.add(((Chronology) object).getNid());
-                           }
-
                            break;
 
                         case SEMANTIC:
                            SemanticChronology sc = (SemanticChronology) object;
-
-                           if (sc.getAssemblageNid() == statedNid) {
-                              final NidSet sequences = Get.assemblageService()
-                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
-                                                                              statedNid);
-
-                              if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
-                                 // not a duplicate, just an index for itself. 
-                              } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
-                                 duplicateCount++;
-                                 final List<LogicalExpression> listToMerge = new ArrayList<>();
-
-                                 listToMerge.add(getLatestLogicalExpression(sc));
-                                 getLog().info("\nDuplicate: " + sc);
-                                 sequences.stream()
-                                          .forEach(
-                                              (semanticSequence) -> listToMerge.add(
-                                                  getLatestLogicalExpression(Get.assemblageService()
-                                                        .getSemanticChronology(semanticSequence))));
-                                 getLog().info("Duplicates: " + listToMerge);
-
-                                 if (listToMerge.size() > 2) {
-                                    throw new UnsupportedOperationException("Can't merge list of size: " +
-                                          listToMerge.size() + "\n" + listToMerge);
-                                 }
-
-                                 final IsomorphicResults isomorphicResults = listToMerge.get(0)
-                                                                                        .findIsomorphisms(
-                                                                                           listToMerge.get(1));
-
-                                 getLog().info("Isomorphic results: " + isomorphicResults);
-
-                                 final SemanticChronology existingChronology = Get.assemblageService()
-                                                                                .getSemanticChronology(sequences.findFirst()
-                                                                                      .getAsInt());
-                                 final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
-                                                                                   "9ecc154c-e490-5cf8-805d-d2865d62aef3");
-                                 final ConceptProxy pathProxy = new ConceptProxy("development path",
-                                                                                 "1f200ca6-960e-11e5-8994-feff819cdc9f");
-                                 final ConceptProxy userProxy = new ConceptProxy("user",
-                                                                                 "f7495b58-6630-3499-a44e-2052b5fcf06c");
-                                 final int stampSequence = Get.stampService()
-                                                              .getStampSequence(Status.ACTIVE,
-                                                                    loadTime,
-                                                                    userProxy.getNid(),
-                                                                    moduleProxy.getNid(),
-                                                                    pathProxy.getNid());
-                                 final MutableLogicGraphVersion newVersion =
-                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(
-                                        stampSequence);
-
-                                 newVersion.setGraphData(isomorphicResults.getMergedExpression()
-                                       .getData(DataTarget.INTERNAL));
-
-//                               TODO mess - this isn't merging properly - how should we merge!?
-//                               for (UUID uuid : sc.getUuidList())
-//                               {
-//                                       Get.identifierService().addUuidForNid(uuid, newVersion.getNid());
-//                               }
-                                 sc = existingChronology;
-                              }
+                           if (sc.getPrimordialUuid().equals(TermAux.MASTER_PATH_SEMANTIC_UUID)) {
+                               getLog().info("Loading master path semantic at count: " + this.itemCount);
+                           } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
+                               getLog().info("Loading development path semantic at count: " + this.itemCount);
                            }
 
-                           if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
-                                 (!this.activeOnly ||
-                                  (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                              Get.assemblageService()
+                           Get.assemblageService()
                                  .writeSemanticChronology(sc);
-                              if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+                           if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
-                              }
-
-                              this.semanticCount++;
-                           } else {
-                              this.skippedItems.add(sc.getNid());
                            }
 
+                           this.semanticCount++;
                            break;
 
                         case STAMP_ALIAS:
@@ -364,7 +266,7 @@ public class LoadTermstore
                            break;
 
                         default:
-                           throw new UnsupportedOperationException("Unknown ochre object type: " + object);
+                           throw new UnsupportedOperationException("Unknown object type: " + object);
                         }
                      }
                   } catch (final UnsupportedOperationException e) {
@@ -400,21 +302,15 @@ public class LoadTermstore
                }
             }
 
-            if (this.skippedItems.size() > 0) {
-               this.skippedAny = true;
-            }
-
             getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                           this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
-                          ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
-                  : "") + ((duplicateCount > 0) ? " Duplicates " + duplicateCount
+                    ((duplicateCount > 0) ? " Duplicates " + duplicateCount
                   : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
                   : "") + " from file " + f.getName());
             this.conceptCount      = 0;
             this.semanticCount       = 0;
             this.stampAliasCount   = 0;
             this.stampCommentCount = 0;
-            this.skippedItems.clear();
          }
          
          
@@ -437,19 +333,12 @@ public class LoadTermstore
             }
          }
 
-         if (this.skippedAny) {
-             getLog().warn("Skipped components during import.");
-            // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
-//            Get.identifierService()
-//               .clearUnusedIds();
-         }
+         getLog().info("Final item count: "  + this.itemCount);
          Get.startIndexTask().get();
          LookupService.syncAll();
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
-                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
-                       ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
-               : ""));
+                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments");
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       } 
    }
@@ -463,66 +352,6 @@ public class LoadTermstore
       this.ibdfFiles = files;
    }
 
-   /**
-    * Skip semantic types.
-    *
-    * @param types the types
-    */
-   public void skipSememeTypes(Collection<VersionType> types) {
-      this.semanticTypesToSkip.addAll(types);
-   }
-
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Checks if active.
-    *
-    * @param object the object
-    * @return true, if active
-    */
-   private boolean isActive(Chronology object) {
-      if (object.getVersionList()
-                .size() != 1) {
-         throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
-      } else {
-         return ((StampedVersion) object.getVersionList()
-                                        .get(0)).getState() == Status.ACTIVE;
-      }
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the active only.
-    *
-    * @param activeOnly the new active only
-    */
-   public void setActiveOnly(boolean activeOnly) {
-      this.activeOnly = activeOnly;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the latest logical expression.
-    *
-    * @param sc the sc
-    * @return the latest logical expression
-    */
-   private static LogicalExpression getLatestLogicalExpression(SemanticChronology sc) {
-      final SemanticChronology lgsc          = sc;
-      LogicGraphVersion                                   latestVersion = null;
-
-      for (final StampedVersion version: lgsc.getVersionList()) {
-         if (latestVersion == null) {
-            latestVersion = (LogicGraphVersion) version;
-         } else if (latestVersion.getTime() < version.getTime()) {
-            latestVersion = (LogicGraphVersion) version;
-         }
-      }
-
-      return (latestVersion != null) ? latestVersion.getLogicalExpression()
-                                     : null;
-   }
 }
 

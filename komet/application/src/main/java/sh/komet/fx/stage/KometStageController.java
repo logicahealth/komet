@@ -95,6 +95,8 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
+import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -212,6 +214,19 @@ public class KometStageController
 
    private List<MenuItem> getTaskMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
+
+      MenuItem importSources = new MenuItem("Import terminology content");
+      importSources.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importer = new Rf2DirectImporter();
+         Get.executor().submit(importer);
+      });
+      items.add(importSources);
+      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
+      transformSources.setOnAction((ActionEvent event) -> {
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+         Get.executor().submit(transformer);
+      });
+      items.add(transformSources);
       
       
       MenuItem importTransform = new MenuItem("Import and transform");
@@ -254,19 +269,6 @@ public class KometStageController
          Get.startIndexTask();
       });
       items.add(completeReindex);
-//
-//      MenuItem importSources = new MenuItem("Import terminology content");
-//      importSources.setOnAction((ActionEvent event) -> {
-//         Rf2DirectImporter importer = new Rf2DirectImporter();
-//         Get.executor().submit(importer);
-//      });
-//      items.add(importSources);
-//      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
-//      transformSources.setOnAction((ActionEvent event) -> {
-//         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
-//         Get.executor().submit(transformer);
-//      });
-//      items.add(transformSources);
       return items;
    }
 

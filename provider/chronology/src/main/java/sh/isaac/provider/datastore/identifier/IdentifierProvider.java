@@ -202,6 +202,13 @@ public class IdentifierProvider
       this.assemblageNid_ObjectType_Map.computeIfAbsent(assemblageNid, (Integer t) -> objectType);
       this.nid_AssemblageNid_Map.put(nid, assemblageNid);
       this.assemblageNid_VersionType_Map.computeIfAbsent(assemblageNid, (Integer t) -> versionType);
+      
+      if (this.assemblageNid_ObjectType_Map.get(assemblageNid) != objectType) {
+          throw new IllegalStateException("Object types don't match: " +
+                  this.assemblageNid_ObjectType_Map.get(assemblageNid) + " " +
+                  objectType
+          );
+      }
       if (this.assemblageNid_VersionType_Map.get(assemblageNid) != versionType) {
           throw new IllegalStateException("Version types don't match: " +
                   this.assemblageNid_VersionType_Map.get(assemblageNid) + " " +
@@ -345,7 +352,16 @@ public class IdentifierProvider
          throw new IllegalStateException("assemblageNid must be negative. Found: " + assemblageNid);
       }
 
-      nid_AssemblageNid_Map.put(nid, assemblageNid);
+      int assemblageForNid = nid_AssemblageNid_Map.get(nid);
+      if (assemblageForNid == Integer.MAX_VALUE) {
+          nid_AssemblageNid_Map.put(nid, assemblageNid);
+      } else if (assemblageNid != assemblageForNid) {
+          throw new IllegalStateException("Assemblage nids do not match: \n" +
+                  Get.conceptDescriptionText(assemblageNid) + " and\n" +
+                  Get.conceptDescriptionText(assemblageForNid));
+      }
+      
+      
 
       AtomicInteger sequenceGenerator = assemblageNid_SequenceGenerator_Map.computeIfAbsent(
                                             assemblageNid,

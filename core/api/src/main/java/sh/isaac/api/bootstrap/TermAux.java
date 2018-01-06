@@ -64,6 +64,10 @@ import sh.isaac.api.util.UuidT5Generator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class TermAux {
+   public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
+   public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
+    
+    
    /** ConceptProxy for: "Part of concept". */
    public static ConceptSpecification PART_OF = new ConceptProxy("Part of",
                                                                  UUID.fromString(

@@ -67,16 +67,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final List<String[]> refsetRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexService> indexers;
-   private final ImportStreamType importType;
+   private final ImportSpecification importSpecification;
    private final AssemblageService assemblageService = Get.assemblageService();
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
-           ImportStreamType importType) {
+           ImportSpecification importSpecification) {
       this.refsetRecords = semanticRecords;
       this.writeSemaphore = writeSemaphore;
-      this.importType = importType;
+      this.importSpecification = importSpecification;
       this.writeSemaphore.acquireUninterruptibly();
       indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("Importing semantic batch of size: " + semanticRecords.size());
@@ -121,13 +121,13 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
             int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             
             SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                                        this.importType.getSemanticVersionType(),
+                                                        this.importSpecification.streamType.getSemanticVersionType(),
                                                               elementUuid,
                                                               elementNid,
                                                               assemblageNid,
                                                               referencedComponentNid);
             
-            switch (importType) {
+            switch (importSpecification.streamType) {
                case NID1_NID2_INT3_REFSET:
                   addVersionNID1_NID2_INT3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
                   break;
@@ -185,7 +185,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                   break;
 
                   default:
-                     throw new UnsupportedOperationException("Can't handle: " + importType);
+                     throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                
             }
 

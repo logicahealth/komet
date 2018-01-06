@@ -423,11 +423,16 @@ public class IsaacTaxonomy {
     *
     * @param pathAssemblageConcept the path assemblage concept
     * @param pathConcept the path concept
+     * @param semanticUuid the UUID to assign to the path semantic...
     */
-   protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
-      this.semanticBuilders.add(Get.semanticBuilderService()
+   protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept, UUID semanticUuid) {
+       
+       SemanticBuilder pathMemberBuilder = Get.semanticBuilderService()
               .getMembershipSemanticBuilder(pathConcept.getNid(),
-                      pathAssemblageConcept.getNid()));
+                      pathAssemblageConcept.getNid());
+       pathMemberBuilder.setPrimordialUuid(semanticUuid);
+       
+      this.semanticBuilders.add(pathMemberBuilder);
    }
 
    /**

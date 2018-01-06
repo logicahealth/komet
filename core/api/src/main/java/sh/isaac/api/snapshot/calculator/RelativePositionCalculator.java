@@ -542,8 +542,10 @@ public class RelativePositionCalculator
 
                 if (this.errorCount < 20) {
                    log.warn(
-                       "{} should never happen. " + "\n  Data is malformed. stamp: {}  Part to test: {}",
-                       new Object[] { RelativePosition.EQUAL, stampSequence, prevStamp });
+                       "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
+                       new Object[] { RelativePosition.EQUAL, 
+                           Get.stampService().describeStampSequence(stampSequence), 
+                           Get.stampService().describeStampSequence(prevStamp) });
                 }
 
                 break;

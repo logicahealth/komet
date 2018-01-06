@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.ibdf;
+package sh.isaac.model.datastream;
 
 //~--- non-JDK imports --------------------------------------------------------
 

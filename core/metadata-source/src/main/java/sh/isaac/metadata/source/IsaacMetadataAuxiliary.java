@@ -356,8 +356,8 @@ public class IsaacMetadataAuxiliary
          final ConceptBuilder paths = createConcept("Paths assemblage");
 
          paths.mergeFromSpec(TermAux.PATH_ASSEMBLAGE);
-         addPath(paths, masterPath);
-         addPath(paths, developmentPath);
+         addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
+         addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
 
          final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
 

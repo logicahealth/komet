@@ -168,15 +168,20 @@ public class SpinedNidIntMap {
    }
 
    public int getAndUpdate(int index, IntUnaryOperator generator) {
-       if (index < 0) {
+      if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-     int spineIndex = index / elementsPerSpine;
+      int spineIndex = index / elementsPerSpine;
       int indexInSpine = index % elementsPerSpine;
+      AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+      int currentValue = spine.get(indexInSpine);
+      if (currentValue != INITIALIZATION_VALUE) {
+          return currentValue;
+      }
       if (spineIndex < spineChangedArray.length()) {
          spineChangedArray.set(spineIndex, (byte) 1);
       }
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
+      return spine.updateAndGet(indexInSpine, generator);
    }
 
    public boolean containsKey(int index) {
