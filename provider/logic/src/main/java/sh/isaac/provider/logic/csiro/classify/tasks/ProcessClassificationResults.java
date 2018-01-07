@@ -69,7 +69,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
@@ -82,6 +81,7 @@ import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -91,7 +91,7 @@ import sh.isaac.model.ModelGet;
  * @author kec
  */
 public class ProcessClassificationResults
-        extends TimedTask<ClassifierResults> {
+        extends TimedTaskWithProgressTracker<ClassifierResults> {
 
    /**
     * The stamp coordinate.
@@ -120,6 +120,7 @@ public class ProcessClassificationResults
       this.logicCoordinate = logicCoordinate;
       this.assemblageNid = logicCoordinate.getConceptAssemblageNid();
       updateTitle("Retrieve inferred axioms");
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -132,11 +133,18 @@ public class ProcessClassificationResults
    @Override
    protected ClassifierResults call()
            throws Exception {
+       try {
       final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
       final Ontology inferredAxioms = cd.getClassifiedOntology();
-      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptNidSet());
+      NidSet affectedConceptNids = cd.getAffectedConceptNidSet();
+      this.addToTotalWork(affectedConceptNids.size());
+      final ClassifierResults classifierResults = collectResults(inferredAxioms, affectedConceptNids);
 
       return classifierResults;
+       } finally {
+           Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+           Get.activeTasks().remove(this);
+       }
    }
 
    /**
@@ -149,6 +157,7 @@ public class ProcessClassificationResults
    private ClassifierResults collectResults(Ontology classifiedResult, NidSet affectedConcepts) {
       final HashSet<NidSet> equivalentSets = new HashSet<>();
       affectedConcepts.parallelStream().forEach((conceptNid) -> {
+          completedUnitOfWork();
          int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
          final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
 

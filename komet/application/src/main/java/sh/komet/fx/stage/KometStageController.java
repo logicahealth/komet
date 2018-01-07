@@ -95,6 +95,7 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
@@ -215,12 +216,18 @@ public class KometStageController
    private List<MenuItem> getTaskMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
 
-      MenuItem importSources = new MenuItem("Import terminology content");
-      importSources.setOnAction((ActionEvent event) -> {
-         Rf2DirectImporter importer = new Rf2DirectImporter();
-         Get.executor().submit(importer);
+      MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
+      importSourcesFull.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
+         Get.executor().submit(importerFull);
       });
-      items.add(importSources);
+      items.add(importSourcesFull);
+      MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - SNAPSHOT");
+      importSourcesSnapshot.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importerSnapshot = new Rf2DirectImporter(ImportType.SNAPSHOT);
+         Get.executor().submit(importerSnapshot);
+      });
+      items.add(importSourcesSnapshot);
       MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
       transformSources.setOnAction((ActionEvent event) -> {
          Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
@@ -229,14 +236,25 @@ public class KometStageController
       items.add(transformSources);
       
       
-      MenuItem importTransform = new MenuItem("Import and transform");
+      MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
               
-      importTransform.setOnAction((ActionEvent event) -> {
-         ImportAndTransformTask itcTask = new ImportAndTransformTask(TAXONOMY_MANIFOLD);
+      importTransformFull.setOnAction((ActionEvent event) -> {
+         ImportAndTransformTask itcTask = new ImportAndTransformTask(TAXONOMY_MANIFOLD, 
+                 ImportType.FULL);
          Get.executor().submit(itcTask);
       });
       
-      items.add(importTransform);
+      items.add(importTransformFull);
+      
+      MenuItem importTransformSNAPSHOT = new MenuItem("Import and transform - SNAPSHOT");
+              
+      importTransformSNAPSHOT.setOnAction((ActionEvent event) -> {
+         ImportAndTransformTask itcTask = new ImportAndTransformTask(TAXONOMY_MANIFOLD, 
+                 ImportType.SNAPSHOT);
+         Get.executor().submit(itcTask);
+      });
+      
+      items.add(importTransformSNAPSHOT);
       
       MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
       setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {

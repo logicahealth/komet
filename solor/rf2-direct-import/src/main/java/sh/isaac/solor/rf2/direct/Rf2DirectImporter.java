@@ -91,9 +91,12 @@ public class Rf2DirectImporter
 
     //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
+    
+    protected final ImportType importType;
 
     //~--- constructors --------------------------------------------------------
-    public Rf2DirectImporter() {
+    public Rf2DirectImporter(ImportType importType) {
+        this.importType = importType;
         File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
@@ -141,6 +144,7 @@ public class Rf2DirectImporter
 
             return null;
         } finally {
+            Get.taxonomyService().notifyTaxonomyListenersToRefresh();
             Get.activeTasks()
                     .remove(this);
         }
@@ -168,6 +172,14 @@ public class Rf2DirectImporter
                         || p.toString().toLowerCase().contains("sct")))
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
+        
+        String importPrefix1 = "rf2release/full/";
+        String importPrefix2 = "full/";
+        
+        if (importType == ImportType.SNAPSHOT) {
+            importPrefix1 = "rf2release/snapshot/";
+            importPrefix2 = "snapshot/";
+        }
 
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
@@ -178,7 +190,7 @@ public class Rf2DirectImporter
                     String entryName = entry.getName()
                             .toLowerCase();
 
-                    if (entryName.startsWith("rf2release/full/") || entryName.startsWith("full/")) {
+                    if (entryName.startsWith(importPrefix1) || entryName.startsWith(importPrefix2)) {
                         if (entryName.contains("sct2_concept_")) {
                             entriesToImport.add(
                                     new ImportSpecification(zipFilePath.toFile(), ImportStreamType.CONCEPT, entry));

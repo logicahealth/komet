@@ -34,6 +34,7 @@ import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.util.DBLocator;
+import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
@@ -65,6 +66,9 @@ public class SolorMojo extends AbstractMojo {
     @Parameter(required = true)
     private File dataStoreLocation;
     
+    @Parameter(required = true)
+    private String importType;
+    
     @Parameter(required = false, defaultValue = "false")
     private boolean transform;
 
@@ -91,7 +95,7 @@ public class SolorMojo extends AbstractMojo {
                     .setDataStoreFolderPath(this.dataStoreLocation.toPath());
             getLog().info("  Setup AppContext, data store location = " + this.dataStoreLocation.getCanonicalPath());
             LookupService.startupIsaac();
-            Rf2DirectImporter importer = new Rf2DirectImporter();
+            Rf2DirectImporter importer = new Rf2DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             importer.run();
             LookupService.syncAll();

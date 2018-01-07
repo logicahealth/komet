@@ -109,6 +109,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          return null;
       } finally {
+         Get.taxonomyService().notifyTaxonomyListenersToRefresh();
          Get.activeTasks().remove(this);
       }
    }
