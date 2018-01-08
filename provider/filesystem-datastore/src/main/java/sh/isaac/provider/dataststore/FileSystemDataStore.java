@@ -149,22 +149,12 @@ public class FileSystemDataStore
    private File propertiesFile;
    private File nidToAssemblageNidMapDirectory;
    private File nidToElementSequenceMapDirectory;
-   //private final NidSet watchSet = new NidSet();
 
    //~--- methods -------------------------------------------------------------
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
        try {
            int nid = chronology.getNid();
-           boolean isWatch = false;
-//           if (watchSet.isEmpty()) {
-//               watchSet.add(Get.identifierService().getNidForUuids(UUID.fromString("9e560f1d-69f7-3163-ab18-484fb212f640")));
-//               watchSet.add(Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED("89587004")));
-//           }
-//           if (watchSet.contains(nid)) {
-//               isWatch = true;
-//               LOG.info("Found watch chronology: \n" + chronology.toString());
-//           }
            
            int assemblageNid = chronology.getAssemblageNid();
            if (ModelGet.identifierService()
@@ -191,14 +181,6 @@ public class FileSystemDataStore
            
            spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
            
-           if (isWatch) {
-               Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getIdentifiedObjectChronology(chronology.getNid());
-               if (optionalChronology.isPresent()) {
-                   LOG.info("Watch after write: \n" + optionalChronology.get().toString());
-               } else {
-                   LOG.error("No chronology after write for: " + chronology);
-               }
-           }
        } catch (Throwable e) {
            e.printStackTrace();
            throw e;

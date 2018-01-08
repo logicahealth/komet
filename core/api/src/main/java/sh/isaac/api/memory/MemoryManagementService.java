@@ -41,6 +41,7 @@ package sh.isaac.api.memory;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.ApplicationStates;
 import org.jvnet.hk2.annotations.Contract;
 
 //~--- interfaces -------------------------------------------------------------
@@ -62,6 +63,6 @@ public interface MemoryManagementService {
     *
     * @param memoryConfiguration the new memory configuration
     */
-   void setMemoryConfiguration(MemoryConfigurations memoryConfiguration);
+   void setMemoryConfiguration(ApplicationStates memoryConfiguration);
 }
 

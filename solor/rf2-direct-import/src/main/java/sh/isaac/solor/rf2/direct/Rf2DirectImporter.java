@@ -173,14 +173,21 @@ public class Rf2DirectImporter
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
         
-        String importPrefix1 = "rf2release/full/";
-        String importPrefix2 = "full/";
+        String importPrefix1;
+        String importPrefix2;
         
-        if (importType == ImportType.SNAPSHOT) {
+        switch (importType) {
+            case ACTIVE_ONLY:
+            case SNAPSHOT:
             importPrefix1 = "rf2release/snapshot/";
             importPrefix2 = "snapshot/";
+            break;
+            case FULL:
+                default:
+            importPrefix1 = "rf2release/full/";
+            importPrefix2 = "full/";
         }
-
+        
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -425,7 +432,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -439,7 +446,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -491,7 +498,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing i semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -505,7 +512,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing i semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -537,7 +544,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -551,7 +558,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -583,7 +590,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ci semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -597,7 +604,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ci semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -629,7 +636,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cisscc semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -643,7 +650,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cisscc semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -675,7 +682,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cci semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -689,7 +696,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cci semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -721,7 +728,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -735,7 +742,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -767,7 +774,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ccs semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -781,7 +788,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ccs semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -813,7 +820,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing c semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -827,7 +834,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing c semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -859,7 +866,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cs semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -873,7 +880,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cs semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -905,7 +912,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing s semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -919,7 +926,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing s semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -951,7 +958,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sscc semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -965,7 +972,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sscc semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -997,7 +1004,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ss semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1011,7 +1018,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ss semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1043,7 +1050,7 @@ public class Rf2DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sssssss semantics from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1057,7 +1064,7 @@ public class Rf2DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sssssss semantics from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1101,7 +1108,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing concepts from: " + trimZipName(
-                                importSpecification.zipEntry.getName()));
+                                importSpecification.zipEntry.getName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1117,7 +1124,7 @@ public class Rf2DirectImporter
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing concepts from: " + trimZipName(
-                            importSpecification.zipEntry.getName()));
+                            importSpecification.zipEntry.getName()), importType);
 
             Get.executor()
                     .submit(conceptWriter);
@@ -1150,7 +1157,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing descriptions from: " + trimZipName(
-                                importSpecification.zipEntry.getName()));
+                                importSpecification.zipEntry.getName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1169,7 +1176,7 @@ public class Rf2DirectImporter
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing descriptions from: " + trimZipName(
-                            importSpecification.zipEntry.getName()));
+                            importSpecification.zipEntry.getName()), importType);
 
             Get.executor()
                     .submit(descriptionWriter);
@@ -1202,7 +1209,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing dialect from: " + trimZipName(
-                                importSpecification.zipEntry.getName()));
+                                importSpecification.zipEntry.getName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1218,7 +1225,7 @@ public class Rf2DirectImporter
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing dialect from: " + trimZipName(
-                            importSpecification.zipEntry.getName()));
+                            importSpecification.zipEntry.getName()), importType);
 
             Get.executor()
                     .submit(descriptionWriter);
@@ -1253,7 +1260,7 @@ public class Rf2DirectImporter
                         this.writeSemaphore,
                         "Processing inferred rels from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1270,7 +1277,7 @@ public class Rf2DirectImporter
                     this.writeSemaphore,
                     "Finishing inferred rels from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
 
             Get.executor()
                     .submit(relWriter);
@@ -1304,7 +1311,7 @@ public class Rf2DirectImporter
                         this.writeSemaphore,
                         "Processing stated rels from: " + trimZipName(
                                 importSpecification.zipEntry.getName()),
-                        importSpecification);
+                        importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1321,7 +1328,7 @@ public class Rf2DirectImporter
                     this.writeSemaphore,
                     "Finishing stated rels from: " + trimZipName(
                             importSpecification.zipEntry.getName()),
-                    importSpecification);
+                    importSpecification, importType);
 
             Get.executor()
                     .submit(relWriter);

@@ -125,8 +125,8 @@ public class SpinedNidIntMap {
       return spineCount; 
    }
 
-   public int sizeInBytes() {
-      int sizeInBytes = 0;
+   public long sizeInBytes() {
+      long sizeInBytes = 0;
 
       sizeInBytes = sizeInBytes + ((elementsPerSpine * 4) * getSpineCount());  // 4 bytes = bytes of 32 bit integer
       return sizeInBytes;

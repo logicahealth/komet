@@ -209,11 +209,11 @@ public interface IdentifierService
     * 
     * @return memory used in bytes
     */
-    int getMemoryInUse();
+    long getMemoryInUse();
     /**
      * 
      * @return disk space used in bytes
      */
-    int getSizeOnDisk();
+    long getSizeOnDisk();
 }
 

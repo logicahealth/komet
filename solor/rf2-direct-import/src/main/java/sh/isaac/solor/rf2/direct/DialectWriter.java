@@ -98,10 +98,12 @@ public class DialectWriter
    private final List<String[]>     dialectRecords;
    private final Semaphore          writeSemaphore;
    private final List<IndexService> indexers;
+   private final ImportType importType;
 
    //~--- constructors --------------------------------------------------------
 
-   public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, String message) {
+   public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, 
+           String message, ImportType importType) {
       this.dialectRecords = dialectRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
@@ -110,6 +112,7 @@ public class DialectWriter
       updateTitle("Importing dialect batch of size: " + dialectRecords.size());
       updateMessage(message);
       addToTotalWork(dialectRecords.size());
+      this.importType = importType;
       Get.activeTasks()
          .add(this);
    }
@@ -127,11 +130,20 @@ public class DialectWriter
          int               pathNid           = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord: dialectRecords) {
-            UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
+            final Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+            if (importType == ImportType.ACTIVE_ONLY) {
+                if (!identifierService.hasUuid(referencedConceptUuid)) {
+                    // if description was not imported because inactive, or inactive concept then skip
+                    continue;
+                }
+            }
+           UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
             UUID   moduleUuid          = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
             UUID   assemblageUuid      = UuidT3Generator.fromSNOMED(descriptionRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-            Status state               = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
             UUID   acceptabilityUuid   = UuidT3Generator.fromSNOMED(descriptionRecord[ACCEPTABILITY_SCTID]);
 
             // '2011-12-03T10:15:30Z'

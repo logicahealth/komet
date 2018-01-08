@@ -195,6 +195,7 @@ public class LoadTermstore2
             
             
             
+            
             final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
             final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
 

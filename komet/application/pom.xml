@@ -444,7 +444,7 @@
                            <artifactItems>
                               <artifact>
                                  <groupId>one.solor</groupId>
-                                 <artifactId>solor-db</artifactId>
+                                 <artifactId>solor-snap-db</artifactId>
                                  <version>${solor.db.version}</version>
                                  <type>zip</type>
                               </artifact>

@@ -128,6 +128,8 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
+      Get.applicationStates().add(ApplicationStates.STOPPING);
+      Get.applicationStates().remove(ApplicationStates.RUNNING);
       syncAll();
       setRunLevel(ISAAC_STARTED_RUNLEVEL);
       setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
@@ -143,6 +145,8 @@ public class LookupService {
     * Stop all system services, blocking until stopped (or failed).
     */
    public static void shutdownSystem() {
+      Get.applicationStates().add(ApplicationStates.STOPPING);
+      Get.applicationStates().remove(ApplicationStates.RUNNING);
       if (isInitialized()) {
          setRunLevel(SYSTEM_STOPPED_RUNLEVEL);
          looker.shutdown();
@@ -159,6 +163,7 @@ public class LookupService {
    public static void startupFxPlatform() {
       if (!fxPlatformUp) {
          LOG.debug("FxPlatform is not yet up - obtaining lock");
+      Get.applicationStates().add(ApplicationStates.STARTING);
 
          synchronized (STARTUP_LOCK) {
             LOG.debug("Lock obtained, starting fxPlatform");
@@ -178,10 +183,13 @@ public class LookupService {
                fxPlatformUp = true;
             }
          }
+      Get.applicationStates().add(ApplicationStates.RUNNING);
+      Get.applicationStates().remove(ApplicationStates.STARTING);
       }
    }
    
    public static void startupPreferenceProvider() {
+      Get.applicationStates().add(ApplicationStates.STARTING);
       setRunLevel(PREFERENCES_PROVIDER_RUNLEVEL);
    }
 
@@ -190,6 +198,7 @@ public class LookupService {
     */
    public static void startupIsaac() {
       try {
+      Get.applicationStates().add(ApplicationStates.STARTING);
          // Set run level to startup database and associated services running on top of database
          setRunLevel(DATABASE_SERVICES_STARTED_RUNLEVEL);
 
@@ -200,6 +209,8 @@ public class LookupService {
          // If database is validated, startup remaining run levels
          setRunLevel(ISAAC_STARTED_RUNLEVEL);
          setRunLevel(ISAAC_DEPENDENTS_RUNLEVEL);
+      Get.applicationStates().add(ApplicationStates.RUNNING);
+      Get.applicationStates().remove(ApplicationStates.STARTING);
       } catch (final Throwable e) {
          e.printStackTrace();
          // Will inform calling routines that database is corrupt
@@ -214,6 +225,7 @@ public class LookupService {
     */
    public static void startupIsaac(BiConsumer<Boolean, Exception> callWhenStartComplete) {
       LOG.info("Background starting ISAAC services");
+      Get.applicationStates().add(ApplicationStates.STARTING);
 
       final Thread backgroundLoad = new Thread(() -> {
                try {

@@ -524,16 +524,16 @@ public class IdentifierProvider
    }
 
     @Override
-    public int getMemoryInUse() {
-        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+    public long getMemoryInUse() {
+        long sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
         sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
         sizeInBytes += uuidIntMapMap.getMemoryInUse();
         return sizeInBytes;
     }
 
     @Override
-    public int getSizeOnDisk() {
-        int sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
+    public long getSizeOnDisk() {
+        long sizeInBytes = nid_AssemblageNid_Map.sizeInBytes();
         sizeInBytes += nid_ElementSequence_Map.sizeInBytes();
         sizeInBytes += uuidIntMapMap.getDiskSpaceUsed();
         return sizeInBytes;

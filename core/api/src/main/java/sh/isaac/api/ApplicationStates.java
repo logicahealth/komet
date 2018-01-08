@@ -37,18 +37,24 @@
 
 
 
-package sh.isaac.api.memory;
+package sh.isaac.api;
 
 /**
  * The Enum MemoryConfigurations.
  *
  * @author kec
  */
-public enum MemoryConfigurations {
-   /** The import. */
-   IMPORT,
+public enum ApplicationStates {
+   STARTING,
+   
+   RUNNING,
 
-   /** The classify. */
-   CLASSIFY;
+   /** Importing */
+   IMPORTING,
+
+   /** Classifying */
+   CLASSIFYING, 
+   
+   STOPPING;
 }
 

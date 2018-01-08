@@ -61,6 +61,7 @@ import javafx.stage.WindowEvent;
 import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import sh.isaac.api.ApplicationStates;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -173,10 +174,22 @@ public class MainApp
    }
 
    private void handleShutdown(WindowEvent e) {
-      LookupService.shutdownIsaac();
-      LookupService.shutdownSystem();
-      Platform.exit();
-      System.exit(0);
+      // need this to all happen on a non event thread...
+      e.consume();
+      Get.applicationStates().remove(ApplicationStates.RUNNING);
+      Get.applicationStates().add(ApplicationStates.STOPPING);
+      Get.executor().execute(() -> {
+        LookupService.syncAll();
+          try {
+              stop();
+          } catch (Throwable ex) {
+              ex.printStackTrace();
+          }
+        LookupService.shutdownIsaac();
+        LookupService.shutdownSystem();
+        Platform.exit();
+        System.exit(0);
+      });
    }
 }
 

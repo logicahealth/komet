@@ -21,5 +21,5 @@ package sh.isaac.solor.rf2.direct;
  * @author kec
  */
 public enum ImportType {
-    FULL, SNAPSHOT;
+    FULL, SNAPSHOT, ACTIVE_ONLY;
 }

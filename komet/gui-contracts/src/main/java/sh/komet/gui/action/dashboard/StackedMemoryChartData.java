@@ -20,6 +20,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.time.Duration;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -28,6 +29,7 @@ import javafx.scene.chart.StackedAreaChart;
 import javafx.scene.chart.XYChart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.util.FxTimer;
@@ -72,6 +74,10 @@ public class StackedMemoryChartData {
     
     
     public static void addDataPoint() {
+        if (Get.applicationStates().contains(ApplicationStates.STOPPING)) {
+            stop();
+            return;
+        } 
         long timeTick = TIME_TICK.getAndIncrement();
         long assemblageMemoryUsed = 0;
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
@@ -124,7 +130,7 @@ public class StackedMemoryChartData {
     }
     
     public static void start(int intervalInSeconds) {
-        if (fxTimer != null) {
+       if (fxTimer != null) {
            fxTimer.stop();
        }
        fxTimer = FxTimer.createPeriodic(Duration.ofSeconds(intervalInSeconds), StackedMemoryChartData::addDataPoint);
@@ -134,6 +140,6 @@ public class StackedMemoryChartData {
     * Stop.
     */
    public static void stop() {
-      fxTimer.stop();
+       fxTimer.stop();
    }
 }

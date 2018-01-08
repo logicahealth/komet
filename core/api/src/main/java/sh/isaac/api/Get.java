@@ -72,6 +72,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import java.io.InputStream;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -899,6 +900,11 @@ public class Get
       final List<T> services = LookupService.getServices(clazz);
 
       return services;
+   }
+   
+   private static final ConcurrentSkipListSet<ApplicationStates> APPLICATION_STATES = new ConcurrentSkipListSet<>();
+   public static ConcurrentSkipListSet<ApplicationStates> applicationStates() {
+       return APPLICATION_STATES;
    }
 }
 

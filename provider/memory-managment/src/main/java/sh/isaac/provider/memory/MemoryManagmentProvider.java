@@ -19,7 +19,7 @@ package sh.isaac.provider.memory;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.memory.HoldInMemoryCache;
-import sh.isaac.api.memory.MemoryConfigurations;
+import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.memory.SpineReference;
 import sh.isaac.api.memory.WriteToDiskCache;
@@ -37,18 +37,18 @@ public class MemoryManagmentProvider implements MemoryManagementService {
     * @param memoryConfiguration the new memory configuration
     */
    @Override
-   public void setMemoryConfiguration(MemoryConfigurations memoryConfiguration) {
+   public void setMemoryConfiguration(ApplicationStates memoryConfiguration) {
       System.out.println("Setting memory configuration to: " + memoryConfiguration);
 
       switch (memoryConfiguration) {
-      case CLASSIFY:
+      case CLASSIFYING:
 
          // reclaim as much memory as possible...
          HoldInMemoryCache.clearCache();
          WriteToDiskCache.flushAndClearCache();
          break;
 
-      case IMPORT:
+      case IMPORTING:
       default:
       }
    }

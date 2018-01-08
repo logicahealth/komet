@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -68,15 +69,17 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final Semaphore writeSemaphore;
    private final List<IndexService> indexers;
    private final ImportSpecification importSpecification;
+   private final ImportType importType;
    private final AssemblageService assemblageService = Get.assemblageService();
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
-           ImportSpecification importSpecification) {
+           ImportSpecification importSpecification, ImportType importType) {
       this.refsetRecords = semanticRecords;
       this.writeSemaphore = writeSemaphore;
       this.importSpecification = importSpecification;
+      this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
       indexers = LookupService.get().getAllServices(IndexService.class);
       updateTitle("Importing semantic batch of size: " + semanticRecords.size());
@@ -85,7 +88,6 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       Get.activeTasks().add(this);
 
    }
-   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
       for (IndexService indexer: indexers) {
          try {
@@ -108,13 +110,15 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] refsetRecord : refsetRecords) {
-            
+            final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
             
             UUID   elementUuid       = UUID.fromString(refsetRecord[REFSET_MEMBER_UUID]);
             int   elementNid         = identifierService.getNidForUuids(elementUuid);
             int   moduleNid          = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
             int   assemblageNid      = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-            Status state               = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
             int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
             TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;

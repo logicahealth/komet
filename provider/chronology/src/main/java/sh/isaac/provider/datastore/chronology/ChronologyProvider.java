@@ -155,21 +155,6 @@ public class ChronologyProvider
     @Override
     public void writeSemanticChronology(SemanticChronology semanticChronicle) {
         store.putChronologyData((ChronologyImpl) semanticChronicle);
-
-        if (semanticChronicle.getVersionType() == VersionType.RF2_RELATIONSHIP) {
-            SemanticChronology writtenChronicle = getSemanticChronology(semanticChronicle.getNid());
-            List<Version> versionList = writtenChronicle.getVersionList();
-            if (versionList.size() > 2) {
-                for (int i = 1; i < versionList.size(); i++) {
-                    Rf2Relationship rel1 = (Rf2Relationship) versionList.get(i - 1);
-                    Rf2Relationship rel2 = (Rf2Relationship) versionList.get(i);
-                    if (rel1.getTypeNid() != rel2.getTypeNid()) {
-                        LOG.warn("Rel type changed from: \n     " + Get.conceptDescriptionText(rel1.getTypeNid())
-                                + "\n to: " + Get.conceptDescriptionText(rel2.getTypeNid()));
-                    }
-                }
-            }
-        }
     }
 
     private void loadMetaData()

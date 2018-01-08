@@ -66,10 +66,13 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
    private final List<String[]> relationshipRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexService> indexers;
+   private final ImportType importType;
 
    private final ImportSpecification importSpecification;
 
-   public Rf2RelationshipWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message, ImportSpecification importSpecification) {
+   public Rf2RelationshipWriter(List<String[]> descriptionRecords, 
+            Semaphore writeSemaphore, String message, 
+            ImportSpecification importSpecification, ImportType importType) {
       this.relationshipRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
@@ -79,6 +82,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());
       Get.activeTasks().add(this);
+      this.importType = importType;
    }
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
@@ -107,7 +111,17 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          }
 
          for (String[] relationshipRecord : relationshipRecords) {
-            //UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
+            final Status state = Status.fromZeroOneToken(relationshipRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+            if (importType == ImportType.ACTIVE_ONLY) {
+                if (!identifierService.hasUuid(referencedConceptUuid)) {
+                    // if concept was not imported because inactive then skip
+                    continue;
+                }
+            }
             UUID betterRelUuid = UuidT5Generator.get(
                     relationshipRecord[REL_SCT_ID_INDEX] +
                     relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX] +
@@ -117,12 +131,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                     relationshipRecord[REL_MODIFIER_NID_INDEX]  
                     + importSpecification.streamType    
                     );
-//            if (betterRelUuid.equals(UUID.fromString("5ccf20b0-3673-598b-b5c0-bfaf097ce486"))) {
-//                LOG.info("Found watch uuid rel");
-//            }
             UUID moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[MODULE_SCTID_INDEX]);
-            Status state = Status.fromZeroOneToken(relationshipRecord[ACTIVE_INDEX]);
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
 
             UUID destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[DESTINATION_NID_INDEX]);
             UUID relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_TYPE_NID_INDEX]);
