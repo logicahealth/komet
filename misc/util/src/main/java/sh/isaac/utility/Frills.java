@@ -1180,7 +1180,10 @@ public class Frills
       }
 
       AtomicInteger count = new AtomicInteger();
-      IntStream children = Get.taxonomyService().getTaxonomyChildNids(conceptNid);
+      //TODO [DAN] change this back to getTaxonomyChildNids (without coords) when it works
+      IntStream children = Arrays.stream(Get.taxonomyService().getSnapshot(
+            new ManifoldCoordinateImpl(StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+            .getTaxonomyChildConceptNids(conceptNid));
 
       children.forEach((conSequence) -> {
          count.getAndIncrement();
