@@ -3,6 +3,7 @@ package sh.isaac.integration.tests;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -88,7 +89,16 @@ public class VhatXmlTests {
 		boolean dbLoaded = false;
 		try
 		{
-			File[] files = new File[] { new File("target/data/" + System.getProperty("vhat-ibdf-file")) };
+			File[] files =  new File("target/data/").listFiles(new FileFilter() {
+				
+				@Override
+				public boolean accept(File pathname) {
+					if (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".ibdf")) {
+						return true;
+					}
+					return false;
+				}
+			});
 			if (files.length > 0)
 			{
 				LOG.info("Found file: {}", (Object[]) files);
