@@ -114,7 +114,7 @@ import sh.isaac.utility.Frills;
  *
  */
 @Service
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VHATIsAHasParentSynchronizingChronologyChangeListener implements ChronologyChangeListener {
    private static final Logger LOG = LogManager.getLogger(VHATIsAHasParentSynchronizingChronologyChangeListener.class);
 
@@ -207,6 +207,10 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       Get.commitService().addChangeListener(this);
       // Prevent a memory leak, by scheduling a thread to periodically empty the job list
       sf = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate((() -> waitForJobsToComplete()), 5, 5, TimeUnit.MINUTES);
+      if (Get.configurationService().inDBBuildMode())
+      {
+         disable();
+      }
    }
 
    @PreDestroy
@@ -278,6 +282,11 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
     */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
+      if (!enabled) {
+         LOG.debug("Ignoring, while listener disabled, change to commit {} ", commitRecord);
+
+         return;
+      }
       // For new and updated VHAT logic graphs, create or retire has_parent associations, as appropriate
       LOG.info("HandleCommit looking for - " + semanticNidsForUnhandledLogicGraphChanges.size() + " logic graphs: " + semanticNidsForUnhandledLogicGraphChanges + " and "
             + sememeSequencesForUnhandledHasParentAssociationChanges.size() + " associations: " + sememeSequencesForUnhandledHasParentAssociationChanges + " the commit contains "
