@@ -50,10 +50,10 @@ import org.apache.logging.log4j.Logger;
 
 import org.jvnet.testing.hk2testng.HK2;
 
-import org.testng.annotations.AfterGroups;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeGroups;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
@@ -107,6 +107,7 @@ public class IntegrationSuiteManagement {
       final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
 
       LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
+      Get.configurationService().setDBBuildMode();
       LookupService.startupIsaac();
       ActiveTasksTicker.start(10);
       HeapUseTicker.start(10);
