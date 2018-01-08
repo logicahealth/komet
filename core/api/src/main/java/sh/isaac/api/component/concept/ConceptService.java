@@ -206,7 +206,7 @@ public interface ConceptService
     * Return the UUID that was generated for this datastore when the concept store was first created.  
     * @return
     */
-   public UUID getDataStoreId();
+   public Optional<UUID> getDataStoreId();
    
    /**
     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,

@@ -67,7 +67,7 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 @Contract
 public interface TaxonomyService
-        extends DatabaseServices {
+        extends DatastoreServices {
    /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be

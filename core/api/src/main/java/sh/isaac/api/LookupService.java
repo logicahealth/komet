@@ -72,10 +72,12 @@ import com.sun.javafx.application.PlatformImpl;
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import sh.isaac.api.DatabaseServices.DatabaseValidity;
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
+import sh.isaac.api.index.IndexQueryService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -96,13 +98,15 @@ public class LookupService {
    /** The fx platform up. */
    private static volatile boolean fxPlatformUp = false;
 
-   public static final int SL_L5_ISAAC_DEPENDENTS_RUNLEVEL = 5;  //Anything that depends on issac as a whole to be started should be 5 - this is the fully-started state.
+   public static final int SL_L5_ISAAC_DEPENDENTS_RUNLEVEL = 5;  //Anything that depends on issac as a whole to be started should be 5 - 
+   //this is the fully-started state.
 
    public static final int SL_L4_ISAAC_STARTED_RUNLEVEL = 4; //at level 3 and 4, secondary isaac services start, such as changeset providers, etc.
    
    public static final int SL_L3 = 3; 
    
-   public static final int SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL = 2;  //In general, ISAAC data-store services start between 0 and 2, in an isaac specific order.
+   public static final int SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL = 2;  //In general, ISAAC data-store services start between 0 and 2, in an 
+   //isaac specific order.
 
    public static final int SL_L1 = 1; 
    
@@ -119,23 +123,19 @@ public class LookupService {
    /** The Constant STARTUP_LOCK. */
    private static final Object STARTUP_LOCK = new Object();
 
-   /** The discovered validity value. */
-   private static DatabaseValidity discoveredValidityValue = null;
-
    //~--- methods -------------------------------------------------------------
 
    /**
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
-      setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
-      setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
-      setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
-      setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
-      setRunLevel(SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL);
+      if (isInitialized()) {
+         setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
 
-      // Fully release any system locks to database
-      System.gc();
+         // Fully release any system locks to database
+         System.gc();
+      }
+      
    }
 
    /**
@@ -148,6 +148,9 @@ public class LookupService {
          ServiceLocatorFactory.getInstance()
                               .destroy(looker);
          looker = null;
+         
+         // Fully release any system locks to database
+         System.gc();
       }
    }
 
@@ -181,7 +184,9 @@ public class LookupService {
    }
    
    public static void startupPreferenceProvider() {
-      setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
+         setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
+      }
    }
 
    /**
@@ -193,20 +198,38 @@ public class LookupService {
          // when the application uses .equals or
          Locale.setDefault(Locale.US);
 
+         LOG.info("Bringing up Isaac data stores...");
          // Set run level to startup database and associated services running on top of database
          setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
 
-         // Validate that databases and associated services directories uniformly exist and are uniformly populated during startup
-         // TODO decide if the validate database folder strategy is worthwile, and then get it working again.
-         // validateDatabaseFolderStatus();
+         validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
+         LOG.info("Bringing up the rest of isaac...");
          setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
+         LOG.info("Bringing up isaac dependents...");
          setRunLevel(SL_L5_ISAAC_DEPENDENTS_RUNLEVEL);
+         
+         //Make sure metadata is imported, if the user prefs said to import metadata.
+         get().getService(MetadataService.class).importMetadata();
+         
+         //Now, check and make sure every provider has the same DB ID
+         UUID expected = get().getService(MetadataService.class).getDataStoreId().get();
+         
+         get().getAllServiceHandles(DatastoreServices.class).forEach(handle -> {
+            if (handle.isActive()) {
+                  if (!expected.equals(handle.getService().getDataStoreId().get())) {
+                     throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
+                           + " has an id of " + handle.getService().getDataStoreId() 
+                           + ".  Expected " + expected);
+                  }
+               }
+            });
+         
       } catch (final Throwable e) {
          e.printStackTrace();
          // Will inform calling routines that database is corrupt
-         throw e;
+         throw new RuntimeException (e);
       } 
    }
 
@@ -260,44 +283,39 @@ public class LookupService {
       }
    }
 
-   /**
-    * Validate database folder status.
-    */
 
-   /*
-    * Check database directories. Either all must exist or none may exist. Inconsistent state suggests database
-    * corruption
+   /**
+    * Check datastore provider start states.  In general, all providers should have had a consistent state - Inconsistent state 
+    * suggests database corruption.  
+    * 
+    * The only exception to this, is the indexers, which are allowed to start in a {@link DataStoreStartState#NO_DATASTORE} even while 
+    * the other providers are in {@link DataStoreStartState#EXISTING_DATASTORE} because they will build themselves as necessary.
+    * 
+    *  Also validate that all DBIDs (if present) are identical across the data stores.
     */
    private static void validateDatabaseFolderStatus() {
-      discoveredValidityValue = null;
-      get().getAllServiceHandles(DatabaseServices.class).forEach(handle -> {
-                       if (handle.isActive()) {
-                          if (discoveredValidityValue == null) {
-                             // Initial time through. All other database directories and lucene directories must have same state
-                             discoveredValidityValue = handle.getService()
-                                   .getDatabaseValidityStatus().get();
-                             LOG.info("First database service handler (" +
-                                      handle.getActiveDescriptor().getImplementation() +
-                                      ") has database validity value: " + discoveredValidityValue);
-                          } else {
-                             // Verify database directories have same state as identified in first time through
-                             LOG.info("Comparing database validity value for Provider " +
-                                      handle.getActiveDescriptor().getImplementation() +
-                                      " to see if consistent at startup.  Status: " +
-                                      handle.getService().getDatabaseValidityStatus());
+      //Read initial values from the Identifier service, which should be happy...  Reading the IdentifierService, since it happened
+      //to be implemented by the BDB datastore, which is a level 0 (earliest started) service.
+      final DataStoreStartState discoveredValidityValue = get().getService(IdentifierService.class).getDataStoreStartState();
+      final UUID discoveredDBId = get().getService(IdentifierService.class).getDataStoreId().get();
+      
+      LOG.info("System starting with datastore in {} state, with an ID of {}", discoveredValidityValue, discoveredDBId);
+      if (discoveredValidityValue == DataStoreStartState.NOT_YET_CHECKED)
+      {
+         throw new RuntimeException("validateDatabaseFolderStatus should not be called prior to starting all DataStore services");
+      }
 
-                             if (discoveredValidityValue != handle.getService().getDatabaseValidityStatus().get()) {
-                                // Inconsistency discovered
-                                throw new RuntimeException("Database Corruption Observed: Provider " +
-                                handle.getActiveDescriptor().getImplementation() +
-                                " has inconsistent database validity value prior to startup. Should be: " + 
-                                        discoveredValidityValue + " is: " + 
-                                        handle.getService().getDatabaseValidityStatus());
-                             }
-                          }
-                       }
-                    });
-   }
+      get().getAllServiceHandles(DatastoreServices.class).forEach(handle -> {
+         if (handle.isActive()) {
+               if (discoveredValidityValue != handle.getService().getDataStoreStartState() && 
+                     !(handle.getService() instanceof IndexQueryService)) {
+                  throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
+                        + " has start state of " + handle.getService().getDataStoreStartState() 
+                        + ".  Expected " + handle.getService().getDataStoreStartState());
+               }
+            }
+         });
+      }
 
    //~--- get methods ---------------------------------------------------------
 

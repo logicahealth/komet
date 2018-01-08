@@ -112,7 +112,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
@@ -146,8 +145,6 @@ public abstract class LuceneIndexer
 
    /** The Constant DEFAULT_LUCENE_FOLDER. */
    public static final String DEFAULT_LUCENE_FOLDER = "lucene";
-   
-   public static final String DATASTORE_ID = "dataStoreId.txt";
 
    /** The Constant LOG. */
    protected static final Logger LOG = LogManager.getLogger();
@@ -195,7 +192,7 @@ public abstract class LuceneIndexer
    private Boolean dbBuildMode = null;
 
    /** The database validity. */
-   private SimpleObjectProperty<DatabaseValidity> databaseValidity = new SimpleObjectProperty<DatabaseServices.DatabaseValidity>(DatabaseValidity.NOT_YET_CHECKED);
+   private DataStoreStartState databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
 
    /** The change listener ref. */
    private ChronologyChangeListener changeListenerRef;
@@ -255,7 +252,7 @@ public abstract class LuceneIndexer
          this.indexWriter.deleteAll();
          this.lastDocCache.clear();
          //When we wipe the index, write out the data store ID that we know will apply to anything we index going forward
-         Files.write(getDatabaseFolder().resolve(DATASTORE_ID), Get.assemblageService().getDataStoreId().toString().getBytes());
+         Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
@@ -904,48 +901,52 @@ public abstract class LuceneIndexer
          this.indexFolder = new File(luceneRootFolder, indexName);
 
          if (!this.indexFolder.exists() || this.indexFolder.list().length == 0) {
-            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
             LOG.info("Index folder missing or empty: " + this.indexFolder.getAbsolutePath());
          } else if (this.indexFolder.list().length > 0) {
-            this.databaseValidity.set(DatabaseValidity.EXISTING_DATASTORE);
+            this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
+            
+            if (!getDataStorePath().resolve(DATASTORE_ID_FILE).toFile().isFile())
+            {
+               LOG.warn("Existing index loaded from {}, but no datastore id was present!", getDataStorePath());
+               Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
+            }
          }
          else {
              LOG.error("Unexpected logic");
-             this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+             this.databaseValidity = DataStoreStartState.NO_DATASTORE;
          }
 
          this.indexFolder.mkdirs();
-         LOG.info("Index: " + this.indexFolder.getAbsolutePath());
+         
+         boolean reindexRequired = this.databaseValidity == DataStoreStartState.NO_DATASTORE;
+         
+         LOG.info("Index: {} " + (reindexRequired ? "" : " data store id {} "), this.indexFolder.getAbsolutePath(), getDataStoreId() );
 
          final Directory indexDirectory = new MMapDirectory(this.indexFolder.toPath()); // switch over to MMapDirectory - in theory - this gives us back some
          // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
          // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
          // the default value of SimpleFSDirectory is a huge bottleneck.
 
-         boolean reindexRequired = this.databaseValidity.get() == DatabaseValidity.NO_DATASTORE;
          
          try {
             this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
             
-            UUID temp = getDataStoreId();
-            LOG.info("Opened an index with a data store id of {}", temp);
+            Optional<UUID> temp = getDataStoreId();
             
-            if (temp != null && !temp.equals(Get.assemblageService().getDataStoreId()))
+            if (temp.isPresent() && !temp.get().equals(Get.assemblageService().getDataStoreId().get()))
             {
                 LOG.error("Index ID {} does not match assemblage service ID {}.  Did someone swap indexes?  Reindexing...", 
                       temp, Get.assemblageService().getDataStoreId());
                 throw new IndexFormatTooOldException("Index Mismatch", "Index mismatch");
             }
-            
-            this.databaseValidity.set(DatabaseValidity.VALID_DATASTORE);
          } catch (IndexFormatTooOldException e) {  //TODO [DAN] we should be able to catch other corrupt index issues here, and also solve by just reindexing... need to test
             LOG.warn("Lucene index format was too old or didn't match the assemblage service in'" + getIndexerName() + "'.  Reindexing!");
             RecursiveDelete.delete(this.indexFolder);
-            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
             this.indexFolder.mkdirs();
             this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
             reindexRequired = true;
-            // Will leave the validity on NO_DATASTORE until the reindex completes
          }
 
          // In the case of a blank index, we need to kick it to disk, otherwise, the search manager constructor fails.
@@ -1036,10 +1037,6 @@ public abstract class LuceneIndexer
             LookupService.getService(WorkExecutors.class).getExecutor().execute(gi);
             gi.get();
             LOG.info("Reindex complete");
-            if (this.databaseValidity.get() != DatabaseValidity.VALID_DATASTORE)
-            {
-               this.databaseValidity.set(DatabaseValidity.VALID_DATASTORE);
-            }
          }
       }
       catch (InterruptedException | ExecutionException | IOException e) {
@@ -1082,7 +1079,7 @@ public abstract class LuceneIndexer
       } catch (InterruptedException | IOException ex) {
          throw new RuntimeException(ex);
       }
-      this.databaseValidity.set(DatabaseValidity.NOT_YET_CHECKED);
+      this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
       this.lastDocCache.clear();
       
    }
@@ -1093,7 +1090,7 @@ public abstract class LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return this.indexFolder.toPath();
    }
 
@@ -1101,7 +1098,7 @@ public abstract class LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
+   public DataStoreStartState getDataStoreStartState() {
       return this.databaseValidity;
    }
 
@@ -1169,17 +1166,17 @@ public abstract class LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   public UUID getDataStoreId() {
-      Path p = getDatabaseFolder().resolve(DATASTORE_ID);
+   public Optional<UUID> getDataStoreId() {
+      Path p = getDataStorePath().resolve(DATASTORE_ID_FILE);
       try {
          if (p.toFile().isFile())
          {
-            return UUID.fromString(new String(Files.readAllBytes(p)));
+            return Optional.of(UUID.fromString(new String(Files.readAllBytes(p))));
          }
       } catch (IOException e) {
          LOG.error("Error reading dataStoreId from {}", p);
       }
-      return null;
+      return Optional.empty();
    }
 
    /**
@@ -1202,6 +1199,7 @@ public abstract class LuceneIndexer
    public void finishBatchReindex() {
       if (reindexLock.isHeldByCurrentThread()) {
          reindexLock.unlock();
+         LOG.info("unlocking after reindex");
       }
    }
 

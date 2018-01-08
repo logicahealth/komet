@@ -39,32 +39,26 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
-import javafx.beans.value.ObservableObjectValue;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * Contract used to validate that databases & lucene directories uniformly exist and are uniformly populated during startup. If fails, signals that
  * database is corrupted and force a pull of new database. Launched via {@link LookupService}
  *
  * @author Jesse Efron
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
-public interface DatabaseServices {
+public interface DatastoreServices {
    /**
     * The Enum DatabaseValidity.
     */
-   public enum DatabaseValidity {
+   public enum DataStoreStartState {
       /** the starting point. */
       NOT_YET_CHECKED,
 
@@ -72,37 +66,34 @@ public interface DatabaseServices {
       NO_DATASTORE,
 
       /** An existing data store is present */
-      EXISTING_DATASTORE,
-      
-      /** The existing data store has been read and validated */
-      VALID_DATASTORE
+      EXISTING_DATASTORE;
    }
-
-
-   //~--- get methods ---------------------------------------------------------
+   
+   public static final String DATASTORE_ID_FILE = "dataStoreId.txt";
 
    /**
-    * Flag indicating that folder path of the database.
+    * The path where the data store provider stores its on-disk data.
     */
-   public Path getDatabaseFolder();
+   public Path getDataStorePath();
 
    /**
-    * Gets the database validity status.  This should never return null.  Implementations should start by returning {@link DatabaseValidity#NOT_YET_CHECKED}.  
-    * When a datastore starts, it should set this appropriately, as it starts up.  When it shuts down, it should return {@link DatabaseValidity#NOT_YET_CHECKED}
+    * Gets the database validity status.  This should never return null.  Implementations should start by returning {@link DataStoreStartState#NOT_YET_CHECKED}.  
+    * When a datastore starts, it should set this appropriately, as it starts up.  When it shuts down, it should return {@link DataStoreStartState#NOT_YET_CHECKED}
     *
     * @return the database validity status
     */
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus();
+   public DataStoreStartState getDataStoreStartState();
    
    /**
-    * Return the UUID that was generated when the database was first created.
+    * Return the UUID that was generated when the datastore was first created.  Note, that this may be empty for a time, 
+    * when the DataStoreStartState was {@link DataStoreStartState#NOT_YET_CHECKED} or {@link DataStoreStartState#NO_DATASTORE} 
     *
     * @return the data store id
     */
-   public UUID getDataStoreId();
+   public Optional<UUID> getDataStoreId();
    
    /**
-    * Ensures data is written to disk. 
+    * Instruct the datastore to write any pending data to disk. 
     * @return 
     */
    public Future<?> sync();

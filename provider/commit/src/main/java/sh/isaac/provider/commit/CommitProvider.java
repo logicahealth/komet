@@ -60,7 +60,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,15 +69,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
 
@@ -100,9 +96,9 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.commit.ChangeChecker;
@@ -113,7 +109,6 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.provider.commit.CommitTask;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
@@ -128,8 +123,6 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.commit.CheckResult;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
@@ -173,12 +166,12 @@ public class CommitProvider
     * The Constant WRITE_POOL_SIZE.
     */
    private static final int WRITE_POOL_SIZE = 40;
-   // TODO persist dataStoreId.
-   private final UUID dataStoreId = UUID.randomUUID();
+   
+   private Optional<UUID> dataStoreId = Optional.empty();
 
    @Override
-   public UUID getDataStoreId() {
-      return dataStoreId;
+   public Optional<UUID> getDataStoreId() {
+      return this.dataStoreId;
    }
    
    private AtomicLong lastCommitTime = new AtomicLong(Long.MIN_VALUE);
@@ -215,10 +208,6 @@ public class CommitProvider
     */
    private long lastCommit = Long.MIN_VALUE;
 
-   /**
-    * The load required.
-    */
-   private final AtomicBoolean loadRequired = new AtomicBoolean();
 
    /**
     * The deferred import no check nids.
@@ -263,7 +252,7 @@ public class CommitProvider
    /**
     * The database validity.
     */
-   private SimpleObjectProperty<DatabaseValidity> databaseValidity = new SimpleObjectProperty<>(DatabaseValidity.NOT_YET_CHECKED);
+   private DataStoreStartState databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
 
    /**
     * The db folder path.
@@ -287,15 +276,9 @@ public class CommitProvider
          this.dbFolderPath = LookupService.getService(ConfigurationService.class)
                  .getChronicleFolderPath()
                  .resolve("commit-provider");
-         this.loadRequired.set(Files.exists(this.dbFolderPath));
+         
          Files.createDirectories(this.dbFolderPath);
          this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
-
-         if (!Files.exists(this.commitManagerFolder)) {
-            this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
-         }
-
-         Files.createDirectories(this.commitManagerFolder);
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                  .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
@@ -953,9 +936,35 @@ public class CommitProvider
    private void startMe() {
       try {
          LOG.info("Starting CommitProvider post-construct");
+         
+
+         if (!Files.exists(this.commitManagerFolder)) {
+            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+         }
+         else
+         {
+            this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
+            if (this.commitManagerFolder.resolve(DATASTORE_ID_FILE).toFile().isFile())
+            {
+               dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(this.commitManagerFolder.resolve(DATASTORE_ID_FILE)))));
+            }
+            else
+            {
+               LOG.warn("No datastore ID in the pre-existing commit service {}", this.commitManagerFolder);
+            }
+         }
+         
+         Files.createDirectories(this.commitManagerFolder);
+         
+         if (!this.dataStoreId.isPresent())
+         {
+            this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
+            Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
+         }
+         
          this.writeCompletionService.start();
 
-         if (this.loadRequired.get()) {
+         if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
             LOG.info("Reading existing commit manager data. ");
             LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
 
@@ -975,7 +984,6 @@ public class CommitProvider
             this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
             LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-            this.databaseValidity.set(DatabaseValidity.EXISTING_DATASTORE);
          }
          
 //         checkers.add(new ChangeChecker() {
@@ -1078,6 +1086,8 @@ public class CommitProvider
             this.uncommittedConceptsNoChecksNidSet.write(out);
             this.uncommittedSemanticsWithChecksNidSet.write(out);
             this.uncommittedSemanticsNoChecksNidSet.write(out);
+            this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
+            this.dataStoreId = Optional.empty();
          }
       } catch (final IOException e) {
          throw new RuntimeException(e);
@@ -1204,7 +1214,7 @@ public class CommitProvider
     * @return the database folder
     */
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return this.commitManagerFolder;
    }
 
@@ -1214,7 +1224,7 @@ public class CommitProvider
     * @return the database validity status
     */
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
+   public DataStoreStartState getDataStoreStartState() {
       return this.databaseValidity;
    }
 

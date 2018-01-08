@@ -37,6 +37,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import javafx.beans.value.ObservableObjectValue;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -44,14 +45,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
 /**
  *
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L1)
 
 public abstract class XodusConceptProvider 
          implements ConceptService {
@@ -149,7 +149,7 @@ public abstract class XodusConceptProvider
    }
 
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
@@ -172,12 +172,12 @@ public abstract class XodusConceptProvider
 
 
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
+   public DataStoreStartState getDataStoreStartState() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
    

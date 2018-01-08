@@ -93,7 +93,7 @@ import sh.isaac.model.configuration.StampCoordinates;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = LookupService.SL_L5_ISAAC_DEPENDENTS_RUNLEVEL)  //TODO 3 or 5?
+@RunLevel(value = LookupService.SL_L3)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */
@@ -204,7 +204,7 @@ public class ChangeSetLoadProvider
          }
 
          final UUID chronicleDbId = Get.conceptService()
-                                       .getDataStoreId();
+                                       .getDataStoreId().orElse(null);
 
          if (chronicleDbId == null) {
             throw new RuntimeException("Chronicle store did not return a dbId!");
@@ -241,10 +241,9 @@ public class ChangeSetLoadProvider
          if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
             StringBuilder msg = new StringBuilder();
             msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
-            msg.append(" SememeDbId: ").append(semanticDbId);
+            msg.append(" SemanticDbId: ").append(semanticDbId);
             msg.append(" Changsets DbId: ").append(changesetsDbId);
             throw new RuntimeException(msg.toString());
-
          }
 
          if (changesetsDbId == null) {
@@ -266,18 +265,20 @@ public class ChangeSetLoadProvider
 
          if (semanticDbId == null) {
             semanticDbId = readSemanticDbId();
-            if (!Get.configurationService().inDBBuildMode() && semanticDbId == null) {
-               if (loaded > 0) {
-                  LOG.warn("No database identify was found stored in a sememe, after loading changesets.");
-               }
-               Get.semanticBuilderService().getStringSemanticBuilder(chronicleDbId.toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-                     .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get();
-               Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept");
+            
+            if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
+               StringBuilder msg = new StringBuilder();
+               msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
+               msg.append(" SememeDbId: ").append(semanticDbId);
+               msg.append(" Changsets DbId: ").append(changesetsDbId);
+               throw new RuntimeException(msg.toString());
             }
          }
 
+         //Its possible that during initial startup, there will won't be a semantic ID at this point.  The lookupservice startup sequence 
+         //will resolve this later.
 
-      } catch (final IOException | RuntimeException | InterruptedException | ExecutionException e) {
+      } catch (final IOException | RuntimeException e) {
          LOG.error("Error ", e);
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Change Set Load Provider", e);

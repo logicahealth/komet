@@ -61,8 +61,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import javafx.beans.value.ObservableObjectValue;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -71,6 +69,7 @@ import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
@@ -93,7 +92,7 @@ import sh.isaac.provider.bdb.chronology.BdbProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L1)
 public class BdbIdentifierProvider
          implements ContainerSequenceService {
    private static final Logger LOG = LogManager.getLogger();
@@ -133,7 +132,7 @@ public class BdbIdentifierProvider
    private void startMe() {
       LOG.info("Starting bdb identifier provider.");
       this.bdb      = Get.service(BdbProvider.class);
-      this.uuidIntMapMap = UuidIntMapMap.create(new File(bdb.getDatabaseFolder().getParent().toAbsolutePath().toFile(), "uuid-nid-map"));
+      this.uuidIntMapMap = UuidIntMapMap.create(new File(bdb.getDataStorePath().getParent().toAbsolutePath().toFile(), "uuid-nid-map"));
       this.nid_AssemblageNid_Map = this.bdb.getSpinedNidIntMap(NID_ASSEMBLAGENID_MAP_KEY);
       this.nid_ElementSequence_Map = this.bdb.getSpinedNidIntMap(NID_ELEMENT_SEQUENCE_MAP_KEY);
       for (int assemblageNid: this.bdb.getAssemblageNids()) {
@@ -423,18 +422,18 @@ public class BdbIdentifierProvider
    }
 
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
       return bdb.getDataStoreId();
    }
 
    @Override
-   public Path getDatabaseFolder() {
-      return bdb.getDatabaseFolder();
+   public Path getDataStorePath() {
+      return bdb.getDataStorePath();
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return bdb.getDatabaseValidityStatus();
+   public DataStoreStartState getDataStoreStartState() {
+      return bdb.getDataStoreStartState();
    }
 
    @Override

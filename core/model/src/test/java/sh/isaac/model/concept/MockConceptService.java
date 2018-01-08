@@ -55,7 +55,6 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Service;
 
-import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -180,8 +179,8 @@ public class MockConceptService
     * @return the data store id
     */
    @Override
-   public UUID getDataStoreId() {
-      return this.dbId;
+   public Optional<UUID> getDataStoreId() {
+      return Optional.of(this.dbId);
    }
 
    /**
@@ -190,7 +189,7 @@ public class MockConceptService
     * @return the database folder
     */
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return null;
    }
 
@@ -200,8 +199,8 @@ public class MockConceptService
     * @return the database validity status
     */
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return null;
+   public DataStoreStartState getDataStoreStartState() {
+      return DataStoreStartState.NO_DATASTORE;
    }
 
    /**

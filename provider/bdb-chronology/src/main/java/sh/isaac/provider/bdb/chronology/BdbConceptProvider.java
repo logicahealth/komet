@@ -71,6 +71,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -96,7 +97,7 @@ import sh.isaac.model.concept.ConceptSnapshotImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L1)
 public class BdbConceptProvider
          implements ConceptService {
    /** The Constant LOG. */
@@ -104,13 +105,13 @@ public class BdbConceptProvider
    private BdbProvider bdb;
 
    @Override
-   public Path getDatabaseFolder() {
-      return bdb.getDatabaseFolder();
+   public Path getDataStorePath() {
+      return bdb.getDataStorePath();
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return bdb.getDatabaseValidityStatus();
+   public DataStoreStartState getDataStoreStartState() {
+      return bdb.getDataStoreStartState();
    }
    /**
     * Start me.
@@ -206,7 +207,7 @@ public class BdbConceptProvider
    }
 
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
      return bdb.getDataStoreId();
    }
 

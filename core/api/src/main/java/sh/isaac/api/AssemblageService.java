@@ -67,7 +67,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  */
 @Contract
 public interface AssemblageService
-        extends DatabaseServices {
+        extends DatastoreServices {
 
    /**
     * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will

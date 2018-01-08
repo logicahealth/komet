@@ -43,7 +43,7 @@ package sh.isaac.provider.bdb.chronology;
 
 import java.io.File;
 import java.io.InputStream;
-
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
@@ -62,9 +62,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.stream.Stream;
-
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -101,15 +98,17 @@ import com.sleepycat.je.OperationStatus;
 import java.util.Map;
 
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
-import sh.isaac.api.DatabaseServices.DatabaseValidity;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
@@ -126,6 +125,7 @@ import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.collections.SpinedNidNidSetMap;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.provider.bdb.binding.AssemblageObjectTypeMapBinding;
 import sh.isaac.provider.bdb.binding.IntArrayBinding;
@@ -140,9 +140,9 @@ import sh.isaac.provider.bdb.taxonomy.TaxonomyRecord;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L0)  //TODO 0, really?
+@RunLevel(value = LookupService.SL_L0)
 public class BdbProvider
-         implements DatabaseServices, IdentifiedObjectService, MetadataService {
+         implements DatastoreServices, IdentifiedObjectService, MetadataService {
    /**
     * The Constant LOG.
     */
@@ -165,11 +165,14 @@ public class BdbProvider
    /**
     * The database validity.
     */
-   private SimpleObjectProperty<DatabaseValidity> databaseValidity = 
-         new SimpleObjectProperty<DatabaseServices.DatabaseValidity>(DatabaseValidity.NOT_YET_CHECKED);
+   private DataStoreStartState databaseStartState = DataStoreStartState.NOT_YET_CHECKED;
+   
+   //set to -1, when we haven't loaded yet.  Set to 1, when we have (and did) load metadata.  Set to 0, when we have checked, 
+   //but didn't load metadata because the database was already loaded, or the preferences said not to.
+   private AtomicInteger metadataLoaded = new AtomicInteger(-1);  
 
-   // TODO persist dataStoreId.
-   private final UUID         dataStoreId        = UUID.randomUUID();
+
+   private Optional<UUID>    dataStoreId = Optional.empty();
    private ChronologyLocation chronologyLocation = ChronologyLocation.SPINE;
    private Environment        myDbEnvironment;
    private Database           identifierDatabase;
@@ -195,25 +198,44 @@ public class BdbProvider
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public boolean importMetadata()
+   public void importMetadata()
             throws Exception {
-   	//TODO [DAN] this needs to be reworked - DatabaseValidity needs to go to VALID when the startMe completes, otherwise, 
-   	//the startup sequence can't do what its supposed to, which is set aside a corrupt env and pull a new one.
-   	//This parameter / feature got used for two different purposes while the development tracks were split... needs to be reconciled.
-      if (this.databaseValidity.get() == DatabaseValidity.NO_DATASTORE) {
-         Optional<DatabaseInitialization> initializationPreference = Get.applicationPreferences()
-                                                                        .getEnum(DatabaseInitialization.class);
 
-         if (initializationPreference.isPresent()) {
-            if (initializationPreference.get() == DatabaseInitialization.LOAD_METADATA) {
-               loadMetaData();
-               return true;
+      //set to -1, when we haven't loaded yet.  Set to 1, when we have (and did) load metadata.  Set to 0, when we have checked, 
+      //but didn't load metadata because the database was already loaded, or the preferences said not to.
+      if (metadataLoaded.get() < 0) {
+         synchronized (metadataLoaded) {
+            
+            if (this.databaseStartState == DataStoreStartState.NO_DATASTORE) {
+               Optional<DatabaseInitialization> initializationPreference = Get.applicationPreferences()
+                                                                              .getEnum(DatabaseInitialization.class);
+      
+               if (initializationPreference.isPresent()) {
+                  if (initializationPreference.get() == DatabaseInitialization.LOAD_METADATA) {
+                     loadMetaData();
+                     metadataLoaded.set(1);
+                  }
+               }
+            }
+            //mark this method as called, but executed as a noop.
+            if (metadataLoaded.get() < 0)
+            {
+               metadataLoaded.set(0);
             }
          }
       }
-
-      return false;
    }
+   
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean wasMetadataImported() {
+      return metadataLoaded.get() == 1;
+   }
+
+
 
    public void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
       AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
@@ -463,6 +485,12 @@ public class BdbProvider
                    }
                 });
       commitService.postProcessImportNoChecks();
+      
+      //Store the DB id as a semantic
+      SemanticChronology sc = Get.semanticBuilderService()
+            .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+            .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get();
+      Get.commitService().commit(sc, EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept");
    }
 
    private void populateMapFromBdb(SpinedNidNidSetMap map)
@@ -551,11 +579,31 @@ public class BdbProvider
             } else if (metaDbFolder.exists()) {
                metaDbFolder.renameTo(isaacDbFolder);
             } else {
-               this.databaseValidity.set(DatabaseValidity.NO_DATASTORE);
+               this.databaseStartState = DataStoreStartState.NO_DATASTORE;
             }
+         }
+         else
+         {
+             this.databaseStartState = DataStoreStartState.EXISTING_DATASTORE;
          }
 
          dbEnv.mkdirs();
+         
+         //If the DBID is missing, we better be in NO_DATASTORE state.
+         if (!new File(dbEnv, DATASTORE_ID_FILE).isFile())
+         {
+            if (this.databaseStartState != DataStoreStartState.NO_DATASTORE)
+            {
+               //This may happen during transition, for a bit, since old DBs don't have them.  
+               //But after transition, this should always be created as part of the DB.
+               //It also gets written as a semantic on the root concept, so a secondary check will be done 
+               //later to make sure we are in sync.
+               LOG.warn("The datastore id file was missing on startup!");
+            }
+            Files.write(dbEnv.toPath().resolve(DATASTORE_ID_FILE), UUID.randomUUID().toString().getBytes());
+         }
+         dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(dbEnv.toPath().resolve(DATASTORE_ID_FILE)))));
+         
          myDbEnvironment    = new Environment(dbEnv, envConfig);
          propertyDatabase   = myDbEnvironment.openDatabase(null, "property", noDupConfig);
          identifierDatabase = myDbEnvironment.openDatabase(null, "identifier", noDupConfig);
@@ -631,6 +679,8 @@ public class BdbProvider
             LOG.info("closing semantic index database. ");
             semanticMapDb.close();
             myDbEnvironment.close();
+            databaseStartState = DataStoreStartState.NOT_YET_CHECKED;
+            dataStoreId = Optional.empty();
          }
       } catch (Throwable ex) {
          ex.printStackTrace();
@@ -838,19 +888,19 @@ public class BdbProvider
    }
 
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
       return dataStoreId;
    }
 
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return this.myDbEnvironment.getHome()
                                  .toPath();
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return this.databaseValidity;
+   public DataStoreStartState getDataStoreStartState() {
+      return this.databaseStartState;
    }
 
    @Override

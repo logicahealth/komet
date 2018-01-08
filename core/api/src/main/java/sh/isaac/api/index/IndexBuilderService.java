@@ -51,7 +51,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
@@ -69,7 +69,7 @@ import sh.isaac.api.chronicle.Chronology;
  */
 @Contract
 public interface IndexBuilderService
-        extends DatabaseServices, IndexQueryService {
+        extends DatastoreServices, IndexQueryService {
    /**
     * Call this to begin a batch-reindex.  Underlying indexers shall clear their index, and any statistics, and lock 
     * as necessary so that multiple threads don't try to batch-reindex at the same time.

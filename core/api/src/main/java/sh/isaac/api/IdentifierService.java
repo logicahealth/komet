@@ -71,7 +71,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
  */
 @Contract
 public interface IdentifierService
-        extends DatabaseServices {
+        extends DatastoreServices {
    /** The Constant FIRST_NID. */
    static final int FIRST_NID = Integer.MIN_VALUE + 1;
 

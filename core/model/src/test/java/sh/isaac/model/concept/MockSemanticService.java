@@ -114,7 +114,7 @@ public class MockSemanticService
     * @return the database folder
     */
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return null;
    }
 
@@ -124,8 +124,8 @@ public class MockSemanticService
     * @return the database validity status
     */
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return null;
+   public DataStoreStartState getDataStoreStartState() {
+      return DataStoreStartState.NO_DATASTORE;
    }
 
    /**
@@ -279,8 +279,8 @@ public class MockSemanticService
    }
 
    @Override
-   public UUID getDataStoreId() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   public Optional<UUID> getDataStoreId() {
+      return Optional.of(UUID.randomUUID());
    }
 
    @Override

@@ -36,18 +36,23 @@ import org.jvnet.hk2.annotations.Service;
 import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
@@ -55,20 +60,20 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = sh.isaac.api.LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class BdbSemanticProvider implements AssemblageService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
 
    @Override
-   public Path getDatabaseFolder() {
-      return bdb.getDatabaseFolder();
+   public Path getDataStorePath() {
+      return bdb.getDataStorePath();
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return bdb.getDatabaseValidityStatus();
+   public DataStoreStartState getDataStoreStartState() {
+      return bdb.getDataStoreStartState();
    }
    
    /**
@@ -79,6 +84,7 @@ public class BdbSemanticProvider implements AssemblageService {
       try {
          LOG.info("Starting semantic provider.");
          bdb = Get.service(BdbProvider.class);
+         
       } catch (Exception ex) {
          ex.printStackTrace();
          throw new RuntimeException(ex);
@@ -227,8 +233,29 @@ public class BdbSemanticProvider implements AssemblageService {
   }
 
    @Override
-   public UUID getDataStoreId() {
-     return bdb.getDataStoreId();
+   public Optional<UUID> getDataStoreId() {
+     UUID fromFile = bdb.getDataStoreId().orElse(null);
+     
+     //This is a sanity check, which gets run by the Lookup Service during the startup sequence.
+     Optional<SemanticChronology> sdic = getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+           .findFirst();
+     if (sdic.isPresent()) {
+        LatestVersion<Version> sdi = sdic.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+        if (sdi.isPresent()) {
+           try {
+              UUID temp = UUID.fromString(((StringVersion) sdi.get()).getString());
+              
+              if (!temp.equals(fromFile)) {
+                 LOG.error("Semantic Store has {} while bdb file store has {}", temp, fromFile);
+                 throw new RuntimeException("UUID stored in the semantic store does not match the UUID on disk in the id file!");
+              }
+                 
+           } catch (Exception e) {
+              LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+           }
+        }
+     }
+     return Optional.ofNullable(fromFile);
    }
 
    @Override

@@ -41,7 +41,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
-
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -105,7 +105,7 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L5_ISAAC_DEPENDENTS_RUNLEVEL)  //TODO probably move this back to L4, or 3. 
+@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL) 
 public class BdbTaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 //TODO it also appears that the underlying bdb provider isn't handling the db validity checking / variables properly.
@@ -293,18 +293,18 @@ public class BdbTaxonomyProvider
       return taxonomyRecord.getConceptStates(conceptNid, stampCoordinate);
    }
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
       return this.bdb.getDataStoreId();
    }
 
    @Override
-   public Path getDatabaseFolder() {
-      return this.bdb.getDatabaseFolder();
+   public Path getDataStorePath() {
+      return this.bdb.getDataStorePath();
    }
 
    @Override
-   public ObservableObjectValue<DatabaseValidity> getDatabaseValidityStatus() {
-      return this.bdb.getDatabaseValidityStatus();
+   public DataStoreStartState getDataStoreStartState() {
+      return this.bdb.getDataStoreStartState();
    }
 
    @Override

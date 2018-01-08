@@ -55,7 +55,7 @@ import javafx.concurrent.Task;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
@@ -73,7 +73,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 @Contract
 public interface CommitService
-        extends DatabaseServices {
+        extends DatastoreServices {
    /**
     * Adds the alias.
     *
