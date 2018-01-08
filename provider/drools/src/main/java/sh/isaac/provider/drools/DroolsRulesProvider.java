@@ -30,6 +30,7 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
 import sh.isaac.api.BusinessRulesService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.contract.RulesDrivenKometService;
@@ -41,7 +42,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L1)
 public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKometService {
 
    /**

@@ -71,6 +71,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.LookupService;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
@@ -88,7 +89,7 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
  * @author kec
  */
 @Service(name = "Preferences Provider")
-@RunLevel(value = -1)
+@RunLevel(value = LookupService.SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL)
 public class PreferencesProvider
          implements PreferencesService {
    /**

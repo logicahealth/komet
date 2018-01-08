@@ -51,6 +51,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.contract.ExplorationNodeFactory;
@@ -64,7 +65,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "Activity panel factory")
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
 public class TaskProgressNodeFactory
          implements ExplorationNodeFactory {
    

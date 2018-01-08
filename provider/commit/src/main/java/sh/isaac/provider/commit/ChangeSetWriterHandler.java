@@ -87,7 +87,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service(name = "Change Set Writer Handler")
-@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)  //TODO this should be hither than ChangeSetLoadProvider, I think...
+@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
 public class ChangeSetWriterHandler
          implements ChangeSetWriterService, ChangeSetListener {
    /** The Constant LOG. */

@@ -23,11 +23,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+
+import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.flowr.FLOWRQueryController;
 
 /**
  *
@@ -35,7 +36,7 @@ import sh.komet.gui.search.flowr.FLOWRQueryController;
  */
 
 @Service(name = "Simple Search Provider")
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class SimpleSearchViewFactory implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "Search";
 
