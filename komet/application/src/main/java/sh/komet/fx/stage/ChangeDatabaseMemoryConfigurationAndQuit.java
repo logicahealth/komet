@@ -47,7 +47,7 @@ public class ChangeDatabaseMemoryConfigurationAndQuit extends TimedTaskWithProgr
                   appPreferences.putEnum(memoryConfiguration);
       
       appPreferences.sync();
-      LookupService.shutdownIsaac();
+      LookupService.shutdownSystem();
       
       Optional<String> location = appPreferences.get(DATA_STORE_ROOT_LOCATION_PROPERTY);
       if (location.isPresent()) {
