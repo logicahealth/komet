@@ -74,8 +74,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-//@Service(name = "jsonWriter")
-//@PerLookup
+@Service(name = "jsonWriter")
+@PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
    /** The logger. */
