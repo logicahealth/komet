@@ -16,7 +16,13 @@
  */
 package sh.isaac.api;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.jvnet.hk2.annotations.Contract;
+
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
+import sh.isaac.api.constants.DatabaseInitialization;
 
 /**
  *
@@ -25,10 +31,29 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface MetadataService {
    /**
-    * Initialize the database with metadata. If the database is not empty, this call will have no effect, 
-    * and will return false. 
-    * @return true if the database was empty, and stated metadata was imported into the database. 
+    * Initialize the database with metadata, IFF the database was started completely blank.  If the database had existing data upon startup, 
+    * this call will have no effect.  Calling this method multiple times has no effect beyond the first call.
+    * 
+    * This is also a no-op if the application preferences do not contain the enum pref of {@link DatabaseInitialization.LOAD_METADATA}.
     * @throws Exception 
     */
-   boolean importMetadata() throws Exception;
+   void importMetadata() throws Exception;
+   
+   
+   /**
+    * @return return true, if metadata was imported (via a call to {@link #importMetadata()}) during the startup sequence.  Returns false, if 
+    * the importMetadata routine was either not called, or did not need to be executed.
+    */
+   public boolean wasMetadataImported();
+   
+   /**
+    * Return the UUID that was generated when the datastore was first created.  Note, that this may be empty for a time, 
+    * when the DataStoreStartState was {@link DataStoreStartState#NOT_YET_CHECKED} or {@link DataStoreStartState#NO_DATASTORE} 
+    * 
+    * Note, this is purposefully the same signature pattern as {@link DatastoreServices#getDataStoreId()}, and is added to this 
+    * interface as a crutch to help some startup-dependency issues.
+    *
+    * @return the data store id
+    */
+   public Optional<UUID> getDataStoreId();
 }

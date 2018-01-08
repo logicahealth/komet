@@ -114,13 +114,13 @@ public class MainApp
       IsaacPreferences appPreferences = Get.applicationPreferences();
       appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
       
+      appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
       appPreferences.sync();
 
-      appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
       LookupService.startupIsaac();
 
       if (Get.metadataService()
-             .importMetadata()) {
+             .wasMetadataImported()) {
          final StampCoordinate stampCoordinate = Get.coordinateFactory()
                                                     .createDevelopmentLatestStampCoordinate();
          final LogicCoordinate logicCoordinate = Get.coordinateFactory()
@@ -173,7 +173,6 @@ public class MainApp
    }
 
    private void handleShutdown(WindowEvent e) {
-      LookupService.shutdownIsaac();
       LookupService.shutdownSystem();
       Platform.exit();
       System.exit(0);
