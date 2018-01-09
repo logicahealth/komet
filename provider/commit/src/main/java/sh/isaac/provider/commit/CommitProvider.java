@@ -67,6 +67,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -113,6 +114,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.VersionImpl;
@@ -648,16 +650,15 @@ public class CommitProvider
             Get.assemblageService()
                     .writeSemanticChronology(semanticChronology);
 
-            if (semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH) {
-               deferNidAction(semanticChronology.getNid());
-            }
-
+            deferNidAction(semanticChronology.getNid());
             break;
 
          case STAMP_ALIAS:
             final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
             this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
+            //TODO [DAN] with Stamp Alias, I'm not sure on the implcations this may have for the index.  There 
+            //may be a required index update, with a stamp alias....
             break;
 
          case STAMP_COMMENT:
@@ -690,8 +691,10 @@ public class CommitProvider
       final Set<Integer> nids = this.deferredImportNoCheckNids.getAndSet(new ConcurrentSkipListSet<>());
       if (nids != null) {
          LOG.info("Post processing import. Deferred set size: " + nids.size());
-         int descriptionAssemblageNid = TermAux.DESCRIPTION_ASSEMBLAGE.getNid();
-         //int chroniclePropertiesNid = MetaData.CHRONICLE_PROPERTIES____SOLOR.getNid();
+         
+         ArrayList<Future<Long>> futures = new ArrayList<>();
+         List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
+         
          for (final int nid : nids) {
             if (IsaacObjectType.SEMANTIC == Get.identifierService()
                     .getObjectTypeForComponent(nid)) {
@@ -699,19 +702,32 @@ public class CommitProvider
                        .getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                  if (sc.getReferencedComponentNid() == descriptionAssemblageNid) {
-                     //LOG.info("Found definition for TermAux.DESCRIPTION_ASSEMBLAGE: " + sc);
-                  }
-                  
-                  
-                  Get.taxonomyService()
-                          .updateTaxonomy(sc);
-               } else {
-                  throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                  Get.taxonomyService().updateTaxonomy(sc);
+               } 
+
+               for (IndexBuilderService ibs : indexers) {
+                  futures.add(ibs.index(sc));
                }
+               
             } else {
                throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
             }
+         }
+         // wait for all indexing operations to complete
+         for (Future<Long> f : futures) {
+            try {
+               f.get();
+            } catch (InterruptedException | ExecutionException e) {
+               LOG.error("Unexpected error waiting for index update", e);
+            }
+         }
+         
+         for (IndexBuilderService ibs : indexers) {
+            try {
+               ibs.sync().get();
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } 
          }
       }
    }
@@ -1369,21 +1385,22 @@ public class CommitProvider
       throw new UnsupportedOperationException();
    }
 
-	@Override
-	public void pause() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void resume() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public Path getWriteFolder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   //TODO [DAN] need to implement these
+   @Override
+   public void pause() throws IOException {
+      // TODO Auto-generated method stub
+      
+   }
+   
+   @Override
+   public void resume() throws IOException {
+      // TODO Auto-generated method stub
+      
+   }
+   
+   @Override
+   public Path getWriteFolder() {
+      // TODO Auto-generated method stub
+      return null;
+   }
 }
