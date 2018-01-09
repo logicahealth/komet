@@ -39,6 +39,8 @@
 
 package sh.isaac.convert.rxnorm.propertyTypes;
 
+import sh.isaac.MetaData;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -60,7 +62,6 @@ public class PT_Annotations
    public PT_Annotations() {
       super("RRF");
       indexByAltNames();
-      addProperty("Unique identifier for atom ", "RXAUI", "(RxNorm Atom Id)");
       addProperty("Source asserted atom identifier", "SAUI", null);
       addProperty("Source asserted concept identifier", "SCUI", null);
       addProperty("Source Vocabulary",
@@ -78,11 +79,6 @@ public class PT_Annotations
                         null,
                         false) });
 
-      // TODO merge this on metadata code?  Would mean changing from dynamic refex to string type...
-      addProperty("Code",
-                  "CODE",
-                  "\"Most useful\" source asserted identifier (if the source vocabulary has more than one identifier)" +
-                  ", or a RxNorm-generated source entry identifier (if the source vocabulary has none.)");
       addProperty("Suppress",
                   "SUPPRESS",
                   null,
@@ -157,7 +153,10 @@ public class PT_Annotations
                         true) });
 
       // Things that used to be IDs, below this point
-      addProperty("RXCUI", "RxNorm Concept ID", "RxNorm Unique identifier for concept");
+      addProperty(this, MetaData.CODE____SOLOR, true);
+      addProperty("RXAUI", "Unique identifier for atom", "(RxNorm Atom Id)", true);
+      addProperty("RXCUI", "RxNorm Concept ID", "RxNorm Unique identifier for concept", true);
+      
       addProperty("TUI", "RxNorm Semantic Type ID", "Unique identifier of Semantic Type");
       addProperty("RUI", "RxNorm Relationship ID", "Unique identifier for Relationship");
       addProperty("ATUI", "RxNorm Attribute ID", "Unique identifier for attribute");

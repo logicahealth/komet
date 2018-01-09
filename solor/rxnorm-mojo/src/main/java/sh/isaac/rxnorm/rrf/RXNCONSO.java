@@ -75,5 +75,17 @@ public class RXNCONSO {
       this.suppress = rs.getString("SUPPRESS");
       this.cvf      = rs.getString("CVF");
    }
+   
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString() {
+      return "RXNCONSO [rxcui=" + rxcui + ", lat=" + lat + ", rxaui=" + rxaui + ", saui=" + saui + ", scui=" + scui + ", sab=" + sab + ", tty=" + tty + ", code=" + code + ", str="
+            + str + ", suppress=" + suppress + ", cvf=" + cvf + "]";
+   }
 }
 

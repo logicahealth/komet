@@ -77,5 +77,17 @@ public class RXNSAT {
       this.suppress = rs.getString("SUPPRESS");
       this.cvf      = rs.getString("CVF");
    }
+   
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString() {
+      return "RXNSAT [rxcui=" + rxcui + ", rxaui=" + rxaui + ", stype=" + stype + ", code=" + code + ", atui=" + atui + ", satui=" + satui + ", atn=" + atn + ", sab=" + sab
+            + ", atv=" + atv + ", suppress=" + suppress + ", cvf=" + cvf + "]";
+   }
 }
 
