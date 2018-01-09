@@ -102,7 +102,7 @@ public class LoincCsvFileReader
    public LoincCsvFileReader(InputStream is)
             throws IOException {
       // Their new format includes the (optional) UTF-8 BOM, which chokes java for stupid legacy reasons.
-      this.reader = new CSVReader(new BufferedReader(new InputStreamReader(is)));
+      this.reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(is))));
       this.header = readLine();
    }
 

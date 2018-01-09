@@ -39,6 +39,8 @@
 
 package sh.isaac.convert.loinc.standard.propertyTypes;
 
+import sh.isaac.convert.loinc.LOINCConstants;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Associations;
@@ -57,7 +59,7 @@ public class PT_Associations
     * Instantiates a new p T associations.
     */
    public PT_Associations() {
-      super();
+      super(LOINCConstants.TERMINOLOGY_NAME);
       addProperty(new PropertyAssociation(this,
             "MAP_TO",
             "Map To",

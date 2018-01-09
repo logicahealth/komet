@@ -184,7 +184,16 @@ public abstract class PropertyType {
      }
    
    public Property addProperty(ConceptSpecification cs, boolean isIdentifier) {
-   return addProperty(new Property((PropertyType)null, cs, isIdentifier));
+      return addProperty(new Property((PropertyType)null, cs, isIdentifier));
+   }
+   
+   /**
+    * @param propertyNameFQN
+    * @param propertySubType
+    * @return
+    */
+   public Property addProperty(String propertyNameFQN, int propertySubType) {
+      return addProperty(propertyNameFQN, propertySubType, false);
    }
 
    /**

@@ -159,8 +159,8 @@ public class LoincExpressionReader {
             int i = 0;
 
             for (final String s: temp) {
-               this.fieldMapInverse.put(i, s);
-               this.fieldMap.put(s, i++);
+               this.fieldMapInverse.put(i, s.toLowerCase());
+               this.fieldMap.put(s.toLowerCase(), i++);
             }
          } else if (temp.length < this.fieldCount) {
             temp = Arrays.copyOf(temp, this.fieldCount);
@@ -202,7 +202,7 @@ public class LoincExpressionReader {
     * @return the position for column
     */
    public int getPositionForColumn(String col) {
-      return this.fieldMap.get(col);
+      return this.fieldMap.get(col.toLowerCase());
    }
 }
 

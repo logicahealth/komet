@@ -46,6 +46,7 @@ import java.util.List;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
+import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,6 +70,7 @@ public class PT_Annotations
       addProperty("FORMULA");
       addProperty("EXMPL_ANSWERS");
       addProperty("RELATEDNAMES2");
+      addProperty(new Property(null, "LOINC_NUM", "LOINC Identifier", "Carries the LOINC_NUM native identifier", true));
    }
 }
 

@@ -39,6 +39,8 @@
 
 package sh.isaac.convert.loinc.standard.propertyTypes;
 
+import sh.isaac.convert.loinc.LOINCConstants;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Refsets;
@@ -55,7 +57,7 @@ public class PT_Refsets
     * Instantiates a new p T refsets.
     */
    public PT_Refsets() {
-      super("LOINC");
+      super(LOINCConstants.TERMINOLOGY_NAME);
 
       for (final Refsets mm: Refsets.values()) {
          addProperty(mm.getProperty());

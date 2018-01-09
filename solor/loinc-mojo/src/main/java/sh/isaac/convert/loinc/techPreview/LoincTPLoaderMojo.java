@@ -135,7 +135,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                 }
 
                 if (f.isFile() && f.getName().toLowerCase().endsWith(".zip")) {
-                    if (f.getName().toLowerCase().contains("technologypreview")) {
+                    if (f.getName().toLowerCase().contains("technologypreview")|| f.getName().toLowerCase().contains("snomedct_loinc")) {
                         if (tpZipFile != null) {
                             throw new RuntimeException("Found multiple zip files in "
                                                        + this.inputFileLocation.getAbsolutePath());
@@ -179,14 +179,14 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             final SimpleDateFormat dateReader = new SimpleDateFormat("MMMMMMMMMMMMM yyyy");//Parse things like "June 2014"
             final Date releaseDate = dateReader.parse(loincData.getReleaseDate());
 
-            this.importUtil = new IBDFCreationUtility(Optional.empty(),
-                                                      Optional.of(MetaData.SOLOR_MODULE____SOLOR),
-                                                      this.outputDirectory,
-                                                      this.converterOutputArtifactId,
-                                                      this.converterOutputArtifactClassifier,
-                                                      this.converterOutputArtifactVersion,
-                                                      false,
-                                                      releaseDate.getTime());
+            this.importUtil = new IBDFCreationUtility(Optional.of("LOINC Tech Preview " + converterSourceArtifactVersion), 
+                                             Optional.of(MetaData.LOINC_MODULES____SOLOR), 
+                                             outputDirectory, 
+                                             converterOutputArtifactId, 
+                                             converterOutputArtifactVersion, 
+                                             converterOutputArtifactClassifier, 
+                                             false, 
+                                             releaseDate.getTime());
             ConsoleUtil.println("Loading Metadata");
 
             // Set up a meta-data root concept
@@ -197,8 +197,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                                                         true,
                                                         MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid()));
 
-            this.importUtil.loadTerminologyMetadataAttributes(metadata,
-                                                              this.converterSourceArtifactVersion,
+            this.importUtil.loadTerminologyMetadataAttributes(this.converterSourceArtifactVersion,
                                                               Optional.of(loincData.getReleaseDate()),
                                                               this.converterOutputArtifactVersion,
                                                               Optional.ofNullable(
@@ -348,12 +347,14 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                             for (final String property : annotations.getPropertyNames()) {
                                 final String data = loincConceptData[loincData.getPositionForColumn(property)];
 
-                                if (!StringUtils.isBlank(data)) {
-                                    this.importUtil.addStringAnnotation(concept,
-                                                                        data,
-                                                                        annotations.getProperty(property).getUUID(),
-                                                                        Status.ACTIVE);
-                                }
+                              if (!StringUtils.isBlank(data)) {
+                                 if (annotations.getProperty(property).isIdentifier()) {
+                                    this.importUtil.addStaticStringAnnotation(concept, data, annotations.getProperty(property).getUUID(), Status.ACTIVE);
+                                 } else {
+                                    this.importUtil.addStringAnnotation(concept, data, annotations.getProperty(property).getUUID(), Status.ACTIVE);
+                                 }
+      
+                              }
                             }
                         }
                     }

@@ -46,6 +46,7 @@ import java.util.List;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.MetaData;
+import sh.isaac.convert.loinc.LOINCConstants;
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 
@@ -64,7 +65,7 @@ public class PT_Annotations
     * @param skipList the skip list
     */
    public PT_Annotations(List<String> skipList) {
-      super("LOINC");
+      super(LOINCConstants.TERMINOLOGY_NAME);
       super.skipList = skipList;
       addProperty("DT_LAST_CH", 0, 1);                   // replaced with DATE_LAST_CHANGED in 2.38
       addProperty("DATE_LAST_CHANGED", 2, 6);            // replaced with VersionLastChanged in 2.54
@@ -118,6 +119,9 @@ public class PT_Annotations
       addProperty("AskAtOrderEntry", 6);          // added in 2.52
       addProperty("AssociatedObservations", 6);   // added in 2.52
       addProperty("VersionLastChanged", 7);       // added in 2.54
+      
+      addProperty("VersionFirstReleased", 8);  //added in 2.59
+      addProperty("ValidHL7AttachmentRequest", 8);  //added in 2.59
 
       // moved these two out of the descriptions
       addProperty("RELAT_NMS", 0, 1, true);  // deleted in 2.38
@@ -137,13 +141,13 @@ public class PT_Annotations
       addProperty("COMMENT");
 
       // Things that used to be IDs below here
-      addProperty(new Property(this, MetaData.LOINC_NUM____SOLOR));
+      addProperty(new Property(null, "LOINC_NUM", "LOINC Identifier", "Carries the LOINC_NUM native identifier", true));
 
       // Abbrev Codes used by axis and class
       addProperty("ABBREVIATION");
 
       // From multi-axial class
-      addProperty("CODE");
+      addProperty(this, MetaData.CODE____SOLOR, true);
    }
 }
 

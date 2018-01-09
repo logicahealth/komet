@@ -39,6 +39,8 @@
 
 package sh.isaac.convert.loinc.standard.propertyTypes;
 
+import sh.isaac.convert.loinc.LOINCConstants;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
@@ -56,7 +58,7 @@ public class PT_Descriptions
     * Instantiates a new p T descriptions.
     */
    public PT_Descriptions() {
-      super("LOINC");
+      super(LOINCConstants.TERMINOLOGY_NAME);
       addProperty("CONSUMER_NAME", SYNONYM + 1);
       addProperty("EXACT_CMP_SY", null, null, 0, 1, false, SYNONYM + 1);  // deleted in 2.38
       addProperty("ACSSYM", null, null, 0, 5, false, SYNONYM + 1);        // deleted in 2.52

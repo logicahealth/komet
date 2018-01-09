@@ -42,6 +42,7 @@ package sh.isaac.convert.loinc.standard.propertyTypes;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.MetaData;
+import sh.isaac.convert.loinc.LOINCConstants;
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Relations;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 
@@ -58,7 +59,7 @@ public class PT_Relations
     * Instantiates a new p T relations.
     */
    public PT_Relations() {
-      super("LOINC");
+      super(LOINCConstants.TERMINOLOGY_NAME);
 
       // Used for tree building
       addProperty(new Property("Multiaxial Child Of", null, null, MetaData.IS_A____SOLOR.getPrimordialUuid()));
