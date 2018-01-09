@@ -45,6 +45,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
 /**
  *
