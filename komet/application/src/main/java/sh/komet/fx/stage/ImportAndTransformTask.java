@@ -53,7 +53,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          completedUnitOfWork();
          
          updateMessage("Transforming to SOLOR...");
-         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(importType);
          Future<?> transformTask = Get.executor().submit(transformer);
          transformTask.get();
          completedUnitOfWork();

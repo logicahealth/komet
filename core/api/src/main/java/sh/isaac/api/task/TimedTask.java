@@ -228,4 +228,8 @@ public abstract class TimedTask<T>
     protected void setStartTime() {
         this.startTime = Instant.now();
     }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
 }

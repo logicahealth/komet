@@ -102,7 +102,7 @@ public class SolorMojo extends AbstractMojo {
 
             if (transform) {
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
+                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
 

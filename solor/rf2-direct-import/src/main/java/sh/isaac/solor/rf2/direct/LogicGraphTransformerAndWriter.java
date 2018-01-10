@@ -17,6 +17,7 @@
 package sh.isaac.solor.rf2.direct;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,10 +101,16 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     private final Semaphore writeSemaphore;
     private final List<TransformationGroup> transformationRecords;
     private final List<IndexService> indexers;
+    private final ImportType importType;
+    private final Instant commitTime;
+    
 
-    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords, Semaphore writeSemaphore) {
+    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords, 
+            Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
+        this.importType = importType;
+        this.commitTime = commitTime;
         this.writeSemaphore.acquireUninterruptibly();
         this.taxonomyService = Get.taxonomyService();
         indexers = LookupService.get().getAllServices(IndexService.class);
@@ -131,7 +138,8 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
-            int count = 0;
+
+         int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
                 transformRelationships(transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
                 if (count % 1000 == 0) {
@@ -277,7 +285,12 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             SemanticChronology relationshipChronology = Get.assemblageService().getSemanticChronology(relNid);
             for (int stamp : relationshipChronology.getVersionStampSequences()) {
                 StampService stampService = Get.stampService();
-                stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
+                if (this.importType == ImportType.ACTIVE_ONLY) {
+                    stampPositionsToProcess.add(new StampPositionImpl(Long.MAX_VALUE, stampService.getPathNidForStamp(stamp)));
+                } else {
+                    stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
+                }
+                
             }
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
@@ -302,6 +315,9 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             PremiseType premiseType,
             long time,
             int moduleNid) {
+        if (time == Long.MAX_VALUE) {
+            time = commitTime.toEpochMilli();
+        }
         int graphAssemblageNid = statedAssemblageNid;
         if (premiseType == PremiseType.INFERRED) {
             graphAssemblageNid = inferredAssemblageNid;

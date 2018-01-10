@@ -93,7 +93,6 @@ import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
-import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
@@ -216,25 +215,6 @@ public class KometStageController
    private List<MenuItem> getTaskMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
 
-      MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
-      importSourcesFull.setOnAction((ActionEvent event) -> {
-         Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
-         Get.executor().submit(importerFull);
-      });
-      items.add(importSourcesFull);
-      MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
-      importSourcesSnapshot.setOnAction((ActionEvent event) -> {
-         Rf2DirectImporter importerSnapshot = new Rf2DirectImporter(ImportType.ACTIVE_ONLY);
-         Get.executor().submit(importerSnapshot);
-      });
-      items.add(importSourcesSnapshot);
-      MenuItem transformSources = new MenuItem("Transform RF2 to EL++");
-      transformSources.setOnAction((ActionEvent event) -> {
-         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer();
-         Get.executor().submit(transformer);
-      });
-      items.add(transformSources);
-      
       
       MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
               
@@ -255,23 +235,48 @@ public class KometStageController
       });
       
       items.add(importTransformSNAPSHOT);
-      
-      MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
-      setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {
-         ChangeDatabaseMemoryConfigurationAndQuit task = 
-                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
-         task.run();
+      MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
+      importSourcesFull.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
+         Get.executor().submit(importerFull);
       });
-      items.add(setLowMemConfigAndQuit);
-
-      MenuItem setHighMemConfigAndQuit = new MenuItem("Set to high memory configuration, erase database, and quit");
-      setHighMemConfigAndQuit.setOnAction((ActionEvent event) -> {
-         ChangeDatabaseMemoryConfigurationAndQuit task = 
-                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-         task.run();
+      items.add(importSourcesFull);
+      MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
+      importSourcesSnapshot.setOnAction((ActionEvent event) -> {
+         Rf2DirectImporter importerSnapshot = new Rf2DirectImporter(ImportType.ACTIVE_ONLY);
+         Get.executor().submit(importerSnapshot);
       });
-      items.add(setHighMemConfigAndQuit);
+      items.add(importSourcesSnapshot);
+      MenuItem transformSourcesFull = new MenuItem("Transform RF2 to EL++ - FULL");
+      transformSourcesFull.setOnAction((ActionEvent event) -> {
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
+         Get.executor().submit(transformer);
+      });
+      items.add(transformSourcesFull);
+      MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+      transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
+         Get.executor().submit(transformer);
+      });
+      items.add(transformSourcesActiveOnly);
       
+      
+//      MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
+//      setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+//         ChangeDatabaseMemoryConfigurationAndQuit task = 
+//                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+//         task.run();
+//      });
+//      items.add(setLowMemConfigAndQuit);
+//
+//      MenuItem setHighMemConfigAndQuit = new MenuItem("Set to high memory configuration, erase database, and quit");
+//      setHighMemConfigAndQuit.setOnAction((ActionEvent event) -> {
+//         ChangeDatabaseMemoryConfigurationAndQuit task = 
+//                 new ChangeDatabaseMemoryConfigurationAndQuit(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+//         task.run();
+//      });
+//      items.add(setHighMemConfigAndQuit);
+//      
       
       MenuItem completeClassify = new MenuItem("Complete classify");
       completeClassify.setOnAction((ActionEvent event) -> {
