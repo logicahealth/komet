@@ -148,11 +148,10 @@ public final class ComponentPanel
             case LONG:
             case MEMBER:
             case CONCEPT:
+            case DESCRIPTION:
                 return true;
 
             case RF2_RELATIONSHIP:
-            case DESCRIPTION:
-                // handled elsewhere
                 return false;
 
             default:
