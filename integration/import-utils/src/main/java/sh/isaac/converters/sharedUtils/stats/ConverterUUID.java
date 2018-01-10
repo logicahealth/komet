@@ -125,29 +125,7 @@ public class ConverterUUID {
       }
    }
 
-//   //~--- enums ---------------------------------------------------------------
-//
-//   public enum NAMESPACE {
-//      SNOMED,
-//      LOINC,
-//      RXNORM;
-//
-//      UUID namespaceUuid;
-//
-//      //~--- constructors -----------------------------------------------------
-//
-//      NAMESPACE() {
-//         try {
-//            this.namespaceUuid = UUID.nameUUIDFromBytes((NAMESPACE.class.getName() +
-//                  name()).getBytes(UuidT3Generator.ENCODING_FOR_UUID_GENERATION));
-//         } catch (UnsupportedEncodingException ex) {
-//            LOG.error(ex.getLocalizedMessage(), ex);
-//            throw new RuntimeException(ex);
-//         }
-//      }
-//   }
-//TODO [DAN 1] cleanup this namespace stuff
-   //~--- methods -------------------------------------------------------------
+  //~--- methods -------------------------------------------------------------
 
    /**
     * Allow this map to be updated with UUIDs that were not generated via this utility class.

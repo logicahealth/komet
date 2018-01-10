@@ -143,7 +143,7 @@ public abstract class VersionImpl
       return deepEquals2(otherVersion);
    }
 
-   //TODO [DAN 1] see if this 'deep' stuff can be cleaned up.
+   //TODO [DAN 2] see if this 'deep' stuff can be cleaned up.
    protected abstract boolean deepEquals2(VersionImpl other);
 
    /**

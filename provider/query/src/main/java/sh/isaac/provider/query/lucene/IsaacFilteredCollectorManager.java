@@ -109,7 +109,7 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                      int afterDoc = after.doc - context.docBase;
                      if (doc <= afterDoc)
                      {
-                        //TODO [DAN 1] need to test this optimization, it differs slightly from what they do in Lucene (where they calc score first)
+                        //TODO [DAN 1] test this optimization, it differs slightly from what they do in Lucene (where they calc score first)
                         //but I can't see that is necessary...
                          LOG.trace("skipping filter eval for item before page 1");
                          filterPass = true;
