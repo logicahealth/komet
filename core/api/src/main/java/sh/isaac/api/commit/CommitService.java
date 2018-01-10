@@ -39,9 +39,6 @@
 
 package sh.isaac.api.commit;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
@@ -284,29 +281,5 @@ public interface CommitService
     * @return the uncommitted concept nids
     */
    ObservableList<Integer> getUncommittedConceptNids();
-   
-   /**
-    * flush any unwritten data, close the underlying file writer(s), and block further writes to disk until
-    * resume is called. This feature is useful when you want to ensure the file on disk doesn't change while another thread picks
-    * up the file and pushes it to git, for example.
-    * 
-    * Ensure that if pause() is called, that resume is called from the same thread.
-    * 
-    * @throws IOException
-    */
-   public void pause() throws IOException;
-
-   /**
-    * open the file writer (closed by a {@link #pause()}) and unblock any blocked write calls.
-    * Ensure that if pause() is called, that resume is called from the same thread.
-    * 
-    * @throws IOException
-    */
-   public void resume() throws IOException;
-   
-   /**
-    * Return the path to the folder that contains the changesets.	
-    */
-   public Path getWriteFolder();
 }
 

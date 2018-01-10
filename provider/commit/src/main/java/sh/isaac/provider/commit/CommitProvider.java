@@ -99,7 +99,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.commit.ChangeChecker;
@@ -1384,24 +1383,5 @@ public class CommitProvider
    @Override
    public Future<?> sync() {
       throw new UnsupportedOperationException();
-   }
-
-   //TODO [DAN 1] need to implement these
-   @Override
-   public void pause() throws IOException {
-      // TODO Auto-generated method stub
-      
-   }
-   
-   @Override
-   public void resume() throws IOException {
-      // TODO Auto-generated method stub
-      
-   }
-   
-   @Override
-   public Path getWriteFolder() {
-      // TODO Auto-generated method stub
-      return null;
    }
 }
