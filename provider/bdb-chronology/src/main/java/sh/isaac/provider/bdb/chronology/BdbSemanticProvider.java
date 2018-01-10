@@ -18,6 +18,7 @@ package sh.isaac.provider.bdb.chronology;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -33,7 +34,6 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
-import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -163,16 +163,28 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
+      return getSemanticNidsForComponentFromAssemblages(componentNid, Collections.singleton(assemblageNid));
+   }
+   
+   @Override
+   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
       if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
-      if (assemblageNid >= 0) {
-         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
+      if (assemblageConceptNids == null)
+      {
+         throw new IndexOutOfBoundsException("Assemblage identifier(s) must be provided.");
+      }
+      
+      for (int assemblageNid : assemblageConceptNids) {
+         if (assemblageNid >= 0) {
+            throw new IndexOutOfBoundsException("Assemblage identifiers must be negative. Found: " + componentNid);
+         }
       }
       ContainerSequenceService identifierService = ModelGet.identifierService();
       NidSet semanticNids = new NidSet();
       for (int semanticNid: bdb.getComponentToSemanticNidsMap().get(componentNid)) {
-         if (identifierService.getAssemblageNidForNid(semanticNid) == assemblageNid) {
+         if (assemblageConceptNids.contains(identifierService.getAssemblageNidForNid(semanticNid))) {
             semanticNids.add(semanticNid);
          }
       }
@@ -206,18 +218,17 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
-      if (componentNid >= 0) {
-         throw new UnsupportedOperationException("Can't substitute a sequence for a nid: " + componentNid);
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid, int assemblageConceptNid) {
+      return getSemanticChronologyStreamForComponentFromAssemblages(componentNid, Collections.singleton(assemblageConceptNid));
       }
+   
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
+         Set<Integer> assemblageConceptNids) {
+      final NidSet sememeSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
 
-      final NidSet sememeSequences = getSemanticNidsForComponentFromAssemblage(
-                                                      componentNid,
-                                                            assemblageConceptSequence);
-
-      return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
-      }
+      return sememeSequences.stream().mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+   }
 
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptNid) {
@@ -259,28 +270,12 @@ public class BdbSemanticProvider implements AssemblageService {
    }
 
    @Override
+   public boolean hasSemantic(int semanticId) {
+      return bdb.getChronologyData(semanticId).isPresent();
+   }
+
+   @Override
    public Future<?> sync() {
       return this.bdb.sync();
    }
-
-   //TODO [dan 1] needs to implement these
-   @Override
-   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-   
-   @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-         Set<Integer> assemblageConceptNids) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public boolean hasSemantic(int semanticId) {
-      // TODO Auto-generated method stub
-      return false;
-   }
-   
 }

@@ -246,7 +246,7 @@ public class BdbConceptProvider
 
    @Override
    public boolean hasConcept(int conceptId) {
-	  return bdb.getChronologyData(conceptId).isPresent();
+     return bdb.getChronologyData(conceptId).isPresent();
    }
 
    /**
