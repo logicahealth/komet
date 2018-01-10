@@ -255,7 +255,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
 
-         // TODO Dan this needs to fire the validator!
+         // TODO [Dan 2] this needs to fire the validator!
          break;
       }
 
@@ -400,7 +400,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
          version = dsi;
-         // TODO DAN this needs to fire the validator!
+         // TODO [DAN 2] this needs to fire the validator!
          break;
       }
 

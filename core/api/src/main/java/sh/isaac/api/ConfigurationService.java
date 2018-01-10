@@ -67,7 +67,10 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  * An interface used for system configuration. Services started by the
  * {@link LookupService} will utilize an implementation of this service in order
  * to configure themselves.
- * TODO consider how to manage a separation with the preferences service. 
+ * TODO [KEC] consider how to manage a separation with the preferences service.   And the 3rd pref / metadata store....
+ * Dan doesn't want to lose a config / preference store that actually tells you what it does... the generic preference 
+ * store that was added - while generic in nature, is impossible for someone to use, because you don't even know what prefs 
+ * may be set, or what they do.  Prefs without clear documentation / usage are close to useless... 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract

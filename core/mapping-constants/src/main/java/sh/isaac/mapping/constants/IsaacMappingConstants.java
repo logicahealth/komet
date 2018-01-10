@@ -58,7 +58,7 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
 
 //~--- classes ----------------------------------------------------------------
 
-//TODO refactore sememe refs in here
+//TODO [DAN 1] refactor sememe refs in here
 /**
  * The Class IsaacMappingConstants.
  *

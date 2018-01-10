@@ -80,7 +80,7 @@ public class TaskWrapper<R, T> extends Task<R> {
       updateTitle(title);
       // Wire up all the properties so they use this wrapped task
       this.wrappedTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-      //TODO need to hack fix this
+      //TODO [KEC] need to hack fix this
     	 //  this.updateMessage​(newValue);
       });
       this.updateMessage(this.wrappedTask.getMessage());

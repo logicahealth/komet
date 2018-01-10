@@ -291,7 +291,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 					LOG.error("commit failed to process!");
 					for (Alert a : ct.getAlerts())
 					{
-						//TODO fix alerts
+						//TODO [DAN 1] fix alerts
 						//LOG.error(a.getAlertType().name() + ": " + a.getAlertText());
 					}
 					throw new RuntimeException("Unexpected internal error!");
@@ -1542,7 +1542,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 				}
 				
 				descRef = ComponentReference.fromChronology(sememeChronology);
-				if (sememeChronology.getVersionType() == VersionType.DESCRIPTION)  //TODO dan asks, how could is possibly be anything else?  Why is this check here?
+				if (sememeChronology.getVersionType() == VersionType.DESCRIPTION)  //TODO dan asks, how could it possibly be anything else?  Why is this check here?
 				{
 					for (Chronology o : recursiveRetireNested(sememeChronology.getPrimordialUuid()))
 					{

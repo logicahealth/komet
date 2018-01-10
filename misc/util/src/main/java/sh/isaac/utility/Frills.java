@@ -425,12 +425,11 @@ public class Frills
     * @return the concept chronology<? extends concept version<?>>
     * @throws RuntimeException the runtime exception
     */
-   @SuppressWarnings("deprecation")
    public static ConceptChronology createNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription)
             throws RuntimeException {
       final ConceptChronology newCon = buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription);
 
-      try {  //TODO figure out what edit coords we should use for this sort of work.
+      try {  //TODO [DAN 3] figure out what edit coords we should use for this sort of work.
          Get.commitService()
             .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic column: " + columnName)
             .get();
@@ -1180,7 +1179,7 @@ public class Frills
       }
 
       AtomicInteger count = new AtomicInteger();
-      //TODO [DAN] change this back to getTaxonomyChildNids (without coords) when it works
+      //TODO [DAN 2] change this back to getTaxonomyChildNids (without coords) when it works
       IntStream children = Arrays.stream(Get.taxonomyService().getSnapshot(
             new ManifoldCoordinateImpl(StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
             .getTaxonomyChildConceptNids(conceptNid));
@@ -1482,8 +1481,10 @@ public class Frills
                      langCoord == null ? Get.configurationService().getDefaultLanguageCoordinate() : langCoord))
                         .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
-            // TODO defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
+            // TODO DAN defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
+            //need to retest in the new env
+         
             return Optional.empty();
          }
       }

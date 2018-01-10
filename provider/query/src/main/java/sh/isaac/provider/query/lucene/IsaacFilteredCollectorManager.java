@@ -105,22 +105,22 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                   boolean filterPass = false;
                   if (filter != null)
                   {
-                  	//This little optimization prevents us from re-evaluating filters 
+                     //This little optimization prevents us from re-evaluating filters 
                      int afterDoc = after.doc - context.docBase;
                      if (doc <= afterDoc)
                      {
-                     	//TODO need to test this optimization, it differs slightly from what they do in Lucene (where they calc score first)
-                     	//but I can't see that is necessary...
+                        //TODO [DAN 1] need to test this optimization, it differs slightly from what they do in Lucene (where they calc score first)
+                        //but I can't see that is necessary...
                          LOG.trace("skipping filter eval for item before page 1");
                          filterPass = true;
                      }
                      else
                      {
-	                     final Document document = context.reader().document(doc);
-	                     final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
-	                             .numericValue()
-	                             .intValue();
-	                     filterPass = filter.test(componentNid);
+                        final Document document = context.reader().document(doc);
+                        final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
+                                .numericValue()
+                                .intValue();
+                        filterPass = filter.test(componentNid);
                      }
                   }
                   else

@@ -1003,7 +1003,7 @@ public class IBDFCreationUtility
     */
    private void validateDataTypes(UUID assemblageType, DynamicData[] values)
    {
-      //TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
+      //TODO [DAN 3] this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
       //generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
       
       DynamicColumnInfo[] colInfo;
@@ -1567,7 +1567,7 @@ public class IBDFCreationUtility
 
                else if (p instanceof PropertyAssociation)
                {
-                  //TODO need to migrate code from api-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
+                  //TODO [DAN] need to migrate code from api-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
                   //associations return false for "createAsDynamicRefex"
                   PropertyAssociation item = (PropertyAssociation)p;
                   

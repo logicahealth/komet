@@ -132,7 +132,9 @@ public class RF2Mojo
 
    /**
     * The concept definition status cache. The map is from a concept UUID to a treemap that has the time and the status value.
-    * TODO the time is not sufficient to define time points. You need time, path, and module. Could shrink the size of this if necessary by using con sequence ids.... 
+    * TODO [KEC] the time is not sufficient to define time points. You need time, path, and module. Could shrink the size of this if necessary by using con sequence ids....
+    * Dan doesn't understand the comment above, as to my knowledge, the rf2 importer as I built it doesn't handle multiple modules during the same execution.
+    * And path never changes... 
     */
    private final HashMap<UUID, TreeMap<Long, UUID>> conceptDefinitionStatusCache = new HashMap<>();
 
@@ -696,7 +698,6 @@ public class RF2Mojo
     */
    private void transformRelationships(boolean stated)
             throws SQLException {
-      // TODO can ConsoleUtil use standard logging API instead?
       ConsoleUtil.println("Converting " + (stated ? "stated"
             : "inferred") + " relationships into graphs");
 
@@ -820,7 +821,7 @@ public class RF2Mojo
              * conDefStatus is a sorted set of time, definition status uuid. The datastructure is limited in that it is possible
              * for a component to have one status in a combination of branch and module, and to have another status for
              * a different combination of branch and module... Sorting just by time may cause alternative status values
-             * at the same time to be overwritten. TODO modify data structures to handle status which may differ by
+             * at the same time to be overwritten. TODO [KEC] modify data structures to handle status which may differ by
              * branch and module.
              */
             final TreeMap<Long, UUID> conDefStatus = this.conceptDefinitionStatusCache.get(conRels.get(0)

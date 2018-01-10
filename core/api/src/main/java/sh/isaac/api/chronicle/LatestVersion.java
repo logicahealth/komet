@@ -65,7 +65,7 @@ import sh.isaac.api.identity.StampedVersion;
  *
  * @author kec
  * @param <V> the value type
- * TODO search for all get() methods to make sure test for isPresent() is completed. 
+ * TODO [KEC] search for all get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
    

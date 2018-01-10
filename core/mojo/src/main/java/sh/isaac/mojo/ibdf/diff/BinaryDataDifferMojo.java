@@ -154,7 +154,7 @@ public class BinaryDataDifferMojo
             diffOnModule, 
             diffOnPath,
             importDate,
-            converterSourceArtifactVersion);  //TODO Jesse had "VHAT " hardcoded here for some silly reason...
+            converterSourceArtifactVersion);  //TODO [DAN 3] Jesse had "VHAT " hardcoded here for some silly reason...
 
       Map<IsaacObjectType, Set<IsaacExternalizable>> oldContentMap = null;
       Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap = null;

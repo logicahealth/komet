@@ -184,7 +184,7 @@ public class ValuePropertyPairWithAttributes
        for (Entry<UUID, ArrayList<String>> identifierAttributes : descriptionSource.get(i).identifierAttributes
             .entrySet()) {
          for (String value : identifierAttributes.getValue()) {
-            // TODO confirm parameters appropriate
+            // TODO [DAN 3] confirm parameters appropriate
             ibdfCreationUtility.addStaticStringAnnotation(ComponentReference.fromChronology(descriptions.get(i)), value, identifierAttributes.getKey(), Status.ACTIVE);
              
          }

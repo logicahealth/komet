@@ -177,7 +177,7 @@ public class SemanticIndexer
             }
          }
 
-         // TODO [DAN] enhance the index configuration to allow us to configure Static semantics as indexed, or not indexed
+         // TODO [DAN 3] enhance the index configuration to allow us to configure Static semantics as indexed, or not indexed
          // static sememe types are never more than 1 column, always pass -1
          else if (sv instanceof StringVersion) {
             final StringVersion ssv = (StringVersion) sv;

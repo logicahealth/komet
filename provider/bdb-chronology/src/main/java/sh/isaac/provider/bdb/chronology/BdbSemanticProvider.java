@@ -263,7 +263,7 @@ public class BdbSemanticProvider implements AssemblageService {
       return this.bdb.sync();
    }
 
-   //TODO dan needs to implement these
+   //TODO [dan 1] needs to implement these
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
       // TODO Auto-generated method stub

@@ -173,7 +173,7 @@ public class SemanticIndexerConfiguration {
       return sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
               .get();
 
-      // TODO Dan change indexer
+      // TODO [Dan 3] need to fix the ecosystem of index configuration change indexer
 //    Get.commitService().commit("Index Config Change").get();
 //    
 //    if (!skipReindex)

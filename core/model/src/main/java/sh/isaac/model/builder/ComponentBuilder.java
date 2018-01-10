@@ -205,7 +205,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the uuid list
     */
    @Override
-   public List<UUID> getUuidList() { // TODO use list instead of stream
+   public List<UUID> getUuidList() {
       return Arrays.asList(getUuids());
    }
 

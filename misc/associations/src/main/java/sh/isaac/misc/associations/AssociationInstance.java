@@ -62,7 +62,7 @@ public class AssociationInstance
    
    private transient AssociationType assnType_;
 
-   //TODO Write the code that checks the index states on startup
+   //TODO [DAN 3] Write the code that checks the index states on startup
    
    private AssociationInstance(DynamicVersion<?> data, StampCoordinate stampCoordinate)
    {

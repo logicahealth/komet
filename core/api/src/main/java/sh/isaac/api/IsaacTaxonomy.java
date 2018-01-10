@@ -400,7 +400,7 @@ public class IsaacTaxonomy {
            throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
 
-      // TODO use common code (when moved somewhere common) to extract the version number from the pom.xml
+      // TODO [Dan 2] use common code (when moved somewhere common) to extract the version number from the pom.xml
       out.append("#Generated " + new Date().toString() + "\n");
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 

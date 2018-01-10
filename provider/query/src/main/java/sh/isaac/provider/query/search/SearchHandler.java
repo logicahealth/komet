@@ -88,7 +88,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
  * @author ocarlsen
  */
 
-//TODO need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
+//TODO [DAN 3] need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
 public class SearchHandler {
    /**
     * The Constant LOG.
@@ -341,7 +341,7 @@ public class SearchHandler {
                                   try {
                                      return index.query(queryString,
                                            prefixSearch,
-                                           getDescriptionSememeAssemblages(),  //TODO [DAN]this restriction doesn't make sense to me, need to see who uses this code.
+                                           getDescriptionSememeAssemblages(),  //TODO [DAN 2] this restriction doesn't make sense to me, need to see who uses this code.
                                            null,
                                            null,
                                            false,

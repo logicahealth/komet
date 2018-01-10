@@ -515,10 +515,10 @@ public class CommitProvider
            EditCoordinate editCoordinate,
            String commitComment) {
       // TODO make asynchronous with a actual task.
-      // TODO there are numerous inconsistencies with this impl, and the global commit. Need to understand:
+      // TODO [DAN 1] there are numerous inconsistencies with this impl, and the global commit. Need to understand:
       // global seq number, should a write be done on the provider?
       // This also doesn't safely copy the uncommitted lists before using them.
-      // TODO I think this needs to be rewritten to use the CommitTask - but need to understand these issues first.
+      // I think this needs to be rewritten to use the CommitTask - but need to understand these issues first.
       // This method doesn't update the observable provider properly...
       CommitRecord commitRecord = null;
       if (chronicle instanceof ObservableChronologyImpl) {
@@ -607,7 +607,7 @@ public class CommitProvider
       CommitProvider.this.handleCommitNotification(commitRecord);
       
 
-      //TODO figure out what Keith is doing with CommitTask...
+      //TODO [DAN 1] figure out what Keith is doing with CommitTask...
       final Optional<CommitRecord> optionalRecord = Optional.ofNullable(commitRecord);
       final Task<Optional<CommitRecord>> task = new TimedTask() {
          @Override
@@ -626,7 +626,7 @@ public class CommitProvider
               .execute(task);
       //return task;
       return null;
-      //TODO dan needs to fix this
+      //TODO [dan 1] needs to fix this
    }
 
    /**
@@ -657,7 +657,7 @@ public class CommitProvider
             final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
             this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
-            //TODO [DAN] with Stamp Alias, I'm not sure on the implcations this may have for the index.  There 
+            //TODO [DAN 3] with Stamp Alias, I'm not sure on the implcations this may have for the index.  There 
             //may be a required index update, with a stamp alias....
             break;
 
@@ -1386,7 +1386,7 @@ public class CommitProvider
       throw new UnsupportedOperationException();
    }
 
-   //TODO [DAN] need to implement these
+   //TODO [DAN 1] need to implement these
    @Override
    public void pause() throws IOException {
       // TODO Auto-generated method stub

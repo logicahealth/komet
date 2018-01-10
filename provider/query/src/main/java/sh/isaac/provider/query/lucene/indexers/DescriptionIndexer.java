@@ -128,7 +128,7 @@ public class DescriptionIndexer extends LuceneIndexer
       
       // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
       // support in the isaac-rest API
-      //TODO DAN switch back to using wasEverKindOf
+      //TODO [DAN 2] switch back to using wasEverKindOf
 //      if (Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid())) {
 //         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
 //      }

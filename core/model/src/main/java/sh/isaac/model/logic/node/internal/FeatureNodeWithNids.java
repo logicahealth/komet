@@ -113,7 +113,7 @@ public final class FeatureNodeWithNids
                                    int typeConceptId,
                                    AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);
-      this.operator = ConcreteDomainOperators.EQUALS;  // TODO - Keith, Dan hardcoded it, it broke when not set.
+      this.operator = ConcreteDomainOperators.EQUALS;  // TODO [KEC], Dan hardcoded it, it broke when not set.
    }
 
    //~--- methods -------------------------------------------------------------

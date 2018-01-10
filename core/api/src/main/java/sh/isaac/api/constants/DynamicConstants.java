@@ -390,7 +390,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
    };
 
    /** The dynamic extended description type. */
-   // TODO this should really be merged with TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY - or take the place of it.
+   // TODO [DAN 3] this should really be merged with TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY - or take the place of it.
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_DESCRIPTION_TYPE = new MetadataDynamicConstant("Extended description type",
          UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"), "Used to store non-snomed description types when other terminologies are imported",
          new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getUUID(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
@@ -408,7 +408,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
 
    /** The dynamic prisme user id. */
 
-   // TODO rewrite this with multiple columns, to store whatever interesting data is passed over the json from prisme that we choose to store.
+   // TODO [DAN 3] rewrite this with multiple columns, to store whatever interesting data is passed over the json from prisme that we choose to store.
    public final MetadataDynamicConstant DYNAMIC_PRISME_USER_ID = new MetadataDynamicConstant("PRISME user ID", UUID.fromString("00e6cca4-3c5b-5f2e-b2d8-2c4a6f8f6b46"),
          "Used to store a PRISME user ID on a user/author concept",
          new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getUUID(), DynamicDataType.STRING, null, true, true) }) {

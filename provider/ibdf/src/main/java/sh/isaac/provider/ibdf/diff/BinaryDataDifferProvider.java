@@ -77,7 +77,7 @@ import sh.isaac.api.util.UuidT5Generator;
  */
 @Service(name = "binary data differ")
 @Singleton
-// TODO there are some serious thread-safety issues in this class
+// TODO [DAN 3] there are some serious thread-safety issues in this class
 public class BinaryDataDifferProvider implements BinaryDataDifferService {
 	private final Logger log = LogManager.getLogger();
 	private BinaryDataDifferProviderUtility diffUtil;

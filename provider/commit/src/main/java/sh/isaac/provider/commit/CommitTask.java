@@ -178,12 +178,6 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
       try {
          AtomicInteger failCount = new AtomicInteger(0);
 
-         // TODO handle notification...
-         // try {
-         // GlobalPropertyChange.fireVetoableChange(TerminologyStoreDI.CONCEPT_EVENT.PRE_COMMIT, null, conceptsToCommit);
-         // } catch (PropertyVetoException ex) {
-         // return;
-         // }
          this.conceptsToCommit.stream()
                               .forEach(
                                   (conceptNid) -> {
@@ -268,15 +262,6 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
             this.commitProvider.handleCommitNotification(commitRecord);
             return Optional.of(commitRecord);
          }
-
-         // TODO Indexers need to be change listeners
-         // notifyCommit();
-         // if (indexers != null) {
-         // for (IndexService i : indexers) {
-         // i.commitWriter();
-         // }
-         // }
-         // GlobalPropertyChange.firePropertyChange(TerminologyStoreDI.CONCEPT_EVENT.POST_COMMIT, null, conceptsToCommit);
          return Optional.empty();
       } catch (final Exception e1) {
          throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);

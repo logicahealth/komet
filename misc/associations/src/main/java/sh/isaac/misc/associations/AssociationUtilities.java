@@ -123,7 +123,7 @@ public class AssociationUtilities
     * @param componentNid
     * @param stamp - optional - if not provided, uses the default from the config service
     */
-   //TODO should probably have a method here that takes in a target UUID, since that seems to be how I stored them?
+   //TODO [DAN 3] should probably have a method here that takes in a target UUID, since that seems to be how I stored them?
    public static List<AssociationInstance> getTargetAssociations(int componentNid, StampCoordinate stamp)
    {
       ArrayList<AssociationInstance> result = new ArrayList<>();
@@ -148,7 +148,7 @@ public class AssociationUtilities
 //            colIndex.add(findTargetColumnIndex(associationTypeSequenece));
          }
          
-         //TODO when issue with colIndex restrictions is fixed, put it back.
+         //TODO [DAN 3] when issue with colIndex restrictions is fixed, put it back.
          List<SearchResult> refexes = indexer.queryData(new DynamicStringImpl(componentNid + (uuid == null ? "" : " OR " + uuid)),
                false, associationTypes.toArray(new Integer[associationTypes.size()]), null, null, null, null, null);
          for (SearchResult sr : refexes)

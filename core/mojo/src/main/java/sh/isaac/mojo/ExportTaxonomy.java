@@ -122,7 +122,7 @@ public class ExportTaxonomy
          HashMap<String, MetadataConceptConstant> constantsForYamlOnly = new HashMap<>();
 
          // Read in the MetadataConceptConstant constant objects
-         // TODO: this step adds the metadata constant to the last concept on the parent stack... 
+         // TODO: [KEC] this step adds the metadata constant to the last concept on the parent stack... 
          // WHich is not always what you want, and subject to change if the IsaacTaxonomy class changes. 
          // Need to modify 
          for (final ModuleProvidedConstants mpc: LookupService.get()

@@ -684,8 +684,7 @@ public class IsomorphicResultsBottomUp
 
       Optional<IsomorphicSolution> temp = possibleSolutions.stream().max((IsomorphicSolution o1, IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()));
       if (!temp.isPresent()) {
-         // TODO this isn't at all right. But, I think we aren't hitting this any more,
-         // with Keith's other fix
+         // TODO [DAN 2] this isn't at all right. But, I think we aren't hitting this any more,with Keith's other fix.  Need to validate this never executes
             log.error("DAN WAS HERE -> Returning an empty IsomorphicSolution because no possible solution was found - trying to compute \r\n" 
                           + referenceExpression.toString() 
                           + "\r\n"

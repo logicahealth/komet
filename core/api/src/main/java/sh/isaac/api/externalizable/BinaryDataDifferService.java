@@ -60,7 +60,7 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
-//TODO Dan needs to come back and fix all these files being passed as strings, and such.
+//TODO [Dan 3] needs to come back and fix all these files being passed as strings, and such.
 @Contract
 public interface BinaryDataDifferService {
    /**

@@ -75,13 +75,13 @@ import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
  * by setting the system property skipUUIDDebug to true - or in maven speak - '-DskipUUIDDebug' on the command line.
  *
  * @author darmbrust
- * TODO: evaluate the utility of this class. KEC
+ * TODO: [KEC] evaluate the utility of this class.
  */
 public class ConverterUUID {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
- //TODO this needs to be made non static / non global, now that is is being pulled into some runtime use cases...
+ //TODO [DAN 2] this needs to be made non static / non global, now that is is being pulled into some runtime use cases...
    /** The disable UUID map flag. */
    public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
 
@@ -146,7 +146,7 @@ public class ConverterUUID {
 //         }
 //      }
 //   }
-//TODO cleanup this namespace stuff
+//TODO [DAN 1] cleanup this namespace stuff
    //~--- methods -------------------------------------------------------------
 
    /**

@@ -336,7 +336,7 @@ public class ChronologyUpdate {
                               taxonomyFlags,
                               stampSequence);
                        } else {
-                          // TODO Dan put this here to stop a pile of errors....
+                          // TODO [KEC] Dan put this here to stop a pile of errors....
                           // one of the types coming back was a FeatureNodeWithSequences - not sure what to do with it.
                        }
                     });
@@ -350,7 +350,7 @@ public class ChronologyUpdate {
                 stampSequence,
                 taxonomyFlags.bits);
          } else {
-            // TODO dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
+            // TODO [KEC] Dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
          }
       }
    }

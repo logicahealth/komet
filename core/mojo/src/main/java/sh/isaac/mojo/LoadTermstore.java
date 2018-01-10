@@ -351,7 +351,8 @@ public class LoadTermstore
                               MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
                               newVersion.setGraphData(data);
 
-//                               TODO mess - this isn't merging properly - how should we merge!? - I think this issue referrs to UUIDs... ?
+//                               TODO [DAN 2] mess - this isn't merging properly - how should we merge!? - I think this issue referrs to UUIDs... ?
+                              //Need to take a new look at what is and isn't working right when merging concepts, and get the issues fixed.
 //                               for (UUID uuid : sc.getUuidList())
 //                               {
 //                                       Get.identifierService().addUuidForNid(uuid, newVersion.getNid());

@@ -299,7 +299,7 @@ public class DynamicImpl
          checkUncommitted();
       }
 
-      // TODO while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
+      // TODO [DAN 3] while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
       // The column-specific validators will have to be fired during commit.
       if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
          final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());

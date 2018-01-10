@@ -246,8 +246,7 @@ public enum VersionType {
     *
     * @return the observable semantic version class
     */
-   @SuppressWarnings("rawtypes")
-   public Class<? extends ObservableSemanticVersion> getObservableSemanticVersionClass() {
+      public Class<? extends ObservableSemanticVersion> getObservableSemanticVersionClass() {
       switch (this) {
       case COMPONENT_NID:
          return ObservableComponentNidVersion.class;
@@ -289,8 +288,7 @@ public enum VersionType {
     *
     * @return the version class
     */
-   @SuppressWarnings("rawtypes")
-   public Class<? extends SemanticVersion> getVersionClass() {
+      public Class<? extends SemanticVersion> getVersionClass() {
       switch (this) {
       case COMPONENT_NID:
          return ComponentNidVersion.class;

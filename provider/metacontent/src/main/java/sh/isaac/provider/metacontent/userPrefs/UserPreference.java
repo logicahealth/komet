@@ -54,7 +54,7 @@ public class UserPreference
          implements StorableUserPreferences {
    /** The sample. */
 
-   // TODO finish this class as needed
+   // TODO [DAN 3] finish this class as needed, need to see if it can be merged / replaced with the new pref store Keith added.
    private final String sample;
 
    //~--- constructors --------------------------------------------------------

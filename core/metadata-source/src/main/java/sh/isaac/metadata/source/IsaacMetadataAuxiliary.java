@@ -160,7 +160,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
       super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
 
 //J-
-      //TODO [DAN] move the RF2 specific things into the RF2 loader
       createConcept(TermAux.SOLOR_ROOT);
       pushParent(current());
          createConcept("Health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8")
@@ -197,8 +196,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      .addUuids(UUID.fromString("1f201520-960e-11e5-8994-feff819cdc9f"));
          
                pushParent(current());
-               createConcept(TermAux.VHAT_EDIT);
-               popParent();
+                  createConcept(TermAux.VHAT_EDIT);
+                  popParent();
 
                // The second UUID here was the old value from the TermAux - but this was an orphan. to best fix the bug that resulted,
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
@@ -234,7 +233,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
                createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
                popParent();
-            createConcept("Identifier assemblage");  //TODO need to talk to Keith about these, seem to be duplicative with the ones below.
+            createConcept("Identifier assemblage");  //TODO [DAN 2] need to talk to Keith about these, seem to be duplicative with the ones below.
+            //Even after talking to Keith, still don't understand, and, at minimum, these things need to be named / defined better, cause they are 
+            //rather confusing.
             pushParent(current());
                createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
                createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
@@ -249,13 +250,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Code").setPrimordialUuid("803af596-aea8-5184-b8e1-45f801585d17")
                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);// UUID comes from the algorithm in the VHAT econ loader
                
-               //TODO I think I moved these into the loaders
-//               createConcept(new MetadataDynamicConstant("LOINC_NUM", null, "LOINC Identifier", "Carries the LOINC_NUM native identifier",
-//                     new DynamicColumnInfo[] { new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true, true) }));
-//               createConcept("RXCUI").setPrimordialUuid("617761d2-80ef-5585-83a0-60851dd44158"); // comes from the algorithm in the rxnorm econ loader
-//               createConcept("OID", "HL7® Object Identifier");
-//               createConcept("CVXCode", "CVX Unique Identifier");
-//               createConcept("MVX_CODE", "MVX Unique Identifier");
                popParent();
             createConcept("language");
             pushParent(current());

@@ -455,7 +455,7 @@ public class HeadlessToolkit
       try {
          final Field f = Toolkit.class.getDeclaredField("TOOLKIT");
 
-         FortifyFun.fixAccessible(f);  // f.setAccessible(true);
+         f.setAccessible(true);
 
          final Object currentToolkit = f.get(null);
 

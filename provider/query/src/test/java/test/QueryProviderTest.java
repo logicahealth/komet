@@ -87,7 +87,7 @@ public class QueryProviderTest
 			new IndexTermstore().execute();
 			
 			li_ = LookupService.get().getService(DescriptionIndexer.class);
-			//TODO [DAN]implement some reasonable tests here on paging, etc
+			//TODO [DAN 1] implement some reasonable tests here on paging, etc
 		}
 		catch(Exception e)
 		{

@@ -53,7 +53,6 @@ import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.application.Platform;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 
 import javafx.concurrent.Task;
@@ -108,7 +107,6 @@ import sh.isaac.provider.bdb.identifier.BdbIdentifierProvider;
 @RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL) 
 public class BdbTaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
-//TODO it also appears that the underlying bdb provider isn't handling the db validity checking / variables properly.
    /**
     * The Constant LOG.
     */

@@ -171,7 +171,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that match relative to other
     *         matches.
     */
-   // TODO fix this limitation on the column restriction...
+   // TODO [DAN] fix this limitation on the column restriction...
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
          Integer[] assemblageConcepts,
