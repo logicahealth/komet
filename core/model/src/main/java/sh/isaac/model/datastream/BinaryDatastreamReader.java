@@ -61,13 +61,15 @@ public class BinaryDatastreamReader
                 throwIfException();
                 objectCount++;
                 final int recordSizeInBytes = input.readInt();
+                bytesProcessed += 4;
                 final byte[] objectData = new byte[recordSizeInBytes];
                 input.readFully(objectData);
+                bytesProcessed += recordSizeInBytes;
+ 
                 ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
                 byteArrayDataBuffer.setExternalData(true);
                 IsaacExternalizableUnparsed unparsedObject
                         = new IsaacExternalizableUnparsed(byteArrayDataBuffer);
-                bytesProcessed += recordSizeInBytes;
                 completedUnitsOfWork(recordSizeInBytes);
 
                 this.processingSemaphore.acquireUninterruptibly();
