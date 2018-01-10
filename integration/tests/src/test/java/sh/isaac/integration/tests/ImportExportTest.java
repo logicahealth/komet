@@ -94,8 +94,6 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.provider.datastore.chronology.ChronologyProvider;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -140,7 +138,8 @@ public class ImportExportTest {
       
       try {
          final ClassifierResults classifierResults = classifyTask.get();
-
+         // TODO classifyTask.get() does not block until UpdateTaxonomyAfterCommitTask is complete...
+         // Is updateTaxomy being called twice? Once during UpdateTaxonomyAfterCommitTask and once during classify?
          LOG.info("Classify results: " + classifierResults);
       } catch (InterruptedException | ExecutionException e) {
          Assert.fail("Classify failed.", e);

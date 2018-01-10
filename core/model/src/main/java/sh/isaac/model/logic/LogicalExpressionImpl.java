@@ -1172,6 +1172,7 @@ public class LogicalExpressionImpl
 
          switch (oldLogicNode.getNodeSemantic()) {
             case DEFINITION_ROOT:
+                 
                results[i] = Root(Arrays.stream(addNodesWithMap(another,
                        solution,
                        anotherToThisNodeIdMap,
@@ -1395,7 +1396,7 @@ public class LogicalExpressionImpl
             }
 
             int match = -1;
-
+            possibleMatches.trimToSize();
             for (final int possibleMatchIndex : possibleMatches.elements()) {
                if (graphsEqual((AbstractLogicNode) this.logicNodes.get(possibleMatchIndex),
                        g2Child,

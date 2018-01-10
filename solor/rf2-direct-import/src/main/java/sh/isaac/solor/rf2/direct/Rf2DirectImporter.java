@@ -54,6 +54,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -172,22 +173,17 @@ public class Rf2DirectImporter
                         || p.toString().toLowerCase().contains("sct")))
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
-        
-        String importPrefix1;
-        String importPrefix2;
-        
-        switch (importType) {
-            case ACTIVE_ONLY:
-            case SNAPSHOT:
-            importPrefix1 = "rf2release/snapshot/";
-            importPrefix2 = "snapshot/";
-            break;
+        StringBuilder importPrefixRegex = new StringBuilder();
+        importPrefixRegex.append("(([^/]*/)*)"); //ignore parent directories
+        switch (importType){
             case FULL:
-                default:
-            importPrefix1 = "rf2release/full/";
-            importPrefix2 = "full/";
+                importPrefixRegex.append("(full/|rf2release/full/)"); //prefixes to match
+                break;
+            case SNAPSHOT:
+                importPrefixRegex.append("(snapshot/|rf2release/snapshot/)"); //prefixes to match
+                break;
         }
-        
+        importPrefixRegex.append(".*"); //allow all match child directories
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -197,7 +193,7 @@ public class Rf2DirectImporter
                     String entryName = entry.getName()
                             .toLowerCase();
 
-                    if (entryName.startsWith(importPrefix1) || entryName.startsWith(importPrefix2)) {
+                    if(entryName.matches(importPrefixRegex.toString())) {
                         if (entryName.contains("sct2_concept_")) {
                             entriesToImport.add(
                                     new ImportSpecification(zipFilePath.toFile(), ImportStreamType.CONCEPT, entry));

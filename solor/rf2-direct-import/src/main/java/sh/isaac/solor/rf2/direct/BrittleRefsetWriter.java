@@ -19,6 +19,7 @@ package sh.isaac.solor.rf2.direct;
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -73,6 +74,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final AssemblageService assemblageService = Get.assemblageService();
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
+   private final HashSet<String> refsetsToIgnore = new HashSet();
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
            ImportSpecification importSpecification, ImportType importType) {
@@ -86,7 +88,23 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       updateMessage(message);
       addToTotalWork(semanticRecords.size());
       Get.activeTasks().add(this);
-
+      
+      // TODO move these to an import preference... 
+      refsetsToIgnore.add("6011000124106"); //6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("447563008"); //447563008 | ICD-9-CM equivalence complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("447569007"); //447569007 | International Classification of Diseases, Ninth Revision, Clinical Modification reimbursement complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("450993002"); //450993002 | International Classification of Primary Care, Second edition complex map reference set (foundation metadata concept) |
+      refsetsToIgnore.add("447562003"); //447562003 | ICD-10 complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("900000000000497000"); //900000000000497000 | CTV3 simple map reference set (foundation metadata concept) |
+      refsetsToIgnore.add("467614008"); //467614008 | GMDN simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("446608001"); //446608001 | ICD-O simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("711112009"); //711112009 | ICNP diagnoses simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("712505008"); //712505008 | ICNP interventions simple map reference set (foundation metadata concept) 
+      refsetsToIgnore.add("900000000000498005"); //900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
+      refsetsToIgnore.add("733900009"); //733900009 | UCUM simple map reference set (foundation metadata concept)
+      //
+      //
+      
    }
    private void index(Chronology chronicle) {
       for (IndexService indexer: indexers) {
@@ -112,6 +130,9 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          for (String[] refsetRecord : refsetRecords) {
             final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
             if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            if (refsetsToIgnore.contains(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX])) {
                 continue;
             }
             

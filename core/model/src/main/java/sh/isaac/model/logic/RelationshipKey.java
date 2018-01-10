@@ -108,8 +108,9 @@ public class RelationshipKey
 
       expression.getNode(nodeId)
                 .addConceptsReferencedByNode(this.conceptsReferencedAtNodeOrBelow);
-      logicNode.getChildStream()
-               .forEach((childNode) -> addNodes(childNode.getNodeIndex(), expression));
+      for (LogicNode childNode: logicNode.getChildren()) {
+          addNodes(childNode.getNodeIndex(), expression);
+      }
    }
 }
 

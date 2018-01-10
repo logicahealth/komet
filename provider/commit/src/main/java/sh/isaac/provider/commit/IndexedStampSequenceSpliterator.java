@@ -73,8 +73,9 @@ public abstract class IndexedStampSequenceSpliterator<T>
     * @param keys the keys
     */
    public IndexedStampSequenceSpliterator(IntArrayList keys) {
-      this.size     = keys.size();
-      this.iterator = IntStream.of(keys.elements())
+       keys.trimToSize();
+       this.size     = keys.size();
+       this.iterator = IntStream.of(keys.elements())
                                .iterator();
    }
 

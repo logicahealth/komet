@@ -53,9 +53,11 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,9 +67,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class UpdateTaxonomyAfterCommitTask
-        extends TimedTask<Void> {
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+        extends TimedTaskWithProgressTracker<Void> {
 
    //~--- fields --------------------------------------------------------------
 
@@ -109,7 +109,8 @@ public class UpdateTaxonomyAfterCommitTask
       this.taxonomyService                    = taxonomyService;
       this.totalWork                          = semanticNidsForUnhandledChanges.size();
       this.updateTitle("Update taxonomy after commit");
-      this.updateProgress(this.workDone, this.totalWork);
+      this.addToTotalWork(totalWork);
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -127,20 +128,20 @@ public class UpdateTaxonomyAfterCommitTask
       try {
          final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
-         this.semanticNidsForUnhandledChanges.stream().forEach((semanticSequence) -> {
+         this.semanticNidsForUnhandledChanges.stream().forEach((semanticNid) -> {
                            try {
                               this.workDone++;
-                              this.updateProgress(this.workDone, this.totalWork);
+                              this.completedUnitOfWork();
 
                               if (this.commitRecord.getSemanticNidsInCommit()
-                                    .contains(semanticSequence)) {
-                                 this.updateMessage("Updating taxonomy for: " + semanticSequence);
+                                    .contains(semanticNid)) {
+                                 this.updateMessage("Updating taxonomy for: " + semanticNid);
                                  this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
-                                           .getSemanticChronology(semanticSequence));
-                                 this.semanticNidsForUnhandledChanges.remove(semanticSequence);
+                                           .getSemanticChronology(semanticNid));
+                                 this.semanticNidsForUnhandledChanges.remove(semanticNid);
                               }
                            } catch (final Exception e) {
-                              LOG.error("Error handling update taxonomy after commit on semantic " + semanticSequence, e);
+                              LOG.error("Error handling update taxonomy after commit on semantic " + semanticNid, e);
                               atLeastOneFailed.set(true);
                            }
                         });
