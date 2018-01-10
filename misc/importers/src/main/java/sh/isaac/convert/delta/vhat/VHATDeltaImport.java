@@ -2239,7 +2239,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         Status.ACTIVE, null, null);
                   importUtil_.addAssociation(concept, null, this.subsets.getAltMetaDataParentUUID(), this.associations.getProperty("has_parent").getUUID(), 
                         Status.ACTIVE, null, null);
-                  importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE.getPrimordialUuid(), 
+                  importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), 
                         this.associations.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
                   
                   LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -2248,7 +2248,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getAltMetaDataParentUUID()), leb),
                         ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getPropertyTypeUUID()), leb),
                         ConceptAssertion(Get.identifierService().getNidForUuids(
-                              IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE.getPrimordialUuid()), leb)}));
+                              IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()), leb)}));
 
                   LogicalExpression le = leb.build();
                   
@@ -2277,7 +2277,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   importUtil_.configureConceptAsDynamicRefex(concept, ms.getName(), columns, ObjectChronologyType.CONCEPT, null);
                   
                   //Annotate this concept as a mapset definition concept.
-                  importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE.getUUID(), Status.ACTIVE, null);
+                  importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getUUID(), Status.ACTIVE, null);
                   
                   //Now that we have defined the map sememe, add the other annotations onto the map set definition.
                   if (StringUtils.isNotBlank(ms.getSourceCodeSystem()))
@@ -2286,7 +2286,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM.getNid()),
                               new DynamicStringImpl(ms.getSourceCodeSystem())},
-                        IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
+                        IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
                   }
                   
                   if (StringUtils.isNotBlank(ms.getSourceVersionName()))
@@ -2295,7 +2295,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM_VERSION.getNid()),
                               new DynamicStringImpl(ms.getSourceVersionName())},
-                        IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
+                        IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
                   }
                   
                   if (StringUtils.isNotBlank(ms.getTargetCodeSystem()))
@@ -2304,7 +2304,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM.getNid()),
                               new DynamicStringImpl(ms.getTargetCodeSystem())},
-                        IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
+                        IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
                   }
                   
                   if (StringUtils.isNotBlank(ms.getTargetVersionName()))
@@ -2313,7 +2313,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM_VERSION.getNid()),
                               new DynamicStringImpl(ms.getTargetVersionName())},
-                        IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
+                        IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
                   }
                   break;
                case NONE:

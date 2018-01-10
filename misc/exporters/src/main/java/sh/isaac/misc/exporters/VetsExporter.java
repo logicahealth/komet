@@ -321,7 +321,7 @@ public class VetsExporter {
          if (fullExportMode) 
          {
             Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage( concept.getNid(),
-                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE.getNid()).forEach(mappingSememe -> 
+                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()).forEach(mappingSememe -> 
             {
                Terminology.CodeSystem.Version.MapSets.MapSet xmlMapSet = new Terminology.CodeSystem.Version.MapSets.MapSet();
                xmlMapSet.setAction(determineAction(concept, startDate, endDate));
@@ -343,7 +343,7 @@ public class VetsExporter {
                   if (cv.isPresent()) 
                   {
                      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(cv.get().getChronology().getNid(),
-                           IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION.getNid()).forEach(mappingStrExt -> {
+                           IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getNid()).forEach(mappingStrExt -> {
                         LatestVersion<DynamicVersion<?>> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES);
 
                         // TODO:DA review
@@ -853,7 +853,7 @@ public class VetsExporter {
                         }
                         //a refset that doesn't represent a mapset
                         else if (ts.wasEverKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_REFSETS.getNid()) &&
-                              ! ts.wasEverKindOf(nestedSememe.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE.getNid()))
+                              ! ts.wasEverKindOf(nestedSememe.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()))
                         {
                            SubsetMembership sm = buildSubsetMembership(nestedSememe, startDate, endDate);
                            if (sm != null)

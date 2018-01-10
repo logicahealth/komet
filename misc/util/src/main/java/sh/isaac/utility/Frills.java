@@ -578,7 +578,7 @@ public class Frills
    }
 
    /**
-    * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE}
+    * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE}
     *
     * @param conceptNid the concept sequence
     * @return true, if successful
@@ -591,7 +591,7 @@ public class Frills
       final boolean temp = Get.assemblageService()
                               .getSemanticChronologyStreamForComponentFromAssemblage(
                                   conceptNid,
-                                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMEME_TYPE
+                                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE
                                         .getNid())
                               .anyMatch(semantic -> true);
 
