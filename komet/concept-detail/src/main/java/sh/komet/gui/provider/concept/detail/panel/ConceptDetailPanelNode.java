@@ -642,5 +642,17 @@ public class ConceptDetailPanelNode
         // No extra menu items added yet. 
         return assemblageMenuList;
     }
+
+    @Override
+    public Manifold getManifold() {
+        return this.conceptDetailManifold;
+    }
+
+    @Override
+    public boolean selectInTabOnChange() {
+        return true;
+    }
+    
+    
 }
 

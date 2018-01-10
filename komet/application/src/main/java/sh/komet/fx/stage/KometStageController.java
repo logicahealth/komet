@@ -287,6 +287,14 @@ public class KometStageController
          Get.startIndexTask();
       });
       items.add(completeReindex);
+      
+      
+      MenuItem recomputeTaxonomy = new MenuItem("Recompute taxonomy");
+      recomputeTaxonomy.setOnAction((ActionEvent event) -> {
+         Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+      });
+      items.add(recomputeTaxonomy);
+
       return items;
    }
 
@@ -433,8 +441,15 @@ public class KometStageController
               .textProperty()
               .bind(detailNode.getToolTip());
       tab.setContent(graphPane);
+      detailNode.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+          if (detailNode.selectInTabOnChange()) {
+            tabPane.getSelectionModel().select(tab);
+          }
+      });
       tabPane.getTabs()
               .add(tab);
+      
+      
       return tabCountInPanel;
    }
 
@@ -496,9 +511,9 @@ public class KometStageController
                                             TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                          });
          addMultiParentTreeViewTab(tabPane);
-         addSimpleSearchTab(tabPane);
       } else {
          if (tabPanelCount == 2) {
+             // add one set linked to taxonomy selection
             for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
                tabCountInPanel = setupConceptTab(
                        tabCountInPanel,
@@ -506,31 +521,20 @@ public class KometStageController
                        tabPane,
                        Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
             }
+            // add one set linked to search selection
+            for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
+               tabCountInPanel = setupConceptTab(
+                       tabCountInPanel,
+                       factory,
+                       tabPane,
+                       Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME));
+            }
          }
 
          if (tabPanelCount == 3) {
-            // add FLOWR query flowrTab
-            FLOWRQueryViewFactory FLOWRQueryViewFactory = new FLOWRQueryViewFactory();
-            Tab flowrTab = new Tab();
-
-            flowrTab.setGraphic(FLOWRQueryViewFactory.getMenuIcon());
-            flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
-
-            BorderPane searchPane = new BorderPane();
-            ExplorationNode explorationNode = FLOWRQueryViewFactory.createExplorationNode(
-                    FLOWR_MANIFOLD,
-                    (theNewExplorationNode) -> {
-                       searchPane.setCenter(theNewExplorationNode);
-                    });
-
-            explorationNode.getTitleNode().ifPresent((titleNode) -> flowrTab.graphicProperty().set(titleNode));
-            flowrTab.textProperty().bind(explorationNode.getTitle());
-            flowrTab.getTooltip()
-                    .textProperty()
-                    .bind(explorationNode.getToolTip());
-            flowrTab.setContent(searchPane);
-            tabPane.getTabs()
-                    .add(flowrTab);
+            addSimpleSearchTab(tabPane);
+             
+            //addFlowerQueryTab(tabPane);
 
             // Add progress
             TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
@@ -557,4 +561,29 @@ public class KometStageController
 
       return tabPane;
    }
+
+    protected void addFlowerQueryTab(TabPane tabPane) {
+        // add FLOWR query flowrTab
+        FLOWRQueryViewFactory FLOWRQueryViewFactory = new FLOWRQueryViewFactory();
+        Tab flowrTab = new Tab();
+        
+        flowrTab.setGraphic(FLOWRQueryViewFactory.getMenuIcon());
+        flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
+        
+        BorderPane searchPane = new BorderPane();
+        ExplorationNode explorationNode = FLOWRQueryViewFactory.createExplorationNode(
+                FLOWR_MANIFOLD,
+                (theNewExplorationNode) -> {
+                    searchPane.setCenter(theNewExplorationNode);
+                });
+        
+        explorationNode.getTitleNode().ifPresent((titleNode) -> flowrTab.graphicProperty().set(titleNode));
+        flowrTab.textProperty().bind(explorationNode.getTitle());
+        flowrTab.getTooltip()
+                .textProperty()
+                .bind(explorationNode.getToolTip());
+        flowrTab.setContent(searchPane);
+        tabPane.getTabs()
+                .add(flowrTab);
+    }
 }
