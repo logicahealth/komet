@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -102,7 +100,28 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       refsetsToIgnore.add("712505008"); //712505008 | ICNP interventions simple map reference set (foundation metadata concept) 
       refsetsToIgnore.add("900000000000498005"); //900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
       refsetsToIgnore.add("733900009"); //733900009 | UCUM simple map reference set (foundation metadata concept)
-      //
+      
+      refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
+      refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
+      refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      refsetsToIgnore.add("");  
+      
+//
       //
       
    }

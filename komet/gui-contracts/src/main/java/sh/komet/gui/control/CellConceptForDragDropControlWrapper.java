@@ -4,6 +4,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.*;
+import sh.isaac.api.Get;
+import sh.komet.gui.drag.drop.IsaacClipboard;
 
 public class CellConceptForDragDropControlWrapper extends ListCell<ConceptForControlWrapper> {
 
@@ -14,8 +16,9 @@ public class CellConceptForDragDropControlWrapper extends ListCell<ConceptForCon
         setOnDragDetected(event -> {
 
             Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
-            content.putString(Integer.toString(this.getItem().getNid()));
+            ConceptForControlWrapper wrapper = this.getItem();
+            IsaacClipboard content = new IsaacClipboard(Get.concept(wrapper));
+            //content.putString(Integer.toString(this.getItem().getNid()));
             dragboard.setContent(content);
             dragboard.setDragView(this.snapshot(new SnapshotParameters(),null));
             event.consume();

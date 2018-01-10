@@ -50,13 +50,13 @@ import java.util.function.Function;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.externalizable.StampUniversal;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -72,16 +72,16 @@ public class IsaacClipboard
    public static final DataFormat ISAAC_CONCEPT = new DataFormat("application/isaac-concept");
    public static final DataFormat ISAAC_DESCRIPTION = new DataFormat("application/isaac-description");
    public static final DataFormat ISAAC_GRAPH = new DataFormat("application/isaac-graph");
-   public static final DataFormat ISAAC_SEMEME = new DataFormat("application/isaac-sememe");
+   public static final DataFormat ISAAC_SEMANTIC = new DataFormat("application/isaac-semantic");
    public static final DataFormat ISAAC_CONCEPT_VERSION = new DataFormat("application/isaac-concept-version");
    public static final DataFormat ISAAC_DESCRIPTION_VERSION = new DataFormat("application/isaac-description-version");
    public static final DataFormat ISAAC_GRAPH_VERSION = new DataFormat("application/isaac-graph-version");
-   public static final DataFormat ISAAC_SEMEME_VERSION = new DataFormat("application/isaac-sememe-version");
+   public static final DataFormat ISAAC_SEMANTIC_VERSION = new DataFormat("application/isaac-semantic-version");
    
    public static final Set<DataFormat> CONCEPT_TYPES = new HashSet<>(Arrays.asList(ISAAC_CONCEPT, ISAAC_CONCEPT_VERSION));
    public static final Set<DataFormat> DESCRIPTION_TYPES = new HashSet<>(Arrays.asList(ISAAC_DESCRIPTION, ISAAC_DESCRIPTION_VERSION));
    public static final Set<DataFormat> GRAPH_TYPES = new HashSet<>(Arrays.asList(ISAAC_GRAPH, ISAAC_GRAPH_VERSION));
-   public static final Set<DataFormat> SEMEME_TYPES = new HashSet<>(Arrays.asList(ISAAC_SEMEME, ISAAC_SEMEME_VERSION, 
+   public static final Set<DataFormat> SEMEME_TYPES = new HashSet<>(Arrays.asList(ISAAC_SEMANTIC, ISAAC_SEMANTIC_VERSION, 
            ISAAC_GRAPH, ISAAC_GRAPH_VERSION, ISAAC_DESCRIPTION, ISAAC_DESCRIPTION_VERSION));
    
    public static boolean containsAny(Collection<?> c1,
@@ -133,7 +133,7 @@ public class IsaacClipboard
                      break;
 
                   default:
-                     this.put(ISAAC_SEMEME, ByteBuffer.wrap(dataBuffer.getData()));
+                     this.put(ISAAC_SEMANTIC, ByteBuffer.wrap(dataBuffer.getData()));
                }
             }
          }
@@ -141,31 +141,46 @@ public class IsaacClipboard
          // Add in the conversions supported for this object.
          // addExtra(DataFormat.PLAIN_TEXT);
       } else if (identifiedObject instanceof Version) {
-         ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
-         Version version = (Version) identifiedObject;
-         StampUniversal universalStamp = new StampUniversal(version);
-         universalStamp.writeExternal(dataBuffer);
-         if (version instanceof ConceptVersion) {
-            ConceptVersion conceptVersion = (ConceptVersion) version;
-            conceptVersion.getChronology().putExternal(dataBuffer);
-            this.put(ISAAC_CONCEPT_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
-         } else if (version instanceof SemanticVersion) {
-            SemanticVersion sememeVersion = (SemanticVersion) version;
-            sememeVersion.getChronology().putExternal(dataBuffer);
-            switch (sememeVersion.getChronology().getVersionType()) {
-               case DESCRIPTION:
-                  this.put(ISAAC_DESCRIPTION_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
-                  break;
-               case LOGIC_GRAPH:
-                  this.put(ISAAC_GRAPH_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
-                  break;
-               default:
-                  this.put(ISAAC_SEMEME_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
-                  break;
-                     
-            }
-            
+          if (identifiedObject instanceof ConceptVersion) {
+            ConceptVersion conceptVersion = (ConceptVersion) identifiedObject;
+            ConceptChronology concept = Get.concept(conceptVersion.getNid());
+            ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
+            concept.putExternal(dataBuffer);
+            this.put(ISAAC_CONCEPT, ByteBuffer.wrap(dataBuffer.getData()));
+         } else if (identifiedObject instanceof SemanticVersion) {
+            SemanticVersion semanticVersion = (SemanticVersion) identifiedObject;
+            ConceptChronology concept = Get.concept(semanticVersion.getReferencedComponentNid());
+            ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
+            concept.putExternal(dataBuffer);
+            this.put(ISAAC_CONCEPT, ByteBuffer.wrap(dataBuffer.getData()));
          }
+          
+          // FOR NOW, ONLY HANDLE CONCEPTS. Walk first...
+//         ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
+//         Version version = (Version) identifiedObject;
+//         StampUniversal universalStamp = new StampUniversal(version);
+//         universalStamp.writeExternal(dataBuffer);
+//         if (version instanceof ConceptVersion) {
+//            ConceptVersion conceptVersion = (ConceptVersion) version;
+//            conceptVersion.getChronology().putExternal(dataBuffer);
+//            this.put(ISAAC_CONCEPT_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
+//         } else if (version instanceof SemanticVersion) {
+//            SemanticVersion sememeVersion = (SemanticVersion) version;
+//            sememeVersion.getChronology().putExternal(dataBuffer);
+//            switch (sememeVersion.getChronology().getVersionType()) {
+//               case DESCRIPTION:
+//                  this.put(ISAAC_DESCRIPTION_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
+//                  break;
+//               case LOGIC_GRAPH:
+//                  this.put(ISAAC_GRAPH_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
+//                  break;
+//               default:
+//                  this.put(ISAAC_SEMEME_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
+//                  break;
+//                     
+//            }
+//            
+//         }
          
       }
    }

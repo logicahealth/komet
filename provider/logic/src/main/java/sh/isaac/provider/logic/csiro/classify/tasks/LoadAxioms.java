@@ -89,8 +89,6 @@ public class LoadAxioms
    @Override
    protected Void call()
             throws Exception {
-      LookupService.getService(MemoryManagementService.class)
-                   .setMemoryConfiguration(ApplicationStates.CLASSIFYING);
 
       final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 

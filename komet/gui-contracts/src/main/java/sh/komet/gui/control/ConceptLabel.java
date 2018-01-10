@@ -194,9 +194,7 @@ public class ConceptLabel
       db.setDragView(dragImageMaker.getDragImage());
 
       /* put a string on dragboard */
-      ClipboardContent content = new ClipboardContent();
-
-      content.putString(this.getText());
+      IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept()));
       db.setContent(content);
       event.consume();
    }

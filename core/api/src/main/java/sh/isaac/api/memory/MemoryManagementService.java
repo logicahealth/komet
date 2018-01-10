@@ -59,10 +59,18 @@ public interface MemoryManagementService {
    void addSpine(SpineReference spine);
    
    /**
-    * Sets the memory configuration.
-    *
-    * @param memoryConfiguration the new memory configuration
+    * Each add must be accompanied by a remove. The calls to add an remove 
+    * are counted, so a state is not removed until  add + remove == 0.
+    * @param applicationState the active application state to add. 
     */
-   void setMemoryConfiguration(ApplicationStates memoryConfiguration);
+   void addState(ApplicationStates applicationState);
+   
+   /**
+    * Each add must be accompanied by a remove. The calls to add an remove 
+    * are counted, so a state is not removed until  add + remove == 0.
+    * @param applicationState the inactive application state to remove. 
+    */
+   void removeState(ApplicationStates applicationState);
+   
 }
 
