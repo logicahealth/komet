@@ -29,7 +29,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.constants.Constants;
-import sh.isaac.misc.importers.VHATDeltaImport;
+import sh.isaac.convert.delta.vhat.VHATDeltaImport;
 import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
 
@@ -40,35 +40,35 @@ import sh.isaac.mojo.LoadTermstore;
  */
 public class SimpleTest
 {
-	public static void main(String[] args) throws MojoExecutionException, IOException
-	{
-		try
-		{
-			File db = new File("target/db");
-			FileUtils.deleteDirectory(db);
-			db.mkdirs();
-			System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
-			LookupService.startupIsaac();
-			LoadTermstore lt = new LoadTermstore();
-			lt.setLog(new SystemStreamLog());
-			lt.setibdfFilesFolder(new File("../../metadata/target/generated-resource/"));
-			lt.execute();
-			new IndexTermstore().execute();
-			VHATDeltaImport i = new VHATDeltaImport(
-				//new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 2.xml"))),
-				new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 1.xml"))),
-				TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(), TermAux.DEVELOPMENT_PATH.getPrimordialUuid(),
-				null, new File("target"));
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			LookupService.shutdownSystem();
-			System.exit(0);
-		}
-		
-	}
+   public static void main(String[] args) throws MojoExecutionException, IOException
+   {
+      try
+      {
+         File db = new File("target/db");
+         FileUtils.deleteDirectory(db);
+         db.mkdirs();
+         System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+         LookupService.startupIsaac();
+         LoadTermstore lt = new LoadTermstore();
+         lt.setLog(new SystemStreamLog());
+         lt.setibdfFilesFolder(new File("../../metadata/target/generated-resource/"));
+         lt.execute();
+         new IndexTermstore().execute();
+         VHATDeltaImport i = new VHATDeltaImport(
+            //new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 2.xml"))),
+            new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 1.xml"))),
+            TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(), TermAux.DEVELOPMENT_PATH.getPrimordialUuid(),
+            null, new File("target"));
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         LookupService.shutdownSystem();
+         System.exit(0);
+      }
+      
+   }
 }
