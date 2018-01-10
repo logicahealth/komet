@@ -281,10 +281,10 @@ public class DBConfigurationCreator {
 
       // load termstore
       pe = new PluginExecution();
-      pe.setId("load-termstore");
+      pe.setId("load-termstore-semaphore");
       goals = new Goals();
       goals.getGoal()
-           .add("load-termstore");
+           .add("load-termstore-semaphore");
       pe.setGoals(goals);
       configuration = new Configuration();
       configuration.setIbdfFileFolder("${project.build.directory}/data/");

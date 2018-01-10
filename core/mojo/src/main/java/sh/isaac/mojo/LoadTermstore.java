@@ -100,6 +100,11 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 
 /**
  * Goal which loads a database from eConcept files.
+ * I get inconsistent results with this mojo... Sometimes the import fails, and 
+ * on an immediate re-run, it succeeds. So a race condition, or some other 
+ * issue such as unpredictable behavior of this.input.available(); in the reader
+ * implementation class? 
+ * @deprecated try LoatTermstoreSemaphore
  */
 @Mojo(
    name         = "load-termstore",

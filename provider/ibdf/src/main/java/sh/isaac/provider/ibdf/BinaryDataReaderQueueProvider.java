@@ -130,6 +130,8 @@ public class BinaryDataReaderQueueProvider
     *
     * @param dataPath the data path
     * @throws FileNotFoundException the file not found exception
+    * this.input.available(); gives inconsistent results? 
+    * @deprecated inconsistent results? Try BinaryDatastreamReader
     */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {

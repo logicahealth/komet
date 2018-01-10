@@ -143,19 +143,27 @@ public class ChronologyUpdate {
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = TAXONOMY_SERVICE.getTaxonomyRecordMap(
                 conceptAssemblageNid);
         int[] start = taxonomyRecordForConcept.pack();
+        //start = start.clone();
         //TaxonomyRecord.validate(start);
-        int[] begin = origin_DestinationTaxonomyRecord_Map.get(logicGraphChronology.getReferencedComponentNid());
+        //int[] begin = origin_DestinationTaxonomyRecord_Map.get(logicGraphChronology.getReferencedComponentNid());
+        //begin = begin.clone();
         int[] result = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
                 logicGraphChronology.getReferencedComponentNid(),
                 start, ChronologyUpdate::merge);
-
+        //result = result.clone();
         if (start.length > result.length) {
             TaxonomyRecord taxonomyRecordResult = new TaxonomyRecord(result);
             LOG.error("Accumulate shrank");
-            origin_DestinationTaxonomyRecord_Map.put(logicGraphChronology.getReferencedComponentNid(), begin);
-            origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
-                    logicGraphChronology.getReferencedComponentNid(),
-                    start, ChronologyUpdate::merge);
+//            origin_DestinationTaxonomyRecord_Map.put(logicGraphChronology.getReferencedComponentNid(), begin);
+//            int[] result2 = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
+//                    logicGraphChronology.getReferencedComponentNid(),
+//                    start, ChronologyUpdate::merge);
+//            if (Arrays.equals(result, result2)) {
+//                LOG.error("Results are equal. ");
+//            } else {
+//                LOG.error("Results are not equal. ");
+//            }
+
         } else if (result.length == start.length) {
             LOG.error("Did not grow");
         }
@@ -200,8 +208,22 @@ public class ChronologyUpdate {
 
                 if (!Arrays.equals(updatedExistingTypeStampRecords, existingRecArray)) {
                     if (existingRecArray.length == updatedExistingTypeStampRecords.length) {
+                        IntArrayList lengthChangedList = lengthChangedListReference.get();
+
                         // case 1, same size, updated flag...
-                        System.arraycopy(updatedExistingTypeStampRecords, 0, existing, i + 2, updatedExistingTypeStampRecords.length);
+                        if (lengthChangedList == null) {
+                            System.arraycopy(updatedExistingTypeStampRecords, 0, existing, i + 2, updatedExistingTypeStampRecords.length);
+                        } else {
+                            // add concept
+                            lengthChangedList.add(currentConceptNid);
+                            // add length
+                            lengthChangedList.add(updatedExistingTypeStampRecords.length + 1);
+                            for (int mergedArrayItem : updatedExistingTypeStampRecords) {
+                                // then add type stamp flag records. 
+                                lengthChangedList.add(mergedArrayItem);
+                            }
+                        }
+
                     } else {
                         // case 2, different size. 
                         IntArrayList lengthChangedList = lengthChangedListReference.get();

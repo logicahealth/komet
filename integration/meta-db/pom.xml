@@ -87,7 +87,7 @@
                <execution>
                   <id>load-termstore</id>
                   <goals>
-                     <goal>load-termstore</goal>
+                     <goal>load-termstore-semaphore</goal>
                   </goals>
                   <configuration>
                      <ibdfFiles>
