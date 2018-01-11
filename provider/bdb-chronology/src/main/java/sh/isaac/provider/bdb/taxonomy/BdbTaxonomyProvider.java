@@ -208,7 +208,9 @@ public class BdbTaxonomyProvider
 
    @Override
    public void updateTaxonomy(SemanticChronology logicGraphChronology) {
-      LOG.debug("Updating taxonomy for commit to " + logicGraphChronology);
+      if (LOG.isDebugEnabled()) {
+         LOG.debug("Updating taxonomy for commit to {}", logicGraphChronology);
+      }
       ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
    }
 
