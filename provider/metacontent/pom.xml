@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>sh.isaac</groupId>
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.42-SNAPSHOT</version>
-	</parent>
-	
-	<groupId>sh.isaac.core</groupId>
-	<artifactId>metacontent</artifactId>
-	<packaging>jar</packaging>
-	<name>ISAAC provider: MetaContent</name>
-	
-	<dependencies>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2-mvstore</artifactId>
-			<version>1.4.192</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.core</groupId>
-			<artifactId>api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
+      <version>4.42-SNAPSHOT</version>
+   </parent>
+
+   <groupId>sh.isaac.core</groupId>
+   <artifactId>metacontent</artifactId>
+   <packaging>jar</packaging>
+   <name>ISAAC provider: MetaContent</name>
+
+   <dependencies>
+      <dependency>
+         <groupId>com.h2database</groupId>
+         <artifactId>h2-mvstore</artifactId>
+         <version>1.4.192</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>api</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
 </project>
