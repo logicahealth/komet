@@ -289,7 +289,6 @@ public class TermAux {
    /** ConceptProxy for: "ISAAC metadata" */
    public static ConceptSpecification SOLOR_METADATA = new ConceptProxy("Metadata", UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
 
-   // TODO [DAN 1] ask keith about parens
    public static ConceptSpecification ACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is active (query clause)", "active ",
          UUID.fromString("45df0b38-67ec-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is inactive (query clause)", "inactive",
