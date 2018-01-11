@@ -320,11 +320,8 @@ public class ImportExportTest {
                       int conceptSequence) -> {
                  taxonomyCount.incrementAndGet();
               }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
-      //Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-      System.out.println("Broken tree! counted " + taxonomyCount.get() + " but imported " + this.importStats.concepts.get());
+      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
       logTree(roots[0], taxonomyTree);
-      
-      //TODO [DAN 1] fix what ever I broke here
    }
 
    /**
@@ -352,7 +349,6 @@ public class ImportExportTest {
                      SemanticChronology sc = (SemanticChronology) object;
                      if (sc.getReferencedComponentNid() == chroniclePropertiesNid || sc.getReferencedComponentNid() == descriptionAssemblageNid) {
                         if (sc.getAssemblageNid() == statedAssemblageNid) {
-                           System.out.println(sc.toString());
                            LOG.info("Found watch def: " + sc);
                         }
                         
