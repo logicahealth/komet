@@ -79,6 +79,8 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Int3_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
+import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
+import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
@@ -500,6 +502,43 @@ public class TreeTableGeneralCell
                 buff.append(brittleVersion.getStr6());
                 buff.append(" ");
                 buff.append(brittleVersion.getStr7());
+                buff.append(" ");
+
+                Text defaultText = new Text(buff.toString());
+                addTextToCell(assemblageNameText, defaultText, referencedComponentText);
+            }
+            break;
+            
+            case Str1_Nid2_Nid3_Nid4:{
+                Str1_Nid2_Nid3_Nid4_Version brittleVersion = version.unwrap();
+
+                StringBuilder buff = new StringBuilder();
+                buff.append(brittleVersion.getStr1());
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid2()));
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid3()));
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
+                buff.append(" ");
+
+                Text defaultText = new Text(buff.toString());
+                addTextToCell(assemblageNameText, defaultText, referencedComponentText);
+            }
+            break;
+            case Str1_Str2_Nid3_Nid4_Nid5:{
+                Str1_Str2_Nid3_Nid4_Nid5_Version brittleVersion = version.unwrap();
+
+                StringBuilder buff = new StringBuilder();
+                buff.append(brittleVersion.getStr1());
+                buff.append(" ");
+                buff.append(brittleVersion.getStr2());
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid3()));
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
+                buff.append(" ");
+                buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid5()));
                 buff.append(" ");
 
                 Text defaultText = new Text(buff.toString());

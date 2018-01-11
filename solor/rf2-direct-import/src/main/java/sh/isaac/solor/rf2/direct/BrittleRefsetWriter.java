@@ -46,6 +46,8 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
@@ -104,22 +106,22 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
       refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
       refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
-      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
       
 //
       //
@@ -228,8 +230,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                   addVersionINT1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
                   break;
 
-                  default:
-                     throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
+               case STR1_NID2_NID3_NID4_REFSET:
+                  addVersionSTR1_NID2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                  break;
+                   
+               case STR1_STR2_NID3_NID4_NID5_REFSET:
+                  addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                  break;
+                   
+               default:
+                  throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                
             }
 
@@ -343,6 +353,23 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       LongVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
       brittleVersion.setLongValue(Long.parseLong(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
+
+    private void addVersionSTR1_NID2_NID3_NID4_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
+      Str1_Nid2_Nid3_Nid4_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
+    }
+
+    private void addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
+      Str1_Str2_Nid3_Nid4_Nid5_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
+      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5].trim()));
+    }
 
    
 }

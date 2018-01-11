@@ -174,16 +174,17 @@ public class Rf2DirectImporter
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
         StringBuilder importPrefixRegex = new StringBuilder();
-        importPrefixRegex.append("(([^/]*/)*)"); //ignore parent directories
+        importPrefixRegex.append("([a-z/0-9_]*)?(rf2release/)?"); //ignore parent directories
         switch (importType){
             case FULL:
-                importPrefixRegex.append("(full/|rf2release/full/)"); //prefixes to match
+                importPrefixRegex.append("(full/)"); //prefixes to match
                 break;
             case SNAPSHOT:
-                importPrefixRegex.append("(snapshot/|rf2release/snapshot/)"); //prefixes to match
+            case ACTIVE_ONLY:
+                importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
         }
-        importPrefixRegex.append(".*"); //allow all match child directories
+        importPrefixRegex.append("[a-z/0-9_\\.]*"); //allow all match child directories
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -297,6 +298,20 @@ public class Rf2DirectImporter
                                                 zipFilePath.toFile(),
                                                 ImportStreamType.INT1_REFSET,
                                                 entry));
+                            }  else if (entryName.contains("_scccrefset")) {
+                                entriesToImport.add(
+                                        new ImportSpecification(
+                                                zipFilePath.toFile(),
+                                                ImportStreamType.STR1_NID2_NID3_NID4_REFSET,
+                                                entry));
+                            }  else if (entryName.contains("_sscccrefset")) {
+                                entriesToImport.add(
+                                        new ImportSpecification(
+                                                zipFilePath.toFile(),
+                                                ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET,
+                                                entry));
+                            } else {
+                                LOG.info("Ignoring: " + entry.getName());
                             }
                         }
                     }
@@ -394,6 +409,13 @@ public class Rf2DirectImporter
                         case STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET:
                             readSTR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET(br, importSpecification);
                             break;
+                        case STR1_NID2_NID3_NID4_REFSET:
+                            readSTR1_NID2_NID3_NID4_REFSET(br, importSpecification);
+                            break;
+                        case STR1_STR2_NID3_NID4_NID5_REFSET:
+                            readSTR1_STR2_NID3_NID4_NID5_REFSET(br, importSpecification);
+                            break;
+                                
 
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
@@ -1072,6 +1094,95 @@ public class Rf2DirectImporter
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
+    private void readSTR1_NID2_NID3_NID4_REFSET(BufferedReader br, 
+            ImportSpecification importSpecification) throws IOException  {
+        AssemblageService assemblageService = Get.assemblageService();
+        final int writeSize = 102400;
+        ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
+        String rowString;
+
+        br.readLine();  // discard header row
+        boolean empty = true;
+        while ((rowString = br.readLine()) != null) {
+            empty = false;
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+
+            columnsToWrite.add(columns);
+
+            if (columnsToWrite.size() == writeSize) {
+                BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
+                        "Processing sccc semantics from: " + trimZipName(
+                                importSpecification.zipEntry.getName()),
+                        importSpecification, importType);
+                columnsToWrite = new ArrayList<>(writeSize);
+                Get.executor()
+                        .submit(writer);
+            }
+        }
+
+        if (empty) {
+            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+        }
+        if (!columnsToWrite.isEmpty()) {
+            BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
+                    "Processing sccc semantics from: " + trimZipName(
+                            importSpecification.zipEntry.getName()),
+                    importSpecification, importType);
+            Get.executor()
+                    .submit(writer);
+        }
+
+        updateMessage("Waiting for refset file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing semantic database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void readSTR1_STR2_NID3_NID4_NID5_REFSET(BufferedReader br, 
+            ImportSpecification importSpecification) throws IOException {
+        AssemblageService assemblageService = Get.assemblageService();
+        final int writeSize = 102400;
+        ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
+        String rowString;
+
+        br.readLine();  // discard header row
+        boolean empty = true;
+        while ((rowString = br.readLine()) != null) {
+            empty = false;
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+
+            columnsToWrite.add(columns);
+
+            if (columnsToWrite.size() == writeSize) {
+                BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
+                        "Processing ssccc semantics from: " + trimZipName(
+                                importSpecification.zipEntry.getName()),
+                        importSpecification, importType);
+                columnsToWrite = new ArrayList<>(writeSize);
+                Get.executor()
+                        .submit(writer);
+            }
+        }
+
+        if (empty) {
+            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+        }
+        if (!columnsToWrite.isEmpty()) {
+            BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
+                    "Processing ssccc semantics from: " + trimZipName(
+                            importSpecification.zipEntry.getName()),
+                    importSpecification, importType);
+            Get.executor()
+                    .submit(writer);
+        }
+
+        updateMessage("Waiting for refset file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing semantic database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
     private void readAlternativeIdentifiers(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
@@ -1357,4 +1468,5 @@ public class Rf2DirectImporter
         isoInstantBuilder.append("T00:00:00Z");
         return isoInstantBuilder.toString();
     }
+
 }

@@ -76,6 +76,8 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
@@ -236,6 +238,12 @@ public class SemanticChronologyImpl
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(container, stampSequence, bb);
 
+      case Str1_Nid2_Nid3_Nid4:
+         return new Str1_Nid2_Nid3_Nid4_VersionImpl(container, stampSequence, bb);
+
+      case Str1_Str2_Nid3_Nid4_Nid5:
+         return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(container, stampSequence, bb);
+          
       case LOINC_RECORD:
          return new LoincVersionImpl(container, stampSequence, bb);
 
@@ -420,6 +428,12 @@ public class SemanticChronologyImpl
 
       case LOINC_RECORD:
          return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
+         
+      case Str1_Nid2_Nid3_Nid4:
+          return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);
+          
+      case Str1_Str2_Nid3_Nid4_Nid5:
+          return (M) new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl((SemanticChronology) this, stampSequence);
 
       default:
          throw new UnsupportedOperationException("af Can't handle: " + getVersionType());

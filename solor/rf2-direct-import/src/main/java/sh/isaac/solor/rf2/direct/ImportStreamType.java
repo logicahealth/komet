@@ -70,6 +70,8 @@ public enum ImportStreamType {
    NID1_NID2_STR3_REFSET,
    NID1_STR2_REFSET,
    INT1_REFSET,
+   STR1_NID2_NID3_NID4_REFSET,
+   STR1_STR2_NID3_NID4_NID5_REFSET
    ;
 
    public VersionType getSemanticVersionType() {
@@ -115,8 +117,15 @@ public enum ImportStreamType {
 
       case INT1_REFSET:
          return VersionType.LONG;
+         
+      case STR1_NID2_NID3_NID4_REFSET:
+          return VersionType.Str1_Nid2_Nid3_Nid4;
+          
+      case STR1_STR2_NID3_NID4_NID5_REFSET:
+          return VersionType.Str1_Str2_Nid3_Nid4_Nid5;
       }
 
+      
       throw new UnsupportedOperationException("No version type for: " + this);
    }
 }
