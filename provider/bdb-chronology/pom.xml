@@ -54,40 +54,16 @@
          <artifactId>identifier</artifactId>
          <version>${project.parent.version}</version>
          <scope>test</scope>
-      </dependency><!--
--->      <dependency>
+      </dependency>
+         <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>progress</artifactId>
          <version>${project.parent.version}</version>
          <scope>test</scope>
-      </dependency><!--
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>coordinate</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>path</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>logic</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>test</scope>
-      </dependency>
--->      <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>query</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>log-config</artifactId>
          <version>${project.parent.version}</version>
          <scope>test</scope>
       </dependency>
