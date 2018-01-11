@@ -302,12 +302,12 @@ public class ConceptChronologyImpl
    }
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * {@inheritDoc}
+    * Note, that despite the doc for this method, this may return a preferred term, if no FQN is found, or a description 
+    * that specifies "unknown..." if nothing at all is found.
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return Get.conceptDescriptionText(getNid());
    }
 
@@ -442,9 +442,9 @@ public class ConceptChronologyImpl
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.ofNullable(Get.defaultCoordinate()
-                                    .getPreferredDescriptionText(this.getNid()));
+   public Optional<String> getRegularName() {
+      return Get.defaultCoordinate()
+                                    .getRegularName(this.getNid());
    }
 
    /**

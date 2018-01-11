@@ -137,13 +137,13 @@ public abstract class Clause implements ConceptSpecification {
    public abstract ConceptSpecification getClauseConcept();
 
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return getClauseConcept().getFullySpecifiedConceptDescriptionText();
+   public String getFullyQualifiedName() {
+      return getClauseConcept().getFullyQualifiedName();
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return getClauseConcept().getPreferedConceptDescriptionText();
+   public Optional<String> getRegularName() {
+      return getClauseConcept().getRegularName();
    }
 
    @Override

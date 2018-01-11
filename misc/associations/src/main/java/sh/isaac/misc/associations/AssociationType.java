@@ -206,7 +206,7 @@ public class AssociationType
          DynamicUsageDescription rdud = Frills.createNewDynamicSemanticUsageDescriptionConcept(
                associationName, associationName, StringUtils.isBlank(description) ? "Defines the association type " + associationInverseName : description, 
                new DynamicColumnInfo[] {
-                  new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(), 
+                  new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), 
                         DynamicDataType.UUID, null, false, true)}, 
                DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid(), referencedComponentRestriction, referencedComponentSubRestriction,
                editCoord);

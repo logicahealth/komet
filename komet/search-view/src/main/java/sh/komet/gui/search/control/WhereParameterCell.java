@@ -128,13 +128,13 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
         }else{
             if(queryClauseParameter.getParameter().containsKey(ParamterTypes.ASSEMBLAGE))
                 assemblageLabel = new Label(queryClauseParameter
-                        .getParameter().get(ParamterTypes.ASSEMBLAGE).getFullySpecifiedConceptDescriptionText());
+                        .getParameter().get(ParamterTypes.ASSEMBLAGE).getFullyQualifiedName());
             else
                 assemblageLabel = new Label();
 
             if(queryClauseParameter.getParameter().containsKey(ParamterTypes.CONCEPT))
                 conceptLabel = new Label(queryClauseParameter.getParameter()
-                        .get(ParamterTypes.CONCEPT).getFullySpecifiedConceptDescriptionText());
+                        .get(ParamterTypes.CONCEPT).getFullyQualifiedName());
             else
                 conceptLabel = new Label();
         }
@@ -159,7 +159,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
         this.controlForListener.setOnDragDropped(event -> {
             HashMap<ParamterTypes, ConceptChronology> hashMap;
             ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
-            conceptLabel.setText(droppedChronology.getFullySpecifiedConceptDescriptionText());
+            conceptLabel.setText(droppedChronology.getFullyQualifiedName());
 
             if(queryClauseParameter.isEmpty())
                 hashMap = new HashMap<>();
@@ -171,7 +171,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
         this.additionalControlForListener.setOnDragDropped(event -> {
             HashMap<ParamterTypes, ConceptChronology> hashMap;
             ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
-            assemblageLabel.setText(droppedChronology.getFullySpecifiedConceptDescriptionText());
+            assemblageLabel.setText(droppedChronology.getFullyQualifiedName());
 
             if(queryClauseParameter.isEmpty())
                 hashMap = new HashMap<>();
@@ -197,7 +197,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
         }else{
             if(queryClauseParameter.getParameter().containsKey(ParamterTypes.ASSEMBLAGE))
                 assemblageLabel = new Label(((ConceptChronology)queryClauseParameter
-                        .getParameter().get(ParamterTypes.ASSEMBLAGE)).getFullySpecifiedConceptDescriptionText());
+                        .getParameter().get(ParamterTypes.ASSEMBLAGE)).getFullyQualifiedName());
             else
                 assemblageLabel = new Label();
 
@@ -222,7 +222,7 @@ public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
         this.controlForListener.setOnDragDropped(event -> {
             HashMap<ParamterTypes, Object> hashMap;
             ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
-            assemblageLabel.setText(droppedChronology.getFullySpecifiedConceptDescriptionText());
+            assemblageLabel.setText(droppedChronology.getFullyQualifiedName());
 
             if(queryClauseParameter.isEmpty())
                 hashMap = new HashMap<>();

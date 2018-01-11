@@ -163,13 +163,11 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * {@inheritDoc}
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return getDescription().getText();
+   public String getFullyQualifiedName() {
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(getNid(), getStampCoordinate());
    }
 
    /**
@@ -183,9 +181,7 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the description.
-    *
-    * @return the description
+    * {@inheritDoc}
     */
    @Override
    public DescriptionVersion getDescription() {
@@ -326,8 +322,8 @@ public class ConceptSnapshotImpl
    
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getNid()));
+   public Optional<String> getRegularName() {
+     return getLanguageCoordinate().getRegularName(getNid(), getStampCoordinate());
    }
 
    @Override

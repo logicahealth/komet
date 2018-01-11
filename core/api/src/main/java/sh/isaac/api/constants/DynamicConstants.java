@@ -293,12 +293,12 @@ public class DynamicConstants implements ModuleProvidedConstants {
          "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a "
                + " semantic to a particular Component Type (Concept, Description, etc).  The attached data column specifies the allowed Component Type",
          new DynamicColumnInfo[] {
-               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(), DynamicDataType.STRING, null, true,
+               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE.getPrimordialUuid(), DynamicDataType.STRING, null, true,
                      new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
                      new DynamicString[] { LookupService.getService(DynamicUtility.class)
                            .createDynamicStringData(ObjectChronologyType.CONCEPT.name() + "|" + ObjectChronologyType.SEMANTIC.name()) },
                      false),
-               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(), DynamicDataType.STRING, null, false,
+               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getPrimordialUuid(), DynamicDataType.STRING, null, false,
                      new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
                      new DynamicString[] { LookupService.getService(DynamicUtility.class)
                            .createDynamicStringData(VersionType.COMPONENT_NID.name() + "|" + VersionType.DESCRIPTION.name() + "|" + VersionType.DYNAMIC.name() + "|"
@@ -329,19 +329,19 @@ public class DynamicConstants implements ModuleProvidedConstants {
    public final MetadataDynamicConstant DYNAMIC_EXTENSION_DEFINITION = new MetadataDynamicConstant("Dynamic extension definition",
          UUID.fromString("406e872b-2e19-5f5e-a71d-e4e4b2c68fe5"),
          "This concept is used as an assemblage for defining new extensions.  " + "The attached data columns describe what columns are required to define a new Sememe.",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_ORDER.getUUID(), DynamicDataType.INTEGER, null, true, true),
-               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_NAME.getUUID(), DynamicDataType.UUID, null, true, true),
-               new DynamicColumnInfo(2, this.DYNAMIC_COLUMN_TYPE.getUUID(), DynamicDataType.STRING, null, true, true),
-               new DynamicColumnInfo(3, this.DYNAMIC_COLUMN_DEFAULT_VALUE.getUUID(), DynamicDataType.POLYMORPHIC, null, false, true),
-               new DynamicColumnInfo(4, this.DYNAMIC_COLUMN_REQUIRED.getUUID(), DynamicDataType.BOOLEAN, null, false, true),
-               new DynamicColumnInfo(5, this.DYNAMIC_COLUMN_VALIDATOR.getUUID(), DynamicDataType.ARRAY, null, false, DynamicValidatorType.REGEXP,
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_ORDER.getPrimordialUuid(), DynamicDataType.INTEGER, null, true, true),
+               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.UUID, null, true, true),
+               new DynamicColumnInfo(2, this.DYNAMIC_COLUMN_TYPE.getPrimordialUuid(), DynamicDataType.STRING, null, true, true),
+               new DynamicColumnInfo(3, this.DYNAMIC_COLUMN_DEFAULT_VALUE.getPrimordialUuid(), DynamicDataType.POLYMORPHIC, null, false, true),
+               new DynamicColumnInfo(4, this.DYNAMIC_COLUMN_REQUIRED.getPrimordialUuid(), DynamicDataType.BOOLEAN, null, false, true),
+               new DynamicColumnInfo(5, this.DYNAMIC_COLUMN_VALIDATOR.getPrimordialUuid(), DynamicDataType.ARRAY, null, false, DynamicValidatorType.REGEXP,
                      LookupService.getService(DynamicUtility.class)
                            .createDynamicStringData(DynamicValidatorType.COMPONENT_TYPE.name() + "|" + DynamicValidatorType.EXTERNAL.name() + "|"
                                  + DynamicValidatorType.GREATER_THAN.name() + "|" + DynamicValidatorType.GREATER_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.INTERVAL.name()
                                  + "|" + DynamicValidatorType.IS_CHILD_OF.name() + "|" + DynamicValidatorType.IS_KIND_OF.name() + "|" + DynamicValidatorType.LESS_THAN.name() + "|"
                                  + DynamicValidatorType.LESS_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.REGEXP.name()),
                      true),
-               new DynamicColumnInfo(6, this.DYNAMIC_COLUMN_VALIDATOR_DATA.getUUID(), DynamicDataType.ARRAY, null, false, true) },
+               new DynamicColumnInfo(6, this.DYNAMIC_COLUMN_VALIDATOR_DATA.getPrimordialUuid(), DynamicDataType.ARRAY, null, false, true) },
          null) {
    };
 
@@ -363,14 +363,14 @@ public class DynamicConstants implements ModuleProvidedConstants {
          UUID.fromString("a5d187a7-3d95-5694-b2eb-a48d94cb0698"),
          "A Dynamic which contains the indexer configuration for dynamic fields within ISAAC.  "
                + "The referenced component ID will be the assemblage being configured for indexing.",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_COLUMNS_TO_INDEX.getUUID(), DynamicDataType.ARRAY, null, false, false) }, null) {
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_COLUMNS_TO_INDEX.getPrimordialUuid(), DynamicDataType.ARRAY, null, false, false) }, null) {
    };
 
    /** The dynamic comment attribute. */
    public final MetadataDynamicConstant DYNAMIC_COMMENT_ATTRIBUTE = new MetadataDynamicConstant("Comment", UUID.fromString("147832d4-b9b8-5062-8891-19f9c4e4760a"),
          "A component to store comments on arbitrary items (concepts, relationships, sememes, etc)",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_EDITOR_COMMENT.getUUID(), DynamicDataType.STRING, null, true, true),
-               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_EDITOR_COMMENT_CONTEXT.getUUID(), DynamicDataType.STRING, null, false, true) }) {
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_EDITOR_COMMENT.getPrimordialUuid(), DynamicDataType.STRING, null, true, true),
+               new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_EDITOR_COMMENT_CONTEXT.getPrimordialUuid(), DynamicDataType.STRING, null, false, true) }) {
    }; // Index the comments, and the columns
 
    /**
@@ -393,7 +393,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
    // TODO [DAN 3] this should really be merged with TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY - or take the place of it.
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_DESCRIPTION_TYPE = new MetadataDynamicConstant("Extended description type",
          UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"), "Used to store non-snomed description types when other terminologies are imported",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getUUID(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
                LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()), true) }) {
    };
 
@@ -402,7 +402,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
          UUID.fromString("d41d928f-8a97-55c1-aa6c-a289b413fbfd"),
          "Used to store non-snomed relationship types when other terminologies are imported - especially when a relationship is mapped onto a "
                + "snomed relationship type (such as isa)",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getUUID(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
                LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()), true) }) {
    };
 
@@ -411,7 +411,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
    // TODO [DAN 3] rewrite this with multiple columns, to store whatever interesting data is passed over the json from prisme that we choose to store.
    public final MetadataDynamicConstant DYNAMIC_PRISME_USER_ID = new MetadataDynamicConstant("PRISME user ID", UUID.fromString("00e6cca4-3c5b-5f2e-b2d8-2c4a6f8f6b46"),
          "Used to store a PRISME user ID on a user/author concept",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getUUID(), DynamicDataType.STRING, null, true, true) }) {
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true, true) }) {
    };
 
    // An organizational concept which serves as a parent concept for dynamic fields defined in the system

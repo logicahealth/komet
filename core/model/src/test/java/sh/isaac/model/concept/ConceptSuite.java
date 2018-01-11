@@ -184,7 +184,7 @@ public class ConceptSuite {
     * @return the concept chronology
     */
    private ConceptChronology createConcept(ConceptSpecification spec, long time) {
-      return createConcept(spec.getFullySpecifiedConceptDescriptionText(), spec.getUuids()[0]
+      return createConcept(spec.getFullyQualifiedName(), spec.getUuids()[0]
             .toString(), time);
    }
 

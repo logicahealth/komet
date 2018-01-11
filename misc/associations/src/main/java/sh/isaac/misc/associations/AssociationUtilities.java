@@ -217,7 +217,7 @@ public class AssociationUtilities
 
       for (DynamicColumnInfo rdci : rdud.getColumnInfo())
       {
-         if (rdci.getColumnDescriptionConcept().equals(DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID()))
+         if (rdci.getColumnDescriptionConcept().equals(DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid()))
          {
             return rdci.getColumnOrder();
          }

@@ -120,9 +120,9 @@ public class Property {
     * @param cs the cs
     */
    public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
-      this(owner, cs.getFullySpecifiedConceptDescriptionText(), null, null, false, false, Integer.MAX_VALUE, null);
+      this(owner, cs.getFullyQualifiedName(), null, null, false, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
-      ConverterUUID.addMapping(cs.getFullySpecifiedConceptDescriptionText(), cs.getPrimordialUuid());
+      ConverterUUID.addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
       this.isIdentifier = isIdentifier;
       if (this.isIdentifier)
@@ -245,7 +245,7 @@ public class Property {
          // Create a single required column, with the column name just set to 'value'
          this.dataColumnsForDynamicRefex = new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                0,
-               DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+               DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
                this.owner.getDefaultColumnInfo(),
                null,
                true,

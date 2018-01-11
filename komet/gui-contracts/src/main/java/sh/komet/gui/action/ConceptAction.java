@@ -41,11 +41,11 @@ public class ConceptAction extends Action {
 
    private void setupProxy(ConceptSpecification actionConcept) {
       this.actionConcept = actionConcept;
-      Optional<String> optionalDescription = actionConcept.getPreferedConceptDescriptionText();
+      Optional<String> optionalDescription = actionConcept.getRegularName();
       if (optionalDescription.isPresent()) {
          this.setText(optionalDescription.get());
       } else {
-         this.setText(actionConcept.getFullySpecifiedConceptDescriptionText());
+         this.setText(actionConcept.getFullyQualifiedName());
       }
    }
 

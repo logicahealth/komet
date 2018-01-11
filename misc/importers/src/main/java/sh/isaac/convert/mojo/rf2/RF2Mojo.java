@@ -173,7 +173,7 @@ public class RF2Mojo extends ConverterBaseMojo
          
 
          ConsoleUtil.println("input moduleUUID: " + (moduleUUID == null ? "NULL!?!" : moduleUUID.getPrimordialUuid() 
-               + " [" + moduleUUID.getFullySpecifiedConceptDescriptionText() + "]"));
+               + " [" + moduleUUID.getFullyQualifiedName() + "]"));
          
          inputType = InputType.parse(converterOutputArtifactClassifier);
 
@@ -980,7 +980,7 @@ public class RF2Mojo extends ConverterBaseMojo
          throw new MojoExecutionException("The module UUID must be provided.");
       }
       
-      String modulePrefix = moduleUUID.getPreferedConceptDescriptionText().get();
+      String modulePrefix = moduleUUID.getRegularName().get();
 
       //There is a design issue with the way Prisme builds the config file - in that the description field doesn't get populated.
       //But if the UUID is for a constant we know about, we need to go get the proper designation for the logic below to work properly.
@@ -991,12 +991,12 @@ public class RF2Mojo extends ConverterBaseMojo
       }
       if (StringUtils.isBlank(modulePrefix))
       {
-         modulePrefix = cs.getPreferedConceptDescriptionText().get();
+         modulePrefix = cs.getRegularName().get();
       }
-      else if (!modulePrefix.equals(cs.getPreferedConceptDescriptionText().get()))
+      else if (!modulePrefix.equals(cs.getRegularName().get()))
       {
          throw new RuntimeException("The specified module description of '" + modulePrefix + "' does not equal the constant of '" 
-               + cs.getPreferedConceptDescriptionText().get() + "'.  This should be resolved.");
+               + cs.getRegularName().get() + "'.  This should be resolved.");
       }
 
       

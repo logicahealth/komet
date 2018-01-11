@@ -239,7 +239,7 @@ public class CompositeSearchResult {
 
       if (this.containingConcept != null) {
          try {
-            containingConceptDesc = this.containingConcept.getFullySpecifiedConceptDescriptionText();
+            containingConceptDesc = this.containingConcept.getFullyQualifiedName();
          } catch (final Exception e) {
             containingConceptDesc = "{nid=" + this.containingConcept.getNid() + "}";
          }

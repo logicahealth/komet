@@ -42,14 +42,10 @@ package sh.isaac.api.constants;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.Get;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,7 +54,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * The Class MetadataConceptConstant.
  */
 public abstract class MetadataConceptConstant
-         implements ConceptSpecification {
+         extends ConceptProxy {
    /** The synonyms. */
    private final List<String> synonyms = new ArrayList<>();
 
@@ -69,12 +65,6 @@ public abstract class MetadataConceptConstant
    private ConceptSpecification parent =
       null;  // Optional use - most constants have their parent set by the IsaacMetadataAuxiliary parent/child mechanism
 
-   /** The primary name. */
-   private final String primaryName;
-
-   /** The uuid. */
-   private final UUID uuid;
-
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -84,8 +74,7 @@ public abstract class MetadataConceptConstant
     * @param uuid the uuid
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid) {
-      this.primaryName = primaryName;
-      this.uuid        = uuid;
+      super(primaryName, uuid);
    }
 
    /**
@@ -96,8 +85,7 @@ public abstract class MetadataConceptConstant
     * @param definition the definition
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition) {
-      this.primaryName = primaryName;
-      this.uuid        = uuid;
+   	super(primaryName, uuid);
       addDefinition(definition);
    }
 
@@ -110,8 +98,7 @@ public abstract class MetadataConceptConstant
     * @param parent the parent
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition, ConceptSpecification parent) {
-      this.primaryName = primaryName;
-      this.uuid        = uuid;
+   	super(primaryName, uuid);
       addDefinition(definition);
       setParent(parent);
    }
@@ -139,33 +126,12 @@ public abstract class MetadataConceptConstant
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * This method is identical to {@link #getPrimaryName()}.
-    *
-    * @return the concept description text
-    * @see sh.isaac.api.component.concept.ConceptSpecification#getFullySpecifiedConceptDescriptionText()
-    */
-   @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return this.primaryName;
-   }
-
-   /**
     * Gets the definitions.
     *
     * @return The descriptions for this concept (if any). Will not return null.
     */
    public List<String> getDefinitions() {
       return this.definitions;
-   }
-
-   /**
-    * Gets the nid.
-    *
-    * @return The nid for the concept.
-    */
-   @Override
-   public int getNid() {
-      return Get.identifierService().getNidForUuids(getUUID());
    }
 
    /**
@@ -176,39 +142,7 @@ public abstract class MetadataConceptConstant
    public ConceptSpecification getParent() {
       return this.parent;
    }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the parent.
-    *
-    * @param parent the new parent
-    */
-   protected void setParent(ConceptSpecification parent) {
-      this.parent = parent;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the primary name.
-    *
-    * @return The name for this concept, used to construct the FQN and preferred term.
-    * This method is identical to {@link #getFullySpecifiedConceptDescriptionText()}
-    */
-   public String getPrimaryName() {
-      return this.primaryName;
-   }
-
-   /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
-    */
-   @Override
-   public UUID getPrimordialUuid() {
-      return getUUID();
-   }
+   
 
    /**
     * Gets the synonyms.
@@ -220,28 +154,15 @@ public abstract class MetadataConceptConstant
       return this.synonyms;
    }
 
-   /**
-    * Gets the uuid.
-    *
-    * @return The UUID for the concept
-    */
-   public UUID getUUID() {
-      return this.uuid;
-   }
+   //~--- set methods ---------------------------------------------------------
 
    /**
-    * Gets the uuid list.
+    * Sets the parent.
     *
-    * @return the uuid list
+    * @param parent the new parent
     */
-   @Override
-   public List<UUID> getUuidList() {
-      return Arrays.asList(new UUID[] { this.uuid });
-   }
-
-   @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.empty();
+   protected void setParent(ConceptSpecification parent) {
+      this.parent = parent;
    }
 }
 

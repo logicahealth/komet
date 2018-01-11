@@ -98,10 +98,10 @@ public class CompositeSearchResultComparator
       // sort on text
       final int textComparison = ObjectUtils.compare(o1.getContainingConcept()
                                                        .get()
-                                                       .getFullySpecifiedConceptDescriptionText(),
+                                                       .getFullyQualifiedName(),
                                                      o2.getContainingConcept()
                                                            .get()
-                                                           .getFullySpecifiedConceptDescriptionText());
+                                                           .getFullyQualifiedName());
 
       if (textComparison != 0) {
          return textComparison;

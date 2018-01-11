@@ -251,12 +251,12 @@ public enum ObservableFields
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * Actually calls {@link #getDescription()}
+    * 
+    * {@inheritDoc}
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return getDescription();
    }
 
@@ -289,7 +289,7 @@ public enum ObservableFields
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
+   public Optional<String> getRegularName() {
       return Optional.empty();
    }
 

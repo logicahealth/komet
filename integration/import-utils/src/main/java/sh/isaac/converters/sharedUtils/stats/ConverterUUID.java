@@ -45,7 +45,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -327,7 +326,7 @@ public class ConverterUUID {
       if (found == null) {
          for (final ConceptSpecification cs: CONSTANTS) {
             if (uuid.equals(cs.getPrimordialUuid())) {
-               return cs.getFullySpecifiedConceptDescriptionText();
+               return cs.getFullyQualifiedName();
             }
          }
       }

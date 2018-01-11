@@ -42,6 +42,7 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -128,7 +129,10 @@ public interface ManifoldCoordinate
    /**
     * Get the preferred description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
-    * @return preferred description text. 
+    * @return preferred description text.
+    * 
+    *  Note that this method gives no indication when the preferred text isn't available, instead returning 
+    *  and "unknown..." type of string.  See {@link #getRegularName(int)} for a method without this behavior.
     */
    default String getPreferredDescriptionText(int conceptId) {
       return getLanguageCoordinate().getPreferredDescriptionText(conceptId, 
@@ -136,12 +140,37 @@ public interface ManifoldCoordinate
    }
    
    /**
+    * Get the regularName text associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description text. 
+    */
+   default Optional<String> getRegularName(int conceptId) {
+      return getLanguageCoordinate().getRegularName(conceptId, 
+              getStampCoordinate());
+   }
+   
+   /**
     * Get the preferred description text associated with the {@code ConceptSpecification}.
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
     * @return preferred description text. 
+    * 
+    * Note that this method does not give any indication of text being unavailable, rather, 
+    * returning an arbitrary "unknown" string when there is no text avaiable on the coordinate.
+    * 
+    * See {@link #getRegularName(ConceptSpecification)} for a method without this behavior.
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
       return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
+              getStampCoordinate());
+   }
+   
+   /**
+    * Get the regular name (Preferred description ) text associated with the {@code ConceptSpecification}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description text. 
+    */
+   default Optional<String> getRegularName(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getRegularName(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    

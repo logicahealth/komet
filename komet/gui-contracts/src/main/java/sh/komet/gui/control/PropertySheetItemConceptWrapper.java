@@ -31,12 +31,12 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
    }
 
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptNidProperty.get());
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
+   public Optional<String> getRegularName() {
       return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptNidProperty.get()));
    }
 

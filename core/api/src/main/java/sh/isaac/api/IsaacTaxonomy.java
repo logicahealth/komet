@@ -86,6 +86,7 @@ import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
+import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -194,13 +195,13 @@ public class IsaacTaxonomy {
    public final ConceptBuilder createConcept(MetadataConceptConstant cc, boolean isIdentifier)
            throws Exception {
       try {
-         final ConceptBuilder cb = createConcept(cc.getPrimaryName(),
+         final ConceptBuilder cb = createConcept(cc.getFullyQualifiedName(),
                  (cc.getParent() != null) ? cc.getParent()
                  .getNid()
                  : null,
-                 null);
+                 cc.getRegularName().orElse(null));
 
-         cb.setPrimordialUuid(cc.getUUID());
+         cb.setPrimordialUuid(cc.getPrimordialUuid());
 
          cc.getDefinitions().forEach((definition) -> {
             addDescription(definition, cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
@@ -286,7 +287,7 @@ public class IsaacTaxonomy {
 
          return cb;
       } catch (final Exception e) {
-         throw new Exception("Problem with '" + cc.getPrimaryName() + "'", e);
+         throw new Exception("Problem with '" + cc.getFullyQualifiedName() + "'", e);
       }
    }
 
@@ -357,7 +358,7 @@ public class IsaacTaxonomy {
       out.append("\n\tpublic static final String AUXILIARY_METADATA_VERSION = \"" + auxiliaryMetadataVersion + "\";\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String fqn = concept.getFullySpecifiedConceptDescriptionText();
+         final String fqn = concept.getFullyQualifiedName();
          String constantName = fqn.toUpperCase();
 
          constantName = constantName.replace(".", "");
@@ -375,7 +376,7 @@ public class IsaacTaxonomy {
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()
                  + "\">\n    * " + concept.getPrimordialUuid() + "</a>}.*/");
          out.append("\n   public static ConceptSpecification " + constantName + " =");
-         out.append("\n             new ConceptProxy(\"" + fqn + "\", \"" + concept.getPreferedConceptDescriptionText().get() + "\"");
+         out.append("\n             new ConceptProxy(\"" + fqn + "\", \"" + concept.getRegularName().orElse(null) + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
             out.append(", java.util.UUID.fromString(\"" + uuid.toString() + "\")");
@@ -405,7 +406,7 @@ public class IsaacTaxonomy {
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String preferredName = concept.getPreferedConceptDescriptionText().get();
+         final String preferredName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
          String constantName = preferredName.toUpperCase();
          
          if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
@@ -431,7 +432,7 @@ public class IsaacTaxonomy {
       {
           for (Entry<String, MetadataConceptConstant> mcc : additionalConstants.entrySet())
           {
-              String preferredName = mcc.getValue().getPrimaryName();
+              String preferredName = mcc.getValue().getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(mcc.getValue().getFullyQualifiedName()));
               String constantName = mcc.getKey();
 
               if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
@@ -473,10 +474,10 @@ public class IsaacTaxonomy {
     * @return the concept builder
     */
 	protected final ConceptBuilder createConcept(ConceptSpecification specification) {
-		final ConceptBuilder builder = createConcept(specification.getFullySpecifiedConceptDescriptionText());
+		final ConceptBuilder builder = createConcept(specification.getFullyQualifiedName());
 
 		if (specification.getPrimordialUuid().version() == 4) {
-			throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullySpecifiedConceptDescriptionText());
+			throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullyQualifiedName());
 		}
 
 		builder.setPrimordialUuid(specification.getUuidList().get(0));
@@ -485,12 +486,12 @@ public class IsaacTaxonomy {
 		}
 
 		if (specification instanceof ConceptProxy) {
-			Optional<String> preferredDescription = ((ConceptProxy) specification).getPreferedConceptDescriptionTextNoLookup();
+			Optional<String> preferredDescription = ((ConceptProxy) specification).getRegularNameNoLookup();
 			if (preferredDescription.isPresent()) {
 				builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
 			}
 		} else {
-			Optional<String> preferredDescription = specification.getPreferedConceptDescriptionText();
+			Optional<String> preferredDescription = specification.getRegularName();
 			if (preferredDescription.isPresent()) {
 				builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
 			}
@@ -706,7 +707,7 @@ public class IsaacTaxonomy {
     */
    private void ensureStableUUID(ConceptBuilder builder) {
        if (!builder.isPrimordialUuidSet()) {
-           builder.setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, builder.getFullySpecifiedConceptDescriptionText()));
+           builder.setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, builder.getFullyQualifiedName()));
        }
 
        for (DescriptionBuilder<?, ?> db : builder.getDescriptionBuilders()) {

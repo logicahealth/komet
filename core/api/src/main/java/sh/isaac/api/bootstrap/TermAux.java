@@ -84,12 +84,10 @@ public class TermAux {
    /** ConceptProxy for: "user". */
    public static ConceptSpecification USER = new ConceptProxy("User", UUID.fromString("f7495b58-6630-3499-a44e-2052b5fcf06c"));
 
-   // TODO [DAN 1] From our discussion, it sounds like Keith wants to NOT specify the global semantic tag, if a FQN in a
-   // concept proxy already looks like it has a FQN.... which means some rule / logic changes to the builders.
    /** ConceptProxy for: "is a". */
-   public static ConceptSpecification IS_A = new ConceptProxy("Is a -relationship type-", UUID.fromString("46bccdc4-8fb6-11db-b606-0800200c9a66"));
+   public static ConceptSpecification IS_A = new ConceptProxy("Is a (relationship type)", UUID.fromString("46bccdc4-8fb6-11db-b606-0800200c9a66"));
    /** ConceptProxy for: "Child of". */
-   public static ConceptSpecification CHILD_OF = new ConceptProxy("Child of -internal use relationship type-", UUID.fromString("91947d30-7555-5400-bbe2-4415472cff1b"));
+   public static ConceptSpecification CHILD_OF = new ConceptProxy("Child of (internal use relationship type)", UUID.fromString("91947d30-7555-5400-bbe2-4415472cff1b"));
 
    /** ConceptProxy for: "IHTSDO classifier. */
    public static ConceptSpecification IHTSDO_CLASSIFIER = new ConceptProxy("IHTSDO Classifier", UUID.fromString("7e87cc5b-e85f-3860-99eb-7a44f2b9e6f9"));
@@ -292,62 +290,62 @@ public class TermAux {
    public static ConceptSpecification SOLOR_METADATA = new ConceptProxy("Metadata", UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
 
    // TODO [DAN 1] ask keith about parens
-   public static ConceptSpecification ACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is active -query clause-", "active ",
+   public static ConceptSpecification ACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is active (query clause)", "active ",
          UUID.fromString("45df0b38-67ec-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is inactive -query clause-", "inactive",
+   public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is inactive (query clause)", "inactive",
          UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component -query clause-", "and",
+   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and",
          UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("Not -query clause-", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not -query clause-", "and not",
+   public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("Not (query clause)", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not (query clause)", "and not",
          UUID.fromString("d9c1ec02-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component -query clause-", "or",
+   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component (query clause)", "or",
          UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("XOR -query clause-", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version -query clause-",
+   public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("XOR (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version (query clause)",
          "changed from previous version", UUID.fromString("d9c1f530-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("Concept is -query clause-", "concept is",
+   public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("Concept is (query clause)", "concept is",
          UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("Concept is kind of -query clause-", "kind of",
+   public static ConceptSpecification CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("Concept is kind of (query clause)", "kind of",
          UUID.fromString("d9c1f6d4-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Description Lucene match -query clause-", "Lucene match",
+   public static ConceptSpecification DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Description Lucene match (query clause)", "Lucene match",
          UUID.fromString("d9c1f7a6-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_LUCENE_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description Lucene match -query clause-",
+   public static ConceptSpecification DESCRIPTION_LUCENE_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description Lucene match (query clause)",
          "Lucene active descriptions match", UUID.fromString("e047b6ea-c00f-11e7-abc4-cec278b6b50a"));
-   public static ConceptSpecification PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Preferred name for concept -query clause-",
+   public static ConceptSpecification PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Preferred name for concept (query clause)",
          "preferred name for concept", UUID.fromString("d9c1f882-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular -query clause-", "relationship is circular",
+   public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular (query clause)", "relationship is circular",
          UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of -query clause-", "child of",
+   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of",
          UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match -query clause-", "regex match",
+   public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match",
          UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description regex match -query clause-",
+   public static ConceptSpecification DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE = new ConceptProxy("Active only description regex match (query clause)",
          "Regex active description match", UUID.fromString("48bafde1-02a4-5d74-b1e4-8909e7e5b5fc"));
-   public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component -query clause-", "concept for component",
+   public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component (query clause)", "concept for component",
          UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of -query clause-", "descendent of",
+   public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of (query clause)", "descendent of",
          UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully qualified name for concept -query clause-",
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully qualified name for concept (query clause)",
          "fully qualified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
 
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("Assemblage contains string -query clause-",
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("Assemblage contains string (query clause)",
          "assemblage contains string", UUID.fromString("d9c207c8-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains concept -query clause-",
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains concept (query clause)",
          "assemblage contains concept", UUID.fromString("d9c208a4-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains component -query clause-",
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains component (query clause)",
          "assemblage contains component", UUID.fromString("d9c20976-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Assemblage Lucene match -query clause-", "assemblage Lucene match",
+   public static ConceptSpecification ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Assemblage Lucene match (query clause)", "assemblage Lucene match",
          UUID.fromString("d9c20a5c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains kind-of concept -query clause-",
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains kind-of concept (query clause)",
          "assemblage contains kind-of concept", UUID.fromString("d9c20b38-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("Relationship restriction -query clause-", "relationship restriction",
+   public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("Relationship restriction (query clause)", "relationship restriction",
          UUID.fromString("d9c20c0a-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("Relationship type -query clause-", "relationship type",
+   public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("Relationship type (query clause)", "relationship type",
          UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Enclosing concept -query clause-", "enclosing concept",
+   public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Enclosing concept (query clause)", "enclosing concept",
          UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSOCIATED_PARAMETER_QUERY_CLAUSE = new ConceptProxy("Associated parameter -query clause-", " ↳ ",
+   public static ConceptSpecification ASSOCIATED_PARAMETER_QUERY_CLAUSE = new ConceptProxy("Associated parameter (query clause)", " ↳ ",
          UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
 
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));

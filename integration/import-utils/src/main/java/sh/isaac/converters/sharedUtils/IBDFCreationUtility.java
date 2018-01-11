@@ -281,23 +281,23 @@ public class IBDFCreationUtility
       this.terminologyPathNid = MetaData.DEVELOPMENT_PATH____SOLOR.getNid();
       
       //TODO automate this somehow....
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_ASSOCIATION.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getDynamicColumns());
-      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getUUID(), 
+      registerDynamicColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getPrimordialUuid(), 
             DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getDynamicColumns());
 
       //TODO figure out how to get rid of this copy/paste mess too      
@@ -1576,7 +1576,7 @@ public class IBDFCreationUtility
                         item.getDataColumnsForDynamicRefex(), item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction());
                   
                   //Add this concept to the association sememe
-                  addAssemblageMembership(ComponentReference.fromConcept(concept), DynamicConstants.get().DYNAMIC_ASSOCIATION.getUUID(), 
+                  addAssemblageMembership(ComponentReference.fromConcept(concept), DynamicConstants.get().DYNAMIC_ASSOCIATION.getPrimordialUuid(), 
                         Status.ACTIVE, null);
                   
                   //add the inverse name, if it has one
@@ -1589,7 +1589,7 @@ public class IBDFCreationUtility
                            item.getAssociationInverseName(), 
                            DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
                      
-                     addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getUUID(), 
+                     addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getPrimordialUuid(), 
                            Status.ACTIVE, selectTime(ComponentReference.fromChronology(inverseDesc), null));
                   }
                }
@@ -1684,7 +1684,7 @@ public class IBDFCreationUtility
       configureConceptAsDynamicRefex(ComponentReference.fromConcept(associationTypeConcept), 
             "Defines an Association Type", colInfo, null, null);
       
-      addAssemblageMembership(ComponentReference.fromConcept(associationTypeConcept), DynamicConstants.get().DYNAMIC_ASSOCIATION.getUUID(), 
+      addAssemblageMembership(ComponentReference.fromConcept(associationTypeConcept), DynamicConstants.get().DYNAMIC_ASSOCIATION.getPrimordialUuid(), 
             Status.ACTIVE, null);
       
       if (!StringUtils.isBlank(inverseName))
@@ -1692,7 +1692,7 @@ public class IBDFCreationUtility
          SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(associationTypeConcept), inverseName, 
                DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
          
-         addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getUUID(), 
+         addAssemblageMembership(ComponentReference.fromChronology(inverseDesc), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getPrimordialUuid(), 
                Status.ACTIVE, selectTime(ComponentReference.fromChronology(inverseDesc), null));
       }
       BPT_Associations.registerAsAssociation(associationTypeConcept);
@@ -1725,7 +1725,7 @@ public class IBDFCreationUtility
       
       //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
       addAnnotation(ComponentReference.fromChronology(desc), null, (DynamicData)null, 
-            DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getUUID(), Status.ACTIVE, null);
+            DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getPrimordialUuid(), Status.ACTIVE, null);
       
       //define the data columns (if any)
       if (columns != null && columns.length > 0)
@@ -1733,7 +1733,7 @@ public class IBDFCreationUtility
          for (DynamicColumnInfo col : columns)
          {
             DynamicData[] data = LookupService.getService(DynamicUtility.class).configureDynamicDefinitionDataForColumn(col);
-            addAnnotation(concept, null, data, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getUUID(), Status.ACTIVE, null, null);
+            addAnnotation(concept, null, data, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getPrimordialUuid(), Status.ACTIVE, null, null);
          }
 
          DynamicArray<DynamicData> indexInfo = LookupService.getService(DynamicUtility.class).configureColumnIndexInfo(columns);
@@ -1751,7 +1751,7 @@ public class IBDFCreationUtility
             configureDynamicRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
       if (data != null)
       {
-         addAnnotation(concept, null, data, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getUUID(), Status.ACTIVE, null, null);
+         addAnnotation(concept, null, data, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getPrimordialUuid(), Status.ACTIVE, null, null);
       }
    }
    

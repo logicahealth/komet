@@ -471,15 +471,15 @@ public class SimpleSearchController
 
       @Override
       public int compareTo(CustomCheckListItem o) {
-         return this.conceptSpecification.getFullySpecifiedConceptDescriptionText()
+         return this.conceptSpecification.getFullyQualifiedName()
                                          .compareTo(
                                                o.getConceptSpecification()
-                                                     .getFullySpecifiedConceptDescriptionText());
+                                                     .getFullyQualifiedName());
       }
 
       @Override
       public String toString() {
-         return this.conceptSpecification.getFullySpecifiedConceptDescriptionText();
+         return this.conceptSpecification.getFullyQualifiedName();
       }
 
       //~--- get methods ------------------------------------------------------

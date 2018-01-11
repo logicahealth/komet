@@ -38,6 +38,7 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.List;
+import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
@@ -189,6 +190,22 @@ public interface LanguageCoordinate extends Coordinate {
            StampCoordinate stampCoordinate) {
       return getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
    }
+   
+   /**
+    * Gets the preferred description text.  Note, that this method always returns some text, which may simply be "No description for {conceptId}"
+    * if it can't find a description for the item.  It is impossible to know if you get a valid description from this method.
+    * 
+    * For a method without this behavior, see {@link #getRegularName(int, StampCoordinate)}
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+	default String getPreferredDescriptionText(int conceptId,
+			StampCoordinate stampCoordinate) {
+		Optional<String> temp = getRegularName(conceptId, stampCoordinate);
+		return temp.orElse("No description for " + conceptId);
+	}
 
    /**
     * Gets the preferred description text.
@@ -197,7 +214,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-   default String getPreferredDescriptionText(
+   default Optional<String> getRegularName(
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
@@ -206,21 +223,20 @@ public interface LanguageCoordinate extends Coordinate {
                // returned below
                break;
             case SEMANTIC:
-               return Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString();
+               return Optional.of(Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString());
             case UNKNOWN:
-               return "unknown for nid: " + conceptId;
+               return Optional.empty();
             default:
-               return "unknown type for nid: " + conceptId;
+               return Optional.empty();
          }
       }
       LatestVersion<DescriptionVersion> latestDescription
               = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
       if (latestDescription.isPresent()) {
-         return latestDescription.get().getText();
+         return Optional.of(latestDescription.get().getText());
       } else {
-         return "No description for: " + conceptId;
+         return Optional.empty();
       }
-
    }
 
    @Override

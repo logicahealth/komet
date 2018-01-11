@@ -276,13 +276,13 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return getConceptChronology().getFullySpecifiedConceptDescriptionText();
+   public String getFullyQualifiedName() {
+      return getConceptChronology().getFullyQualifiedName();
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return getConceptChronology().getPreferedConceptDescriptionText();
+   public Optional<String> getRegularName() {
+      return getConceptChronology().getRegularName();
    }
 
    @Override
@@ -292,5 +292,3 @@ public class ObservableConceptChronologyImpl
    
    
 }
-//~--- JDK imports ------------------------------------------------------------
-//~--- JDK imports ------------------------------------------------------------

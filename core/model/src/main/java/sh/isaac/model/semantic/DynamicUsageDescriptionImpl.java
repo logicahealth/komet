@@ -300,7 +300,7 @@ public class DynamicUsageDescriptionImpl
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
                                  "a DynamicSememeData Refex Type.  If it contains a " +
-                                 DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getPrimaryName() +
+                                 DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getFullyQualifiedName() +
                                  " then it must contain a single column of data, of type string, parseable as a " +
                                  ObjectChronologyType.class.getName());
                               }

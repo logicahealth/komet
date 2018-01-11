@@ -76,9 +76,9 @@ public class Rf2ConfigOptions
             true,
             false,
             new ConverterOptionParamSuggestedValue(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid().toString(),
-                  MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getFullySpecifiedConceptDescriptionText()),
+                  MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getFullyQualifiedName()),
             new ConverterOptionParamSuggestedValue(MetaData.US_EXTENSION_MODULES____SOLOR.getPrimordialUuid().toString(),
-                  MetaData.US_EXTENSION_MODULES____SOLOR.getFullySpecifiedConceptDescriptionText())) };
+                  MetaData.US_EXTENSION_MODULES____SOLOR.getFullyQualifiedName())) };
    }
 
    /**

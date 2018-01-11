@@ -80,7 +80,7 @@ public class ConceptForControlWrapper
 
    @Override
    public String toString() {
-      Optional<String> description = getPreferedConceptDescriptionText();
+      Optional<String> description = getRegularName();
 
       if (description.isPresent()) {
          return description.get();
@@ -97,12 +97,12 @@ public class ConceptForControlWrapper
    }
 
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
+   public Optional<String> getRegularName() {
       return Optional.of(this.manifold.getPreferredDescriptionText(this.conceptNid));
    }
 

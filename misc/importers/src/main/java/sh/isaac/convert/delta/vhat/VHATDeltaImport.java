@@ -229,11 +229,11 @@ public class VHATDeltaImport extends ConverterBaseMojo
          
          LOG.info("VHA XML Parsed");
          
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_ABBREVIATION.getPrimaryName().toLowerCase(), VHATConstants.VHAT_ABBREVIATION.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getPrimaryName().toLowerCase(), VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_PREFERRED_NAME.getPrimaryName().toLowerCase(), VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_SYNONYM.getPrimaryName().toLowerCase(), VHATConstants.VHAT_SYNONYM.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_VISTA_NAME.getPrimaryName().toLowerCase(), VHATConstants.VHAT_VISTA_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_ABBREVIATION.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_ABBREVIATION.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_PREFERRED_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_SYNONYM.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_SYNONYM.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_VISTA_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_VISTA_NAME.getPrimordialUuid());
          
          ConverterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());
          
@@ -2256,28 +2256,28 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   
                   DynamicColumnInfo[] columns = new DynamicColumnInfo[mapSetDefinitionHasGemFlag ? 6 : 5];
                   int col = 0;
-                  columns[col] = new DynamicColumnInfo(col++, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                  columns[col] = new DynamicColumnInfo(col++, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
                         DynamicDataType.UUID, null, false, DynamicValidatorType.COMPONENT_TYPE,
                         new DynamicArrayImpl<>(new DynamicString[] { new DynamicStringImpl(ObjectChronologyType.CONCEPT.name()) }), true);
-                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE.getUUID(), DynamicDataType.UUID,
-                        null, false, DynamicValidatorType.IS_KIND_OF, new DynamicUUIDImpl(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getUUID()), true);
-                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_SEQUENCE.getUUID(), DynamicDataType.INTEGER,
+                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE.getPrimordialUuid(), DynamicDataType.UUID,
+                        null, false, DynamicValidatorType.IS_KIND_OF, new DynamicUUIDImpl(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getPrimordialUuid()), true);
+                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_SEQUENCE.getPrimordialUuid(), DynamicDataType.INTEGER,
                         null, false, true);
-                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GROUPING.getUUID(), DynamicDataType.LONG,
+                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GROUPING.getPrimordialUuid(), DynamicDataType.LONG,
                         null, false, true);
-                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EFFECTIVE_DATE.getUUID(),
+                  columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EFFECTIVE_DATE.getPrimordialUuid(),
                         DynamicDataType.LONG, null, false, true);
                   //moved to end - make it more convenient for GUI where target and qualifier are extracted, and used elsewhere - its convenient not to have the order change.
                   if (mapSetDefinitionHasGemFlag)
                   {
-                     columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GEM_FLAGS.getUUID(),
+                     columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GEM_FLAGS.getPrimordialUuid(),
                            DynamicDataType.STRING, null, false, true);
                   }
                   
                   importUtil_.configureConceptAsDynamicRefex(concept, ms.getName(), columns, ObjectChronologyType.CONCEPT, null);
                   
                   //Annotate this concept as a mapset definition concept.
-                  importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getUUID(), Status.ACTIVE, null);
+                  importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, null);
                   
                   //Now that we have defined the map sememe, add the other annotations onto the map set definition.
                   if (StringUtils.isNotBlank(ms.getSourceCodeSystem()))

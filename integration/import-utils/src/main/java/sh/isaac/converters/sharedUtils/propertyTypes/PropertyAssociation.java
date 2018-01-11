@@ -164,12 +164,9 @@ public class PropertyAssociation
     */
    @Override
    public DynamicColumnInfo[] getDataColumnsForDynamicRefex() {
-      final DynamicColumnInfo[] columns = new DynamicColumnInfo[] { new DynamicColumnInfo(0,
-                                                                                                            DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                            DynamicDataType.UUID,
-                                                                                                            null,
-                                                                                                            false,
-                                                                                                            true) };
+      final DynamicColumnInfo[] columns = new DynamicColumnInfo[] {
+            new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), 
+                  DynamicDataType.UUID, null, false, true) };
 
       return columns;
    }

@@ -57,6 +57,7 @@ import org.glassfish.hk2.api.Rank;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -127,7 +128,7 @@ import static sh.isaac.model.observable.ObservableFields.SEMANTIC_LIST_FOR_CHRON
 @Singleton
 public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
-   public static final String METADATA_SEMANTIC_TAG = "SOLOR";
+   
 
    /**
     * METADATA_VERSION will be added to MetaData.java, IsaacMetadataAuxiliary.json, IsaacMetadataAuxiliary.yaml when built.
@@ -157,7 +158,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);

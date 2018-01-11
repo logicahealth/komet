@@ -263,50 +263,50 @@ public enum DynamicDataType {
       switch (this) {
       case BOOLEAN:
          return DynamicConstants.get().DYNAMIC_DT_BOOLEAN
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case BYTEARRAY:
          return DynamicConstants.get().DYNAMIC_DT_BYTE_ARRAY
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case DOUBLE:
          return DynamicConstants.get().DYNAMIC_DT_DOUBLE
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case FLOAT:
          return DynamicConstants.get().DYNAMIC_DT_FLOAT
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case INTEGER:
          return DynamicConstants.get().DYNAMIC_DT_INTEGER
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case LONG:
          return DynamicConstants.get().DYNAMIC_DT_LONG
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case NID:
          return DynamicConstants.get().DYNAMIC_DT_NID
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case POLYMORPHIC:
          return DynamicConstants.get().DYNAMIC_DT_POLYMORPHIC
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case STRING:
          return DynamicConstants.get().DYNAMIC_DT_STRING
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case UNKNOWN:
          return DynamicConstants.get().UNKNOWN_CONCEPT;
 
       case UUID:
          return DynamicConstants.get().DYNAMIC_DT_UUID
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case ARRAY:
          return DynamicConstants.get().DYNAMIC_DT_ARRAY
-                                      .getUUID();
+                                      .getPrimordialUuid();
       default:
          throw new RuntimeException("Implementation error");
       }
