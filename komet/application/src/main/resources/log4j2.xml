@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<!-- TODO this needs to be configured properly for the komet application runtime, I'd expect, we want to log all debug info to a log file... -->
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="gov.va.oia.HK2Utilities" level="info" />
+		<Logger name="sh.isaac.api.LookupService" level="info" />
+		<Logger name="sh.isaac.api.collections.UuidIntMapMap" level="info" />
+		<Logger name="sh.isaac.model.waitfree.CasSequenceObjectMap" level="error" />
+		<Logger name="sh.isaac.provider.identifier.IdentifierProvider" level="info" />
+		<Logger name="sh.isaac.provider.query.lucene" level="info" />
+		<Logger name="sh.isaac.provider.logic" level="info" />
+		<Root level="debug">
+			<AppenderRef ref="STDOUT" />
+		</Root>
+	</Loggers>
+</Configuration>

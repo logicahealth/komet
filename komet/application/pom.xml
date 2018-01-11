@@ -47,11 +47,6 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>
-         <artifactId>log-config</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
