@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This configuration is utilized by any module that includes it on the classpath - it is intended to redirect to console
+for things that happen in consoles, like maven builds, mojo executions, etc.  This configuration (and module) should NOT
+be included on the classpath of a end-user project, like a rest server or the KOMET GUI - those should handle their own 
+logging config -->
 <Configuration>
 	<Appenders>
 		<Console name="STDOUT" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+			<PatternLayout pattern="%-5p %d  [%t] %C{2} (%F:%L) - %m%n" />
 		</Console>
 	</Appenders>
+	<!-- Quiet down various loggers that we don't want flooding the console with debug info -->
 	<Loggers>
 		<Logger name="gov.va.oia.HK2Utilities" level="info" />
 		<Logger name="sh.isaac.api.LookupService" level="info" />
@@ -13,6 +18,7 @@
 		<Logger name="sh.isaac.provider.identifier.IdentifierProvider" level="info" />
 		<Logger name="sh.isaac.provider.query.lucene" level="info" />
 		<Logger name="sh.isaac.provider.logic" level="info" />
+		<Logger name="sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider" level="info"/>
 		<Root level="debug">
 			<AppenderRef ref="STDOUT" />
 		</Root>
