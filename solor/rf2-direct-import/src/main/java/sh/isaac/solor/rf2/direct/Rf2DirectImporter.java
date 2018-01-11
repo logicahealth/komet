@@ -183,8 +183,8 @@ public class Rf2DirectImporter
             case ACTIVE_ONLY:
                 importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
-        }
-        importPrefixRegex.append("[a-z/0-9_\\.]*"); //allow all match child directories
+        } 
+        importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
