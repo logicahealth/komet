@@ -82,7 +82,7 @@ public class MainApp
 // http://fxexperience.com/controlsfx/features/   
 
     public static final String SPLASH_IMAGE = "prism-splash.png";
-
+    
     //~--- methods -------------------------------------------------------------
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
@@ -166,6 +166,7 @@ public class MainApp
         stage.setOnCloseRequest(this::handleShutdown);
 
         // ScenicView.show(scene);
+        
     }
 
     private void handleShutdown(WindowEvent e) {

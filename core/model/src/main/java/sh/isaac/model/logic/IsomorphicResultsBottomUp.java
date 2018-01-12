@@ -49,7 +49,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -841,5 +840,15 @@ public class IsomorphicResultsBottomUp
                     this.comparisonRelationshipNodesMap.get(deletedNodeId)));
         }
         return results;
+    }
+
+    @Override
+    public boolean equivalent() {
+        for (int solutionIndex: isomorphicSolution.solution) {
+            if (solutionIndex == -1) {
+                return false;
+            }
+        }
+        return true; 
     }
 }

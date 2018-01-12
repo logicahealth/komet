@@ -38,6 +38,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -94,7 +95,12 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       this.conceptLabel = new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText, menuSupplier);
 
       // Manifold
-      Manifold.getGroupNames().stream().map((m) -> {
+      Manifold.getGroupNames().stream().filter((groupString) -> {
+          if (FxGet.showBetaFeatures()) {
+              return true;
+          } 
+          return !groupString.toLowerCase().startsWith("flwor");
+      }).map((m) -> {
          MenuItem manifoldItem = new MenuItem(m, getNodeForManifold(m));
          manifoldItem.setUserData(m);
          manifoldItem.addEventHandler(ActionEvent.ACTION, this::manifoldEventHandler);

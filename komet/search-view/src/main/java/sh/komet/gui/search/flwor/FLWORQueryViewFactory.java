@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.search.flowr;
+package sh.komet.gui.search.flwor;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -31,20 +31,20 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-@Service(name = "FLOWR Search Provider")
+@Service(name = "FLWOR Search Provider")
 @RunLevel(value = 1)
-public class FLOWRQueryViewFactory implements ExplorationNodeFactory {
+public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
-   public static final String MENU_TEXT  = "FLOWR Query";
+   public static final String MENU_TEXT  = "FLWOR Query";
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/FLOWRQuery.fxml"));
          loader.load();
-         FLOWRQueryController FLOWRQueryController = loader.getController();
-         FLOWRQueryController.setManifold(manifold);
-         nodeConsumer.accept(FLOWRQueryController.getNode());
-         return FLOWRQueryController;
+         FLWORQueryController flworQueryController = loader.getController();
+         flworQueryController.setManifold(manifold);
+         nodeConsumer.accept(flworQueryController.getNode());
+         return flworQueryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
@@ -57,7 +57,7 @@ public class FLOWRQueryViewFactory implements ExplorationNodeFactory {
 
    @Override
    public Node getMenuIcon() {
-      return Iconography.FLOWR_SEARCH.getIconographic();
+      return Iconography.FLWOR_SEARCH.getIconographic();
    }
    
 }

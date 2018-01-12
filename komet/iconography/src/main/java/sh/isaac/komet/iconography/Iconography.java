@@ -61,7 +61,7 @@ public enum Iconography {
    RUN(MATERIAL_DESIGNS_WEBFONT, "run"),
    LINK(MATERIAL_DESIGNS_WEBFONT, "link"),
    LINK_BROKEN(MATERIAL_DESIGNS_WEBFONT, "link-broken"),
-   FLOWR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
+   FLWOR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
    SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
    SETTINGS_GEAR(EMOJI_ONE, "settings-gear"),
    

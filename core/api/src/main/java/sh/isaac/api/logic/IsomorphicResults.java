@@ -42,7 +42,6 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.stream.Stream;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -121,5 +120,11 @@ public interface IsomorphicResults {
     *  in both the referenceExpression and in the comparisonExpression.
     */
    List<LogicNode> getSharedRelationshipRoots();
+   
+   /**
+    * 
+    * @return true if the evaluation expressions are equivalent. 
+    */
+   boolean equivalent();
 }
 

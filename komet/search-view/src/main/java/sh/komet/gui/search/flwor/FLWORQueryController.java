@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.search.flowr;
+package sh.komet.gui.search.flwor;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -114,7 +114,7 @@ import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
-public class FLOWRQueryController
+public class FLWORQueryController
         implements ExplorationNode {
 
    private static final Logger LOG = LogManager.getLogger();
@@ -122,11 +122,11 @@ public class FLOWRQueryController
    public static final boolean OUTPUT_CSS_STYLE_INFO = false;
 
    //~--- fields --------------------------------------------------------------
-   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty(FLOWRQueryViewFactory.MENU_TEXT);
-   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(FLOWRQueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLWOR query view");
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty(FLWORQueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(FLWORQueryViewFactory.MENU_TEXT);
    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
-           Iconography.FLOWR_SEARCH.getIconographic());
+           Iconography.FLWOR_SEARCH.getIconographic());
    @FXML  // ResourceBundle that was given to the FXMLLoader
    private ResourceBundle resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader

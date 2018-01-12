@@ -47,5 +47,9 @@ public class FxGet {
       }
       return RULES_DRIVEN_KOMET_SERVICE;
    }
+   
+   public static boolean showBetaFeatures() {
+       return false;
+   }
   
 }

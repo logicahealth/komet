@@ -102,7 +102,8 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
- *
+ * TODO: evaluate how the canceling of changes will impact the array approach 
+ * for writing versions...
  * @author kec
  */
 @Service
