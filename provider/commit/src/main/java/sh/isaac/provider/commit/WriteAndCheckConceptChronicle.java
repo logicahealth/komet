@@ -42,23 +42,20 @@ package sh.isaac.provider.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.lang.ref.WeakReference;
-
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,7 +65,7 @@ import sh.isaac.api.chronicle.Chronology;
  * @author kec
  */
 public class WriteAndCheckConceptChronicle
-        extends Task<Void> {
+        extends CheckAndWriteTask {
    /** The cc. */
    private ConceptChronology cc;
 
@@ -128,34 +125,44 @@ public class WriteAndCheckConceptChronicle
    public Void call()
             throws Exception {
       try {
+         
+         updateProgress(1, 4);
+         updateMessage("checking: " + this.cc.getNid() + " against " + checkers.size() + " change checkers");
+
+         if (this.cc.isUncommitted()) {
+            this.checkers.stream().forEach((check) -> {
+               AlertObject ao = check.check(this.cc, CheckPhase.ADD_UNCOMMITTED);
+               if (ao.getAlertType().preventsCheckerPass()) {
+                  alertCollection.add(ao);
+               }
+            });
+         }
+         
+         if (alertCollection.size() > 0) {
+            throw new RuntimeException("There were " + alertCollection.size() + " changeChecker failure(s)");
+         }
+         
+         updateProgress(2, 4);
+         updateMessage("writing: " + " " + this.cc.getNid());
+         
          Get.conceptService()
             .writeConcept(this.cc);
          // get any updates that may have occured during merge write...
          this.cc = Get.conceptService().getConceptChronology(this.cc.getNid());
          this.uncommittedTracking.accept(this.cc, true);
-         updateProgress(1, 3);
 
-         updateMessage("checking: " + Get.conceptDescriptionText(cc.getNid()));  
-
-         if (this.cc.isUncommitted()) {
-            this.checkers.stream().forEach((check) -> {
-                                     check.check(this.cc, CheckPhase.ADD_UNCOMMITTED);
-                                  });
-         }
-
-         updateProgress(2, 3);
-
+         updateProgress(3, 4);
          updateMessage("notifying: " + Get.conceptDescriptionText(cc.getNid()));  
          this.changeListeners.forEach((listenerRef) -> {
-                                         final ChronologyChangeListener listener = listenerRef.get();
+            final ChronologyChangeListener listener = listenerRef.get();
 
-                                         if (listener == null) {
-                                            this.changeListeners.remove(listenerRef);
-                                         } else {
-                                            listener.handleChange(this.cc);
-                                         }
-                                      });
-         updateProgress(3, 3);
+            if (listener == null) {
+               this.changeListeners.remove(listenerRef);
+            } else {
+               listener.handleChange(this.cc);
+            }
+         });
+         updateProgress(4, 4);
 
          updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getNid())); 
          return null;

@@ -21,5 +21,5 @@ package sh.isaac.api.alert;
  * @author kec
  */
 public enum AlertCategory {
-   TAXONOMY, CLASSIFIER, COMMIT, ENVIRONMENT
+   TAXONOMY, CLASSIFIER, ADD_UNCOMMITTED, COMMIT, ENVIRONMENT
 }

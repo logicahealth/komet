@@ -35,46 +35,24 @@
  *
  */
 
-package sh.isaac.api.alert;
 
-/**
- * A subset of javafx.scene.control.Alert.AlertType
- * @author kec
- */
-public enum AlertType {
-   /** An information alert. */
-   INFORMATION(false),
+package sh.isaac.api.commit;
 
-   /** A warning alert. */
-   WARNING(true),
+import java.util.HashSet;
+import java.util.Set;
 
-   /** An error alert. */
-   ERROR(true),
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.task.TimedTask;
 
-   /** A confirmation alert. Not sure about this one...
-    confirmation alerts would need some type of time out perhaps...
-    */
-   CONFIRMATION(false), 
-   
+public abstract class CheckAndWriteTask extends TimedTask<Void>
+{
+	protected Set<AlertObject> alertCollection = new HashSet<>();
    /**
-    * Indicate success of an activity such as a commit or another automated process. 
+    * If there were issues that caused a write to not be successful - this task will throw an exception on get(). - 
+    * you can check the alert collection to find out all the issues that prevented the write.
+    * @return the alerts generated during the commit attempt.
     */
-   SUCCESS(false);
-	
-	private boolean alertPreventsCommit;
-	
-	private AlertType(boolean alertPreventsCommit)
-	{
-		this.alertPreventsCommit = alertPreventsCommit;
-	}
-	
-	/**
-	 * For integration of alerts into the Commit API, we need to know if an alert is fatal to a commit or not.
-	 * @return
-	 */
-	public boolean preventsCheckerPass()
-	{
-		return this.alertPreventsCommit;
-	}
+   public Set<AlertObject> getAlerts() {
+      return alertCollection;
+   }
 }
-

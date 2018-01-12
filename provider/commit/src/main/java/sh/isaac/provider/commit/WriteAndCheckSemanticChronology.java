@@ -42,26 +42,21 @@ package sh.isaac.provider.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.lang.ref.WeakReference;
-
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
-import sh.isaac.api.commit.CheckResult;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.progress.ActiveTasks;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,7 +66,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class WriteAndCheckSemanticChronology
-        extends Task<Void> {
+        extends CheckAndWriteTask {
    /** The sc. */
    private SemanticChronology sc;
 
@@ -132,40 +127,35 @@ public class WriteAndCheckSemanticChronology
       try {
 
          updateProgress(1, 4);
-         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid());
-         final AtomicBoolean failure = new AtomicBoolean(false);
+         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid() + " against " + checkers.size() + " change checkers");
          if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
             this.checkers.stream().forEach((check) -> {
-                                     if (check.check(this.sc, CheckPhase.ADD_UNCOMMITTED) == CheckResult.FAIL)
-                                     {
-                                    	 failure.set(true);
-                                     }
-                                  });
+               AlertObject ao = check.check(this.sc, CheckPhase.ADD_UNCOMMITTED);
+
+               if (ao.getAlertType().preventsCheckerPass()) {
+                  alertCollection.add(ao);
+               }
+            });
          }
-         
-         if (failure.get())
-         {
-         	throw new RuntimeException("There is a changeChecker failure");
+
+         if (alertCollection.size() > 0) {
+            throw new RuntimeException("There were " + alertCollection.size() + " changeChecker failure(s)");
          }
-//         for (Alert a : alertCollection) {
-//            if (a.getAlertType() == AlertType.ERROR) {
-//                throw new RuntimeException("There is an error: " + a.toString());
-//            }
-//        }
+
          
          updateProgress(2, 4);
          updateMessage("writing: " + this.sc.getVersionType() + " " + this.sc.getNid());
          Get.assemblageService().writeSemanticChronology(this.sc);
-	      this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
-	      this.uncommittedTracking.accept(this.sc, true);
-	      
+         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
+         this.uncommittedTracking.accept(this.sc, true);
+         
 
          updateProgress(3, 4);
          updateMessage("notifying: " + this.sc.getVersionType() + " " + this.sc.getNid());
          this.changeListeners.forEach((listenerRef) -> {
             try {
                final ChronologyChangeListener listener = listenerRef.get();
-               
+
                if (listener == null) {
                   this.changeListeners.remove(listenerRef);
                } else {
@@ -174,7 +164,7 @@ public class WriteAndCheckSemanticChronology
             } catch (Throwable e) {
                e.printStackTrace();
             }
-                                      });
+         });
          updateProgress(4, 4);
          updateMessage("completed change: " + this.sc.getVersionType() + " " + this.sc.getNid());
          return null;

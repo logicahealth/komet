@@ -42,12 +42,9 @@ package sh.isaac.provider.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.time.Instant;
-
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -56,31 +53,29 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
-import sh.isaac.api.commit.CheckResult;
 import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.progress.ActiveTasks;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class CommitTask.
+ * The Class CommitTaskGlobal.
  *
  * @author kec
  */
-public class CommitTask extends sh.isaac.api.commit.CommitTask{
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+public class CommitTaskGlobal extends CommitTask{
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -113,13 +108,11 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
 
    /** The stamp provider. */
    private final StampService stampProvider;
-   
-   private Set<Alert> alertCollection;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new commit task.
+    * Instantiates a new global commit task.
     *
     * @param commitComment the commit comment
     * @param uncommittedConceptsWithChecksNidSet the uncommitted concepts with checks sequence set
@@ -132,7 +125,7 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
     * @param pendingStampsForCommit the pending stamps for commit
     * @param commitProvider the commit provider
     */
-   private CommitTask(String commitComment,
+   private CommitTaskGlobal(String commitComment,
                       NidSet uncommittedConceptsWithChecksNidSet,
                       NidSet uncommittedConceptsNoChecksNidSet,
                       NidSet uncommittedSememesWithChecksNidSet,
@@ -141,9 +134,6 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
                       ConcurrentSkipListSet<ChangeChecker> checkers,
                       Map<UncommittedStamp, Integer> pendingStampsForCommit,
                       CommitProvider commitProvider) {
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(this);
       this.commitComment = commitComment;
       this.conceptsToCommit.or(uncommittedConceptsNoChecksNidSet);
       this.conceptsToCommit.or(uncommittedConceptsWithChecksNidSet);
@@ -164,10 +154,8 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
       updateMessage(commitComment);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Call.
+    * Execute the commit task
     *
     * @return the optional
     * @throws Exception the exception
@@ -176,149 +164,128 @@ public class CommitTask extends sh.isaac.api.commit.CommitTask{
    protected Optional<CommitRecord> call()
             throws Exception {
       try {
-         AtomicInteger failCount = new AtomicInteger(0);
 
-         this.conceptsToCommit.stream()
-                              .forEach(
-                                  (conceptNid) -> {
-                                     final ConceptChronology c = Get.conceptService()
-                                                                    .getConceptChronology(conceptNid);
+         LOG.debug("performing commit for '{}'", this.commitComment);
+         this.conceptsToCommit.stream().forEach((conceptNid) -> {
+            final ConceptChronology c = Get.conceptService().getConceptChronology(conceptNid);
 
-                                     if (this.conceptsToCheck.contains(conceptNid)) {
-                                        this.checkers.stream()
-                                              .forEach(
-                                                  (check) -> {
-                                                     if (check.check(c, CheckPhase.COMMIT) == CheckResult.FAIL) {
-                                                        failCount.incrementAndGet();
-                                                     }
-                                                  });
-                                     }
-                                  });
-         this.semanticsToCommit.stream()
-                               .forEach(
-                                   (semanticNid) -> {
-                                      final SemanticChronology sc = Get.assemblageService()
-                                                                       .getSemanticChronology(semanticNid);
+            if (this.conceptsToCheck.contains(conceptNid)) {
+               this.checkers.stream().forEach((check) -> {
+                  AlertObject ao = check.check(c, CheckPhase.COMMIT);
+                  if (ao.getAlertType().preventsCheckerPass()) {
+                     this.alertCollection.add(ao);
+                     LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, check.getDescription(), ao);
+                  }
+               });
+            }
+         });
+         this.semanticsToCommit.stream().forEach((semanticNid) -> {
+            final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticNid);
 
-                                      if (this.semanticsToCheck.contains(semanticNid)) {
-                                         this.checkers.stream()
-                                               .forEach(
-                                                     (check) -> {
-                        if (check.check(sc, CheckPhase.COMMIT) == CheckResult.FAIL) {
-                           failCount.incrementAndGet();
-                        }
-                     });
-                                      }
-                                   });
+            if (this.semanticsToCheck.contains(semanticNid)) {
+               this.checkers.stream().forEach((check) -> {
+                  AlertObject ao = check.check(sc, CheckPhase.COMMIT);
+                  if (ao.getAlertType().preventsCheckerPass()) {
+                     this.alertCollection.add(ao);
+                     LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, check.getDescription(), ao);
+                  }
+               });
+            }
+         });
 
-         if (failCount.get() > 0) {
+         if (this.alertCollection.size() > 0) {
             this.commitProvider.revertCommit(
-                this.conceptsToCommit,
-                this.conceptsToCheck,
-                this.semanticsToCommit,
-                this.semanticsToCheck,
-                this.pendingStampsForCommit);
+                  this.conceptsToCommit, 
+                  this.conceptsToCheck, 
+                  this.semanticsToCommit, 
+                  this.semanticsToCheck, 
+                  this.pendingStampsForCommit);
             return Optional.empty();
          }
 
-         final long             commitTime       = System.currentTimeMillis();
+         final long commitTime = this.commitProvider.getTimeForCommit();
          final StampSequenceSet stampSequenceSet = new StampSequenceSet();
 
-         this.pendingStampsForCommit.entrySet()
-                                    .stream()
-                                    .forEach(
-                                        (entry) -> {
-                                           final int stampSequence = entry.getValue();
+         this.pendingStampsForCommit.entrySet().stream().forEach((entry) -> {
+            final int stampSequence = entry.getValue();
 
-                                           stampSequenceSet.add(stampSequence);
+            stampSequenceSet.add(stampSequence);
 
-                                           final UncommittedStamp uncommittedStamp = entry.getKey();
-                                           final Stamp stamp = new Stamp(
-                                                                   entry.getKey().status,
-                                                                         commitTime,
-                                                                         uncommittedStamp.authorNid,
-                                                                         uncommittedStamp.moduleNid,
-                                                                         uncommittedStamp.pathNid);
+            final UncommittedStamp uncommittedStamp = entry.getKey();
+            final Stamp stamp = new Stamp(entry.getKey().status, commitTime, uncommittedStamp.authorNid, uncommittedStamp.moduleNid, uncommittedStamp.pathNid);
 
-                                           this.stampProvider.addStamp(stamp, stampSequence);
-                                        });
+            this.stampProvider.addStamp(stamp, stampSequence);
+         });
 
          if (this.commitComment != null) {
-            stampSequenceSet.stream()
-                            .forEach((stamp) -> this.commitProvider.addComment(stamp, this.commitComment));
+            stampSequenceSet.stream().forEach((stamp) -> this.commitProvider.addComment(stamp, this.commitComment));
          }
 
          if (!stampSequenceSet.isEmpty()) {
-            final CommitRecord commitRecord = new CommitRecord(
-                                                  Instant.ofEpochMilli(commitTime),
-                                                        stampSequenceSet,
-                                                        new OpenIntIntHashMap(),
-                                                        NidSet.of(
-                                                              this.conceptsToCheck).or(this.conceptsToCommit),
-                                                        NidSet.of(
-                                                              this.semanticsToCheck).or(this.semanticsToCommit),
-                                                        this.commitComment);
+            final CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime), 
+                  stampSequenceSet, 
+                  new OpenIntIntHashMap(),
+                  NidSet.of(this.conceptsToCheck).or(this.conceptsToCommit), 
+                  NidSet.of(this.semanticsToCheck).or(this.semanticsToCommit), 
+                  this.commitComment);
 
             this.commitProvider.handleCommitNotification(commitRecord);
             return Optional.of(commitRecord);
          }
          return Optional.empty();
       } catch (final Exception e1) {
+         LOG.error("Unexpected commit failure", e1);
          throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);
       } finally {
-         Get.activeTasks()
-            .remove(this);
+         Get.activeTasks().remove(this);
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the.
+    * Construct a task to perform a global commit.  The task is already executed / running when this method returns.
     *
     * @param commitComment the commit comment
-    * @param uncommittedConceptsWithChecksSequenceSet the uncommitted concepts with checks sequence set
-    * @param uncommittedConceptsNoChecksSequenceSet the uncommitted concepts no checks sequence set
-    * @param uncommittedSemanticsWithChecksSequenceSet the uncommitted sememes with checks sequence set
-    * @param uncommittedSemanticsNoChecksSequenceSet the uncommitted sememes no checks sequence set
+    * @param uncommittedConceptsWithChecksNidSet the uncommitted concepts with checks sequence set
+    * @param uncommittedConceptsNoChecksNidSet the uncommitted concepts no checks sequence set
+    * @param uncommittedSemanticsWithChecksNidSet the uncommitted sememes with checks sequence set
+    * @param uncommittedSemanticsNoChecksNidSet the uncommitted sememes no checks sequence set
     * @param lastCommit the last commit
     * @param checkers the checkers
     * @param pendingStampsForCommit the pending stamps for commit
     * @param commitProvider the commit provider
-    * @return a {@code CommitTask} after it has been given to an executor, and
-    * added to the activeTasks service.
+    * @return a CommitTaskChronology, where calling get() on the task will return an optional - if populated, the commit was successfully handled.
+    * If the get() returns an Optional.empty(), then the commit failed the change checkers.  Calling {@link CommitTaskChronology#getAlerts()} will
+    * provide the details on the failed change checkers.
     */
-   public static CommitTask get(String commitComment,
-                                NidSet uncommittedConceptsWithChecksSequenceSet,
-                                NidSet uncommittedConceptsNoChecksSequenceSet,
-                                NidSet uncommittedSemanticsWithChecksSequenceSet,
-                                NidSet uncommittedSemanticsNoChecksSequenceSet,
+   public static CommitTaskGlobal get(
+                                String commitComment,
+                                NidSet uncommittedConceptsWithChecksNidSet,
+                                NidSet uncommittedConceptsNoChecksNidSet,
+                                NidSet uncommittedSemanticsWithChecksNidSet,
+                                NidSet uncommittedSemanticsNoChecksNidSet,
                                 long lastCommit,
                                 ConcurrentSkipListSet<ChangeChecker> checkers,
                                 Map<UncommittedStamp, Integer> pendingStampsForCommit,
                                 CommitProvider commitProvider) {
-      final CommitTask task = new CommitTask(
+      final CommitTaskGlobal task = new CommitTaskGlobal(
                                   commitComment,
-                                  uncommittedConceptsWithChecksSequenceSet,
-                                  uncommittedConceptsNoChecksSequenceSet,
-                                  uncommittedSemanticsWithChecksSequenceSet,
-                                  uncommittedSemanticsNoChecksSequenceSet,
+                                  uncommittedConceptsWithChecksNidSet,
+                                  uncommittedConceptsNoChecksNidSet,
+                                  uncommittedSemanticsWithChecksNidSet,
+                                  uncommittedSemanticsNoChecksNidSet,
                                   lastCommit,
                                   checkers,
                                   pendingStampsForCommit,
                                   commitProvider);
 
-      Get.activeTasks()
-         .add(task);
-      Get.workExecutors()
-         .getExecutor()
-         .execute(task);
-      return task;
-   }
-   
-   public Set<Alert> getAlerts()
-   {
-      return alertCollection;
+      Get.activeTasks().add(task);
+      try {
+         Get.workExecutors().getExecutor().execute(task);
+         return task;
+      } catch (Exception e) {
+         Get.activeTasks().remove(task);
+         throw e;
+      }
    }
 }
 

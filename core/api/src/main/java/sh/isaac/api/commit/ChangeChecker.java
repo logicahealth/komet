@@ -44,6 +44,9 @@
  */
 package sh.isaac.api.commit;
 
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+
 //~--- JDK imports ------------------------------------------------------------
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -67,9 +70,10 @@ public interface ChangeChecker
     *
     * @param cc the cc
     * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
+    * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
+    * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
     */
-   CheckResult check(ConceptChronology cc, 
+   AlertObject check(ConceptChronology cc, 
               CheckPhase checkPhase);
 
    /**
@@ -77,11 +81,18 @@ public interface ChangeChecker
     *
     * @param sc the sc
     * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
+    * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
+    * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
     */
-   CheckResult check(SemanticChronology sc,
+   AlertObject check(SemanticChronology sc,
               CheckPhase checkPhase);
    
+   
+   /**
+    * The description of the change checker (which should describe what it is checking for)
+    * @return
+    */
+   public String getDescription();
     
     /**
      * @return the desired ordering of your change checker, lower numbers execute first.  Used in the implementation of comparable.

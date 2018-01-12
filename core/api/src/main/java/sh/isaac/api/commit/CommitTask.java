@@ -38,18 +38,22 @@
 
 package sh.isaac.api.commit;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.task.TimedTask;
 
 public abstract class CommitTask extends TimedTask<Optional<CommitRecord>>
 {
+	protected Set<AlertObject> alertCollection = new HashSet<>();
    /**
     * If there were issues that caused a Commit to not be successful - this task returns an Optional.empty() - you can check the 
     * alert collection to find out why.
     * @return the alerts generated during the commit attempt.
     */
-   public abstract Set<Alert> getAlerts();
+   public Set<AlertObject> getAlerts() {
+      return alertCollection;
+   }
 }

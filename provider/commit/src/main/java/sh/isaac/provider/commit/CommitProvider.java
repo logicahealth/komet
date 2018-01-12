@@ -48,15 +48,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import java.time.Instant;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -70,16 +65,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.collections.ObservableList;
-
-import javafx.concurrent.Task;
 
 //~--- JDK imports ------------------------------------------------------------
 import javax.annotation.PostConstruct;
@@ -87,45 +76,48 @@ import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-
+import org.apache.logging.log4j.Logger; 
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
 
+//~--- non-JDK imports --------------------------------------------------------
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.alert.AlertCategory;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+import sh.isaac.api.alert.SuccessAlert;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.provider.commit.CommitTask;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.SequentialAggregateTask;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.VersionImpl;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.commit.CheckResult;
-import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -334,14 +326,11 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public Task<Void> addUncommitted(ConceptChronology cc) {
+   public CheckAndWriteTask addUncommitted(ConceptChronology cc) {
       if (cc instanceof ObservableChronologyImpl) {
          cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
       }
-      return checkAndWrite(cc,
-              this.checkers,
-              this.writePermitReference.get(),
-              this.changeListeners);
+      return checkAndWrite(cc, this.writePermitReference.get());
    }
 
    /**
@@ -351,14 +340,11 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public Task<Void> addUncommitted(SemanticChronology sc) {
+   public CheckAndWriteTask addUncommitted(SemanticChronology sc) {
       if (sc instanceof ObservableChronologyImpl) {
          sc = (SemanticChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
       }
-      return checkAndWrite(sc,
-              this.checkers,
-              this.writePermitReference.get(),
-              this.changeListeners);
+      return checkAndWrite(sc, this.writePermitReference.get());
    }
 
    /**
@@ -372,7 +358,7 @@ public class CommitProvider
       if (cc instanceof ObservableChronologyImpl) {
          cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
       }
-      return write(cc, this.writePermitReference.get(), this.changeListeners);
+      return write(cc, this.writePermitReference.get());
    }
 
    /**
@@ -386,7 +372,7 @@ public class CommitProvider
       if (sc instanceof ObservableChronologyImpl) {
          sc = (SemanticChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
       }
-      return write(sc, this.writePermitReference.get(), this.changeListeners);
+      return write(sc, this.writePermitReference.get());
    }
 
    /**
@@ -486,7 +472,7 @@ public class CommitProvider
          });
          Get.stampService().addPendingStampsForCommit(stampsToReturn);
 
-         CommitTask task = CommitTask .get(commitComment,
+         CommitTaskGlobal task = CommitTaskGlobal.get(commitComment,
                  uncommittedConceptsWithChecksNidSet,
                  uncommittedConceptsNoChecksNidSet,
                  uncommittedSemanticsWithChecksNidSet,
@@ -513,119 +499,17 @@ public class CommitProvider
    public synchronized CommitTask commit(Chronology chronicle,
            EditCoordinate editCoordinate,
            String commitComment) {
-      // TODO make asynchronous with a actual task.
-      // TODO [DAN 1] there are numerous inconsistencies with this impl, and the global commit. Need to understand:
-      // global seq number, should a write be done on the provider?
-      // This also doesn't safely copy the uncommitted lists before using them.
-      // I think this needs to be rewritten to use the CommitTask - but need to understand these issues first.
-      // This method doesn't update the observable provider properly...
-      CommitRecord commitRecord = null;
-      if (chronicle instanceof ObservableChronologyImpl) {
-         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
-      }
-
-      final AtomicInteger failCount = new AtomicInteger(0);
-      if (chronicle instanceof ConceptChronology) {
-         final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
-
-         if (this.uncommittedConceptsWithChecksNidSet.contains(conceptChronology.getNid())) {
-            this.checkers.stream().forEach((check) -> {
-               if (check.check(conceptChronology, CheckPhase.COMMIT) == CheckResult.FAIL) {
-                  failCount.incrementAndGet();
-               }
-            });
-         }
-      } else if (chronicle instanceof SemanticChronology) {
-         final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
-
-         if (this.uncommittedSemanticsWithChecksNidSet.contains(semanticChronology.getNid())) {
-            this.checkers.stream().forEach((check) -> {
-               if (check.check(semanticChronology, CheckPhase.COMMIT) == CheckResult.FAIL) {
-                  failCount.incrementAndGet();
-               }
-            });
-         }
-      } else {
-         throw new RuntimeException("Unsupported chronology type: " + chronicle);
-      }
-
-      if (failCount.get() == 0) {
-         //Make it impossible to have two commits happen in the same MS - because this messes up the RelativePositionCalculator
-         final AtomicLong commitTime = new AtomicLong(System.currentTimeMillis());
-         if (commitTime.get() <= lastCommitTime.get())
-         {
-            commitTime.set(lastCommitTime.incrementAndGet());
-         }
-         else
-         {
-            lastCommitTime.set(commitTime.get());
-         }
-
-         // TODO have it only commit the versions on the sememe consistent with the edit coordinate.
-         // successful check, commit and remove uncommitted sequences...
-         final StampSequenceSet stampsInCommit = new StampSequenceSet();
-         final OpenIntIntHashMap stampAliases = new OpenIntIntHashMap();
-         final NidSet conceptsInCommit = new NidSet();
-         final NidSet sememesInCommit = new NidSet();
-
-         chronicle.getVersionList().forEach((version) -> {
-            if (version.isUncommitted()
-                    && version.getAuthorNid()
-                    == editCoordinate.getAuthorNid()) {
-               version.setTime(commitTime.get());
-               stampsInCommit.add(version.getStampSequence());
-            }
-         });
-
-         if (chronicle instanceof ConceptChronology) {
-            final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
-
-            conceptsInCommit.add(conceptChronology.getNid());
-            this.uncommittedConceptsWithChecksNidSet.remove(conceptChronology.getNid());
-            this.uncommittedConceptsNoChecksNidSet.remove(conceptChronology.getNid());
-            Get.conceptService()
-                    .writeConcept(conceptChronology);
-         } else {
-            final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
-
-            sememesInCommit.add(semanticChronology.getNid());
-            this.uncommittedSemanticsWithChecksNidSet.remove(semanticChronology.getNid());
-            this.uncommittedSemanticsNoChecksNidSet.remove(semanticChronology.getNid());
-            Get.assemblageService()
-                    .writeSemanticChronology(semanticChronology);
-         }
-
-         commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime.get()),
-                 stampsInCommit,
-                 stampAliases,
-                 conceptsInCommit,
-                 sememesInCommit,
-                 commitComment);
-      }
-
-      CommitProvider.this.handleCommitNotification(commitRecord);
-      
-
-      //TODO [DAN 1] figure out what Keith is doing with CommitTask...
-      final Optional<CommitRecord> optionalRecord = Optional.ofNullable(commitRecord);
-      final Task<Optional<CommitRecord>> task = new TimedTask() {
-         @Override
-         protected Optional<CommitRecord> call()
-                 throws Exception {
-            Get.activeTasks()
-                    .remove(this);
-            return optionalRecord;
-         }
-      };
-
-      Get.activeTasks()
-              .add(task);
-      Get.workExecutors()
-              .getExecutor()
-              .execute(task);
-      //return task;
-      return null;
-      //TODO [dan 1] needs to fix this
+      CommitTaskChronology task = CommitTaskChronology.get(
+            chronicle, 
+            editCoordinate, 
+            commitComment, 
+            this.uncommittedConceptsWithChecksNidSet,
+            this.uncommittedConceptsNoChecksNidSet,
+            this.uncommittedSemanticsWithChecksNidSet,
+            this.uncommittedSemanticsNoChecksNidSet,
+            this.checkers,
+            this);
+      return task;
    }
 
    /**
@@ -813,24 +697,21 @@ public class CommitProvider
     * Check and write.
     *
     * @param cc the cc
-    * @param checkers the checkers
     * @param alertCollection the alert collection
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
     * @return the task
     */
-   private Task<Void> checkAndWrite(ConceptChronology cc,
-           ConcurrentSkipListSet<ChangeChecker> checkers,
-           Semaphore writeSemaphore,
-           ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
+   private CheckAndWriteTask checkAndWrite(ConceptChronology cc,
+           Semaphore writeSemaphore) {
       writeSemaphore.acquireUninterruptibly();
 
       try
       {
          final WriteAndCheckConceptChronicle task = new WriteAndCheckConceptChronicle(cc,
-                 checkers,
+                 this.checkers,
                  writeSemaphore,
-                 changeListeners,
+                 this.changeListeners,
                  (sememeOrConceptChronicle,
                          changeCheckerActive) -> handleUncommittedSequenceSet(
                          sememeOrConceptChronicle,
@@ -851,24 +732,19 @@ public class CommitProvider
     * Check and write.
     *
     * @param sc the sc
-    * @param checkers the checkers
-    * @param alertCollection the alert collection
     * @param writeSemaphore the write semaphore
-    * @param changeListeners the change listeners
     * @return the task
     */
-   private Task<Void> checkAndWrite(SemanticChronology sc,
-           ConcurrentSkipListSet<ChangeChecker> checkers,
-           Semaphore writeSemaphore,
-           ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
+   private CheckAndWriteTask checkAndWrite(SemanticChronology sc,
+           Semaphore writeSemaphore) {
       writeSemaphore.acquireUninterruptibly();
 
       try
       {
          final WriteAndCheckSemanticChronology task = new WriteAndCheckSemanticChronology(sc,
-                 checkers,
+                 this.checkers,
                  writeSemaphore,
-                 changeListeners,
+                 this.changeListeners,
                  (sememeOrConceptChronicle,
                          changeCheckerActive) -> handleUncommittedSequenceSet(
                          sememeOrConceptChronicle,
@@ -1002,75 +878,99 @@ public class CommitProvider
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
          }
          
-//         checkers.add(new ChangeChecker() {
-//            @Override
-//            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-//                  // Accumulate uncommitted versions in passed chronology
-//                  final List<SemanticVersion> uncommittedVersions = new ArrayList<>();
-//                  for (Version version : sc.getVersionList()) {
-//                     if (version.isUncommitted()) {
-//                        uncommittedVersions.add(version);
-//                     }
-//                  }
-//                  // Warn or fail if multiple uncommitted versions in passed chronology
-//                  if (uncommittedVersions.size() > 0) {
-//                     alertCollection
-//                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in sememe chronology " 
-//                                 + sc.getPrimordialUuid(), sc.getNid()));
-//                  }
-//                  // Warn or fail if chronology sequence in uncommitted sets
-//                  if (uncommittedSemanticsWithChecksNidSet.contains(sc.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(sc.getNid())) {
-//                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for sememe " 
-//                           + sc.getPrimordialUuid(), sc.getNid()));
-//                  }
-//               }
-//            }
-//
-//            @Override
-//            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-//                  // Accumulate multiple uncommitted versions in passed chronology
-//                  final List<ConceptVersion> uncommittedVersions = new ArrayList<>();
-//                  for (Version version : cc.getVersionList()) {
-//                     if (version.isUncommitted()) {
-//                        uncommittedVersions.add((ConceptVersion)version);
-//                     }
-//                  }
-//                  // Warn or fail if multiple uncommitted versions in passed chronology
-//                  if (uncommittedVersions.size() > 0) {
-//                     alertCollection
-//                           .add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions in concept chronology " 
-//                                 + cc.getPrimordialUuid(), cc.getNid()));
-//                  }
-//                  // Warn or fail if chronology sequence in uncommitted sets
-//                  if (uncommittedConceptsWithChecksNidSet.contains(cc.getNid()) || uncommittedConceptsNoChecksNidSet.contains(cc.getNid())) {
-//                     alertCollection.add(Alerts.warning("Found " + uncommittedVersions.size() + " uncommitted versions for concept " 
-//                           + cc.getPrimordialUuid(), cc.getNid()));
-//                  }
-//               }
-//            }
-//         });
-//         checkers.add(new ChangeChecker() {
-//            @Override
-//            public void check(SemanticChronology sc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-//               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-//                  if (sc.getVersionType() == VersionType.DESCRIPTION) {
-//                     for (Version sv : sc.getUnwrittenVersionList()) {
-//                        if (((DescriptionVersion) sv).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) sv).getLanguageConceptNid() == 0
-//                              || ((DescriptionVersion) sv).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) sv).getText() == null) {
-//                           alertCollection.add(Alerts.error("Failed to set all required fields on a description!", sv.getNid()));
-//                        }
-//                     }
-//                  }
-//               }
-//            }
-//
-//            @Override
-//            public void check(ConceptChronology cc, Collection<Alert> alertCollection, CheckPhase checkPhase) {
-//               // no default concept checker
-//            }
-//         });
+         //This change checker prevents developers from making a mutable, not committing it, then making another mutable
+         //of the same object, then committing, then not being able to figure out where their previous changes went.
+         checkers.add(new ChangeChecker() {
+            @Override
+            public AlertObject check(SemanticChronology sc,
+                  CheckPhase checkPhase) {
+               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+                  // Accumulate uncommitted versions in passed chronology
+                  final List<Version> uncommittedVersions = new ArrayList<>();
+                  for (Version version : sc.getVersionList()) {
+                     if (version.isUncommitted()) {
+                        uncommittedVersions.add(version);
+                     }
+                  }
+                  // Warn or fail if multiple uncommitted versions in passed chronology
+                  if (uncommittedVersions.size() > 0) {
+                     return new AlertObject("Data loss warning",
+                           "Found " + uncommittedVersions.size() + " uncommitted versions in sememe chronology " + sc.getPrimordialUuid(), AlertType.WARNING,
+                           AlertCategory.ADD_UNCOMMITTED);
+                  }
+                  // Warn or fail if chronology sequence in uncommitted sets
+                  if (uncommittedSemanticsWithChecksNidSet.contains(sc.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(sc.getNid())) {
+                     return new AlertObject("Data loss warning", "Found " + uncommittedVersions.size() + " uncommitted versions for sememe " + sc.getPrimordialUuid(),
+                           AlertType.WARNING, AlertCategory.ADD_UNCOMMITTED);
+                  }
+               }
+               return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+            }
+
+            @Override
+            public AlertObject check(ConceptChronology cc,
+                  CheckPhase checkPhase) {
+               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+                  // Accumulate multiple uncommitted versions in passed chronology
+                  final List<Version> uncommittedVersions = new ArrayList<>();
+                  for (Version version : cc.getVersionList()) {
+                     if (version.isUncommitted()) {
+                        uncommittedVersions.add(version);
+                     }
+                  }
+                  // Warn or fail if multiple uncommitted versions in passed chronology
+                  if (uncommittedVersions.size() > 0) {
+                     return new AlertObject("Data loss warning",
+                           "Found " + uncommittedVersions.size() + " uncommitted versions in concept chronology " + cc.getPrimordialUuid(), AlertType.WARNING,
+                           AlertCategory.ADD_UNCOMMITTED);
+                  }
+                  // Warn or fail if chronology sequence in uncommitted sets
+                  if (uncommittedConceptsWithChecksNidSet.contains(cc.getNid()) || uncommittedConceptsNoChecksNidSet.contains(cc.getNid())) {
+                     return new AlertObject("Data loss warning", "Found " + uncommittedVersions.size() + " uncommitted versions for concept " + cc.getPrimordialUuid(),
+                           AlertType.WARNING, AlertCategory.ADD_UNCOMMITTED);
+                  }
+               }
+               return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+            }
+
+            @Override
+            public String getDescription() {
+               return "Warn about multiple uncommitted versions, which, in all use cases to date, has indicated a programming error";
+            }
+         });
+         
+         // This change checker prevents developers from creating a mutable of a description, and then forgetting to set 1 or more of the
+         // required fields.
+         checkers.add(new ChangeChecker() {
+            @Override
+            public AlertObject check(SemanticChronology sc,
+                  CheckPhase checkPhase) {
+               if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
+                  if (sc.getVersionType() == VersionType.DESCRIPTION) {
+                     for (Version sv : sc.getUnwrittenVersionList()) {
+                        if (((DescriptionVersion) sv).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) sv).getLanguageConceptNid() == 0
+                              || ((DescriptionVersion) sv).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) sv).getText() == null) {
+                           return new AlertObject("Invalid Description", "Failed to set all required fields on a description!", AlertType.ERROR,
+                                 AlertCategory.ADD_UNCOMMITTED);
+                        }
+                     }
+                  }
+               }
+               return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+            }
+
+            @Override
+            public AlertObject check(ConceptChronology cc,
+                  CheckPhase checkPhase) {
+               // no default concept checker
+               return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+            }
+
+            @Override
+            public String getDescription() {
+               return "Raise an error if the description is not structured correctly.";
+            }
+         });
          
          
       } catch (final IOException e) {
@@ -1115,19 +1015,17 @@ public class CommitProvider
     *
     * @param cc the cc
     * @param writeSemaphore the write semaphore
-    * @param changeListeners the change listeners
     * @return the task
     */
    private Task<Void> write(ConceptChronology cc,
-           Semaphore writeSemaphore,
-           ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
+           Semaphore writeSemaphore) {
       writeSemaphore.acquireUninterruptibly();
 
       try
       {
          final WriteConceptChronicle task = new WriteConceptChronicle(cc,
                  writeSemaphore,
-                 changeListeners,
+                 this.changeListeners,
                  (sememeOrConceptChronicle,
                          changeCheckerActive) -> handleUncommittedSequenceSet(
                          sememeOrConceptChronicle,
@@ -1149,19 +1047,17 @@ public class CommitProvider
     *
     * @param sc the sc
     * @param writeSemaphore the write semaphore
-    * @param changeListeners the change listeners
     * @return the task
     */
    private Task<Void> write(SemanticChronology sc,
-           Semaphore writeSemaphore,
-           ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
+           Semaphore writeSemaphore) {
       writeSemaphore.acquireUninterruptibly();
 
       try
       {
          final WriteSemanticChronology task = new WriteSemanticChronology(sc,
                  writeSemaphore,
-                 changeListeners,
+                 this.changeListeners,
                  (sememeOrConceptChronicle,
                          changeCheckerActive) -> handleUncommittedSequenceSet(
                          sememeOrConceptChronicle,
@@ -1262,6 +1158,24 @@ public class CommitProvider
    @Override
    public Stream<StampComment> getStampCommentStream() {
       return this.stampCommentMap.getStampCommentStream();
+   }
+   
+   protected long getTimeForCommit()
+   {
+      long commitTime = System.currentTimeMillis();
+      
+      //Make it impossible to have two commits happen in the same MS - because this messes up the RelativePositionCalculator
+      //This could probably be done without a sync block, if I wanted to be clever enough, but I'm sure it won't matter...
+      synchronized (lastCommitTime) {
+         if (commitTime > lastCommitTime.get()) {
+            lastCommitTime.set(commitTime);
+         }
+         else
+         {
+            commitTime = lastCommitTime.incrementAndGet();
+         }
+      }
+      return commitTime;
    }
 
    /**

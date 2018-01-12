@@ -77,6 +77,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -289,10 +290,9 @@ public class VHATDeltaImport extends ConverterBaseMojo
             else
             {
                LOG.error("commit failed to process!");
-               for (Alert a : ct.getAlerts())
+               for (AlertObject a : ct.getAlerts())
                {
-                  //TODO [DAN 1] fix alerts
-                  //LOG.error(a.getAlertType().name() + ": " + a.getAlertText());
+                  LOG.error(a.getAlertType().name() + ": " + a.getAlertDescription());
                }
                throw new RuntimeException("Unexpected internal error!");
             }
