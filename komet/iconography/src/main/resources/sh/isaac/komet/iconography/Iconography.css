@@ -235,6 +235,16 @@ limitations under the License.
    -glyph-size: 16pt;
    -icons-color: #4CB709;
 }
+.search-minus{
+   -glyph-name: "SEARCH_MINUS";
+   -glyph-size: 12pt;
+   -icons-color: #4CB709;
+}
+.search-filter{
+   -glyph-name: "FILTER";
+   -glyph-size: 12pt;
+   -icons-color: #4CB709;
+}
 .simple-search {
    -glyph-name: "MAGNIFY";
    -glyph-size: 16pt;

@@ -46,5 +46,10 @@
            <artifactId>taxonomy-view</artifactId>
            <version>${project.parent.version}</version>
        </dependency>
+       <dependency>
+           <groupId>de.jensd</groupId>
+           <artifactId>fontawesomefx-fontawesome</artifactId>
+           <version>4.7.0-5</version>
+       </dependency>
    </dependencies>  
 </project>

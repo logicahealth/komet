@@ -3,9 +3,9 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.CheckListView?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 <?import java.net.URL?>
+
 <AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
     <stylesheets>
         <URL value="@/styles/search.css" />
@@ -13,46 +13,47 @@
     <children>
         <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
-                <SplitPane dividerPositions="0.5" orientation="VERTICAL" BorderPane.alignment="CENTER">
+                <SplitPane orientation="VERTICAL" BorderPane.alignment="CENTER">
                     <items>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
+                  <VBox prefHeight="262.0" prefWidth="339.0">
                      <children>
                         <ToolBar prefHeight="40.0" prefWidth="200.0">
                           <items>
-                              <Button fx:id="searchRefreshButton" styleClass="searchRefreshButton" mnemonicParsing="false" onAction="#searchRefresh" prefHeight="27.0" prefWidth="25.0">
-                                  <graphic>
-                                      <FontAwesomeIconView styleClass="searchRefreshButtonIcon"/>
-                                  </graphic>
-                              </Button>
-                              <CustomTextField fx:id="searchTextField" styleClass="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="211.0">
+                              <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
                                   <left>
                                       <Label styleClass="searchTextFieldLabel">
                                           <graphic>
-                                              <FontAwesomeIconView styleClass="searchTextFieldLabelIcon"/>
+                                              <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
                                           </graphic>
                                       </Label>
                                   </left>
                               </CustomTextField>
-                              <ChoiceBox fx:id="statusChoiceBox" prefWidth="80.0" />
+                              <!--<Button fx:id="addSearchTagButton" mnemonicParsing="false" onAction="#addSearchTag" prefHeight="27.0" prefWidth="22.0" styleClass="addSearchTag">-->
+                                  <!--<graphic>-->
+                                      <!--<FontAwesomeIconView styleClass="addTagIcon" />-->
+                                  <!--</graphic>-->
+                              <!--</Button>-->
+                              <!--<Button fx:id="removeSearchTagButton" mnemonicParsing="false" onAction="#removeSearchTag" prefHeight="27.0" prefWidth="22.0" styleClass="removeSearchTag">-->
+                                 <!--<graphic>-->
+                                    <!--<FontAwesomeIconView styleClass="removeTagIcon" />-->
+                                 <!--</graphic>-->
+                              <!--</Button>-->
                           </items>
                         </ToolBar>
-                        <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
-                        <CheckListView fx:id="kindOfCheckListView" />
-                     </children>
-                  </VBox>
-                        <VBox maxHeight="350.0" prefHeight="300.0" prefWidth="339.0">
-                            <children>
+                        <FlowPane fx:id="searchTagFlowPane" prefHeight="184.0" prefWidth="339.0" >
+                        </FlowPane>
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                     <content>
-                                        <TableView fx:id="resultTable" maxHeight="500.0" prefHeight="338.0" prefWidth="337.0">
+                                        <TableView fx:id="resultTable" maxHeight="700.0" prefHeight="425.0" prefWidth="337.0">
                                             <columns>
                                                 <TableColumn fx:id="resultColumn" editable="false" prefWidth="336.0" text="Result" />
                                             </columns>
                                         </TableView>
                                     </content>
                                 </ScrollPane>
-                            </children>
-                        </VBox>
+                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
+                     </children>
+                  </VBox>
                     </items>
                 </SplitPane>
             </center>

@@ -5,13 +5,17 @@
 .mainFxmlClass {
 
 }
-.searchRefreshButton{
+.addSearchTag, .removeSearchTag{
     -fx-background-color: transparent;
     -fx-background-insets: 0;
 }
-.searchRefreshButtonIcon{
+.addTagIcon{
     -glyph-size: 15;
-    -glyph-name: REFRESH;
+    -glyph-name: PLUS;
+}
+.removeTagIcon{
+    -glyph-size: 15;
+    -glyph-name: MINUS;
 }
 .searchTextFieldLabel{
     -fx-padding: 0 2 0 7;

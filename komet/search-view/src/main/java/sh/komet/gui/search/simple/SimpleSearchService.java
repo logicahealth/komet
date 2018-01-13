@@ -1,12 +1,13 @@
 package sh.komet.gui.search.simple;
 
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-import org.controlsfx.control.IndexedCheckModel;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -22,8 +23,7 @@ import sh.komet.gui.manifold.Manifold;
 public class SimpleSearchService extends Service<NidSet> {
 
     private final SimpleStringProperty luceneQuery = new SimpleStringProperty();
-    private final SimpleObjectProperty<SearchComponentStatus> searchComponentStatus  = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<IndexedCheckModel<SimpleSearchController.CustomCheckListItem>> searchableParents = new SimpleObjectProperty<>();
+    private final SimpleListProperty<Integer> parentNids = new SimpleListProperty<>();
     private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
     private Manifold manifold;
     private final double PROGRESS_MAX_VALUE = 100;
@@ -68,7 +68,7 @@ public class SimpleSearchService extends Service<NidSet> {
                 try {
                     if (results.size() > 500) {
 
-                        for (int allowedParentNid : getSearchableParents().asArray()) {
+                        for (int allowedParentNid : getParentNids()) {
                             System.out.println(allowedParentNid);
                             NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
 
@@ -76,7 +76,7 @@ public class SimpleSearchService extends Service<NidSet> {
 
                             updateProgress(
                                     computeProgress(PROGRESS_INCREMENT_VALUE
-                                            / getSearchableParents().asArray().length)
+                                            / getParentNids().size())
                                     , PROGRESS_MAX_VALUE );
                         }
                     }
@@ -112,15 +112,8 @@ public class SimpleSearchService extends Service<NidSet> {
                     DescriptionVersion descriptionVersion = description.get();
                     int                conceptNid         = descriptionVersion.getReferencedComponentNid();
 
-                    if (getSearchComponentStatus() != SearchComponentStatus.DONT_CARE) {
-                        boolean active = Get.conceptActiveService().isConceptActive(conceptNid, getManifold());
 
-                        if (!getSearchComponentStatus().filter(active)) {
-                            continue;
-                        }
-                    }
-
-                    if (!getSearchableParents().isEmpty()) {
+                    if (!getParentNids().isEmpty()) {
                         if (!allowedConceptNids.isEmpty()) {
                             if (!allowedConceptNids.contains(conceptNid)) {
                                 continue;
@@ -128,7 +121,7 @@ public class SimpleSearchService extends Service<NidSet> {
                         } else {
                             boolean allowedParentFound = false;
 
-                            for (int allowedParentNid : getSearchableParents().asArray()) {
+                            for (int allowedParentNid : getParentNids()) {
                                 if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
                                     allowedParentFound = true;
                                     break;
@@ -159,21 +152,6 @@ public class SimpleSearchService extends Service<NidSet> {
         return luceneQuery;
     }
 
-    public SimpleObjectProperty<SearchComponentStatus> searchComponentStatusProperty() {
-        return searchComponentStatus;
-    }
-
-    private NidSet getSearchableParents() {
-        NidSet searchableParentsNidSet = new NidSet();
-        this.searchableParentsProperty().get().getCheckedIndices()
-                .forEach(index -> searchableParentsNidSet.add(this.searchableParents.get().getItem(index).getNID()));
-        return searchableParentsNidSet;
-    }
-
-    public SimpleObjectProperty<IndexedCheckModel<SimpleSearchController.CustomCheckListItem>> searchableParentsProperty() {
-        return searchableParents;
-    }
-
     private Manifold getManifold() {
         return this.manifold;
     }
@@ -186,10 +164,13 @@ public class SimpleSearchService extends Service<NidSet> {
         return luceneQuery.get();
     }
 
-    private SearchComponentStatus getSearchComponentStatus() {
-        return searchComponentStatus.get();
+
+    private ObservableList<Integer> getParentNids() {
+        return parentNids.get();
     }
 
-
+    public SimpleListProperty<Integer> parentNidsProperty() {
+        return parentNids;
+    }
 
 }
