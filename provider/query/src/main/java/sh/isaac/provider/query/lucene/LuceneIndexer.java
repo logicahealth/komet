@@ -573,7 +573,7 @@ public abstract class LuceneIndexer
 	 */
 	@Override
 	public List<SearchResult> query(String query,
-			Integer[] assemblageConcept,
+			int[] assemblageConcept,
 			AmpRestriction amp,
 			Integer pageNum,
 			Integer sizeLimit,
@@ -587,7 +587,7 @@ public abstract class LuceneIndexer
 	@Override
 	public List<SearchResult> query(String query,
 			boolean prefixSearch,
-			Integer[] assemblageConcept,
+			int[] assemblageConcept,
 			AmpRestriction amp,
 			Integer pageNum,
 			Integer sizeLimit,
@@ -616,7 +616,7 @@ public abstract class LuceneIndexer
     * @param semanticAssemblageNid the semantic assemblage concept
     * @return the query newly modified query that takes into account the semantic restriction
     */
-   protected Query restrictToSemantic(Query query, Integer[] semanticAssemblageNid) {
+   protected Query restrictToSemantic(Query query, int[] semanticAssemblageNid) {
       final ArrayList<Integer> nullSafe = new ArrayList<>();
 
       if (semanticAssemblageNid != null) {

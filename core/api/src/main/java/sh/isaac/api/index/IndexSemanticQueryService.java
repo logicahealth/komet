@@ -90,8 +90,8 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          boolean queryDataLowerInclusive,
          Number queryDataUpper,
          boolean queryDataUpperInclusive,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -130,8 +130,8 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     *         matches. Note that scores are pointless for exact id matches - they will all be the same.
     */
    public List<SearchResult> queryNidReference(int nid,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -174,8 +174,8 @@ public interface IndexSemanticQueryService extends IndexQueryService {
    // TODO [DAN] fix this limitation on the column restriction...
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -222,8 +222,8 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     */
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -265,7 +265,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
     */
    public List<SearchResult> queryData(String queryString,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,

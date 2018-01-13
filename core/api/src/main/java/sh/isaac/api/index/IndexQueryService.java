@@ -99,7 +99,7 @@ public interface IndexQueryService {
     *         matches.
     */
    public List<SearchResult> query(String query,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -138,7 +138,7 @@ public interface IndexQueryService {
     */
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -180,7 +180,7 @@ public interface IndexQueryService {
     */
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,

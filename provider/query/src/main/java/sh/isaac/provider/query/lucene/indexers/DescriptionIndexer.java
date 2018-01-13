@@ -50,7 +50,7 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AmpRestriction;
-import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
@@ -79,7 +79,7 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 @Service(name = "description index")
 @RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class DescriptionIndexer extends LuceneIndexer
-        implements IndexQueryService {
+        implements IndexDescriptionQueryService {
 
    /** The Constant FIELD_INDEXED_STRING_VALUE. */
    private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
@@ -214,56 +214,16 @@ public class DescriptionIndexer extends LuceneIndexer
 
    
    /**
-    * An extended query option from the Description Indexer, which allows the following additional criteria:
-    * 
-    * - specifying that search results should be from the metadata
-    * - specifying the description type to search (FQN, Definition, Regular)
-    * - specifying the extended description type (description type assemblage concepts from non-snomed terminologies)
-    * 
-    * Everything else is the same as @see #query(String, boolean, Integer[], Predicate, AmpRestriction, Integer, Integer, Long)
-    *
-    * @param query The query to apply.
-    * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
-    *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
-    *           string will be required to be found in the result.
-    *
-    *           Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a space character
-    *           following it, that word will be required as a complete term. If the last word of the query does not have a space character
-    *           following it, that word will be required as a prefix match only.
-    *
-    *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
-    *           match on 'Testudinidae', so that will be excluded.
-    * 
-    * @param query - The query to apply
-    * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
-    *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
-    *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
-    * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
-    *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
-    *           true, or false, to have the item excluded.
-    * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
-    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#ISAAC_METADATA} tree when true,
-    *           otherwise, search all descriptions.
-    * @param descriptionTypes - optional - if specified, will only match descriptions of the specified type(s).
-    * @param extendedDescriptionType - optional - if specified, will only match descriptions with an extension semantic of the specified type(s)
-    * @param pageNum - optional - The desired page number of results. Page numbers start with 1.
-    * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Note, utilizing a small
-    *           size limit with and passing pageNum is the recommended way of handling large result sets.
-    * @param targetGeneration - optional - target generation that must be waited for prior to performing the search or Long.MIN_VALUE if there
-    *           is no need to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in progress
-    *           indexing operations are completed - and then use the latest index. Null behaves the same as Long.MIN_VALUE. See
-    *           {@link IndexQueryService#getIndexedGenerationCallable(int)}
-    * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that match relative to other
-    *         matches.
+    * {@inheritDoc}
     */
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          Predicate<Integer> filter,
          AmpRestriction amp,
          boolean metadataOnly,
-         Integer[] descriptionTypes,
-         Integer[] extendedDescriptionTypes,
+         int[] descriptionTypes,
+         int[] extendedDescriptionTypes,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -311,7 +271,7 @@ public class DescriptionIndexer extends LuceneIndexer
    @Override
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
+         int[] assemblageConcepts,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
