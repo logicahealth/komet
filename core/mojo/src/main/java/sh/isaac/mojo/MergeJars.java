@@ -150,7 +150,7 @@ public class MergeJars
    private static class ManifestEntry {
 
       String name;
-      ArrayList<String> entries = new ArrayList();
+      ArrayList<String> entries = new ArrayList<>();
 
       public ManifestEntry(String name) {
          this.name = name;

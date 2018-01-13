@@ -1063,7 +1063,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the list<? extends assertion>
     */
    private List<? extends Assertion> makeAssertionsFromNodeDescendants(LogicNode logicNode) {
-       List<Assertion> resultList = new ArrayList();
+       List<Assertion> resultList = new ArrayList<>();
        for (LogicNode childNode: logicNode.getChildren()) {
            resultList.add(makeAssertionFromNode(childNode));
        }

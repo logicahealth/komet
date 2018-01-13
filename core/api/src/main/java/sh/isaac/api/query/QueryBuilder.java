@@ -33,11 +33,11 @@ public class QueryBuilder  {
    ManifoldCoordinate manifoldCoordinate;
    ParentClause root;
    
-   List<ComponentCollectionTypes> forClause = new ArrayList();
+   List<ComponentCollectionTypes> forClause = new ArrayList<>();
    Map<String, Object> letClauses = new HashMap<>();
-   List<?> whereClauses = new ArrayList();
-   List<Object> orderByClauses = new ArrayList();
-   List<Object> returnClauses = new ArrayList();
+   List<?> whereClauses = new ArrayList<>();
+   List<Object> orderByClauses = new ArrayList<>();
+   List<Object> returnClauses = new ArrayList<>();
 
    public QueryBuilder(ManifoldCoordinate manifoldCoordinate) {
       this.manifoldCoordinate = manifoldCoordinate;

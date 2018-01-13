@@ -73,7 +73,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     protected Assertion[] getAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
         // nid 4: "Exact match map from SNOMED CT source code to target code (foundation metadata concept)"
         // nid 5: "Originally in LOINC (foundation metadata concept)"
-        ArrayList<Assertion> assertions = new ArrayList();
+        ArrayList<Assertion> assertions = new ArrayList<>();
         PARSE parseElement = PARSE.CONCEPT;
         while (parseElement == PARSE.CONCEPT) {
             String token = tokenizer.nextToken(); // SNOMED concept id

@@ -117,7 +117,7 @@ public class KometStageController
 
     //~--- fields --------------------------------------------------------------
     private int tabPanelCount = 0;
-    ArrayList<TabPane> tabPanes = new ArrayList();
+    ArrayList<TabPane> tabPanes = new ArrayList<>();
     @FXML  // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML  // URL location of the FXML file that was given to the FXMLLoader

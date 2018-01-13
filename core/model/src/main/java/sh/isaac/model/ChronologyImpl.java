@@ -794,7 +794,7 @@ public abstract class ChronologyImpl
     */
    public List<byte[]> getDataList() {
 
-      List<byte[]> dataArray = new ArrayList();
+      List<byte[]> dataArray = new ArrayList<>();
 
       byte[] dataToSplit = getDataToWrite();
       if (versionStartPosition < 0) {

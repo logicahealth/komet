@@ -471,7 +471,7 @@ public class FLWORQueryController
 
    private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {
       // Firstly, create a list of Actions
-      ArrayList<Action> actionList = new ArrayList();
+      ArrayList<Action> actionList = new ArrayList<>();
       final TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       if (treeItem != null) {

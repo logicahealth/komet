@@ -78,7 +78,7 @@ public abstract class ParentClause
     */
    @XmlElementWrapper(name = "child-clauses")
    @XmlElement(name = "clause")
-   private List<Clause> children = new ArrayList();
+   private List<Clause> children = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
