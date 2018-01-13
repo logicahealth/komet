@@ -272,7 +272,7 @@ public class Rf2RelationshipImpl
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.RF2_RELATIONSHIP;
    }
 

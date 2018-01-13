@@ -56,7 +56,7 @@ public interface LongVersion
    long getLongValue();
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.LONG;
    }
 }

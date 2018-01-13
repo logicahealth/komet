@@ -121,15 +121,17 @@ public class PreferencesProvider
             System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/isaac.data");
             System.setProperty(PREFERENCES_FOLDER_LOCATION, "data/preferences");
 
-            File importPath = new File("data/to-import");
-
-            importPath.mkdirs();
-
-            File afterImportPath = new File("data/completed-import");
-
-            afterImportPath.mkdirs();
-            System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-            System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+            if (System.getProperty(IMPORT_FOLDER_LOCATION) == null) {
+               File importPath = new File("data/to-import");
+               importPath.mkdirs();
+               File afterImportPath = new File("data/completed-import");
+               afterImportPath.mkdirs();
+               System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+               System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+            } else {
+               File importPath = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+               importPath.mkdirs();
+            }
 
             if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {}
             else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {}
@@ -154,26 +156,22 @@ public class PreferencesProvider
          case MAVEN: {
             System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/isaac.data");
             System.setProperty(PREFERENCES_FOLDER_LOCATION, "target/data/preferences");
-
-            File importPath = new File("target", "to-import");
-
-            importPath.mkdirs();
-
-            File afterImportPath = new File("target", "completed-import");
-
-            afterImportPath.mkdirs();
-            System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
-            System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+            if (System.getProperty(IMPORT_FOLDER_LOCATION) == null) {
+               File importPath = new File("data/to-import");
+               importPath.mkdirs();
+               File afterImportPath = new File("data/completed-import");
+               afterImportPath.mkdirs();
+               System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
+               System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
+            } else {
+               File importPath = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+               importPath.mkdirs();
+            }
 
             if (setPropertyIfFileExists(
                   USER_CSS_LOCATION_PROPERTY,
                   Paths.get(
-                      "/Users",
-                      "kec",
-                      "isaac",
-                      "semiotic-history",
-                      "isaac",
-                      "komet",
+                       "..",
                       "css",
                       "src",
                       "main",

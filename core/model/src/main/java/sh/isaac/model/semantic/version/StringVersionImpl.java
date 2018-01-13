@@ -84,7 +84,7 @@ public class StringVersionImpl
            int stampSequence,
            ByteArrayDataBuffer data) {
       super(container, stampSequence);
-      this.string = data.readUTF();
+      this.string = data.getUTF();
    }
 
    private StringVersionImpl(StringVersionImpl other, int stampSequence) {
@@ -143,7 +143,7 @@ public class StringVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.STRING;
    }
 

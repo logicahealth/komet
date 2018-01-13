@@ -66,6 +66,8 @@ public class ConceptProxy
     * Universal identifiers for the concept proxied by the is object.
     */
    private UUID[] uuids;
+   
+   private transient int nid = Integer.MAX_VALUE;
 
    /**
     * The fully qualified name for this object.
@@ -97,6 +99,15 @@ public class ConceptProxy
               .toArray(new UUID[0]);
       this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
       this.regularName = Get.defaultCoordinate().getRegularName(conceptSequenceOrNid);
+   }
+   
+   public void setNid(int nid) {
+      if (this.nid == Integer.MAX_VALUE) {
+          this.nid = nid;
+      } else if (this.nid != nid) {
+          throw new IllegalStateException("Attempting to set nid to a different value. From: " +
+                  this.nid + " to: " + nid);
+      }
    }
 
    /**
@@ -238,8 +249,10 @@ public class ConceptProxy
     */
    @Override
    public int getNid() {
-      return Get.identifierService()
-              .getNidForUuids(this.uuids);
+       if (nid == Integer.MAX_VALUE) {
+           nid = Get.identifierService().getCachedNidForProxy(this);
+       }
+      return nid;
    }
 
    /**

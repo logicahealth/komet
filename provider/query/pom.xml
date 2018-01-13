@@ -5,7 +5,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>provider</artifactId>
-      <version>4.42-SNAPSHOT</version>
+      <version>4.46-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.provider</groupId>
    <artifactId>query</artifactId>
@@ -20,11 +20,6 @@
          <artifactId>model</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <!--dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>metadata</artifactId>
-         <version>${project.version}</version>
-      </dependency-->
       <dependency>
          <groupId>org.apache.lucene</groupId>
          <artifactId>lucene-core</artifactId>
@@ -53,36 +48,4 @@
          <scope>test</scope>
       </dependency>
    </dependencies>
-   
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>extract-test-dependencies</id>
-                  <phase>generate-test-resources</phase>
-                  <goals>
-                     <goal>unpack</goal>
-                  </goals>
-                  <configuration>
-                     <skip>${skipTests}</skip>
-                     <artifactItems>
-                        <artifact>
-                           <groupId>sh.isaac.core</groupId>
-                           <artifactId>metadata</artifactId>
-                           <version>${project.version}</version>
-                           <classifier>all</classifier>
-                           <type>ibdf.zip</type>
-                        </artifact>
-                     </artifactItems>
-                     <outputDirectory>${project.build.directory}/data</outputDirectory>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-   </build>
-
 </project>

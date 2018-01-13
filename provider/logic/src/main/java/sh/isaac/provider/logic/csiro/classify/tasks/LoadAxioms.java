@@ -44,7 +44,7 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.memory.MemoryConfigurations;
+import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
@@ -89,8 +89,6 @@ public class LoadAxioms
    @Override
    protected Void call()
             throws Exception {
-      LookupService.getService(MemoryManagementService.class)
-                   .setMemoryConfiguration(MemoryConfigurations.CLASSIFY);
 
       final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 

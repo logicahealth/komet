@@ -108,8 +108,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -1201,6 +1199,11 @@ public abstract class LuceneIndexer
          reindexLock.unlock();
          LOG.info("unlocking after reindex");
       }
+   }
+   
+   @Override
+   public int getIndexMemoryInUse() {
+       return (int) indexWriter.ramBytesUsed();
    }
 
    //~--- inner classes -------------------------------------------------------

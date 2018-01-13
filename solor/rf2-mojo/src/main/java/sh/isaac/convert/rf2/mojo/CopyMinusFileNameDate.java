@@ -41,6 +41,7 @@ package sh.isaac.convert.rf2.mojo;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -48,8 +49,8 @@ import java.io.IOException;
 
 import java.nio.channels.FileChannel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -86,10 +87,17 @@ public class CopyMinusFileNameDate
    /** Location to write the output file. */
    @Parameter(
       required     = true,
-      defaultValue = "${project.basedir}/src/main/resources"
+      defaultValue = "${project.build.directory}/processed"
    )
    protected File outputDirectory;
-
+   
+   /** Location to write the output file. */
+   @Parameter(
+      required     = true,
+      defaultValue = "${project.build.directory}/unzipped"
+   )
+   protected File outputTempDirectory;
+   
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -101,17 +109,56 @@ public class CopyMinusFileNameDate
    @Override
    public void execute()
             throws MojoExecutionException, MojoFailureException {
-      this.rf2WithDatesLocation.mkdirs();
+      getLog().info("Transforming RF2 file: " + rf2WithDatesLocation.getAbsolutePath());
 
-      if (hasSubDirectory(this.rf2WithDatesLocation)) {
+      try (ZipInputStream zipIs = new ZipInputStream(
+                                      new BufferedInputStream(new FileInputStream(rf2WithDatesLocation))
+      
+      )) {
+         ZipEntry entry;
+
+         while ((entry = zipIs.getNextEntry()) != null) {
+            if (entry.getName()
+                     .contains("__MACOSX")) {
+               continue;
+            }
+            
+            byte[] tmp         = new byte[4 * 1024];
+            File   entryOutput = new File(outputTempDirectory, entry.getName());
+
+            if (entry.isDirectory()) {
+               entryOutput.mkdirs();
+            } else {
+               try (FileOutputStream fos = new FileOutputStream(entryOutput)) {
+                  int size = 0;
+
+                  while ((size = zipIs.read(tmp)) != -1) {
+                     fos.write(tmp, 0, size);
+                  }
+
+                  fos.flush();
+               } catch (Exception ex) {
+                  throw ex;
+               }
+            }
+         }
+      } catch (Exception ex) {
+         throw new MojoFailureException("Unzip failed", ex);
+      }
+
+      if (hasSubDirectory(this.outputTempDirectory)) {
          try {
-            getLog().info("Processing: " + this.rf2WithDatesLocation.getAbsolutePath());
-            processDirectory(this.rf2WithDatesLocation, this.outputDirectory);
-            getLog().info("Now deleting: " + this.rf2WithDatesLocation.getAbsolutePath());
-            delete(this.rf2WithDatesLocation);
+            getLog().info("Processing: " + this.outputDirectory.getAbsolutePath());
+            // Discard the first folder in  this.outputTempDirectory
+            for (File enclosingFile: this.outputTempDirectory.listFiles((dir, name) -> {
+               return !name.contains("__MACOSX"); 
+            })) {
+               processDirectory(enclosingFile, this.outputDirectory);
+            }
+            getLog().info("Now deleting: " + this.outputTempDirectory.getAbsolutePath());
+            delete(this.outputTempDirectory);
          } catch (final IOException ex) {
-            Logger.getLogger(CopyMinusFileNameDate.class.getName())
-                  .log(Level.SEVERE, null, ex);
+            getLog().error(ex);
          }
       }
    }
@@ -129,6 +176,7 @@ public class CopyMinusFileNameDate
 
          f.delete();
       }
+      directory.delete();
    }
 
    /**
@@ -211,12 +259,13 @@ public class CopyMinusFileNameDate
     * @return true, if successful
     */
    private boolean hasSubDirectory(File directory) {
-      for (final File f: directory.listFiles()) {
-         if (f.isDirectory()) {
-            return true;
+      if (directory != null) {
+         for (final File f: directory.listFiles()) {
+            if (f.isDirectory()) {
+               return true;
+            }
          }
       }
-
       return false;
    }
 }

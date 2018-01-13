@@ -180,7 +180,7 @@ public class AssociationUtilities
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
       StampCoordinate localStamp = stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp;
-      Get.assemblageService().getSemanticChronologyStreamFromAssemblage(associationTypeConceptNid)
+      Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
          .forEach(associationC -> 
             {
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
@@ -201,7 +201,7 @@ public class AssociationUtilities
    {
       HashSet<Integer> result = new HashSet<>();
 
-      Get.assemblageService().getSemanticChronologyStreamFromAssemblage(getAssociationNid()).forEach(associationC ->
+      Get.assemblageService().getSemanticChronologyStream(getAssociationNid()).forEach(associationC ->
       {
          result.add(associationC.getReferencedComponentNid());
       });

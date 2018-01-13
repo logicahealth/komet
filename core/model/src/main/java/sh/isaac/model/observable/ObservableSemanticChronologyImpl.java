@@ -70,7 +70,33 @@ import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.observable.version.ObservableRf2RelationshipImpl;
+import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
+import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Str2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -190,7 +216,34 @@ public class ObservableSemanticChronologyImpl
             return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
             
             
-           // fall through to default...
+         case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+            return (OV) new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) semanticVersion, this);
+         case Nid1_Int2:
+            return (OV) new Observable_Nid1_Int2_VersionImpl((Nid1_Int2_VersionImpl) semanticVersion, this);
+         case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+            return (OV) new Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2:
+            return (OV) new Observable_Nid1_Nid2_VersionImpl((Nid1_Nid2_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2_Int3:
+            return (OV) new Observable_Nid1_Nid2_Int3_VersionImpl((Nid1_Nid2_Int3_VersionImpl) semanticVersion, this);
+         case Nid1_Nid2_Str3:
+            return (OV) new Observable_Nid1_Nid2_Str3_VersionImpl((Nid1_Nid2_Str3_VersionImpl) semanticVersion, this);
+         case Nid1_Str2:
+            return (OV) new Observable_Nid1_Str2_VersionImpl((Nid1_Str2_VersionImpl) semanticVersion, this);
+         case Str1_Str2:
+            return (OV) new Observable_Str1_Str2_VersionImpl((Str1_Str2_VersionImpl) semanticVersion, this);
+         case Str1_Str2_Nid3_Nid4:
+            return (OV) new Observable_Str1_Str2_Nid3_Nid4_VersionImpl((Str1_Str2_Nid3_Nid4_VersionImpl) semanticVersion, this);
+         case LOINC_RECORD:
+            return (OV) new ObservableLoincVersionImpl((LoincVersionImpl) semanticVersion, this);
+         case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+            return (OV) new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl) semanticVersion, this);
+         case Str1_Nid2_Nid3_Nid4:
+            return (OV) new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl((Str1_Nid2_Nid3_Nid4_VersionImpl) semanticVersion, this);
+         case Str1_Str2_Nid3_Nid4_Nid5:
+             return (OV) new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) semanticVersion, this);
+
+             // fall through to default...
          case UNKNOWN:
          default:
             throw new UnsupportedOperationException("Can't convert to observable "

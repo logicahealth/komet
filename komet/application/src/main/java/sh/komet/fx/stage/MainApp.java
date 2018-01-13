@@ -34,17 +34,12 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.application.Application;
 import javafx.application.Platform;
 
@@ -61,6 +56,7 @@ import javafx.stage.WindowEvent;
 import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import sh.isaac.api.ApplicationStates;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -79,103 +75,117 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
 
 //~--- classes ----------------------------------------------------------------
-
 public class MainApp
         extends Application {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
-   public static final String SPLASH_IMAGE = "prism-splash.png";
 
-   //~--- methods -------------------------------------------------------------
+    public static final String SPLASH_IMAGE = "prism-splash.png";
+    
+    //~--- methods -------------------------------------------------------------
+    /**
+     * The main() method is ignored in correctly deployed JavaFX application.
+     * main() serves only as fallback in case the application can not be
+     * launched through deployment artifacts, e.g., in IDEs with limited FX
+     * support. NetBeans ignores main().
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-   /**
-    * The main() method is ignored in correctly deployed JavaFX application. main() serves only as fallback in case the
-    * application can not be launched through deployment artifacts, e.g., in IDEs with limited FX support. NetBeans
-    * ignores main().
-    *
-    * @param args the command line arguments
-    */
-   public static void main(String[] args) {
-      launch(args);
-   }
-
-   // Create drop label for identified components
-   // Create walker panel
-   // grow & shrink icons for tabs & tab panels...
-   // for each tab group, add a + control to create new tabs...
-   @Override
-   public void start(Stage stage)
+    // Create drop label for identified components
+    // Create walker panel
+    // grow & shrink icons for tabs & tab panels...
+    // for each tab group, add a + control to create new tabs...
+    @Override
+    public void start(Stage stage)
             throws Exception {
-      // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
-      SvgImageLoaderFactory.install();
-      LookupService.startupPreferenceProvider();
+        // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
+        SvgImageLoaderFactory.install();
+        LookupService.startupPreferenceProvider();
 
-      IsaacPreferences appPreferences = Get.applicationPreferences();
-      appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-      
-      appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
-      appPreferences.sync();
+        IsaacPreferences appPreferences = Get.applicationPreferences();
+        appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+        appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
+        appPreferences.sync();
 
-      LookupService.startupIsaac();
+        
+        LookupService.startupIsaac();
 
-      if (Get.metadataService()
-             .wasMetadataImported()) {
-         final StampCoordinate stampCoordinate = Get.coordinateFactory()
-                                                    .createDevelopmentLatestStampCoordinate();
-         final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                                                    .createStandardElProfileLogicCoordinate();
-         final EditCoordinate  editCoordinate  = Get.coordinateFactory()
-                                                    .createClassifierSolorOverlayEditCoordinate();
-         final ClassifierService logicService = Get.logicService()
-                                                   .getClassifierService(
-                                                         stampCoordinate,
-                                                               logicCoordinate,
-                                                               editCoordinate);
-         final Task<ClassifierResults> classifyTask      = logicService.classify();
-         final ClassifierResults       classifierResults = classifyTask.get();
-      }
+        if (Get.metadataService()
+                .wasMetadataImported()) {
+            final StampCoordinate stampCoordinate = Get.coordinateFactory()
+                    .createDevelopmentLatestStampCoordinate();
+            final LogicCoordinate logicCoordinate = Get.coordinateFactory()
+                    .createStandardElProfileLogicCoordinate();
+            final EditCoordinate editCoordinate = Get.coordinateFactory()
+                    .createClassifierSolorOverlayEditCoordinate();
+            final ClassifierService logicService = Get.logicService()
+                    .getClassifierService(
+                            stampCoordinate,
+                            logicCoordinate,
+                            editCoordinate);
+            final Task<ClassifierResults> classifyTask = logicService.classify();
+            final ClassifierResults classifierResults = classifyTask.get();
+        }
 
-      FXMLLoader           loader     = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-      Parent               root       = loader.load();
-      KometStageController controller = loader.getController();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+        Parent root = loader.load();
+        KometStageController controller = loader.getController();
 
-      root.setId(UUID.randomUUID()
-                     .toString());
+        root.setId(UUID.randomUUID()
+                .toString());
 
-      Scene scene = new Scene(root);
+        Scene scene = new Scene(root);
 
-      // GraphController.setSceneForControllers(scene);
-      scene.getStylesheets()
-           .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-      scene.getStylesheets()
-           .add(Iconography.getStyleSheetStringUrl());
+        // GraphController.setSceneForControllers(scene);
+        scene.getStylesheets()
+                .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+        scene.getStylesheets()
+                .add(Iconography.getStyleSheetStringUrl());
 
-      // SNAPSHOT
-      // Chronology
-      // Reflector
-      //
-      // Logic, Language, Dialect, Chronology,
-      // LILAC Reflector (LOGIC,
-      // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
-      // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
-      // CHILLDE
-      // Knowledge, Language, Dialect, Chronology
-      // KOLDAC
-      stage.setTitle("SOLOR");
-      stage.setScene(scene);
-      FxGet.statusMessageService()
-           .addScene(scene, controller::reportStatus);
-      stage.show();
-      stage.setOnCloseRequest(this::handleShutdown);
+        // SNAPSHOT
+        // Chronology
+        // Reflector
+        //
+        // Logic, Language, Dialect, Chronology,
+        // LILAC Reflector (LOGIC,
+        // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
+        // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
+        // CHILLDE
+        // Knowledge, Language, Dialect, Chronology
+        // KOLDAC
+        stage.setTitle("Viewer");
+        stage.setScene(scene);
+        FxGet.statusMessageService()
+                .addScene(scene, controller::reportStatus);
+        stage.show();
+        stage.setOnCloseRequest(this::handleShutdown);
 
-      // ScenicView.show(scene);
-   }
+        // ScenicView.show(scene);
+        
+    }
 
-   private void handleShutdown(WindowEvent e) {
-      LookupService.shutdownSystem();
-      Platform.exit();
-      System.exit(0);
-   }
+    private void handleShutdown(WindowEvent e) {
+        // need this to all happen on a non event thread...
+        e.consume();
+        Get.applicationStates().remove(ApplicationStates.RUNNING);
+        Get.applicationStates().add(ApplicationStates.STOPPING);
+        Get.executor().execute(() -> {
+            LookupService.syncAll();
+            Platform.runLater(() -> {
+                try {
+                    stop();
+                    LookupService.shutdownSystem();
+                    Platform.exit();
+                    System.exit(0);
+                } catch (Throwable ex) {
+                    ex.printStackTrace();
+                }
+            });
+        });
+    }
 }
-

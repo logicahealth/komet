@@ -412,9 +412,9 @@ public abstract class VersionImpl
    }
 
    /**
-    * Gets the state.
+    * Gets the status.
     *
-    * @return the state
+    * @return the status
     */
    @Override
    public Status getStatus() {

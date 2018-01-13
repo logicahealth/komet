@@ -15,6 +15,8 @@
  */
 package sh.komet.gui.control;
 
+import java.util.List;
+import java.util.function.Supplier;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
@@ -23,6 +25,7 @@ import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
@@ -35,6 +38,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -44,7 +48,11 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
    final MenuButton manifoldLinkMenu = new MenuButton();
    final ConceptLabel conceptLabel;
+   final Label rightInfoLabel = new Label("");
    final Manifold manifold;
+   final Supplier<List<MenuItem>> menuSupplier;
+   final GridPane toolBarGrid = new GridPane();
+
 
    public void manifoldEventHandler(Event event) {
       MenuItem menuItem = (MenuItem) event.getSource();
@@ -81,12 +89,18 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       return combinedGraphic;
    }
 
-   private ConceptLabelToolbar(Manifold manifold) {
+   private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier) {
       this.manifold = manifold;
-      this.conceptLabel = new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText);
+      this.menuSupplier = menuSupplier;
+      this.conceptLabel = new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText, menuSupplier);
 
       // Manifold
-      Manifold.getGroupNames().stream().map((m) -> {
+      Manifold.getGroupNames().stream().filter((groupString) -> {
+          if (FxGet.showBetaFeatures()) {
+              return true;
+          } 
+          return !groupString.toLowerCase().startsWith("flwor");
+      }).map((m) -> {
          MenuItem manifoldItem = new MenuItem(m, getNodeForManifold(m));
          manifoldItem.setUserData(m);
          manifoldItem.addEventHandler(ActionEvent.ACTION, this::manifoldEventHandler);
@@ -101,21 +115,33 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 // 
    }
 
-   public static Node make(Manifold manifold) {
+   public static ConceptLabelToolbar make(Manifold manifold, Supplier<List<MenuItem>> menuSupplier) {
 
-      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold);
-      GridPane toolBarGrid = new GridPane();
+      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold, menuSupplier);
       GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
-      toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
+      gctb.toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
-      toolBarGrid.getChildren().add(gctb.conceptLabel);
+      gctb.conceptLabel.setMaxWidth(2000);      
+      gctb.conceptLabel.setMinWidth(100);      
+      gctb.toolBarGrid.getChildren().add(gctb.conceptLabel);
       
-      toolBarGrid.getStyleClass().add("concept-label-toolbar");
-      return toolBarGrid;
+      GridPane.setConstraints(gctb.rightInfoLabel, 2, 0, 1, 1, HPos.RIGHT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+      gctb.toolBarGrid.getChildren().add(gctb.rightInfoLabel);
+      
+      
+      gctb.toolBarGrid.getStyleClass().add("concept-label-toolbar");
+      return gctb;
    }
 
+   public Node getToolbarNode() {
+       return this.toolBarGrid;
+   }
    @Override
    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));      
    }
+
+    public Label getRightInfoLabel() {
+        return rightInfoLabel;
+    }
 }

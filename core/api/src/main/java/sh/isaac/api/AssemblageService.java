@@ -50,6 +50,8 @@ import java.util.Set;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -57,6 +59,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -133,6 +136,16 @@ public interface AssemblageService
     * @return count of all the semantic chronologies in the assemblage, active, or inactive. 
     */
    int getSemanticCount(int assemblageNid);
+
+   
+   /**
+    * 
+    * @param assemblageNid
+    * @return the type of object contained within the assemblage. 
+    */
+   IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
+   
+   VersionType getVersionTypeForAssemblage(int assemblageNid);
 
    /**
     * Gets the SemanticChronology key stream.
@@ -215,7 +228,16 @@ public interface AssemblageService
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptSequence);
+
+   /**
+    * Gets the SemanticChronologies from assemblage.
+    *
+    * @param <C>
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the SemanticChronologies from assemblage
+    */
+   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptSequence);
 
    /**
     * Gets the referenced component nids from assemblage.
@@ -234,9 +256,10 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
-      return getSemanticChronologyStreamFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+      return getSemanticChronologyStream(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
+   int[] getAssemblageConceptNids(); 
    
    /**
     * Gets the snapshot.
@@ -248,7 +271,7 @@ public interface AssemblageService
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
-   
+
    /**
     * Use in circumstances when not all sememes may have been loaded to find out if a sememe is present,
     * without incurring the overhead of reading back the object. 
@@ -256,5 +279,18 @@ public interface AssemblageService
     * @return true if present, false otherwise
     */
    boolean hasSemantic(int semanticId);
+
+   /**
+    * 
+    * @param assemblageNid
+    * @return memory used in bytes
+    */
+    int getAssemblageMemoryInUse(int assemblageNid);
+    /**
+     * 
+     * @param assemblageNid
+     * @return disk space used in bytes
+     */
+    int getAssemblageSizeOnDisk(int assemblageNid);
 }
 

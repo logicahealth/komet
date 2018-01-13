@@ -130,7 +130,7 @@ public class VersionManagmentPathProvider
          try {
             this.pathMap = new ConcurrentHashMap<>();
             Get.assemblageService()
-               .getSemanticChronologyStreamFromAssemblage(TermAux.PATH_ASSEMBLAGE.getNid())
+               .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
                .forEach((pathSememe) -> {
                            final int pathNid = pathSememe.getReferencedComponentNid();
 
@@ -220,7 +220,7 @@ public class VersionManagmentPathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.assemblageService().getSemanticChronologyStreamFromAssemblage(TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
                        final StampPath stampPath = new StampPathImpl(pathId);
 

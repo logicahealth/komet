@@ -19,9 +19,8 @@ package sh.isaac.solor.rf2.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.PremiseType;
@@ -37,22 +36,28 @@ import sh.isaac.model.collections.SpinedIntIntArrayMap;
  */
 public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
-   protected static final Logger LOG = LogManager.getLogger();
    private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
    protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
    final int transformSize = 10240;
    final ContainerSequenceService containerService = ModelGet.identifierService();
+   private final ImportType importType;
 
-   public Rf2RelationshipTransformer() {
+   public Rf2RelationshipTransformer(ImportType importType) {
+       this.importType = importType;
       Get.activeTasks().add(this);
-      updateTitle("Converting RF2 to EL++");
+      updateTitle("Converting RF2 to EL++ " + importType);
+      
    }
 
    @Override
    protected Void call() throws Exception {
       try {
+         setStartTime();
          updateMessage("Computing concept to stated relationship associations...");
          int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
+         
+         final int watchNid = Get.identifierService() // Beclamide overdose (disorder)
+                 .getNidForUuids(UUID.fromString("ec9af1ff-3a86-346c-818c-93b4109b09cb")); 
 
          SpinedIntIntArrayMap conceptElementSequence_StatedRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
          addToTotalWork(4);
@@ -67,7 +72,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
                statedTransformList.add(new TransformationGroup(conceptNid, value, PremiseType.STATED));
                if (statedTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(statedTransformList);
-                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore);
+                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
                   Get.executor().submit(transformer);
                   statedTransformList.clear();
                }
@@ -76,7 +81,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
             }
          });
          // pickup any items remaining in the list. 
-         LogicGraphTransformerAndWriter remainingStatedtransformer = new LogicGraphTransformerAndWriter(statedTransformList, writeSemaphore);
+         LogicGraphTransformerAndWriter remainingStatedtransformer = new LogicGraphTransformerAndWriter(statedTransformList, writeSemaphore, this.importType, getStartTime());
          Get.executor().submit(remainingStatedtransformer);
          
          
@@ -94,7 +99,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
                inferredTransformList.add(new TransformationGroup(conceptNid, value, PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(inferredTransformList);
-                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore);
+                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
                   Get.executor().submit(transformer);
                   inferredTransformList.clear();
                }
@@ -103,7 +108,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
             }
          });
          // pickup any items remaining in the list. 
-         LogicGraphTransformerAndWriter remainingInferredTransformer = new LogicGraphTransformerAndWriter(inferredTransformList, writeSemaphore);
+         LogicGraphTransformerAndWriter remainingInferredTransformer = new LogicGraphTransformerAndWriter(inferredTransformList, writeSemaphore, this.importType, getStartTime());
          Get.executor().submit(remainingInferredTransformer);
          
          writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
@@ -112,13 +117,14 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          return null;
       } finally {
+         Get.taxonomyService().notifyTaxonomyListenersToRefresh();
          Get.activeTasks().remove(this);
       }
    }
 
    private SpinedIntIntArrayMap setupRelSpinedMap(int relationshipAssemblageNid, int conceptAssemblageNid) {
       SpinedIntIntArrayMap conceptElementSequence_RelationshipNids_Map = new SpinedIntIntArrayMap();
-      Get.assemblageService().getSemanticChronologyStreamFromAssemblage(relationshipAssemblageNid)
+      Get.assemblageService().getSemanticChronologyStream(relationshipAssemblageNid)
               .forEach((semanticChronology) -> {
                  int conceptNid = semanticChronology.getReferencedComponentNid();
                  int conceptAssemblageNidFound = containerService.getAssemblageNidForNid(conceptNid);

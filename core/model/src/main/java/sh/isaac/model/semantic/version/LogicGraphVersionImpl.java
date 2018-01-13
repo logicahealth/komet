@@ -153,7 +153,7 @@ public class LogicGraphVersionImpl
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(getSememeType().toString());
+      sb.append(getSemanticType().toString());
 
       final LogicalExpressionImpl lg = new LogicalExpressionImpl(this.graphData,
                                                                            DataSource.INTERNAL,
@@ -259,7 +259,7 @@ public class LogicGraphVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.LOGIC_GRAPH;
    }
    

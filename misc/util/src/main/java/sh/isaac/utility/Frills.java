@@ -76,6 +76,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -602,19 +603,21 @@ public class Frills
    /**
     * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR - return it if found, otherwise, return null.
     */
-   private static Integer findTermTypeConcept(int conceptModuleNid)
+   private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp)
    {
-      OfInt parents = Get.taxonomyService().getTaxonomyParentSequences(conceptModuleNid).iterator();
-      while (parents.hasNext())
+      int[] parents = Get.taxonomyService().getSnapshot(
+            new ManifoldCoordinateImpl(stamp == null ? StampCoordinates.getDevelopmentLatest(): stamp, 
+                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+            .getTaxonomyParentConceptNids(conceptModuleNid);
+      for (int current : parents)
       {
-         int current = parents.next();
          if (current == MetaData.MODULE____SOLOR.getNid())
          {
             return conceptModuleNid;
          }
          else
          {
-            return findTermTypeConcept(current);
+            return findTermTypeConcept(current, stamp);
          }
       }
       return null;
@@ -1156,10 +1159,16 @@ public class Frills
     * @param conceptNid The concept to look at
     * @param recursive recurse down from the concept
     * @param leafOnly only return leaf nodes
+    * @param stamp - optional - defaults to system default if not provided.
     * @return the set of concept sequence ids that represent the children
     */
-   public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly) {
-      Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly);
+   public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
+      
+      TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(
+            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp),
+                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+      
+      Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {
          temp.remove(conceptNid);
       }
@@ -1170,7 +1179,7 @@ public class Frills
     * Recursively get Is a children of a concept.  May inadvertently return the requested starting sequence when leafOnly is true, and 
     * there are no children.
     */
-   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptNids, int conceptNid, boolean recursive, boolean leafOnly) {
+   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptNids, int conceptNid, boolean recursive, boolean leafOnly, TaxonomySnapshotService tss) {
       Set<Integer> results = new HashSet<>();
 
       // This both prevents infinite recursion and avoids processing or returning of duplicates
@@ -1179,15 +1188,12 @@ public class Frills
       }
 
       AtomicInteger count = new AtomicInteger();
-      //TODO [DAN 2] change this back to getTaxonomyChildNids (without coords) when it works
-      IntStream children = Arrays.stream(Get.taxonomyService().getSnapshot(
-            new ManifoldCoordinateImpl(StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
-            .getTaxonomyChildConceptNids(conceptNid));
+      IntStream children = Arrays.stream(tss.getTaxonomyChildConceptNids(conceptNid));
 
       children.forEach((conSequence) -> {
          count.getAndIncrement();
          if (leafOnly) {
-            Set<Integer> temp = getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly);
+            Set<Integer> temp = getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly, tss);
 
             if (recursive) {
                results.addAll(temp);
@@ -1201,7 +1207,7 @@ public class Frills
          } else {
             results.add(conSequence);
             if (recursive) {
-               results.addAll(getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly));
+               results.addAll(getAllChildrenOfConcept(handledConceptNids, conSequence, recursive, leafOnly, tss));
             }
          }
       });
@@ -1601,13 +1607,14 @@ public class Frills
    
    /**
     * Get a list of all "extended" description types - the children of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}
+    * @param stamp - optional - defaults to system default if not provided
     * @return
     * @throws IOException
     */
-   public static List<SimpleDisplayConcept> getExtendedDescriptionTypes() throws IOException {
+   public static List<SimpleDisplayConcept> getExtendedDescriptionTypes(StampCoordinate stamp) throws IOException {
       Set<Integer> extendedDescriptionTypes;
       ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
-      extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true);
+      extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, stamp);
       for (Integer seq : extendedDescriptionTypes) {
          temp.add(new SimpleDisplayConcept(seq));
       }
@@ -2225,7 +2232,7 @@ public class Frills
             terminologyTypes.add(MODULE_TO_TERM_TYPE_CACHE.get(moduleNid));
          } else {
             if (Get.taxonomyService().wasEverKindOf(moduleNid, MetaData.MODULE____SOLOR.getNid())) {
-               Integer termTypeConcept = findTermTypeConcept(moduleNid);
+               Integer termTypeConcept = findTermTypeConcept(moduleNid, coord);
                if (termTypeConcept != null) {
                   terminologyTypes.add(termTypeConcept);
                   MODULE_TO_TERM_TYPE_CACHE.put(moduleNid, termTypeConcept);
@@ -2371,7 +2378,7 @@ public class Frills
 
       // StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-      final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true);
+      final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, null);
       final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
 
       final Set<Integer> matchingVuidSememeNids = new HashSet<>();

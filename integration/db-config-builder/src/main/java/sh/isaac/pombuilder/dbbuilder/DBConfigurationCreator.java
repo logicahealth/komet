@@ -276,6 +276,8 @@ public class DBConfigurationCreator {
          pe.setGoals(goals);
          configuration = new Configuration();
          configuration.setDataStoreLocation(
+            //TODO [DAN 1] Keith removed ${resultArtifactClassifierWithLeadingHyphen} for some reason, need to reconcile with him.
+            //If there isn't a classifier, it just shouldn't be present....
              "${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/");
          pe.setConfiguration(configuration);
          executions.getExecution()
@@ -283,7 +285,7 @@ public class DBConfigurationCreator {
    
          // load termstore
          pe = new PluginExecution();
-         pe.setId("load-termstore");
+         pe.setId("load-termstore");  //TODO [DAN 1] Keith switched these to load-termstore-semaphore - need to see if that is something we need to make configurable
          goals = new Goals();
          goals.getGoal()
               .add("load-termstore");

@@ -42,6 +42,7 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -50,6 +51,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.Status;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -326,6 +328,19 @@ public class ObservableManifoldCoordinateImpl
    public ObservableManifoldCoordinateImpl deepClone() {
       return new ObservableManifoldCoordinateImpl(manifoldCoordinate.deepClone());
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        if (!(languageCoordinate instanceof ObservableLanguageCoordinate)) {
+            languageCoordinate = new ObservableLanguageCoordinateImpl(languageCoordinate);
+        }
+        getLanguageCoordinate().setNextProrityLanguageCoordinate(languageCoordinate);
+    }
 
    
 }

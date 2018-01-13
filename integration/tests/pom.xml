@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>integration</artifactId>
-      <version>4.42-SNAPSHOT</version>
+      <version>4.46-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.integration</groupId>
    <artifactId>tests</artifactId>
@@ -58,14 +58,24 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>bdb-chronology</artifactId>
+         <artifactId>chronology</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>filesystem-datastore</artifactId>
+         <version>${project.version}</version>
+       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>memory-managment</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>

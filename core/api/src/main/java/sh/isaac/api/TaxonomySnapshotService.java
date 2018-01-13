@@ -98,7 +98,7 @@ public interface TaxonomySnapshotService {
    int[] getRoots();
 
    /**
-    * Gets the taxonomy child sequences.
+    * Gets the taxonomy child nids.
     *
     * @param parentConceptNid the parent id
     * @return the taxonomy child concept nids
@@ -106,7 +106,7 @@ public interface TaxonomySnapshotService {
    int[] getTaxonomyChildConceptNids(int parentConceptNid);
 
    /**
-    * Gets the taxonomy parent sequences.
+    * Gets the taxonomy parent nids.
     *
     * @param childConceptNids the child id
     * @return the taxonomy parent sequences

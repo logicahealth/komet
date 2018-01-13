@@ -93,7 +93,7 @@ public interface Rf2Relationship
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.RF2_RELATIONSHIP;
    }
 }

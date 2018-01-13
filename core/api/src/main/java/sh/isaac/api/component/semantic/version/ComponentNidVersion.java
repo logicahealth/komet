@@ -56,7 +56,7 @@ public interface ComponentNidVersion
    int getComponentNid();
    
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.COMPONENT_NID;
    }
 }

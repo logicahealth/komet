@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.42-SNAPSHOT</version>
+        <version>4.46-SNAPSHOT</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
@@ -22,11 +22,6 @@
            <version>${project.parent.version}</version>
            <scope>test</scope>
       </dependency>
-        <dependency>
-            <groupId>org.reactfx</groupId>
-            <artifactId>reactfx</artifactId>
-            <version>2.0-M4u1</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-collections</artifactId>

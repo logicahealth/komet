@@ -16,7 +16,6 @@
  */
 package sh.isaac.model.semantic.version;
 
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -45,7 +44,6 @@ public abstract class AbstractVersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
-   public abstract VersionType getSememeType();
    /**
     * Write version data.
     *

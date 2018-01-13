@@ -5,3 +5,29 @@
 .mainFxmlClass {
 
 }
+.searchRefreshButton{
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+.searchRefreshButtonIcon{
+    -glyph-size: 15;
+    -glyph-name: REFRESH;
+}
+.searchTextFieldLabel{
+    -fx-padding: 0 2 0 7;
+}
+.searchTextFieldLabelIcon{
+     -glyph-size: 13;
+     -glyph-name: SEARCH;
+}
+.searchTextField:fail {
+    -fx-background-color: red;
+}
+.searchTextField:success {
+ -fx-background-color: green;
+}
+.searchTextField:noResults {
+ -fx-background-color: grey;
+}
+
+

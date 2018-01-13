@@ -21,6 +21,9 @@
                 <goal>install</goal>
                 <goal>-e</goal>
             </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx16g -Xms16g</Env.MAVEN_OPTS>
+            </properties>
         </action>
         <action>
             <actionName>CUSTOM-debug</actionName>

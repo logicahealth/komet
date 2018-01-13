@@ -42,6 +42,7 @@ package sh.isaac.model.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -344,5 +345,15 @@ public class ManifoldCoordinateImpl
                                  logicCoordinate.deepClone());
       return newCoordinate;
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return languageCoordinate.getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        languageCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    }
 }
 

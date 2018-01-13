@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -86,7 +88,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public abstract class ChronologyImpl
         implements Chronology, WaitFreeComparable {
-
+  protected static final Logger LOG = LogManager.getLogger();
    /**
     * The Constant STAMPED_LOCKS.
     */
@@ -191,7 +193,6 @@ public abstract class ChronologyImpl
       this.nid = nid;
       this.assemblageNid = assemblageNid;
       this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
-      ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -535,7 +536,6 @@ public abstract class ChronologyImpl
                     Get.identifierService()
                             .addUuidForNid(uuid, this.nid);
                  });
-         ModelGet.identifierService().setupNid(this.nid, assemblageNid, this.getIsaacObjectType());
          this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
          setAdditionalChronicleFieldsFromBuffer(data);
          readVersionList(data);
@@ -558,6 +558,9 @@ public abstract class ChronologyImpl
             }
          }
       }
+      ModelGet.identifierService().setupNid(this.nid, assemblageNid, 
+                 this.getIsaacObjectType(), this.getVersionType());
+
    }
 
    protected void updateStampSequence(int oldStampSequence, int newStampSequence, VersionImpl version) {

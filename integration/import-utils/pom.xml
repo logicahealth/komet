@@ -3,8 +3,8 @@
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>sh.isaac</groupId>
-        <artifactId>integration</artifactId>
-      <version>4.42-SNAPSHOT</version>
+      <artifactId>integration</artifactId>
+      <version>4.46-SNAPSHOT</version>
    </parent>
 
    <groupId>sh.isaac.integration</groupId>
@@ -41,7 +41,7 @@
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
          <version>${project.version}</version>
-         </dependency>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>ibdf</artifactId>
@@ -54,7 +54,12 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>bdb-chronology</artifactId>
+         <artifactId>chronology</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>filesystem-datastore</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -38,8 +38,10 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.value.ObservableValue;
@@ -52,6 +54,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -90,12 +93,18 @@ public class ConceptLabel
    Manifold manifold;
    Consumer<ConceptLabel> descriptionTextUpdater;
    Background originalBackground;
+   final Supplier<List<MenuItem>> menuSupplier;
 
    //~--- constructors --------------------------------------------------------
    public ConceptLabel(Manifold manifold,
-           Consumer<ConceptLabel> descriptionTextUpdater) {
+           Consumer<ConceptLabel> descriptionTextUpdater, 
+           Supplier<List<MenuItem>> menuSupplier) {
+      if (menuSupplier == null) {
+          throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
+      }
       this.manifold = manifold;
       this.descriptionTextUpdater = descriptionTextUpdater;
+      this.menuSupplier = menuSupplier;
       this.manifold.focusedConceptProperty().addListener(
               (ObservableValue<? extends ConceptSpecification> observable,
                       ConceptSpecification oldValue,
@@ -127,6 +136,18 @@ public class ConceptLabel
    private void handle(WindowEvent event) {
       ContextMenu contextMenu = (ContextMenu) event.getSource();
       contextMenu.getItems().clear();
+      
+      if (this.menuSupplier != null) {
+          List<MenuItem> menuItems = this.menuSupplier.get();
+          if (!menuItems.isEmpty()) {
+              for (MenuItem menu: menuItems) {
+                  contextMenu.getItems().add(menu);
+              }
+              contextMenu.getItems().add(new SeparatorMenuItem());
+          }
+      }
+      
+      
       Menu manifoldHistoryMenu = new Menu("history");
       contextMenu.getItems().add(manifoldHistoryMenu);
       Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
@@ -173,9 +194,7 @@ public class ConceptLabel
       db.setDragView(dragImageMaker.getDragImage());
 
       /* put a string on dragboard */
-      ClipboardContent content = new ClipboardContent();
-
-      content.putString(this.getText());
+      IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept()));
       db.setContent(content);
       event.consume();
    }
@@ -184,6 +203,11 @@ public class ConceptLabel
       System.out.println("Dragging done: " + event);
       this.setBackground(originalBackground);
       this.transferMode = null;
+   }
+   
+   public void setConceptChronology(ConceptChronology conceptChronology) {
+       this.manifold
+                 .setFocusedConceptChronology(conceptChronology);
    }
 
    private void handleDragDropped(DragEvent event) {

@@ -162,11 +162,6 @@ public class CommitProvider
    
    private Optional<UUID> dataStoreId = Optional.empty();
 
-   @Override
-   public Optional<UUID> getDataStoreId() {
-      return this.dataStoreId;
-   }
-   
    private AtomicLong lastCommitTime = new AtomicLong(Long.MIN_VALUE);
 
    //~--- fields --------------------------------------------------------------
@@ -266,8 +261,14 @@ public class CommitProvider
    private CommitProvider()
            throws IOException {
       try {
-         this.dbFolderPath = LookupService.getService(ConfigurationService.class)
-                 .getChronicleFolderPath()
+         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+         Optional<Path>       dataStorePath        = configurationService.getDataStoreFolderPath();
+
+         if (!dataStorePath.isPresent()) {
+            throw new IllegalStateException("dataStorePath is not set");
+         }
+
+         this.dbFolderPath = dataStorePath.get()
                  .resolve("commit-provider");
          
          Files.createDirectories(this.dbFolderPath);
@@ -635,6 +636,14 @@ public class CommitProvider
    public void removeChangeListener(ChronologyChangeListener changeListener) {
       this.changeListeners.remove(new ChangeListenerReference(changeListener));
    }
+   
+   @Override
+   public Future<?> sync() {
+      return Get.executor().submit(() -> {
+         writeData();
+         return null;
+      });
+   }
 
    /**
     * Adds the comment.
@@ -989,26 +998,31 @@ public class CommitProvider
 
       try {
          this.writeCompletionService.stop();
-         this.stampAliasMap.write(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
-         this.stampCommentMap.write(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-
-         try (DataOutputStream out
-                 = new DataOutputStream(new FileOutputStream(new File(this.commitManagerFolder.toFile(),
-                         COMMIT_MANAGER_DATA_FILENAME)))) {
-            out.writeLong(this.databaseSequence.get());
-            out.writeInt(UuidIntMapMap.getNextNidProvider()
-                    .get());
-            this.uncommittedConceptsWithChecksNidSet.write(out);
-            this.uncommittedConceptsNoChecksNidSet.write(out);
-            this.uncommittedSemanticsWithChecksNidSet.write(out);
-            this.uncommittedSemanticsNoChecksNidSet.write(out);
-            this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
-            this.dataStoreId = Optional.empty();
-         }
+         writeData();
       } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
+   
+   private void writeData() throws IOException {
+      this.stampAliasMap.write(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
+      this.stampCommentMap.write(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
+      
+      try (DataOutputStream out = new DataOutputStream(
+              new FileOutputStream(
+                      new File(
+                              this.commitManagerFolder.toFile(),
+                              COMMIT_MANAGER_DATA_FILENAME)))) {
+         out.writeLong(this.databaseSequence.get());
+         out.writeInt(UuidIntMapMap.getNextNidProvider()
+                 .get());
+         this.uncommittedConceptsWithChecksNidSet.write(out);
+         this.uncommittedConceptsNoChecksNidSet.write(out);
+         this.uncommittedSemanticsWithChecksNidSet.write(out);
+         this.uncommittedSemanticsNoChecksNidSet.write(out);
+      }
+   }
+
 
    /**
     * Write.
@@ -1128,6 +1142,11 @@ public class CommitProvider
    @Override
    public Path getDataStorePath() {
       return this.commitManagerFolder;
+   }
+   
+   @Override
+   public Optional<UUID> getDataStoreId() {
+      return this.dataStoreId;
    }
 
    /**
@@ -1291,11 +1310,5 @@ public class CommitProvider
          hash = 67 * hash + Objects.hashCode(this.listenerUuid);
          return hash;
       }
-   }
-
-
-   @Override
-   public Future<?> sync() {
-      throw new UnsupportedOperationException();
    }
 }

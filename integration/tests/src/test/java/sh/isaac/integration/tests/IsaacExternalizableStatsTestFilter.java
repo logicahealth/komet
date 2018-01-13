@@ -168,7 +168,7 @@ public class IsaacExternalizableStatsTestFilter
     */
    @Override
    public String toString() {
-      return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", semantics=" + this.semantics +
+      return "ExternalizableStats{concepts=" + this.concepts + ", semantics=" + this.semantics +
              ", stampAliases=" + this.stampAliases + ", stampComments=" + this.stampComments + 
               ", stamps=" + this.stamps + '}';
    }

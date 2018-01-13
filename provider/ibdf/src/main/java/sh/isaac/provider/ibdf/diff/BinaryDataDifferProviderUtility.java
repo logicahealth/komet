@@ -144,19 +144,6 @@ public class BinaryDataDifferProviderUtility {
 				case MEMBER:
 					return true;
 				case UNKNOWN:
-				case C1_C2:
-				case C1_C2_Int3:
-				case C1_C2_Str3:
-				case C1_Int2:
-				case C1_Int2_Str3_Str4_C5_C6:
-				case C1_Str2:
-				case CONCEPT:
-				case Int1_Int2_Str3_Str4_Str5_C6_C7:
-				case LOINC_RECORD:
-				case RF2_RELATIONSHIP:
-				case Str1_Str2:
-				case Str1_Str2_C3_C4:
-				case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 				default:
 					throw new UnsupportedOperationException();
 			}
@@ -191,24 +178,10 @@ public class BinaryDataDifferProviderUtility {
 				((MutableLogicGraphVersion) newVer).setGraphData(((LogicGraphVersion) originalVersion).getGraphData());
 				return newVer;
 			case UNKNOWN:
-			case C1_C2:
-			case C1_C2_Int3:
-			case C1_C2_Str3:
-			case C1_Int2:
-			case C1_Int2_Str3_Str4_C5_C6:
-			case C1_Str2:
-			case CONCEPT:
-			case Int1_Int2_Str3_Str4_Str5_C6_C7:
-			case LOINC_RECORD:
-			case RF2_RELATIONSHIP:
-			case Str1_Str2:
-			case Str1_Str2_C3_C4:
-			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+			default:
 				throw new UnsupportedOperationException();
 
 		}
-
-		return null;
 	}
 
 	private Chronology createNewChronology(Chronology newChron, IsaacObjectType type, int stampSeq) {
@@ -267,19 +240,6 @@ public class BinaryDataDifferProviderUtility {
 						logicGraphSememe.getAssemblageNid());
 				break;
 			case UNKNOWN:
-			case C1_C2:
-			case C1_C2_Int3:
-			case C1_C2_Str3:
-			case C1_Int2:
-			case C1_Int2_Str3_Str4_C5_C6:
-			case C1_Str2:
-			case CONCEPT:
-			case Int1_Int2_Str3_Str4_Str5_C6_C7:
-			case LOINC_RECORD:
-			case RF2_RELATIONSHIP:
-			case Str1_Str2:
-			case Str1_Str2_C3_C4:
-			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 			default:
 				throw new UnsupportedOperationException();
 		}

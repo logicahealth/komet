@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -355,12 +356,20 @@ public class IsaacTaxonomy {
       
 
       out.append("\n\npublic class " + className + " {\n");
-      out.append("\n\tpublic static final String AUXILIARY_METADATA_VERSION = \"" + auxiliaryMetadataVersion + "\";\n");
 
-      for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
+      out.append("\n\tpublic static final String AUXILIARY_METADATA_VERSION = \"" + auxiliaryMetadataVersion + "\";\n");
+      
+      ArrayList<String> constantList = new ArrayList<>();
+      
+      ArrayList<ConceptBuilder> sortedBuilders = new ArrayList<>(this.conceptBuildersInInsertionOrder);
+      sortedBuilders.sort((o1, o2) -> {
+          return o1.getFullySpecifiedDescriptionBuilder().getDescriptionText()
+                  .compareTo(o2.getFullySpecifiedDescriptionBuilder().getDescriptionText()); 
+      });
+
+      for (final ConceptBuilder concept : sortedBuilders) {
          final String fqn = concept.getFullyQualifiedName();
          String constantName = fqn.toUpperCase();
-
          constantName = constantName.replace(".", "");
          constantName = constantName.replace(",", "");
          constantName = constantName.replace("®", "");
@@ -370,13 +379,14 @@ public class IsaacTaxonomy {
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");
          constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND");
+         constantName = constantName.replace("/", "_AND_OR_");
          out.append("\n\n   /** Java binding for the concept described as <strong><em>" + fqn
                  + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()
                  + "\">\n    * " + concept.getPrimordialUuid() + "</a>}.*/");
-         out.append("\n   public static ConceptSpecification " + constantName + " =");
-         out.append("\n             new ConceptProxy(\"" + fqn + "\", \"" + concept.getRegularName().orElse(null) + "\"");
+         constantList.add(constantName);
+         out.append("\n   public static final ConceptSpecification " + constantName + " =");
+         out.append("\n             new ConceptProxy(\"" + fqn + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
             out.append(", java.util.UUID.fromString(\"" + uuid.toString() + "\")");
@@ -385,6 +395,22 @@ public class IsaacTaxonomy {
          out.append(");");
       }
 
+      out.append("\n\n   public static final ConceptSpecification[] META_DATA_CONCEPTS = {\n");
+      
+      Collections.sort(constantList);
+      for (int i = 0; i < constantList.size(); i++) {
+          String constant = constantList.get(i);
+          if (i != constantList.size() -1) {
+              out.append("          ").append(constant).append(",\n");
+          } else {
+              out.append("          ").append(constant).append("\n");
+          }
+      }
+      
+      
+      out.append("     };");
+      
+      
       out.append("\n}\n");
       out.close();
    }
@@ -460,11 +486,16 @@ public class IsaacTaxonomy {
     *
     * @param pathAssemblageConcept the path assemblage concept
     * @param pathConcept the path concept
+     * @param semanticUuid the UUID to assign to the path semantic...
     */
-   protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
-      this.semanticBuilders.add(Get.semanticBuilderService()
+   protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept, UUID semanticUuid) {
+       
+       SemanticBuilder pathMemberBuilder = Get.semanticBuilderService()
               .getMembershipSemanticBuilder(pathConcept.getNid(),
-                      pathAssemblageConcept.getNid()));
+                      pathAssemblageConcept.getNid());
+       pathMemberBuilder.setPrimordialUuid(semanticUuid);
+       
+      this.semanticBuilders.add(pathMemberBuilder);
    }
 
    /**

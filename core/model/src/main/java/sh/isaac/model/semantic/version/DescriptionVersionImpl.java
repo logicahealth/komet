@@ -98,7 +98,7 @@ public class DescriptionVersionImpl
       super(chronicle, stampSequence);
       this.caseSignificanceConceptNid = data.getNid();
       this.languageConceptNid         = data.getNid();
-      this.text                       = data.readUTF();
+      this.text                       = data.getUTF();
       this.descriptionTypeConceptNid  = data.getNid();
    }
    private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence) {
@@ -253,7 +253,7 @@ public class DescriptionVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.DESCRIPTION;
    }
 

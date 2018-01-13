@@ -137,5 +137,7 @@ public interface IndexBuilderService
     * @param enabled true if the indexer is enabled, otherwise false.
     */
    void setEnabled(boolean enabled);
+   
+   int getIndexMemoryInUse();
 }
 

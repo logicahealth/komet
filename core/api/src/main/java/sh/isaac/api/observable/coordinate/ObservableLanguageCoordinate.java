@@ -72,6 +72,12 @@ public interface ObservableLanguageCoordinate
    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty();
 
    /**
+    * The next priority language coordinate property. 
+    * @return the object property
+    */
+   ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty();
+   
+   /**
     * Language concept sequence property.
     *
     * @return the integer property

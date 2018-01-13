@@ -78,10 +78,10 @@ import sh.isaac.model.ModelGet;
 public class ClassifierData
          implements ChronologyChangeListener {
    /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant singletonReference. */
-   private static final AtomicReference<ClassifierData> singletonReference = new AtomicReference<>();
+   private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
 
    //~--- fields --------------------------------------------------------------
 
@@ -184,7 +184,7 @@ public class ClassifierData
    @Override
    public void handleChange(SemanticChronology sc) {
       if (sc.getAssemblageNid() == this.logicCoordinate.getStatedAssemblageNid()) {
-         log.info("Stated form change: " + sc);
+         LOG.info("Stated form change: " + sc);
 
          // only process if incremental is a possibility.
          if (this.incrementalAllowed) {
@@ -340,10 +340,10 @@ public class ClassifierData
     * @return the classifier data
     */
    public static ClassifierData get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      if (singletonReference.get() == null) {
-         singletonReference.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
+      if (SINGLETON.get() == null) {
+         SINGLETON.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
       } else {
-         ClassifierData classifierData = singletonReference.get();
+         ClassifierData classifierData = SINGLETON.get();
 
          while (!classifierData.stampCoordinate.equals(stampCoordinate) ||
                 !classifierData.logicCoordinate.equals(logicCoordinate)) {
@@ -352,14 +352,14 @@ public class ClassifierData
 
             final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
 
-            singletonReference.compareAndSet(classifierData, newClassifierData);
-            classifierData = singletonReference.get();
+            SINGLETON.compareAndSet(classifierData, newClassifierData);
+            classifierData = SINGLETON.get();
          }
       }
 
       Get.commitService()
-         .addChangeListener(singletonReference.get());
-      return singletonReference.get();
+         .addChangeListener(SINGLETON.get());
+      return SINGLETON.get();
    }
 
    /**

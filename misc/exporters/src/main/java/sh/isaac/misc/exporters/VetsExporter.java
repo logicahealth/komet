@@ -163,8 +163,9 @@ public class VetsExporter {
       Set<String> newRelationshipTypes = new HashSet<>();
       
       // Add to map
-      Get.taxonomyService().getTaxonomyChildNids(
-            VHATConstants.VHAT_ASSOCIATION_TYPES.getNid()).forEach((conceptId) -> {
+      Arrays.stream(Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+      .getTaxonomyChildConceptNids(
+            VHATConstants.VHAT_ASSOCIATION_TYPES.getNid())).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
                String preferredNameDescriptionType = getPreferredNameDescriptionType(concept.getNid());
                relationshipTypes.put(concept.getPrimordialUuid(), preferredNameDescriptionType);
@@ -565,7 +566,7 @@ public class VetsExporter {
    {
       ArrayList<Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry> mes = new ArrayList<>();
       
-      Get.assemblageService().getSemanticChronologyStreamFromAssemblage(componentNid).forEach(sememe ->
+      Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(sememe ->
       {
          LatestVersion<DynamicVersion<?>> sememeVersion = sememe.getLatestVersion(STAMP_COORDINATES);
          if (sememeVersion.isPresent() && sememeVersion.get().getData() != null && sememeVersion.get().getData().length > 0)

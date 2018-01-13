@@ -128,8 +128,7 @@ public class ComponentNidVersionImpl
 
       sb.append("{Component Nid≤");
 
-      switch (Get.identifierService()
-                 .getOldChronologyTypeForNid(this.componentNid)) {
+      switch (Get.identifierService().getObjectTypeForComponent(this.componentNid)) {
       case CONCEPT:
          sb.append(Get.conceptDescriptionText(this.componentNid));
          break;
@@ -151,7 +150,7 @@ public class ComponentNidVersionImpl
 
       default:
          sb.append(Get.identifierService()
-                      .getOldChronologyTypeForNid(this.componentNid))
+                      .getObjectTypeForComponent(this.componentNid))
            .append(" ")
            .append(this.componentNid)
            .append(" ");
@@ -209,7 +208,7 @@ public class ComponentNidVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public VersionType getSemanticType() {
       return VersionType.COMPONENT_NID;
    }
    

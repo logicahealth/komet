@@ -69,8 +69,10 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
    private final List<String[]> descriptionRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
+   private final ImportType importType;
 
-   public DescriptionWriter(List<String[]> descriptionRecords, Semaphore writeSemaphore, String message) {
+   public DescriptionWriter(List<String[]> descriptionRecords, 
+           Semaphore writeSemaphore, String message, ImportType importType) {
       this.descriptionRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
@@ -78,6 +80,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
       updateTitle("Importing description batch of size: " + descriptionRecords.size());
       updateMessage(message);
       addToTotalWork(descriptionRecords.size());
+      this.importType = importType;
       Get.activeTasks().add(this);
    }
    
@@ -102,12 +105,22 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord : descriptionRecords) {
+            final Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+            if (importType == ImportType.ACTIVE_ONLY) {
+                if (!identifierService.hasUuid(referencedConceptUuid)) {
+                    // if concept was not imported because inactive, then skip
+                    continue;
+                }
+            }
+             
             int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             int languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[LANGUGE_CODE_INDEX]);
             UUID descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
             UUID moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
-            Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
             UUID caseSignificanceUuid = UuidT3Generator.fromSNOMED(descriptionRecord[CASE_SIGNIFICANCE_INDEX]);
             UUID descriptionTypeUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPTION_TYPE_SCT_ID_INDEX]);
             // '2011-12-03T10:15:30Z'
@@ -158,7 +171,6 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          for (IndexBuilderService indexer : indexers) {
             indexer.sync().get();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

@@ -61,8 +61,10 @@ import sh.isaac.api.util.UuidT5Generator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class TermAux {
-
    // J-
+   public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
+   public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
+
    /** ConceptProxy for: "Part of concept". */
    public static ConceptSpecification PART_OF = new ConceptProxy("Part of", UUID.fromString("b4c3f6f9-6937-30fd-8412-d0c77f8a7f73"));
 
@@ -138,19 +140,29 @@ public class TermAux {
    public static ConceptSpecification RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY = new ConceptProxy("Relationship type in source terminology",
          UUID.fromString("46bc0e6b-0e64-5aa6-af27-a823e9156dfc"));
 
-   /**
-    * ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English
-    * language reference set"
-    */
-   public static ConceptSpecification US_DIALECT_ASSEMBLAGE = new ConceptProxy("United States of America English language assemblage",
+   public static ConceptSpecification ENGLISH_DIALECT_ASSEMBLAGE =
+      new ConceptProxy("English dialect assemblage",
+                       UUID.fromString("c0836284-f631-3c86-8cfc-56a67814efab"));
+
+	/**
+	 * ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English
+	 * language reference set"
+	 */
+   public static ConceptSpecification US_DIALECT_ASSEMBLAGE = new ConceptProxy("United States of America English dialect assemblage",
          UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
 
    /**
     * ConceptProxy for: "Great Britain dialect assemblage". IsaacMetadataAuxiliary has "GB English dialect", TermAux has "Great Britain English
     * language reference set"
     */
-   public static ConceptSpecification GB_DIALECT_ASSEMBLAGE = new ConceptProxy("Great Britain English language assemblage",
+   public static ConceptSpecification GB_DIALECT_ASSEMBLAGE = new ConceptProxy("Great Britain English dialect assemblage",
          UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
+   
+	public static ConceptSpecification SPANISH_DIALECT_ASSEMBLAGE = new ConceptProxy("Spanish dialect assemblage",
+			UUID.fromString("03615ef2-aa56-336d-89c5-a1b5c4cee8f6"));
+
+	public static ConceptSpecification SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE = new ConceptProxy("Latin american spanish dialect assemblage",
+			UUID.fromString("835d3fe2-7bd7-3aa8-a52a-25e203b0afbe"));
 
    /** ConceptProxy for: "English language". */
    public static ConceptSpecification ENGLISH_LANGUAGE = new ConceptProxy("English language", UUID.fromString("06d905ea-c647-3af9-bfe5-2514e135b558"));
@@ -348,28 +360,31 @@ public class TermAux {
          UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
 
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
-   public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred",
-         UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
 
-   public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "concepts", UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
-   public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR concept assemblage", "SOLOR concepts",
-         UUID.fromString("d39b3ecd-9a80-5009-a8ac-0b947f95ca7c"));
-   public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts",
-         UUID.fromString("d4d1bb43-bf2f-5c4e-b8b8-f0be8a5cca83"));
-   public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts",
-         UUID.fromString("914cd34d-c97a-5fc5-abac-53bfb161eca0"));
-   public static ConceptSpecification RF2_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 stated relationship assemblage", "RF2 stated relationships",
-         UUID.fromString("c5c57241-e1c3-5c8b-85c6-0edffb28cfd0"));
-   public static ConceptSpecification RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 inferred relationship assemblage", "RF2 inferred relationships",
-         UUID.fromString("e3436c74-2491-50fa-b43c-13d83238648c"));
-   public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage",
-         "RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
-   public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage",
-         UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
-   public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage",
-         UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
-   public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage",
-         UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
+   public static ConceptSpecification INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
+  
+	public static ConceptSpecification CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "Concept assemblage",
+			UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
+	public static ConceptSpecification SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR concept assemblage", "SOLOR concepts",
+			UUID.fromString("d39b3ecd-9a80-5009-a8ac-0b947f95ca7c"));
+	public static ConceptSpecification LOINC_CONCEPT_ASSEMBLAGE = new ConceptProxy("LOINC concept assemblage", "LOINC concepts",
+			UUID.fromString("d4d1bb43-bf2f-5c4e-b8b8-f0be8a5cca83"));
+	public static ConceptSpecification RXNORM_CONCEPT_ASSEMBLAGE = new ConceptProxy("RxNorm concept assemblage", "RxNorm concepts",
+			UUID.fromString("914cd34d-c97a-5fc5-abac-53bfb161eca0"));
+	public static ConceptSpecification RF2_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 stated relationship assemblage", "RF2 stated relationships",
+			UUID.fromString("c5c57241-e1c3-5c8b-85c6-0edffb28cfd0"));
+	public static ConceptSpecification RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("RF2 inferred relationship assemblage", "RF2 inferred relationships",
+			UUID.fromString("e3436c74-2491-50fa-b43c-13d83238648c"));
+	public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage",
+			"RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
+	public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage",
+			UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
+	public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage",
+			UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
+	public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage",
+			UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
+	public static ConceptSpecification UUID_NID_MAP = new ConceptProxy("UUID to internal identifier map", "UUID to internal identifier map",
+			UUID.fromString("e4f98192-bcaf-5e41-b91f-2b0d56f9050a"));
 
    public static ConceptSpecification CONTENT_LICENSE = new ConceptProxy("Content license", "Content license", UUID.fromString("b3305461-6954-574e-9124-285a02d4ecae"));
    public static ConceptSpecification SCT_AFFILIATES_LICENSE = new ConceptProxy("SNOMED® affiliates license", "SNOMED® affiliates license",

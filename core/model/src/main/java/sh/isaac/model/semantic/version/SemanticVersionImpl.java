@@ -98,7 +98,7 @@ public class SemanticVersionImpl
     */
    @Override
    public String toString() {
-      return getSememeType().toString() + super.toString();
+      return getSemanticType().toString() + super.toString();
    }
 
    /**
@@ -119,7 +119,7 @@ public class SemanticVersionImpl
     * @return the sememe type
     */
    @Override
-   public final VersionType getSememeType() {
+   public final VersionType getSemanticType() {
       return VersionType.MEMBER;
    }
    

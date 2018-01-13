@@ -16,14 +16,26 @@
  */
 package sh.isaac.model.collections;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -37,11 +49,75 @@ public class SpinedNidIntMap {
    private final int elementsPerSpine;
    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
    private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
+   AtomicByteArray spineChangedArray = new AtomicByteArray(0);
 
    public SpinedNidIntMap() {
       this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
    }
-   private int getSpineCount() {
+
+  /**
+    * 
+    * @param directory
+    * @return the number of spine files read. 
+    */
+   public int read(File directory) {
+      File[] files = directory.listFiles((pathname) -> {
+         return pathname.getName().startsWith("spine-");
+      });
+      int spineFilesRead = 0;
+      for (File spineFile : files) {
+          spineFilesRead++;
+         int spine = Integer.parseInt(spineFile.getName().substring("spine-".length()));
+         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
+            int arraySize = dis.readInt();
+            int[] spineArray = new int[arraySize];
+            for (int i = 0; i < arraySize; i++) {
+               spineArray[i] = dis.readInt();
+            }
+            spines.put(spine, new AtomicIntegerArray(spineArray));
+         } catch (IOException ex) {
+            Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
+         }
+      }
+      this.spineChangedArray = new AtomicByteArray(spines.size());
+      return spineFilesRead;
+   }
+
+   public boolean write(File directory) {
+      directory.mkdirs();
+      AtomicBoolean wroteAny = new AtomicBoolean(false);
+      AtomicByteArray spineChangedArrayForWrite = spineChangedArray;
+      int spineChangedArraySize = spineChangedArrayForWrite.length();
+      this.spineChangedArray = new AtomicByteArray(spines.size());
+      spines.forEach((Integer key, AtomicIntegerArray spine) -> {
+         String spineKey = "spine-" + key;
+          boolean spineChanged;
+         if (key < spineChangedArraySize) {
+            spineChanged = spineChangedArrayForWrite.get(key) != 0;
+         } else {
+            spineChanged = true;
+         }
+        
+         if (spineChanged) {
+            wroteAny.set(true);
+            File spineFile = new File(directory, spineKey);
+            try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
+               dos.writeInt(spine.length());
+               for (int i = 0; i < spine.length(); i++) {
+                  dos.writeInt(spine.get(i));
+               }
+            } catch (FileNotFoundException ex) {
+               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+
+      });
+      return wroteAny.get();
+   }
+
+      private int getSpineCount() {
       int spineCount = 0;
       for (Integer spineKey:  spines.keySet()) {
          spineCount = Math.max(spineCount, spineKey + 1);
@@ -49,8 +125,8 @@ public class SpinedNidIntMap {
       return spineCount; 
    }
 
-   public int sizeInBytes() {
-      int sizeInBytes = 0;
+   public long sizeInBytes() {
+      long sizeInBytes = 0;
 
       sizeInBytes = sizeInBytes + ((elementsPerSpine * 4) * getSpineCount());  // 4 bytes = bytes of 32 bit integer
       return sizeInBytes;
@@ -76,6 +152,9 @@ public class SpinedNidIntMap {
       if (spineIndex > this.spines.size() + 2) {
          throw new IllegalStateException("Trying to add spine: " + spineIndex + " for: " + index);
       }
+      if (spineIndex < spineChangedArray.length()) {
+         spineChangedArray.set(spineIndex, (byte) 1);
+      }
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
 
@@ -89,12 +168,20 @@ public class SpinedNidIntMap {
    }
 
    public int getAndUpdate(int index, IntUnaryOperator generator) {
-       if (index < 0) {
+      if (index < 0) {
          index = Integer.MAX_VALUE + index;
       }
-     int spineIndex = index / elementsPerSpine;
+      int spineIndex = index / elementsPerSpine;
       int indexInSpine = index % elementsPerSpine;
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
+      AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+      int currentValue = spine.get(indexInSpine);
+      if (currentValue != INITIALIZATION_VALUE) {
+          return currentValue;
+      }
+      if (spineIndex < spineChangedArray.length()) {
+         spineChangedArray.set(spineIndex, (byte) 1);
+      }
+      return spine.updateAndGet(indexInSpine, generator);
    }
 
    public boolean containsKey(int index) {

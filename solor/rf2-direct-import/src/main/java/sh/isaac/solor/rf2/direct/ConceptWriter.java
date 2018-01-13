@@ -67,8 +67,10 @@ id	effectiveTime	active	moduleId	definitionStatusId
    private final List<String[]> conceptRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
+   private final ImportType importType;
 
-   public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, String message) {
+   public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, 
+           String message, ImportType importType) {
       this.conceptRecords = conceptRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
@@ -76,6 +78,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
       updateTitle("Importing concept batch of size: " + conceptRecords.size());
       updateMessage(message);
       addToTotalWork(conceptRecords.size());
+      this.importType = importType;
       Get.activeTasks().add(this);
    }
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
@@ -103,9 +106,12 @@ id	effectiveTime	active	moduleId	definitionStatusId
          int defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
 
          for (String[] conceptRecord : conceptRecords) {
+            final Status state = Status.fromZeroOneToken(conceptRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
             UUID conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[CONCEPT_SCT_ID_INDEX]);
             UUID moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[MODULE_SCTID_INDEX]);
-            Status state = Status.fromZeroOneToken(conceptRecord[ACTIVE_INDEX]);
             UUID legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[DEF_STATUS_INDEX]);
             // '2011-12-03T10:15:30Z'
 
@@ -162,7 +168,6 @@ id	effectiveTime	active	moduleId	definitionStatusId
          for (IndexBuilderService indexer : indexers) {
             indexer.sync().get();
          }
-         this.done();
          Get.activeTasks().remove(this);
       }
    }

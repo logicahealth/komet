@@ -42,13 +42,14 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.awt.GraphicsEnvironment;
-
 import java.io.IOException;
-
 import java.lang.annotation.Annotation;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -56,7 +57,6 @@ import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -70,11 +70,6 @@ import com.sun.javafx.application.PlatformImpl;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.index.IndexQueryService;
@@ -129,13 +124,16 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
+
       if (isInitialized()) {
+         Get.applicationStates().add(ApplicationStates.STOPPING);
+         Get.applicationStates().remove(ApplicationStates.RUNNING);
+         syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
          setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
 
          // Fully release any system locks to database
          System.gc();
       }
-      
    }
 
    /**
@@ -143,6 +141,9 @@ public class LookupService {
     */
    public static void shutdownSystem() {
       if (isInitialized()) {
+         Get.applicationStates().add(ApplicationStates.STOPPING);
+         Get.applicationStates().remove(ApplicationStates.RUNNING);
+         syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
          setRunLevel(SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL);
          looker.shutdown();
          ServiceLocatorFactory.getInstance()
@@ -161,6 +162,7 @@ public class LookupService {
    public static void startupFxPlatform() {
       if (!fxPlatformUp) {
          LOG.debug("FxPlatform is not yet up - obtaining lock");
+      Get.applicationStates().add(ApplicationStates.STARTING);
 
          synchronized (STARTUP_LOCK) {
             LOG.debug("Lock obtained, starting fxPlatform");
@@ -180,11 +182,14 @@ public class LookupService {
                fxPlatformUp = true;
             }
          }
+      Get.applicationStates().add(ApplicationStates.RUNNING);
+      Get.applicationStates().remove(ApplicationStates.STARTING);
       }
    }
    
    public static void startupPreferenceProvider() {
       if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
+      	Get.applicationStates().add(ApplicationStates.STARTING);
          setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
       }
    }
@@ -198,6 +203,9 @@ public class LookupService {
          // when the application uses .equals or
          Locale.setDefault(Locale.US);
 
+         Get.applicationStates().add(ApplicationStates.STARTING);
+         // Set run level to startup database and associated services running on top of database
+
          LOG.info("Bringing up Isaac data stores...");
          // Set run level to startup database and associated services running on top of database
          setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
@@ -205,6 +213,7 @@ public class LookupService {
          validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
+
          LOG.info("Bringing up the rest of isaac...");
          setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
          LOG.info("Bringing up isaac dependents...");
@@ -226,6 +235,10 @@ public class LookupService {
                }
             });
          
+
+         Get.applicationStates().add(ApplicationStates.RUNNING);
+         Get.applicationStates().remove(ApplicationStates.STARTING);
+
       } catch (final Throwable e) {
          e.printStackTrace();
          // Will inform calling routines that database is corrupt
@@ -240,6 +253,7 @@ public class LookupService {
     */
    public static void startupIsaac(BiConsumer<Boolean, Exception> callWhenStartComplete) {
       LOG.info("Background starting ISAAC services");
+      Get.applicationStates().add(ApplicationStates.STARTING);
 
       final Thread backgroundLoad = new Thread(() -> {
                try {
@@ -549,6 +563,17 @@ public class LookupService {
       }
 
       return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
+   }
+
+   public static void syncAll() {
+      List<DatastoreServices> syncServiceList =  getServices(DatastoreServices.class);
+      for (DatastoreServices syncService:  syncServiceList) {
+         try {
+            syncService.sync().get();
+         } catch (Throwable ex) {
+            LOG.error(ex);
+         }
+      }
    }
 }
 

@@ -99,6 +99,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.misc.constants.VHATConstants;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -121,10 +122,10 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    // Cached VHAT module sequences
    private static NidSet VHAT_MODULES = null;
 
-   private static NidSet getVHATModules() {
+   private static NidSet getVHATModules(StampCoordinate coord) {
       // Initialize VHAT module sequences cache
       if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
-         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true));
+         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord));
       }
       return VHAT_MODULES;
    }
@@ -134,7 +135,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    private static StampCoordinate getVHATDevelopmentLatestStampCoordinate() {
       if (VHAT_STAMP_COORDINATE == null) {
          StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-         VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(), Status.ANY_STATUS_SET);
+         VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
+               Status.ANY_STATUS_SET);
       }
 
       return VHAT_STAMP_COORDINATE;

@@ -389,14 +389,15 @@ public abstract class BadgedVersionPanel
    }
 
    protected final void setupOther(Version version) {
+      
       if (version instanceof SemanticVersion) {
          SemanticVersion semanticVersion = (SemanticVersion) version;
-         VersionType sememeType = semanticVersion.getChronology()
+         VersionType semanticType = semanticVersion.getChronology()
                  .getVersionType();
 
-         componentType.setText(sememeType.toString());
+         componentType.setText(semanticType.toString());
 
-         switch (sememeType) {
+         switch (semanticType) {
             case STRING:
                if (isLatestPanel()) {
                   componentType.setText("STR");
@@ -468,7 +469,7 @@ public abstract class BadgedVersionPanel
             case UNKNOWN:
             case DESCRIPTION:
             default:
-               throw new UnsupportedOperationException("al Can't handle: " + sememeType);
+               throw new UnsupportedOperationException("al Can't handle: " + semanticType);
          }
       } else {
          componentText.setText(version.getClass()

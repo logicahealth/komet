@@ -78,6 +78,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -124,7 +125,13 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
  */
 
 /**
- * Goal which loads a database from eConcept files.
+ * Goal which loads a database from ibdf files.
+* I get inconsistent results with this mojo... Sometimes the import fails, and 
+* on an immediate re-run, it succeeds. So a race condition, or some other 
+* issue such as unpredictable behavior of this.input.available(); in the reader
+* implementation class? 
+* @deprecated try {@link LoadTermstoreSemaphore}
+* TODO [DAN 2] see if there is still an issue with missing the end items of metadata, debug.  Finish comparing this with LoadTermstoreSemaphore.
  */
 @Mojo(
    name         = "load-termstore",
@@ -286,6 +293,12 @@ public class LoadTermstore
 
                         case SEMANTIC:
                            SemanticChronology sc = (SemanticChronology) object;
+                           
+                           if (sc.getPrimordialUuid().equals(TermAux.MASTER_PATH_SEMANTIC_UUID)) {
+                              getLog().info("Loading master path semantic at count: " + this.itemCount);
+                           } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
+                              getLog().info("Loading development path semantic at count: " + this.itemCount);
+                           }
 
                            if (sc.getAssemblageNid() == statedNid) {
                               final NidSet sequences = Get.assemblageService()
@@ -393,7 +406,7 @@ public class LoadTermstore
                            break;
 
                         default:
-                           throw new UnsupportedOperationException("Unknown ochre object type: " + object);
+                           throw new UnsupportedOperationException("Unknown object type: " + object);
                         }
                      }
                   } catch (final UnsupportedOperationException e) {
@@ -443,7 +456,6 @@ public class LoadTermstore
             this.stampCommentCount = 0;
             this.skippedItems.clear();
          }
-         Get.startIndexTask().get();
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
@@ -479,21 +491,14 @@ public class LoadTermstore
 
          if (this.skippedAny) {
             // Loading with activeOnly set to true causes a number of gaps in the concept /
-            // semantic providers
-            // Get.identifierService().clearUnusedIds();
+            getLog().warn("Skipped components during import.");
          }
+         getLog().info("Final item count: "  + this.itemCount);
+         Get.startIndexTask().get();
+         LookupService.syncAll();
 
-//         // Add a sememe to isaac root, that carries that db id
-//         getLog().info("Writing DB ID of '" + dbIdUUID.toString() + "' to root concept");
-//         int ss = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(), TermAux.SOLOR_MODULE.getNid(),
-//               TermAux.DEVELOPMENT_PATH.getNid());
-//         ArrayList<CommittableComponent> builtObjects = new ArrayList<>();
-//         ((SemanticBuilder) Get.semanticBuilderService().getStringSemanticBuilder(dbIdUUID.toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid()))
-//               .build(ss, builtObjects);
-//         Get.assemblageService().writeSemanticChronology((SemanticChronology) builtObjects.get(0));
-//         
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
-         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
+         getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));

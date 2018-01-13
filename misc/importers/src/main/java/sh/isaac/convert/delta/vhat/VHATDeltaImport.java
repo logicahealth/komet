@@ -147,6 +147,7 @@ import sh.isaac.misc.constants.terminology.data.Terminology.Types.Type;
 import sh.isaac.misc.modules.vhat.VHATIsAHasParentSynchronizingChronologyChangeListener;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
@@ -243,7 +244,8 @@ public class VHATDeltaImport extends ConverterBaseMojo
             NidSet modulesToRead = new NidSet();
             modulesToRead.add(MetaData.MODULE____SOLOR.getNid());
             modulesToRead.add(MetaData.VHAT_MODULES____SOLOR.getNid());
-            Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, false).forEach(i -> modulesToRead.add(i));
+            Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, false, StampCoordinates.getDevelopmentLatest())
+               .forEach(i -> modulesToRead.add(i));
             
             this.readCoordinate = new StampCoordinateImpl(StampPrecedence.PATH,  
                new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),

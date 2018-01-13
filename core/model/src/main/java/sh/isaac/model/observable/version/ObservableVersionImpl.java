@@ -669,8 +669,8 @@ public abstract class ObservableVersionImpl
    }
 
    @Override
-   public VersionType getVersionType() {
-      return ((VersionImpl) this.stampedVersionProperty.get()).getVersionType();
+   public VersionType getSemanticType() {
+      return ((VersionImpl) this.stampedVersionProperty.get()).getSemanticType();
    }
 
    @Override

@@ -69,6 +69,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
@@ -104,7 +105,7 @@ public class Manifold
    public static final String                                      UNLINKED_GROUP_NAME       = "unlinked";
    public static final String                                      SIMPLE_SEARCH_GROUP_NAME  = "search";
    public static final String                                      TAXONOMY_GROUP_NAME       = "taxonomy";
-   public static final String                                      FLOWR_SEARCH_GROUP_NAME   = "flowr";
+   public static final String                                      FLWOR_SEARCH_GROUP_NAME   = "flwor";
    private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap();
    private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap();
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
@@ -115,7 +116,7 @@ public class Manifold
       ICONOGRAPHIC_SUPPLIER.put(UNLINKED_GROUP_NAME, () -> new Label());
       ICONOGRAPHIC_SUPPLIER.put(SIMPLE_SEARCH_GROUP_NAME, () -> Iconography.SIMPLE_SEARCH.getIconographic());
       ICONOGRAPHIC_SUPPLIER.put(TAXONOMY_GROUP_NAME, () -> Iconography.TAXONOMY_ICON.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(FLOWR_SEARCH_GROUP_NAME, () -> Iconography.FLOWR_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(FLWOR_SEARCH_GROUP_NAME, () -> Iconography.FLWOR_SEARCH.getIconographic());
    }
 
    //~--- fields --------------------------------------------------------------
@@ -399,5 +400,17 @@ public class Manifold
          EDITS_IN_PROCESS.remove(editInFlight);
       });
    }
+
+    @Override
+    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return this.observableManifoldCoordinate.getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        this.observableManifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    }
+   
+   
 }
 

@@ -41,7 +41,6 @@ package sh.isaac.api.observable.semantic.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;

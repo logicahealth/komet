@@ -376,7 +376,7 @@ public class SemanticIndexerConfiguration {
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
                   final Stream<SemanticChronology> sememeCs = Get.assemblageService()
-                          .getSemanticChronologyStreamFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                          .getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                   .getNid());
 
                   sememeCs.forEach(sememeC -> {

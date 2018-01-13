@@ -195,7 +195,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                createConcept(TermAux.VHAT_MODULES).addDescription("VHAT", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).addDescription("VHA Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f201520-960e-11e5-8994-feff819cdc9f"));
-         
                pushParent(current());
                   createConcept(TermAux.VHAT_EDIT);
                   popParent();
@@ -234,13 +233,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
                createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
                popParent();
-            createConcept("Identifier assemblage");  //TODO [DAN 2] need to talk to Keith about these, seem to be duplicative with the ones below.
+            createConcept("Identifier collection");  //TODO [DAN 2] need to talk to Keith about these, seem to be duplicative with the ones below.
             //Even after talking to Keith, still don't understand, and, at minimum, these things need to be named / defined better, cause they are 
             //rather confusing.
             pushParent(current());
                createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
                createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
                createConcept(TermAux.RXNORM_IDENTIFIER_ASSEMBLAGE);
+               createConcept(TermAux.UUID_NID_MAP);
                popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -322,9 +322,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("Dialect assemblage");
                pushParent(current());
-                  createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
-                  createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE);
-                  createConcept("US Nursing dialect");
+                  createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE);
+                  pushParent(current());
+                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
+                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE);
+                     createConcept("US Nursing dialect");
+                     popParent();
+                  createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE);
+                  pushParent(current());
+                     createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE);
+                     popParent();
                   popParent();
                createConcept("Logic assemblage");
                pushParent(current());
@@ -354,8 +361,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                   final ConceptBuilder paths = createConcept("Paths assemblage");
                   paths.mergeFromSpec(TermAux.PATH_ASSEMBLAGE);
-                  addPath(paths, masterPath);
-                  addPath(paths, developmentPath);
+                  addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
+                  addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
 
                   final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
                   pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);

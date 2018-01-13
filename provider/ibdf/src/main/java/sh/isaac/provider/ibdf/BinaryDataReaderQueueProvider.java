@@ -41,6 +41,7 @@ package sh.isaac.provider.ibdf;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -82,17 +83,17 @@ public class BinaryDataReaderQueueProvider
    /** The objects. */
    int objects = 0;
 
-   /** The notstarted. */
+   /** The not started. */
    int NOTSTARTED = 3;
 
    /** The running. */
    int RUNNING = 2;
 
-   /** The donereading. */
+   /** The done reading. */
    int DONEREADING = 1;
 
-   /** The comlete. */
-   int COMLETE = 0;
+   /** The complete. */
+   int COMPLETE = 0;
 
    /** The complete. */
    final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
@@ -129,6 +130,8 @@ public class BinaryDataReaderQueueProvider
     *
     * @param dataPath the data path
     * @throws FileNotFoundException the file not found exception
+    * this.input.available(); gives inconsistent results? 
+    * @deprecated inconsistent results? Try BinaryDatastreamReader
     */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {
@@ -261,7 +264,7 @@ public class BinaryDataReaderQueueProvider
     */
    @Override
    public boolean isFinished() {
-      return this.complete.getCount() == this.COMLETE;
+      return this.complete.getCount() == this.COMPLETE;
    }
 
    /**
@@ -290,7 +293,7 @@ public class BinaryDataReaderQueueProvider
 
                for (int i = 0; i < threadCount; i++) {
                   this.es.execute(() -> {
-                                      while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
+                                      while ((this.complete.getCount() > this.COMPLETE) ||!this.readData.isEmpty()) {
                                          boolean accepted;
 
                                          try {

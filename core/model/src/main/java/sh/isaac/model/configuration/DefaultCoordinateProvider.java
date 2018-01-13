@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.collections.ObservableIntegerArray;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;

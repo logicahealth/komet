@@ -39,7 +39,6 @@
 
 package sh.isaac.api.component.semantic.version.brittle;
 
-import sh.isaac.api.Status;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -110,11 +109,11 @@ public interface LoincVersion
 
    //~--- get methods ---------------------------------------------------------
 
-   Status getStatus();
+   String getLoincStatus();
 
    //~--- set methods ---------------------------------------------------------
 
-   void setStatus(String value);
+   void setLoincStatus(String value);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -133,7 +132,7 @@ public interface LoincVersion
    void setTimeAspect(String value);
    
    @Override
-   default VersionType getVersionType() {
+   default VersionType getSemanticType() {
       return VersionType.LOINC_RECORD;
    }
 }

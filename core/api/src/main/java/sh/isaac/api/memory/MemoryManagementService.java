@@ -41,6 +41,7 @@ package sh.isaac.api.memory;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.ApplicationStates;
 import org.jvnet.hk2.annotations.Contract;
 
 //~--- interfaces -------------------------------------------------------------
@@ -52,11 +53,24 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface MemoryManagementService {
+    
+   int managedMemoryInBytes();
+    
+   void addSpine(SpineReference spine);
+   
    /**
-    * Sets the memory configuration.
-    *
-    * @param memoryConfiguration the new memory configuration
+    * Each add must be accompanied by a remove. The calls to add an remove 
+    * are counted, so a state is not removed until  add + remove == 0.
+    * @param applicationState the active application state to add. 
     */
-   void setMemoryConfiguration(MemoryConfigurations memoryConfiguration);
+   void addState(ApplicationStates applicationState);
+   
+   /**
+    * Each add must be accompanied by a remove. The calls to add an remove 
+    * are counted, so a state is not removed until  add + remove == 0.
+    * @param applicationState the inactive application state to remove. 
+    */
+   void removeState(ApplicationStates applicationState);
+   
 }
 

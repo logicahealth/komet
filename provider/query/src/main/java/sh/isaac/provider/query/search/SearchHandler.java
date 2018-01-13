@@ -341,7 +341,7 @@ public class SearchHandler {
                                   try {
                                      return index.query(queryString,
                                            prefixSearch,
-                                           getDescriptionSememeAssemblages(),  //TODO [DAN 2] this restriction doesn't make sense to me, need to see who uses this code.
+                                           null,
                                            null,
                                            null,
                                            false,
@@ -740,92 +740,5 @@ public class SearchHandler {
             : comparator));
       searchHandle.setResults(rawResults);
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the description sememe assemblages.
-    *
-    * @return the description sememe assemblages
-    */
-   private static Integer[] getDescriptionSememeAssemblages() {
-      if (descriptionSememeAssemblagesCache == null) {
-         final Set<Integer> descSememes =
-            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getNid(),
-                                           true,
-                                           false);
-
-         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getNid());
-         descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
-      }
-
-      return descriptionSememeAssemblagesCache;
-   }
-   
-   
-
-   /**
-    * Get isA children of a concept.  Does not return the requested concept in any circumstance.
-    * @param conceptSequence The concept to look at
-    * @param recursive recurse down from the concept
-    * @param leafOnly only return leaf nodes
-    * @return the set of concept sequence ids that represent the children
-    */
-   public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
-      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
-
-      if (leafOnly && (temp.size() == 1)) {
-         temp.remove(conceptSequence);
-      }
-
-      return temp;
-   }
-
-   /**
-    * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
-    * there are no children.
-    *
-    * @param handledConceptSequenceIds the handled concept sequence ids
-    * @param conceptSequence the concept sequence
-    * @param recursive the recursive
-    * @param leafOnly the leaf only
-    * @return the all children of concept
-    */
-   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
-         int conceptSequence,
-         boolean recursive,
-         boolean leafOnly) {
-      final Set<Integer> results = new HashSet<>();
-
-      // This both prevents infinite recursion and avoids processing or returning of duplicates
-      if (handledConceptSequenceIds.contains(conceptSequence)) {
-         return results;
-      }
-
-      final AtomicInteger count    = new AtomicInteger();
-      final IntStream     children = Get.taxonomyService()
-                                        .getTaxonomyChildNids(conceptSequence);
-
-      children.forEach(
-          (conSequence) -> {
-             count.getAndIncrement();
-
-             if (!leafOnly) {
-                results.add(conSequence);
-             }
-
-             if (recursive) {
-                results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
-             }
-          });
-
-      if (leafOnly && (count.get() == 0)) {
-         results.add(conceptSequence);
-      }
-
-      handledConceptSequenceIds.add(conceptSequence);
-      return results;
-   }
-   
 }
 

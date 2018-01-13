@@ -220,7 +220,7 @@ public class GenerateIndexes
             for (final IndexBuilderService i : this.indexers) {
                i.sync();
             }
-            log.info("Indexed " + processedCount + " semantics");
+            LOG.info("Indexed " + processedCount + " semantics");
          }
       }
    }

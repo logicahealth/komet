@@ -288,9 +288,13 @@ public class LanguageCoordinates {
                                                      TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
                                                            TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
 
-      return new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList);
+      
+      coordinate.setNextProrityLanguageCoordinate(getSpanishLanguageFullySpecifiedNameCoordinate());
+      
+      return coordinate;
    }
 
    /**
@@ -305,9 +309,42 @@ public class LanguageCoordinates {
       final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
                                                               TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
 
-      return new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate =  new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList);
+      coordinate.setNextProrityLanguageCoordinate(getSpanishLanguagePreferredTermCoordinate());
+      
+      return coordinate;
+   }
+   public static LanguageCoordinate getSpanishLanguageFullySpecifiedNameCoordinate() {
+      final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
+      final int[] descriptionTypePreferenceList = new int[] {
+                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
+                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
+
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+                                        dialectAssemblagePreferenceList,
+                                        descriptionTypePreferenceList);
+      
+      return coordinate;
+   }
+   /**
+    * Gets the us english language preferred term coordinate.
+    *
+    * @return the us english language preferred term coordinate
+    */
+   public static LanguageCoordinate getSpanishLanguagePreferredTermCoordinate() {
+      final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
+      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
+                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
+
+      LanguageCoordinateImpl coordinate =  new LanguageCoordinateImpl(languageSequence,
+                                        dialectAssemblagePreferenceList,
+                                        descriptionTypePreferenceList);
+      
+      return coordinate;
    }
 }
 

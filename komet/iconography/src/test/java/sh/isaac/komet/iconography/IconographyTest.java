@@ -59,7 +59,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.RUN.getIconographic());
       iconsPane.getChildren().add(Iconography.LINK.getIconographic());
       iconsPane.getChildren().add(Iconography.LINK_BROKEN.getIconographic());
-      iconsPane.getChildren().add(Iconography.FLOWR_SEARCH.getIconographic());
+      iconsPane.getChildren().add(Iconography.FLWOR_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SIMPLE_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SETTINGS_GEAR.getIconographic());
       iconsPane.getChildren().add(Iconography.TREE_ASPECT_RATIO_LAYOUT.getIconographic());
@@ -154,6 +154,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.ALERT_INFORM2.getIconographic());    
       iconsPane.getChildren().add(Iconography.ALERT_WARN2.getIconographic());    
       iconsPane.getChildren().add(Iconography.CHECKERED_FLAG.getIconographic());    
+      iconsPane.getChildren().add(Iconography.DASHBOARD.getIconographic());    
       
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

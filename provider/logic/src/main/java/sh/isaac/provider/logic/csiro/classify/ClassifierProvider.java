@@ -56,10 +56,10 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.taxonomy.GraphCollector;
 import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeWithIntArraySets;
-import sh.isaac.provider.bdb.taxonomy.BdbTaxonomyProvider;
-import sh.isaac.provider.bdb.taxonomy.GraphCollector;
+import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 
 //~--- classes ----------------------------------------------------------------
@@ -143,7 +143,7 @@ public class ClassifierProvider
               StampCoordinates.getDevelopmentLatestActiveOnly(),
               Get.configurationService().getDefaultLanguageCoordinate());
       final GraphCollector collector
-              = new GraphCollector(((BdbTaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
+              = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
                       manifoldCoordinate);
       final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(()
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
@@ -165,7 +165,7 @@ public class ClassifierProvider
               StampCoordinates.getDevelopmentLatestActiveOnly(),
               Get.configurationService().getDefaultLanguageCoordinate());
       final GraphCollector collector
-              = new GraphCollector(((BdbTaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
+              = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
                       manifoldCoordinate);
       final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(() 
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),

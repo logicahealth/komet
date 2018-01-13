@@ -17,7 +17,6 @@
 package sh.isaac.komet.gui.treeview;
 
 import java.util.function.Consumer;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
