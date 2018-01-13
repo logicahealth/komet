@@ -343,6 +343,7 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
          createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
          popParent();
          createConcept("Rule assemblage");
          pushParent(current());

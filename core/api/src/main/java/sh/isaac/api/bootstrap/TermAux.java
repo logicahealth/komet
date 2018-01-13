@@ -420,6 +420,7 @@ public class TermAux {
    public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage", "RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
    public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage", UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
    public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage", UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
+   public static ConceptSpecification LOINC_RECORD_ASSEMBLAGE = new ConceptProxy("LOINC record assemblage", "LOINC record assemblage", UUID.fromString("282b86b7-8ae4-5e6a-9dbd-849aabc67922"));
    public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage", UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
    public static ConceptSpecification UUID_NID_MAP = new ConceptProxy("UUID to internal identifier map", "UUID to internal identifier map", UUID.fromString("e4f98192-bcaf-5e41-b91f-2b0d56f9050a"));
 

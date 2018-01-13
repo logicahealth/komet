@@ -54,7 +54,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -103,7 +102,7 @@ public class Rf2DirectImporter
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
 
-        updateTitle("Importing from " + importDirectory.getAbsolutePath());
+        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
@@ -168,7 +167,7 @@ public class Rf2DirectImporter
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
                 .filter(
-                        p -> p.toString().endsWith(".zip")
+                        p -> p.toString().toLowerCase().endsWith(".zip")
                         && (p.toString().toUpperCase().contains("SNOMEDCT")
                         || p.toString().toLowerCase().contains("sct")))
                 .collect(Collectors.toList());
@@ -1448,7 +1447,7 @@ public class Rf2DirectImporter
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
-    private static String trimZipName(String zipName) {
+    public static String trimZipName(String zipName) {
         int index = zipName.lastIndexOf("/");
 
         return zipName.substring(index + 1);

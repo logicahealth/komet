@@ -95,6 +95,7 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.solor.rf2.direct.ImportType;
+import sh.isaac.solor.rf2.direct.LoincDirectImporter;
 import sh.isaac.solor.rf2.direct.LoincExpressionToConcept;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
@@ -306,6 +307,13 @@ public class KometStageController
                 Get.taxonomyService().notifyTaxonomyListenersToRefresh();
             });
             items.add(recomputeTaxonomy);
+
+            MenuItem importLoincRecords = new MenuItem("Import LOINC records");
+            importLoincRecords.setOnAction((ActionEvent event) -> {
+                LoincDirectImporter importTask = new LoincDirectImporter();
+                Get.executor().execute(importTask);
+            });
+            items.add(importLoincRecords);
 
             MenuItem convertLoincExpressions = new MenuItem("Convert LOINC expressions");
             convertLoincExpressions.setOnAction((ActionEvent event) -> {

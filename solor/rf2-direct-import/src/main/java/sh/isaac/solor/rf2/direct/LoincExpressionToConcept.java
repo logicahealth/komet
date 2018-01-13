@@ -17,18 +17,29 @@
 package sh.isaac.solor.rf2.direct;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.index.IndexService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.api.util.UuidT5Generator;
 
 /**
  *
@@ -40,6 +51,15 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     ConceptProxy expressionRefset = new ConceptProxy(
             "LOINC Term to Expression reference set (foundation metadata concept)",
             UUID.fromString("0fb94c6f-7117-36ff-8789-c5cf9bf132fe"));
+
+    private final List<IndexService> indexers;
+    private final TaxonomyService taxonomyService;
+    private final long commitTime = System.currentTimeMillis();
+
+    public LoincExpressionToConcept() {
+        this.taxonomyService = Get.taxonomyService();
+        this.indexers = LookupService.get().getAllServices(IndexService.class);
+    }
 
     @Override
     protected Void call() throws Exception {
@@ -53,10 +73,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                 LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
-                StringTokenizer tokenizer = new StringTokenizer(loincVersion.getStr2(), ":,={}()+", true);
+                StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
 
                 // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
-                
                 if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
                     builder.sufficientSet(builder.and(getAssertions(tokenizer, builder)));
                 } else {
@@ -64,6 +83,8 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 }
                 LogicalExpression logicalExpression = builder.build();
                 logicalExpression.getNodeCount();
+                addLogicGraph(loincCode,
+                        logicalExpression);
             }
         }
         );
@@ -124,5 +145,66 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
     public enum PARSE {
         CONCEPT, ROLE, END
+    }
+
+    /**
+     * Adds the relationship graph.
+     *
+     * @param loincCode the LOINC code
+     * @param logicalExpression the logical expression
+     * @return the sememe chronology
+     */
+    public SemanticChronology addLogicGraph(String loincCode,
+            LogicalExpression logicalExpression) {
+
+        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        int conceptNid = Get.identifierService().getNidForUuids(conceptUuid);
+
+        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
+
+        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+                conceptNid,
+                graphAssemblageNid);
+
+        UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
+
+        // Create UUID from seed and assign SemanticBuilder the value
+        final UUID generatedGraphPrimordialUuid
+                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
+
+        sb.setPrimordialUuid(generatedGraphPrimordialUuid);
+
+        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                commitTime, TermAux.USER.getNid(),
+                TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                TermAux.DEVELOPMENT_PATH.getNid());
+
+        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+                builtObjects);
+        // There should be no other build objects, so ignore the builtObjects list...
+
+        if (builtObjects.size() != 1) {
+            throw new IllegalStateException("More than one build object: " + builtObjects);
+        }
+        index(sci);
+        Get.assemblageService().writeSemanticChronology(sci);
+
+        return sci;
+
+    }
+
+    private void index(Chronology chronicle) {
+        if (chronicle instanceof SemanticChronology) {
+            this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
+        }
+        for (IndexService indexer : indexers) {
+            try {
+                indexer.index(chronicle).get();
+            } catch (InterruptedException | ExecutionException ex) {
+                LOG.error(ex);
+            }
+        }
+
     }
 }

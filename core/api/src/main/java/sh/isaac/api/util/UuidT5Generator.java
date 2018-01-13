@@ -49,6 +49,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,6 +110,10 @@ public class UuidT5Generator {
       return get(null, name);
    }
 
+   public static UUID loincConceptUuid(String name) {
+       return get(TermAux.LOINC_CONCEPT_ASSEMBLAGE.getPrimordialUuid(),
+               name);
+   }
    /**
     * Gets the.
     *
