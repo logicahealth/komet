@@ -62,6 +62,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
@@ -259,6 +260,14 @@ public class SimpleSearchController implements ExplorationNode {
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
         initializeControls();
+
+        //TODO: Current hack to get around metadata not being indexed on a clean "first" start of viewer
+        //Check to see if Metadata is index, if not reindex
+        DescriptionLuceneMatch quickMetaSearch = new DescriptionLuceneMatch();
+        quickMetaSearch.setParameterString("\"solor module (solor)\"");
+        quickMetaSearch.setManifoldCoordinate(this.manifold);
+        if(quickMetaSearch.computePossibleComponents(null).size() == 0)
+            Get.startIndexTask();
     }
 
     @Override
