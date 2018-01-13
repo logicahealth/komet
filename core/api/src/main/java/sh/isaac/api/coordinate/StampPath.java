@@ -57,7 +57,7 @@ public interface StampPath
     *
     * @return the sequence of the concept that defines this STAMP path.
     */
-   int getPathConceptSequence();
+   int getPathConceptNid();
 
    /**
     * Gets the path origins.

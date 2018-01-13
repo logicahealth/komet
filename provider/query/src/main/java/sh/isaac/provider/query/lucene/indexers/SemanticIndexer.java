@@ -487,7 +487,7 @@ public class SemanticIndexer
        * @param searchColumns the search columns
        * @return the query
        */
-      protected Query buildColumnHandlingQuery(Integer[] assemblageConceptNid, Integer[] searchColumns) {
+      protected Query buildColumnHandlingQuery(int[] assemblageConceptNid, int[] searchColumns) {
          Integer[] assemblageIndexedColumns = null;
 
          if ((searchColumns != null) && (searchColumns.length > 0)) {
@@ -525,7 +525,7 @@ public class SemanticIndexer
    @Override
    public List<SearchResult> query(String query,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         int[] assemblageConcept,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -542,8 +542,8 @@ public class SemanticIndexer
          boolean queryDataLowerInclusive,
          Number queryDataUpper,
          boolean queryDataUpperInclusive,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -568,8 +568,8 @@ public class SemanticIndexer
     */
    @Override
    public List<SearchResult> queryNidReference(int nid,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -592,8 +592,8 @@ public class SemanticIndexer
    @Override
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
-         Integer[] searchColumns,
+         int[] assemblageConcept,
+         int[] searchColumns,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
@@ -607,8 +607,8 @@ public class SemanticIndexer
    @Override
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         Integer[] assemblageConcepts,
-         Integer[] searchColumns,
+         int[] assemblageConcepts,
+         int[] searchColumns,
          Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
@@ -684,7 +684,7 @@ public class SemanticIndexer
    @Override
    public List<SearchResult> queryData(String queryString,
          boolean prefixSearch,
-         Integer[] assemblageConcept,
+         int[] assemblageConcept,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,

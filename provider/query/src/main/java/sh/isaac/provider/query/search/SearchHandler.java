@@ -408,7 +408,7 @@ public class SearchHandler {
                                            null,
                                            null,
                                            false,
-                                           new Integer[] {descriptionTypeNid},
+                                           new int[] {descriptionTypeNid},
                                            null,
                                            null,
                                            resultLimit,
@@ -473,7 +473,7 @@ public class SearchHandler {
                                            null,
                                            false,
                                            null,
-                                           new Integer[] {Get.identifierService().getNidForUuids(extendedDescriptionType)},
+                                           new int[] {Get.identifierService().getNidForUuids(extendedDescriptionType)},
                                            null,
                                            resultLimit,
                                            Long.MIN_VALUE);
@@ -598,7 +598,7 @@ public class SearchHandler {
                              try {
                                 return index.query(searchString,
                                       prefixSearch,
-                                      ((assemblageNid == null) ? (Integer[]) null : new Integer[] { assemblageNid }),
+                                      ((assemblageNid == null) ? (int[]) null : new int[] { assemblageNid }),
                                       null,
                                       1,
                                       resultLimit,

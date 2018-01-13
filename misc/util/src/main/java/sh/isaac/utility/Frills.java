@@ -1451,7 +1451,7 @@ public class Frills
          IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
          if (si != null) {
             // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-            List<SearchResult> result = si.query(localIdentifier + " ", true, new Integer[] { MetaData.SCTID____SOLOR.getNid() }, null, null, 5, Long.MIN_VALUE);
+            List<SearchResult> result = si.query(localIdentifier + " ", true, new int[] { MetaData.SCTID____SOLOR.getNid() }, null, null, 5, Long.MIN_VALUE);
             if (result.size() > 0) {
                int componentNid = Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid();
                if (Get.identifierService().getObjectTypeForComponent(componentNid) == IsaacObjectType.CONCEPT) {
@@ -1900,7 +1900,7 @@ public class Frills
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____SOLOR.getNid() },
+                                                     new int[] { MetaData.SCTID____SOLOR.getNid() },
                                                      null,
                                                      null,
                                                      5,
@@ -1929,7 +1929,7 @@ public class Frills
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____SOLOR.getNid() },
+                                                     new int[] { MetaData.VUID____SOLOR.getNid() },
                                                      null, 
                                                      null,
                                                      5,
@@ -2404,7 +2404,7 @@ public class Frills
          }
       };
       // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-      List<SearchResult> results = si.query(vuID + " ", true, new Integer[] { MetaData.VUID____SOLOR.getNid() }, filter, null, null, 1000, Long.MAX_VALUE);
+      List<SearchResult> results = si.query(vuID + " ", true, new int[] { MetaData.VUID____SOLOR.getNid() }, filter, null, null, 1000, Long.MAX_VALUE);
       if (results.size() > 0) {
          for (SearchResult result : results) {
             matchingVuidSememeNids.add(result.getNid());

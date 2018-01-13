@@ -74,7 +74,7 @@ public class StampPositionImpl
    long time;
 
    /** The stamp path sequence. */
-   int stampPathSequence;
+   int stampPathNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -93,7 +93,7 @@ public class StampPositionImpl
     */
    public StampPositionImpl(long time, int stampPathNid) {
       this.time              = time;
-      this.stampPathSequence = stampPathNid;
+      this.stampPathNid = stampPathNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -106,8 +106,8 @@ public class StampPositionImpl
     */
    @Override
    public int compareTo(StampPosition o) {
-      if (this.stampPathSequence != o.getStampPathSequence()) {
-         return Integer.compare(this.stampPathSequence, o.getStampPathSequence());
+      if (this.stampPathNid != o.getStampPathNid()) {
+         return Integer.compare(this.stampPathNid, o.getStampPathNid());
       }
 
       return Long.compare(this.time, o.getTime());
@@ -135,7 +135,7 @@ public class StampPositionImpl
          return false;
       }
 
-      return this.stampPathSequence == other.stampPathSequence;
+      return this.stampPathNid == other.stampPathNid;
    }
 
    /**
@@ -148,7 +148,7 @@ public class StampPositionImpl
       int hash = 7;
 
       hash = 83 * hash + (int) (this.time ^ (this.time >>> 32));
-      hash = 83 * hash + this.stampPathSequence;
+      hash = 83 * hash + this.stampPathNid;
       return hash;
    }
 
@@ -172,7 +172,7 @@ public class StampPositionImpl
       }
 
       sb.append(" on '")
-        .append(Get.conceptDescriptionText(this.stampPathSequence))
+        .append(Get.conceptDescriptionText(this.stampPathNid))
         .append("' path}");
       return sb.toString();
    }
@@ -186,17 +186,15 @@ public class StampPositionImpl
     */
    @Override
    public StampPath getStampPath() {
-      return new StampPathImpl(this.stampPathSequence);
+      return new StampPathImpl(this.stampPathNid);
    }
 
    /**
-    * Gets the stamp path sequence.
-    *
-    * @return the stamp path sequence
+    * {@inheritDoc}
     */
    @Override
-   public int getStampPathSequence() {
-      return this.stampPathSequence;
+   public int getStampPathNid() {
+      return this.stampPathNid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -211,7 +209,7 @@ public class StampPositionImpl
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.stampPathSequence = newValue.intValue();
+               this.stampPathNid = newValue.intValue();
             };
 
       stampPathSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -251,7 +249,7 @@ public class StampPositionImpl
 
    @Override
    public StampPosition deepClone() {
-      return new StampPositionImpl(time, stampPathSequence);
+      return new StampPositionImpl(time, stampPathNid);
    }
    
    

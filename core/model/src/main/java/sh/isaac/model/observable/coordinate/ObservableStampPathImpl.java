@@ -112,7 +112,7 @@ public class ObservableStampPathImpl
       if (this.pathConceptSequenceProperty == null) {
          this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
-               getPathConceptSequence());
+               getPathConceptNid());
       }
 
       return this.pathConceptSequenceProperty;
@@ -152,12 +152,12 @@ public class ObservableStampPathImpl
     * @return the path concept sequence
     */
    @Override
-   public int getPathConceptSequence() {
+   public int getPathConceptNid() {
       if (this.pathConceptSequenceProperty != null) {
          return this.pathConceptSequenceProperty.get();
       }
 
-      return this.stampPath.getPathConceptSequence();
+      return this.stampPath.getPathConceptNid();
    }
 
    /**

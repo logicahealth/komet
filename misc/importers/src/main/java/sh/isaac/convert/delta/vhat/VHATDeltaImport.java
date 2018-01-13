@@ -1959,7 +1959,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       if (si != null) {
          //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          ArrayList<SemanticChronology> candidates = new ArrayList<>();
-         List<SearchResult> result = si.query(conceptCode + " ", true, new Integer[] {MetaData.CODE____SOLOR.getNid()}, null, null, 50, Long.MAX_VALUE);
+         List<SearchResult> result = si.query(conceptCode + " ", true, new int[] {MetaData.CODE____SOLOR.getNid()}, null, null, 50, Long.MAX_VALUE);
          result.forEach(sr -> 
          {
             SemanticChronology sc = Get.assemblageService().getSemanticChronology(sr.getNid());

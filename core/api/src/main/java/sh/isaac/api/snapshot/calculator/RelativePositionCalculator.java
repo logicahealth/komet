@@ -406,13 +406,13 @@ public class RelativePositionCalculator
          ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
-                                  destination.getStampPathSequence(),
+                                  destination.getStampPathNid(),
                                   destination.getTime(),
                                   precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getStampPathSequence(), segment);
+      pathNidSegmentMap.put(destination.getStampPathNid(), segment);
       destination.getStampPath()
                  .getPathOrigins()
                  .stream()

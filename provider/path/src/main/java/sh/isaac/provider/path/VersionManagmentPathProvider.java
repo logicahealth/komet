@@ -151,7 +151,7 @@ public class VersionManagmentPathProvider
     */
    private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
       for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getStampPathSequence() == v1.getPathNid()) {
+         if (origin.getStampPathNid() == v1.getPathNid()) {
             if (v1.getTime() <= origin.getTime()) {
                return RelativePosition.BEFORE;
             }

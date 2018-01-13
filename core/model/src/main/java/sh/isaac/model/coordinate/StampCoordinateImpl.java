@@ -213,7 +213,7 @@ public class StampCoordinateImpl
    @Override
    public StampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
       final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
-                                                                       this.stampPosition.getStampPathSequence());
+                                                                       this.stampPosition.getStampPathNid());
 
       return new StampCoordinateImpl(this.stampPrecedence,
                                      anotherStampPosition,

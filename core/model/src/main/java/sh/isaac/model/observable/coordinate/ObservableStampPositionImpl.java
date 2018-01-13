@@ -102,7 +102,7 @@ public class ObservableStampPositionImpl
       if (this.stampPathSequenceProperty == null) {
          this.stampPathSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_STAMP_POSITION.toExternalString(),
-               getStampPathSequence());
+               getStampPathNid());
          addListenerReference(this.stampPosition.setStampPathSequenceProperty(this.stampPathSequenceProperty));
       }
 
@@ -154,12 +154,12 @@ public class ObservableStampPositionImpl
     * @return the stamp path sequence
     */
    @Override
-   public int getStampPathSequence() {
+   public int getStampPathNid() {
       if (this.stampPathSequenceProperty != null) {
          return this.stampPathSequenceProperty.get();
       }
 
-      return this.stampPosition.getStampPathSequence();
+      return this.stampPosition.getStampPathNid();
    }
 
    /**
