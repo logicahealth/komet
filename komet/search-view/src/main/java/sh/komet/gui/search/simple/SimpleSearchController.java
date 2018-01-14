@@ -88,9 +88,6 @@ public class SimpleSearchController implements ExplorationNode {
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
     private Manifold                                          manifold;
-    private static final PseudoClass CSS_FAIL = PseudoClass.getPseudoClass("fail");
-    private static final PseudoClass CSS_SUCESS = PseudoClass.getPseudoClass("success");
-    private static final PseudoClass CSS_NORESULT = PseudoClass.getPseudoClass("noResults");
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -124,6 +121,7 @@ public class SimpleSearchController implements ExplorationNode {
                 break;
             case SUCCEEDED:
                 this.searchService.restart();
+                break;
         }
     }
 
@@ -217,8 +215,13 @@ public class SimpleSearchController implements ExplorationNode {
 
 
     private void initializeProgressBar(){
-        this.searchService.progressProperty().addListener(
-                (observable, oldValue, newValue) -> this.searchProgressBar.setProgress(newValue.doubleValue()));
+        this.searchService.progressProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() == -1) {
+                this.searchProgressBar.setProgress(0);
+            } else {
+                this.searchProgressBar.setProgress(newValue.doubleValue());
+            }
+        });
     }
 
     private void initializeSearchService(){
@@ -234,7 +237,6 @@ public class SimpleSearchController implements ExplorationNode {
                     ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
 
                     if(this.searchService.getValue().size() == 0) {
-                        //this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, true);
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));
                         break;
                     }
@@ -249,10 +251,8 @@ public class SimpleSearchController implements ExplorationNode {
                            LOG.error("No latest description for: " + nid);
                         }
                     });
-//                    this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, true);
                     break;
                 case FAILED:
-//                    this.searchTextField.pseudoClassStateChanged(CSS_FAIL, true);
                     this.resultTable.setPlaceholder(new Label("Simple Search Failed..."));
                     break;
             }
