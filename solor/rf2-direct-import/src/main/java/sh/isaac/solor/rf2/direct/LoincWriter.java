@@ -31,6 +31,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
@@ -173,8 +174,20 @@ private static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
 
             // make 2 LOINC descriptions
             
-            addDescription(loincRecord, LONG_COMMON_NAME, conceptNid, recordStamp);
-            addDescription(loincRecord, SHORTNAME, conceptNid, recordStamp);
+            String longCommonName = loincRecord[LONG_COMMON_NAME];
+            if (longCommonName == null || longCommonName.isEmpty()) {
+                longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
+            }
+            
+            addDescription(loincRecord, longCommonName, 
+                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+            
+            String shortName = loincRecord[SHORTNAME];
+            if (shortName == null || shortName.isEmpty()) {
+                shortName = longCommonName + " with no sn";
+            }
+            
+            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
                  
             // make a LOINC semantic
             UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(), 
@@ -192,6 +205,7 @@ private static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
                 recordVersion.setMethodType(loincRecord[METHOD_TYP]);
                 recordVersion.setProperty(loincRecord[PROPERTY]);
                 recordVersion.setScaleType(loincRecord[SCALE_TYP]);
+                recordVersion.setShortName(loincRecord[SHORTNAME]);
                 recordVersion.setSystem(loincRecord[SYSTEM]);
                 recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
                 assemblageService.writeSemanticChronology(recordToWrite);
@@ -209,18 +223,17 @@ private static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
       }
    }
    
-   private void addDescription(String[] loincRecord, int descriptionIndex, 
-           int conceptNid, int recordStamp) {
-            UUID descriptionUuid = UuidT5Generator.get(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
-                    loincRecord[LOINC_NUM] + loincRecord[descriptionIndex]);
+   private void addDescription(String[] loincRecord, String description, ConceptSpecification descriptionType,
+           UUID conceptUuid, int recordStamp) {
+       
+       
+            UUID descriptionUuid = 
+                    UuidT5Generator.get(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(), 
+                     descriptionType.toString() + conceptUuid.toString() + description);
 
             int descriptionNid = identifierService.getNidForUuids(descriptionUuid);
-            int descriptionTypeNid;
-            if (descriptionIndex == LONG_COMMON_NAME) {
-                descriptionTypeNid = TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid();
-            } else {
-                descriptionTypeNid = TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid();
-            }
+            int descriptionTypeNid = descriptionType.getNid();
+            int conceptNid = identifierService.getNidForUuids(conceptUuid);
                         
             SemanticChronologyImpl descriptionToWrite = 
                     new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionNid, 
@@ -230,13 +243,13 @@ private static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
                     MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getNid());
             descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
             descriptionVersion.setLanguageConceptNid(TermAux.ENGLISH_LANGUAGE.getNid());
-            descriptionVersion.setText(loincRecord[descriptionIndex]);
+            descriptionVersion.setText(description);
             
             index(descriptionToWrite);
             assemblageService.writeSemanticChronology(descriptionToWrite);
             
-            UUID acceptabilityUuid = UuidT5Generator.get(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
-                    loincRecord[LOINC_NUM] + loincRecord[descriptionIndex] + loincRecord[descriptionIndex]);
+            UUID acceptabilityUuid = UuidT5Generator.get(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(), 
+                    loincRecord[LOINC_NUM] + description);
             int acceptabilityNid = identifierService.getNidForUuids(acceptabilityUuid);
             SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                                                         VersionType.COMPONENT_NID,

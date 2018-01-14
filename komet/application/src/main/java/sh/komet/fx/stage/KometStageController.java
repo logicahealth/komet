@@ -379,6 +379,7 @@ public class KometStageController
                         tab.setContent(borderPaneForTab);
                         tabPane.getTabs()
                                 .add(tab);
+                        tabPane.getSelectionModel().select(tab);
                     });
             return tabFactoryMenuItem;
         }).forEachOrdered((tabFactoryMenuItem) -> {
@@ -412,6 +413,7 @@ public class KometStageController
                     tab.setContent(borderPaneForTab);
                     tabPane.getTabs()
                             .add(tab);
+                    tabPane.getSelectionModel().select(tab);
                 });
         menuItems.add(tabFactoryMenuItem);
     }
@@ -495,7 +497,7 @@ public class KometStageController
         });
         tabPane.getTabs()
                 .add(tab);
-
+ 
         return tabCountInPanel;
     }
 
@@ -598,6 +600,7 @@ public class KometStageController
                         .bind(activityNode.getToolTip());
                 tabPane.getTabs()
                         .add(tab);
+                tabPane.getSelectionModel().select(tab);
             }
         }
 

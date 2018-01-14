@@ -16,8 +16,10 @@
  */
 package sh.isaac.solor.rf2.direct;
 
+import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -49,11 +51,9 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             .availableProcessors() * 2;
 
     public static HashSet<String> watchTokens = new HashSet<>();
-    protected static final SimpleDateFormat DATE_PARSER = new SimpleDateFormat("yyyyMMdd");
 
     //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
-
 
     public LoincDirectImporter() {
         File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
@@ -102,7 +102,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
                 .filter(p -> p.toString().toLowerCase().endsWith("_text.zip")
-                && p.toString().toLowerCase().contains("LOINC"))
+                && p.toString().toLowerCase().contains("loinc"))
                 .collect(Collectors.toList());
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
@@ -113,35 +113,37 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
                     String entryName = entry.getName()
                             .toLowerCase();
                     if (entryName.endsWith("loinc.csv")) {
-                        try (BufferedReader br = new BufferedReader(
-                                    new InputStreamReader(zipFile.getInputStream(entry),
-                                            Charset.forName("UTF-8")))) {
-                                fileCount++;
+                        try (CSVReader reader
+                                = new CSVReader(new BufferedReader(
+                                        new InputStreamReader(zipFile.getInputStream(entry),
+                                                Charset.forName("UTF-8"))))) {
+                            fileCount++;
+                            readLoinc(reader, entry);
                         }
-                        
                     }
                 }
             }
         }
-        return fileCount ;
+        return fileCount;
     }
 
-
-    private void readLoinc(BufferedReader br, ImportSpecification importSpecification)
+    private void readLoinc(CSVReader reader, ZipEntry entry)
             throws IOException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
-        String rowString;
-        
-        
+        String[] columns;
 
-        br.readLine();  // discard header row
+        reader.readNext();  // discard header row
         boolean empty = true;
-        while ((rowString = br.readLine()) != null) {
+        while ((columns = reader.readNext()) != null) {
             empty = false;
-            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            for (int i = 0; i < columns.length; i++) {
+                if (columns[i] == null) {
+                    columns[i] = "null";
+                }
+            }
 
             columnsToWrite.add(columns);
 
@@ -150,8 +152,8 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing LOINC records from: " + Rf2DirectImporter.trimZipName(
-                                importSpecification.zipEntry.getName()),
-                         commitTime);
+                                entry.getName()),
+                        commitTime);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -159,30 +161,31 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             }
         }
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + entry.getName());
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + entry.getName());
         }
         if (!columnsToWrite.isEmpty()) {
             LoincWriter loincWriter = new LoincWriter(
                     columnsToWrite,
                     this.writeSemaphore,
-                    "Finishing LOINC records from: " + Rf2DirectImporter.trimZipName(
-                            importSpecification.zipEntry.getName()), commitTime);
+                    "Reading LOINC records from: " + Rf2DirectImporter.trimZipName(
+                            entry.getName()), commitTime);
 
             Get.executor()
                     .submit(loincWriter);
         }
 
-        updateMessage("Waiting for description file completion...");
+        updateMessage("Waiting for LOINC file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing description database...");
+        updateMessage("Synchronizing LOINC records to database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
-   protected String[] checkWatchTokensAndSplit(String rowString, ImportSpecification importSpecification) {
+
+    protected String[] checkWatchTokensAndSplit(String rowString, ZipEntry entry) {
         String[] columns = rowString.split("\t");
         if (!watchTokens.isEmpty()) {
             int watchCount = 0;
@@ -193,15 +196,15 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
 
             }
             if (watchCount >= 3) {
-                    LOG.info("Found watch tokens in: "
-                            + importSpecification.zipFile.getName() + " entry: " + importSpecification.zipEntry.getName()
-                            + " \n" + rowString);
+                LOG.info("Found watch tokens in: "
+                        + entry.getName() + " entry: " + entry.getName()
+                        + " \n" + rowString);
             }
         }
         for (int i = 0; i < columns.length; i++) {
             // for LOINC files. 
             if (columns[i].charAt(0) == '"') {
-                columns[i] = columns[i].substring(1, columns[i].length()-1);
+                columns[i] = columns[i].substring(1, columns[i].length() - 1);
             }
         }
         return columns;

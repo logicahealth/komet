@@ -89,7 +89,7 @@ public abstract class TimedTask<T>
      */
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
-    static final AtomicInteger taskSequence = new AtomicInteger();
+    static final AtomicInteger TASK_SEQUENCE = new AtomicInteger();
 
     //~--- fields --------------------------------------------------------------
     /**
@@ -117,7 +117,7 @@ public abstract class TimedTask<T>
      */
     Consumer<TimedTask<T>> progressMessageGenerator;
 
-    int taskSequenceId = taskSequence.incrementAndGet();
+    protected final int taskSequenceId = TASK_SEQUENCE.incrementAndGet();
 
     public TimedTask() {
     }
@@ -141,10 +141,10 @@ public abstract class TimedTask<T>
                 updateMessage(getState() + " in " + DurationUtil.format(getDuration()));
             });
         }
+        LOG.info(getClass().getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
 
         Platform.runLater(() -> {
             this.completeMessageGenerator.accept(this);
-            LOG.info(getClass().getSimpleName() + " " + taskSequenceId + ": " + getTitle() + " " + getMessage());
         });
     }
 

@@ -239,6 +239,8 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
+      case 11:
+          return LOINC_RECORD;
          
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 

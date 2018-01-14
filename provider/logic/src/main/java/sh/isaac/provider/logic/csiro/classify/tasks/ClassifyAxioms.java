@@ -44,7 +44,6 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 

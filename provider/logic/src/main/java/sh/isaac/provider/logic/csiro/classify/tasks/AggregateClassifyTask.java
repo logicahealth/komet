@@ -52,6 +52,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.provider.logic.LogicProvider;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,6 +88,8 @@ public class AggregateClassifyTask
        } finally {
            LookupService.getService(MemoryManagementService.class)
                    .removeState(ApplicationStates.CLASSIFYING);
+           Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
+
        }
    }
 
@@ -105,6 +108,7 @@ public class AggregateClassifyTask
         Get.workExecutors()
                 .getExecutor()
                 .execute(classifyTask);
+        Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
         return classifyTask;
     }
 }

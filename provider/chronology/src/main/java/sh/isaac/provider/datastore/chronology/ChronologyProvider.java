@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -68,10 +69,10 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
@@ -85,7 +86,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -183,7 +183,7 @@ public class ChronologyProvider
      */
     @PostConstruct
     private void startMe() {
-        LOG.info("Starting chronology provider.");
+        LOG.info("Starting chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
         store = Get.service(DataStore.class);
         this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
         this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
@@ -194,7 +194,12 @@ public class ChronologyProvider
      */
     @PreDestroy
     private void stopMe() {
-        LOG.info("Stopping chronology provider.");
+        try {
+            LOG.info("Stopping chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
+            this.sync().get();
+        } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+        }
     }
 
     //~--- get methods ---------------------------------------------------------

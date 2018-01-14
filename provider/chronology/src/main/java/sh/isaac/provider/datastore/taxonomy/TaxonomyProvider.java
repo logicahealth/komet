@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Set;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,6 +126,7 @@ public class TaxonomyProvider
      */
     private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
 
+    private final Set<Task<?>> pendingUpdateTasks = ConcurrentHashMap.newKeySet();
     /**
      * The tree cache.
      */
@@ -157,6 +159,10 @@ public class TaxonomyProvider
         return getTaxonomyRecord(nid).toString();
     }
 
+    public Set<Task<?>> getPendingUpdateTasks() {
+        return pendingUpdateTasks;
+    }
+
     @Override
     public void handleChange(ConceptChronology cc) {
         // not processing concept changes
@@ -178,7 +184,8 @@ public class TaxonomyProvider
         }
 
         this.updatePermits.acquireUninterruptibly();
-        UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
+        UpdateTaxonomyAfterCommitTask updateTask
+                = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
     }
 
     @Override
@@ -198,7 +205,19 @@ public class TaxonomyProvider
 
     @Override
     public Future<?> sync() {
-        return this.store.sync();
+        return Get.executor().submit(() -> {
+            for (Task<?> updateTask : pendingUpdateTasks) {
+                try {
+                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                    updateTask.get();
+                    LOG.info("Completed: " + updateTask.getTitle());
+                } catch (Throwable ex) {
+                    LOG.error(ex);
+                }
+            }
+            this.store.sync().get();
+            return null;
+        });
     }
 
     @Override
@@ -249,7 +268,11 @@ public class TaxonomyProvider
     @PreDestroy
     private void stopMe() {
         LOG.info("Stopping BdbTaxonomyProvider");
-
+        try {
+            this.sync().get();
+        } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+        }
         // make sure updates are done prior to allowing other services to stop.
         this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
         LOG.info("BdbTaxonomyProvider stopped");
