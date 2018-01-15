@@ -145,7 +145,9 @@ public class DescriptionLuceneMatch
                   .getIdentifiedObjectChronology(nid);
 
             if (chronology.isPresent()) {
-               if (!chronology.get()
+               //TODO [KEC] pretty sure this is NOT what was intended - this will only return active items, rather than returning items that 
+               //match the provided coordinate
+               if (chronology.get()
                               .isLatestVersionActive(this.manifoldCoordinate)) {
                   return true;
                }
