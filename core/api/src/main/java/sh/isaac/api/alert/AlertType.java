@@ -46,7 +46,7 @@ public enum AlertType {
    INFORMATION(false),
 
    /** A warning alert. */
-   WARNING(true),
+   WARNING(false),
 
    /** An error alert. */
    ERROR(true),
