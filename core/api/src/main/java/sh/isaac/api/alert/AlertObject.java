@@ -73,6 +73,6 @@ public class AlertObject {
    @Override
    public String toString() {
       return this.getClass().getSimpleName() + " alertTitle=" + alertTitle + ", alertType=" + alertType + 
-              ", resolvers=" + resolvers + ", resolutionTester=" + resolutionTester;
+             ", alertDescription=" + alertDescription + ", resolvers=" + resolvers + ", resolutionTester=" + resolutionTester;
    }
 }
