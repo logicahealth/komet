@@ -172,13 +172,8 @@ public class DefaultConfigurationService
    public Optional<Path> getDataStoreFolderPath() {
       if ((this.dataStoreFolderPath == null) &&!this.initComplete) {
          synchronized (this) {
-            if ((this.dataStoreFolderPath == null) &&!this.initComplete) {
-               // This hacking is to prevent fortify from flagging an external data source path
-               final StringBuilder dataStoreRootFolder = new StringBuilder();
-
-               System.getProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY)
-                     .chars()
-                     .forEach(c -> dataStoreRootFolder.append((char) c));
+            if ((this.dataStoreFolderPath == null) && !this.initComplete) {
+               String dataStoreRootFolder = System.getProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY);
 
                if (!StringUtils.isBlank(dataStoreRootFolder.toString())) {
                   this.dataStoreFolderPath = Paths.get(dataStoreRootFolder.toString());
