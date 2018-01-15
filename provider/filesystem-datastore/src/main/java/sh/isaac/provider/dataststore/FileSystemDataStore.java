@@ -48,7 +48,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.Map;
@@ -111,7 +111,7 @@ public class FileSystemDataStore
         implements DataStore {
 
    private static final Logger LOG = LogManager.getLogger();
-   private static final String DB_UUID_KEY = "FileSystemDataStore.uuid";
+   private Optional<UUID> dataStoreId = Optional.empty();
 
    //~--- fields --------------------------------------------------------------
    ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map
@@ -128,7 +128,7 @@ public class FileSystemDataStore
            = new ConcurrentHashMap<>();
    private final ConcurrentHashMap<Integer, VersionType> assemblageToVersionType_Map
            = new ConcurrentHashMap<>();
-   private DataStoreStartState databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
+   private DataStoreStartState datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
    private SyncTask lastSyncTask = null;
    private Future<?> lastSyncFuture = null;
    private final Semaphore syncSemaphore = new Semaphore(1);
@@ -267,30 +267,32 @@ public class FileSystemDataStore
          this.sequenceGeneratorMapFile = new File(isaacDbDirectory, "sequenceGeneratorMap");
          this.nidToElementSequenceMapDirectory = new File(isaacDbDirectory, "componentToAssemblageElementMap");
 
-         if (isaacDbDirectory.exists()) {
-            if (this.propertiesFile.exists()) {
-               try (Reader reader = new FileReader(propertiesFile)) {
-                  this.properties.load(reader);
-               }
-               if (this.properties.getProperty(DB_UUID_KEY) == null) {
-                   this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
-                       .toString());
-               }
-
-               this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
-            } else {
-               this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
-                       .toString());
-               this.componentToSemanticMapDirectory.mkdirs();
-               this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+         if (isaacDbDirectory.exists() && this.propertiesFile.isFile()) {
+            try (Reader reader = new FileReader(propertiesFile)) {
+               this.properties.load(reader);
             }
+            this.datastoreStartState = DataStoreStartState.EXISTING_DATASTORE;
          } else {
-            this.properties.setProperty(DB_UUID_KEY, UUID.randomUUID()
-                    .toString());
             this.isaacDbDirectory.mkdirs();
             this.componentToSemanticMapDirectory.mkdirs();
-            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+            this.datastoreStartState = DataStoreStartState.NO_DATASTORE;
          }
+         
+         //If the DBID is missing, we better be in NO_DATASTORE state.
+         if (!new File(isaacDbDirectory, DATASTORE_ID_FILE).isFile())
+         {
+            if (this.datastoreStartState != DataStoreStartState.NO_DATASTORE)
+            {
+               //This may happen during transition, for a bit, since old DBs don't have them.  
+               //But after transition, this should always be created as part of the DB.
+               //It also gets written as a semantic on the root concept, so a secondary check will be done 
+               //later to make sure we are in sync.
+               LOG.warn("The datastore id file was missing on startup!");
+            }
+            Files.write(isaacDbDirectory.toPath().resolve(DATASTORE_ID_FILE), UUID.randomUUID().toString().getBytes());
+         }
+         
+         dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(isaacDbDirectory.toPath().resolve(DATASTORE_ID_FILE)))));
 
          readAssemblageToObjectTypeFile();
          readAssemblageToVersionTypeFile();
@@ -336,8 +338,9 @@ public class FileSystemDataStore
          pendingSync.acquire();
          executor.submit(syncTask)
                  .get();
+         this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
       } catch (InterruptedException | ExecutionException ex) {
-         ex.printStackTrace();
+         LOG.error("Unexpected error in FileSystemDataStore shutdown", ex);
          throw new RuntimeException(ex);
       }
    }
@@ -514,9 +517,7 @@ public class FileSystemDataStore
 
    @Override
    public Optional<UUID> getDataStoreId() {
-      String uuidString = this.properties.getProperty(DB_UUID_KEY);
-
-      return Optional.of(UUID.fromString(uuidString));
+      return dataStoreId;
    }
 
    @Override
@@ -526,7 +527,7 @@ public class FileSystemDataStore
 
    @Override
    public DataStoreStartState getDataStoreStartState() {
-      return this.databaseValidity;
+      return this.datastoreStartState;
    }
 
    @Override
