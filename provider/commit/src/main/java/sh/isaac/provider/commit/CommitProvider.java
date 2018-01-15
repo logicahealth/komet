@@ -839,7 +839,7 @@ public class CommitProvider
          LOG.info("Starting CommitProvider post-construct");
          
 
-         if (!Files.exists(this.commitManagerFolder)) {
+         if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
             this.databaseValidity = DataStoreStartState.NO_DATASTORE;
          }
          else
@@ -866,7 +866,7 @@ public class CommitProvider
          this.writeCompletionService.start();
 
          if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
-            LOG.info("Reading existing commit manager data. ");
+            LOG.info("Reading existing commit manager data from {}", this.commitManagerFolder);
             LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
 
             try (DataInputStream in
@@ -902,7 +902,7 @@ public class CommitProvider
                      }
                   }
                   // Warn or fail if multiple uncommitted versions in passed chronology
-                  if (uncommittedVersions.size() > 0) {
+                  if (uncommittedVersions.size() > 1) {
                      return new AlertObject("Data loss warning",
                            "Found " + uncommittedVersions.size() + " uncommitted versions in sememe chronology " + sc.getPrimordialUuid(), AlertType.WARNING,
                            AlertCategory.ADD_UNCOMMITTED);
