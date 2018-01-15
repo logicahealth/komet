@@ -302,7 +302,7 @@ public class SemanticChronologyImpl
                      builder.append(": ");
                      builder.append(descriptionVersion.getText());
                  } catch (Throwable e) {
-                     LOG.warn(e);
+                     LOG.warn("Unexpected error in toString for Semantic:", e);
                  }
                  break;
              
