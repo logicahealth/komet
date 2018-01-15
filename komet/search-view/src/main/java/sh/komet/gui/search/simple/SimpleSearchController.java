@@ -133,7 +133,6 @@ public class SimpleSearchController implements ExplorationNode {
            this.searchService.start();
         } else {
            this.searchService.restart();
-           this.searchService.start();
         }
         this.searchTextField.setDisable(true);
     }
