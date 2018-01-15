@@ -45,6 +45,16 @@
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
       </dependency>
+      <!-- route logging into log4j for app -->
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+      </dependency>
+      <!-- route logging into log4j for app -->
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-jul</artifactId>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
