@@ -44,16 +44,19 @@ package sh.isaac.provider.commit;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.progress.ActiveTasks;
 
@@ -129,17 +132,26 @@ public class WriteAndCheckConceptChronicle
          updateProgress(1, 4);
          updateMessage("checking: " + this.cc.getNid() + " against " + checkers.size() + " change checkers");
 
-         if (this.cc.isUncommitted()) {
+         if (this.cc.getCommitState() == CommitStates.UNCOMMITTED) {
+            AtomicBoolean fail = new AtomicBoolean(false);
+            StringBuilder sb = new StringBuilder();
             this.checkers.stream().forEach((check) -> {
                AlertObject ao = check.check(this.cc, CheckPhase.ADD_UNCOMMITTED);
-               if (ao.getAlertType().preventsCheckerPass()) {
-                  alertCollection.add(ao);
-               }
+               if (ao.getAlertType() == AlertType.ERROR || ao.getAlertType() == AlertType.WARNING) {
+                  sb.append(System.lineSeparator());
+                     sb.append(ao.toString());
+                     if (ao.getAlertType().preventsCheckerPass()) {
+                        fail.set(true);
+                     }
+                  }
             });
-         }
-         
-         if (alertCollection.size() > 0) {
-            throw new RuntimeException("There were " + alertCollection.size() + " changeChecker failure(s)");
+            
+            if (fail.get()) {
+               throw new RuntimeException(sb.toString());
+            }
+            else if (sb.length() > 0) {
+               LOG.warn("Alerts during WriteAndCheck: " + sb.toString());
+            }
          }
          
          updateProgress(2, 4);
