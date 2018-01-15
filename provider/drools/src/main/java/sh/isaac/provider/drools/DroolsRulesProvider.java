@@ -42,7 +42,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L1)
+//@RunLevel(value = LookupService.SL_L1)  //TODO enable when it works....
 public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKometService {
 
    /**
