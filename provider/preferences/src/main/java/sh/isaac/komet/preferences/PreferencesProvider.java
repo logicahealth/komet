@@ -159,7 +159,7 @@ public class PreferencesProvider
             if (System.getProperty(IMPORT_FOLDER_LOCATION) == null) {
                File importPath = new File("data/to-import");
                importPath.mkdirs();
-               File afterImportPath = new File("data/completed-import");
+               File afterImportPath = new File("target/data/completed-import");
                afterImportPath.mkdirs();
                System.setProperty(IMPORT_FOLDER_LOCATION, importPath.getAbsolutePath());
                System.setProperty(AFTER_IMPORT_FOLDER_LOCATION, afterImportPath.getAbsolutePath());
@@ -202,8 +202,7 @@ public class PreferencesProvider
          // HK2 swallows these exceptions, so I'm trying to make sure they are
          // easy to identify.
          // TODO figure out how to keep hk2 from swallowing these.
-         ex.printStackTrace();
-         LOG.error(ex);
+         LOG.error("Unexpected error stating preferences provider", ex);
          throw new RuntimeException(ex);
       }
    }
