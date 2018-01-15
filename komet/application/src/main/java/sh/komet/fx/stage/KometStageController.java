@@ -43,6 +43,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.value.ObservableValue;
@@ -169,7 +170,10 @@ public class KometStageController
 
     @Override
     public void reportStatus(String status) {
-        statusMessage.setText(status);
+        Platform.runLater(() -> {
+            statusMessage.setText(status);
+        });
+        
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete

@@ -191,7 +191,11 @@ limitations under the License.
 }
 
 .concept-label-toolbar .label { 
-      -fx-text-fill: #eef1f3;
+/*  -fx-text-fill: #eef1f3; */
+  -fx-text-fill: white;
+  -fx-font-size:18;
+  -fx-font-weight: bold;
+
 }
 
 

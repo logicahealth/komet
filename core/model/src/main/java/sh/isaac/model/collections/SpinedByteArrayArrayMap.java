@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.logging.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.model.ModelGet;

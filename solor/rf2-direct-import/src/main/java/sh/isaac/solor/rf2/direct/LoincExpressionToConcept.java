@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -141,7 +142,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
             String token2 = tokenizer.nextToken(); // SNOMED concept id
             int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
-            assertions.add(builder.someRole(nid, builder.conceptAssertion(nid2)));
+            
+            assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(
+                    builder.someRole(nid, builder.conceptAssertion(nid2)))));
             if (tokenizer.hasMoreTokens()) {
                 delimiter = tokenizer.nextToken();
                 switch (delimiter) {
