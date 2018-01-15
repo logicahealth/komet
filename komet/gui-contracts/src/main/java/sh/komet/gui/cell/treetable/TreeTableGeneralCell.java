@@ -541,7 +541,7 @@ public class TreeTableGeneralCell
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
                 buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid5()));
-                buff.append("\n");
+                buff.append(" ");
 
                 Text defaultText = new Text(buff.toString());
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);

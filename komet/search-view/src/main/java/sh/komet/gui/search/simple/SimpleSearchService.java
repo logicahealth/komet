@@ -1,17 +1,22 @@
 package sh.komet.gui.search.simple;
 
+import java.util.Optional;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
@@ -21,6 +26,8 @@ import sh.komet.gui.manifold.Manifold;
  * @author aks8m
  */
 public class SimpleSearchService extends Service<NidSet> {
+
+    protected static final Logger LOG = LogManager.getLogger();
 
     private final SimpleStringProperty luceneQuery = new SimpleStringProperty();
     private final SimpleListProperty<Integer> parentNids = new SimpleListProperty<>();
@@ -96,45 +103,78 @@ public class SimpleSearchService extends Service<NidSet> {
                 if(results.isEmpty())
                     updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE );
 
-                for (int descriptionNid : results.asArray()) {
+                for (int componentNid : results.asArray()) {
                     updateProgress(
                             computeProgress(PROGRESS_INCREMENT_VALUE / results.asArray().length)
                             , PROGRESS_MAX_VALUE );
 
-                    LatestVersion<DescriptionVersion> description = Get.assemblageService()
-                            .getSemanticChronology(descriptionNid)
-                            .getLatestVersion(getManifold());
-
-                    if (!description.isPresent()) {
-                        continue;
-                    }
-
-                    DescriptionVersion descriptionVersion = description.get();
-                    int                conceptNid         = descriptionVersion.getReferencedComponentNid();
-
-
-                    if (!getParentNids().isEmpty()) {
-                        if (!allowedConceptNids.isEmpty()) {
-                            if (!allowedConceptNids.contains(conceptNid)) {
-                                continue;
-                            }
-                        } else {
-                            boolean allowedParentFound = false;
-
-                            for (int allowedParentNid : getParentNids()) {
-                                if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
-                                    allowedParentFound = true;
+                    switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
+                        case CONCEPT:
+                            // ignore for now
+                            break;
+                        case SEMANTIC:
+                            SemanticChronology semanticChronology = Get.assemblageService()
+                            .getSemanticChronology(componentNid);
+                            switch (semanticChronology.getVersionType()) {
+                                case DESCRIPTION:
+                                    handleDescription(semanticChronology, allowedConceptNids, taxonomySnapshot, filteredValues);
                                     break;
-                                }
+                                case STRING:
+                                    // TODO SHORT TERM: Find a description for the concept or description associated
+                                    // with the identifier...
+                                    // TODO LONG Term: display the object that matched in the result list...
+                                    Optional<? extends Chronology> optionalChronology = 
+                                            Get.identifiedObjectService().getIdentifiedObjectChronology(semanticChronology.getReferencedComponentNid());
+                                    if (optionalChronology.isPresent()) {
+                                        Chronology chronology = optionalChronology.get();
+                                        switch (chronology.getVersionType()) {
+                                            case CONCEPT:
+                                                ConceptChronology concept = (ConceptChronology) chronology;
+                                                for (SemanticChronology descriptionChronology: concept.getConceptDescriptionList()) {
+                                                    filteredValues.add(descriptionChronology.getNid());
+                                                }
+                                                break;
+                                            case DESCRIPTION:
+                                                filteredValues.add(chronology.getNid());
+                                                break;
+                                        }
+                                    }
+                                    LOG.info("Search found: " + semanticChronology);
+                                default: 
+                                    // ignore for now. 
                             }
+                            break;
+                    }
+                }
+                
+            }
 
-                            if (!allowedParentFound) {
-                                continue;
+            protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshotService taxonomySnapshot, NidSet filteredValues) {
+                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getManifold());
+                if (!description.isPresent()) {
+                    return;
+                }
+                DescriptionVersion descriptionVersion = description.get();
+                int                conceptNid         = descriptionVersion.getReferencedComponentNid();
+                if (!getParentNids().isEmpty()) {
+                    if (!allowedConceptNids.isEmpty()) {
+                        if (!allowedConceptNids.contains(conceptNid)) {
+                            return;
+                        }
+                    } else {
+                        boolean allowedParentFound = false;
+                        for (int allowedParentNid : getParentNids()) {
+                            if (taxonomySnapshot.isKindOf(conceptNid, allowedParentNid)) {
+                                allowedParentFound = true;
+                                break;
                             }
                         }
+                        if (!allowedParentFound) {
+                            return;
+                        }
                     }
-                    filteredValues.add(descriptionNid);
                 }
+                filteredValues.add(semanticChronology.getNid());                
             }
 
             private double computeProgress(double incrementValue){

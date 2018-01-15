@@ -64,12 +64,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -424,6 +426,20 @@ public class Rf2DirectImporter
 
             completedUnitOfWork();
         }
+        
+        updateMessage("Transforming LOINC expressions...");
+        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
+        Get.executor().submit(expressionToConceptTask).get();
+        
+        updateMessage("Importing LOINC records...");
+        LoincDirectImporter importTask = new LoincDirectImporter();
+        Get.executor().submit(importTask).get();
+
+        EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+
+        ClassifierService classifierService = 
+                Get.logicService().getClassifierService(Get.coordinateFactory().createDefaultStatedManifoldCoordinate(), editCoordinate);
+        classifierService.classify();
 
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;

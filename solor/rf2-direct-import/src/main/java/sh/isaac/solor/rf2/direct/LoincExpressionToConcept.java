@@ -18,6 +18,7 @@ package sh.isaac.solor.rf2.direct;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +30,8 @@ import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
@@ -40,6 +43,9 @@ import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 
 /**
  *
@@ -59,36 +65,44 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     public LoincExpressionToConcept() {
         this.taxonomyService = Get.taxonomyService();
         this.indexers = LookupService.get().getAllServices(IndexService.class);
+        Get.activeTasks().add(this);
+        updateTitle("Converting LOINC expressions to concepts");
+        addToTotalWork(Get.assemblageService().getSemanticCount(expressionRefset.getNid()));
     }
 
     @Override
     protected Void call() throws Exception {
-        Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
-            for (Version version : semanticChronology.getVersionList()) {
-                Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+        try {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
+                for (Version version : semanticChronology.getVersionList()) {
+                    Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+                    
+                    String loincCode = loincVersion.getStr1(); // "48023-6"
+                    String sctExpression = loincVersion.getStr2();
 
-                String loincCode = loincVersion.getStr1(); // "48023-6"
-                String sctExpression = loincVersion.getStr2();
+                    //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
+                    LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    
+                    StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
 
-                //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
-                LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-
-                StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
-
-                // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
-                if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
-                    builder.sufficientSet(builder.and(getAssertions(tokenizer, builder)));
-                } else {
-                    builder.necessarySet(builder.and(getAssertions(tokenizer, builder)));
+                    // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
+                    if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
+                        builder.sufficientSet(builder.and(getAssertions(tokenizer, builder)));
+                    } else {
+                        builder.necessarySet(builder.and(getAssertions(tokenizer, builder)));
+                    }
+                    LogicalExpression logicalExpression = builder.build();
+                    logicalExpression.getNodeCount();
+                    addLogicGraph(loincCode,
+                            logicalExpression);
                 }
-                LogicalExpression logicalExpression = builder.build();
-                logicalExpression.getNodeCount();
-                addLogicGraph(loincCode,
-                        logicalExpression);
+                completedUnitOfWork();
             }
+            );
+            return null;
+        } finally {
+            Get.activeTasks().remove(this);
         }
-        );
-        return null;
     }
 
     protected Assertion[] getAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
@@ -157,8 +171,35 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     public SemanticChronology addLogicGraph(String loincCode,
             LogicalExpression logicalExpression) {
 
+        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                commitTime, TermAux.USER.getNid(),
+                TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                TermAux.DEVELOPMENT_PATH.getNid());
         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
         int conceptNid = Get.identifierService().getNidForUuids(conceptUuid);
+        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
+        if (!optionalConcept.isPresent()) {
+            ConceptChronologyImpl conceptToWrite
+                    = new ConceptChronologyImpl(conceptUuid, conceptNid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            conceptToWrite.createMutableVersion(stamp);
+            Get.conceptService().writeConcept(conceptToWrite);
+            index(conceptToWrite);
+
+            // add to loinc identifier assemblage
+            UUID loincIdentifierUuid = UuidT5Generator.get(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(),
+                    loincCode);
+            int loincIdentifierNid = Get.identifierService().getNidForUuids(loincIdentifierUuid);
+            SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                    loincIdentifierUuid,
+                    loincIdentifierNid,
+                    TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getNid(),
+                    conceptNid);
+
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            loincIdVersion.setString(loincCode);
+            index(loincIdentifierToWrite);
+            Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
+        }
 
         int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
 
@@ -175,10 +216,6 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
         final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
-        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
-                commitTime, TermAux.USER.getNid(),
-                TermAux.SOLOR_OVERLAY_MODULE.getNid(),
-                TermAux.DEVELOPMENT_PATH.getNid());
 
         final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
                 builtObjects);
@@ -196,7 +233,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
     private void index(Chronology chronicle) {
         if (chronicle instanceof SemanticChronology) {
-            this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
+            if (chronicle.getVersionType() == VersionType.LOGIC_GRAPH) {
+                this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
+            }
+            
         }
         for (IndexService indexer : indexers) {
             try {

@@ -331,9 +331,9 @@ public class IdentifierProvider
       }
 
       final int nid = this.uuidIntMapMap.getWithGeneration(uuids[0]);
-      if (uuids[0].equals(UUID.fromString("624b125c-220e-3a0d-8285-10a4eeec019f"))) {
-          LOG.info("Found uuid watch: " + uuids[0]);
-      }
+//      if (uuids[0].equals(UUID.fromString("09237f54-721d-5298-98fd-559ef30bea4d"))) {
+//          LOG.info("Found uuid watch: " + uuids[0]);
+//      }
 
       for (int i = 1; i < uuids.length; i++) {
          this.uuidIntMapMap.put(uuids[i], nid);
