@@ -124,7 +124,7 @@ public class LookupService {
     * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
-
+      LOG.info("Shutdown Isaac called");
       if (isInitialized()) {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
@@ -134,12 +134,14 @@ public class LookupService {
          // Fully release any system locks to database
          System.gc();
       }
+      LOG.info("Shutdown Isaac completed");
    }
 
    /**
     * Stop all system services, blocking until stopped (or failed).
     */
    public static void shutdownSystem() {
+      LOG.info("Shutdown system called");
       if (isInitialized()) {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
@@ -153,6 +155,7 @@ public class LookupService {
          // Fully release any system locks to database
          System.gc();
       }
+      LOG.info("Shutdown system completed");
    }
 
    /**
@@ -325,7 +328,7 @@ public class LookupService {
                      !(handle.getService() instanceof IndexQueryService)) {
                   throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
                         + " has start state of " + handle.getService().getDataStoreStartState() 
-                        + ".  Expected " + handle.getService().getDataStoreStartState());
+                        + ".  Expected " + discoveredValidityValue);
                }
             }
          });
