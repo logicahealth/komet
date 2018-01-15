@@ -106,7 +106,7 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                   if (filter != null)
                   {
                      //This little optimization prevents us from re-evaluating filters 
-                     int afterDoc = after.doc - context.docBase;
+                     int afterDoc = (after == null ? 0 : after.doc) - context.docBase;
                      if (doc <= afterDoc)
                      {
                         //TODO [DAN 1] test this optimization, it differs slightly from what they do in Lucene (where they calc score first)

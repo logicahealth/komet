@@ -734,7 +734,7 @@ public abstract class LuceneIndexer
                   } else {
                      includedComponentNids.add(componentNid);
                      results.add(new ComponentSearchResult(componentNid, hit.score));
-                     if (results.size() == internalPage) {
+                     if (results.size() == internalSize) {
                         complete = true;
                         break;
                      }
