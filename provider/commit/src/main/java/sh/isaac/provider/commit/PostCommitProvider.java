@@ -77,7 +77,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author Nuno Marques
  */
 @Service(name = "Post Commit Provider")
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2)
 public class PostCommitProvider
          implements PostCommitService, ChronologyChangeListener {
    /** The Constant LOG. */

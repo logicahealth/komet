@@ -50,7 +50,7 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2)
 
 public abstract class XodusConceptProvider 
          implements ConceptService {

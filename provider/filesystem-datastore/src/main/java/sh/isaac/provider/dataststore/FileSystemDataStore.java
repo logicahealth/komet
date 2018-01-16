@@ -106,7 +106,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L0)
+@RunLevel(value = LookupService.SL_L1)
 public class FileSystemDataStore
         implements DataStore {
 
@@ -674,7 +674,7 @@ public class FileSystemDataStore
       }
 
       private void addInfoFile(File directory, Integer assemblageNid) {
-         if (LookupService.getCurrentRunLevel() >= LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL) {
+         if (LookupService.getCurrentRunLevel() >= LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL) {
             File parentDirectory = directory.getParentFile();
             File[] filesWithPrefix = parentDirectory.listFiles((dir, name) -> name.startsWith(directory.getName()));
 

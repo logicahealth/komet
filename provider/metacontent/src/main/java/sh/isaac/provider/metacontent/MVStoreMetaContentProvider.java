@@ -81,7 +81,7 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service(name = "MVStoreMetaContent")
-@RunLevel(value = LookupService.SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class MVStoreMetaContentProvider
          implements MetaContentService {
    /** The Constant USER_PREFS_STORE. */

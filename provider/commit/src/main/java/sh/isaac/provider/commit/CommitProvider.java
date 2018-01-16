@@ -127,7 +127,7 @@ import sh.isaac.model.observable.version.ObservableVersionImpl;
  * @author kec
  */
 @Service(name = "Commit Provider")
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2)
 public class CommitProvider
         implements CommitService {
 

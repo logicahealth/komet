@@ -78,7 +78,7 @@ import sh.isaac.api.VersionManagmentPathService;
  * @author kec
  */
 @Service(name = "Path Provider")
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VersionManagmentPathProvider
          implements VersionManagmentPathService {
    /** The Constant LOG. */

@@ -31,7 +31,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "Dashboard View Provider")
-@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 public class DashboardNodeFactory 
         implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "System Dashboard";

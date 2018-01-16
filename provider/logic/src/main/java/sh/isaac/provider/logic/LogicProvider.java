@@ -78,7 +78,7 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
  * @author kec
  */
 @Service(name = "logic provider")
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class LogicProvider
         implements LogicService {
 

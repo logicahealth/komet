@@ -65,7 +65,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "Activity panel factory")
-@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 public class TaskProgressNodeFactory
          implements ExplorationNodeFactory {
    

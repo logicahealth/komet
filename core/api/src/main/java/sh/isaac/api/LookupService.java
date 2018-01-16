@@ -93,27 +93,29 @@ public class LookupService {
    /** The fx platform up. */
    private static volatile boolean fxPlatformUp = false;
 
-   public static final int SL_L5_ISAAC_DEPENDENTS_RUNLEVEL = 5;  //Anything that depends on issac as a whole to be started should be 5 - 
+   public static final int SL_L6_ISAAC_DEPENDENTS_RUNLEVEL = 6;  //Anything that depends on issac as a whole to be started should be 6 - 
    //this is the fully-started state.
 
-   public static final int SL_L4_ISAAC_STARTED_RUNLEVEL = 4; //at level 3 and 4, secondary isaac services start, such as changeset providers, etc.
+   public static final int SL_L5_ISAAC_STARTED_RUNLEVEL = 5; //at level 4 and 5, secondary isaac services start, such as changeset providers, etc.
    
-   public static final int SL_L3 = 3; 
+   public static final int SL_L4 = 4; 
    
-   public static final int SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL = 2;  //In general, ISAAC data-store services start between 0 and 2, in an 
+   public static final int SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL = 3;  //In general, ISAAC data-store services start between 1 and 3, in an 
    //isaac specific order.
 
-   public static final int SL_L1 = 1; 
+   public static final int SL_L2 = 2; 
    
-   public static final int SL_L0 = 0; 
+   public static final int SL_L1 = 1; 
 
    //Below 0, we have utility stuff... no ISAAC services.
 
-   public static final int SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL = -1;
+   public static final int SL_L0_METADATA_STORE_STARTED_RUNLEVEL = 0;
 
-   public static final int SL_NEG_2_WORKERS_STARTED_RUNLEVEL = -2;
+   public static final int SL_NEG_1_WORKERS_STARTED_RUNLEVEL = -1;
 
-   public static final int SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL = -3;
+   //Do not use runlevels of -2 or below.  -2 is where the HK2 RunLevel controller starts, trying to do anything with services at this level
+   //results in bad behavior
+   private static final int SL_NEG_2_SYSTEM_STOPPED_RUNLEVEL = -2;
 
    /** The Constant STARTUP_LOCK. */
    private static final Object STARTUP_LOCK = new Object();
@@ -129,7 +131,7 @@ public class LookupService {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
          syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
-         setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
+         setRunLevel(SL_NEG_1_WORKERS_STARTED_RUNLEVEL);
 
          // Fully release any system locks to database
          System.gc();
@@ -146,7 +148,7 @@ public class LookupService {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
          syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
-         setRunLevel(SL_NEG_3_SYSTEM_STOPPED_RUNLEVEL);
+         setRunLevel(SL_NEG_2_SYSTEM_STOPPED_RUNLEVEL);
          looker.shutdown();
          ServiceLocatorFactory.getInstance()
                               .destroy(looker);
@@ -191,9 +193,9 @@ public class LookupService {
    }
    
    public static void startupPreferenceProvider() {
-      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L0_METADATA_STORE_STARTED_RUNLEVEL) {
          Get.applicationStates().add(ApplicationStates.STARTING);
-         setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
+         setRunLevel(SL_L0_METADATA_STORE_STARTED_RUNLEVEL);
       }
    }
 
@@ -211,16 +213,16 @@ public class LookupService {
 
          LOG.info("Bringing up Isaac data stores...");
          // Set run level to startup database and associated services running on top of database
-         setRunLevel(SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL);
+         setRunLevel(SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL);
 
          validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
 
          LOG.info("Bringing up the rest of isaac...");
-         setRunLevel(SL_L4_ISAAC_STARTED_RUNLEVEL);
+         setRunLevel(SL_L5_ISAAC_STARTED_RUNLEVEL);
          LOG.info("Bringing up isaac dependents...");
-         setRunLevel(SL_L5_ISAAC_DEPENDENTS_RUNLEVEL);
+         setRunLevel(SL_L6_ISAAC_DEPENDENTS_RUNLEVEL);
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
          get().getService(MetadataService.class).importMetadata();
@@ -286,8 +288,8 @@ public class LookupService {
     * Start the Metadata services (without starting ISAAC core services), blocking until started (or failed).
     */
    public static void startupMetadataStore() {
-      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
-         setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L0_METADATA_STORE_STARTED_RUNLEVEL) {
+         setRunLevel(SL_L0_METADATA_STORE_STARTED_RUNLEVEL);
       }
    }
 
@@ -295,8 +297,8 @@ public class LookupService {
     * Start the WorkExecutor services (without starting ISAAC core services), blocking until started (or failed).
     */
    public static void startupWorkExecutors() {
-      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_2_WORKERS_STARTED_RUNLEVEL) {
-         setRunLevel(SL_NEG_2_WORKERS_STARTED_RUNLEVEL);
+      if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_WORKERS_STARTED_RUNLEVEL) {
+         setRunLevel(SL_NEG_1_WORKERS_STARTED_RUNLEVEL);
       }
    }
 
@@ -431,7 +433,7 @@ public class LookupService {
     * @return true, if isaac started
     */
    public static boolean isIsaacStarted() {
-      return isInitialized() ? getService(RunLevelController.class).getCurrentRunLevel() >= SL_L4_ISAAC_STARTED_RUNLEVEL
+      return isInitialized() ? getService(RunLevelController.class).getCurrentRunLevel() >= SL_L5_ISAAC_STARTED_RUNLEVEL
                              : false;
    }
 

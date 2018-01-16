@@ -104,7 +104,7 @@ import sh.isaac.model.DataStore;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2)
 public class IdentifierProvider
          implements IdentifierService, ContainerSequenceService {
    private static final Logger LOG = LogManager.getLogger();

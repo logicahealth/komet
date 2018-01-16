@@ -77,7 +77,7 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service(name = "description index")
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class DescriptionIndexer extends LuceneIndexer
         implements IndexDescriptionQueryService {
 

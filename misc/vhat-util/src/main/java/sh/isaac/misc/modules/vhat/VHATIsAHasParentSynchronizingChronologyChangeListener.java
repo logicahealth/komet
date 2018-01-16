@@ -115,7 +115,7 @@ import sh.isaac.utility.Frills;
  *
  */
 @Service
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VHATIsAHasParentSynchronizingChronologyChangeListener implements ChronologyChangeListener {
    private static final Logger LOG = LogManager.getLogger(VHATIsAHasParentSynchronizingChronologyChangeListener.class);
 

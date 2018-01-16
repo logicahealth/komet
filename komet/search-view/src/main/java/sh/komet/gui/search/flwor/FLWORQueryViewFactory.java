@@ -34,7 +34,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "FLWOR Search Provider")
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLWOR Query";

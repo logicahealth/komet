@@ -32,7 +32,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "Multi-Parent Tree View Provider")
-@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 
 public class TreeViewExplorationNodeFactory 
         implements ExplorationNodeFactory {

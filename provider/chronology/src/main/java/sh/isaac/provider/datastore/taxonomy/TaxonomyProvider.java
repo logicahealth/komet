@@ -108,7 +108,7 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L4_ISAAC_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 

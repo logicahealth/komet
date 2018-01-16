@@ -93,7 +93,7 @@ import sh.isaac.model.configuration.StampCoordinates;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = LookupService.SL_L3)
+@RunLevel(value = LookupService.SL_L4)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */

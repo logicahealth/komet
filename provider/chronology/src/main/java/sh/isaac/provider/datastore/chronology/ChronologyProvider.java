@@ -113,7 +113,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L1)
+@RunLevel(value = LookupService.SL_L2)
 public class ChronologyProvider
         implements ConceptService, AssemblageService, IdentifiedObjectService, MetadataService {
 

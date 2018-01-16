@@ -89,7 +89,7 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
  * @author kec
  */
 @Service(name = "Preferences Provider")
-@RunLevel(value = LookupService.SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class PreferencesProvider
          implements PreferencesService {
    /**

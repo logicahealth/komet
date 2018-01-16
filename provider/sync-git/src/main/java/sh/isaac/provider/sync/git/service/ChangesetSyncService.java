@@ -81,7 +81,7 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
-@RunLevel(value = LookupService.SL_L5_ISAAC_DEPENDENTS_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L6_ISAAC_DEPENDENTS_RUNLEVEL)
 public class ChangesetSyncService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();

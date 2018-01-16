@@ -34,7 +34,7 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L0)
+@RunLevel(value = LookupService.SL_L1)
 public class MemoryManagmentProvider implements MemoryManagementService {
 
     private final ConcurrentHashMap<ApplicationStates, AtomicInteger> applicationStateMap

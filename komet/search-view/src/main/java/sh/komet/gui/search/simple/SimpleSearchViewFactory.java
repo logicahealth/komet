@@ -36,7 +36,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 
 @Service(name = "Simple Search Provider")
-@RunLevel(value = LookupService.SL_L2_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class SimpleSearchViewFactory implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "Search";
 
