@@ -108,7 +108,7 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@RunLevel(value = LookupService.SL_L4)
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 
@@ -445,7 +445,7 @@ public class TaxonomyProvider
                                     try {
                                         this.treeSnapshot = treeTask.get();
                                     } catch (InterruptedException | ExecutionException ex) {
-                                        LOG.error(ex);
+                                        LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                                     }
                                 }
                             }
@@ -456,7 +456,7 @@ public class TaxonomyProvider
                 try {
                     this.treeSnapshot = treeTask.get();
                 } catch (InterruptedException | ExecutionException ex) {
-                    LOG.error(ex);
+                    LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                     throw new RuntimeException(ex);
                 }
             }
@@ -471,7 +471,7 @@ public class TaxonomyProvider
                     }
                 }
             } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
+                LOG.error("Unexpected error in succeeded call", ex);
                 throw new RuntimeException(ex);
             }
         }
@@ -622,7 +622,7 @@ public class TaxonomyProvider
 
                 return treeTask.get();
             } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
+                LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                 throw new RuntimeException(ex);
             }
         }
