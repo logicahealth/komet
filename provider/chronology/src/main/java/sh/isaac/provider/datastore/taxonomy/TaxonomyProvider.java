@@ -374,6 +374,7 @@ public class TaxonomyProvider
         Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
 
         if (previousTask != null) {
+            Get.activeTasks().remove(treeBuilderTask);
             return previousTask;
         }
 
