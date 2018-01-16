@@ -521,10 +521,39 @@ public class LookupService {
             : null), contractOrImpl.getName());
       return service;
    }
+   
+   /**
+    * Return all services that implement the specified contract.
+    * *Caution* this will launch and return services that should not be active, according to your run level - 
+    * this method should not be used during shutdown operations (for example, don't use this to do a syncAll())
+    * as it will attempt to sync services that were never even started.
+    * See {@link #getActiveServices(Class)}
+    * @param contractOrImpl
+    * @return
+    */
    public static <T> List<T> getServices(Class<T> contractOrImpl) {
       final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
 
       LOG.debug("LookupService returning {} for {}", services, contractOrImpl.getName());
+      return services;
+   }
+   
+   /**
+    * Return implementations of the specified contract that are active at our current runlevel.
+    * @param contractOrImpl
+    * @return
+    */
+   public static <T> List<T> getActiveServices(Class<T> contractOrImpl) {
+      
+      final List<T> services = new ArrayList<>();
+      get().getAllServiceHandles(contractOrImpl).forEach(serviceHandle ->
+      {
+         if (serviceHandle.isActive()) {
+            services.add(serviceHandle.getService());
+         }
+      });
+
+      LOG.debug("LookupService returning active services {} for {}", services, contractOrImpl.getName());
       return services;
    }
 
@@ -580,7 +609,7 @@ public class LookupService {
    }
 
    public static void syncAll() {
-      List<DatastoreServices> syncServiceList =  getServices(DatastoreServices.class);
+      List<DatastoreServices> syncServiceList =  getActiveServices(DatastoreServices.class);
       for (DatastoreServices syncService:  syncServiceList) {
          try {
             syncService.sync().get();
