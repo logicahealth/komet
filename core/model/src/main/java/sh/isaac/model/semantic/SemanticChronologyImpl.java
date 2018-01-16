@@ -297,7 +297,7 @@ public class SemanticChronologyImpl
          switch (versionType) {
              case DESCRIPTION:
                  try {
-                     SemanticChronology descriptionChronology = Get.assemblageService().getSemanticChronology(referencedComponentNid);
+                     SemanticChronology descriptionChronology = Get.assemblageService().getSemanticChronology(this.getNid());
                      DescriptionVersion descriptionVersion = (DescriptionVersion) descriptionChronology.getVersionList().get(0);
                      builder.append(": ");
                      builder.append(descriptionVersion.getText());
