@@ -113,7 +113,7 @@ when
 then
    $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid());
    $property.getAllowedValues().add(MetaData.REGULAR_NAME____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DEFINITION____SOLOR.getNid());
    
 end
 rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
