@@ -17,19 +17,21 @@
 package sh.isaac.komet.gui.treeview;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
+import javafx.application.Platform;
 import org.apache.mahout.math.Arrays;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import static sh.isaac.komet.gui.treeview.MultiParentTreeView.wasGlobalShutdownRequested;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
  * @author kec
  */
-public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<MultiParentTreeItemImpl> {
+public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void> {
 
     private final MultiParentTreeView multiParentTreeView;
     private final UUID conceptUUID;
@@ -38,94 +40,66 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Mult
         this.multiParentTreeView = multiParentTreeView;
         this.conceptUUID = conceptUUID;
         Get.activeTasks().add(this);
+        String conceptDescription
+                = Get.conceptDescriptionText(Get.identifierService().getNidForUuids(conceptUUID));
+        updateTitle("Expanding taxonomy to: " + conceptDescription);
     }
 
     @Override
-    protected MultiParentTreeItemImpl call()
+    protected Void call()
             throws Exception {
         try {
-        // await() init() completion.
-        LOG.debug("Looking for concept {} in tree", conceptUUID);
+            // await() init() completion.
+            LOG.debug("Looking for concept {} in tree", conceptUUID);
 
-        final ArrayList<UUID> pathToRoot = new ArrayList<>();
+            final ArrayList<UUID> pathToRoot = new ArrayList<>();
 
-        pathToRoot.add(conceptUUID);
+            pathToRoot.add(conceptUUID);
 
-        // Walk up taxonomy to origin until no parent found.
-        UUID current = conceptUUID;
+            // Walk up taxonomy to origin until no parent found.
+            UUID current = conceptUUID;
 
-        while (true) {
-            Optional<? extends ConceptChronology> conceptOptional = Get.conceptService()
-                    .getOptionalConcept(current);
+            while (true) {
+                Optional<? extends ConceptChronology> conceptOptional = Get.conceptService()
+                        .getOptionalConcept(current);
 
-            if (!conceptOptional.isPresent()) {
-                // Must be a "pending concept".
-                // Not handled yet.
-                return null;
+                if (!conceptOptional.isPresent()) {
+                    // Must be a "pending concept".
+                    // Not handled yet.
+                    FxGet.statusMessageService().reportStatus("Concept is not yet committed: " + conceptUUID);
+                    return null;
+                }
+
+                ConceptChronology concept = conceptOptional.get();
+
+                // Look for an IS_A relationship to origin.
+                boolean found = false;
+
+                for (int parent : multiParentTreeView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
+                    current = Get.identifierService()
+                            .getUuidPrimordialForNid(parent)
+                            .get();
+                    pathToRoot.add(current);
+                    found = true;
+                    break;
+                }
+
+                // No parent IS_A relationship found, stop looking.
+                if (!found) {
+                    FxGet.statusMessageService().reportStatus("No parents for concept: " + conceptUUID);
+                    
+                    break;
+                }
             }
 
-            ConceptChronology concept = conceptOptional.get();
-
-            // Look for an IS_A relationship to origin.
-            boolean found = false;
-
-            for (int parent : multiParentTreeView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
-                current = Get.identifierService()
-                        .getUuidPrimordialForNid(parent)
-                        .get();
-                pathToRoot.add(current);
-                found = true;
-                break;
-            }
-
-            // No parent IS_A relationship found, stop looking.
-            if (!found) {
-                break;
-            }
-        }
-
-        LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
-
-        MultiParentTreeItemImpl currentTreeItem = multiParentTreeView.getRoot();
-
-        // Walk down path from root.
-        for (int i = pathToRoot.size() - 1; i >= 0; i--) {
-            MultiParentTreeItemImpl child = multiParentTreeView.findChild(currentTreeItem, pathToRoot.get(i));
-
-            if (child == null) {
-                break;
-            }
-
-            currentTreeItem = child;
-        }
-
-        return currentTreeItem;
+            Collections.reverse(pathToRoot);
+            LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
+            Platform.runLater(() -> {
+                this.multiParentTreeView.expandAndSelect(pathToRoot);
+            });
         } finally {
             Get.activeTasks().remove(this);
         }
-    }
-
-    @Override
-    protected void succeeded() {
-        final MultiParentTreeItemImpl lastItemFound = this.getValue();
-
-        // Expand tree to last item found.
-        if (lastItemFound != null) {
-            int row = multiParentTreeView.getTreeView().getRow(lastItemFound);
-
-            multiParentTreeView.getTreeView().scrollTo(row);
-            multiParentTreeView.getTreeView().getSelectionModel()
-                    .clearAndSelect(row);
-        }
-    }
-
-    @Override
-    protected void failed() {
-        Throwable ex = getException();
-
-        if (!wasGlobalShutdownRequested()) {
-            LOG.warn("Unexpected error trying to find concept in Tree", ex);
-
-        }
+        return null;
     }
 }

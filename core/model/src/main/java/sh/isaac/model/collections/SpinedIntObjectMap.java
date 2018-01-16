@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BinaryOperator;
@@ -40,6 +41,7 @@ import sh.isaac.model.ModelGet;
    protected final int spineSize;
    protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
    protected final AtomicInteger spineCount = new AtomicInteger();
+   protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
    private Function<E,String> elementStringConverter;
 
    public void setElementStringConverter(Function<E, String> elementStringConverter) {
@@ -72,14 +74,10 @@ import sh.isaac.model.ModelGet;
          put(i, supplier.get());
       }
    }
-   private int getSpineCount() {
-      return spineCount.get(); 
-   }
-   
 
    protected AtomicReferenceArray<E> newSpine(Integer spineKey) {
       AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
-      this.spineCount.set(Math.max(this.spineCount.get(), spineKey));
+      this.spineCount.set(Math.max(this.spineCount.get(), spineKey +1));
       return spine;
    }
 
@@ -89,6 +87,7 @@ import sh.isaac.model.ModelGet;
       } 
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
+      this.changedSpineIndexes.add(spineIndex);
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
 
@@ -121,7 +120,7 @@ import sh.isaac.model.ModelGet;
    
    public int size() {
        int size = 0;
-      int currentSpineCount = getSpineCount();
+      int currentSpineCount = this.spineCount.get();
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicReferenceArray<E> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
          for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
@@ -135,7 +134,7 @@ import sh.isaac.model.ModelGet;
    }
    
    public void forEach(Processor<E> processor) {
-      int currentSpineCount = getSpineCount();
+      int currentSpineCount = this.spineCount.get();
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicReferenceArray<E> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
@@ -155,6 +154,7 @@ import sh.isaac.model.ModelGet;
       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
+      this.changedSpineIndexes.add(spineIndex);
       return this.spines.computeIfAbsent(spineIndex, this::newSpine)
               .accumulateAndGet(indexInSpine, x, accumulatorFunction);
       
@@ -202,7 +202,7 @@ import sh.isaac.model.ModelGet;
       int currentPosition;
 
       public SpinedValueSpliterator() {
-         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+         this.end = DEFAULT_SPINE_SIZE * spineCount.get();
          this.currentPosition = 0;
       }
       

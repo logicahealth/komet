@@ -22,23 +22,25 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
 
@@ -47,301 +49,310 @@ import sh.isaac.model.ModelGet;
  * @author kec
  */
 public class SpinedIntIntArrayMap {
-   private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
-   protected final int elementsPerSpine;
-   private final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
-   private Function<int[],String> elementStringConverter;
-   AtomicByteArray spineChangedArray = new AtomicByteArray(0);
-   ContainerSequenceService identifierService = ModelGet.identifierService();
 
-   public void setElementStringConverter(Function<int[], String> elementStringConverter) {
-      this.elementStringConverter = elementStringConverter;
-   }
-   
-   public void printToConsole() {
-      if (elementStringConverter != null) {
-         forEach((key, value) -> {
-            System.out.println(key + ": " + elementStringConverter.apply(value));
-         });
-      } else {
-         forEach((key, value) -> {
-            System.out.println(key + ": " + Arrays.toString(value));
-         });
-      }
-   }
+    private static final Logger LOG = LogManager.getLogger();
 
-   public SpinedIntIntArrayMap() {
-      this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
-   }
-   public int sizeInBytes() {
-      int sizeInBytes = 0;
-      int spineCount = spines.size();
-      sizeInBytes = sizeInBytes + ((elementsPerSpine * 8) * spineCount);  // 8 bytes = pointer to an object
+    private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
+    protected final int elementsPerSpine;
+    private final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
+    private Function<int[], String> elementStringConverter;
+    private final ContainerSequenceService identifierService = ModelGet.identifierService();
+    private final Semaphore diskSemaphore = new Semaphore(1);
+    protected final AtomicInteger spineCount = new AtomicInteger();
+    protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
 
+    public void setElementStringConverter(Function<int[], String> elementStringConverter) {
+        this.elementStringConverter = elementStringConverter;
+    }
 
-      for (int spineIndex = 0; spineIndex < spineCount; spineIndex++) {
-         AtomicReferenceArray<int[]> spine = spines.get(spineIndex);
+    public void printToConsole() {
+        if (elementStringConverter != null) {
+            forEach((key, value) -> {
+                System.out.println(key + ": " + elementStringConverter.apply(value));
+            });
+        } else {
+            forEach((key, value) -> {
+                System.out.println(key + ": " + Arrays.toString(value));
+            });
+        }
+    }
 
-         for (int spineElement = 0; spineElement < spine.length(); spineElement++) {
-            int[] value = spine.get(spineElement);
+    public SpinedIntIntArrayMap() {
+        this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
+    }
 
-            if (value != null) {
-               sizeInBytes = sizeInBytes + (value.length * 4);
+    public int sizeInBytes() {
+        int sizeInBytes = 0;
+        sizeInBytes = sizeInBytes + ((elementsPerSpine * 8) * spineCount.get());  // 8 bytes = pointer to an object
+
+        for (int spineIndex = 0; spineIndex < spineCount.get(); spineIndex++) {
+            AtomicReferenceArray<int[]> spine = spines.get(spineIndex);
+            if (spine != null) {
+                for (int spineElement = 0; spineElement < spine.length(); spineElement++) {
+                    int[] value = spine.get(spineElement);
+
+                    if (value != null) {
+                        sizeInBytes = sizeInBytes + (value.length * 4);
+                    }
+                }
             }
-         }
-      }
 
-      return sizeInBytes;
-   }
+        }
 
-   /**
-    * 
-    * @param directory
-    * @return the number of spine files read. 
-    */
-   public int read(File directory) {
-      File[] files = directory.listFiles((pathname) -> {
-         return pathname.getName().startsWith("spine-");
-      });
-      int spineFilesRead = 0;
-      for (File spineFile : files) {
-          spineFilesRead++;
-         int spine = Integer.parseInt(spineFile.getName().substring("spine-".length()));
-         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
-            int arraySize = dis.readInt();
-            int offset = arraySize * spine;
-            for (int i = 0; i < arraySize; i++) {
-               int valueSize = dis.readInt();
-               if (valueSize != 0) {
-                  int[] value = new int[valueSize];
-                  internalPut(offset + i, value);
-                  for (int j = 0; j < valueSize; j++) {
-                     value[j] = dis.readInt();
-                  }
-               }
+        return sizeInBytes;
+    }
+
+    /**
+     *
+     * @param directory
+     * @return the number of spine files read.
+     */
+    public int read(File directory) {
+        diskSemaphore.acquireUninterruptibly();
+        try {
+            spineCount.set(SpineFileUtil.readSpineCount(directory));
+            
+            File[] files = directory.listFiles((pathname) -> {
+                return pathname.getName().startsWith(SpineFileUtil.SPINE_PREFIX);
+            });
+            int spineFilesRead = 0;
+            for (File spineFile : files) {
+                spineFilesRead++;
+                int spine = Integer.parseInt(spineFile.getName().substring(SpineFileUtil.SPINE_PREFIX.length()));
+                try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
+                    int arraySize = dis.readInt();
+                    int offset = arraySize * spine;
+                    for (int i = 0; i < arraySize; i++) {
+                        int valueSize = dis.readInt();
+                        if (valueSize != 0) {
+                            int[] value = new int[valueSize];
+                            internalPut(offset + i, value);
+                            for (int j = 0; j < valueSize; j++) {
+                                value[j] = dis.readInt();
+                            }
+                        }
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ex);
+                   throw new RuntimeException(ex);
+                 }
             }
-         } catch (IOException ex) {
-            Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
-         }
-      }
-      this.spineChangedArray = new AtomicByteArray(spines.size());
-      return spineFilesRead;
-   }
+            return spineFilesRead;
+        } finally {
+            diskSemaphore.release();
+        }
+    }
 
-   public boolean write(File directory) {
-      AtomicBoolean wroteAny = new AtomicBoolean(false);
-      AtomicByteArray spineChangedArrayForWrite = spineChangedArray;
-      int spineChangedArraySize = spineChangedArrayForWrite.length();
-      this.spineChangedArray = new AtomicByteArray(spines.size());
-      spines.forEach((Integer key, AtomicReferenceArray<int[]> spine) -> {
-         String spineKey = "spine-" + key;
-         boolean spineChanged;
-         if (key < spineChangedArraySize) {
-            spineChanged = spineChangedArrayForWrite.get(key) != 0;
-         } else {
-            spineChanged = true;
-         }
-        
-         if (spineChanged) {
-            wroteAny.set(true);
-            File spineFile = new File(directory, spineKey);
-            try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
-               dos.writeInt(spine.length());
-               for (int i = 0; i < spine.length(); i++) {
-                  int[] value = spine.get(i);
-                  if (value == null) {
-                     dos.writeInt(0);
-                  } else {
-                     dos.writeInt(value.length);
-                     for (int valueElement : value) {
-                        dos.writeInt(valueElement);
-                     }
-                  }
-               }
-            } catch (FileNotFoundException ex) {
-               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
+    public boolean write(File directory) {
+        AtomicBoolean wroteAny = new AtomicBoolean(false);
+        try {
+            directory.mkdirs();
+            SpineFileUtil.writeSpineCount(directory, spineCount.get());
+            spines.forEach((Integer key, AtomicReferenceArray<int[]> spine) -> {
+                String spineKey = SpineFileUtil.SPINE_PREFIX + key;
+                boolean spineChanged = changedSpineIndexes.contains(key);
+                
+                if (spineChanged) {
+                    wroteAny.set(true);
+                    changedSpineIndexes.remove(key);
+                    File spineFile = new File(directory, spineKey);
+                    diskSemaphore.acquireUninterruptibly();
+                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
+                        dos.writeInt(spine.length());
+                        for (int i = 0; i < spine.length(); i++) {
+                            int[] value = spine.get(i);
+                            if (value == null) {
+                                dos.writeInt(0);
+                            } else {
+                                dos.writeInt(value.length);
+                                for (int valueElement : value) {
+                                    dos.writeInt(valueElement);
+                                }
+                            }
+                        }
+                    } catch (IOException ex) {
+                        LOG.error(ex);
+                        throw new RuntimeException(ex);
+                    } finally {
+                        diskSemaphore.release();
+                    }
+                }
+            });
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw new RuntimeException(ex);
+        }
+        return wroteAny.get();
+    }
+
+    private int getSpineCount() {
+        return spineCount.get();
+    }
+
+    private AtomicReferenceArray<int[]> newSpine(Integer spineKey) {
+        AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(elementsPerSpine);
+        this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
+        return spine;
+    }
+
+    public void put(int index, int[] element) {
+        if (index < 0) {
+            index = identifierService.getElementSequenceForNid(index);
+        } else {
+            throw new IllegalStateException("Identifiers must be negative: " + index);
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        this.changedSpineIndexes.add(spineIndex);
+        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+    }
+
+    private void internalPut(int index, int[] element) {
+        if (index < 0) {
+            throw new IllegalStateException("sequence must be positive: " + index);
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        this.changedSpineIndexes.add(spineIndex);
+        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+    }
+
+    public int[] get(int index) {
+        if (index < 0) {
+            index = identifierService.getElementSequenceForNid(index);
+        } else {
+            throw new IllegalStateException("Identifiers must be negative: " + index);
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
+    }
+
+    public boolean containsKey(int index) {
+        if (index < 0) {
+            index = identifierService.getElementSequenceForNid(index);
+        } else {
+            throw new IllegalStateException("Identifiers must be negative: " + index);
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
+    }
+
+    public void forEach(Processor<int[]> processor) {
+        int currentSpineCount = getSpineCount();
+        int key = 0;
+        for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
+            AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+            for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
+                int[] element = spine.get(indexInSpine);
+                if (element != null) {
+                    processor.process(key, element);
+                }
+                key++;
             }
-         }
 
-      });
-      return wroteAny.get();
-   }
+        }
+    }
 
-  private int getSpineCount() {
-      int spineCount = 0;
-      for (Integer spineKey:  spines.keySet()) {
-         spineCount = Math.max(spineCount, spineKey + 1);
-      }
-      return spineCount; 
-   }
-    
-   private AtomicReferenceArray<int[]> newSpine(Integer spineKey) {
-      AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(elementsPerSpine);
-      return spine;
-   }
+    public int[] accumulateAndGet(int index, int[] x, BinaryOperator<int[]> accumulatorFunction) {
+        if (index < 0) {
+            index = identifierService.getElementSequenceForNid(index);
+        } else {
+            throw new IllegalStateException("Identifiers must be negative: " + index);
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        this.changedSpineIndexes.add(spineIndex);
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine)
+                .accumulateAndGet(indexInSpine, x, accumulatorFunction);
 
-   public void put(int index, int[] element) {
-      if (index < 0) {
-         index = identifierService.getElementSequenceForNid(index);
-      } else {
-         throw new IllegalStateException("Identifiers must be negative: " + index);
-      }
-      int spineIndex = index/elementsPerSpine;
-      int indexInSpine = index % elementsPerSpine;
-      if (spineIndex < spineChangedArray.length()) {
-         spineChangedArray.set(spineIndex, (byte) 1);
-      }
-      this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
-   }
-   private void internalPut(int index, int[] element) {
-      if (index < 0) {
-         throw new IllegalStateException("sequence must be positive: " + index);
-      } 
-      int spineIndex = index/elementsPerSpine;
-      int indexInSpine = index % elementsPerSpine;
-      if (spineIndex < spineChangedArray.length()) {
-         spineChangedArray.set(spineIndex, (byte) 1);
-      }
-      this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
-   }
+    }
 
-   public int[] get(int index) {
-      if (index < 0) {
-         index = identifierService.getElementSequenceForNid(index);
-      } else {
-         throw new IllegalStateException("Identifiers must be negative: " + index);
-      }
-      int spineIndex = index/elementsPerSpine;
-      int indexInSpine = index % elementsPerSpine;
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
-   }
+    public interface Processor<E> {
 
-   public boolean containsKey(int index) {
-      if (index < 0) {
-         index = identifierService.getElementSequenceForNid(index);
-      } else {
-         throw new IllegalStateException("Identifiers must be negative: " + index);
-      }
-      int spineIndex = index/elementsPerSpine;
-      int indexInSpine = index % elementsPerSpine;
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
-   }
-   
-   public void forEach(Processor<int[]> processor) {
-      int currentSpineCount = getSpineCount();
-      int key = 0;
-      for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
-         AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
-         for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
-            int[] element = spine.get(indexInSpine);
-            if (element != null) {
-               processor.process(key, element);
+        public void process(int key, E value);
+    }
+
+    public Stream<int[]> stream() {
+        final Supplier<? extends Spliterator<int[]>> streamSupplier = this.get();
+
+        return StreamSupport.stream(streamSupplier, streamSupplier.get()
+                .characteristics(), false);
+    }
+
+    /**
+     * Gets the.
+     *
+     * @return the supplier<? extends spliterator. of int>
+     */
+    protected Supplier<? extends Spliterator<int[]>> get() {
+        return new SpliteratorSupplier();
+    }
+
+    /**
+     * The Class SpliteratorSupplier.
+     */
+    private class SpliteratorSupplier
+            implements Supplier<Spliterator<int[]>> {
+
+        /**
+         * Gets the.
+         *
+         * @return the spliterator
+         */
+        @Override
+        public Spliterator<int[]> get() {
+            return new SpinedValueSpliterator();
+        }
+    }
+
+    private class SpinedValueSpliterator implements Spliterator<int[]> {
+
+        int end;
+        int currentPosition;
+
+        public SpinedValueSpliterator() {
+            this.end = DEFAULT_ELEMENTS_PER_SPINE * getSpineCount();
+            this.currentPosition = 0;
+        }
+
+        public SpinedValueSpliterator(int start, int end) {
+            this.currentPosition = start;
+            this.end = end;
+        }
+
+        @Override
+        public Spliterator<int[]> trySplit() {
+            int splitEnd = end;
+            int split = end - currentPosition;
+            int half = split / 2;
+            this.end = currentPosition + half;
+            return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super int[]> action) {
+            while (currentPosition < end) {
+                int[] value = get(currentPosition++);
+                if (value != null) {
+                    action.accept(value);
+                    return true;
+                }
             }
-            key++;
-         }
-         
-      }
-   } 
-   public int[] accumulateAndGet(int index, int[] x, BinaryOperator<int[]> accumulatorFunction) {
-      if (index < 0) {
-         index = identifierService.getElementSequenceForNid(index);
-      } else {
-         throw new IllegalStateException("Identifiers must be negative: " + index);
-      }
-      int spineIndex = index/elementsPerSpine;
-      int indexInSpine = index % elementsPerSpine;
-      if (spineIndex < spineChangedArray.length()) {
-         spineChangedArray.set(spineIndex, (byte) 1);
-      }
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine)
-              .accumulateAndGet(indexInSpine, x, accumulatorFunction);
-      
-   }
-   
-   public interface Processor<E> {
-      public void process(int key, E value);
-   }
+            return false;
+        }
 
-   public Stream<int[]> stream() {
-      final Supplier<? extends Spliterator<int[]>> streamSupplier = this.get();
+        @Override
+        public long estimateSize() {
+            return end - currentPosition;
+        }
 
-      return StreamSupport.stream(streamSupplier, streamSupplier.get()
-              .characteristics(), false);
-   }
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
+                    | Spliterator.SIZED;
+        }
 
-   /**
-    * Gets the.
-    *
-    * @return the supplier<? extends spliterator. of int>
-    */
-   protected Supplier<? extends Spliterator<int[]>> get() {
-      return new SpliteratorSupplier();
-   }
-
-   /**
-    * The Class SpliteratorSupplier.
-    */
-   private class SpliteratorSupplier
-           implements Supplier<Spliterator<int[]>> {
-
-      /**
-       * Gets the.
-       *
-       * @return the spliterator
-       */
-      @Override
-      public Spliterator<int[]> get() {
-         return new SpinedValueSpliterator();
-      }
-   }
-
-   private class SpinedValueSpliterator implements Spliterator<int[]> {
-      int end;
-      int currentPosition;
-
-      public SpinedValueSpliterator() {
-         this.end = DEFAULT_ELEMENTS_PER_SPINE * getSpineCount();
-         this.currentPosition = 0;
-      }
-      
-      public SpinedValueSpliterator(int start, int end) {
-         this.currentPosition = start;
-         this.end = end;
-      }
-      
-      @Override
-      public Spliterator<int[]> trySplit() {
-         int splitEnd = end;
-         int split = end - currentPosition;
-         int half = split / 2;
-         this.end = currentPosition + half;
-         return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
-      }
-
-      @Override
-      public boolean tryAdvance(Consumer<? super int[]> action) {
-         while (currentPosition < end) {
-            int[] value = get(currentPosition++);
-            if (value != null) {
-               action.accept(value);
-               return true;
-            }
-         }
-         return false;
-      }
-
-      @Override
-      public long estimateSize() {
-         return end - currentPosition;
-      }
-
-      @Override
-      public int characteristics() {
-          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
-                | Spliterator.SIZED;
-     }
-
-   }
+    }
 }
