@@ -377,13 +377,13 @@ public class TaxonomyProvider
                         .getConceptAssemblageNid());
         TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
         Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
+        
+        Get.executor().execute(treeBuilderTask);
 
         if (previousTask != null) {
             return previousTask;
         }
 
-        Get.executor()
-                .execute(treeBuilderTask);
         return treeBuilderTask;
     }
 
