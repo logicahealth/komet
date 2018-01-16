@@ -739,7 +739,7 @@ public class HashTreeWithIntArraySets
             printWatch(sequence, "root: ");
          }
          String title = roots.size() + " " +
-                 manifoldCoordinate.getTaxonomyType().toString() + 
+                 manifoldCoordinate.getTaxonomyPremiseType().toString() + 
                  " roots";
          if (roots.isEmpty()) {
             title = "No taxonomy roots";

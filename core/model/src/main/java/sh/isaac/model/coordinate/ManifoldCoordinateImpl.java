@@ -76,7 +76,7 @@ public class ManifoldCoordinateImpl
    transient int isaConceptNid = TermAux.IS_A.getNid();
 
    /** The taxonomy type. */
-   PremiseType taxonomyType;
+   PremiseType taxonomyPremiseType;
 
    /** The stamp coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
@@ -114,7 +114,7 @@ public class ManifoldCoordinateImpl
                                  StampCoordinate stampCoordinate,
                                  LanguageCoordinate languageCoordinate,
                                  LogicCoordinate logicCoordinate) {
-      this.taxonomyType       = taxonomyType;
+      this.taxonomyPremiseType       = taxonomyType;
       this.stampCoordinate    = stampCoordinate;
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
@@ -141,7 +141,7 @@ public class ManifoldCoordinateImpl
 
       final ManifoldCoordinateImpl other = (ManifoldCoordinateImpl) obj;
 
-      if (this.taxonomyType != other.taxonomyType) {
+      if (this.taxonomyPremiseType != other.taxonomyPremiseType) {
          return false;
       }
 
@@ -165,7 +165,7 @@ public class ManifoldCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 53 * hash + Objects.hashCode(this.taxonomyType);
+      hash = 53 * hash + Objects.hashCode(this.taxonomyPremiseType);
       hash = 53 * hash + Objects.hashCode(this.stampCoordinate);
       hash = 53 * hash + Objects.hashCode(this.languageCoordinate);
       return hash;
@@ -179,7 +179,7 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
-      return new ManifoldCoordinateImpl(this.taxonomyType,
+      return new ManifoldCoordinateImpl(this.taxonomyPremiseType,
                                         this.stampCoordinate.makeCoordinateAnalog(stampPositionTime),
                                         this.languageCoordinate,
                                         this.logicCoordinate);
@@ -207,7 +207,7 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(Status... state) {
-      return new ManifoldCoordinateImpl(this.taxonomyType,
+      return new ManifoldCoordinateImpl(this.taxonomyPremiseType,
                                         this.stampCoordinate.makeCoordinateAnalog(state),
                                         this.languageCoordinate,
                                         this.logicCoordinate);
@@ -220,7 +220,7 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public String toString() {
-      return "ManifoldCoordinateImpl{" + this.taxonomyType + ",\n" + this.stampCoordinate + ", \n" +
+      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" +
              this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + this.uuid + '}';
    }
 
@@ -272,10 +272,12 @@ public class ManifoldCoordinateImpl
     * @return the taxonomy type
     */
    @Override
-   public PremiseType getTaxonomyType() {
-      return this.taxonomyType;
+   public PremiseType getTaxonomyPremiseType() {
+      return this.taxonomyPremiseType;
    }
-
+   public void setTaxonomyPremiseType(PremiseType taxonomyPremiseType) {
+       this.taxonomyPremiseType = taxonomyPremiseType;
+   }
    /**
     * Gets the uuid.
     *
@@ -323,7 +325,7 @@ public class ManifoldCoordinateImpl
    
    @Override
    public ManifoldCoordinateImpl deepClone() {
-      ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyType,
+      ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyPremiseType,
                                  stampCoordinate.deepClone(),
                                  languageCoordinate.deepClone(),
                                  logicCoordinate.deepClone());

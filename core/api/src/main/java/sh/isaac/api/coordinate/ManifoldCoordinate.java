@@ -79,7 +79,7 @@ public interface ManifoldCoordinate
     * @return PremiseType.STATED if taxonomy operations should be based on stated definitions, or
     * PremiseType.INFERRED if taxonomy operations should be based on inferred definitions.
     */
-   PremiseType getTaxonomyType();
+   PremiseType getTaxonomyPremiseType();
 
    /**
     * Gets the uuid.

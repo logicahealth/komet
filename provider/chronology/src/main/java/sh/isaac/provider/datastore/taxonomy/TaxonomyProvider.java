@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import java.util.UUID;
@@ -89,6 +90,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -130,7 +132,7 @@ public class TaxonomyProvider
     /**
      * The tree cache.
      */
-    private final ConcurrentHashMap<Integer, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
+    private final ConcurrentHashMap<SnapshotCacheKey, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
     private final UUID listenerUUID = UUID.randomUUID();
 
     /**
@@ -360,8 +362,47 @@ public class TaxonomyProvider
         return store.getTaxonomyMap(conceptAssemblageNid);
     }
 
+    private class SnapshotCacheKey {
+        PremiseType taxPremiseType;
+        StampCoordinate stampCoordinate;
+
+        public SnapshotCacheKey(ManifoldCoordinate tc) {
+            this.taxPremiseType = tc.getTaxonomyPremiseType();
+            this.stampCoordinate = tc.getStampCoordinate();
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final SnapshotCacheKey other = (SnapshotCacheKey) obj;
+            if (this.taxPremiseType != other.taxPremiseType) {
+                return false;
+            }
+            if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+                return false;
+            }
+            return true;
+        }
+        
+    }
     public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
-        final Task<Tree> treeTask = this.snapshotCache.get(tc.hashCode());
+        SnapshotCacheKey snapshotCacheKey = new SnapshotCacheKey(tc);
+        final Task<Tree> treeTask = this.snapshotCache.get(snapshotCacheKey);
 
         if (treeTask != null) {
             return treeTask;
@@ -371,7 +412,7 @@ public class TaxonomyProvider
                 tc.getLogicCoordinate()
                         .getConceptAssemblageNid());
         TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
-        Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
+        Task<Tree> previousTask = this.snapshotCache.putIfAbsent(snapshotCacheKey, treeBuilderTask);
 
         if (previousTask != null) {
             Get.activeTasks().remove(treeBuilderTask);
