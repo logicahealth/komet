@@ -198,7 +198,7 @@ public class WorkExecutors {
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting the WorkExecutors thread pools");
+      log.info("Starting the WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
 
       if (nonHK2Instance != null) {
          throw new RuntimeException(
@@ -268,7 +268,7 @@ public class WorkExecutors {
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping WorkExecutors thread pools");
+      log.info("Stopping WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
 
       if (this.forkJoinExecutor != null) {
          this.forkJoinExecutor.shutdownNow();

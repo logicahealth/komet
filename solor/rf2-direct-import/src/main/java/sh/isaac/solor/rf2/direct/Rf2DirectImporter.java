@@ -54,7 +54,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -65,12 +64,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -103,7 +104,7 @@ public class Rf2DirectImporter
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
 
-        updateTitle("Importing from " + importDirectory.getAbsolutePath());
+        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
@@ -168,7 +169,7 @@ public class Rf2DirectImporter
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
                 .filter(
-                        p -> p.toString().endsWith(".zip")
+                        p -> p.toString().toLowerCase().endsWith(".zip")
                         && (p.toString().toUpperCase().contains("SNOMEDCT")
                         || p.toString().toLowerCase().contains("sct")))
                 .collect(Collectors.toList());
@@ -425,6 +426,20 @@ public class Rf2DirectImporter
 
             completedUnitOfWork();
         }
+        
+        updateMessage("Transforming LOINC expressions...");
+        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
+        Get.executor().submit(expressionToConceptTask).get();
+        
+        updateMessage("Importing LOINC records...");
+        LoincDirectImporter importTask = new LoincDirectImporter();
+        Get.executor().submit(importTask).get();
+
+        EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+
+        ClassifierService classifierService = 
+                Get.logicService().getClassifierService(Get.coordinateFactory().createDefaultStatedManifoldCoordinate(), editCoordinate);
+        classifierService.classify();
 
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
@@ -1448,7 +1463,7 @@ public class Rf2DirectImporter
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
-    private static String trimZipName(String zipName) {
+    public static String trimZipName(String zipName) {
         int index = zipName.lastIndexOf("/");
 
         return zipName.substring(index + 1);

@@ -40,29 +40,29 @@
 package sh.komet.gui.search.simple;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.CheckListView;
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
@@ -84,13 +84,10 @@ public class SimpleSearchController implements ExplorationNode {
     private SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
     private final SimpleObjectProperty<Node> iconProperty      =
         new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
-    private final ObservableList<CustomCheckListItem>         kindOfObservableList =
-        FXCollections.observableArrayList();
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
+    private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
     private Manifold                                          manifold;
-    private static final PseudoClass CSS_FAIL = PseudoClass.getPseudoClass("fail");
-    private static final PseudoClass CSS_SUCESS = PseudoClass.getPseudoClass("success");
-    private static final PseudoClass CSS_NORESULT = PseudoClass.getPseudoClass("noResults");
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -101,40 +98,37 @@ public class SimpleSearchController implements ExplorationNode {
     @FXML
     private TableColumn<ObservableDescriptionVersion, String> resultColumn;
     @FXML
-    private CheckListView<CustomCheckListItem>                kindOfCheckListView;
-    @FXML
-    private ChoiceBox<SearchComponentStatus>                  statusChoiceBox;
-    @FXML
     private ProgressBar                                       searchProgressBar;
     @FXML
-    private Button searchRefreshButton;
+    private FlowPane searchTagFlowPane;
 
-    @FXML
-    public void searchRefresh() {
 
-        if(this.searchService.isRunning())
-            this.searchService.cancel();
-
-        this.searchService.reset();
-        this.searchTextField.clear();
-        this.resultTable.getItems().clear();
-        this.resultTable.setPlaceholder(new Label("No content in table"));
-        this.searchTextField.pseudoClassStateChanged(CSS_FAIL, false);
-        this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, false);
-        this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, false);
-        this.searchTextField.setDisable(false);
-        this.searchProgressBar.setProgress(0);
-    }
 
     @FXML
     public void executeSearch() {
         this.resultTable.getItems().clear();
-        if (this.searchService.getState() == Worker.State.READY) {
-           this.searchService.start();
-        } else {
-           this.searchService.restart();
+        switch (this.searchService.getState()){
+            case READY:
+                this.searchService.start();
+                break;
+            case SCHEDULED:
+                this.searchService.restart();
+                break;
+            case RUNNING:
+                this.searchService.cancel();
+                this.searchService.restart();
+                break;
+            case SUCCEEDED:
+                this.searchService.restart();
+                break;
+         case CANCELLED:
+            break;
+         case FAILED:
+            break;
+         default:
+            LOG.error("These cases were forgotten.... {}", this.searchService.getState());
+            break;
         }
-        this.searchTextField.setDisable(true);
     }
 
     @FXML
@@ -147,14 +141,8 @@ public class SimpleSearchController implements ExplorationNode {
                 "fx:id=\"resultTable\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
         assert resultColumn != null :
                 "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert kindOfCheckListView != null :
-                "fx:id=\"kindOfCheckListView\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert statusChoiceBox != null :
-                "fx:id=\"statusComboBox\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert searchProgressBar != null :
-                "fx:id=\"searchProgressBar\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
-        assert searchRefreshButton != null :
-                "fx:id=\"searchRefreshButton\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchTagFlowPane != null :
+                "fx:id=\"searchTagFlowPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
         this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -173,48 +161,79 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
     private void initializeControls() {
-        initializeSearchComponentStatus();
-        initializeKindOfCheckListView();
         initializeProgressBar();
         initializeSearchService();
+        initializeSearchTagFlowPlane();
     }
 
-    private void initializeSearchComponentStatus(){
-        ObservableList<SearchComponentStatus> statusChoiceBoxItems = FXCollections.observableArrayList();
+    private void initializeSearchTagFlowPlane(){
 
-        statusChoiceBoxItems.addAll(Arrays.asList(SearchComponentStatus.values()));
+        Label allLabel = new Label();
+        allLabel.setGraphic(Iconography.SEARCH_FILTER.getIconographic());
+        allLabel.setText("All");
+        allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
+        + "-fx-font-weight:bold;");
+        allLabel.setUserData(new ConceptSpecification() {
+            @Override
+            public String getFullyQualifiedName() {
+                return "ALL";
+            }
 
-        this.statusChoiceBox.setItems(statusChoiceBoxItems);
-        this.statusChoiceBox.getSelectionModel().select(SearchComponentStatus.ACTIVE);
-    }
+            @Override
+            public Optional<String> getRegularName() {
+                return Optional.of("ALL");
+            }
 
-    private void initializeKindOfCheckListView(){
-        TaxonomySnapshotService   taxonomySnapshot = Get.taxonomyService().getSnapshot(this.manifold);
-        List<CustomCheckListItem> list             = new ArrayList<>();
-
-        list.add(new CustomCheckListItem(Get.conceptSpecification(MetaData.METADATA____SOLOR.getNid())));
-        Arrays.stream(taxonomySnapshot.getTaxonomyChildConceptNids(MetaData.HEALTH_CONCEPT____SOLOR.getNid()))
-                .forEach(value -> list.add(new CustomCheckListItem(Get.conceptSpecification(value))));
-        Collections.sort(list);
-        this.kindOfObservableList.addAll(list);
-        this.kindOfCheckListView.setItems(this.kindOfObservableList);
-        list.forEach(item -> {
-            if (item.getNID() == MetaData.PHENOMENON____SOLOR.getNid()) {
-                this.kindOfCheckListView.getCheckModel().check(item);
+            @Override
+            public List<UUID> getUuidList() {
+                return null;
             }
         });
+        this.searchTagFlowPane.getChildren().add(allLabel);
+
+        this.searchTagFlowPane.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.ANY);
+            event.consume();
+        });
+        this.searchTagFlowPane.setOnDragDropped(event -> {
+            Label labelFromDrop = new Label();
+
+            ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
+            labelFromDrop.setGraphic(Iconography.SEARCH_MINUS.getIconographic());
+            labelFromDrop.setText(droppedChronology.getFullyQualifiedName());
+            labelFromDrop.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
+                    + "-fx-font-weight:bold;");
+            labelFromDrop.setUserData(droppedChronology);
+
+            labelFromDrop.setOnMouseClicked(labelClickedEvent -> {
+                this.searchTagFlowPane.getChildren().removeAll(labelFromDrop);
+
+                this.draggedTaxonomyConceptsForFilteringListProperty.get()
+                        .remove((Object)((ConceptChronology)labelFromDrop.getUserData()).getNid());
+            });
+
+            this.searchTagFlowPane.getChildren().add(labelFromDrop);
+            this.draggedTaxonomyConceptsForFilteringListProperty.get().add(droppedChronology.getNid());
+        });
+
     }
 
+
+
     private void initializeProgressBar(){
-        this.searchService.progressProperty().addListener(
-                (observable, oldValue, newValue) -> this.searchProgressBar.setProgress(newValue.doubleValue()));
+        this.searchService.progressProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() == -1) {
+                this.searchProgressBar.setProgress(0);
+            } else {
+                this.searchProgressBar.setProgress(newValue.doubleValue());
+            }
+        });
     }
 
     private void initializeSearchService(){
         this.searchService.setManifold(this.manifold);
         this.searchService.luceneQueryProperty().bind(this.searchTextField.textProperty());
-        this.searchService.searchComponentStatusProperty().bind(this.statusChoiceBox.valueProperty());
-        this.searchService.searchableParentsProperty().bind(this.kindOfCheckListView.checkModelProperty());
+        this.searchService.parentNidsProperty().bind(this.draggedTaxonomyConceptsForFilteringListProperty);
 
         this.searchService.stateProperty().addListener((observable, oldValue, newValue) -> {
 
@@ -224,7 +243,6 @@ public class SimpleSearchController implements ExplorationNode {
                     ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
 
                     if(this.searchService.getValue().size() == 0) {
-                        this.searchTextField.pseudoClassStateChanged(CSS_NORESULT, true);
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));
                         break;
                     }
@@ -239,17 +257,16 @@ public class SimpleSearchController implements ExplorationNode {
                            LOG.error("No latest description for: " + nid);
                         }
                     });
-
-                    this.searchTextField.pseudoClassStateChanged(CSS_SUCESS, true);
                     break;
                 case FAILED:
-                    this.searchTextField.pseudoClassStateChanged(CSS_FAIL, true);
                     this.resultTable.setPlaceholder(new Label("Simple Search Failed..."));
                     break;
             }
 
         });
     }
+
+
 
     @Override
     public Manifold getManifold() {
@@ -293,33 +310,5 @@ public class SimpleSearchController implements ExplorationNode {
     @Override
     public ReadOnlyProperty<String> getToolTip() {
         return toolTipText;
-    }
-
-    protected class CustomCheckListItem implements Comparable<CustomCheckListItem> {
-        private ConceptSpecification conceptSpecification;
-
-        CustomCheckListItem(ConceptSpecification conceptSpecification) {
-            this.conceptSpecification = conceptSpecification;
-        }
-
-        @Override
-        public int compareTo(CustomCheckListItem o) {
-            return this.conceptSpecification.getFullyQualifiedName()
-                                            .compareTo(o.getConceptSpecification()
-                                                        .getFullyQualifiedName());
-        }
-
-        @Override
-        public String toString() {
-            return this.conceptSpecification.getFullyQualifiedName();
-        }
-
-        ConceptSpecification getConceptSpecification() {
-            return this.conceptSpecification;
-        }
-
-        public int getNID() {
-            return this.conceptSpecification.getNid();
-        }
     }
 }

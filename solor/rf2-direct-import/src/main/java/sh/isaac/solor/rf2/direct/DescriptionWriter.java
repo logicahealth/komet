@@ -84,7 +84,6 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
       Get.activeTasks().add(this);
    }
    
-   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
       for (IndexBuilderService indexer: indexers) {
          try {

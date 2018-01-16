@@ -43,9 +43,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import sh.isaac.api.alert.AlertObject;
-import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
-public abstract class CommitTask extends TimedTask<Optional<CommitRecord>>
+public abstract class CommitTask extends TimedTaskWithProgressTracker<Optional<CommitRecord>>
 {
 	protected Set<AlertObject> alertCollection = new HashSet<>();
    /**

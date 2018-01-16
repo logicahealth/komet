@@ -30,6 +30,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.Arrays;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -46,6 +49,8 @@ import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
  * @author kec
  */
 public class AssemblageViewProvider implements ExplorationNode, Supplier<List<MenuItem>>  {
+    protected static final Logger LOG = LogManager.getLogger();
+
 
    private final BorderPane assemblageDetailPane = new BorderPane();
    private final Manifold manifold;
@@ -134,6 +139,9 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
             versionByTypeMenu.getItems().add(versionTypeMenu);
         }
         
+        int[] assembalgeNids = Get.assemblageService().getAssemblageConceptNids();
+        
+        LOG.info("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
         
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
             MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
@@ -141,8 +149,9 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
                 this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
             });
             assemblagesMenu.getItems().add(menu);
-            
-            MenuItem menu2 = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
+            String preferredDescText = manifold.getPreferredDescriptionText(assemblageNid);
+            LOG.info("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
+            MenuItem menu2 = new MenuItem(preferredDescText);
             menu2.setOnAction((event) -> {
                 this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
             });

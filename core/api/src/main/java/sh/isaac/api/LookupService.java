@@ -192,7 +192,7 @@ public class LookupService {
    
    public static void startupPreferenceProvider() {
       if (getService(RunLevelController.class).getCurrentRunLevel() < SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL) {
-      	Get.applicationStates().add(ApplicationStates.STARTING);
+         Get.applicationStates().add(ApplicationStates.STARTING);
          setRunLevel(SL_NEG_1_METADATA_STORE_STARTED_RUNLEVEL);
       }
    }
@@ -467,12 +467,12 @@ public class LookupService {
    /**
     * Sets the run level.
     *
-    * @param runLevel the new run level
+    * @param targetRunLevel the new run level
     */
-   public static void setRunLevel(int runLevel) {
+   public static void setRunLevel(int targetRunLevel) {
       final RunLevelController rlc = getService(RunLevelController.class);
-      final int current = rlc.getCurrentRunLevel();
-      if (current > runLevel) {
+      int currentRunLevel = rlc.getCurrentRunLevel();
+      if (currentRunLevel > targetRunLevel) {
          // Make sure we aren't still proceeding somewhere, if so, we need to wait...
          RunLevelFuture rlf = rlc.getCurrentProceeding();
          if (rlf != null) {
@@ -485,11 +485,20 @@ public class LookupService {
             }
          }
          get().getAllServices(OchreCache.class).forEach((cache) -> {
+            LOG.info("Clear cache for: {}" + cache.getClass().getName());
             cache.reset();
          });
+         
+         while (currentRunLevel > targetRunLevel) {
+            LOG.info("Setting run level to: " + --currentRunLevel);
+            getService(RunLevelController.class).proceedTo(currentRunLevel);
+         }
+      } else {
+         while (currentRunLevel < targetRunLevel) {
+            LOG.info("Setting run level to: " + ++currentRunLevel);
+            getService(RunLevelController.class).proceedTo(currentRunLevel);
+         }
       }
-
-      getService(RunLevelController.class).proceedTo(runLevel);
    }
 
    //~--- get methods ---------------------------------------------------------

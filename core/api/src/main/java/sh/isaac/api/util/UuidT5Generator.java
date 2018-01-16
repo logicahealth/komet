@@ -50,6 +50,7 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -110,6 +111,10 @@ public class UuidT5Generator {
       return get(null, name);
    }
 
+   public static UUID loincConceptUuid(String name) {
+       return get(TermAux.LOINC_CONCEPT_ASSEMBLAGE.getPrimordialUuid(),
+               name);
+   }
    /**
     * Gets the.
     *

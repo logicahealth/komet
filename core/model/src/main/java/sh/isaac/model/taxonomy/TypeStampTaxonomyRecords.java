@@ -37,8 +37,10 @@
 package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -64,9 +66,14 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * @author kec
  */
 public class TypeStampTaxonomyRecords {
-    //private final HashSet<TypeStampTaxonomyRecord> typeStampFlagsSet = new HashSet<>();
-
+    /*
+     * 
+    OpenLongObjectHashMap has a default size of 277 elements, and this was creating memory pressure. 
+    Trying to go with a TreeMap to see if this reduces memmory pressure since it only
+    uses what is acutally needed by the number of elements. 
     private final OpenLongObjectHashMap<TypeStampTaxonomyRecord> typeStamp_flag_map = new OpenLongObjectHashMap<>();
+     */
+   private final TreeMap<Long,TypeStampTaxonomyRecord> typeStamp_flag_map = new TreeMap<>();
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -95,7 +102,7 @@ public class TypeStampTaxonomyRecords {
         }
     }
     
-    public List<TypeStampTaxonomyRecord> values() {
+    public Collection<TypeStampTaxonomyRecord> values() {
         return typeStamp_flag_map.values();
     }
     

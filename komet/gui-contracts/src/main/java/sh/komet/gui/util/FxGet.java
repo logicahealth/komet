@@ -27,6 +27,7 @@ import sh.komet.gui.provider.StatusMessageProvider;
  * @author kec
  */
 public class FxGet {
+   public static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
    private static DialogService DIALOG_SERVICE = null;
    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
    private static final StatusMessageProvider STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
@@ -49,7 +50,8 @@ public class FxGet {
    }
    
    public static boolean showBetaFeatures() {
-       return false;
+       
+       return Boolean.getBoolean(SHOW_BETA_PROPERTY);
    }
   
 }

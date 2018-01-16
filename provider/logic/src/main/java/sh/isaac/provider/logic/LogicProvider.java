@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javafx.concurrent.Task;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -90,7 +92,8 @@ public class LogicProvider
     */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
-   //~--- constructors --------------------------------------------------------
+  private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
+  //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new logic provider.
     */
@@ -99,13 +102,17 @@ public class LogicProvider
       LOG.info("logic provider constructed");
    }
 
+    public Set<Task<?>> getPendingLogicTasks() {
+        return pendingLogicTasks;
+    }
+
    //~--- methods -------------------------------------------------------------
    /**
     * Start me.
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting LogicProvider.");
+      LOG.info("Starting LogicProvider at runlevel: " + LookupService.getCurrentRunLevel());
    }
 
    /**
@@ -113,7 +120,16 @@ public class LogicProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping LogicProvider.");
+      LOG.info("Stopping LogicProvider at runlevel: " + LookupService.getCurrentRunLevel());
+    for (Task<?> updateTask : pendingLogicTasks) {
+                try {
+                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                    updateTask.get();
+                    LOG.info("Completed: " + updateTask.getTitle());
+                } catch (Throwable ex) {
+                    LOG.error(ex);
+                }
+            }
    }
 
    //~--- get methods ---------------------------------------------------------

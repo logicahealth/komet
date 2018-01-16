@@ -143,7 +143,7 @@ public class TreeTableGeneralCell
 
     @Override
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
-        setWrapText(false);
+        setWrapText(true);
 
         SemanticVersion semanticVersion = version.unwrap();
         VersionType semanticType = semanticVersion.getChronology()
@@ -159,6 +159,9 @@ public class TreeTableGeneralCell
                 .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
 
         String referencedComponentString = manifold.getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
+        if (referencedComponentString == null || referencedComponentString.isEmpty()) {
+            LOG.warn("No referenced component text for: " + semanticVersion.getReferencedComponentNid());
+        }
         Text referencedComponentText = new Text("\n" + referencedComponentString);
         Text referencedComponentTextNoNewLine = new Text(
                 manifold.getPreferredDescriptionText(semanticVersion.getReferencedComponentNid()));
@@ -319,17 +322,17 @@ public class TreeTableGeneralCell
                 Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version brittleVersion = version.unwrap();
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getInt1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getInt2());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr3());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr4());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr5());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid6()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid7()));
                 buff.append(" ");
 
@@ -340,26 +343,25 @@ public class TreeTableGeneralCell
             case LOINC_RECORD: {
                 LoincVersion brittleVersion = version.unwrap();
                 StringBuilder buff = new StringBuilder();
-                buff.append(brittleVersion.getComponent());
-                buff.append(" ");
                 buff.append(brittleVersion.getLoincNum());
                 buff.append(" ");
-                buff.append(brittleVersion.getLongCommonName());
-                buff.append(" ");
-                buff.append(brittleVersion.getMethodType());
-                buff.append(" ");
-                buff.append(brittleVersion.getProperty());
-                buff.append(" ");
-                buff.append(brittleVersion.getScaleType());
-                buff.append(" ");
                 buff.append(brittleVersion.getShortName());
-                buff.append(" ");
+                buff.append(" - ");
                 buff.append(brittleVersion.getLoincStatus());
-                buff.append(" ");
+                buff.append("\n");
+                buff.append(brittleVersion.getLongCommonName());
+                buff.append("\nc:");
+                buff.append(brittleVersion.getComponent());
+                buff.append(" m: ");
+                buff.append(brittleVersion.getMethodType());
+                buff.append("\np: ");
+                buff.append(brittleVersion.getProperty());
+                buff.append(" - ");
+                buff.append(brittleVersion.getScaleType());
+                buff.append(" s: ");
                 buff.append(brittleVersion.getSystem());
-                buff.append(" ");
+                buff.append(" t: ");
                 buff.append(brittleVersion.getTimeAspect());
-                buff.append(" ");
 
                 Text defaultText = new Text(buff.toString());
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -370,7 +372,7 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getInt2());
                 buff.append(" ");
 
@@ -383,15 +385,15 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getInt2());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr3());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr4());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid5()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid6()));
                 buff.append(" ");
 
@@ -404,7 +406,7 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid2()));
                 buff.append(" ");
 
@@ -417,9 +419,9 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid2()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getInt3());
                 buff.append(" ");
 
@@ -432,9 +434,9 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid2()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr3());
                 buff.append(" ");
 
@@ -447,7 +449,7 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid1()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr2());
                 buff.append(" ");
 
@@ -460,7 +462,7 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getStr1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr2());
                 buff.append(" ");
 
@@ -473,11 +475,11 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getStr1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr2());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid3()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
                 buff.append(" ");
 
@@ -490,17 +492,17 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getStr1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr2());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr3());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr4());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr5());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr6());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr7());
                 buff.append(" ");
 
@@ -514,11 +516,11 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getStr1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid2()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid3()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
                 buff.append(" ");
 
@@ -531,13 +533,13 @@ public class TreeTableGeneralCell
 
                 StringBuilder buff = new StringBuilder();
                 buff.append(brittleVersion.getStr1());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(brittleVersion.getStr2());
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid3()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid4()));
-                buff.append(" ");
+                buff.append("\n");
                 buff.append(manifold.getPreferredDescriptionText(brittleVersion.getNid5()));
                 buff.append(" ");
 

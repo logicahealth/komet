@@ -38,7 +38,11 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
@@ -55,14 +59,15 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public interface LanguageCoordinate extends Coordinate {
 
-    /**
-     * If the current language coordinate fails to return a requested description, 
-     * then the next priority language coordinate will be tried until a description is found, 
-     * or until there are no next priority language coordinates left. 
-     * 
-     * @return 
-     */
-    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
+   final static Logger LOG = LogManager.getLogger();
+   /**
+    * If the current language coordinate fails to return a requested description, 
+    * then the next priority language coordinate will be tried until a description is found, 
+    * or until there are no next priority language coordinates left. 
+    * 
+    * @return 
+    */
+   Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
     
     /**
      * 
@@ -215,11 +220,11 @@ public interface LanguageCoordinate extends Coordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-	default String getPreferredDescriptionText(int conceptId,
-			StampCoordinate stampCoordinate) {
-		Optional<String> temp = getRegularName(conceptId, stampCoordinate);
-		return temp.orElse("No description for " + conceptId);
-	}
+   default String getPreferredDescriptionText(int conceptId,
+         StampCoordinate stampCoordinate) {
+      Optional<String> temp = getRegularName(conceptId, stampCoordinate);
+      return temp.orElse("No description for " + conceptId);
+   }
 
    /**
     * Gets the preferred description text.
@@ -244,11 +249,16 @@ public interface LanguageCoordinate extends Coordinate {
                return Optional.empty();
          }
       }
-      LatestVersion<DescriptionVersion> latestDescription
-              = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
-      if (latestDescription.isPresent()) {
-         return Optional.of(latestDescription.get().getText());
-      } else {
+      try {
+         LatestVersion<DescriptionVersion> latestDescription
+                 = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+         if (latestDescription.isPresent()) {
+            return Optional.of(latestDescription.get().getText());
+         } else {
+            return Optional.empty();
+         }
+      } catch (NoSuchElementException e) {
+         LOG.warn("Error getting regular name for: {}",  Get.identifierService().getUuidsForNid(conceptId));
          return Optional.empty();
       }
    }

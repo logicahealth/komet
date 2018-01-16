@@ -664,6 +664,7 @@ public class FileSystemDataStore
             }
             completedUnitOfWork();  // 9
             updateMessage("Write complete");
+            LOG.info("FileSystemDataStore sync complete.");
             return null;
          } finally {
             syncSemaphore.release();

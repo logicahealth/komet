@@ -56,6 +56,9 @@ import javafx.stage.WindowEvent;
 import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import java.lang.management.ManagementFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ApplicationStates;
 
 import sh.isaac.api.Get;
@@ -82,6 +85,7 @@ public class MainApp
 // http://fxexperience.com/controlsfx/features/   
 
     public static final String SPLASH_IMAGE = "prism-splash.png";
+    protected static final Logger LOG = LogManager.getLogger();
     
     //~--- methods -------------------------------------------------------------
     /**
@@ -104,6 +108,10 @@ public class MainApp
     public void start(Stage stage)
             throws Exception {
         // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
+        LOG.info("Startup memory info: " + 
+                ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
+        
+        
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
 

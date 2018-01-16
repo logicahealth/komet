@@ -44,18 +44,10 @@ package sh.isaac.provider.datastore.taxonomy;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.StampedLock;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
@@ -78,7 +70,7 @@ public class UpdateTaxonomyAfterCommitTask
    int totalWork = 0;
 
    /** The taxonomy service. */
-   TaxonomyService taxonomyService;
+   TaxonomyProvider taxonomyProvider;
 
    /** The commit record. */
    CommitRecord commitRecord;
@@ -99,18 +91,17 @@ public class UpdateTaxonomyAfterCommitTask
     * @param semanticNidsForUnhandledChanges the sememe sequences for unhandled changes
     * @param permit the lock
     */
-   private UpdateTaxonomyAfterCommitTask(TaxonomyService taxonomyService,
+   private UpdateTaxonomyAfterCommitTask(TaxonomyProvider taxonomyProvider,
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges,
            Semaphore permit) {
       this.commitRecord                       = commitRecord;
       this.semanticNidsForUnhandledChanges = semanticNidsForUnhandledChanges;
       this.permit                               = permit;
-      this.taxonomyService                    = taxonomyService;
+      this.taxonomyProvider                    = taxonomyProvider;
       this.totalWork                          = semanticNidsForUnhandledChanges.size();
       this.updateTitle("Update taxonomy after commit");
       this.addToTotalWork(totalWork);
-      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -136,7 +127,7 @@ public class UpdateTaxonomyAfterCommitTask
                               if (this.commitRecord.getSemanticNidsInCommit()
                                     .contains(semanticNid)) {
                                  this.updateMessage("Updating taxonomy for: " + semanticNid);
-                                 this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
+                                 this.taxonomyProvider.updateTaxonomy((SemanticChronology) Get.assemblageService()
                                            .getSemanticChronology(semanticNid));
                                  this.semanticNidsForUnhandledChanges.remove(semanticNid);
                               }
@@ -156,6 +147,7 @@ public class UpdateTaxonomyAfterCommitTask
          this.permit.release();
          Get.activeTasks()
             .remove(this);
+         this.taxonomyProvider.getPendingUpdateTasks().remove(this);
       }
    }
 
@@ -170,7 +162,7 @@ public class UpdateTaxonomyAfterCommitTask
     * @return a task, submitted to an executor, and added to the active task set.
     *
     */
-   public static UpdateTaxonomyAfterCommitTask get(TaxonomyService taxonomyService,
+   public static UpdateTaxonomyAfterCommitTask get(TaxonomyProvider taxonomyService,
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> unhandledChanges,
          Semaphore permit) {
@@ -178,8 +170,8 @@ public class UpdateTaxonomyAfterCommitTask
                                                                                    commitRecord,
                                                                                    unhandledChanges,
                                                                                    permit);
-      Get.activeTasks()
-         .add(task);
+      Get.activeTasks().add(task);
+      taxonomyService.getPendingUpdateTasks().add(task);
       Get.workExecutors()
          .getExecutor()
          .execute(task);

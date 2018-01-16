@@ -76,7 +76,6 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
 
 //~--- JDK imports ------------------------------------------------------------
-import javax.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -549,7 +548,7 @@ public class FLWORQueryController
       return actionList;
    }
 
-   private void updateStyle(@NotNull String item,
+   private void updateStyle(String item,
            boolean empty,
            TreeTableRow<QueryClause> ttr,
            TreeTableCell nodeToStyle) {

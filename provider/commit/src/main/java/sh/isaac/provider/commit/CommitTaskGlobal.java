@@ -150,8 +150,12 @@ public class CommitTaskGlobal extends CommitTask{
       this.pendingStampsForCommit = pendingStampsForCommit;
       this.commitProvider         = commitProvider;
       this.stampProvider          = Get.stampService();
+      addToTotalWork(this.conceptsToCommit.size());
+      addToTotalWork(this.semanticsToCommit.size());
       updateTitle("Commit");
       updateMessage(commitComment);
+      LOG.info("Spawning CommitTask " + taskSequenceId);
+      Get.activeTasks().add(this);
    }
 
    /**
@@ -178,6 +182,7 @@ public class CommitTaskGlobal extends CommitTask{
                   }
                });
             }
+            completedUnitOfWork();
          });
          this.semanticsToCommit.stream().forEach((semanticNid) -> {
             final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticNid);
@@ -191,6 +196,7 @@ public class CommitTaskGlobal extends CommitTask{
                   }
                });
             }
+            completedUnitOfWork();
          });
 
          if (this.alertCollection.size() > 0) {
@@ -238,6 +244,8 @@ public class CommitTaskGlobal extends CommitTask{
          throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);
       } finally {
          Get.activeTasks().remove(this);
+         this.commitProvider.getPendingCommitTasks().remove(this);
+         LOG.info("Finished CommitTask " + taskSequenceId);
       }
    }
 
@@ -277,7 +285,7 @@ public class CommitTaskGlobal extends CommitTask{
                                   checkers,
                                   pendingStampsForCommit,
                                   commitProvider);
-
+      commitProvider.getPendingCommitTasks().add(task);
       Get.activeTasks().add(task);
       try {
          Get.workExecutors().getExecutor().execute(task);

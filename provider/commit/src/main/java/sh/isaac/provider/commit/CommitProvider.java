@@ -61,6 +61,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -236,6 +237,9 @@ public class CommitProvider
     * The uncommitted semantics no checks nid set.
     */
    private final NidSet uncommittedSemanticsNoChecksNidSet = NidSet.concurrent();
+   
+   private Set<Task<?>> pendingCommitTasks = ConcurrentHashMap.newKeySet();
+
 
    /**
     * The database validity.
@@ -640,6 +644,15 @@ public class CommitProvider
    @Override
    public Future<?> sync() {
       return Get.executor().submit(() -> {
+        for (Task<?> updateTask: pendingCommitTasks) {
+            try {
+                LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                updateTask.get();
+                LOG.info("Completed: " + updateTask.getTitle());
+            } catch (Throwable ex) {
+                LOG.error(ex);
+            } 
+        }
          writeData();
          return null;
       });
@@ -836,7 +849,7 @@ public class CommitProvider
    @PostConstruct
    private void startMe() {
       try {
-         LOG.info("Starting CommitProvider post-construct");
+      	LOG.info("Starting CommitProvider post-construct at runlevel: " + LookupService.getCurrentRunLevel());
          
 
          if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
@@ -862,7 +875,7 @@ public class CommitProvider
             this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
             Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
          }
-         
+
          this.writeCompletionService.start();
 
          if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
@@ -994,14 +1007,15 @@ public class CommitProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping CommitProvider pre-destroy. ");
+      LOG.info("Stopping CommitProvider pre-destroy at runlevel: " + LookupService.getCurrentRunLevel());
 
       try {
+         sync().get();
+         this.pendingCommitTasks = null;
          this.writeCompletionService.stop();
-         writeData();
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
+      } catch (InterruptedException | ExecutionException ex) {
+           LOG.error(ex);
+       }
    }
    
    private void writeData() throws IOException {
@@ -1169,6 +1183,10 @@ public class CommitProvider
       return this.stampAliasMap.getStampAliasStream();
    }
 
+   public Set<Task<?>> getPendingCommitTasks() {
+      return pendingCommitTasks;
+ }
+   
    /**
     * Gets the stamp comment stream.
     *

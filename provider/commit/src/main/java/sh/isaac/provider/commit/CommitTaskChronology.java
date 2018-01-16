@@ -109,8 +109,16 @@ public class CommitTaskChronology extends CommitTask {
       this.uncommittedSemanticsNoChecksNidSet = uncommittedSemanticsNoChecksNidSet;
       this.checkers = checkers;
       this.commitProvider = commitProvider;
+      if (chronicle instanceof ConceptChronology) {
+         addToTotalWork(1);
+      }
+      else if (chronicle instanceof SemanticChronology) {
+         addToTotalWork(1);
+      }
       updateTitle("Commit");
       updateMessage(commitComment);
+      LOG.info("Spawning CommitTask " + taskSequenceId);
+      Get.activeTasks().add(this);
    }
 
    /**
@@ -138,6 +146,7 @@ public class CommitTaskChronology extends CommitTask {
                      LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, check.getDescription(), ao);
                   }
                });
+               completedUnitOfWork();
             }
          } else if (this.chronicle instanceof SemanticChronology) {
             final SemanticChronology semanticChronology = (SemanticChronology) this.chronicle;
@@ -150,6 +159,7 @@ public class CommitTaskChronology extends CommitTask {
                      LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, check.getDescription(), ao);
                   }
                });
+               completedUnitOfWork();
             }
          } else {
             throw new RuntimeException("Unsupported chronology type: " + this.chronicle);
@@ -205,6 +215,8 @@ public class CommitTaskChronology extends CommitTask {
          throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);
       } finally {
          Get.activeTasks().remove(this);
+         this.commitProvider.getPendingCommitTasks().remove(this);
+         LOG.info("Finished CommitTask " + taskSequenceId);
       }
    }
 
@@ -244,7 +256,7 @@ public class CommitTaskChronology extends CommitTask {
             uncommittedSemanticsNoChecksNidSet, 
             checkers, 
             commitProvider);
-
+      commitProvider.getPendingCommitTasks().add(task);
       Get.activeTasks().add(task);
       try {
          Get.workExecutors().getExecutor().execute(task);

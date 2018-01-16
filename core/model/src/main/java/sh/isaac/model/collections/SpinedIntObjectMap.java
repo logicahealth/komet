@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -38,6 +39,7 @@ import sh.isaac.model.ModelGet;
    private static final int DEFAULT_SPINE_SIZE = 1024;
    protected final int spineSize;
    protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
+   protected final AtomicInteger spineCount = new AtomicInteger();
    private Function<E,String> elementStringConverter;
 
    public void setElementStringConverter(Function<E, String> elementStringConverter) {
@@ -71,16 +73,13 @@ import sh.isaac.model.ModelGet;
       }
    }
    private int getSpineCount() {
-      int spineCount = 0;
-      for (Integer spineKey:  spines.keySet()) {
-         spineCount = Math.max(spineCount, spineKey + 1);
-      }
-      return spineCount; 
+      return spineCount.get(); 
    }
    
 
    protected AtomicReferenceArray<E> newSpine(Integer spineKey) {
       AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
+      this.spineCount.set(Math.max(this.spineCount.get(), spineKey));
       return spine;
    }
 

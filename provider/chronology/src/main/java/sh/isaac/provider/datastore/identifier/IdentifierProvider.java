@@ -72,6 +72,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.OptionalInt;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
@@ -142,7 +143,7 @@ public class IdentifierProvider
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting identifier provider.");
+      LOG.info("Starting identifier provider at runlevel: " + LookupService.getCurrentRunLevel());
       this.store      = Get.service(DataStore.class);
       uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
       uuidNidMapProxyCacheFile = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map-proxy-cache");
@@ -177,18 +178,11 @@ public class IdentifierProvider
    @PreDestroy
    private void stopMe() {
       try {
-         LOG.info("Stopping identifier provider.");
+         LOG.info("Stopping identifier provider at runlevel: " + LookupService.getCurrentRunLevel());
          this.uuidIntMapMap.setShutdown(true);
-         LOG.info("writing uuid-nid-map.");
-         this.uuidIntMapMap.write();
-         try (DataOutputStream out =
-               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(uuidNidMapProxyCacheFile)))) {
-            this.proxyUuidNidMapCache.serialize(out);
-         }
-         
+         this.sync().get();
       } catch (Throwable ex) {
-         LOG.error(ex);
-         ex.printStackTrace();
+         LOG.error("Unexpected error while stopping identifier provider", ex);
          throw new RuntimeException(ex);
       }
    }
@@ -336,6 +330,9 @@ public class IdentifierProvider
       }
 
       final int nid = this.uuidIntMapMap.getWithGeneration(uuids[0]);
+//      if (uuids[0].equals(UUID.fromString("09237f54-721d-5298-98fd-559ef30bea4d"))) {
+//          LOG.info("Found uuid watch: " + uuids[0]);
+//      }
 
       for (int i = 1; i < uuids.length; i++) {
          this.uuidIntMapMap.put(uuids[i], nid);
@@ -521,7 +518,19 @@ public class IdentifierProvider
 
    @Override
    public Future<?> sync() {
-     return this.store.sync();
+       return Get.executor().submit(() -> {
+         try {
+             LOG.info("writing uuid-nid-map.");
+             this.uuidIntMapMap.write();
+             try (DataOutputStream out =
+                     new DataOutputStream(new BufferedOutputStream(new FileOutputStream(uuidNidMapProxyCacheFile)))) {
+                 this.proxyUuidNidMapCache.serialize(out);
+                 this.store.sync().get();
+             }
+         }   catch (IOException | InterruptedException | ExecutionException ex) {
+               LOG.error("error syncing identifier provider", ex);
+           }
+       });
    }
 
     @Override

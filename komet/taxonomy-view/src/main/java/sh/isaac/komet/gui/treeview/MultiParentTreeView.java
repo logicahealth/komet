@@ -61,7 +61,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import javafx.concurrent.Task;
 
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -79,7 +78,6 @@ import javafx.scene.layout.Priority;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.Arrays;
 
 import com.lmax.disruptor.EventHandler;
 import javafx.event.ActionEvent;
@@ -292,100 +290,9 @@ public class MultiParentTreeView
 
    public void showConcept(final UUID conceptUUID, final BooleanProperty workingIndicator) {
       // Do work in background.
-      Task<MultiParentTreeItemImpl> task = new Task<MultiParentTreeItemImpl>() {
-         @Override
-         protected MultiParentTreeItemImpl call()
-                  throws Exception {
-            // await() init() completion.
-            LOG.debug("Looking for concept {} in tree", conceptUUID);
-
-            final ArrayList<UUID> pathToRoot = new ArrayList<>();
-
-            pathToRoot.add(conceptUUID);
-
-            // Walk up taxonomy to origin until no parent found.
-            UUID current = conceptUUID;
-
-            while (true) {
-               Optional<? extends ConceptChronology> conceptOptional = Get.conceptService()
-                                                                          .getOptionalConcept(current);
-
-               if (!conceptOptional.isPresent()) {
-                  // Must be a "pending concept".
-                  // Not handled yet.
-                  return null;
-               }
-
-               ConceptChronology concept = conceptOptional.get();
-
-               // Look for an IS_A relationship to origin.
-               boolean found = false;
-
-               for (int parent: getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
-                  current = Get.identifierService()
-                               .getUuidPrimordialForNid(parent)
-                               .get();
-                  pathToRoot.add(current);
-                  found = true;
-                  break;
-               }
-
-               // No parent IS_A relationship found, stop looking.
-               if (!found) {
-                  break;
-               }
-            }
-
-            LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
-
-            MultiParentTreeItemImpl currentTreeItem = rootTreeItem;
-
-            // Walk down path from root.
-            for (int i = pathToRoot.size() - 1; i >= 0; i--) {
-               MultiParentTreeItemImpl child = findChild(currentTreeItem, pathToRoot.get(i));
-
-               if (child == null) {
-                  break;
-               }
-
-               currentTreeItem = child;
-            }
-
-            return currentTreeItem;
-         }
-         @Override
-         protected void succeeded() {
-            final MultiParentTreeItemImpl lastItemFound = this.getValue();
-
-            // Expand tree to last item found.
-            if (lastItemFound != null) {
-               int row = treeView.getRow(lastItemFound);
-
-               treeView.scrollTo(row);
-               treeView.getSelectionModel()
-                       .clearAndSelect(row);
-            }
-
-            // Turn off progress indicator.
-            if (workingIndicator != null) {
-               workingIndicator.set(false);
-            }
-         }
-         @Override
-         protected void failed() {
-            Throwable ex = getException();
-
-            if (!wasGlobalShutdownRequested()) {
-               LOG.warn("Unexpected error trying to find concept in Tree", ex);
-
-               // Turn off progress indicator.
-               if (workingIndicator != null) {
-                  workingIndicator.set(false);
-               }
-            }
-         }
-      };
-
+      ShowConceptInTaxonomyTask task = 
+              new ShowConceptInTaxonomyTask(this, conceptUUID);
+      
       Get.executor()
          .execute(task);
    }
@@ -414,7 +321,7 @@ public class MultiParentTreeView
     * children.
     * @throws InterruptedException
     */
-   private MultiParentTreeItemImpl findChild(final MultiParentTreeItemImpl item,
+   protected MultiParentTreeItemImpl findChild(final MultiParentTreeItemImpl item,
          final UUID targetChildUUID)
             throws InterruptedException {
       LOG.debug("Looking for {}", targetChildUUID);
@@ -689,5 +596,9 @@ public class MultiParentTreeView
    public BorderPane getView() {
       return this;
    }
+
+    public TreeView<ConceptChronology> getTreeView() {
+        return treeView;
+    }
 }
 
