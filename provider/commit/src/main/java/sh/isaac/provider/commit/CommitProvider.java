@@ -650,7 +650,7 @@ public class CommitProvider
                 updateTask.get();
                 LOG.info("Completed: " + updateTask.getTitle());
             } catch (Throwable ex) {
-                LOG.error(ex);
+                LOG.error("Error syncing CommitProvider", ex);
             } 
         }
          writeData();

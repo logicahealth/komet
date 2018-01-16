@@ -183,7 +183,7 @@ public class MainApp
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         Get.executor().execute(() -> {
-            LookupService.syncAll();
+            LookupService.syncAll();  //This should be unnecessary....
             Platform.runLater(() -> {
                 try {
                     stop();

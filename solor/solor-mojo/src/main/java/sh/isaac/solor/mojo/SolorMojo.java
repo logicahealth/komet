@@ -118,7 +118,7 @@ public class SolorMojo extends AbstractMojo {
                 getLog().info(classifierResults.toString());
             }
 
-            LookupService.syncAll();
+            LookupService.syncAll();  //This should be unnecessary....
             LookupService.shutdownIsaac();
         } catch (Throwable throwable) {
             throw new MojoFailureException("solor-import failed", throwable);
