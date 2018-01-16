@@ -81,6 +81,7 @@ public class ExtractAxioms
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
       updateTitle("Extract axioms");
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -94,17 +95,21 @@ public class ExtractAxioms
    @Override
    protected Void call()
             throws Exception {
-      final AtomicInteger  logicGraphMembers = new AtomicInteger();
-      final ClassifierData cd                = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
-
-      if (cd.isIncrementalAllowed()) {
-         // axioms are already extracted.
-      } else {
-         cd.clearAxioms();
-         processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
-      }
-
-      return null;
+       try {
+           final AtomicInteger logicGraphMembers = new AtomicInteger();
+           final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+           
+           if (cd.isIncrementalAllowed()) {
+               // axioms are already extracted.
+           } else {
+               cd.clearAxioms();
+               processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
+           }
+           
+           return null;
+       } finally {
+           Get.activeTasks().remove(this);
+       }
    }
 
    /**

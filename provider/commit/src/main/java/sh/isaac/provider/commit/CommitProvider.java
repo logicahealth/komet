@@ -65,8 +65,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -249,6 +250,9 @@ public class CommitProvider
     * The uncommitted semantics no checks nid set.
     */
    private final NidSet uncommittedSemanticsNoChecksNidSet = NidSet.concurrent();
+   
+   private Set<Task<?>> pendingCommitTasks = ConcurrentHashMap.newKeySet();
+
 
    /**
     * The database validity.
@@ -302,21 +306,25 @@ public class CommitProvider
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Adds the alias.
-    *
-    * @param stampSequence the stamp nid
-    * @param stampAlias the stamp alias
-    * @param aliasCommitComment the alias commit comment
-    */
-   @Override
-   public void addAlias(int stampSequence, int stampAlias, String aliasCommitComment) {
-      this.stampAliasMap.addAlias(stampSequence, stampAlias);
-
-      if (aliasCommitComment != null) {
-         this.stampCommentMap.addComment(stampAlias, aliasCommitComment);
-      }
+   public Set<Task<?>> getPendingCommitTasks() {
+        return pendingCommitTasks;
    }
+
+    /**
+     * Adds the alias.
+     *
+     * @param stampSequence the stamp nid
+     * @param stampAlias the stamp alias
+     * @param aliasCommitComment the alias commit comment
+     */
+    @Override
+    public void addAlias(int stampSequence, int stampAlias, String aliasCommitComment) {
+        this.stampAliasMap.addAlias(stampSequence, stampAlias);
+        
+        if (aliasCommitComment != null) {
+            this.stampCommentMap.addComment(stampAlias, aliasCommitComment);
+        }
+    }
 
    /**
     * Adds the change checker.
@@ -752,6 +760,15 @@ public class CommitProvider
    @Override
    public Future<?> sync() {
       return Get.executor().submit(() -> {
+        for (Task<?> updateTask: pendingCommitTasks) {
+            try {
+                LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                updateTask.get();
+                LOG.info("Completed: " + updateTask.getTitle());
+            } catch (Throwable ex) {
+                LOG.error(ex);
+            } 
+        }
          writeData();
          return null;
       });
@@ -943,7 +960,7 @@ public class CommitProvider
    @PostConstruct
    private void startMe() {
       try {
-         LOG.info("Starting CommitProvider post-construct");
+         LOG.info("Starting CommitProvider post-construct at runlevel: " + LookupService.getCurrentRunLevel());
          this.writeCompletionService.start();
 
          if (this.loadRequired.get()) {
@@ -982,14 +999,15 @@ public class CommitProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping CommitProvider pre-destroy. ");
+      LOG.info("Stopping CommitProvider pre-destroy at runlevel: " + LookupService.getCurrentRunLevel());
 
       try {
+         sync().get();
+         this.pendingCommitTasks = null;
          this.writeCompletionService.stop();
-         writeData();
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
+      } catch (InterruptedException | ExecutionException ex) {
+           LOG.error(ex);
+       }
    }
 
    private void writeData() throws IOException {

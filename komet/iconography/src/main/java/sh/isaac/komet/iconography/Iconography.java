@@ -61,8 +61,10 @@ public enum Iconography {
    RUN(MATERIAL_DESIGNS_WEBFONT, "run"),
    LINK(MATERIAL_DESIGNS_WEBFONT, "link"),
    LINK_BROKEN(MATERIAL_DESIGNS_WEBFONT, "link-broken"),
-   FLOWR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
-   SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
+   FLWOR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
+   SEARCH_MINUS(FONT_AWSOME, "search-minus"),
+   SEARCH_FILTER(FONT_AWSOME, "search-filter"),
+    SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
    SETTINGS_GEAR(EMOJI_ONE, "settings-gear"),
    
   TREE_ASPECT_RATIO_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "tree-aspect-ratio-layout"),
@@ -171,6 +173,7 @@ public enum Iconography {
   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
   DASHBOARD(OCT_ICON, "dashboard"),
+
    ;
 
    String cssClass;

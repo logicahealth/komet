@@ -38,7 +38,9 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
@@ -228,14 +230,19 @@ public interface LanguageCoordinate extends Coordinate {
                return "unknown type for nid: " + conceptId;
          }
       }
-      LatestVersion<DescriptionVersion> latestDescription
-              = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
-      if (latestDescription.isPresent()) {
-         return latestDescription.get().getText();
-      } else {
-         return "No description for: " + conceptId;
-      }
-
+       try {
+           LatestVersion<DescriptionVersion> latestDescription
+                   = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+           if (latestDescription.isPresent()) {
+               return latestDescription.get().getText();
+           } else {
+               return "No description for: " + conceptId;
+           }
+       } catch (NoSuchElementException e) {
+//           List<UUID> uuids = Get.identifierService().getUuidsForNid(conceptId);
+//           return "No concept for: " + conceptId + " " + uuids;
+             return "No concept for: " + conceptId;
+       }
    }
 
    @Override

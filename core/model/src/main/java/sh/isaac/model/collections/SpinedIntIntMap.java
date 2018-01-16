@@ -22,22 +22,24 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.model.ModelGet;
 
 /**
@@ -46,326 +48,332 @@ import sh.isaac.model.ModelGet;
  */
 public class SpinedIntIntMap {
 
-   private static final int DEFAULT_SPINE_SIZE = 1024;
-   private final int spineSize;
-   private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
-   private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
+    private static final Logger LOG = LogManager.getLogger();
 
-   AtomicByteArray spineChangedArray = new AtomicByteArray(0);
+    private static final int DEFAULT_SPINE_SIZE = 1024;
+    private final int spineSize;
+    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
+    private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
 
-   public SpinedIntIntMap() {
-      this.spineSize = DEFAULT_SPINE_SIZE;
-   }
+    private final Semaphore diskSemaphore = new Semaphore(1);
+    protected final AtomicInteger spineCount = new AtomicInteger();
+    protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
 
-   public int sizeInBytes() {
-      int sizeInBytes = 0;
-      sizeInBytes = sizeInBytes + ((spineSize * 4) * spines.size()); // 4 bytes = bytes of 32 bit integer
-      return sizeInBytes;
-   }
-  /**
-    * 
-    * @param directory
-    * @return the number of spine files read. 
-    */
-   public int read(File directory) {
-      File[] files = directory.listFiles((pathname) -> {
-         return pathname.getName().startsWith("spine-");
-      });
-      int spineFilesRead = 0;
-      for (File spineFile : files) {
-          spineFilesRead++;
-         int spine = Integer.parseInt(spineFile.getName().substring("spine-".length()));
-         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
-            int arraySize = dis.readInt();
-            int[] spineArray = new int[arraySize];
-            for (int i = 0; i < arraySize; i++) {
-               spineArray[i] = dis.readInt();
+    public SpinedIntIntMap() {
+        this.spineSize = DEFAULT_SPINE_SIZE;
+    }
+
+    public int sizeInBytes() {
+        int sizeInBytes = 0;
+        sizeInBytes = sizeInBytes + ((spineSize * 4) * spines.size()); // 4 bytes = bytes of 32 bit integer
+        return sizeInBytes;
+    }
+
+    /**
+     *
+     * @param directory
+     * @return the number of spine files read.
+     */
+    public int read(File directory) {
+        diskSemaphore.acquireUninterruptibly();
+        try {
+            spineCount.set(SpineFileUtil.readSpineCount(directory));
+
+            File[] files = directory.listFiles((pathname) -> {
+                return pathname.getName().startsWith(SpineFileUtil.SPINE_PREFIX);
+            });
+            int spineFilesRead = 0;
+            for (File spineFile : files) {
+                spineFilesRead++;
+                int spine = Integer.parseInt(spineFile.getName().substring(SpineFileUtil.SPINE_PREFIX.length()));
+                try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
+                    int arraySize = dis.readInt();
+                    int[] spineArray = new int[arraySize];
+                    for (int i = 0; i < arraySize; i++) {
+                        spineArray[i] = dis.readInt();
+                    }
+                    spines.put(spine, new AtomicIntegerArray(spineArray));
+                } catch (IOException ex) {
+                    LOG.error(ex);
+                    throw new RuntimeException(ex);
+                }
             }
-            spines.put(spine, new AtomicIntegerArray(spineArray));
-         } catch (IOException ex) {
-            Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
-         }
-      }
-      this.spineChangedArray = new AtomicByteArray(spines.size());
-      return spineFilesRead;
-   }
+            return spineFilesRead;
+        } finally {
+            diskSemaphore.release();
+        }
+    }
 
-   public boolean write(File directory) {
-      AtomicBoolean wroteAny = new AtomicBoolean(false);
-      AtomicByteArray spineChangedArrayForWrite = spineChangedArray;
-      int spineChangedArraySize = spineChangedArrayForWrite.length();
-      this.spineChangedArray = new AtomicByteArray(spines.size());
-      spines.forEach((Integer key, AtomicIntegerArray spine) -> {
-         String spineKey = "spine-" + key;
-         boolean spineChanged;
-         if (key < spineChangedArraySize) {
-            spineChanged = spineChangedArrayForWrite.get(key) != 0;
-         } else {
-            spineChanged = true;
-         }
+    public boolean write(File directory) {
+        AtomicBoolean wroteAny = new AtomicBoolean(false);
         
-         if (spineChanged) {
-            wroteAny.set(true);
-            File spineFile = new File(directory, spineKey);
-            try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
-               dos.writeInt(spine.length());
-               for (int i = 0; i < spine.length(); i++) {
-                  dos.writeInt(spine.get(i));
-               }
-            } catch (FileNotFoundException ex) {
-               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-               Logger.getLogger(SpinedByteArrayArrayMap.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            SpineFileUtil.writeSpineCount(directory, spineCount.get());
+            spines.forEach((Integer key, AtomicIntegerArray spine) -> {
+                String spineKey = SpineFileUtil.SPINE_PREFIX + key;
+                boolean spineChanged = changedSpineIndexes.contains(key);
+                
+                if (spineChanged) {
+                    wroteAny.set(true);
+                    File spineFile = new File(directory, spineKey);
+                    diskSemaphore.acquireUninterruptibly();
+                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
+                        dos.writeInt(spine.length());
+                        for (int i = 0; i < spine.length(); i++) {
+                            dos.writeInt(spine.get(i));
+                        }
+                    } catch (IOException ex) {
+                        LOG.error(ex);
+                        throw new RuntimeException(ex);
+                    } finally {
+                        diskSemaphore.release();
+                    }
+                }
+                
+            });
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw new RuntimeException(ex);
+        }
+        return wroteAny.get();
+    }
+
+    private AtomicIntegerArray newSpine(Integer spineKey) {
+        int[] spine = new int[spineSize];
+        Arrays.fill(spine, INITIALIZATION_VALUE);
+        this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
+        return new AtomicIntegerArray(spine);
+    }
+
+    public ConcurrentMap<Integer, AtomicIntegerArray> getSpines() {
+        return spines;
+    }
+
+    public void put(int index, int element) {
+        if (index < 0) {
+            index = ModelGet.identifierService().getElementSequenceForNid(index);
+        }
+        int spineIndex = index / spineSize;
+        int indexInSpine = index % spineSize;
+        if (spineIndex > this.spines.size() + 2) {
+            throw new IllegalStateException("Trying to add spine: " + spineIndex + " for: " + index);
+        }
+        this.changedSpineIndexes.add(spineIndex);
+        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+    }
+
+    public int get(int index) {
+        if (index < 0) {
+            index = ModelGet.identifierService().getElementSequenceForNid(index);
+        }
+        int spineIndex = index / spineSize;
+        int indexInSpine = index % spineSize;
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
+    }
+
+    public int getAndUpdate(int index, IntUnaryOperator generator) {
+        if (index < 0) {
+            index = ModelGet.identifierService().getElementSequenceForNid(index);
+        }
+        int spineIndex = index / spineSize;
+        int indexInSpine = index % spineSize;
+        this.changedSpineIndexes.add(spineIndex);
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
+    }
+
+    public boolean containsKey(int index) {
+        if (index < 0) {
+            index = ModelGet.identifierService().getElementSequenceForNid(index);
+        }
+        int spineIndex = index / spineSize;
+        int indexInSpine = index % spineSize;
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != INITIALIZATION_VALUE;
+    }
+
+    public void forEach(Processor processor) {
+        int currentSpineCount = getSpineCount();
+        int key = 0;
+        for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
+            AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+            for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
+                int value = spine.get(indexInSpine);
+                if (value != INITIALIZATION_VALUE) {
+                    processor.process(key, value);
+                }
             }
-         }
+            key++;
+        }
+    }
 
-      });
-      return wroteAny.get();
-   }
+    private int getSpineCount() {
+        return spineCount.get();
+    }
 
-   
-   private AtomicIntegerArray newSpine(Integer spineKey) {
-      int[] spine = new int[spineSize];
-      Arrays.fill(spine, INITIALIZATION_VALUE);
-      return new AtomicIntegerArray(spine);
-   }
-   
-   public ConcurrentMap<Integer, AtomicIntegerArray> getSpines() {
-      return spines;
-   }
+    public IntStream keyStream() {
+        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getKeySpliterator();
 
-   public void put(int index, int element) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
-      if (spineIndex > this.spines.size() + 2) {
-         throw new IllegalStateException("Trying to add spine: " + spineIndex + " for: " + index);
-      }
-      if (spineIndex < spineChangedArray.length()) {
-         spineChangedArray.set(spineIndex, (byte) 1);
-      }
-      this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
-   }
+        return StreamSupport.intStream(streamSupplier, streamSupplier.get()
+                .characteristics(), false);
+    }
 
-   public int get(int index) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
-   }
+    public IntStream valueStream() {
+        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
 
-   public int getAndUpdate(int index, IntUnaryOperator generator) {
-       if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
-     int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
-      if (spineIndex < spineChangedArray.length()) {
-         spineChangedArray.set(spineIndex, (byte) 1);
-      }
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);
-   }
+        return StreamSupport.intStream(streamSupplier, streamSupplier.get()
+                .characteristics(), false);
+    }
 
-   public boolean containsKey(int index) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
-      int spineIndex = index / spineSize;
-      int indexInSpine = index % spineSize;
-      return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != INITIALIZATION_VALUE;
-   }
+    public interface Processor {
 
-   public void forEach(Processor processor) {
-      int currentSpineCount = getSpineCount();
-      int key = 0;
-      for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
-         AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
-         for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
-            int value = spine.get(indexInSpine);
-            if (value != INITIALIZATION_VALUE) {
-               processor.process(key, value);
+        public void process(int key, int value);
+    }
+
+    /**
+     * Gets the value spliterator.
+     *
+     * @return the supplier<? extends spliterator. of int>
+     */
+    protected Supplier<? extends Spliterator.OfInt> getValueSpliterator() {
+        return new ValueSpliteratorSupplier();
+    }
+
+    /**
+     * Gets the value spliterator.
+     *
+     * @return the supplier<? extends spliterator. of int>
+     */
+    protected Supplier<? extends Spliterator.OfInt> getKeySpliterator() {
+        return new KeySpliteratorSupplier();
+    }
+
+    /**
+     * The Class KeySpliteratorSupplier.
+     */
+    private class KeySpliteratorSupplier
+            implements Supplier<Spliterator.OfInt> {
+
+        /**
+         * Gets the.
+         *
+         * @return the spliterator of int
+         */
+        @Override
+        public Spliterator.OfInt get() {
+            return new SpinedKeySpliterator();
+        }
+    }
+
+    /**
+     * The Class ValueSpliteratorSupplier.
+     */
+    private class ValueSpliteratorSupplier
+            implements Supplier<Spliterator.OfInt> {
+
+        /**
+         * Gets the.
+         *
+         * @return the spliterator of int
+         */
+        @Override
+        public Spliterator.OfInt get() {
+            return new SpinedValueSpliterator();
+        }
+    }
+
+    private class SpinedValueSpliterator implements Spliterator.OfInt {
+
+        int end;
+        int currentPosition;
+
+        public SpinedValueSpliterator() {
+            this.end = DEFAULT_SPINE_SIZE * getSpineCount();
+            this.currentPosition = 0;
+        }
+
+        public SpinedValueSpliterator(int start, int end) {
+            this.currentPosition = start;
+            this.end = end;
+        }
+
+        @Override
+        public OfInt trySplit() {
+            int splitEnd = end;
+            int split = end - currentPosition;
+            int half = split / 2;
+            this.end = currentPosition + half;
+            return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
+        }
+
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            while (currentPosition < end) {
+                int value = get(currentPosition++);
+                if (value != INITIALIZATION_VALUE) {
+                    action.accept(value);
+                    return true;
+                }
             }
-         }
-         key++;
-      }
-   }
-   
-   private int getSpineCount() {
-      int spineCount = 0;
-      for (Integer spineKey:  spines.keySet()) {
-         spineCount = Math.max(spineCount, spineKey + 1);
-      }
-      return spineCount; 
-   }
-   
-   public IntStream keyStream() {
-      final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getKeySpliterator();
+            return false;
+        }
 
-      return StreamSupport.intStream(streamSupplier, streamSupplier.get()
-              .characteristics(), false);
-   }
+        @Override
+        public long estimateSize() {
+            return end - currentPosition;
+        }
 
-   public IntStream valueStream() {
-      final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
+                    | Spliterator.SIZED;
+        }
 
-      return StreamSupport.intStream(streamSupplier, streamSupplier.get()
-              .characteristics(), false);
-   }
+    }
 
-   public interface Processor {
+    private class SpinedKeySpliterator implements Spliterator.OfInt {
 
-      public void process(int key, int value);
-   }
+        int end = DEFAULT_SPINE_SIZE * getSpineCount();
+        int currentPosition = 0;
 
-   /**
-    * Gets the value spliterator.
-    *
-    * @return the supplier<? extends spliterator. of int>
-    */
-   protected Supplier<? extends Spliterator.OfInt> getValueSpliterator() {
-      return new ValueSpliteratorSupplier();
-   }
-  /**
-    * Gets the value spliterator.
-    *
-    * @return the supplier<? extends spliterator. of int>
-    */
-   protected Supplier<? extends Spliterator.OfInt> getKeySpliterator() {
-      return new KeySpliteratorSupplier();
-   }
+        public SpinedKeySpliterator() {
+        }
 
-   /**
-    * The Class KeySpliteratorSupplier.
-    */
-   private class KeySpliteratorSupplier
-           implements Supplier<Spliterator.OfInt> {
+        public SpinedKeySpliterator(int start, int end) {
+            this.currentPosition = start;
+            this.end = end;
+        }
 
-      /**
-       * Gets the.
-       *
-       * @return the spliterator of int
-       */
-      @Override
-      public Spliterator.OfInt get() {
-         return new SpinedKeySpliterator();
-      }
-   }
+        @Override
+        public Spliterator.OfInt trySplit() {
+            int splitEnd = end;
+            int split = end - currentPosition;
+            int half = split / 2;
+            this.end = currentPosition + half;
+            return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
+        }
 
-   /**
-    * The Class ValueSpliteratorSupplier.
-    */
-   private class ValueSpliteratorSupplier
-           implements Supplier<Spliterator.OfInt> {
-
-      /**
-       * Gets the.
-       *
-       * @return the spliterator of int
-       */
-      @Override
-      public Spliterator.OfInt get() {
-         return new SpinedValueSpliterator();
-      }
-   }
-
-   private class SpinedValueSpliterator implements Spliterator.OfInt {
-      int end;
-      int currentPosition;
-      
-      public SpinedValueSpliterator() {
-         this.end = DEFAULT_SPINE_SIZE * getSpineCount();
-         this.currentPosition = 0;
-      }
-      
-      public SpinedValueSpliterator(int start, int end) {
-         this.currentPosition = start;
-         this.end = end;
-      }
-      
-      @Override
-      public OfInt trySplit() {
-         int splitEnd = end;
-         int split = end - currentPosition;
-         int half = split / 2;
-         this.end = currentPosition + half;
-         return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
-      }
-
-      @Override
-      public boolean tryAdvance(IntConsumer action) {
-         while (currentPosition < end) {
-            int value = get(currentPosition++);
-            if (value != INITIALIZATION_VALUE) {
-               action.accept(value);
-               return true;
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            while (currentPosition < end) {
+                int key = currentPosition++;
+                int value = get(key);
+                if (value != INITIALIZATION_VALUE) {
+                    action.accept(key);
+                    return true;
+                }
             }
-         }
-         return false;
-      }
+            return false;
+        }
 
-      @Override
-      public long estimateSize() {
-         return end - currentPosition;
-      }
+        @Override
+        public long estimateSize() {
+            return end - currentPosition;
+        }
 
-      @Override
-      public int characteristics() {
-          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
-                | Spliterator.SIZED;
-     }
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
+                    | Spliterator.SIZED | Spliterator.SORTED;
+        }
 
-   }
-   
-   
-
-   private class SpinedKeySpliterator implements Spliterator.OfInt {
-      int end = DEFAULT_SPINE_SIZE * getSpineCount();
-      int currentPosition = 0;
-
-      public SpinedKeySpliterator() {
-      }
-      
-      public SpinedKeySpliterator(int start, int end) {
-         this.currentPosition = start;
-         this.end = end;
-      }
-      
-      @Override
-      public Spliterator.OfInt trySplit() {
-         int splitEnd = end;
-         int split = end - currentPosition;
-         int half = split / 2;
-         this.end = currentPosition + half;
-         return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
-      }
-
-      @Override
-      public boolean tryAdvance(IntConsumer action) {
-         while (currentPosition < end) {
-            int key = currentPosition++;
-            int value = get(key);
-            if (value != INITIALIZATION_VALUE) {
-               action.accept(key);
-               return true;
-            }
-         }
-         return false;
-      }
-
-      @Override
-      public long estimateSize() {
-         return end - currentPosition;
-      }
-
-      @Override
-      public int characteristics() {
-          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
-                | Spliterator.SIZED | Spliterator.SORTED;
-     }
-
-   }   
+    }
 }

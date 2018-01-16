@@ -191,6 +191,54 @@ public class MultiParentTreeItemImpl
       }
    }
 
+   void addChildrenNow() {
+      if (getChildren().isEmpty()) {
+         childLoadStarts();
+
+         try {
+            final ConceptChronology conceptChronology = getValue();
+
+            if (!shouldDisplay()) {
+               // Don't add children to something that shouldn't be displayed
+               LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
+            } else if (conceptChronology == null) {
+               LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
+            } else {  // if (conceptChronology != null)
+               // Gather the children
+               ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
+               TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
+
+               for (int childNid: taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid())) {
+                  ConceptChronology childChronology = Get.concept(childNid);
+                  MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
+                  Manifold manifold = treeView.getManifold();
+                  childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
+                  childItem.toString();
+                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
+
+                  if (childItem.shouldDisplay()) {
+                     childrenToAdd.add(childItem);
+                  } else {
+                     LOG.debug(
+                         "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " +
+                         this.getConceptUuid());
+                  }
+               }
+
+               Collections.sort(childrenToAdd);
+
+               if (cancelLookup) {
+                  return;
+               }
+               getChildren().addAll(childrenToAdd);
+            }
+         } catch (Exception e) {
+            LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
+         } finally {
+            childLoadComplete();
+         }
+      }
+   }
    void addChildren() {
       if (getChildren().isEmpty()) {
          childLoadStarts();

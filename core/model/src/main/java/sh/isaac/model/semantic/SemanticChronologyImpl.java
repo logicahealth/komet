@@ -50,6 +50,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -75,6 +76,8 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
@@ -120,7 +123,7 @@ public class SemanticChronologyImpl
       this.semanticTypeToken      = semanticType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
       ModelGet.identifierService().setupNid(nid, assemblageNid, 
-              IsaacObjectType.CONCEPT, semanticType);
+              IsaacObjectType.SEMANTIC, semanticType);
       ModelGet.identifierService()
               .addToSemanticIndex(referencedComponentNid, nid);
    }
@@ -235,6 +238,12 @@ public class SemanticChronologyImpl
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(container, stampSequence, bb);
 
+      case Str1_Nid2_Nid3_Nid4:
+         return new Str1_Nid2_Nid3_Nid4_VersionImpl(container, stampSequence, bb);
+
+      case Str1_Str2_Nid3_Nid4_Nid5:
+         return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(container, stampSequence, bb);
+          
       case LOINC_RECORD:
          return new LoincVersionImpl(container, stampSequence, bb);
 
@@ -283,7 +292,21 @@ public class SemanticChronologyImpl
       if (this.semanticTypeToken == -1) {
          builder.append("SemanticType token not initialized");
       } else {
-         builder.append(VersionType.getFromToken(this.semanticTypeToken));
+          VersionType versionType = VersionType.getFromToken(this.semanticTypeToken);
+         builder.append(versionType);
+         switch (versionType) {
+             case DESCRIPTION:
+                 try {
+                     SemanticChronology descriptionChronology = Get.assemblageService().getSemanticChronology(referencedComponentNid);
+                     DescriptionVersion descriptionVersion = (DescriptionVersion) descriptionChronology.getVersionList().get(0);
+                     builder.append(": ");
+                     builder.append(descriptionVersion.getText());
+                 } catch (Throwable e) {
+                     LOG.warn(e);
+                 }
+                 break;
+             
+         }
       }
 
       builder.append("\n assemblage:")
@@ -405,6 +428,12 @@ public class SemanticChronologyImpl
 
       case LOINC_RECORD:
          return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
+         
+      case Str1_Nid2_Nid3_Nid4:
+          return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);
+          
+      case Str1_Str2_Nid3_Nid4_Nid5:
+          return (M) new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl((SemanticChronology) this, stampSequence);
 
       default:
          throw new UnsupportedOperationException("af Can't handle: " + getVersionType());

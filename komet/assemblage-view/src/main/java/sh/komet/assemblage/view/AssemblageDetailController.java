@@ -162,8 +162,8 @@ public class AssemblageDetailController {
          ObservableList<ObservableSemanticChronology> children = FXCollections.observableArrayList();
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
          Get.assemblageService().getSemanticNidsFromAssemblage(observableConceptChronology.getNid())
-                 .stream().forEach((sememeId) -> 
-                 children.add(observableChronologyService.getObservableSemanticChronology(sememeId)));
+                 .stream().forEach((semanticId) -> 
+                 children.add(observableChronologyService.getObservableSemanticChronology(semanticId)));
          addChildren(assemblageRoot, children, true);
          assemblageExtensionTreeTable.setRoot(assemblageRoot);
       }

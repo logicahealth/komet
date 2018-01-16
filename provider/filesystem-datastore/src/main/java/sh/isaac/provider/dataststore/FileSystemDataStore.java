@@ -102,7 +102,8 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
- *
+ * TODO: evaluate how the canceling of changes will impact the array approach 
+ * for writing versions...
  * @author kec
  */
 @Service
@@ -150,32 +151,38 @@ public class FileSystemDataStore
    //~--- methods -------------------------------------------------------------
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
-      int assemblageNid = chronology.getAssemblageNid();
-      IsaacObjectType objectType = chronology.getIsaacObjectType();
-
-      assemblageToObjectType_Map.put(assemblageNid, objectType);
-
-      int assemblageForNid = ModelGet.identifierService()
-              .getAssemblageNidForNid(chronology.getNid());
-
-      if (assemblageForNid == Integer.MAX_VALUE) {
-         ModelGet.identifierService()
-                 .setupNid(chronology.getNid(), assemblageNid, objectType, 
-                         chronology.getVersionType());
-
-         if (chronology instanceof SemanticChronologyImpl) {
-            SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
-            int referencedComponentNid = semanticChronology.getReferencedComponentNid();
-
-            componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
-         }
-      }
-
-      SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-      int elementSequence = ModelGet.identifierService()
-              .getElementSequenceForNid(chronology.getNid(), assemblageNid);
-
-      spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
+       try {
+           int nid = chronology.getNid();
+           
+           int assemblageNid = chronology.getAssemblageNid();
+           if (ModelGet.identifierService()
+                   .getAssemblageNidForNid(nid) == Integer.MAX_VALUE) {
+               ModelGet.identifierService()
+                       .setupNid(chronology.getNid(), assemblageNid, chronology.getIsaacObjectType(),
+                               chronology.getVersionType());
+               
+               if (chronology instanceof SemanticChronologyImpl) {
+                   SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
+                   int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+                   
+                   componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
+               }
+           } else if (ModelGet.identifierService()
+                   .getAssemblageNidForNid(nid) != assemblageNid) {
+               throw new IllegalStateException("Assemblage identifiers do not match: " + ModelGet.identifierService()
+                   .getAssemblageNidForNid(nid) + " \n" + chronology);
+           }
+           
+           SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
+           int elementSequence = ModelGet.identifierService()
+                   .getElementSequenceForNid(chronology.getNid(), assemblageNid);
+           
+           spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
+           
+       } catch (Throwable e) {
+           e.printStackTrace();
+           throw e;
+       }
    }
 
    @Override
@@ -657,6 +664,7 @@ public class FileSystemDataStore
             }
             completedUnitOfWork();  // 9
             updateMessage("Write complete");
+            LOG.info("FileSystemDataStore sync complete.");
             return null;
          } finally {
             syncSemaphore.release();

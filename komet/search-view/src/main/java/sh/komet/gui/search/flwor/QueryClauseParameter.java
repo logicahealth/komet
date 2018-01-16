@@ -1,4 +1,4 @@
-package sh.komet.gui.search.flowr;
+package sh.komet.gui.search.flwor;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 

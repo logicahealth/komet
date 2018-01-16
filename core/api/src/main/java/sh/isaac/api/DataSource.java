@@ -70,7 +70,7 @@ public enum DataSource {
          case 2:
             return EXTERNAL;
       }
-      throw new UnsupportedOperationException("Can't handle: " + token); //To change body of generated methods, choose Tools | Templates.
+      throw new UnsupportedOperationException("Can't handle: " + token);
    }
 
    public void writeDataSourceToken(ByteArrayDataBuffer out) {

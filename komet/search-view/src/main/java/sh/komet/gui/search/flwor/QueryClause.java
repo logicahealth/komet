@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.search.flowr;
+package sh.komet.gui.search.flwor;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javax.validation.constraints.NotNull;
 import sh.isaac.api.query.Clause;
 import sh.komet.gui.manifold.Manifold;
 
@@ -31,7 +30,7 @@ public class QueryClause {
    Manifold manifold;
 
    //~--- constructors -----------------------------------------------------
-   protected QueryClause(@NotNull Clause clause, Manifold manifold) {
+   protected QueryClause(Clause clause, Manifold manifold) {
       this.manifold = manifold;
       this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
       this.parameter = new SimpleObjectProperty<>(this, "parameter", new QueryClauseParameter());
@@ -52,7 +51,6 @@ public class QueryClause {
    }
 
    //~--- get methods ------------------------------------------------------
-   @NotNull
    public Clause getClause() {
       return clauseProperty.get();
    }

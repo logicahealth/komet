@@ -19,6 +19,7 @@ package sh.komet.gui.interfaces;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.Node;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -46,5 +47,19 @@ public interface DetailNode {
     * @return the read-only property for the tool-tip text.
     */
    ReadOnlyProperty<String> getToolTip(); 
+   
+   /**
+    * 
+    * @return true if the detail node should become the selected (frontmost)
+    * tab within a TabPane or similar construct when the focused 
+    * concept changes. 
+    */
+   boolean selectInTabOnChange();
+   
+   /**
+    * 
+    * @return the Manifold associated with this DetailNode. 
+    */
+   Manifold getManifold();
    
 }

@@ -50,12 +50,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
@@ -67,8 +64,7 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -78,9 +74,7 @@ import sh.isaac.api.task.TimedTask;
  * @author kec
  */
 public class CommitTask
-        extends TimedTask<Optional<CommitRecord>> {
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+        extends TimedTaskWithProgressTracker<Optional<CommitRecord>> {
 
    //~--- fields --------------------------------------------------------------
 
@@ -95,7 +89,7 @@ public class CommitTask
 
    /** The semantics to check. */
    final NidSet semanticsToCheck = new NidSet();
-
+   
    /** The commit comment. */
    final String commitComment;
 
@@ -113,7 +107,7 @@ public class CommitTask
 
    /** The stamp provider. */
    private final StampService stampProvider;
-
+   
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -139,9 +133,6 @@ public class CommitTask
                       ConcurrentSkipListSet<ChangeChecker> checkers,
                       Map<UncommittedStamp, Integer> pendingStampsForCommit,
                       CommitProvider commitProvider) {
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(this);
       this.commitComment = commitComment;
       this.conceptsToCommit.or(uncommittedConceptsNoChecksNidSet);
       this.conceptsToCommit.or(uncommittedConceptsWithChecksNidSet);
@@ -158,8 +149,12 @@ public class CommitTask
       this.pendingStampsForCommit = pendingStampsForCommit;
       this.commitProvider         = commitProvider;
       this.stampProvider          = Get.stampService();
+       addToTotalWork(this.conceptsToCommit.size());
+       addToTotalWork(this.semanticsToCommit.size());
       updateTitle("Commit");
       updateMessage(commitComment);
+      LOG.info("Spawning CommitTask " + taskSequenceId);
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -197,6 +192,7 @@ public class CommitTask
                                                      }
                                                   });
                                      }
+                                     completedUnitOfWork();
                                   });
          this.semanticsToCommit.stream()
                                .forEach(
@@ -213,6 +209,7 @@ public class CommitTask
                         }
                      });
                                       }
+                                      completedUnitOfWork();
                                    });
 
          if (failCount.get() > 0) {
@@ -281,6 +278,8 @@ public class CommitTask
       } finally {
          Get.activeTasks()
             .remove(this);
+         this.commitProvider.getPendingCommitTasks().remove(this);
+         LOG.info("Finished CommitTask " + taskSequenceId);
       }
    }
 
@@ -320,7 +319,7 @@ public class CommitTask
                                   checkers,
                                   pendingStampsForCommit,
                                   commitProvider);
-
+      commitProvider.getPendingCommitTasks().add(task);
       Get.activeTasks()
          .add(task);
       Get.workExecutors()

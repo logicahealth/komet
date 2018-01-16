@@ -9,8 +9,8 @@ import javafx.scene.layout.GridPane;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
-import sh.komet.gui.search.flowr.QueryClause;
-import sh.komet.gui.search.flowr.QueryClauseParameter;
+import sh.komet.gui.search.flwor.QueryClause;
+import sh.komet.gui.search.flwor.QueryClauseParameter;
 
 import java.util.HashMap;
 

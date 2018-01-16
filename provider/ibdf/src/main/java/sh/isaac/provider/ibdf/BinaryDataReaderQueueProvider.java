@@ -41,6 +41,7 @@ package sh.isaac.provider.ibdf;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -129,6 +130,8 @@ public class BinaryDataReaderQueueProvider
     *
     * @param dataPath the data path
     * @throws FileNotFoundException the file not found exception
+    * this.input.available(); gives inconsistent results? 
+    * @deprecated inconsistent results? Try BinaryDatastreamReader
     */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {

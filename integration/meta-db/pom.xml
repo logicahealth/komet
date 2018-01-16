@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac.integration</groupId>
       <artifactId>db-builder</artifactId>
-      <version>4.45</version>
+      <version>4.46</version>
       <relativePath>../db-builder</relativePath>
    </parent>
    <artifactId>meta-db</artifactId>
@@ -87,7 +87,7 @@
                <execution>
                   <id>load-termstore</id>
                   <goals>
-                     <goal>load-termstore</goal>
+                     <goal>load-termstore-semaphore</goal>
                   </goals>
                   <configuration>
                      <ibdfFiles>

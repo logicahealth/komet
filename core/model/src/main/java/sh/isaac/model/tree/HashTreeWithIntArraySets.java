@@ -738,7 +738,9 @@ public class HashTreeWithIntArraySets
             builder.append(sequence).append(": ").append(Get.conceptDescriptionText(sequence)).append("\n");
             printWatch(sequence, "root: ");
          }
-         String title = "To many taxonomy roots";
+         String title = roots.size() + " " +
+                 manifoldCoordinate.getTaxonomyType().toString() + 
+                 " roots";
          if (roots.isEmpty()) {
             title = "No taxonomy roots";
          }

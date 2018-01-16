@@ -53,7 +53,6 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.logging.log4j.LogManager;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -89,19 +88,20 @@ public class DialectWriter
    private static final int                               ACTIVE_INDEX                    = 2;  // 0 == false, 1 == true
    private static final int                               MODULE_SCTID_INDEX              = 3;
    private static final int                               ASSEMBLAGE_SCT_ID_INDEX         = 4;
-   private static final int                               REFERENCED_CONCEPT_SCT_ID_INDEX = 5;
+   private static final int                               REFERENCED_COMPONENT_SCT_ID_INDEX = 5;
    private static final int                               ACCEPTABILITY_SCTID             = 6;
-   protected static final org.apache.logging.log4j.Logger LOG                             = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    private final List<String[]>     dialectRecords;
    private final Semaphore          writeSemaphore;
    private final List<IndexService> indexers;
+   private final ImportType importType;
 
    //~--- constructors --------------------------------------------------------
 
-   public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, String message) {
+   public DialectWriter(List<String[]> dialectRecords, Semaphore writeSemaphore, 
+           String message, ImportType importType) {
       this.dialectRecords = dialectRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
@@ -110,6 +110,7 @@ public class DialectWriter
       updateTitle("Importing dialect batch of size: " + dialectRecords.size());
       updateMessage(message);
       addToTotalWork(dialectRecords.size());
+      this.importType = importType;
       Get.activeTasks()
          .add(this);
    }
@@ -127,11 +128,20 @@ public class DialectWriter
          int               pathNid           = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] descriptionRecord: dialectRecords) {
-            UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
+            final Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_COMPONENT_SCT_ID_INDEX]);
+            if (importType == ImportType.ACTIVE_ONLY) {
+                if (!identifierService.hasUuid(referencedComponentUuid)) {
+                    // if description was not imported because inactive, or inactive concept then skip
+                    continue;
+                }
+            }
+           UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
             UUID   moduleUuid          = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
             UUID   assemblageUuid      = UuidT3Generator.fromSNOMED(descriptionRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-            Status state               = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
             UUID   acceptabilityUuid   = UuidT3Generator.fromSNOMED(descriptionRecord[ACCEPTABILITY_SCTID]);
 
             // '2011-12-03T10:15:30Z'
@@ -143,14 +153,14 @@ public class DialectWriter
             int elementNid           = identifierService.getNidForUuids(elementUuid);
             int moduleNid            = identifierService.getNidForUuids(moduleUuid);
             int assemblageNid        = identifierService.getNidForUuids(assemblageUuid);
-            int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
+            int referencedComponentNid = identifierService.getNidForUuids(referencedComponentUuid);
             int acceptabilityNid     = identifierService.getNidForUuids(acceptabilityUuid);
             SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                                                         VersionType.COMPONENT_NID,
                                                               elementUuid,
                                                               elementNid,
                                                               assemblageNid,
-                                                              referencedConceptNid);
+                                                              referencedComponentNid);
             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(conceptStamp);
 

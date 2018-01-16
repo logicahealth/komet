@@ -42,13 +42,17 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.concurrent.Task;
+import sh.isaac.api.ApplicationStates;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.provider.logic.LogicProvider;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,22 +79,37 @@ public class AggregateClassifyTask
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @return an {@code AggregateClassifyTask} already submitted to an executor.
-    */
-   public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
+    @Override
+   protected ClassifierResults call() throws Exception {
+      LookupService.getService(MemoryManagementService.class)
+                   .addState(ApplicationStates.CLASSIFYING);
+       try {
+        return super.call(); 
+       } finally {
+           LookupService.getService(MemoryManagementService.class)
+                   .removeState(ApplicationStates.CLASSIFYING);
+           Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
 
-      Get.activeTasks()
-         .add(classifyTask);
-      Get.workExecutors()
-         .getExecutor()
-         .execute(classifyTask);
-      return classifyTask;
+       }
    }
+
+    /**
+     * Gets the.
+     *
+     * @param stampCoordinate the stamp coordinate
+     * @param logicCoordinate the logic coordinate
+     * @return an {@code AggregateClassifyTask} already submitted to an executor.
+     */
+    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
+        
+        Get.activeTasks()
+                .add(classifyTask);
+        Get.workExecutors()
+                .getExecutor()
+                .execute(classifyTask);
+        Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
+        return classifyTask;
+    }
 }
 

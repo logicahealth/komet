@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -86,7 +88,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public abstract class ChronologyImpl
         implements Chronology, WaitFreeComparable {
-
+  protected static final Logger LOG = LogManager.getLogger();
    /**
     * The Constant STAMPED_LOCKS.
     */

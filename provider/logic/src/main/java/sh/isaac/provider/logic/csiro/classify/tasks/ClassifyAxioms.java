@@ -41,9 +41,10 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
 //~--- classes ----------------------------------------------------------------
@@ -54,7 +55,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
  * @author kec
  */
 public class ClassifyAxioms
-        extends TimedTask<Void> {
+        extends TimedTaskWithProgressTracker<Void> {
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
 
@@ -73,6 +74,7 @@ public class ClassifyAxioms
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
       updateTitle("Classify axioms");
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -86,10 +88,14 @@ public class ClassifyAxioms
    @Override
    protected Void call()
             throws Exception {
-      final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
-
-      cd.classify();
-      return null;
+       try {
+           final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+           
+           cd.classify();
+           return null;
+       } finally {
+           Get.activeTasks().remove(this);
+       }
    }
 }
 

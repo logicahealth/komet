@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Set;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,483 +111,515 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 
-   /**
-    * The Constant LOG.
-    */
-   private static final Logger LOG = LogManager.getLogger();
-   private static final int MAX_AVAILABLE = Runtime.getRuntime()
-           .availableProcessors() * 2;
+    /**
+     * The Constant LOG.
+     */
+    private static final Logger LOG = LogManager.getLogger();
+    private static final int MAX_AVAILABLE = Runtime.getRuntime()
+            .availableProcessors() * 2;
 
-   //~--- fields --------------------------------------------------------------
-   private final Semaphore updatePermits = new Semaphore(MAX_AVAILABLE);
+    //~--- fields --------------------------------------------------------------
+    private final Semaphore updatePermits = new Semaphore(MAX_AVAILABLE);
 
-   /**
-    * The semantic nids for unhandled changes.
-    */
-   private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
+    /**
+     * The semantic nids for unhandled changes.
+     */
+    private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
 
-   /**
-    * The tree cache.
-    */
-   private final ConcurrentHashMap<Integer, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-   private final UUID listenerUUID = UUID.randomUUID();
+    private final Set<Task<?>> pendingUpdateTasks = ConcurrentHashMap.newKeySet();
+    /**
+     * The tree cache.
+     */
+    private final ConcurrentHashMap<Integer, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
+    private final UUID listenerUUID = UUID.randomUUID();
 
-   /**
-    * The change listeners.
-    */
-   ConcurrentSkipListSet<WeakReference<RefreshListener>> refreshListeners = new ConcurrentSkipListSet<>();
+    /**
+     * The change listeners.
+     */
+    ConcurrentSkipListSet<WeakReference<RefreshListener>> refreshListeners = new ConcurrentSkipListSet<>();
 
-   /**
-    * The identifier service.
-    */
-   private IdentifierProvider identifierService;
-   private DataStore store;
+    /**
+     * The identifier service.
+     */
+    private IdentifierProvider identifierService;
+    private DataStore store;
 
-   //~--- constructors --------------------------------------------------------
-   public TaxonomyProvider() {
-   }
+    //~--- constructors --------------------------------------------------------
+    public TaxonomyProvider() {
+    }
 
-   //~--- methods -------------------------------------------------------------
-   @Override
-   public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
-      refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
-   }
+    //~--- methods -------------------------------------------------------------
+    @Override
+    public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
+        refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
+    }
 
-   @Override
-   public String describeTaxonomyRecord(int nid) {
-      return getTaxonomyRecord(nid).toString();
-   }
+    @Override
+    public String describeTaxonomyRecord(int nid) {
+        return getTaxonomyRecord(nid).toString();
+    }
 
-   @Override
-   public void handleChange(ConceptChronology cc) {
-      // not processing concept changes
-      // is this call redundant/better than updateStatus(ConceptChronology conceptChronology) call/method?
-   }
+    public Set<Task<?>> getPendingUpdateTasks() {
+        return pendingUpdateTasks;
+    }
 
-   @Override
-   public void handleChange(SemanticChronology sc) {
-      if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-         this.semanticNidsForUnhandledChanges.add(sc.getNid());
-      }
-   }
+    @Override
+    public void handleChange(ConceptChronology cc) {
+        // not processing concept changes
+        // is this call redundant/better than updateStatus(ConceptChronology conceptChronology) call/method?
+    }
 
-   @Override
-   public void handleCommit(CommitRecord commitRecord) {
-      // If a logic graph changed, clear our cache.
-      if (this.semanticNidsForUnhandledChanges.size() > 0) {
-         this.snapshotCache.clear();
-      }
+    @Override
+    public void handleChange(SemanticChronology sc) {
+        if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+            this.semanticNidsForUnhandledChanges.add(sc.getNid());
+        }
+    }
 
-      this.updatePermits.acquireUninterruptibly();
-      UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
-   }
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        // If a logic graph changed, clear our cache.
+        if (this.semanticNidsForUnhandledChanges.size() > 0) {
+            this.snapshotCache.clear();
+        }
 
-   @Override
-   public void notifyTaxonomyListenersToRefresh() {
-      snapshotCache.clear();
-      Platform.runLater(
-              () -> {
-                 for (WeakReference<RefreshListener> listenerReference : refreshListeners) {
-                    RefreshListener listener = listenerReference.get();
+        this.updatePermits.acquireUninterruptibly();
+        UpdateTaxonomyAfterCommitTask updateTask
+                = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
+    }
 
-                    if (listener != null) {
-                       listener.refresh();
+    @Override
+    public void notifyTaxonomyListenersToRefresh() {
+        snapshotCache.clear();
+        Platform.runLater(
+                () -> {
+                    for (WeakReference<RefreshListener> listenerReference : refreshListeners) {
+                        RefreshListener listener = listenerReference.get();
+
+                        if (listener != null) {
+                            listener.refresh();
+                        }
                     }
-                 }
-              });
-   }
+                });
+    }
 
-   @Override
-   public Future<?> sync() {
-      return this.store.sync();
-   }
+    @Override
+    public Future<?> sync() {
+        return Get.executor().submit(() -> {
+            for (Task<?> updateTask : pendingUpdateTasks) {
+                try {
+                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                    updateTask.get();
+                    LOG.info("Completed: " + updateTask.getTitle());
+                } catch (Throwable ex) {
+                    LOG.error(ex);
+                }
+            }
+            this.store.sync().get();
+            return null;
+        });
+    }
 
-   @Override
-   public void updateStatus(ConceptChronology conceptChronology) {
-      ChronologyUpdate.handleStatusUpdate(conceptChronology);
-   }
+    @Override
+    public void updateStatus(ConceptChronology conceptChronology) {
+        ChronologyUpdate.handleStatusUpdate(conceptChronology);
+    }
 
-   @Override
-   public void updateTaxonomy(SemanticChronology logicGraphChronology) {
-      ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
-   }
+    @Override
+    public void updateTaxonomy(SemanticChronology logicGraphChronology) {
+        try {
+            if (TermAux.SOLOR_METADATA.getNid() == logicGraphChronology.getReferencedComponentNid()) {
+                LOG.info("Found watch");
+            }
+            ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
+        } catch (Throwable e) {
+            LOG.error(e);
+            throw e;
+        }
+    }
 
-   @Override
-   public boolean wasEverKindOf(int childId, int parentId) {
-      throw new UnsupportedOperationException(
-              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+    @Override
+    public boolean wasEverKindOf(int childId, int parentId) {
+        throw new UnsupportedOperationException(
+                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+    }
 
-   /**
-    * Start me.
-    */
-   @PostConstruct
-   private void startMe() {
-      try {
-         LOG.info("Starting BdbTaxonomyProvider post-construct");
-         this.store = Get.service(DataStore.class);
-         Get.commitService()
-                 .addChangeListener(this);
-         this.identifierService = Get.service(IdentifierProvider.class);
-      } catch (final Exception e) {
-         LookupService.getService(SystemStatusService.class)
-                 .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
-         throw new RuntimeException(e);
-      }
-   }
+    /**
+     * Start me.
+     */
+    @PostConstruct
+    private void startMe() {
+        try {
+            LOG.info("Starting BdbTaxonomyProvider post-construct");
+            this.store = Get.service(DataStore.class);
+            Get.commitService()
+                    .addChangeListener(this);
+            this.identifierService = Get.service(IdentifierProvider.class);
+        } catch (final Exception e) {
+            LookupService.getService(SystemStatusService.class)
+                    .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
+            throw new RuntimeException(e);
+        }
+    }
 
-   /**
-    * Stop me.
-    */
-   @PreDestroy
-   private void stopMe() {
-      LOG.info("Stopping BdbTaxonomyProvider");
+    /**
+     * Stop me.
+     */
+    @PreDestroy
+    private void stopMe() {
+        LOG.info("Stopping BdbTaxonomyProvider");
+        try {
+            this.sync().get();
+        } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+        }
+        // make sure updates are done prior to allowing other services to stop.
+        this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
+        LOG.info("BdbTaxonomyProvider stopped");
+    }
 
-      // make sure updates are done prior to allowing other services to stop.
-      this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
-      LOG.info("BdbTaxonomyProvider stopped");
-   }
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet) {
+        throw new UnsupportedOperationException(
+                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+    }
 
-   //~--- get methods ---------------------------------------------------------
-   @Override
-   public IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet) {
-      throw new UnsupportedOperationException(
-              "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+    @Override
+    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
+        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
+        int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
-   @Override
-   public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
-      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
-      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
+        if (taxonomyData == null) {
+            return false;
+        }
 
-      if (taxonomyData == null) {
-         return false;
-      }
+        TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
 
-      TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
+        return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
+    }
 
-      return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
-   }
-   @Override
-   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
-      int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
-      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
-      int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
+    @Override
+    public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
+        int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
-      if (taxonomyData == null) {
-         return EnumSet.noneOf(Status.class);
-      }
+        if (taxonomyData == null) {
+            return EnumSet.noneOf(Status.class);
+        }
 
-      TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
+        TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
 
-      return taxonomyRecord.getConceptStates(conceptNid, stampCoordinate);
-   }
-   @Override
-   public UUID getDataStoreId() {
-      return this.store.getDataStoreId();
-   }
+        return taxonomyRecord.getConceptStates(conceptNid, stampCoordinate);
+    }
 
-   @Override
-   public Path getDatabaseFolder() {
-      return this.store.getDatabaseFolder();
-   }
+    @Override
+    public UUID getDataStoreId() {
+        return this.store.getDataStoreId();
+    }
 
-   @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
-      return this.store.getDatabaseValidityStatus();
-   }
+    @Override
+    public Path getDatabaseFolder() {
+        return this.store.getDatabaseFolder();
+    }
 
-   @Override
-   public UUID getListenerUuid() {
-      return listenerUUID;
-   }
+    @Override
+    public DatabaseValidity getDatabaseValidityStatus() {
+        return this.store.getDatabaseValidityStatus();
+    }
 
-   public SpinedIntIntArrayMap getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
-      return store.getTaxonomyMap(conceptAssemblageNid);
-   }
+    @Override
+    public UUID getListenerUuid() {
+        return listenerUUID;
+    }
 
-   @Override
-   public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
-      Task<Tree> treeTask = getTaxonomyTree(tc);
+    public SpinedIntIntArrayMap getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
+        return store.getTaxonomyMap(conceptAssemblageNid);
+    }
 
-      return new TaxonomySnapshotProvider(tc, treeTask);
-   }
+    @Override
+    public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
+        Task<Tree> treeTask = getTaxonomyTree(tc);
 
-   private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
-      int conceptAssemblageNid = ModelGet.identifierService()
-              .getAssemblageNidForNid(nid);
-      SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
-      int[] record = map.get(nid);
+        return new TaxonomySnapshotProvider(tc, treeTask);
+    }
 
-      return new TaxonomyRecordPrimitive(record);
-   }
+    private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
+        int conceptAssemblageNid = ModelGet.identifierService()
+                .getAssemblageNidForNid(nid);
+        SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
+        int[] record = map.get(nid);
 
-   @Override
-   public SpinedIntIntArrayMap getTaxonomyRecordMap(int conceptAssemblageNid) {
-      return store.getTaxonomyMap(conceptAssemblageNid);
-   }
+        return new TaxonomyRecordPrimitive(record);
+    }
 
-   public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
-      final Task<Tree> treeTask = this.snapshotCache.get(tc.hashCode());
+    @Override
+    public SpinedIntIntArrayMap getTaxonomyRecordMap(int conceptAssemblageNid) {
+        return store.getTaxonomyMap(conceptAssemblageNid);
+    }
 
-      if (treeTask != null) {
-         return treeTask;
-      }
+    public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
+        final Task<Tree> treeTask = this.snapshotCache.get(tc.hashCode());
 
-      SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(
-              tc.getLogicCoordinate()
-                      .getConceptAssemblageNid());
-      TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
-      Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
+        if (treeTask != null) {
+            return treeTask;
+        }
 
-      if (previousTask != null) {
-         return previousTask;
-      }
+        SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(
+                tc.getLogicCoordinate()
+                        .getConceptAssemblageNid());
+        TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
+        Task<Tree> previousTask = this.snapshotCache.putIfAbsent(tc.hashCode(), treeBuilderTask);
 
-      Get.executor()
-              .execute(treeBuilderTask);
-      return treeBuilderTask;
-   }
+        if (previousTask != null) {
+            return previousTask;
+        }
 
-   @Override
-   public Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid) {
-      SpinedIntIntMap sequenceInAssemblage_nid_map = identifierService.getElementSequenceToNidMap(conceptAssemblageNid);
-      SpinedNidIntMap nid_sequenceInAssemblage_map = identifierService.getNid_ElementSequence_Map();
+        Get.executor()
+                .execute(treeBuilderTask);
+        return treeBuilderTask;
+    }
 
-      return () -> new TreeNodeVisitDataBdbImpl(
-              (int) sequenceInAssemblage_nid_map.valueStream().count(),
-              conceptAssemblageNid,
-              nid_sequenceInAssemblage_map,
-              sequenceInAssemblage_nid_map);
-   }
+    @Override
+    public Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid) {
+        SpinedIntIntMap sequenceInAssemblage_nid_map = identifierService.getElementSequenceToNidMap(conceptAssemblageNid);
+        SpinedNidIntMap nid_sequenceInAssemblage_map = identifierService.getNid_ElementSequence_Map();
 
-   //~--- inner classes -------------------------------------------------------
-   /**
-    * The Class TaxonomySnapshotProvider.
-    */
-   private class TaxonomySnapshotProvider
-           implements TaxonomySnapshotService {
+        return () -> new TreeNodeVisitDataBdbImpl(
+                (int) sequenceInAssemblage_nid_map.valueStream().count(),
+                conceptAssemblageNid,
+                nid_sequenceInAssemblage_map,
+                sequenceInAssemblage_nid_map);
+    }
 
-      int isaNid = TermAux.IS_A.getNid();
-      int childOfNid = TermAux.CHILD_OF.getNid();
-      NidSet childOfTypeNidSet = new NidSet();
-      NidSet isaTypeNidSet = new NidSet();
+    //~--- inner classes -------------------------------------------------------
+    /**
+     * The Class TaxonomySnapshotProvider.
+     */
+    private class TaxonomySnapshotProvider
+            implements TaxonomySnapshotService {
 
-      /**
-       * The tc.
-       */
-      final ManifoldCoordinate tc;
-      Tree treeSnapshot;
-      final Task<Tree> treeTask;
+        int isaNid = TermAux.IS_A.getNid();
+        int childOfNid = TermAux.CHILD_OF.getNid();
+        NidSet childOfTypeNidSet = new NidSet();
+        NidSet isaTypeNidSet = new NidSet();
 
-      //~--- initializers -----------------------------------------------------
-      {
-         isaTypeNidSet.add(isaNid);
-         childOfTypeNidSet.add(childOfNid);
-      }
+        /**
+         * The tc.
+         */
+        final ManifoldCoordinate tc;
+        Tree treeSnapshot;
+        final Task<Tree> treeTask;
 
-      //~--- constructors -----------------------------------------------------
-      public TaxonomySnapshotProvider(ManifoldCoordinate tc, Task<Tree> treeTask) {
-         this.tc = tc;
-         this.treeTask = treeTask;
+        //~--- initializers -----------------------------------------------------
+        {
+            isaTypeNidSet.add(isaNid);
+            childOfTypeNidSet.add(childOfNid);
+        }
 
-         if (Platform.isFxApplicationThread()) {
-            this.treeTask.stateProperty()
-                    .addListener(this::succeeded);
-         } else {
-            Platform.runLater(
-                    () -> {
-                       Task<Tree> theTask = treeTask;
+        //~--- constructors -----------------------------------------------------
+        public TaxonomySnapshotProvider(ManifoldCoordinate tc, Task<Tree> treeTask) {
+            this.tc = tc;
+            this.treeTask = treeTask;
 
-                       if (theTask != null) {
-                          if (!theTask.isDone()) {
-                             theTask.stateProperty()
-                                     .addListener(this::succeeded);
-                          } else {
-                             try {
-                                this.treeSnapshot = treeTask.get();
-                             } catch (InterruptedException | ExecutionException ex) {
-                                LOG.error(ex);
-                             }
-                          }
-                       }
-                    });
-         }
+            if (Platform.isFxApplicationThread()) {
+                this.treeTask.stateProperty()
+                        .addListener(this::succeeded);
+            } else {
+                Platform.runLater(
+                        () -> {
+                            Task<Tree> theTask = treeTask;
 
-         if (treeTask.isDone()) {
+                            if (theTask != null) {
+                                if (!theTask.isDone()) {
+                                    theTask.stateProperty()
+                                            .addListener(this::succeeded);
+                                } else {
+                                    try {
+                                        this.treeSnapshot = treeTask.get();
+                                    } catch (InterruptedException | ExecutionException ex) {
+                                        LOG.error(ex);
+                                    }
+                                }
+                            }
+                        });
+            }
+
+            if (treeTask.isDone()) {
+                try {
+                    this.treeSnapshot = treeTask.get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    LOG.error(ex);
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+
+        //~--- methods ----------------------------------------------------------
+        private void succeeded(ObservableValue<? extends State> observable, State oldValue, State newValue) {
             try {
-               this.treeSnapshot = treeTask.get();
+                switch (newValue) {
+                    case SUCCEEDED: {
+                        this.treeSnapshot = treeTask.get();
+                    }
+                }
             } catch (InterruptedException | ExecutionException ex) {
-               LOG.error(ex);
-               throw new RuntimeException(ex);
+                LOG.error(ex);
+                throw new RuntimeException(ex);
             }
-         }
-      }
+        }
 
-      //~--- methods ----------------------------------------------------------
-      private void succeeded(ObservableValue<? extends State> observable, State oldValue, State newValue) {
-         try {
-            switch (newValue) {
-               case SUCCEEDED: {
-                  this.treeSnapshot = treeTask.get();
-               }
-            }
-         } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
-            throw new RuntimeException(ex);
-         }
-      }
-
-      //~--- get methods ------------------------------------------------------
-      /**
-       * Checks if child of.
-       *
-       * @param childId the child id
-       * @param parentId the parent id
-       * @return true, if child of
-       */
-      @Override
-      public boolean isChildOf(int childId, int parentId) {
-         if (treeSnapshot != null) {
-            return this.treeSnapshot.isChildOf(childId, parentId);
-         }
-
-         TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-
-         return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, tc);
-      }
-
-      /**
-       * Checks if kind of.
-       *
-       * @param childId the child id
-       * @param kindofNid the parent id
-       * @return true, if kind of
-       */
-      @Override
-      public boolean isKindOf(int childId, int kindofNid) {
-         if (treeSnapshot != null) {
-            return this.treeSnapshot.isDescendentOf(childId, kindofNid);
-         }
-
-         if (isChildOf(childId, kindofNid)) {
-            return true;
-         }
-
-         for (int parentNid : getTaxonomyParentConceptNids(childId)) {
-            if (isKindOf(parentNid, kindofNid)) {
-               return true;
-            }
-         }
-
-         return false;
-      }
-
-      /**
-       * Gets the kind of sequence set.
-       *
-       * @param rootId the root id
-       * @return the kind of sequence set
-       */
-      @Override
-      public NidSet getKindOfConceptNidSet(int rootId) {
-         if (treeSnapshot != null) {
-            NidSet kindOfSet = this.treeSnapshot.getDescendentNidSet(rootId);
-
-            kindOfSet.add(rootId);
-            return kindOfSet;
-         }
-
-         int[] childNids = getTaxonomyChildConceptNids(rootId);
-         NidSet kindOfSet = NidSet.of(getTaxonomyChildConceptNids(rootId));
-
-         for (int childNid : childNids) {
-            kindOfSet.addAll(getKindOfConceptNidSet(childNid));
-         }
-
-         return kindOfSet;
-      }
-
-      @Override
-      public ManifoldCoordinate getManifoldCoordinate() {
-         return this.tc;
-      }
-
-      /**
-       * Gets the roots.
-       *
-       * @return the roots
-       */
-      @Override
-      public int[] getRoots() {
-         if (treeSnapshot != null) {
-            return treeSnapshot.getRootNids();
-         }
-
-         return new int[]{TermAux.SOLOR_ROOT.getNid()};
-      }
-
-      /**
-       * Gets the taxonomy child sequences.
-       *
-       * @param parentId the parent id
-       * @return the taxonomy child sequences
-       */
-      @Override
-      public int[] getTaxonomyChildConceptNids(int parentId) {
-         if (treeSnapshot != null) {
-            return this.treeSnapshot.getChildNids(parentId);
-         }
-
-         TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
-
-         return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
-      }
-
-      @Override
-      public boolean isLeaf(int conceptNid) {
-         if (treeSnapshot != null) {
-            return this.treeSnapshot.getChildNids(conceptNid).length == 0;
-         }
-         TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(conceptNid);
-         return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, tc);
-      }
-
-      /**
-       * Gets the taxonomy parent sequences.
-       *
-       * @param childId the child id
-       * @return the taxonomy parent sequences
-       */
-      @Override
-      public int[] getTaxonomyParentConceptNids(int childId) {
-         if (treeSnapshot != null) {
-            return this.treeSnapshot.getParentNids(childId);
-         }
-
-         TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-
-         return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, tc);
-      }
-
-      /**
-       * Gets the taxonomy tree.
-       *
-       * @return the taxonomy tree
-       */
-      @Override
-      public Tree getTaxonomyTree() {
-         try {
+        //~--- get methods ------------------------------------------------------
+        /**
+         * Checks if child of.
+         *
+         * @param childId the child id
+         * @param parentId the parent id
+         * @return true, if child of
+         */
+        @Override
+        public boolean isChildOf(int childId, int parentId) {
             if (treeSnapshot != null) {
-               return this.treeSnapshot;
+                return this.treeSnapshot.isChildOf(childId, parentId);
             }
 
-            return treeTask.get();
-         } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
-            throw new RuntimeException(ex);
-         }
-      }
-   }
+            TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
+
+            return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, tc);
+        }
+
+        /**
+         * Checks if kind of.
+         *
+         * @param childId the child id
+         * @param kindofNid the parent id
+         * @return true, if kind of
+         */
+        @Override
+        public boolean isKindOf(int childId, int kindofNid) {
+            if (treeSnapshot != null) {
+                return this.treeSnapshot.isDescendentOf(childId, kindofNid);
+            }
+
+            if (isChildOf(childId, kindofNid)) {
+                return true;
+            }
+
+            for (int parentNid : getTaxonomyParentConceptNids(childId)) {
+                if (isKindOf(parentNid, kindofNid)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * Gets the kind of sequence set.
+         *
+         * @param rootId the root id
+         * @return the kind of sequence set
+         */
+        @Override
+        public NidSet getKindOfConceptNidSet(int rootId) {
+            if (treeSnapshot != null) {
+                NidSet kindOfSet = this.treeSnapshot.getDescendentNidSet(rootId);
+
+                kindOfSet.add(rootId);
+                return kindOfSet;
+            }
+
+            int[] childNids = getTaxonomyChildConceptNids(rootId);
+            NidSet kindOfSet = NidSet.of(getTaxonomyChildConceptNids(rootId));
+
+            for (int childNid : childNids) {
+                kindOfSet.addAll(getKindOfConceptNidSet(childNid));
+            }
+
+            return kindOfSet;
+        }
+
+        @Override
+        public ManifoldCoordinate getManifoldCoordinate() {
+            return this.tc;
+        }
+
+        /**
+         * Gets the roots.
+         *
+         * @return the roots
+         */
+        @Override
+        public int[] getRoots() {
+            if (treeSnapshot != null) {
+                return treeSnapshot.getRootNids();
+            }
+
+            return new int[]{TermAux.SOLOR_ROOT.getNid()};
+        }
+
+        /**
+         * Gets the taxonomy child sequences.
+         *
+         * @param parentId the parent id
+         * @return the taxonomy child sequences
+         */
+        @Override
+        public int[] getTaxonomyChildConceptNids(int parentId) {
+            if (treeSnapshot != null) {
+                return this.treeSnapshot.getChildNids(parentId);
+            }
+
+            TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
+
+            return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
+        }
+
+        @Override
+        public boolean isLeaf(int conceptNid) {
+            if (treeSnapshot != null) {
+                return this.treeSnapshot.getChildNids(conceptNid).length == 0;
+            }
+            TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(conceptNid);
+            return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, tc);
+        }
+
+        /**
+         * Gets the taxonomy parent sequences.
+         *
+         * @param childId the child id
+         * @return the taxonomy parent sequences
+         */
+        @Override
+        public int[] getTaxonomyParentConceptNids(int childId) {
+            if (treeSnapshot != null) {
+                return this.treeSnapshot.getParentNids(childId);
+            }
+
+            TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
+
+            return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, tc);
+        }
+
+        /**
+         * Gets the taxonomy tree.
+         *
+         * @return the taxonomy tree
+         */
+        @Override
+        public Tree getTaxonomyTree() {
+            try {
+                if (treeSnapshot != null) {
+                    return this.treeSnapshot;
+                }
+
+                return treeTask.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                LOG.error(ex);
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 }

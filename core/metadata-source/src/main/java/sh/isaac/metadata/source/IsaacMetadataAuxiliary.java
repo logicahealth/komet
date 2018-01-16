@@ -343,6 +343,7 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
          createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+         createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
          popParent();
          createConcept("Rule assemblage");
          pushParent(current());
@@ -356,8 +357,8 @@ public class IsaacMetadataAuxiliary
          final ConceptBuilder paths = createConcept("Paths assemblage");
 
          paths.mergeFromSpec(TermAux.PATH_ASSEMBLAGE);
-         addPath(paths, masterPath);
-         addPath(paths, developmentPath);
+         addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
+         addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
 
          final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
 

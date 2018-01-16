@@ -44,18 +44,12 @@ package sh.isaac.provider.datastore.taxonomy;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.StampedLock;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,9 +59,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class UpdateTaxonomyAfterCommitTask
-        extends TimedTask<Void> {
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+        extends TimedTaskWithProgressTracker<Void> {
 
    //~--- fields --------------------------------------------------------------
 
@@ -78,7 +70,7 @@ public class UpdateTaxonomyAfterCommitTask
    int totalWork = 0;
 
    /** The taxonomy service. */
-   TaxonomyService taxonomyService;
+   TaxonomyProvider taxonomyProvider;
 
    /** The commit record. */
    CommitRecord commitRecord;
@@ -99,17 +91,17 @@ public class UpdateTaxonomyAfterCommitTask
     * @param semanticNidsForUnhandledChanges the sememe sequences for unhandled changes
     * @param permit the lock
     */
-   private UpdateTaxonomyAfterCommitTask(TaxonomyService taxonomyService,
+   private UpdateTaxonomyAfterCommitTask(TaxonomyProvider taxonomyProvider,
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges,
            Semaphore permit) {
       this.commitRecord                       = commitRecord;
       this.semanticNidsForUnhandledChanges = semanticNidsForUnhandledChanges;
       this.permit                               = permit;
-      this.taxonomyService                    = taxonomyService;
+      this.taxonomyProvider                    = taxonomyProvider;
       this.totalWork                          = semanticNidsForUnhandledChanges.size();
       this.updateTitle("Update taxonomy after commit");
-      this.updateProgress(this.workDone, this.totalWork);
+      this.addToTotalWork(totalWork);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -127,20 +119,20 @@ public class UpdateTaxonomyAfterCommitTask
       try {
          final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
-         this.semanticNidsForUnhandledChanges.stream().forEach((semanticSequence) -> {
+         this.semanticNidsForUnhandledChanges.stream().forEach((semanticNid) -> {
                            try {
                               this.workDone++;
-                              this.updateProgress(this.workDone, this.totalWork);
+                              this.completedUnitOfWork();
 
                               if (this.commitRecord.getSemanticNidsInCommit()
-                                    .contains(semanticSequence)) {
-                                 this.updateMessage("Updating taxonomy for: " + semanticSequence);
-                                 this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
-                                           .getSemanticChronology(semanticSequence));
-                                 this.semanticNidsForUnhandledChanges.remove(semanticSequence);
+                                    .contains(semanticNid)) {
+                                 this.updateMessage("Updating taxonomy for: " + semanticNid);
+                                 this.taxonomyProvider.updateTaxonomy((SemanticChronology) Get.assemblageService()
+                                           .getSemanticChronology(semanticNid));
+                                 this.semanticNidsForUnhandledChanges.remove(semanticNid);
                               }
                            } catch (final Exception e) {
-                              LOG.error("Error handling update taxonomy after commit on semantic " + semanticSequence, e);
+                              LOG.error("Error handling update taxonomy after commit on semantic " + semanticNid, e);
                               atLeastOneFailed.set(true);
                            }
                         });
@@ -155,6 +147,7 @@ public class UpdateTaxonomyAfterCommitTask
          this.permit.release();
          Get.activeTasks()
             .remove(this);
+         this.taxonomyProvider.getPendingUpdateTasks().remove(this);
       }
    }
 
@@ -169,7 +162,7 @@ public class UpdateTaxonomyAfterCommitTask
     * @return a task, submitted to an executor, and added to the active task set.
     *
     */
-   public static UpdateTaxonomyAfterCommitTask get(TaxonomyService taxonomyService,
+   public static UpdateTaxonomyAfterCommitTask get(TaxonomyProvider taxonomyService,
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> unhandledChanges,
          Semaphore permit) {
@@ -177,8 +170,8 @@ public class UpdateTaxonomyAfterCommitTask
                                                                                    commitRecord,
                                                                                    unhandledChanges,
                                                                                    permit);
-      Get.activeTasks()
-         .add(task);
+      Get.activeTasks().add(task);
+      taxonomyService.getPendingUpdateTasks().add(task);
       Get.workExecutors()
          .getExecutor()
          .execute(task);

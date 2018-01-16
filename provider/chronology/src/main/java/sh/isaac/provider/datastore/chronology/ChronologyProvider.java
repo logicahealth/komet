@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -68,9 +69,8 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedObjectService;
-import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -183,7 +183,7 @@ public class ChronologyProvider
      */
     @PostConstruct
     private void startMe() {
-        LOG.info("Starting chronology provider.");
+        LOG.info("Starting chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
         store = Get.service(DataStore.class);
         this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
         this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
@@ -194,7 +194,12 @@ public class ChronologyProvider
      */
     @PreDestroy
     private void stopMe() {
-        LOG.info("Stopping chronology provider.");
+        try {
+            LOG.info("Stopping chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
+            this.sync().get();
+        } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex);
+        }
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -325,9 +330,13 @@ public class ChronologyProvider
             int assemblageNid = identifierService.getAssemblageNidForNid(semanticNid);
             VersionType versionType = getVersionTypeForAssemblage(assemblageNid);
             if (versionType == VersionType.DESCRIPTION) {
-                SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
-                if ((semanticChronology != null)) {
-                    results.add(semanticChronology);
+                try {
+                    SemanticChronology semanticChronology = getSemanticChronology(semanticNid);
+                    if ((semanticChronology != null)) {
+                        results.add(semanticChronology);
+                    }
+                } catch (NoSuchElementException e) {
+                    LOG.error(e);
                 }
             }
         }

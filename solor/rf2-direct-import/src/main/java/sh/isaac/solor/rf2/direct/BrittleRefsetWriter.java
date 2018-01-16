@@ -19,11 +19,11 @@ package sh.isaac.solor.rf2.direct;
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
-import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -46,6 +46,8 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
@@ -67,15 +69,18 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final List<String[]> refsetRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexService> indexers;
-   private final ImportStreamType importType;
+   private final ImportSpecification importSpecification;
+   private final ImportType importType;
    private final AssemblageService assemblageService = Get.assemblageService();
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
+   private final HashSet<String> refsetsToIgnore = new HashSet();
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
-           ImportStreamType importType) {
+           ImportSpecification importSpecification, ImportType importType) {
       this.refsetRecords = semanticRecords;
       this.writeSemaphore = writeSemaphore;
+      this.importSpecification = importSpecification;
       this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
       indexers = LookupService.get().getAllServices(IndexService.class);
@@ -83,9 +88,45 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       updateMessage(message);
       addToTotalWork(semanticRecords.size());
       Get.activeTasks().add(this);
-
+      
+      // TODO move these to an import preference... 
+      refsetsToIgnore.add("6011000124106"); //6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("447563008"); //447563008 | ICD-9-CM equivalence complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("447569007"); //447569007 | International Classification of Diseases, Ninth Revision, Clinical Modification reimbursement complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("450993002"); //450993002 | International Classification of Primary Care, Second edition complex map reference set (foundation metadata concept) |
+      refsetsToIgnore.add("447562003"); //447562003 | ICD-10 complex map reference set (foundation metadata concept)
+      refsetsToIgnore.add("900000000000497000"); //900000000000497000 | CTV3 simple map reference set (foundation metadata concept) |
+      refsetsToIgnore.add("467614008"); //467614008 | GMDN simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("446608001"); //446608001 | ICD-O simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("711112009"); //711112009 | ICNP diagnoses simple map reference set (foundation metadata concept)
+      refsetsToIgnore.add("712505008"); //712505008 | ICNP interventions simple map reference set (foundation metadata concept) 
+      refsetsToIgnore.add("900000000000498005"); //900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
+      refsetsToIgnore.add("733900009"); //733900009 | UCUM simple map reference set (foundation metadata concept)
+      
+      refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
+      refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
+      refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+//      refsetsToIgnore.add("");  
+      
+//
+      //
+      
    }
-   protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
    private void index(Chronology chronicle) {
       for (IndexService indexer: indexers) {
          try {
@@ -108,26 +149,31 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          for (String[] refsetRecord : refsetRecords) {
-            
+            final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
+            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                continue;
+            }
+            if (refsetsToIgnore.contains(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX])) {
+                continue;
+            }
             
             UUID   elementUuid       = UUID.fromString(refsetRecord[REFSET_MEMBER_UUID]);
             int   elementNid         = identifierService.getNidForUuids(elementUuid);
             int   moduleNid          = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
             int   assemblageNid      = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-            Status state               = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
             int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
             TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             
             SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                                        this.importType.getSemanticVersionType(),
+                                                        this.importSpecification.streamType.getSemanticVersionType(),
                                                               elementUuid,
                                                               elementNid,
                                                               assemblageNid,
                                                               referencedComponentNid);
             
-            switch (importType) {
+            switch (importSpecification.streamType) {
                case NID1_NID2_INT3_REFSET:
                   addVersionNID1_NID2_INT3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
                   break;
@@ -184,8 +230,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                   addVersionINT1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
                   break;
 
-                  default:
-                     throw new UnsupportedOperationException("Can't handle: " + importType);
+               case STR1_NID2_NID3_NID4_REFSET:
+                  addVersionSTR1_NID2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                  break;
+                   
+               case STR1_STR2_NID3_NID4_NID5_REFSET:
+                  addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                  break;
+                   
+               default:
+                  throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                
             }
 
@@ -299,6 +353,23 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       LongVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
       brittleVersion.setLongValue(Long.parseLong(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
+
+    private void addVersionSTR1_NID2_NID3_NID4_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
+      Str1_Nid2_Nid3_Nid4_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
+    }
+
+    private void addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
+      Str1_Str2_Nid3_Nid4_Nid5_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
+      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5].trim()));
+    }
 
    
 }

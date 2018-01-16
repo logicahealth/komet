@@ -17,9 +17,11 @@
 package sh.isaac.solor.rf2.direct;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.MetaData;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -40,6 +43,7 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -47,6 +51,7 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
@@ -59,6 +64,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
 /**
  *
@@ -100,10 +106,15 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     private final Semaphore writeSemaphore;
     private final List<TransformationGroup> transformationRecords;
     private final List<IndexService> indexers;
+    private final ImportType importType;
+    private final Instant commitTime;
 
-    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords, Semaphore writeSemaphore) {
+    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords,
+            Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
+        this.importType = importType;
+        this.commitTime = commitTime;
         this.writeSemaphore.acquireUninterruptibly();
         this.taxonomyService = Get.taxonomyService();
         indexers = LookupService.get().getAllServices(IndexService.class);
@@ -112,7 +123,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         addToTotalWork(transformationRecords.size());
         Get.activeTasks().add(this);
     }
-    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
     private void index(Chronology chronicle) {
         if (chronicle instanceof SemanticChronology) {
@@ -131,6 +141,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
+
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
                 transformRelationships(transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
@@ -251,7 +262,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                                 le,
                                 premiseType,
                                 stampPosition.getTime(),
-                                solorOverlayModuleNid);
+                                solorOverlayModuleNid, stampCoordinate);
                     } else {
                         LOG.error("expression not meaningful?");
                     }
@@ -277,7 +288,12 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             SemanticChronology relationshipChronology = Get.assemblageService().getSemanticChronology(relNid);
             for (int stamp : relationshipChronology.getVersionStampSequences()) {
                 StampService stampService = Get.stampService();
-                stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
+                if (this.importType == ImportType.ACTIVE_ONLY) {
+                    stampPositionsToProcess.add(new StampPositionImpl(Long.MAX_VALUE, stampService.getPathNidForStamp(stamp)));
+                } else {
+                    stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
+                }
+
             }
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
@@ -295,13 +311,17 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
      * @param premiseType the premise type
      * @param time the time
      * @param moduleNid the module
+     * @param stampCoordinate for determining current version if a graph already exists. 
      * @return the sememe chronology
      */
     public SemanticChronology addLogicGraph(int conceptNid,
             LogicalExpression logicalExpression,
             PremiseType premiseType,
             long time,
-            int moduleNid) {
+            int moduleNid, StampCoordinate stampCoordinate) {
+        if (time == Long.MAX_VALUE) {
+            time = commitTime.toEpochMilli();
+        }
         int graphAssemblageNid = statedAssemblageNid;
         if (premiseType == PremiseType.INFERRED) {
             graphAssemblageNid = inferredAssemblageNid;
@@ -315,25 +335,59 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         if (premiseType == PremiseType.INFERRED) {
             nameSpace = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getPrimordialUuid();
         }
-        // Create UUID from seed and assign SemanticBuilder the value
 
-        final UUID generatedGraphPrimordialUuid = UuidT5Generator.get(nameSpace, Get.concept(conceptNid).getPrimordialUuid().toString());
+        // See if a semantic already exists in this assemblage referencing this concept... 
+        NidSet graphNidsForComponent = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, graphAssemblageNid);
+        if (!graphNidsForComponent.isEmpty()) {
+//            LOG.info("Existing graph found for: " + Get.conceptDescriptionText(conceptNid));
+            if (graphNidsForComponent.size() != 1) {
+                throw new IllegalStateException("To many graphs for component: " + Get.conceptDescriptionText(conceptNid));
+            }
+            OptionalInt optionalGraphNid = graphNidsForComponent.findFirst();
+            SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(optionalGraphNid.getAsInt());
+            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampCoordinate);
+            if (latest.isPresent()) {
+                LogicGraphVersionImpl logicGraphLatest = latest.get();
+                LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();
+                IsomorphicResults isomorphicResults = latestExpression.findIsomorphisms(logicalExpression);
+                if (isomorphicResults.equivalent()) {
+                    return existingGraph;
+                } else {
+                    int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
+                    final MutableLogicGraphVersion newVersion
+                                      = existingGraph.createMutableVersion(stamp);
+                    
+                        newVersion.setGraphData(isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL));
+                    index(existingGraph);
+                    Get.assemblageService().writeSemanticChronology(existingGraph);
+                }
+//                LOG.info("Isomorphic results: " + isomorphicResults);
+                return existingGraph;
+            } else {
+                throw new IllegalStateException("unreachable");
+            }
+        } else {
 
-        sb.setPrimordialUuid(generatedGraphPrimordialUuid);
+            // Create UUID from seed and assign SemanticBuilder the value
+            final UUID generatedGraphPrimordialUuid = UuidT5Generator.get(nameSpace, Get.concept(conceptNid).getPrimordialUuid().toString());
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
-        int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
-                builtObjects);
-        // There should be no other build objects, so ignore the builtObjects list...
+            sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        if (builtObjects.size() != 1) {
-            throw new IllegalStateException("More than one build object: " + builtObjects);
+            final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+            int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
+            final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+                    builtObjects);
+            // There should be no other build objects, so ignore the builtObjects list...
+
+            if (builtObjects.size() != 1) {
+                throw new IllegalStateException("More than one build object: " + builtObjects);
+            }
+            index(sci);
+            Get.assemblageService().writeSemanticChronology(sci);
+
+            return sci;
         }
-        index(sci);
-        Get.assemblageService().writeSemanticChronology(sci);
 
-        return sci;
     }
 
 }

@@ -103,6 +103,10 @@ public enum VersionType {
    
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
+   Str1_Nid2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 12), "String Component Component Component", "Str1_C2_C3_C4"),
+   
+   Str1_Str2_Nid3_Nid4_Nid5((byte) (Byte.MAX_VALUE - 11), "String String Component Component Component", "Str1_Str2_C3_C4_C5"),
+   
    Nid1_Nid2((byte) (Byte.MAX_VALUE - 10), "Component Component", "C1_C2"),
    
    Nid1_Nid2_Int3((byte) (Byte.MAX_VALUE - 9), "Component Component Integer", "C1_C2_Int3"),
@@ -235,9 +239,17 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
+      case 11:
+          return LOINC_RECORD;
          
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
+      case Byte.MAX_VALUE - 12:
+         return Str1_Nid2_Nid3_Nid4;
+
+      case Byte.MAX_VALUE - 11:
+         return Str1_Str2_Nid3_Nid4_Nid5;
+
       case Byte.MAX_VALUE - 10:
          return Nid1_Nid2;
 

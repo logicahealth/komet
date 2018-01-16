@@ -55,7 +55,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -194,9 +193,7 @@ public class ConceptLabel
       db.setDragView(dragImageMaker.getDragImage());
 
       /* put a string on dragboard */
-      ClipboardContent content = new ClipboardContent();
-
-      content.putString(this.getText());
+      IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept()));
       db.setContent(content);
       event.consume();
    }

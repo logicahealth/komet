@@ -51,7 +51,6 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------

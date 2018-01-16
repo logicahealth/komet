@@ -43,6 +43,7 @@ import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.index.IndexService;
 
 /**
@@ -117,6 +118,9 @@ public class AssemblageIndexer extends LuceneIndexer
             indexDescription(doc,
                              (SemanticChronology) semanticChronology);
             incrementIndexedItemCount("Description");
+         } else if (semanticChronology.getVersionType() == VersionType.STRING) {
+             indexString(doc,
+                             (SemanticChronology) semanticChronology);
          }
       }
    }
@@ -147,6 +151,35 @@ public class AssemblageIndexer extends LuceneIndexer
          }
       }
    }
+
+   /**
+    * Index string.
+    *
+    * @param doc the doc
+    * @param semanticChronology the semantic chronology
+    */
+   private void indexString(Document doc,
+                                 SemanticChronology semanticChronology) {
+      doc.add(new IntPoint(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE, semanticChronology.getAssemblageNid()));
+
+      String                      lastString     = null;
+      final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
+
+      for (final StampedVersion stampedVersion:
+            semanticChronology.getVersionList()) {
+          StringVersion stringVersion = (StringVersion) stampedVersion;
+
+         // No need to index if the text is the same as the previous version.
+         if ((lastString == null) ||
+               !lastString.equals(stringVersion.getString())) {
+            lastString = stringVersion.getString();
+            // Add to the field that carries all text
+            addField(doc, FIELD_INDEXED_STRING_VALUE, lastString, true);
+
+         }
+      }
+   }
+
 
    /**
     * Index description.
