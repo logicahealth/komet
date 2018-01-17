@@ -179,7 +179,7 @@ public class FileSystemDataStore
            spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
            
        } catch (Throwable e) {
-           e.printStackTrace();
+           LOG.error("Unexpected error putting chronology data!", e);
            throw e;
        }
    }
