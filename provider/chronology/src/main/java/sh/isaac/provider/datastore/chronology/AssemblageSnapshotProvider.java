@@ -43,10 +43,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -67,6 +70,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  */
 public class AssemblageSnapshotProvider<V extends SemanticVersion>
         implements SemanticSnapshotService<V> {
+    private static final Logger LOG = LogManager.getLogger();
 
    /**
     * The version type.
@@ -156,13 +160,13 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    /**
     * Gets the latest sememe versions.
     *
-    * @param sememeSequenceStream the sememe sequence stream
+    * @param semanticSequenceStream the sememe sequence stream
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private VersionStream<V> getLatestSemanticVersionStream(IntStream sememeSequenceStream,
+   private VersionStream<V> getLatestSemanticVersionStream(IntStream semanticSequenceStream,
            ProgressTracker... progressTrackers) {
-      return new VersionStreamWrapper<>(getLatestSemanticVersionStreamUnwrapped(sememeSequenceStream, progressTrackers));
+      return new VersionStreamWrapper<>(getLatestSemanticVersionStreamUnwrapped(semanticSequenceStream, progressTrackers));
    }
 
    private List<LatestVersion<V>> getLatestSemanticVersionList(NidSet semanticNidSet,
@@ -238,6 +242,9 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
       return semanticNidStream.mapToObj((int semanticNid) -> {
          try {
             final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
+                        if (TermAux.PHENOMENON.getNid() == sc.getReferencedComponentNid()) {
+                            LOG.info("FOUND WATCH: " + TermAux.PHENOMENON);
+                        }
             final int[] stampSequences = sc.getVersionStampSequences();
             final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                     stampSequences);
