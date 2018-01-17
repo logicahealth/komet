@@ -1067,6 +1067,10 @@ public class CommitProvider
                             Semaphore writeSemaphore,
                             ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
       writeSemaphore.acquireUninterruptibly();
+/*
+ * The Class WriteSemanticChronology.
+ * TODO: unnecessary overhead in this task. reimplement without task...
+  */
 
       final WriteSemanticChronology task = new WriteSemanticChronology(
                                                sc,

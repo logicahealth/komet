@@ -78,7 +78,7 @@ public interface ObservableManifoldCoordinate
     *
     * @return the object property
     */
-   ObjectProperty<PremiseType> premiseTypeProperty();
+   ObjectProperty<PremiseType> taxonomyPremiseTypeProperty();
 
    /**
     * Stamp coordinate property.

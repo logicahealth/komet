@@ -42,8 +42,8 @@ public interface ManifoldCoordinateProxy extends ManifoldCoordinate {
    }
 
    @Override
-   public default PremiseType getTaxonomyType() {
-      return getManifoldCoordinate().getTaxonomyType();
+   public default PremiseType getTaxonomyPremiseType() {
+      return getManifoldCoordinate().getTaxonomyPremiseType();
    }
 
    @Override

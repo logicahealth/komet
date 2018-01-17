@@ -65,7 +65,6 @@ import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
 
 import sh.isaac.api.DataSource;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
@@ -530,8 +529,8 @@ public class GraphToAxiomTranslator {
     *
     * @return the loaded concepts
     */
-   public NidSet getLoadedConcepts() {
-      return NidSet.of(this.loadedConceptNids);
+   public Set<Integer> getLoadedConcepts() {
+      return this.loadedConceptNids;
    }
 
    /**

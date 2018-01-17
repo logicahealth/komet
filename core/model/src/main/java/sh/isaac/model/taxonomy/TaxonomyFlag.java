@@ -134,7 +134,7 @@ public enum TaxonomyFlag {
     * @return the flags from taxonomy coordinate
     */
    public static int getFlagsFromManifoldCoordinate(ManifoldCoordinate viewCoordinate) {
-      switch (viewCoordinate.getTaxonomyType()) {
+      switch (viewCoordinate.getTaxonomyPremiseType()) {
       case INFERRED:
          return TaxonomyFlag.INFERRED.bits;
 
@@ -142,7 +142,7 @@ public enum TaxonomyFlag {
          return TaxonomyFlag.STATED.bits;
 
       default:
-         throw new UnsupportedOperationException("no support for: " + viewCoordinate.getTaxonomyType());
+         throw new UnsupportedOperationException("no support for: " + viewCoordinate.getTaxonomyPremiseType());
       }
    }
 

@@ -43,8 +43,7 @@ package sh.isaac.api.classifier;
 
 import java.util.Optional;
 import java.util.Set;
-import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
+import org.apache.mahout.math.list.IntArrayList;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -59,10 +58,10 @@ import sh.isaac.api.commit.CommitRecord;
  */
 public class ClassifierResults {
    /** The affected concepts. */
-   final NidSet affectedConcepts;
+   final Set<Integer> affectedConcepts;
 
    /** The equivalent sets. */
-   final Set<NidSet> equivalentSets;
+   final Set<IntArrayList> equivalentSets;
 
    /** The commit record. */
    final Optional<CommitRecord> commitRecord;
@@ -76,8 +75,8 @@ public class ClassifierResults {
     * @param equivalentSets the equivalent sets
     * @param commitRecord the commit record
     */
-   public ClassifierResults(NidSet affectedConcepts,
-                            Set<NidSet> equivalentSets,
+   public ClassifierResults(Set<Integer> affectedConcepts,
+                            Set<IntArrayList> equivalentSets,
                             Optional<CommitRecord> commitRecord) {
       this.affectedConcepts = affectedConcepts;
       this.equivalentSets   = equivalentSets;
@@ -104,7 +103,7 @@ public class ClassifierResults {
     *
     * @return the affected concepts
     */
-   public IntSet getAffectedConcepts() {
+   public Set<Integer> getAffectedConcepts() {
       return this.affectedConcepts;
    }
 
@@ -122,7 +121,7 @@ public class ClassifierResults {
     *
     * @return the equivalent sets
     */
-   public Set<NidSet> getEquivalentSets() {
+   public Set<IntArrayList> getEquivalentSets() {
       return this.equivalentSets;
    }
 }

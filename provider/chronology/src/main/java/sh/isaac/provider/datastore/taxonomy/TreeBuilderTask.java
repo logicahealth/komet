@@ -84,7 +84,7 @@ public class TreeBuilderTask
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
-      this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyType() + " snapshot");
+      this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyPremiseType() + " snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);

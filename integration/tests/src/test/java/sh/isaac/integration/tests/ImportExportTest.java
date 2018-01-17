@@ -211,7 +211,7 @@ public class ImportExportTest {
 
          Assert.assertEquals(exportStats.concepts.get(), this.importStats.concepts.get());
 
-         // One new sememe for every concept except the root concept from classification...
+         // One new semantic for every concept except the root concept from classification...
          Assert.assertEquals(exportStats.semantics.get(),
                              this.importStats.semantics.get() + exportStats.concepts.get() - 1);
 

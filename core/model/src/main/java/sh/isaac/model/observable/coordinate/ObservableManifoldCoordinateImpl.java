@@ -185,14 +185,32 @@ public class ObservableManifoldCoordinateImpl
     * @return the object property
     */
    @Override
-   public ObjectProperty<PremiseType> premiseTypeProperty() {
+   public ObjectProperty<PremiseType> taxonomyPremiseTypeProperty() {
       if (this.taxonomyTypeProperty == null) {
          this.taxonomyTypeProperty = new SimpleObjectProperty<>(this,
                ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               this.manifoldCoordinate.getTaxonomyType());
+               this.manifoldCoordinate.getTaxonomyPremiseType());
+         this.taxonomyPremiseTypeProperty().addListener((observable, oldValue, newValue) -> {
+             this.manifoldCoordinate.setTaxonomyPremiseType(newValue);
+         });
+         
       }
-
       return this.taxonomyTypeProperty;
+   }
+   
+   
+
+   /**
+    * Gets the taxonomy type.
+    *
+    * @return the taxonomy type
+    */
+   @Override
+   public PremiseType getTaxonomyPremiseType() {
+       if (this.taxonomyTypeProperty != null) {
+           return taxonomyPremiseTypeProperty().get();
+       }
+      return this.manifoldCoordinate.getTaxonomyPremiseType();
    }
 
    /**
@@ -283,16 +301,6 @@ public class ObservableManifoldCoordinateImpl
    public ObservableStampCoordinate getStampCoordinate() {
       return stampCoordinateProperty().get();
    }
-
-   /**
-    * Gets the taxonomy type.
-    *
-    * @return the taxonomy type
-    */
-   @Override
-   public PremiseType getTaxonomyType() {
-      return premiseTypeProperty().get();
-   }
    /**
     * Hash code.
     *
@@ -302,7 +310,7 @@ public class ObservableManifoldCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 53 * hash + Objects.hashCode(this.getTaxonomyType());
+      hash = 53 * hash + Objects.hashCode(this.getTaxonomyPremiseType());
       hash = 53 * hash + Objects.hashCode(this.getStampCoordinate());
       hash = 53 * hash + Objects.hashCode(this.getLanguageCoordinate());
       return hash;
