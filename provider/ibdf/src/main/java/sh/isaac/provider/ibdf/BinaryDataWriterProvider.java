@@ -155,6 +155,7 @@ public class BinaryDataWriterProvider
       }
 
       this.dataPath = path;
+      this.dataPath.toFile().getParentFile().mkdirs();
       this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(),
             true)));
       this.buffer.setExternalData(true);
