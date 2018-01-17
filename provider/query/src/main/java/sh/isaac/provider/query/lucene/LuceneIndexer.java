@@ -747,7 +747,7 @@ public abstract class LuceneIndexer
          {
             lastDoc.set(after);
          }
-         this.lastDocCache.put(hashQueryForCache(q, filter, pageNum, sizeLimit), after);
+         this.lastDocCache.put(hashQueryForCache(q, filter, internalPage, internalSize), after);
          return results;
 
       } catch (IOException e) {
