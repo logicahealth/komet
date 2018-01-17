@@ -232,7 +232,7 @@ public class LookupService {
          
          get().getAllServiceHandles(DatastoreServices.class).forEach(handle -> {
             if (handle.isActive()) {
-                  if (!expected.equals(handle.getService().getDataStoreId().get())) {
+                  if (!expected.equals(handle.getService().getDataStoreId().orElse(null))) {
                      throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
                            + " has an id of " + handle.getService().getDataStoreId() 
                            + ".  Expected " + expected);
@@ -487,7 +487,7 @@ public class LookupService {
             }
          }
          get().getAllServices(OchreCache.class).forEach((cache) -> {
-            LOG.info("Clear cache for: {}" + cache.getClass().getName());
+            LOG.info("Clear cache for: {}", cache.getClass().getName());
             cache.reset();
          });
          
