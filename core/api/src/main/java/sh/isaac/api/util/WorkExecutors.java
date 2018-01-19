@@ -134,71 +134,11 @@ public class WorkExecutors {
    //~--- methods -------------------------------------------------------------
 
    /**
-    * The main method.
-    *
-    * @param args the arguments
-    * @throws InterruptedException the interrupted exception
-    */
-   public static void main(String[] args)
-            throws InterruptedException {
-      final WorkExecutors we = new WorkExecutors();
-
-      we.startMe();
-
-      final AtomicInteger counter = new AtomicInteger();
-
-      for (int i = 0; i < 24; i++) {
-         System.out.println("submit " + i);
-         we.getPotentiallyBlockingExecutor().submit(() -> {
-                      final int id = counter.getAndIncrement();
-
-                      System.out.println(id + " started");
-
-                      try {
-                         Thread.sleep(5000);
-                      } catch (final InterruptedException e) {
-                         e.printStackTrace();
-                      }
-
-                      System.out.println(id + " finished");
-                   });
-      }
-
-      Thread.sleep(7000);
-      System.out.println("Blocking test over");
-
-      for (int i = 24; i < 48; i++) {
-         System.out.println("submit " + i);
-         we.getExecutor().submit(() -> {
-                      final int id = counter.getAndIncrement();
-
-                      System.out.println(id + " started");
-
-                      try {
-                         Thread.sleep(5000);
-                      } catch (final InterruptedException e) {
-                         e.printStackTrace();
-                      }
-
-                      System.out.println(id + " finished");
-                   });
-      }
-
-      while (we.getExecutor()
-               .getQueue()
-               .size() > 0) {
-         Thread.sleep(1000);
-      }
-
-      Thread.sleep(7000);
-   }
-
-   /**
     * Start me.
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting the WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
+      log.info("Starting the WorkExecutors thread pools for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
       if (nonHK2Instance != null) {
          throw new RuntimeException(
@@ -268,7 +208,7 @@ public class WorkExecutors {
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
+      log.info("Stopping WorkExecutors thread pools for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
       if (this.forkJoinExecutor != null) {
          this.forkJoinExecutor.shutdownNow();
