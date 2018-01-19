@@ -117,6 +117,14 @@ public class StampAliasMap {
          }
       }
    }
+   
+   /**
+    * Empty in-memory map.  Does nothing to the location it was initially read from on disk.
+    */
+   public void clear() {
+      stampAliasMap.clear();
+      aliasStampMap.clear();
+   }
 
    /**
     * Read.

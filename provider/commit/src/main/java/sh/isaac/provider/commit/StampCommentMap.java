@@ -86,7 +86,7 @@ public class StampCommentMap {
    private final Lock write = this.rwl.writeLock();
 
    /** The stamp comment map. */
-   OpenIntObjectHashMap<String> stampCommentMap = new OpenIntObjectHashMap();
+   OpenIntObjectHashMap<String> stampCommentMap = new OpenIntObjectHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -110,6 +110,13 @@ public class StampCommentMap {
             this.write.unlock();
          }
       }
+   }
+   
+   /**
+    * Empty in-memory map.  Does nothing to the location it was initially read from on disk.
+    */
+   public void clear() {
+      stampCommentMap.clear();
    }
 
    /**

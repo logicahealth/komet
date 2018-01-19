@@ -63,6 +63,15 @@ public class SpinedNidIntMap {
     public SpinedNidIntMap() {
         this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
     }
+    
+    /**
+     * Empty this data structure (does nothing to the disk location it was read from)
+     */
+    public void clear() {
+       spines.clear();
+       spineCount.set(0);
+       changedSpineIndexes.clear();
+    }
 
     /**
      *
