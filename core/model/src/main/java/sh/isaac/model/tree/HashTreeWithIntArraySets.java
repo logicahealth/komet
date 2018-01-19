@@ -567,7 +567,7 @@ public class HashTreeWithIntArraySets
                   return true;
                }
             } else {
-               System.out.println("Self reference for: " + childNid + " " + Get.conceptDescriptionText(childNid));
+               LOG.warn("Self reference for: " + childNid + " " + Get.conceptDescriptionText(childNid));
             }
          } else {
             int[] cycleArray = findCycle(originalChildNid, new int[] { originalChildNid });
@@ -619,7 +619,7 @@ public class HashTreeWithIntArraySets
                }
 
                builder.append("\n");
-               System.out.println(builder.toString());
+               LOG.debug(builder.toString());
             }
          }
       }
@@ -702,9 +702,8 @@ public class HashTreeWithIntArraySets
     * @param child the child
     */
    public void add(int parent, int child) {
-      boolean testing = true;
-      if (testing && (parent == TermAux.SOLOR_ROOT.getNid())) {
-         System.out.println("SOLOR root nid added to tree: " + TermAux.SOLOR_ROOT.getNid());
+      if (Get.configurationService().enableVerboseDebug() && (parent == TermAux.SOLOR_ROOT.getNid())) {
+         LOG.debug("SOLOR root nid added to tree: " + TermAux.SOLOR_ROOT.getNid());
       }
       conceptNids.add(parent);
       conceptNids.add(child);
@@ -750,6 +749,9 @@ public class HashTreeWithIntArraySets
    }
 
    protected void printWatch(int conceptNid, String prefix) {
+      if (!Get.configurationService().enableVerboseDebug()) {
+         return;
+      }
       int nid = conceptNid;
 
       if (nid >= 0) {
@@ -765,9 +767,9 @@ public class HashTreeWithIntArraySets
       int[] record   = taxonomyMap.get(nid);
       int   finalNid = nid;
 
-      System.out.println("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
-      System.out.println("\nTaxonomy record: " + Arrays.toString(record));
-      System.out.println("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
+      LOG.debug("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
+      LOG.debug("\nTaxonomy record: " + Arrays.toString(record));
+      LOG.debug("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
       childNid_ParentNidSetArray_Map.forEach(
           (int sequence,
            int[] parentArray) -> {
@@ -804,9 +806,9 @@ public class HashTreeWithIntArraySets
                             sequenceNid));
              }
           });
-      System.out.println(Get.concept(nid)
+      LOG.debug(Get.concept(nid)
                             .toString());
-      System.out.println();
+      LOG.debug("");
    }
 }
 

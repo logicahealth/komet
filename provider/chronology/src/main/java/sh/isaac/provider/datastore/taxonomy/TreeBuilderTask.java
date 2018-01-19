@@ -45,6 +45,9 @@ import sh.isaac.model.taxonomy.GraphCollector;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -69,6 +72,8 @@ public class TreeBuilderTask
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
 
+   private static final Logger LOG = LogManager.getLogger();
+   
    //~--- constructors --------------------------------------------------------
 
    public TreeBuilderTask(SpinedIntIntArrayMap originDestinationTaxonomyRecordMap,
@@ -117,7 +122,7 @@ public class TreeBuilderTask
       
       long count = conceptNidStream.count();
       if (count == 0) {
-         System.out.println("Empty concept stream...");
+         LOG.info("Empty concept stream in TreeBuilderTask");
       } 
       
       conceptNidStream = Get.identifierService()
