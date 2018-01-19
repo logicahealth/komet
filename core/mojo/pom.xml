@@ -27,11 +27,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>sh.isaac.core</groupId>
-            <artifactId>model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.cedarsoftware</groupId>
             <artifactId>json-io</artifactId>
         </dependency>
