@@ -170,8 +170,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.EVENT);
             createConcept(TermAux.FORCE);
             createConcept(TermAux.MEDICATION);
-            createConcept(TermAux.PHENOMENON)
-               .addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"), UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
+            createConcept(TermAux.PHENOMENON);
+            pushParent(current());
+               createConcept("Finding (Observation)").addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
+               createConcept("Observation (Finding)").addUuids(UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
+            popParent();
             createConcept(TermAux.ORGANISM);
             createConcept(TermAux.OBJECT);
             createConcept(TermAux.PROCEDURE);

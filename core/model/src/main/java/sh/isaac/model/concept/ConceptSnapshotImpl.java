@@ -337,8 +337,8 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public PremiseType getTaxonomyType() {
-      return this.manifoldCoordinate.getTaxonomyType();
+   public PremiseType getTaxonomyPremiseType() {
+      return this.manifoldCoordinate.getTaxonomyPremiseType();
    }
 
    @Override

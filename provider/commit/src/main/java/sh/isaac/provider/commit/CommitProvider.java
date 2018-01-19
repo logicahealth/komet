@@ -1101,6 +1101,10 @@ public class CommitProvider
    private Task<Void> write(SemanticChronology sc,
            Semaphore writeSemaphore) {
       writeSemaphore.acquireUninterruptibly();
+/*
+ * The Class WriteSemanticChronology.
+ * TODO: unnecessary overhead in this task. reimplement without task...
+  */
 
       try
       {

@@ -435,12 +435,6 @@ public class Rf2DirectImporter
         LoincDirectImporter importTask = new LoincDirectImporter();
         Get.executor().submit(importTask).get();
 
-        EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-
-        ClassifierService classifierService = 
-                Get.logicService().getClassifierService(Get.coordinateFactory().createDefaultStatedManifoldCoordinate(), editCoordinate);
-        classifierService.classify();
-
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
     }

@@ -29,6 +29,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -182,6 +183,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         int conceptNid = Get.identifierService().getNidForUuids(conceptUuid);
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
+                LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+            }
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, conceptNid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             conceptToWrite.createMutableVersion(stamp);
@@ -239,7 +243,6 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             if (chronicle.getVersionType() == VersionType.LOGIC_GRAPH) {
                 this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
             }
-            
         }
         for (IndexBuilderService indexer : indexers) {
             try {

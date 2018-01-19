@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -53,6 +54,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.bootstrap.TestConcept;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -132,6 +134,12 @@ public class ExtractAxioms
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();
+                        if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
+                            LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                        }
+                        if (TermAux.SOLOR_ROOT.getNid() == conceptNid) {
+                            LOG.info("FOUND WATCH: " + TermAux.SOLOR_ROOT);
+                        }
 
                                 if (Get.conceptService()
                                        .isConceptActive(conceptNid, stampCoordinate)) {

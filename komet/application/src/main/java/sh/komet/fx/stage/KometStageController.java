@@ -173,7 +173,7 @@ public class KometStageController
         Platform.runLater(() -> {
             statusMessage.setText(status);
         });
-        
+
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -244,9 +244,9 @@ public class KometStageController
             Get.executor().submit(itcTask);
         });
         items.add(importTransformSNAPSHOT);
-        
+
         if (FxGet.showBetaFeatures()) {
-            
+
             MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
             importSourcesFull.setOnAction((ActionEvent event) -> {
                 Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
@@ -446,7 +446,7 @@ public class KometStageController
                                 } else if (factory instanceof TreeViewExplorationNodeFactory) {
                                     addTabFactory(factory, tabPane, menuItems);
                                 }
-                            }                            
+                            }
                         });
         Get.services(DetailNodeFactory.class)
                 .forEach(
@@ -458,8 +458,8 @@ public class KometStageController
                                     addTabFactory(factory, tabPane, menuItems);
                                 } else if (factory instanceof ConceptDetailTreeTableProviderFactory) {
                                     addTabFactory(factory, tabPane, menuItems);
-                                } 
-                            }                            
+                                }
+                            }
                         });
         menuItems.sort(
                 (o1, o2) -> {
@@ -501,7 +501,7 @@ public class KometStageController
         });
         tabPane.getTabs()
                 .add(tab);
- 
+
         return tabCountInPanel;
     }
 
@@ -509,13 +509,15 @@ public class KometStageController
             IdentifiedObject oldValue,
             IdentifiedObject newValue) {
         Get.executor().submit(() -> {
-            StringBuffer buff = new StringBuffer();
-            buff.append("selected (processed in background):\n");
-            if (newValue instanceof ConceptChronology) {
-                ConceptChronology concept = (ConceptChronology) newValue;
-                buff.append(concept.toString());
+            if (FxGet.showBetaFeatures()) {
+                StringBuffer buff = new StringBuffer();
+                buff.append("selected (processed in background):\n");
+                if (newValue instanceof ConceptChronology) {
+                    ConceptChronology concept = (ConceptChronology) newValue;
+                    buff.append(concept.toString());
+                }
+                System.out.println(buff);
             }
-            System.out.println(buff);
         });
     }
 

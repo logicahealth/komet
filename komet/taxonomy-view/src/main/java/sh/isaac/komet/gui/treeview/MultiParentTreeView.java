@@ -618,7 +618,7 @@ public class MultiParentTreeView
         saveExpanded();
         PremiseType newPremiseType = PremiseType.fromConcept(this.premiseChoiceBox.getValue());
         this.manifold.getManifoldCoordinate()
-                .premiseTypeProperty()
+                .taxonomyPremiseTypeProperty()
                 .set(newPremiseType);
         taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
         this.rootTreeItem.clearChildren();
