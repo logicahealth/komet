@@ -105,6 +105,13 @@ public class PreferencesProvider
 
    //~--- methods -------------------------------------------------------------
 
+   //TODO [KEC] Dan says we shouldn't be setting all these things as system properties, system properties should exist to tell us where to look.
+   //Not to allow us to communicate from one bit of code to another.  We should never call System.setProperty.... things that need to know where 
+   //to look for files should be looking for them via new methods in the ConfigurationService, allowing us to properly keep track of the defaults.
+   //I'm not even sure why we have system properties for some of these... with the exception of (maybe) the prefs folder location, they all seem 
+   //unnecessary and/or should be handled with proper APIs.  Whether or not we need a settable location for the prefs property, sort of depends 
+   //on whether the prefs are database specific, or generic....
+   
    /**
     * Start me.
     */
@@ -126,7 +133,7 @@ public class PreferencesProvider
          
          checkOrSetFileProperty("PREFERENCES_FOLDER_LOCATION", PREFERENCES_FOLDER_LOCATION, () -> {
             //Create it as a sibling folder of wherever the data store is specified
-            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolveSibling("preferences").toFile();
+            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("preferences").toFile();
          }, true);
          
          checkOrSetFileProperty("IMPORT_FOLDER_LOCATION", IMPORT_FOLDER_LOCATION, () -> {
@@ -137,16 +144,16 @@ public class PreferencesProvider
          checkOrSetFileProperty("AFTER_IMPORT_FOLDER_LOCATION", AFTER_IMPORT_FOLDER_LOCATION, () -> {
             //Create it as a sibling folder of wherever the data store is specified, this way, it gets
             //removed with a maven clean, along with the rest of the DB.
-            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolveSibling("completed-import").toFile();
+            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("completed-import").toFile();
          }, true);
          
          checkOrSetFileProperty("USER_CSS_LOCATION_PROPERTY", USER_CSS_LOCATION_PROPERTY, () -> {
             //db relative paths, followed by jvm relative paths, followed by writing out the default from the classpath.
             try {
                Path[] checkPaths = new Path[] {
-                     Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolveSibling("data").resolve("user.css"),
+                     Paths.get(System.getProperty(PREFERENCES_FOLDER_LOCATION)).resolve("user.css"),
                      Paths.get("data", "user.css"), 
-                     Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolveSibling("user.css"),
+                     Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("user.css"),
                      Paths.get("user.css")};
                
                Path p = null;
@@ -162,7 +169,8 @@ public class PreferencesProvider
                   // that hasn't yet been built, so it isn't on the classpath.  Hack the actual path in place here.
                   Path inputSource = Paths.get("komet", "css", "src", "main", "resources", "user.css");
 
-                  p = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolveSibling("user.css");
+                  p = Paths.get(System.getProperty(PREFERENCES_FOLDER_LOCATION)).resolve("user.css");
+                  p.getParent().toFile().mkdirs();
                   try (InputStream is = (Files.isRegularFile(inputSource) ? 
                         new FileInputStream(inputSource.toFile()) : 
                            PreferencesProvider.class.getResourceAsStream("/user.css"));
@@ -199,9 +207,6 @@ public class PreferencesProvider
              System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
          this.applicationPreferences.sync();
       } catch (Throwable ex) {
-         // HK2 swallows these exceptions, so I'm trying to make sure they are
-         // easy to identify.
-         // TODO figure out how to keep hk2 from swallowing these.
          LOG.error("Unexpected error stating preferences provider", ex);
          throw new RuntimeException(ex);
       }
@@ -216,7 +221,6 @@ public class PreferencesProvider
          LOG.info("Stopping Preferences Provider.");
          this.applicationPreferences.sync();
       } catch (Throwable ex) {
-         // TODO figure out how to keep hk2 from swallowing these.
          LOG.error("Unexpected error stopping prefs provider", ex);
          throw new RuntimeException(ex);
       }
@@ -254,6 +258,19 @@ public class PreferencesProvider
    @Override
    public IsaacPreferences getUserPreferences() {
       return new PreferencesWrapper(Preferences.userRoot());
+   }
+   
+   /**
+    * Clears all the system properties that this class set so that we can actually restart the system in a new location, for example, 
+    * when writing tests...
+    * TODO remove this method, when dan's comments at the top of this class are resolved, and most of these properties go away...
+    */
+   public static void clearSetProperties() {
+      System.clearProperty(DATA_STORE_ROOT_LOCATION_PROPERTY);
+      System.clearProperty(PREFERENCES_FOLDER_LOCATION);
+      System.clearProperty(IMPORT_FOLDER_LOCATION);
+      System.clearProperty(AFTER_IMPORT_FOLDER_LOCATION);
+      System.clearProperty(USER_CSS_LOCATION_PROPERTY);
    }
 }
 
