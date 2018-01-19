@@ -17,14 +17,13 @@
 package sh.isaac.api.component.semantic.version.brittle;
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
 public interface Nid1_Int2_Str3_Str4_Nid5_Nid6_Version 
-        extends SemanticVersion {
+        extends BrittleVersion {
    
    int getNid1();
    int getInt2();
@@ -43,6 +42,32 @@ public interface Nid1_Int2_Str3_Str4_Nid5_Nid6_Version
    @Override
    default VersionType getSemanticType() {
       return VersionType.Nid1_Int2_Str3_Str4_Nid5_Nid6;
+   }
+   
+   @Override
+   default BrittleDataTypes[] getFieldTypes() {
+      return new BrittleDataTypes[] {
+            BrittleDataTypes.NID, 
+            BrittleDataTypes.INTEGER, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.NID, 
+            BrittleDataTypes.NID};
+   }
+
+   @Override
+   default Object[] getDataFields() {
+      Object[] temp = new Object[] {
+            getNid1(),
+            getInt2(),
+            getStr3(),
+            getStr4(),
+            getNid5(),
+            getNid6()};
+       if (getFieldTypes().length != temp.length) {
+          throw new RuntimeException("Mispecified brittle!");
+       }
+       return temp;
    }
    
 }

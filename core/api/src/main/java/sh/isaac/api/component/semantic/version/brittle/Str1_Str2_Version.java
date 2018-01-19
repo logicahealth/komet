@@ -17,19 +17,36 @@
 package sh.isaac.api.component.semantic.version.brittle;
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
 public interface Str1_Str2_Version 
-        extends SemanticVersion {
+        extends BrittleVersion {
    String getStr1();
    String getStr2();
    
    void setStr1(String value);
    void setStr2(String value);
+   
+   @Override
+   default BrittleDataTypes[] getFieldTypes() {
+      return new BrittleDataTypes[] {
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING};
+   }
+
+   @Override
+   default Object[] getDataFields() {
+      Object[] temp = new Object[] {
+            getStr1(),
+            getStr2()};
+       if (getFieldTypes().length != temp.length) {
+          throw new RuntimeException("Mispecified brittle!");
+       }
+       return temp;
+   }
    
    @Override
    default VersionType getSemanticType() {

@@ -82,6 +82,8 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
@@ -101,6 +103,7 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.index.SemanticIndexerConfiguration;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
@@ -205,7 +208,32 @@ public class SemanticIndexer
                            handleType(doc, new DynamicNidImpl(sequence), -1);
                            return true;
                         });
-         } else {
+         } 
+         else if (sv instanceof BrittleVersion) {
+            BrittleVersion bv = (BrittleVersion)sv;
+            
+            BrittleDataTypes[] types = bv.getFieldTypes();
+            Object[] fieldData = bv.getDataFields();
+            for (int i = 0; i < fieldData.length; i++) {
+               if (fieldData[i] == null) {
+                  continue;
+               }
+               if (types[i] == BrittleDataTypes.STRING) {
+                  handleType(doc, new DynamicStringImpl((String)fieldData[i]), types.length > 1 ? i : -1);
+               }
+               else if (types[i] == BrittleDataTypes.NID) {
+                  handleType(doc, new DynamicNidImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+               }
+               else if (types[i] == BrittleDataTypes.INTEGER) {
+                  handleType(doc, new DynamicIntegerImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+               }
+               else {
+                  LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + types[i]);
+               }
+            }
+            incrementIndexedItemCount(sv.getSemanticType().name());
+         }
+         else {
             LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + semanticChronology.toString());
          }
       }
@@ -240,6 +268,9 @@ public class SemanticIndexer
                (semanticChronology.getVersionType() == VersionType.LONG) ||
                (semanticChronology.getVersionType() == VersionType.COMPONENT_NID) ||
                (semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)) {
+            return true;
+         }
+         else if (semanticChronology instanceof BrittleVersion) {
             return true;
          }
       }
