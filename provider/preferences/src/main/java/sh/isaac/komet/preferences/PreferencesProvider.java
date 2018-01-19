@@ -48,8 +48,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -128,24 +127,24 @@ public class PreferencesProvider
             return launchEnvironment == LaunchEnvironment.MAVEN ? 
                   Paths.get("target", "data", "isaac.data").toFile() : 
                      Paths.get("data", "isaac.data").toFile();
-         }, true);
+         }, true, false);
          
          
          checkOrSetFileProperty("PREFERENCES_FOLDER_LOCATION", PREFERENCES_FOLDER_LOCATION, () -> {
             //Create it as a sibling folder of wherever the data store is specified
             return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("preferences").toFile();
-         }, true);
+         }, true, false);
          
          checkOrSetFileProperty("IMPORT_FOLDER_LOCATION", IMPORT_FOLDER_LOCATION, () -> {
             //Always look under a JVM relative path of data, rather than looking in the target folder.
             return Paths.get("data", "to-import").toFile();
-         }, true);
+         }, true, false);
          
          checkOrSetFileProperty("AFTER_IMPORT_FOLDER_LOCATION", AFTER_IMPORT_FOLDER_LOCATION, () -> {
             //Create it as a sibling folder of wherever the data store is specified, this way, it gets
             //removed with a maven clean, along with the rest of the DB.
             return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("completed-import").toFile();
-         }, true);
+         }, true, false);
          
          checkOrSetFileProperty("USER_CSS_LOCATION_PROPERTY", USER_CSS_LOCATION_PROPERTY, () -> {
             //db relative paths, followed by jvm relative paths, followed by writing out the default from the classpath.
@@ -194,7 +193,7 @@ public class PreferencesProvider
                LOG.error("Unexpected error trying to locate or write out the user.css file", e);
                throw new RuntimeException(e);
             } 
-         }, false);
+         }, false, true);
 
          this.applicationPreferences = IsaacPreferencesImpl.getApplicationRoot();
 
@@ -226,16 +225,23 @@ public class PreferencesProvider
       }
    }
    
-   private void checkOrSetFileProperty(String propertyName, String propertyKey, Supplier<File> defaultProvider, boolean makeDir) throws IOException {
+   private void checkOrSetFileProperty(String propertyName, String propertyKey, Supplier<File> defaultProvider, boolean makeDir, boolean asURL) throws IOException {
       File f;
       if (StringUtils.isBlank(System.getProperty(propertyKey))) {
          f = defaultProvider.get();
-         LOG.info("{}:{} is not set, using default of {}", propertyName, propertyKey, f.getCanonicalPath());
-         System.setProperty(propertyKey, f.getCanonicalPath());
+         LOG.info("{}:{} is not set, using default of {}", propertyName, propertyKey, (asURL ? f.toURI().toURL().toString() : f.getCanonicalPath()));
+         System.setProperty(propertyKey, (asURL ? f.toURI().toURL().toString() : f.getCanonicalPath()));
       }
       else {
-         f = new File(System.getProperty(propertyKey)).getCanonicalFile();
-         LOG.info("{}:{} was already set to {}", propertyName, propertyKey, f.getCanonicalPath());
+         if (asURL) {
+            URL url = new URL(System.getProperty(propertyKey));
+            f = new File(url.getFile()).getCanonicalFile();
+            LOG.info("{}:{} was already set to {}", propertyName, propertyKey, url.toString());
+         }
+         else {
+            f = new File(System.getProperty(propertyKey)).getCanonicalFile();
+            LOG.info("{}:{} was already set to {}", propertyName, propertyKey, f.getCanonicalPath());
+         }
       }
       if (makeDir) {
          f.mkdirs();
