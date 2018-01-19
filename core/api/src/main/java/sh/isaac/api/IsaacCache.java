@@ -51,7 +51,7 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface OchreCache {
+public interface IsaacCache {
    /**
     * Eliminate all references to cached services or data.
     */

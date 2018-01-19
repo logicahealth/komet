@@ -75,6 +75,7 @@ public abstract class XodusConceptProvider
    private void stopMe() {
       LOG.info("Stopping Xodus ConceptProvider.");
       environment.close();
+      environment = null;
    }
    
    @Override

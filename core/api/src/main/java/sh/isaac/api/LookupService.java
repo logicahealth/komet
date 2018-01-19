@@ -213,16 +213,32 @@ public class LookupService {
 
          LOG.info("Bringing up Isaac data stores...");
          // Set run level to startup database and associated services running on top of database
-         setRunLevel(SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL);
+         if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL) {
+            setRunLevel(SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL);
+         }
+         else {
+            LOG.warn("Asked to startup isaac when it was already running?");
+         }
 
          validateDatabaseFolderStatus();
 
          // If database is validated, startup remaining run levels
 
          LOG.info("Bringing up the rest of isaac...");
-         setRunLevel(SL_L5_ISAAC_STARTED_RUNLEVEL);
+         if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L5_ISAAC_STARTED_RUNLEVEL) {
+            setRunLevel(SL_L5_ISAAC_STARTED_RUNLEVEL);
+         }
+         else {
+            LOG.warn("Asked to startup isaac when it was already running?");
+         }
+         
          LOG.info("Bringing up isaac dependents...");
-         setRunLevel(SL_L6_ISAAC_DEPENDENTS_RUNLEVEL);
+         if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L6_ISAAC_DEPENDENTS_RUNLEVEL) {
+            setRunLevel(SL_L6_ISAAC_DEPENDENTS_RUNLEVEL);
+         }
+         else {
+            LOG.warn("Asked to startup isaac when it was already running?");
+         }
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
          get().getService(MetadataService.class).importMetadata();
@@ -245,7 +261,7 @@ public class LookupService {
          Get.applicationStates().remove(ApplicationStates.STARTING);
 
       } catch (final Throwable e) {
-         e.printStackTrace();
+         LOG.error("Error starting isaac", e);
          // Will inform calling routines that database is corrupt
          throw new RuntimeException (e);
       } 
@@ -345,6 +361,18 @@ public class LookupService {
     */
    public static int getCurrentRunLevel() {
       return getService(RunLevelController.class).getCurrentRunLevel();
+   }
+   
+   /**
+    * Gets the run level we are working toward, or, if we are not working toward any run level, returns the current run level.
+    * @return
+    */
+   public static int getProceedingToRunLevel() {
+      RunLevelFuture rlf = getService(RunLevelController.class).getCurrentProceeding();
+      if (rlf != null) {
+         return rlf.getProposedLevel();
+      }
+      return getCurrentRunLevel();
    }
 
    /**
@@ -474,27 +502,28 @@ public class LookupService {
    public static void setRunLevel(int targetRunLevel) {
       final RunLevelController rlc = getService(RunLevelController.class);
       int currentRunLevel = rlc.getCurrentRunLevel();
-      if (currentRunLevel > targetRunLevel) {
-         // Make sure we aren't still proceeding somewhere, if so, we need to wait...
-         RunLevelFuture rlf = rlc.getCurrentProceeding();
-         if (rlf != null) {
-            LOG.info("Attempting to cancel previous runlevel request");
-            rlf.cancel(true);
-            try {
-               rlf.get();
-            } catch (InterruptedException | ExecutionException e) {
-               // noop
-            }
+      
+      // Make sure we aren't still proceeding somewhere, if so, we need to wait...
+      RunLevelFuture rlf = rlc.getCurrentProceeding();
+      if (rlf != null) {
+         LOG.info("Attempting to cancel previous runlevel request");
+         rlf.cancel(true);
+         try {
+            rlf.get();
+         } catch (InterruptedException | ExecutionException e) {
+            // noop
          }
-         get().getAllServices(OchreCache.class).forEach((cache) -> {
-            LOG.info("Clear cache for: {}", cache.getClass().getName());
-            cache.reset();
-         });
-         
+      }
+      
+      if (currentRunLevel > targetRunLevel) {
          while (currentRunLevel > targetRunLevel) {
             LOG.info("Setting run level to: " + --currentRunLevel);
             getService(RunLevelController.class).proceedTo(currentRunLevel);
          }
+         getServices(IsaacCache.class).forEach((cache) -> {
+            LOG.info("Clear cache for: {}", cache.getClass().getName());
+            cache.reset();
+         });
       } else {
          while (currentRunLevel < targetRunLevel) {
             LOG.info("Setting run level to: " + ++currentRunLevel);

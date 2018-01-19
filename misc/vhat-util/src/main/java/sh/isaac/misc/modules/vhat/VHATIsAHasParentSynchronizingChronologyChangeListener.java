@@ -122,25 +122,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    // Cached VHAT module sequences
    private static NidSet VHAT_MODULES = null;
 
-   private static NidSet getVHATModules(StampCoordinate coord) {
-      // Initialize VHAT module sequences cache
-      if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
-         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord));
-      }
-      return VHAT_MODULES;
-   }
-
    private static StampCoordinate VHAT_STAMP_COORDINATE = null;
-
-   private static StampCoordinate getVHATDevelopmentLatestStampCoordinate() {
-      if (VHAT_STAMP_COORDINATE == null) {
-         StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-         VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
-               Status.ANY_STATUS_SET);
-      }
-
-      return VHAT_STAMP_COORDINATE;
-   }
 
    private boolean enabled = true;
 
@@ -152,12 +134,13 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    private final UUID providerUuid = UUID.randomUUID();
 
    private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledLogicGraphChanges = new ConcurrentSkipListSet<>();
-   private final ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledHasParentAssociationChanges = new ConcurrentSkipListSet<>();
+   private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledHasParentAssociationChanges = new ConcurrentSkipListSet<>();
 
    private ConcurrentLinkedQueue<Future<?>> inProgressJobs = new ConcurrentLinkedQueue<>();
    private ScheduledFuture<?> sf;
 
-   public VHATIsAHasParentSynchronizingChronologyChangeListener() {
+   private VHATIsAHasParentSynchronizingChronologyChangeListener() {
+      //For HK2 to construct
    }
 
    /**
@@ -219,6 +202,14 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    private void stopMe() {
       Get.commitService().removeChangeListener(this);
       sf.cancel(true);
+      sf = null;
+      VHAT_MODULES = null;
+      VHAT_STAMP_COORDINATE = null;
+      enabled = true;
+      nidsOfGeneratedSememesToIgnore.clear();
+      semanticNidsForUnhandledLogicGraphChanges.clear();
+      semanticNidsForUnhandledHasParentAssociationChanges.clear();
+      inProgressJobs.clear();
    }
 
    /*
@@ -229,6 +220,24 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    @Override
    public UUID getListenerUuid() {
       return providerUuid;
+   }
+   
+   private static NidSet getVHATModules(StampCoordinate coord) {
+      // Initialize VHAT module sequences cache
+      if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
+         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord));
+      }
+      return VHAT_MODULES;
+   }
+   
+   private static StampCoordinate getVHATDevelopmentLatestStampCoordinate() {
+      if (VHAT_STAMP_COORDINATE == null) {
+         StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
+         VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
+               Status.ANY_STATUS_SET);
+      }
+
+      return VHAT_STAMP_COORDINATE;
    }
 
    /*
@@ -269,7 +278,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          semanticNidsForUnhandledLogicGraphChanges.add(sc.getNid());
          LOG.info("Adding LogicGraph " + sc.getNid() + " " + sc.getNid() + " to the list of commits to process");
       } else if (sc.getVersionType() == VersionType.DYNAMIC && sc.getAssemblageNid() == VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getNid()) {
-         sememeSequencesForUnhandledHasParentAssociationChanges.add(sc.getNid());
+         semanticNidsForUnhandledHasParentAssociationChanges.add(sc.getNid());
          LOG.info("Adding Association sememe " + sc.getNid() + " " + sc.getNid() + " to the list of commits to process");
       } else {
          // Ignore if not either LOGIC_GRAPH or DYNAMIC has_parent association sememe
@@ -291,7 +300,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       }
       // For new and updated VHAT logic graphs, create or retire has_parent associations, as appropriate
       LOG.info("HandleCommit looking for - " + semanticNidsForUnhandledLogicGraphChanges.size() + " logic graphs: " + semanticNidsForUnhandledLogicGraphChanges + " and "
-            + sememeSequencesForUnhandledHasParentAssociationChanges.size() + " associations: " + sememeSequencesForUnhandledHasParentAssociationChanges + " the commit contains "
+            + semanticNidsForUnhandledHasParentAssociationChanges.size() + " associations: " + semanticNidsForUnhandledHasParentAssociationChanges + " the commit contains "
             + commitRecord.getSemanticNidsInCommit());
       for (int logicGraphNid : semanticNidsForUnhandledLogicGraphChanges.toArray(new Integer[semanticNidsForUnhandledLogicGraphChanges.size()])) {
          if (!commitRecord.getSemanticNidsInCommit().contains(logicGraphNid)) {
@@ -478,15 +487,15 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       }
 
       // For new, updated or retired VHAT has_parent association sememes, update existing logic graph
-      for (int hasParentSemanticNid : sememeSequencesForUnhandledHasParentAssociationChanges) {
+      for (int hasParentSemanticNid : semanticNidsForUnhandledHasParentAssociationChanges) {
          if (!commitRecord.getSemanticNidsInCommit().contains(hasParentSemanticNid)) {
             LOG.trace("HandleCommit NOT handling hasParent association " + hasParentSemanticNid + " which is not contained in the commit record list: "
                   + commitRecord.getSemanticNidsInCommit().toString());
-            sememeSequencesForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
+            semanticNidsForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
             continue;
          }
-         sememeSequencesForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
-         LOG.debug("HandleCommit handling hasParent association " + hasParentSemanticNid + ". " + sememeSequencesForUnhandledHasParentAssociationChanges.size()
+         semanticNidsForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
+         LOG.debug("HandleCommit handling hasParent association " + hasParentSemanticNid + ". " + semanticNidsForUnhandledHasParentAssociationChanges.size()
                + " hasParent associations remaining");
 
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(hasParentSemanticNid);

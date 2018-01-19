@@ -70,6 +70,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    @PreDestroy
    protected void stopMe() {
       LOG.info("Stopping Drools Rules Provider.");
+      this.kieServices = null;
+      this.kContainer = null;
+      this.kSession = null;
    }
 
    @Override

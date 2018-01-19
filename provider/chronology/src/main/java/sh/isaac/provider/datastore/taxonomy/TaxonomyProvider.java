@@ -237,7 +237,7 @@ public class TaxonomyProvider
             }
             ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
         } catch (Throwable e) {
-            LOG.error(e);
+            LOG.error("error processing taxonomy update", e);
             throw e;
         }
     }
@@ -254,14 +254,18 @@ public class TaxonomyProvider
     @PostConstruct
     private void startMe() {
         try {
-            LOG.info("Starting BdbTaxonomyProvider post-construct");
+            LOG.info("Starting TaxonomyProvider post-construct");
             this.store = Get.service(DataStore.class);
             Get.commitService()
                     .addChangeListener(this);
             this.identifierService = Get.service(IdentifierProvider.class);
+            this.semanticNidsForUnhandledChanges.clear();
+            this.pendingUpdateTasks.clear();
+            this.snapshotCache.clear();
+            this.refreshListeners.clear();
         } catch (final Exception e) {
             LookupService.getService(SystemStatusService.class)
-                    .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
+                    .notifyServiceConfigurationFailure("Taxonomy Provider", e);
             throw new RuntimeException(e);
         }
     }
@@ -271,9 +275,16 @@ public class TaxonomyProvider
      */
     @PreDestroy
     private void stopMe() {
-        LOG.info("Stopping BdbTaxonomyProvider");
+        LOG.info("Stopping TaxonomyProvider");
         try {
             this.sync().get();
+            this.semanticNidsForUnhandledChanges.clear();
+            this.pendingUpdateTasks.clear();
+            this.snapshotCache.clear();
+            this.refreshListeners.clear();
+            this.identifierService = null;
+            this.store = null;
+            Get.commitService().removeChangeListener(this);
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error(ex);
         }

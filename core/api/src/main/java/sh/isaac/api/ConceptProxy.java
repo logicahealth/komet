@@ -60,14 +60,12 @@ import sh.isaac.api.util.UUIDUtil;
 public class ConceptProxy
         implements ConceptSpecification { 
 
-	public static final String METADATA_SEMANTIC_TAG = "SOLOR";
-	
+   public static final String METADATA_SEMANTIC_TAG = "SOLOR";
+   
    /**
     * Universal identifiers for the concept proxied by the is object.
     */
    private UUID[] uuids;
-   
-   private transient int nid = Integer.MAX_VALUE;
 
    /**
     * The fully qualified name for this object.
@@ -86,7 +84,7 @@ public class ConceptProxy
    public ConceptProxy() {
    }
 
-	/**
+   /**
     * Instantiates a new concept proxy.
     *
     * @param conceptSequenceOrNid the concept sequence or nid
@@ -99,15 +97,6 @@ public class ConceptProxy
               .toArray(new UUID[0]);
       this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
       this.regularName = Get.defaultCoordinate().getRegularName(conceptSequenceOrNid);
-   }
-   
-   public void setNid(int nid) {
-      if (this.nid == Integer.MAX_VALUE) {
-          this.nid = nid;
-      } else if (this.nid != nid) {
-          throw new IllegalStateException("Attempting to set nid to a different value. From: " +
-                  this.nid + " to: " + nid);
-      }
    }
 
    /**
@@ -249,10 +238,7 @@ public class ConceptProxy
     */
    @Override
    public int getNid() {
-       if (nid == Integer.MAX_VALUE) {
-           nid = Get.identifierService().getCachedNidForProxy(this);
-       }
-      return nid;
+       return Get.identifierService().getCachedNidForProxy(this);
    }
 
    /**
@@ -341,23 +327,22 @@ public class ConceptProxy
     * Set the fully qualified name, adding the {@link #METADATA_SEMANTIC_TAG} if no semantic tag is present.
     * If {@link #setRegularName(String)} has not yet been set (via this call, or the constructor) then the regular
     * name will be set to the fully qualified name, minus the semantic tag.
-	 * @param fullyQualfiedName the fullyQualfiedName to set
-	 */
-	public void setFullyQualfiedName(String fullyQualfiedName) {
-		this.fullyQualfiedName = SemanticTags.addSemanticTagIfAbsent(fullyQualfiedName, METADATA_SEMANTIC_TAG);
-		if (this.regularName == null)
-		{
-			this.regularName = Optional.of(SemanticTags.stripSemanticTagIfPresent(this.fullyQualfiedName));
-		}
-	}
+    * @param fullyQualfiedName the fullyQualfiedName to set
+    */
+   public void setFullyQualfiedName(String fullyQualfiedName) {
+      this.fullyQualfiedName = SemanticTags.addSemanticTagIfAbsent(fullyQualfiedName, METADATA_SEMANTIC_TAG);
+      if (this.regularName == null) {
+         this.regularName = Optional.of(SemanticTags.stripSemanticTagIfPresent(this.fullyQualfiedName));
+      }
+   }
 
-	/**
-	 * @param regularName the regularName to set
-	 * If the passed regular name contains a semantic tag, it will be stripped.
-	 */
-	public void setRegularName(String regularName) {
-		this.regularName = Optional.ofNullable(SemanticTags.stripSemanticTagIfPresent(regularName));
-	}
+   /**
+    * @param regularName the regularName to set
+    * If the passed regular name contains a semantic tag, it will be stripped.
+    */
+   public void setRegularName(String regularName) {
+      this.regularName = Optional.ofNullable(SemanticTags.stripSemanticTagIfPresent(regularName));
+   }
 
    @Override
    public Optional<String> getRegularName() {

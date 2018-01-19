@@ -146,6 +146,10 @@ public class FileSystemDataStore
    private File propertiesFile;
    private File nidToAssemblageNidMapDirectory;
    private File nidToElementSequenceMapDirectory;
+   
+   private FileSystemDataStore() {
+      //Private for HK2 construction only
+   }
 
    //~--- methods -------------------------------------------------------------
    @Override
@@ -244,7 +248,7 @@ public class FileSystemDataStore
    @PostConstruct
    private void startMe() {
       try {
-         LOG.info("Startings FileSystemDataStore.");
+         LOG.info("Startings FileSystemDataStore");
 
          ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
          Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
@@ -254,6 +258,15 @@ public class FileSystemDataStore
          }
 
          Path folderPath = dataStorePath.get();
+         
+         this.assemblageNid_SequenceGenerator_Map.clear();
+         this.properties.clear();
+         this.assemblage_ElementToNid_Map.clear();
+         this.spinedChronologyMapMap.clear();
+         this.spinedTaxonomyMapMap.clear();
+         this.componentToSemanticNidsMap.clear();
+         this.assemblageToObjectType_Map.clear();
+         this.assemblageToVersionType_Map.clear();
 
          this.isaacDbDirectory = folderPath.toFile();
          this.chronologySpinesDirectory = new File(isaacDbDirectory, "chronologies");
@@ -311,7 +324,7 @@ public class FileSystemDataStore
 
          // assemblage_ElementToNid_Map is lazily loaded
       } catch (IOException ex) {
-         ex.printStackTrace();
+         LOG.error("Error starting FileSystemDataStore", ex);
          throw new RuntimeException(ex);
       }
    }
@@ -339,6 +352,18 @@ public class FileSystemDataStore
          executor.submit(syncTask)
                  .get();
          this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
+         this.assemblageNid_SequenceGenerator_Map.clear();
+         this.properties.clear();
+         this.assemblage_ElementToNid_Map.clear();
+         this.spinedChronologyMapMap.clear();
+         this.spinedTaxonomyMapMap.clear();
+         this.componentToSemanticNidsMap.clear();
+         this.assemblageToObjectType_Map.clear();
+         this.assemblageToVersionType_Map.clear();
+         this.nidToAssemblageNidMap.clear();
+         this.nidToElementSequenceMap.clear();
+         this.lastSyncTask = null;
+         this.lastSyncFuture = null;
       } catch (InterruptedException | ExecutionException ex) {
          LOG.error("Unexpected error in FileSystemDataStore shutdown", ex);
          throw new RuntimeException(ex);
@@ -704,7 +729,7 @@ public class FileSystemDataStore
                      }
                   }
                } catch (Throwable e) {
-                  e.printStackTrace();
+                  LOG.error("Unexpected", e);
                }
             }
          }

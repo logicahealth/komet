@@ -131,8 +131,8 @@ public class StampProvider
    /**
     * TODO: persist across restarts.
     */
-   private static final AtomicReference<ConcurrentHashMap<UncommittedStamp, Integer>> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP =
-      new AtomicReference(
+   private final AtomicReference<ConcurrentHashMap<UncommittedStamp, Integer>> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP =
+      new AtomicReference<>(
           new ConcurrentHashMap<>());
 
    //~--- fields --------------------------------------------------------------
@@ -162,7 +162,7 @@ public class StampProvider
    /**
     * The stamp sequence path sequence map.
     */
-   ConcurrentHashMap<Integer, Integer> stampSequence_PathNid_Map = new ConcurrentHashMap();
+   ConcurrentHashMap<Integer, Integer> stampSequence_PathNid_Map = new ConcurrentHashMap<>();
 
    /**
     * The db folder path.
@@ -431,7 +431,7 @@ public class StampProvider
       try {
          LOG.info("Starting StampProvider post-construct");
          
-         if (!Files.exists(this.stampManagerFolder)) {
+         if (!Files.exists(this.stampManagerFolder) || !Files.isRegularFile(this.stampManagerFolder.resolve(DATASTORE_ID_FILE))) {
             this.databaseValidity = DataStoreStartState.NO_DATASTORE;
          }
          else {
@@ -456,6 +456,12 @@ public class StampProvider
             this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
             Files.write(this.stampManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
          }
+         
+         UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().clear();
+         this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
+         this.stampMap.clear();
+         this.stampSequence_PathNid_Map.clear();
+         this.inverseStampMap.clear();
          
          if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
             try (DataInputStream in = new DataInputStream(
@@ -498,6 +504,12 @@ public class StampProvider
       LOG.info("Stopping StampProvider pre-destroy. ");
 
       writeData();
+      this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
+      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().clear();
+      this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
+      this.stampMap.clear();
+      this.stampSequence_PathNid_Map.clear();
+      this.inverseStampMap.clear();
    }
 
    private void writeData() throws RuntimeException {

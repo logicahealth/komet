@@ -127,7 +127,7 @@ import sh.isaac.api.util.WorkExecutors;
 @Service
 @Singleton
 public class Get
-         implements OchreCache {
+         implements IsaacCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private static final Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
@@ -488,9 +488,7 @@ public class Get
       if (nid >= 0) {
          throw new IllegalStateException("Nids must be < 0: " + nid);
       }
-      ConceptProxy proxy = new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
-      proxy.setNid(nid);
-      return proxy;
+      return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
    }
 
    /**
@@ -715,7 +713,7 @@ public class Get
       languageCoordinateService       = null;
       logicalExpressionBuilderService = null;
       logicService                    = null;
-      versionManagementPathService                     = null;
+      versionManagementPathService    = null;
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;

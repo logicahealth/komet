@@ -310,6 +310,7 @@ public class ChangeSetLoadProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Finished ChangeSet Load Provider pre-destory.");
+      this.processedChangesets = null;
    }
 }
 

@@ -105,7 +105,7 @@ public class ObservableChronologyProvider
    /**
     * The observable sememe map.
     */
-   ConcurrentReferenceHashMap<Integer, ObservableSemanticChronology> observableSememeMap
+   ConcurrentReferenceHashMap<Integer, ObservableSemanticChronology> observableSemanticMap
            = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
@@ -146,7 +146,7 @@ public class ObservableChronologyProvider
    @Override
    public void handleChange(final SemanticChronology sc) {
       Platform.runLater(() -> {
-         final ObservableSemanticChronology osc = this.observableSememeMap.get(sc.getNid());
+         final ObservableSemanticChronology osc = this.observableSemanticMap.get(sc.getNid());
 
          if (osc != null) {
             osc.handleChange(sc);
@@ -170,7 +170,7 @@ public class ObservableChronologyProvider
                break;
 
             case SEMANTIC:
-               referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
+               referencedComponent = this.observableSemanticMap.get(sc.getReferencedComponentNid());
                break;
 
             default:
@@ -198,7 +198,7 @@ public class ObservableChronologyProvider
          }
       });
       commitRecord.getSemanticNidsInCommit().stream().forEach((semanticNid) -> {
-         if (this.observableSememeMap.containsKey(semanticNid)) {
+         if (this.observableSemanticMap.containsKey(semanticNid)) {
             handleChange(Get.assemblageService().getSemanticChronology(semanticNid));
          }
       });
@@ -212,6 +212,8 @@ public class ObservableChronologyProvider
    private void startMe() {
       LOG.info("Starting ObservableChronologyProvider post-construct");
       Get.commitService().addChangeListener(this);
+      observableConceptMap.clear();
+      observableSemanticMap.clear();
    }
 
    /**
@@ -221,6 +223,8 @@ public class ObservableChronologyProvider
    private void stopMe() {
       LOG.info("Stopping ObservableChronologyProvider");
       Get.commitService().removeChangeListener(this);
+      observableConceptMap.clear();
+      observableSemanticMap.clear();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -315,7 +319,7 @@ public class ObservableChronologyProvider
       @Override
       public ObservableSemanticChronology getObservableSemanticChronology(int id) {
  
-         ObservableSemanticChronology observableSemanticChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
+         ObservableSemanticChronology observableSemanticChronology = ObservableChronologyProvider.this.observableSemanticMap.get(id);
 
          if (observableSemanticChronology != null) {
             return observableSemanticChronology;
@@ -323,7 +327,7 @@ public class ObservableChronologyProvider
 
          SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(id);
          observableSemanticChronology = new ObservableSemanticChronologyImpl(semanticChronology);
-         return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSemanticChronology);
+         return observableSemanticMap.putIfAbsentReturnCurrentValue(id, observableSemanticChronology);
       }
 
       @Override

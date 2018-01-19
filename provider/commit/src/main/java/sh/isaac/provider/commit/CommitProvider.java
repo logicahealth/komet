@@ -165,7 +165,6 @@ public class CommitProvider
 
    private AtomicLong lastCommitTime = new AtomicLong(Long.MIN_VALUE);
 
-   //~--- fields --------------------------------------------------------------
    /**
     * The uncommitted nid lock.
     */
@@ -201,7 +200,7 @@ public class CommitProvider
    /**
     * The deferred import no check nids.
     */
-   AtomicReference<Set<Integer>> deferredImportNoCheckNids = new AtomicReference<>(new ConcurrentSkipListSet<>());
+   private AtomicReference<Set<Integer>> deferredImportNoCheckNids = new AtomicReference<>(new ConcurrentSkipListSet<>());
 
    /**
     * Persistent map of a stamp aliases to a nid.
@@ -249,12 +248,12 @@ public class CommitProvider
    /**
     * The db folder path.
     */
-   private final Path dbFolderPath;
+   private Path dbFolderPath;
 
    /**
     * The commit manager folder.
     */
-   private final Path commitManagerFolder;
+   private Path commitManagerFolder;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -262,26 +261,8 @@ public class CommitProvider
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private CommitProvider()
-           throws IOException {
-      try {
-         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-         Optional<Path>       dataStorePath        = configurationService.getDataStoreFolderPath();
-
-         if (!dataStorePath.isPresent()) {
-            throw new IllegalStateException("dataStorePath is not set");
-         }
-
-         this.dbFolderPath = dataStorePath.get()
-                 .resolve("commit-provider");
-         
-         Files.createDirectories(this.dbFolderPath);
-         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
-      } catch (final IOException e) {
-         LookupService.getService(SystemStatusService.class)
-                 .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
-         throw e;
-      }
+   private CommitProvider() {
+      //For HK2 construction only
    }
 
    //~--- methods -------------------------------------------------------------
@@ -849,8 +830,20 @@ public class CommitProvider
    @PostConstruct
    private void startMe() {
       try {
-      	LOG.info("Starting CommitProvider post-construct at runlevel: " + LookupService.getCurrentRunLevel());
+         LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());
+
+         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+         Optional<Path>       dataStorePath        = configurationService.getDataStoreFolderPath();
+
+         if (!dataStorePath.isPresent()) {
+            throw new IllegalStateException("dataStorePath is not set");
+         }
+
+         this.dbFolderPath = dataStorePath.get()
+                 .resolve("commit-provider");
          
+         Files.createDirectories(this.dbFolderPath);
+         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
 
          if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
             this.databaseValidity = DataStoreStartState.NO_DATASTORE;
@@ -875,6 +868,20 @@ public class CommitProvider
             this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
             Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
          }
+
+         this.lastCommitTime.set(Long.MIN_VALUE);
+         this.changeListeners.clear();
+         this.checkers.clear();
+         this.lastCommit = Long.MIN_VALUE;
+         this.deferredImportNoCheckNids.get().clear();
+         this.stampAliasMap.clear();
+         this.stampCommentMap.clear();
+         this.databaseSequence.set(0);
+         this.uncommittedConceptsWithChecksNidSet.clear();
+         this.uncommittedConceptsNoChecksNidSet.clear();
+         this.uncommittedSemanticsWithChecksNidSet.clear();
+         this.uncommittedSemanticsNoChecksNidSet.clear();
+         this.pendingCommitTasks.clear();
 
          this.writeCompletionService.start();
 
@@ -1007,14 +1014,28 @@ public class CommitProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping CommitProvider pre-destroy at runlevel: " + LookupService.getCurrentRunLevel());
+      LOG.info("Stopping CommitProvider pre-destroy for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
       try {
          sync().get();
-         this.pendingCommitTasks = null;
          this.writeCompletionService.stop();
-      } catch (InterruptedException | ExecutionException ex) {
-           LOG.error(ex);
+         this.dataStoreId = Optional.empty();
+         this.lastCommitTime.set(Long.MIN_VALUE);
+         this.changeListeners.clear();
+         this.checkers.clear();
+         this.lastCommit = Long.MIN_VALUE;
+         this.deferredImportNoCheckNids.get().clear();
+         this.stampAliasMap.clear();
+         this.stampCommentMap.clear();
+         this.databaseSequence.set(0);
+         this.uncommittedConceptsWithChecksNidSet.clear();
+         this.uncommittedConceptsNoChecksNidSet.clear();
+         this.uncommittedSemanticsWithChecksNidSet.clear();
+         this.uncommittedSemanticsNoChecksNidSet.clear();
+         this.pendingCommitTasks.clear();
+      } catch (Exception ex) {
+           LOG.error("error stopping commit provider", ex);
+           throw new RuntimeException(ex);
        }
    }
    

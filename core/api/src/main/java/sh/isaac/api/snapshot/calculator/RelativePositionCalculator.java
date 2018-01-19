@@ -64,7 +64,7 @@ import org.jvnet.hk2.annotations.Service;
 
 
 import sh.isaac.api.Get;
-import sh.isaac.api.OchreCache;
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -86,7 +86,7 @@ import sh.isaac.api.observable.ObservableVersion;
 @Service
 @Singleton  // Singleton from the perspective of HK2 managed instances
 public class RelativePositionCalculator
-         implements OchreCache {
+         implements IsaacCache {
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 

@@ -179,6 +179,8 @@ public class PostCommitProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping PostCommitProvider pre-destroy. ");
+      Get.commitService().removeChangeListener(this);
+      changeSetListeners.clear();
    }
 
    //~--- get methods ---------------------------------------------------------

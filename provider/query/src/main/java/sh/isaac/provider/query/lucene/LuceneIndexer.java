@@ -196,7 +196,7 @@ public abstract class LuceneIndexer
    private ChronologyChangeListener changeListenerRef;
 
    /** The lucene writer service. */
-   protected final ExecutorService luceneWriterService;
+   protected ExecutorService luceneWriterService;
 
    /** The lucene writer future checker service. */
    protected ExecutorService luceneWriterFutureCheckerService;
@@ -225,8 +225,6 @@ public abstract class LuceneIndexer
     */
    protected LuceneIndexer(String indexName) {
          this.indexName          = indexName;
-         this.luceneWriterService = LookupService.getService(WorkExecutors.class)
-               .getIOExecutor();
    }
    
    private IndexWriterConfig getIndexWriterConfig()
@@ -885,7 +883,8 @@ public abstract class LuceneIndexer
    @PostConstruct
    private void startMe() {
       LOG.info("Starting " + getIndexerName() + " post-construct");
-      
+      this.luceneWriterService = LookupService.getService(WorkExecutors.class)
+            .getIOExecutor();
       try
       {
          final Path searchFolder     = LookupService.getService(ConfigurationService.class)
@@ -1079,6 +1078,9 @@ public abstract class LuceneIndexer
       }
       this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
       this.lastDocCache.clear();
+      clearIndexedStatistics();
+      this.dbBuildMode = null;
+      
       
    }
 

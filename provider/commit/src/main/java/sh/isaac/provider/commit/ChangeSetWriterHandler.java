@@ -118,11 +118,8 @@ public class ChangeSetWriterHandler
    /** The write enabled. */
    private boolean writeEnabled;
 
-   /** The db build mode. */
-   private Boolean dbBuildMode;
-
    /** The change set folder. */
-   private final Path changeSetFolder;
+   private Path changeSetFolder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -133,23 +130,7 @@ public class ChangeSetWriterHandler
     */
    public ChangeSetWriterHandler()
             throws Exception {
-      final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
-                                                       .getDataStoreFolderPath();
 
-      this.changeSetFolder = databasePath.get()
-                                         .resolve(CHANGESETS);
-      Files.createDirectories(this.changeSetFolder);
-
-      if (!this.changeSetFolder.toFile()
-                               .isDirectory()) {
-         throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
-                                    this.changeSetFolder.toAbsolutePath());
-      }
-
-      this.writer = new MultipleDataWriterService(this.changeSetFolder,
-            "ChangeSet-",
-            Optional.of(JSON_FILE_SUFFIX),
-            Optional.of(IBDF_FILE_SUFFIX));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -180,12 +161,8 @@ public class ChangeSetWriterHandler
       LOG.info("handle Post Commit");
       writePermits.acquireUninterruptibly();
       try {
-      if (this.dbBuildMode == null) {
-         this.dbBuildMode = Get.configurationService()
-                               .inDBBuildMode();
-      }
 
-      if (this.writeEnabled &&!this.dbBuildMode) {
+      if (this.writeEnabled && !Get.configurationService().inDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();
          final Runnable r = () -> {
@@ -215,7 +192,7 @@ public class ChangeSetWriterHandler
 
          this.changeSetWriteExecutor.execute(r);
       } else {
-         if (this.dbBuildMode) {
+         if (Get.configurationService().inDBBuildMode()) {
             LOG.info("ChangeSetWriter ignoring commit because in db build mode. ");
          }
          if (!this.writeEnabled) {
@@ -304,6 +281,18 @@ public class ChangeSetWriterHandler
    private void startMe() {
       try {
          LOG.info("Starting ChangeSetWriterHandler post-construct");
+         final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
+               .getDataStoreFolderPath();
+
+         this.changeSetFolder = databasePath.get().resolve(CHANGESETS);
+         Files.createDirectories(this.changeSetFolder);
+         
+         if (!this.changeSetFolder.toFile().isDirectory()) {
+            throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
+            this.changeSetFolder.toAbsolutePath());
+         }
+         
+         this.writer = new MultipleDataWriterService(this.changeSetFolder, "ChangeSet-", Optional.of(JSON_FILE_SUFFIX), Optional.of(IBDF_FILE_SUFFIX));
          enable();
          this.changeSetWriteExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("ISAAC-changeset-write",
                false));

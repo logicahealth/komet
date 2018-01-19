@@ -124,10 +124,8 @@ public class ChronologyProvider
 
     //~--- fields --------------------------------------------------------------
     private DataStore store;
-    private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map
-            = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer, VersionType> assemblageNid_VersionType_Map
-            = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, IsaacObjectType> assemblageNid_ObjectType_Map;
+    private ConcurrentHashMap<Integer, VersionType> assemblageNid_VersionType_Map;
     
    //set to -1, when we haven't loaded yet.  Set to 1, when we have (and did) load metadata.  Set to 0, when we have checked, 
    //but didn't load metadata because the database was already loaded, or the preferences said not to.
@@ -219,7 +217,8 @@ public class ChronologyProvider
      */
     @PostConstruct
     private void startMe() {
-        LOG.info("Starting chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
+        LOG.info("Starting chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+        this.metadataLoaded.set(-1);
         store = Get.service(DataStore.class);
         this.assemblageNid_ObjectType_Map = store.getAssemblageObjectTypeMap();
         this.assemblageNid_VersionType_Map = store.getAssemblageVersionTypeMap();
@@ -231,8 +230,11 @@ public class ChronologyProvider
     @PreDestroy
     private void stopMe() {
         try {
-            LOG.info("Stopping chronology provider at runlevel: " + LookupService.getCurrentRunLevel());
+            LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
             this.sync().get();
+            this.assemblageNid_ObjectType_Map = null;
+            this.assemblageNid_VersionType_Map = null;
+            this.metadataLoaded.set(-1);
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error(ex);
         }
