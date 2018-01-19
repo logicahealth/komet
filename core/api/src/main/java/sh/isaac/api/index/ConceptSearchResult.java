@@ -164,5 +164,18 @@ public class ConceptSearchResult
    public float getScore() {
       return getBestScore();
    }
+   
+   @Override
+   public int hashCode() {
+      return Integer.hashCode(conceptSequence);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj != null && obj instanceof ConceptSearchResult) {
+         return new Integer(conceptSequence).equals(((ConceptSearchResult)obj).conceptSequence);
+      }
+      return false;
+   }
 }
 
