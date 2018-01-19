@@ -386,7 +386,11 @@ public class SemanticIndexer
       // the cheaper option from a disk space perspective (maybe, depending on the data) would be to create a document per
       // column.  The queries would be trivial to write then, but we would be duplicating the component nid and assemblage nid
       // in each document, which is also expensive.  It also doesn't fit the model in OTF, of a document per component.
-      // We also duplicate again, on string fields by indexing with the white space analyzer, in addition to the normal one.
+      // We also duplicate again, on string fields by indexing with the white space analyzer, in addition to the normal one, 
+      // when indexing strings.
+      // And we cannot just put the column numbers in their own field, and adjust the queries, because the queries match on the document.
+      // And with multiple data fields per semantic / per document, we wouldn't be able to properly restrict the search on columns
+      // without column specific indexing.
       if (dataCol == null) {
          // noop
       } else if (dataCol instanceof DynamicBoolean) {
