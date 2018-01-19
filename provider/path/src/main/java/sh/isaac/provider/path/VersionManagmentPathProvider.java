@@ -49,6 +49,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
@@ -97,7 +100,9 @@ public class VersionManagmentPathProvider
    /**
     * Instantiates a new path provider.
     */
-   protected VersionManagmentPathProvider() {}
+   private VersionManagmentPathProvider() {
+      //For HK2 only
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -109,7 +114,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public boolean exists(int pathConceptId) {
-      setupPathMap();
 
       if (this.pathMap.containsKey(pathConceptId)) {
          return true;
@@ -124,22 +128,25 @@ public class VersionManagmentPathProvider
     * Setup path map.
     */
    private void setupPathMap() {
-      if (this.pathMap == null) {
-         LOCK.lock();
+      LOCK.lock();
+      
+      LOG.info("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
+      try {
+         ConcurrentHashMap<Integer, StampPath> newMap = new ConcurrentHashMap<>();
+         
+         Get.assemblageService()
+            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
+            .forEach((pathSememe) -> {
+                        final int pathNid = pathSememe.getReferencedComponentNid();
 
-         try {
-            this.pathMap = new ConcurrentHashMap<>();
-            Get.assemblageService()
-               .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
-               .forEach((pathSememe) -> {
-                           final int pathNid = pathSememe.getReferencedComponentNid();
-
-                           this.pathMap.put(pathNid, new StampPathImpl(pathNid));
-                        });
-         } finally {
-            LOCK.unlock();
-         }
+                        newMap.put(pathNid, new StampPathImpl(pathNid));
+                     });
+         
+         this.pathMap = newMap;
+      } finally {
+         LOCK.unlock();
       }
+      LOG.info("Finished rebuilding the path map.  New map size: {}", this.pathMap.size());
    }
 
    /**
@@ -190,8 +197,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public Collection<? extends StampPosition> getOrigins(int stampPathNid) {
-      setupPathMap();
-
       return getPathOriginsFromDb(stampPathNid);
    }
 
@@ -277,8 +282,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public StampPath getStampPath(int stampPathNid) {
-      setupPathMap();
-
       if (exists(stampPathNid)) {
          return this.pathMap.get(stampPathNid);
       }
@@ -291,6 +294,29 @@ public class VersionManagmentPathProvider
 
       throw new IllegalStateException("No path for: " + stampPathNid + " " +
                                       Get.conceptService().getConceptChronology(stampPathNid).toString());
+   }
+   
+   @Override
+   public void rebuildPathMap() {
+      setupPathMap();
+   }
+   
+   /**
+    * Start me.
+    */
+   @PostConstruct
+   private void startMe() {
+      LOG.info("VersionManagementPathProvider starts");
+      setupPathMap();
+   }
+
+   /**
+    * Stop me.
+    */
+   @PreDestroy
+   private void stopMe() {
+      LOG.info("VersionManagementPathProvider stops");
+      this.pathMap = null;
    }
 }
 

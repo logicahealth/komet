@@ -111,5 +111,11 @@ public interface VersionManagmentPathService {
     * @return the stamp path
     */
    StampPath getStampPath(int stampPathSequence);
+   
+   /**
+    * rebuild internal knowledge of paths (may be necessary after metadata loads, etc)
+    * TODO make the versionManagementPathService a commit watcher of sorts, so it can automatically do this when necessary?
+    */
+   void rebuildPathMap();
 }
 
