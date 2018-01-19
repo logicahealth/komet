@@ -1,4 +1,4 @@
-package sh.isaac.integration.tests;
+package sh.isaac.integration.tests.suite3;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -64,12 +64,15 @@ import sh.isaac.utility.Frills;
  * 
  */
 @HK2("integration")
+@Test(suiteName="suite3")
 public class VhatXmlTests {
    private static final Logger LOG = LogManager.getLogger();
    
    private boolean debugMode = false;
    
    private XPath xpath_ = XPathFactory.newInstance().newXPath();
+   
+   //TODO [DAN 3] This class needs work before it will function again...
    
    //xpaths
    private static final String XPATH_DELIMITER = "/";

@@ -37,7 +37,9 @@
 
 
 
-package sh.isaac.integration.tests;
+package sh.isaac.integration.tests.suite1;
+
+import java.io.File;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -51,12 +53,15 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.testing.hk2testng.HK2;
 
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
+import sh.isaac.api.util.RecursiveDelete;
+import sh.isaac.komet.preferences.PreferencesProvider;
 
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 
@@ -71,7 +76,8 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 //https://www.jfokus.se/jfokus08/pres/jf08-HundredKilobytesKernelHK2.pdf
 //https://github.com/saden1/hk2-testng
 @HK2("integration")
-public class IntegrationSuiteManagement {
+@Test(suiteName="suite1")
+public class Suite1Management {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -85,7 +91,7 @@ public class IntegrationSuiteManagement {
    @AfterSuite
    public void tearDownSuite()
             throws Exception {
-      LOG.info("IntegrationSuiteManagement teardown");
+   	LOG.info("Suite 1 teardown");
       LookupService.shutdownSystem();
       ActiveTasksTicker.stop();
       HeapUseTicker.stop();
@@ -98,11 +104,14 @@ public class IntegrationSuiteManagement {
     *
     * @throws Exception the exception
     */
-   @BeforeGroups(groups = { "db", "load", "frills", "vhat-xml" })
+   @BeforeSuite
    public void setUpSuite()
             throws Exception {
-      LOG.info("IntegrationSuiteManagement setup");
-      System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/testdb/");
+      LOG.info("Suite 1 setup");
+      RecursiveDelete.delete(new File("target/suite1"));
+      PreferencesProvider.clearSetProperties();
+      System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/suite1/");
+      
 
       final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
 

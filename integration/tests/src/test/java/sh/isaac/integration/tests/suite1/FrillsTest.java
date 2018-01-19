@@ -1,4 +1,4 @@
-package sh.isaac.integration.tests;
+package sh.isaac.integration.tests.suite1;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +17,7 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @HK2("integration")
+@Test(suiteName="suite1")
 public class FrillsTest {
 	private static final Logger LOG = LogManager.getLogger();
 

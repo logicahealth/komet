@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.integration.tests;
+package sh.isaac.integration.tests.suite1;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -101,6 +101,7 @@ import sh.isaac.model.ModelGet;
  * Created by kec on 1/2/16.
  */
 @HK2("integration")
+@Test(suiteName="suite1")
 public class ImportExportTest {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -189,6 +190,7 @@ public class ImportExportTest {
          final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
+                                                                         "exported",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
 
          Get.isaacExternalizableStream()
@@ -239,6 +241,7 @@ public class ImportExportTest {
          final IsaacExternalizableStatsTestFilter exportStats = new IsaacExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
                                                                          "data",
+                                                                         "exported",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
 
          Get.isaacExternalizableStream()
@@ -253,6 +256,7 @@ public class ImportExportTest {
 
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
+                                                                               "exported",
                                                                                "IsaacMetadataAuxiliary.export.ibdf"));
          final IsaacExternalizableStatsTestFilter localImportStats   = new IsaacExternalizableStatsTestFilter();
          final CommitService                      commitService = Get.commitService();

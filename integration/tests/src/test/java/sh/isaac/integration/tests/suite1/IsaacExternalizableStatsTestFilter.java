@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.integration.tests;
+package sh.isaac.integration.tests.suite1;
 
 //~--- JDK imports ------------------------------------------------------------
 
