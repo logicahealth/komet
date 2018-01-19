@@ -71,7 +71,8 @@ public interface IndexQueryService {
    /**
     * Simple query utilizing defaults suitable for most, across all indexed content in this index
     *
-    * @param query The query to apply.
+    * @param query The query to apply.  
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Defaults to a system
     *           default size.
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that match relative to other
@@ -84,6 +85,7 @@ public interface IndexQueryService {
     * Simple query still utilizing defaults suitable for most, but allowing additional optional restrictions.
     *
     * @param query - The query to apply
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
     * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
@@ -108,7 +110,9 @@ public interface IndexQueryService {
     * Simple query still utilizing defaults suitable for most, but allowing additional optional restrictions, and also enabling switching into
     * prefixSearch mode.
     *
-    * @param query The query to apply.
+    * @param query The query to apply.  In cases where prefixSearch is false, see 
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The query parser is not used in cases there prefixSearch is true.
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
     *           string will be required to be found in the result.
@@ -121,7 +125,6 @@ public interface IndexQueryService {
     *           The query "family test" will return results that contain 'Family Testudinidae' 
     *           The query "family test " will not match on 'Testudinidae', so that will be excluded.
     * 
-    * @param query - The query to apply
     * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
@@ -148,7 +151,9 @@ public interface IndexQueryService {
     * Query with many optional restrictions, and also enabling switching into prefixSearch mode and supplying arbitrary additional query
     * criteria via a predicate.
     *
-    * @param query The query to apply.
+    * @param query The query to apply.  In cases where prefixSearch is false, see 
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The query parser is not used in cases there prefixSearch is true.
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
     *           string will be required to be found in the result.
@@ -160,7 +165,6 @@ public interface IndexQueryService {
     *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
     *           match on 'Testudinidae', so that will be excluded.
     * 
-    * @param query - The query to apply
     * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.

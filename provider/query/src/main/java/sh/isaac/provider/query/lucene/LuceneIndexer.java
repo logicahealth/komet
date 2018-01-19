@@ -694,7 +694,7 @@ public abstract class LuceneIndexer
          // Include the module and path selelctions
          q = this.addAmpRestriction(q, amp);
 
-         LOG.debug("Running query: {}", q.toString());
+         LOG.info("Running query: {}", q.toString());
 
          int internalPage = pageNum == null ? 1 : pageNum < 1 ? 1 : pageNum.intValue();
          int internalSize = sizeLimit == null ? 100 : sizeLimit < 1 ? 1 : sizeLimit.intValue();
@@ -706,14 +706,14 @@ public abstract class LuceneIndexer
 
          ScoreDoc after = getAfterScoreDoc(q, filter, internalPage, internalSize, targetGeneration);
 
-         // Note, we cannot just ask lucene for the same page size / result count as we are asked for, because lucene may have multiple versoins
+         // Note, we cannot just ask lucene for the same page size / result count as we are asked for, because lucene may have multiple versions
          // of a component indexed, which each match the query. However, since we only return nids, not versions, these results get merged.
          // We will ask lucene for a few extra results up front, and then keep going until the requested number of docs are found, or no more
          // matches/results
          while (!complete) {
             
             //We use this API for search even when we don't have a filter, because this also enables parallel searching in the lower levels of lucene.
-            TopDocs topDocs = searcher.search(q, new IsaacFilteredCollectorManager(filter, internalSize + 10, after));
+            TopDocs topDocs = searcher.search(q, new IsaacFilteredCollectorManager(filter, Math.min(500, internalSize), after));
 
             // If no scoreDocs exist, we're done
             if (topDocs.scoreDocs.length == 0) {
