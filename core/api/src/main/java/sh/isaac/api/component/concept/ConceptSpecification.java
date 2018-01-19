@@ -93,7 +93,6 @@ public interface ConceptSpecification
     *
     * @return a text description for the specified concept.
     */
-   Optional<String> getRegularName();   
-   
+   Optional<String> getRegularName();
 }
 
