@@ -121,7 +121,10 @@ import sh.isaac.model.taxonomy.TaxonomyRecord;
  * @author kec
  */
 //@Service
-//@RunLevel(value = LookupService.SL_L0)  //TODO [DAN 1] why isn't this a service anymore???
+//@RunLevel(value = LookupService.SL_L0)  //TODO [KEC] Service disabled, as it doesn't work at the moment...
+//However, rather than disabling services, we should likely have a HK2 "name" on each DataStore implementation, and 
+//a user preference to select which one we run with.
+//TODO [DAN 3] [KEC] All of the fields set up in the class construction need to be properly cleared / purged on a shutdown/startup cycle.
 public class BdbProvider
          implements DataStore {
    /**
