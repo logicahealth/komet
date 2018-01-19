@@ -44,6 +44,7 @@ import java.util.function.Consumer;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -210,6 +211,8 @@ public class LoadTermstoreSemaphore
                 this.stampAliasCount.set(0);
                 this.stampCommentCount.set(0);
             }
+            
+            Get.service(VersionManagmentPathService.class).rebuildPathMap();
 
             getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 

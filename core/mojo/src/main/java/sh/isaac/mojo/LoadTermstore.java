@@ -80,6 +80,7 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
@@ -456,6 +457,9 @@ public class LoadTermstore
             this.stampCommentCount = 0;
             this.skippedItems.clear();
          }
+         
+         Get.service(VersionManagmentPathService.class).rebuildPathMap();
+         
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
@@ -478,7 +482,7 @@ public class LoadTermstore
                   
                   UUID primordial = sc.getPrimordialUuid();
                   json.write(sc);
-                  getLog().error("Failed on taxonomy update for object with primoridial UUID " + primordial.toString() + ": " +  baos.toString());
+                  getLog().error("Failed on taxonomy update for object with primoridial UUID " + primordial.toString() + ": " +  baos.toString(), e);
                   json.close();
                }
                } else {
