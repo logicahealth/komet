@@ -60,7 +60,10 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     * 
     * Everything else is the same as @see #query(String, boolean, int[], Predicate, AmpRestriction, Integer, Integer, Long)
     *
-    * @param query The query to apply.
+    * @param query The query to apply.  In the description Indexer implementations, the indexer has special rules for handling 
+    *           semantic tags - which will disallow the use of the lucene query parser "grouping" feature, if the group appears
+    *           to be a semantic tag (if it appears at the end of the string)
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
     *           string will be required to be found in the result.
@@ -72,9 +75,8 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           For example: The query "family test" will return results that contain 'Family Testudinidae' The query "family test " will not
     *           match on 'Testudinidae', so that will be excluded.
     * 
-    * @param query - The query to apply
     * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
-    *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
+    *           content in this index. This could be set to {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
     * @param filter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
     *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
