@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -52,6 +51,7 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.util.SemanticTags;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -119,9 +119,8 @@ public class DescriptionIndexer extends LuceneIndexer
     * @param doc the doc
     * @param semanticChronology the semantic chronology
     */
-   private void indexDescription(Document doc,
-                                 SemanticChronology semanticChronology) {
-      doc.add(new IntPoint(FIELD_SEMANTIC_ASSEMBLAGE_NID, semanticChronology.getAssemblageNid()));
+   private void indexDescription(Document doc,SemanticChronology semanticChronology) {
+      doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_NID, semanticChronology.getAssemblageNid() + "", Field.Store.NO));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
@@ -227,6 +226,13 @@ public class DescriptionIndexer extends LuceneIndexer
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
+      
+      if (!prefixSearch && SemanticTags.containsSemanticTag(query))
+      {
+         //If they include a semantic tag, adjust their query so that the tag is not treated like a lucene grouping rule.
+         //Note, grouping rules are still allowed, so long as they aren't at the very end of the query (so they don't look like a semantic tag)
+         query = SemanticTags.stripSemanticTagIfPresent(query) + " \\(" + SemanticTags.findSemanticTagIfPresent(query).get() + "\\)";
+      }
 
       Query q = buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly);
 
