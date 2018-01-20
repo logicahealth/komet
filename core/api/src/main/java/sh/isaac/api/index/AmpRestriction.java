@@ -84,6 +84,11 @@ public class AmpRestriction {
       return ar;
    }
    
+   /**
+    * Build an AmpRestriction by extracting the modules and Path from the manifold coordinate
+    * @param mc
+    * @return
+    */
    public static AmpRestriction restrict(ManifoldCoordinate mc) {
       AmpRestriction ar = new AmpRestriction();
       ar.authors = NidSet.EMPTY;
