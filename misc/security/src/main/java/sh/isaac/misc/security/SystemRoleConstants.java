@@ -40,11 +40,11 @@
 package sh.isaac.misc.security;
 
 /**
- * {@link PrismeRoleConstants}.
+ * {@link SystemRoleConstants}.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
-public class PrismeRoleConstants {
+public class SystemRoleConstants {
    public final static String SUPER_USER = "super_user";
    public final static String ADMINISTRATOR = "administrator";
    public final static String READ_ONLY = "read_only";

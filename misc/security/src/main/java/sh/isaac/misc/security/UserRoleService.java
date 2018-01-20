@@ -64,7 +64,7 @@ public interface UserRoleService {
     *
     * @return all user roles defined in prism
     */
-   Set<PrismeRole> getAllPossibleUserRoles();
+   Set<SystemRole> getAllPossibleUserRoles();
 
    /**
     * @param userId            the user's id represented as a UUID

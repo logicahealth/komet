@@ -41,18 +41,18 @@ public class User implements Principal {
    private final String name;
    private final String ssoToken;
    private final UUID id;
-   private Set<PrismeRole> roles = new HashSet<>();
+   private Set<SystemRole> roles = new HashSet<>();
    private long rolesUpdatedAt;
    
-   public User(String name, UUID id, String ssoToken, Collection<PrismeRole> roles) {
-      this(name, id, ssoToken, roles != null ? roles.toArray(new PrismeRole[roles.size()]) : (PrismeRole[])null);
+   public User(String name, UUID id, String ssoToken, Collection<SystemRole> roles) {
+      this(name, id, ssoToken, roles != null ? roles.toArray(new SystemRole[roles.size()]) : (SystemRole[])null);
    }
-   public User(String name, UUID id, String ssoToken, PrismeRole...roles) {
+   public User(String name, UUID id, String ssoToken, SystemRole...roles) {
       this.name = name;
       this.id = id;
       this.ssoToken = StringUtils.isBlank(ssoToken) ? null : ssoToken;
       if (roles != null) {
-         for (PrismeRole role : roles) {
+         for (SystemRole role : roles) {
             this.roles.add(role);
          }
       }
@@ -99,11 +99,11 @@ public class User implements Principal {
     * Replace the existing roles with the provided roles
     * @param roles
     */
-   public void updateRoles(PrismeRole...roles)
+   public void updateRoles(SystemRole...roles)
    {
-      HashSet<PrismeRole> newRoles = new HashSet<>();
+      HashSet<SystemRole> newRoles = new HashSet<>();
       if (roles != null) {
-         for (PrismeRole role : roles) {
+         for (SystemRole role : roles) {
             newRoles.add(role);
          }
       }
@@ -114,7 +114,7 @@ public class User implements Principal {
    /**
     * @return
     */
-   public Set<PrismeRole> getRoles() {
+   public Set<SystemRole> getRoles() {
       return Collections.unmodifiableSet(roles);
    }
 

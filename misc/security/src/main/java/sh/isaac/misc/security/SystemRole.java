@@ -29,24 +29,24 @@ import java.util.Optional;
  * @author cshupp
  * 
  */
-public enum PrismeRole {
-   SUPER_USER(PrismeRoleType.GENERAL, PrismeRoleConstants.SUPER_USER),
-   ADMINISTRATOR(PrismeRoleType.GENERAL, PrismeRoleConstants.ADMINISTRATOR),
-   READ_ONLY(PrismeRoleType.GENERAL, PrismeRoleConstants.READ_ONLY),
-   EDITOR(PrismeRoleType.MODELING, PrismeRoleConstants.EDITOR),
-   REVIEWER(PrismeRoleType.MODELING, PrismeRoleConstants.REVIEWER),
-   APPROVER(PrismeRoleType.MODELING, PrismeRoleConstants.APPROVER),
-   VUID_REQUESTOR(PrismeRoleType.GENERAL, PrismeRoleConstants.VUID_REQUESTOR),
-   NTRT_USER(PrismeRoleType.GENERAL, PrismeRoleConstants.NTRT_USER),
-   NTRT_STAFF(PrismeRoleType.GENERAL, PrismeRoleConstants.NTRT_STAFF),
-   NTRT_ADMIN(PrismeRoleType.GENERAL, PrismeRoleConstants.NTRT_ADMIN),
-   DEPLOYMENT_MANAGER(PrismeRoleType.DEPLOYMENT, PrismeRoleConstants.DEPLOYMENT_MANAGER),
-   AUTOMATED(PrismeRoleType.NON_USER, PrismeRoleConstants.AUTOMATED);
+public enum SystemRole {
+   SUPER_USER(SystemRoleType.GENERAL, SystemRoleConstants.SUPER_USER),
+   ADMINISTRATOR(SystemRoleType.GENERAL, SystemRoleConstants.ADMINISTRATOR),
+   READ_ONLY(SystemRoleType.GENERAL, SystemRoleConstants.READ_ONLY),
+   EDITOR(SystemRoleType.MODELING, SystemRoleConstants.EDITOR),
+   REVIEWER(SystemRoleType.MODELING, SystemRoleConstants.REVIEWER),
+   APPROVER(SystemRoleType.MODELING, SystemRoleConstants.APPROVER),
+   VUID_REQUESTOR(SystemRoleType.GENERAL, SystemRoleConstants.VUID_REQUESTOR),
+   NTRT_USER(SystemRoleType.GENERAL, SystemRoleConstants.NTRT_USER),
+   NTRT_STAFF(SystemRoleType.GENERAL, SystemRoleConstants.NTRT_STAFF),
+   NTRT_ADMIN(SystemRoleType.GENERAL, SystemRoleConstants.NTRT_ADMIN),
+   DEPLOYMENT_MANAGER(SystemRoleType.DEPLOYMENT, SystemRoleConstants.DEPLOYMENT_MANAGER),
+   AUTOMATED(SystemRoleType.NON_USER, SystemRoleConstants.AUTOMATED);
 
    private String myName;
-   private PrismeRoleType myType;
+   private SystemRoleType myType;
 
-   private PrismeRole(PrismeRoleType type, String name) {
+   private SystemRole(SystemRoleType type, String name) {
       myType = type;
       myName = name;
    }
@@ -55,18 +55,18 @@ public enum PrismeRole {
       return myName;
    }
    
-   public PrismeRoleType getType() {
+   public SystemRoleType getType() {
       return myType;
    }
    
-    public static PrismeRole getEnum(String value) {
-        for(PrismeRole v : values())
+    public static SystemRole getEnum(String value) {
+        for(SystemRole v : values())
             if(v.toString().equalsIgnoreCase(value)) return v;
         throw new IllegalArgumentException("No enum existst for " + value);
     }
 
-   public static Optional<PrismeRole> safeValueOf(String str) {
-      for (PrismeRole role : PrismeRole.values()) {
+   public static Optional<SystemRole> safeValueOf(String str) {
+      for (SystemRole role : SystemRole.values()) {
          if (role.myName.equalsIgnoreCase(str)) {
             return Optional.of(role);
          }
@@ -74,8 +74,8 @@ public enum PrismeRole {
       
       return Optional.empty();
    }
-   public static Optional<PrismeRole> safeValueOf(int ord) {
-      for (PrismeRole role : PrismeRole.values()) {
+   public static Optional<SystemRole> safeValueOf(int ord) {
+      for (SystemRole role : SystemRole.values()) {
          if (role.ordinal() == ord) {
             return Optional.of(role);
          }

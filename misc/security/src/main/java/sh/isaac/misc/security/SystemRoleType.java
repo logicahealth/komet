@@ -19,7 +19,7 @@
 
 package sh.isaac.misc.security;
 
-public enum PrismeRoleType {
+public enum SystemRoleType {
    /*
     * 
     * General role type.  Catch all.  Use this in most cases.
