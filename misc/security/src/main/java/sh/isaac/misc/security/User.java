@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package sh.isaac.api;
+package sh.isaac.misc.security;
 
 import java.security.Principal;
 import java.util.Collection;

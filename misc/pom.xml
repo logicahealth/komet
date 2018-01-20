@@ -17,5 +17,6 @@
        <module>util</module>
        <module>vhat-constants</module>
        <module>vhat-util</module>
+       <module>security</module>
     </modules>
 </project>

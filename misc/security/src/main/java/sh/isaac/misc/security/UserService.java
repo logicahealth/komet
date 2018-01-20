@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package sh.isaac.api;
+package sh.isaac.misc.security;
 
 import java.util.Optional;
 import java.util.UUID;

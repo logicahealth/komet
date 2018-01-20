@@ -37,41 +37,25 @@
 
 
 
-package sh.isaac.api;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.Set;
-import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.jvnet.hk2.annotations.Contract;
-
-//~--- interfaces -------------------------------------------------------------
+package sh.isaac.misc.security;
 
 /**
- * The Interface UserRoleService. The service is used for accessing the
- * roles available to users. They can be defined in prism or hard coded for
- * testing
+ * {@link PrismeRoleConstants}.
  *
- * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
+ * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
-@Contract
-public interface UserRoleService {
-   /**
-    * List out all user roles defined both in prism and in the UserRole enum.
-    *
-    * @return all user roles defined in prism
-    */
-   Set<PrismeRole> getAllPossibleUserRoles();
-
-   /**
-    * @param userId            the user's id represented as a UUID
-    * @return the user (which contains roles) for a given user id
-    *
-    * This method should throw exception if the user is not available
-    */
-   User getUser(UUID userId);
+public class PrismeRoleConstants {
+   public final static String SUPER_USER = "super_user";
+   public final static String ADMINISTRATOR = "administrator";
+   public final static String READ_ONLY = "read_only";
+   public final static String EDITOR = "editor";
+   public final static String REVIEWER = "reviewer";
+   public final static String APPROVER = "approver";
+   public final static String VUID_REQUESTOR = "vuid_requestor";
+   public final static String NTRT_USER = "ntrt_user";
+   public final static String NTRT_STAFF = "ntrt_staff";
+   public final static String NTRT_ADMIN = "ntrt_admin";
+   public final static String DEPLOYMENT_MANAGER = "deployment_manager";
+   public final static String AUTOMATED = "automated";
 }
 
