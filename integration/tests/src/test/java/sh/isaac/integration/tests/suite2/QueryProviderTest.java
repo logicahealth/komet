@@ -69,7 +69,6 @@ public class QueryProviderTest {
 		lt.setLog(new SystemStreamLog());
 		lt.setibdfFilesFolder(new File("target/data/"));
 		lt.execute();
-		new IndexTermstore().execute();
 
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		si = LookupService.get().getService(SemanticIndexer.class);
