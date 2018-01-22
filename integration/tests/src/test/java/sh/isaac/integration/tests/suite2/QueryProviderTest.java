@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.search.Query;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,7 +38,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.Constants;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.RecursiveDelete;
@@ -52,22 +50,6 @@ import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
 @Test(suiteName = "suite2")
 public class QueryProviderTest {
-	String query_ = "dynamic*";
-	String field_ = "_string_content_";
-	boolean prefixSearch_ = true;
-	boolean metadataOnly_ = false;
-
-	StampCoordinate stamp1_;
-	StampCoordinate stamp2_;
-	StampCoordinate stamp3_;
-	StampCoordinate stamp4_;
-
-	Query q_base_ = null;
-	Query q_stamp0_ = null;
-	Query q_stamp1_ = null;
-	Query q_stamp2_ = null;
-	Query q_stamp3_ = null;
-	Query q_stamp4_ = null;
 
 	DescriptionIndexer di = null;
 	SemanticIndexer si = null;
@@ -91,8 +73,6 @@ public class QueryProviderTest {
 
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		si = LookupService.get().getService(SemanticIndexer.class);
-		// TODO [DAN 1] implement some reasonable tests here on paging, etc
-
 	}
 
 	@AfterClass
