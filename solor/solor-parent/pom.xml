@@ -14,7 +14,7 @@
       for SOLOR projects. SOLOR projects are specific to managing SNOMED, LOINC, and RxNorm content, 
       and publishing that content using maven dependency management, and ISAAC data structures, processed 
       using ISAAC libraries.</description>
- 	
+    
    <developers>
       <developer>
          <properties>
@@ -22,16 +22,7 @@
          </properties>
       </developer>
    </developers>
-  
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>sh.isaac.core</groupId>
-            <artifactId>model</artifactId>
-            <version>${project.parent.version}</version>
-         </dependency>
-      </dependencies>
-   </dependencyManagement>
+
    <build>
       <pluginManagement>
          <plugins>
@@ -49,7 +40,12 @@
                <groupId>sh.isaac.solor</groupId>
                <artifactId>rxnorm-mojo</artifactId>
                <version>${project.parent.version}</version>
-            </plugin>      
+            </plugin>
+            <plugin>
+               <groupId>sh.isaac.solor</groupId>
+               <artifactId>solor-mojo</artifactId>
+               <version>${project.parent.version}</version>
+            </plugin>
          </plugins>
       </pluginManagement>
       <plugins>
@@ -59,7 +55,7 @@
             <dependencies>
                <dependency>
                   <groupId>sh.isaac.solor</groupId>
-                  <artifactId>rf2-mojo</artifactId>
+                  <artifactId>solor-mojo</artifactId>
                   <version>${project.parent.version}</version>
                </dependency>
             </dependencies>
@@ -69,7 +65,7 @@
                   <phase>initialize</phase>
                   <configuration>
                      <rules>
-                        <myCustomRule implementation="sh.isaac.convert.rf2.mojo.VerifyIbdfVersionFormat" />
+                        <myCustomRule implementation="sh.isaac.solor.mojo.VerifyIbdfVersionFormat" />
                      </rules>
                   </configuration>
                   <goals>
