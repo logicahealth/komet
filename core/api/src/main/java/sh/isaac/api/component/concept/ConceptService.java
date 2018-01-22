@@ -80,7 +80,8 @@ public interface ConceptService
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept.
+    * Gets the concept.  Note, this method can only be used for getting concepts that you know exist, if you 
+    * ask for a concept that doesn't yet exist, you will get a runtime exception.
     *
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
@@ -106,7 +107,8 @@ public interface ConceptService
    ConceptChronology getConceptChronology(UUID... conceptUuids);
 
    /**
-    * Gets the concept.
+    * Gets the concept.   Note, this method can only be used for getting concepts that you know exist, if you 
+    * ask for a concept that doesn't yet exist, you will get a runtime exception.
     *
     * @param conceptSpecification a specification of a concept.
     * @return the concept chronology associated with the identifier.
