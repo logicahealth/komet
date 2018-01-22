@@ -110,22 +110,20 @@ public class SemanticChronologyImpl
     *
     * @param semanticType the sememe type
     * @param primordialUuid the primordial uuid
-    * @param nid the nid
     * @param assemblageNid the assemblage sequence
     * @param referencedComponentNid the referenced component nid
     */
    public SemanticChronologyImpl(VersionType semanticType,
                                  UUID primordialUuid,
-                                 int nid,
                                  int assemblageNid,
                                  int referencedComponentNid) {
-      super(primordialUuid, nid, assemblageNid);
+      super(primordialUuid, assemblageNid);
       this.semanticTypeToken      = semanticType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
-      ModelGet.identifierService().setupNid(nid, assemblageNid, 
+      ModelGet.identifierService().setupNid(getNid(), assemblageNid, 
               IsaacObjectType.SEMANTIC, semanticType);
       ModelGet.identifierService()
-              .addToSemanticIndex(referencedComponentNid, nid);
+              .addToSemanticIndex(referencedComponentNid, getNid());
    }
 
    //~--- methods -------------------------------------------------------------

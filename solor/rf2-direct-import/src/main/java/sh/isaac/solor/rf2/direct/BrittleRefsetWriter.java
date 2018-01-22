@@ -159,7 +159,6 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
             }
             
             UUID   elementUuid       = UUID.fromString(refsetRecord[REFSET_MEMBER_UUID]);
-            int   elementNid         = identifierService.getNidForUuids(elementUuid);
             int   moduleNid          = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
             int   assemblageNid      = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
             int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
@@ -170,7 +169,6 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
             SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
                                                         this.importSpecification.streamType.getSemanticVersionType(),
                                                               elementUuid,
-                                                              elementNid,
                                                               assemblageNid,
                                                               referencedComponentNid);
             

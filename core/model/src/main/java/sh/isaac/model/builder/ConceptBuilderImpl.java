@@ -276,9 +276,8 @@ public class ConceptBuilderImpl
       
       
       UUID[] uuids = getUuids();
-      int nid = Get.identifierService().getNidForUuids(uuids);
       // TODO handle assemblage nid properly, by adding it to the builder. 
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }
@@ -307,8 +306,7 @@ public class ConceptBuilderImpl
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       // TODO handle assemblage nid properly, by adding it to the builder. 
       UUID[] uuids = getUuids();
-      int nid = Get.identifierService().getNidForUuids(uuids);
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], nid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }

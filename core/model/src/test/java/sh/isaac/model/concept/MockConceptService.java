@@ -117,7 +117,7 @@ public class MockConceptService
          return this.conceptsMap.get(conceptNid);
       }
 
-      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, 0);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], 0);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));

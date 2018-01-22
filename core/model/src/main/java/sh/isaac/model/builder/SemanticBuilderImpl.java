@@ -180,10 +180,9 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
       SemanticVersion version = null;
       SemanticChronologyImpl semanticChronicle;
-      final int            semanticNid = Get.identifierService()
-                                          .getNidForUuids(this.getUuids());
 
-      if (Get.identifierService().getAssemblageNid(semanticNid).isPresent()) {
+      final int semanticNid = Get.identifierService().getNidForUuids(this.getUuids());
+      if (Get.assemblageService().hasSemantic(semanticNid)) {
          semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
                .getSemanticChronology(semanticNid);
 
@@ -196,7 +195,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       } else {
          semanticChronicle = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
-               semanticNid,
                this.assemblageConceptNid,
                this.referencedComponentNid);
       }
@@ -320,12 +318,10 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       SemanticVersion version;
       SemanticChronologyImpl sememeChronicle;
-      final int            sememeNid = Get.identifierService()
-                                          .getNidForUuids(this.getUuids());
 
-      if (Get.identifierService().getAssemblageNid(sememeNid).isPresent()) {
-         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
-               .getSemanticChronology(sememeNid);
+      final int semanticNid = Get.identifierService().getNidForUuids(this.getUuids());
+      if (Get.assemblageService().hasSemantic(semanticNid)) {
+         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
 
          if ((sememeChronicle.getVersionType() != this.semanticType) ||
                !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
@@ -336,7 +332,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       } else {
          sememeChronicle = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
-               sememeNid,
                this.assemblageConceptNid,
                this.referencedComponentNid);
       }
@@ -464,14 +459,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]).get();
                setPrimordialUuid(UuidFactory.getUuidForComponentNidSememe(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
            } else if (semanticType == semanticType.DESCRIPTION) {
-        	   setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, assemblageUuid, refCompUuid, 
-        			                       Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]).get(),
-        			                       Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]).get(),
-        			                       Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]).get(),
-        			                       (String) parameters[3],
-        			                       consumer));
+              setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, assemblageUuid, refCompUuid, 
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]).get(),
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]).get(),
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]).get(),
+                                        (String) parameters[3],
+                                        consumer));
            } else if (semanticType == semanticType.STRING) {
-        	   setPrimordialUuid(UuidFactory.getUuidForStringSememe(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+              setPrimordialUuid(UuidFactory.getUuidForStringSememe(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
            }
        }
       return this;

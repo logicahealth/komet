@@ -149,7 +149,6 @@ public class DialectWriter
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
             // add to dialect assemblage
-            int elementNid           = identifierService.getNidForUuids(elementUuid);
             int moduleNid            = identifierService.getNidForUuids(moduleUuid);
             int assemblageNid        = identifierService.getNidForUuids(assemblageUuid);
             int referencedComponentNid = identifierService.getNidForUuids(referencedComponentUuid);
@@ -157,7 +156,6 @@ public class DialectWriter
             SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                                                         VersionType.COMPONENT_NID,
                                                               elementUuid,
-                                                              elementNid,
                                                               assemblageNid,
                                                               referencedComponentNid);
             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);

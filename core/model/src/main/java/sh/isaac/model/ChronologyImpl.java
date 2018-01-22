@@ -183,14 +183,13 @@ public abstract class ChronologyImpl
     * For constructing an object for the first time.
     *
     * @param primordialUuid A unique external identifier for this chronicle
-    * @param nid A unique internal identifier, that is only valid within this database
     * @param assemblageNid The identifier for the concept that defines what assemblage this element is defined within.
     */
-   protected ChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
+   protected ChronologyImpl(UUID primordialUuid, int assemblageNid) {
       this.writeSequence = Integer.MIN_VALUE;
       this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
       this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
-      this.nid = nid;
+      this.nid = Get.identifierService().getNidForUuids(primordialUuid);
       this.assemblageNid = assemblageNid;
       this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
    }

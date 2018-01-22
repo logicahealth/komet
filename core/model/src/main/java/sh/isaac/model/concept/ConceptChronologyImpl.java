@@ -94,9 +94,9 @@ public class ConceptChronologyImpl
     * @param nid the nid
     * @param assemblageNid the container sequence
     */
-   public ConceptChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
-      super(primordialUuid, nid, assemblageNid);
-      ModelGet.identifierService().setupNid(nid, assemblageNid, 
+   public ConceptChronologyImpl(UUID primordialUuid, int assemblageNid) {
+      super(primordialUuid, assemblageNid);
+      ModelGet.identifierService().setupNid(getNid(), assemblageNid, 
               IsaacObjectType.CONCEPT, VersionType.CONCEPT);
    }
 

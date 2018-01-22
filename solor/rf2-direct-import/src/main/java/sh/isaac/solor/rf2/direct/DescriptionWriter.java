@@ -128,15 +128,13 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to description assemblage
-            int descriptionNid = identifierService.getNidForUuids(descriptionUuid);
             int moduleNid = identifierService.getNidForUuids(moduleUuid);
             int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
             int caseSignificanceNid = identifierService.getNidForUuids(caseSignificanceUuid);
             int descriptionTypeNid = identifierService.getNidForUuids(descriptionTypeUuid);
                         
             SemanticChronologyImpl descriptionToWrite = 
-                    new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionNid, 
-                            descriptionAssemblageNid, referencedConceptNid);
+                    new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionAssemblageNid, referencedConceptNid);
             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(conceptStamp);
             descriptionVersion.setCaseSignificanceConceptNid(caseSignificanceNid);
@@ -150,12 +148,10 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             // add to sct identifier assemblage
             UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
                     descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
-            int sctIdentifierNid = identifierService.getNidForUuids(sctIdentifierUuid);
             SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                                sctIdentifierUuid,
-                               sctIdentifierNid,
                                sctIdentifierAssemblageNid,
-                               descriptionNid);
+                               descriptionToWrite.getNid());
             
             StringVersionImpl sctIdVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
             sctIdVersion.setString(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);

@@ -142,7 +142,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
             // add to rel assemblage
-            int relNid = identifierService.getNidForUuids(betterRelUuid);
             int destinationNid = identifierService.getNidForUuids(destinationUuid);
             int moduleNid = identifierService.getNidForUuids(moduleUuid);
             int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
@@ -151,7 +150,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
             int relModifierNid = identifierService.getNidForUuids(relModifierUuid);
 
             SemanticChronologyImpl relationshipToWrite
-                    = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid, relNid,
+                    = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid, 
                             relAssemblageNid, referencedConceptNid);
             int relStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             Rf2RelationshipImpl relVersion = relationshipToWrite.createMutableVersion(relStamp);

@@ -170,10 +170,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         // make a LOINC semantic
                         UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
                                 loincRecord[LOINC_NUM]);
-                        int loincRecordNid = identifierService.getNidForUuids(loincRecordUuid);
 
                         SemanticChronologyImpl recordToWrite
-                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid, loincRecordNid,
+                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid, 
                                         TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
                         LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
                         recordVersion.setComponent(loincRecord[COMPONENT]);
@@ -210,12 +209,11 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                 = UuidT5Generator.get(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(),
                         descriptionType.toString() + conceptUuid.toString() + description);
 
-        int descriptionNid = identifierService.getNidForUuids(descriptionUuid);
         int descriptionTypeNid = descriptionType.getNid();
         int conceptNid = identifierService.getNidForUuids(conceptUuid);
 
         SemanticChronologyImpl descriptionToWrite
-                = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, descriptionNid,
+                = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, 
                         MetaData.ENGLISH_DESCRIPTION_ASSEMBLAGE____SOLOR.getNid(), conceptNid);
         DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
         descriptionVersion.setCaseSignificanceConceptNid(
@@ -229,13 +227,11 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         UUID acceptabilityUuid = UuidT5Generator.get(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(),
                 loincRecord[LOINC_NUM] + description);
-        int acceptabilityNid = identifierService.getNidForUuids(acceptabilityUuid);
         SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                 VersionType.COMPONENT_NID,
                 acceptabilityUuid,
-                acceptabilityNid,
                 TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
-                descriptionNid);
+                descriptionToWrite.getNid());
         ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(recordStamp);
         dialectVersion.setComponentNid(TermAux.ACCEPTABLE.getNid());
         index(dialectToWrite);

@@ -180,14 +180,13 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 TermAux.SOLOR_OVERLAY_MODULE.getNid(),
                 TermAux.DEVELOPMENT_PATH.getNid());
         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
-        int conceptNid = Get.identifierService().getNidForUuids(conceptUuid);
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
-            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
-            }
             ConceptChronologyImpl conceptToWrite
-                    = new ConceptChronologyImpl(conceptUuid, conceptNid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+                    = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptToWrite.getNid()) {
+               LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+           }
             conceptToWrite.createMutableVersion(stamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
@@ -195,12 +194,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             // add to loinc identifier assemblage
             UUID loincIdentifierUuid = UuidT5Generator.get(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(),
                     loincCode);
-            int loincIdentifierNid = Get.identifierService().getNidForUuids(loincIdentifierUuid);
             SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                     loincIdentifierUuid,
-                    loincIdentifierNid,
                     TermAux.LOINC_IDENTIFIER_ASSEMBLAGE.getNid(),
-                    conceptNid);
+                    conceptToWrite.getNid());
 
             StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
             loincIdVersion.setString(loincCode);
@@ -211,7 +208,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
 
         final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
-                conceptNid,
+              Get.identifierService().getNidForUuids(conceptUuid),
                 graphAssemblageNid);
 
         UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();

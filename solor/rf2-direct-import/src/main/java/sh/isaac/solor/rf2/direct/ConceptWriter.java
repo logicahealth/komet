@@ -120,11 +120,10 @@ id	effectiveTime	active	moduleId	definitionStatusId
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to concept assemblage
-            int conceptNid = identifierService.getNidForUuids(conceptUuid);
             int moduleNid = identifierService.getNidForUuids(moduleUuid);
             int legacyDefStatusNid = identifierService.getNidForUuids(legacyDefStatus);
             
-            ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptNid, conceptAssemblageNid);
+            ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
             index(conceptToWrite);
             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             conceptToWrite.createMutableVersion(conceptStamp);
@@ -133,12 +132,10 @@ id	effectiveTime	active	moduleId	definitionStatusId
             // add to legacy def status assemblage
             UUID defStatusPrimordialUuid = UuidT5Generator.get(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(), 
                     conceptRecord[CONCEPT_SCT_ID_INDEX]);
-            int defStatusNid = identifierService.getNidForUuids(defStatusPrimordialUuid);
             SemanticChronologyImpl defStatusToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID,
                                defStatusPrimordialUuid,
-                               defStatusNid,
                                defStatusAssemblageNid,
-                               conceptNid);
+                               conceptToWrite.getNid());
                                
             ComponentNidVersionImpl defStatusVersion = defStatusToWrite.createMutableVersion(conceptStamp);
             defStatusVersion.setComponentNid(legacyDefStatusNid);
@@ -148,12 +145,10 @@ id	effectiveTime	active	moduleId	definitionStatusId
             // add to sct identifier assemblage
             UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
                     conceptRecord[CONCEPT_SCT_ID_INDEX]);
-            int sctIdentifierNid = identifierService.getNidForUuids(sctIdentifierUuid);
             SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                                sctIdentifierUuid,
-                               sctIdentifierNid,
                                sctIdentifierAssemblageNid,
-                               conceptNid);
+                               conceptToWrite.getNid());
             
             StringVersionImpl sctIdVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
             sctIdVersion.setString(conceptRecord[CONCEPT_SCT_ID_INDEX]);

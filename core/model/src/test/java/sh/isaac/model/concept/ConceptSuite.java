@@ -153,8 +153,7 @@ public class ConceptSuite {
       final int                   nid               = Get.identifierService()
                                                          .getNidForUuids(primordialUuid);
       final int conceptAssemblageNid = SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, 
-              conceptAssemblageNid);
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, conceptAssemblageNid);
       final int stampSequence = Get.stampService()
                                    .getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
 
