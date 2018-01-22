@@ -62,6 +62,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -80,6 +83,8 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
+   
+   private static final Logger LOG = LogManager.getLogger();
    /** The objects. */
    int objects = 0;
 
@@ -174,6 +179,7 @@ public class BinaryDataReaderQueueProvider
    @Override
    public void shutdown() {
       try {
+         LOG.info("Shutdown called on BinaryDataReaderQueueProvider, read {} object byte arrays", this.objects);
          this.input.close();
 
          if (this.complete.getCount() == this.RUNNING) {
@@ -182,12 +188,16 @@ public class BinaryDataReaderQueueProvider
 
          this.es.shutdown();
 
+         //Wait for the executor service to drain the queue
          while (!this.readData.isEmpty()) {
-            Thread.sleep(10);
+             Thread.sleep(50);
          }
 
+         //Wake up the sleeping threads in the es
          this.es.shutdownNow();
-         this.es.awaitTermination(50, TimeUnit.MINUTES);
+         //wait for the last running threads to process their work
+         this.es.awaitTermination(5, TimeUnit.MINUTES);
+         LOG.info("All objects parsed");
 
          if (this.complete.getCount() == this.DONEREADING) {
             this.complete.countDown();
@@ -208,7 +218,6 @@ public class BinaryDataReaderQueueProvider
    @Override
    public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
       try {
-         final int                           startBytesAvailable        = this.input.available();
          final int                           recordSizeInBytes        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSizeInBytes];
 
@@ -219,10 +228,9 @@ public class BinaryDataReaderQueueProvider
          buffer.setExternalData(true);
          action.accept(new IsaacExternalizableUnparsed(buffer));
          this.objects++;
-         completedUnitsOfWork(startBytesAvailable - this.input.available());
+         completedUnitsOfWork(objectData.length + 4);
          return true;
       } catch (final EOFException ex) {
-         shutdown();
          return false;
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
@@ -293,41 +301,51 @@ public class BinaryDataReaderQueueProvider
 
                for (int i = 0; i < threadCount; i++) {
                   this.es.execute(() -> {
-                                      while ((this.complete.getCount() > this.COMPLETE) ||!this.readData.isEmpty()) {
-                                         boolean accepted;
+                     while (!((this.complete.getCount() <= this.DONEREADING) && this.readData.isEmpty())) {
+                        Boolean accepted = null;
 
-                                         try {
-                                            accepted = this.parsedData.offer(this.readData.take()
-                                                  .parse(),
-                                                  5,
-                                                  TimeUnit.MINUTES);
-                                         } catch (final InterruptedException e) {
-                                            break;
-                                         }
-
-                                         if (!accepted) {
-                                            throw new RuntimeException("unexpeced queue issues");
-                                         }
-                                      }
-                                   });
+                        try {
+                           IsaacExternalizable taken = this.readData.take().parse();
+                           while (accepted == null)
+                           {
+                              try {
+                                 accepted = this.parsedData.offer(taken, 5, TimeUnit.MINUTES);
+                              } catch (InterruptedException e) {
+                                 // we ignore interrupts when offering, we don't want to lose this.
+                              }
+                           }
+                           if (!accepted) {
+                              throw new RuntimeException("unexpeced queue issues");
+                           }
+                        } catch (final InterruptedException e) {
+                           LOG.debug("es interrupted");
+                        }
+                     }
+                     LOG.debug("Thread ends");
+                  });
                }
 
                Get.workExecutors().getExecutor().execute(() -> {
-                              try {
-                                 getStreamInternal().forEach((unparsed) -> {
-                              try {
-                                 this.readData.offer(unparsed, 5, TimeUnit.MINUTES);
-                              } catch (final Exception e) {
-                                 throw new RuntimeException(e);
-                              }
-                           });
-                              } catch (final Exception e) {
-                                 Get.workExecutors().getExecutor().execute(() -> {
-                                                shutdown();
-                                             });
-                                 throw e;
-                              }
-                           });
+                  LOG.debug("Thread to read from disk begins");
+                  try {
+                     getStreamInternal().forEach((unparsed) -> {
+                        try {
+                           this.readData.offer(unparsed, 5, TimeUnit.MINUTES);
+                        } catch (final Exception e) {
+                           LOG.warn("exception in offer?", e);
+                           throw new RuntimeException(e);
+                        }
+                     });
+                  } catch (final Exception e) {
+                     LOG.debug("exception in read?", e);
+                     Get.workExecutors().getExecutor().execute(() -> {
+                        shutdown();
+                     });
+                     throw e;
+                  }
+                  LOG.debug("Thread to read from disk completes - doing shutdown");
+                  shutdown();
+               });
             }
          } finally {
             this.completeBlock.release();

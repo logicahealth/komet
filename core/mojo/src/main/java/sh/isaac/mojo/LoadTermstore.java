@@ -127,12 +127,9 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 
 /**
  * Goal which loads a database from ibdf files.
-* I get inconsistent results with this mojo... Sometimes the import fails, and 
-* on an immediate re-run, it succeeds. So a race condition, or some other 
-* issue such as unpredictable behavior of this.input.available(); in the reader
-* implementation class? 
 * @deprecated try {@link LoadTermstoreSemaphore}
-* TODO [DAN 2] see if there is still an issue with missing the end items of metadata, debug.  Finish comparing this with LoadTermstoreSemaphore.
+* We need to figure out if/how to integrate the merge logic into the LoadTermStoreSemaphor
+* in the meantime, the bug with missing random entries near the end of the file has been fixed.
  */
 @Mojo(
    name         = "load-termstore",
@@ -451,6 +448,7 @@ public class LoadTermstore
                   + stampCommentCount + " stampComments, " + mergeCount + " merged sememes" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
                           + ((duplicateCount > 0) ? " Duplicates " + duplicateCount : "") 
                           + ((this.itemFailure > 0) ? " Failures " + this.itemFailure : "") + " from file " + f.getName());
+            getLog().info("running item count: "  + this.itemCount);
             this.conceptCount      = 0;
             this.semanticCount       = 0;
             this.stampAliasCount   = 0;
@@ -498,8 +496,8 @@ public class LoadTermstore
             getLog().warn("Skipped components during import.");
          }
          getLog().info("Final item count: "  + this.itemCount);
-         Get.startIndexTask().get();
          LookupService.syncAll();
+         Get.startIndexTask().get();
 
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
