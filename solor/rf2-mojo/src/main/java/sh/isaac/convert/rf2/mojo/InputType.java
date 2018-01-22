@@ -58,7 +58,7 @@ public enum InputType {
     * @param input the input
     * @return the InputType
     */
-   public static InputType get(String input) {
+   public static InputType parse(String input) {
       return InputType.valueOf(input.trim()
                                     .toUpperCase());
    }

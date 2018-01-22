@@ -39,8 +39,6 @@
 
 package sh.isaac.convert.rf2.mojo;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -48,125 +46,67 @@ import java.text.ParseException;
 
 import java.util.UUID;
 
-//~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.converters.sharedUtils.sql.TableDefinition;
 
-//~--- classes ----------------------------------------------------------------
+public class Rel implements Comparable<Rel>
+{
+	//private static Logger LOG = LogManager.getLogger();
 
-/**
- * The Class Rel.
- */
-public class Rel
-         implements Comparable<Rel> {
-   // private static Logger LOG = LogManager.getLogger();
+	Long sctID;
+	UUID id;
+	long effectiveTime;
+	boolean isActive;
+	UUID moduleId;
+	UUID sourceId;
+	UUID destinationId;
+	String relGroup;
+	UUID typeId;
+	UUID characteristicTypeId;
+	UUID modifierId;
+	
+	public Rel(ResultSet rs, TableDefinition td) throws ParseException, SQLException
+	{
+		if (td.getColDataType("ID").isLong())
+		{
+			sctID = rs.getLong("ID");
+			id = UuidT3Generator.fromSNOMED(sctID);
+		}
+		else
+		{
+			id = UUID.fromString(rs.getString("ID"));
+		}
+		effectiveTime  = RF2Mojo.dateParse.parse(rs.getString("EFFECTIVETIME")).getTime();
+		isActive = rs.getBoolean("ACTIVE");
+		moduleId = (td.getColDataType("MODULEID").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("MODULEID")) : 
+			UUID.fromString(rs.getString("MODULEID")));
+		sourceId = (td.getColDataType("SOURCEID").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("SOURCEID")) : 
+			UUID.fromString(rs.getString("SOURCEID")));
+		destinationId = (td.getColDataType("DESTINATIONID").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("DESTINATIONID")) : 
+			UUID.fromString(rs.getString("DESTINATIONID")));
+		relGroup = rs.getString("relationshipGroup");
+		typeId = (td.getColDataType("typeId").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("typeId")) : 
+			UUID.fromString(rs.getString("typeId")));
+		characteristicTypeId = (td.getColDataType("characteristicTypeId").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("characteristicTypeId")) : 
+			UUID.fromString(rs.getString("characteristicTypeId")));
+		modifierId = (td.getColDataType("modifierId").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("modifierId")) : 
+			UUID.fromString(rs.getString("modifierId")));
+	}
 
-   /** The sct ID. */
-   Long sctID;
-
-   /** The id. */
-   UUID id;
-
-   /** The effective time. */
-   long effectiveTime;
-
-   /** The is active. */
-   boolean isActive;
-
-   /** The module id. */
-   UUID moduleId;
-
-   /** The source id. */
-   UUID sourceId;
-
-   /** The destination id. */
-   UUID destinationId;
-
-   /** The rel group. */
-   String relGroup;
-
-   /** The type id. */
-   UUID typeId;
-
-   /** The characteristic type id. */
-   UUID characteristicTypeId;
-
-   /** The modifier id. */
-   UUID modifierId;
-
-   //~--- constructors --------------------------------------------------------
-
-   /**
-    * Instantiates a new rel.
-    *
-    * @param rs the rs
-    * @param td the td
-    * @throws ParseException the parse exception
-    * @throws SQLException the SQL exception
-    */
-   public Rel(ResultSet rs, TableDefinition td)
-            throws ParseException, SQLException {
-      if (td.getColDataType("ID")
-            .isLong()) {
-         this.sctID = rs.getLong("ID");
-         this.id    = UuidT3Generator.fromSNOMED(this.sctID);
-      } else {
-         this.id = UUID.fromString(rs.getString("ID"));
-      }
-
-      this.effectiveTime = RF2Mojo.DATE_PARSER.parse(rs.getString("EFFECTIVETIME"))
-            .getTime();
-      this.isActive      = rs.getBoolean("ACTIVE");
-      this.moduleId      = (td.getColDataType("MODULEID")
-                              .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("MODULEID"))
-                                        : UUID.fromString(rs.getString("MODULEID")));
-      this.sourceId      = (td.getColDataType("SOURCEID")
-                              .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("SOURCEID"))
-                                        : UUID.fromString(rs.getString("SOURCEID")));
-      this.destinationId = (td.getColDataType("DESTINATIONID")
-                              .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("DESTINATIONID"))
-                                        : UUID.fromString(rs.getString("DESTINATIONID")));
-      this.relGroup = rs.getString("relationshipGroup");
-      this.typeId = (td.getColDataType("typeId")
-                       .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("typeId"))
-                                 : UUID.fromString(rs.getString("typeId")));
-      this.characteristicTypeId = (td.getColDataType("characteristicTypeId")
-                                     .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("characteristicTypeId"))
-            : UUID.fromString(rs.getString("characteristicTypeId")));
-      this.modifierId = (td.getColDataType("modifierId")
-                           .isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("modifierId"))
-                                     : UUID.fromString(rs.getString("modifierId")));
-   }
-
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Compare to.
-    *
-    * @param o the o
-    * @return the int
-    */
-   @Override
-   public int compareTo(Rel o) {
-      return Long.compare(this.effectiveTime, o.effectiveTime);
-   }
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-
-   /*
-    *  (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
-   @Override
-   public String toString() {
-      return "Rel [sctID=" + this.sctID + ", id=" + this.id + ", isActive=" + this.isActive + ", moduleId=" +
-             this.moduleId + ", sourceId=" + this.sourceId + ", destinationId=" + this.destinationId + ", relGroup=" +
-             this.relGroup + ", typeId=" + this.typeId + ", characteristicTypeId=" + this.characteristicTypeId + "]";
-   }
+	@Override
+	public int compareTo(Rel o)
+	{
+		return Long.compare(effectiveTime, o.effectiveTime);
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Rel [sctID=" + sctID + ", id=" + id + ", isActive=" + isActive + ", moduleId=" + moduleId
+				+ ", sourceId=" + sourceId + ", destinationId=" + destinationId + ", relGroup=" + relGroup + ", typeId="
+				+ typeId + ", characteristicTypeId=" + characteristicTypeId + "]";
+	}
 }
-
