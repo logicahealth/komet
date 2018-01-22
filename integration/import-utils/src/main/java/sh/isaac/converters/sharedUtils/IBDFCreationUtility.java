@@ -484,7 +484,7 @@ public class IBDFCreationUtility
     */
    public ConceptChronology createConcept(UUID conceptPrimordialUuid, Long time, Status status, UUID module) 
    {
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConceptChronology(conceptPrimordialUuid);
+      ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(conceptPrimordialUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       conceptChronology.createMutableVersion(createStamp(status, time, module));
       this.writer.put(conceptChronology);
       dbWrite(conceptChronology);
