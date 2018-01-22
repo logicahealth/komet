@@ -500,7 +500,7 @@ public class FileSystemDataStore
          return Optional.of(byteBuffer);
       }
 
-      throw new IllegalStateException("Assemblage nid is not present. ");
+      return Optional.empty();
    }
    
    @Override
