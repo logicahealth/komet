@@ -258,41 +258,41 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                                           .getNidForUuids(this.referencedComponentBuilder.getUuids());
       }
 
-      SemanticChronologyImpl sememeChronicle;
-      final int            sememeNid = Get.identifierService()
+      SemanticChronologyImpl semanticChronology;
+      final int            semanticNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
-      if (Get.identifierService().getAssemblageNid(sememeNid).isPresent()) {
-         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
-               .getSemanticChronology(sememeNid);
+      if (Get.identifierService().getAssemblageNid(semanticNid).isPresent()) {
+         semanticChronology = (SemanticChronologyImpl) Get.assemblageService()
+               .getSemanticChronology(semanticNid);
 
-         if ((sememeChronicle.getVersionType() != this.semanticType) ||
-               !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
-               (sememeChronicle.getAssemblageNid() != this.assemblageConceptNid) ||
-               (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
+         if ((semanticChronology.getVersionType() != this.semanticType) ||
+               !semanticChronology.isIdentifiedBy(getPrimordialUuid()) ||
+               (semanticChronology.getAssemblageNid() != this.assemblageConceptNid) ||
+               (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
          }
       } else {
-         sememeChronicle = new SemanticChronologyImpl(this.semanticType,
+         semanticChronology = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
-               sememeNid,
+               semanticNid,
                this.assemblageConceptNid,
                this.referencedComponentNid);
       }
 
-      sememeChronicle.setAdditionalUuids(this.additionalUuids);
+      semanticChronology.setAdditionalUuids(this.additionalUuids);
 
       switch (this.semanticType) {
       case COMPONENT_NID:
          final ComponentNidVersionImpl cnsi =
-            (ComponentNidVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (ComponentNidVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                           editCoordinate);
 
          cnsi.setComponentNid((Integer) this.parameters[0]);
          break;
 
       case LONG:
-         final LongVersionImpl lsi = (LongVersionImpl) sememeChronicle.createMutableVersion(this.state,
+         final LongVersionImpl lsi = (LongVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                                           editCoordinate);
 
          lsi.setLongValue((Long) this.parameters[0]);
@@ -300,18 +300,18 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       case LOGIC_GRAPH:
          final LogicGraphVersionImpl lgsi =
-            (LogicGraphVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (LogicGraphVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                         editCoordinate);
 
          lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
          break;
 
       case MEMBER:
-         sememeChronicle.createMutableVersion(this.state, editCoordinate);
+         semanticChronology.createMutableVersion(this.state, editCoordinate);
          break;
 
       case STRING:
-         final StringVersionImpl ssi = (StringVersionImpl) sememeChronicle.createMutableVersion(this.state,
+         final StringVersionImpl ssi = (StringVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                                               editCoordinate);
 
          ssi.setString((String) this.parameters[0]);
@@ -319,7 +319,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       case DESCRIPTION: {
          final DescriptionVersionImpl dsi =
-            (DescriptionVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (DescriptionVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                          editCoordinate);
 
          dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
@@ -330,7 +330,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
 
       case DYNAMIC: {
-         final DynamicImpl dsi = (DynamicImpl) sememeChronicle.createMutableVersion(this.state,
+         final DynamicImpl dsi = (DynamicImpl) semanticChronology.createMutableVersion(this.state,
                                                                                                 editCoordinate);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
@@ -350,10 +350,10 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       if (changeCheckerMode == ChangeCheckerMode.ACTIVE) {
          primaryNested = Get.commitService()
-                            .addUncommitted(sememeChronicle);
+                            .addUncommitted(semanticChronology);
       } else {
          primaryNested = Get.commitService()
-                            .addUncommittedNoChecks(sememeChronicle);
+                            .addUncommittedNoChecks(semanticChronology);
       }
 
       final ArrayList<OptionalWaitTask<?>> nested = new ArrayList<>();
@@ -361,8 +361,8 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       this.semanticBuilders.forEach((builder) -> nested.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
-      builtObjects.add(sememeChronicle);
-      return new OptionalWaitTask<>(primaryNested, (C) sememeChronicle, nested);
+      builtObjects.add(semanticChronology);
+      return new OptionalWaitTask<>(primaryNested, (C) semanticChronology, nested);
    }
 }
 

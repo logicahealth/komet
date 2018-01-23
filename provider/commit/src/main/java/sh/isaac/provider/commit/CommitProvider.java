@@ -854,7 +854,7 @@ public class CommitProvider
                                                            writeSemaphore,
                                                            changeListeners,
                                                            (sememeOrConceptChronicle,
-                                                            changeCheckerActive) -> handleUncommittedSequenceSet(
+                                                            changeCheckerActive) -> handleUncommittedNidSet(
                                                                   sememeOrConceptChronicle,
                                                                         changeCheckerActive));
 
@@ -884,7 +884,7 @@ public class CommitProvider
                                                              writeSemaphore,
                                                              changeListeners,
                                                              (sememeOrConceptChronicle,
-                                                              changeCheckerActive) -> handleUncommittedSequenceSet(
+                                                              changeCheckerActive) -> handleUncommittedNidSet(
                                                                     sememeOrConceptChronicle,
                                                                           changeCheckerActive));
 
@@ -906,24 +906,24 @@ public class CommitProvider
    /**
     * Handle uncommitted nid set.
     *
-    * @param sememeOrConceptChronicle the sememe or concept chronicle
+    * @param chronicle the sememe or concept chronicle
     * @param changeCheckerActive the change checker active
     */
-   private void handleUncommittedSequenceSet(Chronology sememeOrConceptChronicle, boolean changeCheckerActive) {
-      if (sememeOrConceptChronicle instanceof ObservableChronologyImpl) {
-         sememeOrConceptChronicle = ((ObservableChronologyImpl) sememeOrConceptChronicle).getWrappedChronology();
+   private void handleUncommittedNidSet(Chronology chronicle, boolean changeCheckerActive) {
+      if (chronicle instanceof ObservableChronologyImpl) {
+         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
       }
 
       try {
          this.uncommittedSequenceLock.lock();
 
-         switch (sememeOrConceptChronicle.getIsaacObjectType()) {
+         switch (chronicle.getIsaacObjectType()) {
          case CONCEPT: {
-            final int    nid = sememeOrConceptChronicle.getNid();
+            final int    nid = chronicle.getNid();
             final NidSet set = changeCheckerActive ? this.uncommittedConceptsWithChecksNidSet
                   : this.uncommittedConceptsNoChecksNidSet;
 
-            if (sememeOrConceptChronicle.isUncommitted()) {
+            if (chronicle.isUncommitted()) {
                set.add(nid);
             } else {
                set.remove(nid);
@@ -933,11 +933,11 @@ public class CommitProvider
          }
 
          case SEMANTIC: {
-            final int    nid = sememeOrConceptChronicle.getNid();
+            final int    nid = chronicle.getNid();
             final NidSet set = changeCheckerActive ? this.uncommittedSemanticsWithChecksNidSet
                   : this.uncommittedSemanticsNoChecksNidSet;
 
-            if (sememeOrConceptChronicle.isUncommitted()) {
+            if (chronicle.isUncommitted()) {
                set.add(nid);
             } else {
                set.remove(nid);
@@ -1047,7 +1047,7 @@ public class CommitProvider
                                                    writeSemaphore,
                                                    changeListeners,
                                                    (sememeOrConceptChronicle,
-                                                    changeCheckerActive) -> handleUncommittedSequenceSet(
+                                                    changeCheckerActive) -> handleUncommittedNidSet(
                                                           sememeOrConceptChronicle,
                                                                 changeCheckerActive));
 
@@ -1077,7 +1077,7 @@ public class CommitProvider
                                                      writeSemaphore,
                                                      changeListeners,
                                                      (sememeOrConceptChronicle,
-                                                      changeCheckerActive) -> handleUncommittedSequenceSet(
+                                                      changeCheckerActive) -> handleUncommittedNidSet(
                                                             sememeOrConceptChronicle,
                                                                   changeCheckerActive));
 

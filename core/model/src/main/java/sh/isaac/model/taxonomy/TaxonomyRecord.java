@@ -37,7 +37,6 @@
 package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
-import sh.isaac.model.taxonomy.TaxonomyFlag;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;

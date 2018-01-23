@@ -224,8 +224,9 @@ public class StampProvider
     */
    @Override
    synchronized public void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
-      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
-            .putAll(pendingStamps);
+       for (Map.Entry<UncommittedStamp, Integer> entry: pendingStamps.entrySet()) {
+           UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().remove(entry.getKey());
+       }
    }
 
    /**
