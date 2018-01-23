@@ -197,46 +197,6 @@ public class TermAux {
    /** ConceptProxy for: "English description assemblage". */
    public static ConceptSpecification DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Description assemblage", UUID.fromString("c9b9a4ac-3a1c-516c-bbef-3a13e30df27d"));
 
-   /** ConceptProxy for: "English description assemblage". */
-   public static ConceptSpecification ENGLISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("English description assemblage",
-         UUID.fromString("45021920-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Spanish description assemblage". */
-   public static ConceptSpecification SPANISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Spanish description assemblage",
-         UUID.fromString("45021c36-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "French description assemblage". */
-   public static ConceptSpecification FRENCH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("French description assemblage",
-         UUID.fromString("45021dbc-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Danish description assemblage". */
-   public static ConceptSpecification DANISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Danish description assemblage",
-         UUID.fromString("45021f10-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Polish description assemblage". */
-   public static ConceptSpecification POLISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Polish description assemblage",
-         UUID.fromString("45022140-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Dutch description assemblage". */
-   public static ConceptSpecification DUTCH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Dutch description assemblage",
-         UUID.fromString("45022280-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Lithuanian description assemblage". */
-   public static ConceptSpecification LITHUANIAN_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Lithuanian description assemblage",
-         UUID.fromString("45022410-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Chinese description assemblage. */
-   public static ConceptSpecification CHINESE_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Chinese description assemblage",
-         UUID.fromString("45022532-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Japanese description assemblage". */
-   public static ConceptSpecification JAPANESE_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Japanese description assemblage",
-         UUID.fromString("450226cc-9567-11e5-8994-feff819cdc9f"));
-
-   /** ConceptProxy for: "Swedish description assemblage". */
-   public static ConceptSpecification SWEDISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Swedish description assemblage",
-         UUID.fromString("45022848-9567-11e5-8994-feff819cdc9f"));
-
    /** ConceptProxy for: "preferred". SCT ID: 900000000000548007 */
    public static ConceptSpecification PREFERRED = new ConceptProxy("preferred", UUID.fromString("266f1bc3-3361-39f3-bffe-69db9daea56e"));
 
@@ -377,16 +337,8 @@ public class TermAux {
          UUID.fromString("e3436c74-2491-50fa-b43c-13d83238648c"));
    public static ConceptSpecification RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage",
          "RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
-   public static ConceptSpecification SCT_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("SCT identifier assemblage", "SCT identifier assemblage",
-         UUID.fromString("65d343ae-7f81-5bf5-8fd7-8da688e13aa9"));
-   public static ConceptSpecification LOINC_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("LOINC identifier assemblage", "LOINC identifier assemblage",
-         UUID.fromString("6934b999-1118-5625-ab2a-f76d419f6a2c"));
    public static ConceptSpecification LOINC_RECORD_ASSEMBLAGE = new ConceptProxy("LOINC record assemblage", "LOINC record assemblage", 
          UUID.fromString("282b86b7-8ae4-5e6a-9dbd-849aabc67922"));
-   public static ConceptSpecification RXNORM_IDENTIFIER_ASSEMBLAGE = new ConceptProxy("RxNorm identifier assemblage", "RxNorm identifier assemblage",
-         UUID.fromString("6fad1301-122e-5b5b-bb1b-6724f30794cc"));
-   public static ConceptSpecification UUID_NID_MAP = new ConceptProxy("UUID to internal identifier map", "UUID to internal identifier map",
-         UUID.fromString("e4f98192-bcaf-5e41-b91f-2b0d56f9050a"));
 
    public static ConceptSpecification CONTENT_LICENSE = new ConceptProxy("Content license", "Content license", UUID.fromString("b3305461-6954-574e-9124-285a02d4ecae"));
    public static ConceptSpecification SCT_AFFILIATES_LICENSE = new ConceptProxy("SNOMED® affiliates license", "SNOMED® affiliates license",
@@ -461,11 +413,12 @@ public class TermAux {
     * @return the concept specification for language sequence
     */
    public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptNid) {
-      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
+      if (languageConceptNid == ENGLISH_LANGUAGE.getNid() 
+            || languageConceptNid == ENGLISH_DIALECT_ASSEMBLAGE.getNid() || languageConceptNid == GB_DIALECT_ASSEMBLAGE.getNid()) {
          return ENGLISH_LANGUAGE;
       }
 
-      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
+      if (languageConceptNid == SPANISH_LANGUAGE.getNid() || languageConceptNid == SPANISH_DIALECT_ASSEMBLAGE.getNid()) {
          return SPANISH_LANGUAGE;
       }
 
@@ -501,57 +454,7 @@ public class TermAux {
          return SWEDISH_LANGUAGE;
       }
 
-      return Get.conceptSpecification(languageConceptNid);
-   }
-
-   /**
-    * Gets the description assemblage concept sequence.
-    *
-    * @param languageConceptNid the language concept sequence
-    * @return the description assemblage concept sequence
-    */
-   public static int getDescriptionAssemblageConceptSequence(int languageConceptNid) {
-      if (languageConceptNid == ENGLISH_LANGUAGE.getNid()) {
-         return ENGLISH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == SPANISH_LANGUAGE.getNid()) {
-         return SPANISH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == FRENCH_LANGUAGE.getNid()) {
-         return FRENCH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == DANISH_LANGUAGE.getNid()) {
-         return DANISH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == POLISH_LANGUAGE.getNid()) {
-         return POLISH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == DUTCH_LANGUAGE.getNid()) {
-         return DUTCH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == LITHUANIAN_LANGUAGE.getNid()) {
-         return LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == CHINESE_LANGUAGE.getNid()) {
-         return CHINESE_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == JAPANESE_LANGUAGE.getNid()) {
-         return JAPANESE_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      if (languageConceptNid == SWEDISH_LANGUAGE.getNid()) {
-         return SWEDISH_DESCRIPTION_ASSEMBLAGE.getNid();
-      }
-
-      throw new RuntimeException("No description assemblage for: " + Get.conceptDescriptionText(languageConceptNid));
+      throw new RuntimeException("Unsupported language: " + Get.conceptDescriptionText(languageConceptNid));
    }
 
    public static void main(String[] args) {

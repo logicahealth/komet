@@ -66,7 +66,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
  * @param <C> the generic type
  */
 @Service
-public class SememeBuilderProvider<C extends SemanticChronology>
+public class SemanticBuilderProvider<C extends SemanticChronology>
          implements SemanticBuilderService<C> {
    /**
     * Gets the component sememe builder.
@@ -105,51 +105,37 @@ public class SememeBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the description sememe builder.
-    *
-    * @param caseSignificanceConceptSequence the case significance concept sequence
-    * @param descriptionTypeConceptSequence the description type concept sequence
-    * @param languageConceptSequence the language concept sequence
-    * @param text the text
-    * @param referencedComponent the referenced component
-    * @return the description sememe builder
+    * {@inheritDoc}
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
-           int languageConceptSequence,
+           int languageConceptNid,
            String text,
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent) {
       return new SemanticBuilderImpl(referencedComponent,
-                                   TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence),
+                                   languageConceptNid,
                                    VersionType.DESCRIPTION,
                                    new Object[] { caseSignificanceConceptSequence, descriptionTypeConceptSequence,
-                                         languageConceptSequence, text });
+                                         languageConceptNid, text });
    }
 
    /**
-    * Gets the description sememe builder.
-    *
-    * @param caseSignificanceConceptSequence the case significance concept sequence
-    * @param languageConceptSequence the language concept sequence
-    * @param descriptionTypeConceptSequence the description type concept sequence
-    * @param text the text
-    * @param referencedComponentNid the referenced component nid
-    * @return the description sememe builder
+    * {@inheritDoc}
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
            int caseSignificanceConceptSequence,
-           int languageConceptSequence,
+           int languageConceptNid,
            int descriptionTypeConceptSequence,
            String text,
            int referencedComponentNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence),
+                                   languageConceptNid,
                                    VersionType.DESCRIPTION,
                                    new Object[] { caseSignificanceConceptSequence, descriptionTypeConceptSequence,
-                                         languageConceptSequence, text });
+                                         languageConceptNid, text });
    }
 
    /**

@@ -206,7 +206,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             UUID conceptUuid, int recordStamp) {
 
         UUID descriptionUuid
-                = UuidT5Generator.get(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(),
+                = UuidT5Generator.get(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
                         descriptionType.toString() + conceptUuid.toString() + description);
 
         int descriptionTypeNid = descriptionType.getNid();
@@ -214,7 +214,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         SemanticChronologyImpl descriptionToWrite
                 = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, 
-                        MetaData.ENGLISH_DESCRIPTION_ASSEMBLAGE____SOLOR.getNid(), conceptNid);
+                        MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), conceptNid);
         DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
         descriptionVersion.setCaseSignificanceConceptNid(
                 MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getNid());

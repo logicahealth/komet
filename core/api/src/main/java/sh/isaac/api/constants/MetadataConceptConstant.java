@@ -85,7 +85,7 @@ public abstract class MetadataConceptConstant
     * @param definition the definition
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition) {
-   	super(primaryName, uuid);
+      super(primaryName, uuid);
       addDefinition(definition);
    }
 
@@ -98,7 +98,7 @@ public abstract class MetadataConceptConstant
     * @param parent the parent
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition, ConceptSpecification parent) {
-   	super(primaryName, uuid);
+      super(primaryName, uuid);
       addDefinition(definition);
       setParent(parent);
    }

@@ -43,7 +43,6 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.komet.preferences.PreferencesProvider;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -99,7 +98,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 502;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 484;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -215,8 +214,8 @@ public class QueryProviderTest {
 	@Test
 	public void testOtherFields() {
 		
-		Assert.assertEquals(di.query("s*", new int[] {MetaData.ENGLISH_DESCRIPTION_ASSEMBLAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 375);
-		Assert.assertEquals(di.query("s*", new int[] {MetaData.SPANISH_DESCRIPTION_ASSEMBLAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 0);
+		Assert.assertEquals(di.query("s*", new int[] {MetaData.ENGLISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 375);
+		Assert.assertEquals(di.query("s*", new int[] {MetaData.SPANISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 0);
 		
 		Assert.assertEquals(di.query("s*", null, AmpRestriction.restrictPath(NidSet.of(Arrays.asList(new Integer[] {MetaData.DEVELOPMENT_PATH____SOLOR.getNid()}))), 
 				null, 10, null).size(), 10);
@@ -238,10 +237,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 379);
+		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 364);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 379);
+		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 364);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("so*", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);

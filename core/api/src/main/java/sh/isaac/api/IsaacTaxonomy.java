@@ -63,6 +63,7 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -490,12 +491,22 @@ public class IsaacTaxonomy {
     */
    protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept, UUID semanticUuid) {
        
-       SemanticBuilder pathMemberBuilder = Get.semanticBuilderService()
+       SemanticBuilder<? extends SemanticChronology> pathMemberBuilder = Get.semanticBuilderService()
               .getMembershipSemanticBuilder(pathConcept.getNid(),
                       pathAssemblageConcept.getNid());
        pathMemberBuilder.setPrimordialUuid(semanticUuid);
        
       this.semanticBuilders.add(pathMemberBuilder);
+   }
+   
+   /**
+    * Creates the concept.
+    *
+    * @param specification the concept specification
+    * @return the concept builder
+    */
+   protected final ConceptBuilder createConcept(ConceptSpecification specification) {
+      return createConcept(specification, null);
    }
 
    /**
@@ -504,37 +515,37 @@ public class IsaacTaxonomy {
     * @param specification the concept specification
     * @return the concept builder
     */
-	protected final ConceptBuilder createConcept(ConceptSpecification specification) {
-		final ConceptBuilder builder = createConcept(specification.getFullyQualifiedName());
+   protected final ConceptBuilder createConcept(ConceptSpecification specification, Integer extraParent) {
+      final ConceptBuilder builder = createConcept(specification.getFullyQualifiedName(), null, extraParent, null);
 
-		if (specification.getPrimordialUuid().version() == 4) {
-			throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullyQualifiedName());
-		}
+      if (specification.getPrimordialUuid().version() == 4) {
+         throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullyQualifiedName());
+      }
 
-		builder.setPrimordialUuid(specification.getUuidList().get(0));
-		if (specification.getUuidList().size() > 1) {
-			builder.addUuids(specification.getUuidList().subList(1, specification.getUuidList().size()).toArray(new UUID[0]));
-		}
+      builder.setPrimordialUuid(specification.getUuidList().get(0));
+      if (specification.getUuidList().size() > 1) {
+         builder.addUuids(specification.getUuidList().subList(1, specification.getUuidList().size()).toArray(new UUID[0]));
+      }
 
-		if (specification instanceof ConceptProxy) {
-			Optional<String> preferredDescription = ((ConceptProxy) specification).getRegularNameNoLookup();
-			if (preferredDescription.isPresent()) {
-				builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
-			}
-		} else {
-			Optional<String> preferredDescription = specification.getRegularName();
-			if (preferredDescription.isPresent()) {
-				builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
-			}
-		}
+      if (specification instanceof ConceptProxy) {
+         Optional<String> preferredDescription = ((ConceptProxy) specification).getRegularNameNoLookup();
+         if (preferredDescription.isPresent()) {
+            builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
+         }
+      } else {
+         Optional<String> preferredDescription = specification.getRegularName();
+         if (preferredDescription.isPresent()) {
+            builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
+         }
+      }
 
-		return builder;
-	}
-	
-	private final static <T extends CommittableComponent> IdentifiedComponentBuilder<T> addIdentifierAssemblageMembership(IdentifiedComponentBuilder<T> builder) {
-		// add static member sememe
-		return builder.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(builder, TermAux.IDENTIFIER_SOURCE.getNid()));
-	}
+      return builder;
+   }
+   
+   private final static <T extends CommittableComponent> IdentifiedComponentBuilder<T> addIdentifierAssemblageMembership(IdentifiedComponentBuilder<T> builder) {
+      // add static member sememe
+      return builder.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(builder, TermAux.IDENTIFIER_SOURCE.getNid()));
+   }
 
    /**
     * Creates the concept.
@@ -565,17 +576,34 @@ public class IsaacTaxonomy {
        }
        return cb;
    }
+   
+   /**
+    * If parent is provided, it ignores the parent stack, and uses the provided parent instead. If parent is not
+    * provided, it uses the parentStack (if populated), otherwise, it creates the concept without setting a parent.
+    *
+    * @param name the name
+    * @param parentId the parent id - if provided - this is the parent, if not provided, the primary parent comes 
+    *                 from the parentStack
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
+    */
+   protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
+      return createConcept(name, parentId, null, nonPreferredSynonym);
+   }
 
    /**
     * If parent is provided, it ignores the parent stack, and uses the provided parent instead. If parent is not
     * provided, it uses the parentStack (if populated), otherwise, it creates the concept without setting a parent.
     *
     * @param name the name
-    * @param parentId the parent id
+    * @param parentId the parent id - if provided - this is the parent, if not provided, the primary parent comes 
+    *                 from the parentStack
+    * @param extraParent - optional additional parent (a second parent to the one in parentId/the stack).  Only used
+    *                      when parentId is provided or the parentStack is not null.
     * @param nonPreferredSynonym the non preferred synonym
     * @return the concept builder
     */
-   protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
+   protected final ConceptBuilder createConcept(String name, Integer parentId, Integer extraParent, String nonPreferredSynonym) {
       checkConceptDescriptionText(name);
 
       if (this.parentStack.isEmpty() && (parentId == null)) {
@@ -586,9 +614,14 @@ public class IsaacTaxonomy {
                  = LookupService.getService(LogicalExpressionBuilderService.class);
          final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
 
-         NecessarySet(And(ConceptAssertion((parentId == null) ? this.parentStack.lastElement()
-                 .getNid()
-                 : parentId, defBuilder)));
+         if (extraParent != null) {
+            NecessarySet(And(
+                  ConceptAssertion((parentId == null) ? this.parentStack.lastElement().getNid() : parentId, defBuilder), 
+                  ConceptAssertion(extraParent, defBuilder)));
+         }
+         else {
+            NecessarySet(And(ConceptAssertion((parentId == null) ? this.parentStack.lastElement().getNid() : parentId, defBuilder)));
+         }
 
          final LogicalExpression logicalExpression = defBuilder.build();
 
@@ -696,12 +729,12 @@ public class IsaacTaxonomy {
     * @param assemblageService the assemblage service
     * @throws IllegalStateException the illegal state exception
     */
-   private void buildAndWrite(IdentifiedComponentBuilder builder,
+   private void buildAndWrite(IdentifiedComponentBuilder<? extends CommittableComponent> builder,
            int stampCoordinate,
            ConceptService conceptService,
            AssemblageService assemblageService)
            throws IllegalStateException {
-      final List<?> builtObjects = new ArrayList<>();
+      final List<Chronology> builtObjects = new ArrayList<>();
 
       builder.build(stampCoordinate, builtObjects);
       builtObjects.forEach((builtObject) -> {

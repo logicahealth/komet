@@ -167,7 +167,7 @@ public class UuidIntMapMap
     /**
      * This method is an optimization for loader patterns, where it can be
      * faster to read the nid to UUID from this cache, but only if the cache
-     * actually as the value.
+     * actually has the value.
      *
      * @param nid the nid
      * @return true, if successful

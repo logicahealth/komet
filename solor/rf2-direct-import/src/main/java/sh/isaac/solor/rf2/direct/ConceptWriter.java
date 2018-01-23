@@ -100,7 +100,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
          int conceptAssemblageNid = identifierService.getNidForProxy(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
-         int sctIdentifierAssemblageNid = TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getNid();
+         int sctIdentifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
          int authorNid = TermAux.USER.getNid();
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
          int defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
@@ -143,7 +143,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             assemblageService.writeSemanticChronology(defStatusToWrite);
             
             // add to sct identifier assemblage
-            UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
+            UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), 
                     conceptRecord[CONCEPT_SCT_ID_INDEX]);
             SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                                sctIdentifierUuid,

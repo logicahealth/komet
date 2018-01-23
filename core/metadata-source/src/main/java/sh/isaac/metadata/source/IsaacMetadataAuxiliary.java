@@ -236,15 +236,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
                createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
                popParent();
-            createConcept("Identifier collection");  //TODO [DAN 2] need to talk to Keith about these, seem to be duplicative with the ones below.
-            //Even after talking to Keith, still don't understand, and, at minimum, these things need to be named / defined better, cause they are 
-            //rather confusing.
-            pushParent(current());
-               createConcept(TermAux.SCT_IDENTIFIER_ASSEMBLAGE);
-               createConcept(TermAux.LOINC_IDENTIFIER_ASSEMBLAGE);
-               createConcept(TermAux.RXNORM_IDENTIFIER_ASSEMBLAGE);
-               createConcept(TermAux.UUID_NID_MAP);
-               popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
             pushParent(current());
@@ -256,17 +247,28 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                
                popParent();
             createConcept("language");
-            pushParent(current());
-               createConcept(TermAux.ENGLISH_LANGUAGE);
-               createConcept(TermAux.SPANISH_LANGUAGE);
-               createConcept(TermAux.FRENCH_LANGUAGE);
-               createConcept(TermAux.DANISH_LANGUAGE);
-               createConcept(TermAux.POLISH_LANGUAGE);
-               createConcept(TermAux.DUTCH_LANGUAGE);
-               createConcept(TermAux.LITHUANIAN_LANGUAGE);
-               createConcept(TermAux.CHINESE_LANGUAGE);
-               createConcept(TermAux.JAPANESE_LANGUAGE);
-               createConcept(TermAux.SWEDISH_LANGUAGE);
+            pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
+            //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
+               createConcept(TermAux.ENGLISH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45021920-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.SPANISH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45021c36-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.FRENCH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45021dbc-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.DANISH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45021f10-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.POLISH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45022140-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.DUTCH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45022280-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.LITHUANIAN_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45022410-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.CHINESE_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45022532-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.JAPANESE_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("450226cc-9567-11e5-8994-feff819cdc9f"));
+               createConcept(TermAux.SWEDISH_LANGUAGE, 
+                     TermAux.DESCRIPTION_ASSEMBLAGE.getNid()).addUuids(UUID.fromString("45022848-9567-11e5-8994-feff819cdc9f"));
                popParent();
             createConcept("Assemblage membership type");
                pushParent(current());
@@ -311,18 +313,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("SOLOR issue assemblage");
                   popParent();
                createConcept(TermAux.DESCRIPTION_ASSEMBLAGE);
-               pushParent(current());
-                  createConcept(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.SPANISH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.FRENCH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.DANISH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.POLISH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.DUTCH_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.LITHUANIAN_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.CHINESE_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.JAPANESE_DESCRIPTION_ASSEMBLAGE);
-                  createConcept(TermAux.SWEDISH_DESCRIPTION_ASSEMBLAGE);
-                  popParent();
                createConcept("Dialect assemblage");
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE);

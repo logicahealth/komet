@@ -108,7 +108,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * @param descriptionText the description text
     * @param conceptBuilder the concept builder
     * @param descriptionType the description type
-    * @param languageForDescription the language for description
+    * @param languageForDescription the language for description - also used as the assemblage
     */
    public DescriptionBuilderImpl(String descriptionText,
                                       ConceptBuilder conceptBuilder,
@@ -126,7 +126,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * @param descriptionText the description text
     * @param conceptSequence the concept sequence
     * @param descriptionType the description type
-    * @param languageForDescription the language for description
+    * @param languageForDescription the language for description - also used as the assemblage
     */
    public DescriptionBuilderImpl(String descriptionText,
                                       int conceptSequence,
@@ -259,11 +259,9 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 		}
 
 		if (!isPrimordialUuidSet()) {
-			int assemblageSeq = TermAux.getDescriptionAssemblageConceptSequence(languageForDescription.getNid());
 			int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
 
 			setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace,
-					Get.identifierService().getUuidPrimordialForNid(assemblageSeq).get(), 
 					conceptBuilder.getPrimordialUuid(), 
 					Get.identifierService().getUuidPrimordialForNid(caseSigNid).get(),
 					descriptionType.getPrimordialUuid(), 

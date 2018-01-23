@@ -170,7 +170,6 @@ public class UuidFactory {
    /**
     * 
     * @param namespace
-    * @param assemblage
     * @param concept
     * @param caseSignificance
     * @param descriptionType
@@ -179,9 +178,9 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForDescriptionSememe(UUID namespace, UUID assemblage, UUID concept, UUID caseSignificance,
+   public static UUID getUuidForDescriptionSememe(UUID namespace, UUID concept, UUID caseSignificance,
          UUID descriptionType, UUID language, String descriptionText, BiConsumer<String, UUID> consumer) {
-      return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), concept.toString(), caseSignificance.toString(),
+      return UuidT5Generator.get(namespace, createUuidTextSeed(concept.toString(), caseSignificance.toString(),
             descriptionType.toString(), language.toString(), descriptionText), consumer);
    }
 

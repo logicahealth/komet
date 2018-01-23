@@ -459,7 +459,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]).get();
                setPrimordialUuid(UuidFactory.getUuidForComponentNidSememe(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
            } else if (semanticType == semanticType.DESCRIPTION) {
-              setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, assemblageUuid, refCompUuid, 
+              setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, refCompUuid, 
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]).get(),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]).get(),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]).get(),

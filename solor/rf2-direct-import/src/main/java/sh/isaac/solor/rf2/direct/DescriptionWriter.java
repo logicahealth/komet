@@ -99,7 +99,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          AssemblageService assemblageService = Get.assemblageService();
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
-         int sctIdentifierAssemblageNid = TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getNid();
+         int sctIdentifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
          int authorNid = TermAux.USER.getNid();
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
@@ -146,7 +146,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             assemblageService.writeSemanticChronology(descriptionToWrite);
             
             // add to sct identifier assemblage
-            UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SCT_IDENTIFIER_ASSEMBLAGE.getPrimordialUuid(), 
+            UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), 
                     descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
             SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                                sctIdentifierUuid,
