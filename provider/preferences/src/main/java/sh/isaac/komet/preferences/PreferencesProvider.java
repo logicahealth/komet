@@ -49,7 +49,6 @@ import java.io.InputStreamReader;
 
 import java.net.MalformedURLException;
 
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,6 +77,7 @@ import sh.isaac.api.preferences.PreferencesService;
 import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
+import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
 import static sh.isaac.api.constants.Constants.PREFERENCES_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
@@ -196,6 +196,8 @@ public class PreferencesProvider
          this.applicationPreferences.put(
              DATA_STORE_ROOT_LOCATION_PROPERTY,
              System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+         
+         this.applicationPreferences.putBoolean(LOAD_CHANGESETS_ON_STARTUP, false);
          this.applicationPreferences.sync();
       } catch (Throwable ex) {
          // HK2 swallows these exceptions, so I'm trying to make sure they are

@@ -17,7 +17,6 @@
 package sh.isaac.komet.gui.treeview;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
@@ -32,7 +31,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
-
+    private static final int CHILD_BATCH_SIZE = 25;
     private final CountDownLatch childrenLoadedLatch;
     private final MultiParentTreeItemImpl treeItemImpl;
 
@@ -58,7 +57,10 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 TaxonomySnapshotService taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
                 Manifold manifold = treeItemImpl.getTreeView().getManifold();
                 int[]  children = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
-                addToTotalWork(children.length);
+                int batchCount = children.length/CHILD_BATCH_SIZE;
+                addToTotalWork(children.length + batchCount);
+                
+                
                 for (int childNid : children) {
                     ConceptChronology childChronology = Get.concept(childNid);
                     MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), null);
@@ -76,11 +78,32 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                     }
                     completedUnitOfWork();
                 }
-
-                Platform.runLater(
+                
+                int counter = 0;
+                ArrayList<ArrayList<MultiParentTreeItemImpl>> itemListList = new ArrayList<>();
+                ArrayList<MultiParentTreeItemImpl> itemList = new ArrayList<>();
+                itemListList.add(itemList);
+                for (MultiParentTreeItemImpl treeItem: childrenToAdd) {
+                    
+                    if (counter <= CHILD_BATCH_SIZE) {
+                        counter++;
+                        itemList.add(treeItem);
+                    } else {
+                        counter = 0;
+                        itemList = new ArrayList<>();
+                        itemListList.add(itemList);
+                    }
+                }
+                
+                for (ArrayList<MultiParentTreeItemImpl> items: itemListList) {
+                    Platform.runLater(
                         () -> {
-                            treeItemImpl.getChildren().addAll(childrenToAdd);
+                            treeItemImpl.getChildren().addAll(items);
+                            completedUnitOfWork();
                         });
+                }
+                    
+
             }
             return null;
         } finally {

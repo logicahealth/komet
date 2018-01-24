@@ -70,6 +70,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.commit.CommitService;
+import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 
@@ -245,7 +246,10 @@ public class ChangeSetLoadProvider
          this.processedChangesets = (mcs == null) ? null
                : mcs.<String, Boolean>openStore("processedChangesets");
 
-         final int loaded = readChangesetFiles();
+         if (Get.applicationPreferences().getBoolean(LOAD_CHANGESETS_ON_STARTUP, true)) {
+             final int loaded = readChangesetFiles();
+         }
+         
 
 
       } catch (final IOException | RuntimeException e) {

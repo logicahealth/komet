@@ -95,5 +95,7 @@ public class Constants {
    public static final String AFTER_IMPORT_FOLDER_LOCATION = "sh.isaac.api.constants.AFTER_IMPORT_FOLDER_LOCATION";
 
    public static final String PREFERENCES_FOLDER_LOCATION = "sh.isaac.api.constants.PREFERENCES_FILE_LOCATION";
+   
+   public static final String LOAD_CHANGESETS_ON_STARTUP = "sh.isaac.api.constants.LOAD_CHANGESETS_ON_STARTUP";
 }
 

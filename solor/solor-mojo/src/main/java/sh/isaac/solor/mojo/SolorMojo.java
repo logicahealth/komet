@@ -77,6 +77,7 @@ public class SolorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Get.configurationService().setDBBuildMode();
         try {
             System.setProperty(IMPORT_FOLDER_LOCATION, importFolderLocation);
             this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);

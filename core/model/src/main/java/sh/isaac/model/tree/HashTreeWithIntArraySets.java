@@ -729,11 +729,10 @@ public class HashTreeWithIntArraySets
              return true;
           });
 
-      int[] roots         = new int[rootSet.size()];
       int[] rootSequences = rootSet.keys()
                                    .elements();
 
-      for (int i = 0; i < roots.length; i++) {
+      for (int i = 0; i < rootSet.size(); i++) {
          rootSequences[i] = ModelGet.identifierService()
                                     .getNidForElementSequence(rootSequences[i], assemblageNid);
       }
