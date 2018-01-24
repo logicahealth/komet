@@ -123,7 +123,6 @@ final public class MultiParentTreeCell
 
    @Override
    protected void updateItem(ConceptChronology concept, boolean empty) {
-      boolean addProgressIndicator = false;
       // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
 
       //profiling showed set context menu very slow. Maybe only set on right click...
@@ -141,18 +140,10 @@ final public class MultiParentTreeCell
             conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
-               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
+                    Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
                                                : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
-                  if (addProgressIndicator) {
-                     StackPane progressStack = new StackPane();
 
-                     progressStack.getChildren()
-                                        .add(iv);
-                     addProgressIndicator(treeItem, progressStack);
-                     setDisclosureNode(progressStack);
-                  } else {
-                     setDisclosureNode(iv);
-                  }
+                    setDisclosureNode(iv);
                }
 
                ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().getManifold().getConceptSnapshotService();
@@ -173,27 +164,6 @@ final public class MultiParentTreeCell
          setText("Internal error!");
          setGraphic(null);
       }
-   }
-
-   private void addProgressIndicator(final MultiParentTreeItemImpl treeItem, StackPane progressStack) {
-      ProgressIndicator pi = new ProgressIndicator();
-
-      pi.setPrefSize(16, 16);
-      pi.setMaxSize(16, 16);
-      pi.progressProperty()
-        .bind(treeItem.getChildLoadPercentComplete());
-      pi.visibleProperty()
-        .bind(
-            treeItem.getChildLoadPercentComplete()
-                    .lessThan(1.0)
-                    .and(treeItem.getChildLoadPercentComplete()
-                                 .greaterThanOrEqualTo(-1.0)));
-      pi.setMouseTransparent(true);
-      progressStack.getChildren()
-                         .add(pi);
-      StackPane.setAlignment(pi, Pos.CENTER);
-
-      // StackPane.setMargin(pi, new Insets(0, 10, 0, 0));
    }
 
    private ContextMenu buildContextMenu(ConceptChronology concept) {

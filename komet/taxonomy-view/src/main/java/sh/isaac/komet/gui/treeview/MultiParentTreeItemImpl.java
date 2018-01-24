@@ -51,8 +51,6 @@ import java.util.concurrent.CountDownLatch;
 
 import javafx.application.Platform;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
@@ -95,7 +93,6 @@ public class MultiParentTreeItemImpl
    private CountDownLatch                      childrenLoadedLatch = new CountDownLatch(1);
 
    // -2 when not yet started, -1 for started indeterminate - between 0 and 1, if we can determine, 1 when complete.
-   private final DoubleProperty childLoadPercentComplete = new SimpleDoubleProperty(-2.0);
    private volatile boolean     cancelLookup             = false;
    private boolean              defined                  = false;
    private boolean              multiParent              = false;
@@ -194,8 +191,6 @@ public class MultiParentTreeItemImpl
 
    void addChildrenNow() {
       if (getChildren().isEmpty()) {
-         childLoadStarts();
-
          try {
             final ConceptChronology conceptChronology = getValue();
 
@@ -236,99 +231,16 @@ public class MultiParentTreeItemImpl
          } catch (Exception e) {
             LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
          } finally {
-            childLoadComplete();
+            childrenLoadedLatch.countDown();
          }
       }
    }
    void addChildren() {
       if (getChildren().isEmpty()) {
-         childLoadStarts();
-
-         try {
-            final ConceptChronology conceptChronology = getValue();
-
-            if (!shouldDisplay()) {
-               // Don't add children to something that shouldn't be displayed
-               LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
-            } else if (conceptChronology == null) {
-               LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
-            } else {  // if (conceptChronology != null)
-               // Gather the children
-               ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
-               TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
-
-               for (int childNid: taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid())) {
-                  ConceptChronology childChronology = Get.concept(childNid);
-                  MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
-                  Manifold manifold = treeView.getManifold();
-                  childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
-                  childItem.toString();
-                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
-
-                  if (childItem.shouldDisplay()) {
-                     childrenToAdd.add(childItem);
-                  } else {
-                     LOG.debug(
-                         "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " +
-                         this.getConceptUuid());
-                  }
-               }
-
-               Collections.sort(childrenToAdd);
-
-               if (cancelLookup) {
-                  return;
-               }
-
-               Platform.runLater(
-                   () -> {
-                      getChildren().addAll(childrenToAdd);
-                   });
-            }
-         } catch (Exception e) {
-            LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
-         } finally {
-            childLoadComplete();
-         }
-      }
-   }
-
-   /**
-    * Can be called on either a background or the FX thread
-    */
-   protected void childLoadComplete() {
-      Runnable r = () -> {
-                      childLoadPercentComplete.set(1.0);
-                      childrenLoadedLatch.countDown();
-                   };
-
-      if (Platform.isFxApplicationThread()) {
-         r.run();
-      } else {
-         Platform.runLater(r);
-      }
-   }
-
-   /**
-    * Can be called on either a background or the FX thread
-    */
-   protected void childLoadStarts() {
-      CountDownLatch cdl = new CountDownLatch(1);
-      Runnable       r   = () -> {
-                              childLoadPercentComplete.set(-1);
-                              cdl.countDown();
-                           };
-
-      if (Platform.isFxApplicationThread()) {
-         r.run();
-      } else {
-         Platform.runLater(r);
-      }
-
-      try {
-         cdl.await();
-      } catch (InterruptedException e) {
-         LOG.error("unexpected interrupt", e);
+          if (shouldDisplay()) {
+              FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
+              Get.executor().submit(fetchTask);
+          }
       }
    }
 
@@ -336,7 +248,6 @@ public class MultiParentTreeItemImpl
       CountDownLatch cdl = new CountDownLatch(1);
       Runnable       r   = () -> {
                               cancelLookup = false;
-                              childLoadPercentComplete.set(-2);
                               childrenLoadedLatch.countDown();
                               childrenLoadedLatch = new CountDownLatch(1);
                               cdl.countDown();
@@ -359,16 +270,6 @@ public class MultiParentTreeItemImpl
 
    protected boolean isCancelRequested() {
       return cancelLookup;
-   }
-
-   /**
-    * returns -2 when not yet started, -1 when started, but indeterminate otherwise, a value between 0 and 1 (1 when
-    * complete)
-    *
-    * @return the percent load complete.
-    */
-   public DoubleProperty getChildLoadPercentComplete() {
-      return childLoadPercentComplete;
    }
 
    @Override
