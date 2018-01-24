@@ -165,16 +165,7 @@ final public class MultiParentTreeCell
                }
 
                setText(conceptDescriptionText);
-
-               if (getGraphic() == null) {
-                  graphicTilePane = new TilePane();
-
-                  // Set to the number of icons for display. Will need to make dynamic if more than one is possible.
-                  graphicTilePane.setPrefColumns(1);
-                  graphicTilePane.getChildren()
-                                 .addAll(treeItem.computeGraphic());
-                  setGraphic(graphicTilePane);
-               }
+               setGraphic(treeItem.computeGraphic());
             }
          }
       } catch (Exception e) {
