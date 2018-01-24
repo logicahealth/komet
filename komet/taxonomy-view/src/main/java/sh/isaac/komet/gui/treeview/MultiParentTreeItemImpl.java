@@ -104,6 +104,7 @@ public class MultiParentTreeItemImpl
    private MultiParentTreeView  treeView;
    private String               conceptDescriptionText;  // Cached to speed up comparisons with toString method.
    private final int            nid;
+   private int[] childNids;
 
    //~--- constructors --------------------------------------------------------
 
@@ -413,8 +414,11 @@ public class MultiParentTreeItemImpl
       if (multiParentDepth > 0) {
          return true;
       }
+      if (this.childNids == null) {
+          this.childNids = this.treeView.getTaxonomySnapshot().getTaxonomyChildConceptNids(nid);
+      }
 
-      return this.treeView.getTaxonomySnapshot().isLeaf(nid);
+      return this.childNids.length == 0;
    }
 
    @Override
