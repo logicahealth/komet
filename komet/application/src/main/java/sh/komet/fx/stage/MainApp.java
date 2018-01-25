@@ -221,7 +221,7 @@ public class MainApp
             Group rootGroup = new Group();
  
             //create scene with set width, height and color
-            Scene scene = new Scene(rootGroup, 575, 486, Color.TRANSPARENT);
+            Scene scene = new Scene(rootGroup, 806, 675, Color.TRANSPARENT);
  
             //set scene to stage
             stage.setScene(scene);
@@ -231,7 +231,7 @@ public class MainApp
             Image image = new Image(MainApp.class.getResourceAsStream("/images/about@2x.png"));
             ImageView aboutView = new ImageView(image);
 
-            aboutView.setFitHeight(486);
+            aboutView.setFitHeight(675);
             aboutView.setPreserveRatio(true);
             aboutView.setSmooth(true);
             aboutView.setCache(true);
