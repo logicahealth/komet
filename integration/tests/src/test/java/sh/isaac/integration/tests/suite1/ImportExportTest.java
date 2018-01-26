@@ -143,6 +143,7 @@ public class ImportExportTest {
          // Is updateTaxomy being called twice? Once during UpdateTaxonomyAfterCommitTask and once during classify?
          LOG.info("Classify results: " + classifierResults);
       } catch (InterruptedException | ExecutionException e) {
+         LOG.error("Classify failed", e);
          Assert.fail("Classify failed.", e);
       }
    }
@@ -297,7 +298,7 @@ public class ImportExportTest {
       final int[] roots = taxonomySnapshotService.getRoots();
       final NidSet rootAssemblages = new NidSet();
       for (int rootNid: roots) {
-         rootAssemblages.add(ModelGet.identifierService().getAssemblageNidForNid(rootNid));
+         rootAssemblages.add(ModelGet.identifierService().getAssemblageNid(rootNid).getAsInt());
       }
       StringBuilder rootsMessage = new StringBuilder();
       for (int root: roots) {

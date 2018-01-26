@@ -577,7 +577,7 @@ public class TreeNodeVisitDataBdbImpl
    @Override
    public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeNid) {
       if (nodeNid < 0) {
-         int assemblageNid = ModelGet.identifierService().getAssemblageNidForNid(nodeNid);
+         int assemblageNid = ModelGet.identifierService().getAssemblageNid(nodeNid).getAsInt();
          if (assemblageNid < 0) {
             int nodeSequence = ModelGet.identifierService().getElementSequenceForNid(nodeNid);
             // lazy creation to save memory since not all tree traversals want to

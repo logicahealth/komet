@@ -42,6 +42,7 @@ package sh.isaac.api.identity;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -72,7 +73,7 @@ public interface IdentifiedObject {
     *
     * @return the nid
     */
-   default int getNid() {
+   default int getNid() throws NoSuchElementException{
       return Get.identifierService()
                 .getNidForUuids(getUuidList());
    }

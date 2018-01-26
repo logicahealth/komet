@@ -99,7 +99,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          AssemblageService assemblageService = Get.assemblageService();
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
-         int conceptAssemblageNid = identifierService.getNidForProxy(TermAux.SOLOR_CONCEPT_ASSEMBLAGE);
+         int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
          int sctIdentifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
          int authorNid = TermAux.USER.getNid();
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();

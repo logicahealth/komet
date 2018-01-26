@@ -304,7 +304,7 @@ public class TaxonomyProvider
 
     @Override
     public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
         int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
@@ -319,7 +319,7 @@ public class TaxonomyProvider
 
     @Override
     public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
-        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
         int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
@@ -365,7 +365,7 @@ public class TaxonomyProvider
 
     private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
         int conceptAssemblageNid = ModelGet.identifierService()
-                .getAssemblageNidForNid(nid);
+                .getAssemblageNid(nid).getAsInt();
         SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
         int[] record = map.get(nid);
 

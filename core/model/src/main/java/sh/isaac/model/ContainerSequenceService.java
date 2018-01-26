@@ -33,11 +33,14 @@ public interface ContainerSequenceService extends IdentifierService {
     * This object type is normally set when the first object is written to the assemblage, so there 
     * is no need for calling this method directly. 
     * @param nid
-    * @param assemblageNid
+    * @param assemblageNid the required assemblageNid for this nid.
     * @param objectType 
-     * @param versionType 
+    * @param versionType
+    * @return true, if this is the first time setupNid was called for this nid.  Returns false if the nid was previously setup, 
+    * and this method call was a no-op.
+    * @throws IllegalStateException if the nid was already set up and the previous type(s) don't match, or the nid is unknown.
     */
-   void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType);
+   boolean setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException;
    
    /**
     * 
@@ -61,7 +64,6 @@ public interface ContainerSequenceService extends IdentifierService {
     */
    int getElementSequenceForNid(int nid, int assemblageNid);
    
-   
    /**
     * A sequence for the semantic chronology, that is only unique within the 
     * particular assemblage. 
@@ -69,14 +71,6 @@ public interface ContainerSequenceService extends IdentifierService {
     * @return 
     */
    int getElementSequenceForNid(int nid);
-   
-   /**
-    * Returns the nid for the concept defining the assemblage that the nid's 
-    * chronology is defined within. 
-    * @param nid
-    * @return the nid for the assemblage the chronicle is defined within of. 
-    */
-   int getAssemblageNidForNid(int nid);
    
    /**
     * 

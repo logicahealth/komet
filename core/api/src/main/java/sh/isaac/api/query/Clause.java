@@ -154,7 +154,7 @@ public abstract class Clause implements ConceptSpecification {
 
     @Override
     public int getNid() {
-        return Get.identifierService().getCachedNidForProxy(this);
+        return Get.identifierService().getNidForUuids(getPrimordialUuid());
     }
 
    //~--- methods -------------------------------------------------------------

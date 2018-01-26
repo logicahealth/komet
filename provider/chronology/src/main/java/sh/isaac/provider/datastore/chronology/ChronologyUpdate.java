@@ -129,7 +129,7 @@ public class ChronologyUpdate implements IsaacCache{
    public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
       initCheck();
       int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-      int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNidForNid(referencedComponentNid);
+      int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid).getAsInt();
 
 //   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
 //         referencedComponentNid + " index: " + 
@@ -435,7 +435,7 @@ public class ChronologyUpdate implements IsaacCache{
       TaxonomyRecord destinationTaxonomyRecord = new TaxonomyRecord();
       destinationTaxonomyRecord.addStampRecord(originNid, CHILD_OF_NID, stampSequence, taxonomyFlags.bits);
 
-      int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNidForNid(originNid);
+      int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(originNid).getAsInt();
       SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getOrigin_DestinationTaxonomyRecord_Map(conceptAssemblageNid);
       int[] record = destinationTaxonomyRecord.pack();
       //TaxonomyRecord.validate(record);

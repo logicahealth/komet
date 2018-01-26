@@ -121,12 +121,15 @@ public class Rf2DirectImporter
         try {
             File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
 
-            System.out.println("Adding all metadata to identifier cache.");
-
-            IdentifierService idService = Get.identifierService();
-            for (ConceptSpecification metadataSpec : MetaData.META_DATA_CONCEPTS) {
-                idService.getCachedNidForProxy(metadataSpec);
-            }
+            //TODO [Dan] need to see if this really helped performance at all... getNid() on a conceptProxy already does a hashed lookup.  
+            //The notion if needing to maintain an entire second datastructure, storage, and parallel set of API calls for faster access
+            //seems tedious, as best.... If it performs that slowly, lets fix getNidForUUID....
+//            System.out.println("Adding all metadata to identifier cache.");
+//
+//            IdentifierService idService = Get.identifierService();
+//            for (ConceptSpecification metadataSpec : MetaData.META_DATA_CONCEPTS) {
+//                idService.getCachedNidForProxy(metadataSpec);
+//            }
 
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 

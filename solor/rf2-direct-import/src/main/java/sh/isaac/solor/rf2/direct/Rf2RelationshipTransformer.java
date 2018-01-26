@@ -127,7 +127,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
       Get.assemblageService().getSemanticChronologyStream(relationshipAssemblageNid)
               .forEach((semanticChronology) -> {
                  int conceptNid = semanticChronology.getReferencedComponentNid();
-                 int conceptAssemblageNidFound = containerService.getAssemblageNidForNid(conceptNid);
+                 int conceptAssemblageNidFound = containerService.getAssemblageNid(conceptNid).getAsInt();
                  if (conceptAssemblageNidFound != conceptAssemblageNid) {
                     throw new IllegalStateException("conceptAssemblageNids do not match: " + conceptAssemblageNidFound + " " + conceptAssemblageNid);
                  }

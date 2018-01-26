@@ -40,6 +40,7 @@ package sh.isaac.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -237,8 +238,14 @@ public class ConceptProxy
     * @return the nid
     */
    @Override
-   public int getNid() {
-       return Get.identifierService().getCachedNidForProxy(this);
+   public int getNid() throws NoSuchElementException {
+      try {
+       return Get.identifierService().getNidForUuids(getPrimordialUuid());
+      }
+      catch (NoSuchElementException e) {
+         //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
+         return Get.identifierService().assignNid(getUuids());
+      }
    }
 
    /**
