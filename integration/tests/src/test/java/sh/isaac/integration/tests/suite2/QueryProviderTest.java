@@ -82,7 +82,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits() {
 		
-		int expectedMaxHits = 10;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 14;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("h*").size(), expectedMaxHits);
 		
@@ -98,7 +98,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 484;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 488;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -113,7 +113,7 @@ public class QueryProviderTest {
 	@Test
 	public void testPaging() {
 		
-		int expectedMaxHits = 10;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 14;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("h*", null, null, null, null, null).size(), expectedMaxHits);
 		
@@ -122,8 +122,8 @@ public class QueryProviderTest {
 		List<SearchResult> paged = new ArrayList<>(expectedMaxHits);
 		
 		//Get in two pages
-		paged.addAll(di.query("h*", null, null, 1, 5, null));
-		paged.addAll(di.query("h*", null, null, 2, 5, null));
+		paged.addAll(di.query("h*", null, null, 1, 7, null));
+		paged.addAll(di.query("h*", null, null, 2, 7, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
@@ -131,8 +131,8 @@ public class QueryProviderTest {
 
 		//Try with page one twice
 		paged = new ArrayList<>(expectedMaxHits);
-		paged.addAll(di.query("h*", null, null, 1, 5, null));
-		paged.addAll(di.query("h*", null, null, 1, 5, null));
+		paged.addAll(di.query("h*", null, null, 1, 7, null));
+		paged.addAll(di.query("h*", null, null, 1, 7, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertFalse(CollectionUtils.containsAll(paged, allResults));
@@ -150,6 +150,10 @@ public class QueryProviderTest {
 		paged.addAll(di.query("h*", null, null, 8, 1, null));
 		paged.addAll(di.query("h*", null, null, 9, 1, null));
 		paged.addAll(di.query("h*", null, null, 10, 1, null));
+		paged.addAll(di.query("h*", null, null, 11, 1, null));
+		paged.addAll(di.query("h*", null, null, 12, 1, null));
+		paged.addAll(di.query("h*", null, null, 13, 1, null));
+		paged.addAll(di.query("h*", null, null, 14, 1, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
@@ -237,10 +241,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 364);
+		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 368);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 364);
+		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 368);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("so*", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);

@@ -71,8 +71,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 import sh.isaac.api.Get;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.constants.ModuleProvidedConstants;
+import sh.isaac.model.DataStore;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -195,6 +198,18 @@ public class ExportTaxonomy
                                                .getSimpleName() + ".json");
 
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
+         
+         //Sanity check
+         boolean haveError = false;
+         for (ConceptSpecification cs : TermAux.getAllSpecs()){
+            if (!LookupService.get().getService(DataStore.class).getChronologyData(cs.getNid()).isPresent()) {
+               haveError = true;
+               getLog().error("TermAux concept " + cs.getFullyQualifiedName() + " " + cs.getPrimordialUuid() + " was not loaded!");
+            }
+         }
+         if (haveError) {
+            throw new MojoExecutionException("Please address the TermAux errors");
+         }
       } catch (final Throwable ex) {
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       }

@@ -37,6 +37,9 @@
 
 package sh.isaac.api.bootstrap;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
@@ -455,6 +458,21 @@ public class TermAux {
       }
 
       throw new RuntimeException("Unsupported language: " + Get.conceptDescriptionText(languageConceptNid));
+   }
+   
+   public static ConceptSpecification[] getAllSpecs() {
+      ArrayList<ConceptSpecification> items = new ArrayList<>();
+      
+      try {
+         for (Field f : TermAux.class.getFields()) {
+            if (f.getType().equals(ConceptSpecification.class)) {
+               items.add((ConceptSpecification)f.get(null));
+            }
+         }
+      } catch (Exception e) {
+         throw new RuntimeException("Unexpected error");
+      } 
+      return items.toArray(new ConceptSpecification[items.size()]);
    }
 
    public static void main(String[] args) {

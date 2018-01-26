@@ -479,6 +479,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.ROLE_GROUP);
                   popParent();
+               createConcept(TermAux.PART_OF);  //TODO [KEC] not sure if I put these 4 (previously) missing concepts in the right place in the hierarchy
+               createConcept(TermAux.LATERALITY);
+               createConcept(TermAux.HAS_ACTIVE_INGREDIENT);
+               createConcept(TermAux.HAS_DOSE_FORM);
                popParent();
             createConcept("Unmodeled concept");
             pushParent(current());
@@ -591,6 +595,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
                createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
                createConcept(TermAux.FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+               createConcept(TermAux.ENCLOSING_CONCEPT_QUERY_CLAUSE);
 
                createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
                createConcept(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE);
