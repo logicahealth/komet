@@ -417,8 +417,7 @@ public abstract class BadgedVersionPanel
 
                int nid = ((ComponentNidVersion) semanticVersion).getComponentNid();
 
-               switch (Get.identifierService()
-                       .getOldChronologyTypeForNid(nid)) {
+               switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                   case CONCEPT:
                      componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + getManifold().getPreferredDescriptionText(nid));
                      break;
@@ -430,10 +429,10 @@ public abstract class BadgedVersionPanel
                      componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString());
                      break;
 
-                  case UNKNOWN_NID:
+                  case UNKNOWN:
                   default:
                      componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
-                             + Get.identifierService().getOldChronologyTypeForNid(
+                             + Get.identifierService().getObjectTypeForComponent(
                                      nid).toString());
                }
 

@@ -47,7 +47,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -61,6 +60,7 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.utility.Frills;
@@ -188,15 +188,15 @@ public class AssociationType
     * @param associationInverseName - (optional) inverse name of the association (if it makes sense for the association)
     * @param description - (optional) description that describes the purpose of the association
     * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or 
-    * UUID that is set for the referenced component in an instance of this sememe.  If {@link ObjectChronologyType#UNKNOWN_NID} is passed, it is ignored, as 
+    * UUID that is set for the referenced component in an instance of this sememe.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
     * if it were null.
-    * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link ObjectChronologyType#SEMEME} restrictions
+    * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMEME} restrictions
     * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate)}
     * @param editCoord - optional - the edit coordinate to use when creating the association.  Uses the system default if not provided.
     * @return the concept sequence of the created concept that carries the association definition
     */
       public static AssociationType createAssociation(String associationName, String associationInverseName, String description, 
-         ObjectChronologyType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampCoordinate stampCoord, EditCoordinate editCoord) 
+            IsaacObjectType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampCoordinate stampCoord, EditCoordinate editCoord) 
    {
       try
       {

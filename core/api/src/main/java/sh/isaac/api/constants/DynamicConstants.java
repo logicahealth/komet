@@ -67,13 +67,13 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -296,7 +296,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
                new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE.getPrimordialUuid(), DynamicDataType.STRING, null, true,
                      new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
                      new DynamicString[] { LookupService.getService(DynamicUtility.class)
-                           .createDynamicStringData(ObjectChronologyType.CONCEPT.name() + "|" + ObjectChronologyType.SEMANTIC.name()) },
+                           .createDynamicStringData(IsaacObjectType.CONCEPT.name() + "|" + IsaacObjectType.SEMANTIC.name()) },
                      false),
                new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getPrimordialUuid(), DynamicDataType.STRING, null, false,
                      new DynamicValidatorType[] { DynamicValidatorType.REGEXP },
@@ -353,7 +353,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
          "This is the extended description type that must be attached to a description within a concept to make the concept valid for use as an "
                + "assemblage concept for a dynamic field.  The description annotated with this type describes the intent of "
                + "using the concept containing the description as an assemblage concept.",
-         new DynamicColumnInfo[0], null, null, ObjectChronologyType.SEMANTIC, VersionType.DESCRIPTION) {
+         new DynamicColumnInfo[0], null, null, IsaacObjectType.SEMANTIC, VersionType.DESCRIPTION) {
    };
 
    // This is the assemblage type that is used to record the current configuration of the Indexer for dynamic fields..
@@ -386,7 +386,7 @@ public class DynamicConstants implements ModuleProvidedConstants {
    public final MetadataDynamicConstant DYNAMIC_ASSOCIATION_INVERSE_NAME = new MetadataDynamicConstant("Inverse name", UUID.fromString("c342d18a-ec1c-5583-bfe3-59e6324ae189"),
          "This is the extended description type that may be attached to a description within a concept that defines an Association Refex to signify that "
                + "the referenced description is the inverse of the association name.",
-         new DynamicColumnInfo[0], new String[] {}, new String[] {}, ObjectChronologyType.SEMANTIC, VersionType.DESCRIPTION) {
+         new DynamicColumnInfo[0], new String[] {}, new String[] {}, IsaacObjectType.SEMANTIC, VersionType.DESCRIPTION) {
    };
 
    /** The dynamic extended description type. */

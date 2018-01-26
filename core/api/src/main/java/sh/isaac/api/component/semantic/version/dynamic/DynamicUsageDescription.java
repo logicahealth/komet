@@ -41,9 +41,9 @@ package sh.isaac.api.component.semantic.version.dynamic;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -89,7 +89,7 @@ import sh.isaac.api.constants.DynamicConstants;
  * <br>
  * The assemblage concept may also contain a single {@link DynamicSememeVersion} annotation of type
  * {@link DynamicConstants#DYNAMIC_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as
- * a {@link ObjectChronologyType} and a {@link VersionType}- which will restrict the type of nid that can be placed
+ * a {@link IsaacObjectType} and a {@link VersionType}- which will restrict the type of nid that can be placed
  * into the referenced component field when creating an instance of the assemblage.
  * <br>
  * <br>
@@ -130,20 +130,20 @@ public interface DynamicUsageDescription {
    public int getDynamicUsageDescriptorNid();
 
    /**
-    * Return the {@link ObjectChronologyType} of the restriction on referenced components for this (if any - may return null)
+    * Return the {@link IsaacObjectType} of the restriction on referenced components for this (if any - may return null)
     *
     * If there is a restriction, the nid set for the component type of this must resolve to the matching type.
     *
     * @return the referenced component type restriction
     */
-   public ObjectChronologyType getReferencedComponentTypeRestriction();
+   public IsaacObjectType getReferencedComponentTypeRestriction();
 
    /**
     * Return the {@link VersionType} of the sub restriction on referenced components for this DynamicSememe (if any - may return null)
     *
     * If there is a restriction, the nid set for the component type of this DynamicSememe must resolve to the matching type.
     *
-    * This is only applicable when {@link #getReferencedComponentTypeRestriction()} returns {@link ObjectChronologyType#SEMEME}
+    * This is only applicable when {@link #getReferencedComponentTypeRestriction()} returns {@link IsaacObjectType#SEMEME}
     *
     * @return the referenced component type sub restriction
     */

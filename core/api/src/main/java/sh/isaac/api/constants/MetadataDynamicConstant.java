@@ -45,9 +45,9 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ public class MetadataDynamicConstant
    private final DynamicColumnInfo[] dynamicColumns;
 
    /** The referenced component restriction. */
-   private final ObjectChronologyType referencedComponentRestriction;
+   private final IsaacObjectType referencedComponentRestriction;
 
    /** The referenced component sub restriction. */
    private final VersionType referencedComponentSubRestriction;
@@ -161,7 +161,7 @@ public class MetadataDynamicConstant
          DynamicColumnInfo[] columns,
          String[] synonyms,
          String[] definitions,
-         ObjectChronologyType referencedComponentRestriction,
+         IsaacObjectType referencedComponentRestriction,
          VersionType refererenceComponentSubRestriction) {
       super(fqn, uuid);
 
@@ -206,9 +206,9 @@ public class MetadataDynamicConstant
    /**
     * Gets the referenced component type restriction.
     *
-    * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicDynamic is restricted to.
+    * @return The limit (if any) on which {@link IsaacObjectType} this DynamicDynamic is restricted to.
     */
-   public ObjectChronologyType getReferencedComponentTypeRestriction() {
+   public IsaacObjectType getReferencedComponentTypeRestriction() {
       return this.referencedComponentRestriction;
    }
 

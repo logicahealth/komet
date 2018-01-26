@@ -42,7 +42,6 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
-
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,17 +53,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.util.Interval;
-import sh.isaac.api.util.NumericUtils;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.util.Interval;
+import sh.isaac.api.util.NumericUtils;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -90,8 +89,8 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  * The validatorDefinitionData should be either an {@link DynamicNid} or {@link DynamicSequence} or a {@link DynamicUUID}.
  *
  * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSememeString>}
- * where position 0 is a string constant parseable by {@link ObjectChronologyType#parse(String)}.  Postion 1 is optional, and is only applicable when
- * position 0 is {@link ObjectChronologyType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String)}
+ * where position 0 is a string constant parseable by {@link IsaacObjectType#parse(String)}.  Postion 1 is optional, and is only applicable when
+ * position 0 is {@link IsaacObjectType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String)}
  *
  * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSememeString>}
  * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicExternalValidator}
@@ -384,14 +383,13 @@ public enum DynamicValidatorType {
                throw new RuntimeException("Userdata is invalid for a COMPONENT_TYPE comparison");
             }
 
-            // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) VersionType of the assemblage restriction
+            // Position 0 tells us the IsaacObjectType.  When the type is Sememe, position 2 tells us the (optional) VersionType of the assemblage restriction
             final DynamicString[] valData =
                ((DynamicArray<DynamicString>) validatorDefinitionData).getDataArray();
-            final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
-            final ObjectChronologyType component  = Get.identifierService()
-                                                       .getOldChronologyTypeForNid(nid);
+            final IsaacObjectType expectedCT = IsaacObjectType.parse(valData[0].getDataString(), false);
+            final IsaacObjectType component  = Get.identifierService().getObjectTypeForComponent(nid);
 
-            if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
+            if (expectedCT == IsaacObjectType.UNKNOWN) {
                throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
             }
 
@@ -400,7 +398,7 @@ public enum DynamicValidatorType {
                                           ", not " + component);
             }
 
-            if ((expectedCT == ObjectChronologyType.SEMANTIC) && (valData.length == 2)) {
+            if ((expectedCT == IsaacObjectType.SEMANTIC) && (valData.length == 2)) {
                // they specified a specific type.  Verify.
                final VersionType st = VersionType.parse(valData[1].getDataString(), false);
                final SemanticChronology semanticChronology = Get.assemblageService()

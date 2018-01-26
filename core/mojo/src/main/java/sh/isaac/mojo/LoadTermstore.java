@@ -83,7 +83,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -92,6 +91,7 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
@@ -461,10 +461,8 @@ public class LoadTermstore
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
-            if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
-                  .getOldChronologyTypeForNid(nid))) {
-               final SemanticChronology sc = Get.assemblageService()
-                                              .getSemanticChronology(nid);
+            if (IsaacObjectType.SEMANTIC == Get.identifierService().getObjectTypeForComponent(nid)) {
+               final SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                try

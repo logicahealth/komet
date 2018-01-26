@@ -54,8 +54,6 @@ import java.util.PrimitiveIterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.PrimitiveIterator.OfInt;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -80,7 +78,6 @@ import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -105,7 +102,6 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -209,7 +205,6 @@ public class Frills
     * @return the concept chronology
     * @throws RuntimeException the runtime exception
     */
-   @SuppressWarnings("deprecation")
    public static ConceptChronology buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName,
          String columnDescription)
             throws RuntimeException {
@@ -237,7 +232,7 @@ public class Frills
                   defBuilder)));
 
       final LogicalExpression parentDef = defBuilder.build();
-      final ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef);
+      final ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef, MetaData.CONCEPT_ASSEMBLAGE____SOLOR.getNid());
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                                                        columnName,
                                                              builder,
@@ -284,7 +279,7 @@ public class Frills
     *    of {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} 
     * @param referencedComponentRestriction - optional - if specified, this semantic may only be applied to the specified type of referenced components.
     * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type sememe, then this can further restrice
-    * the type of sememe this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(ObjectChronologyType, VersionType)}
+    * the type of sememe this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(IsaacObjectType, VersionType)}
     * @param editCoord the edit coord
     * @return the concept chronology that represents the new dynamic semantic type.
     */
@@ -293,7 +288,7 @@ public class Frills
          String semanticDescription,
          DynamicColumnInfo[] columns,
          Integer parentConceptNid,
-         ObjectChronologyType referencedComponentRestriction,
+         IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       try {
@@ -319,7 +314,7 @@ public class Frills
          NecessarySet(And(ConceptAssertion(parentConcept, defBuilder)));
 
          final LogicalExpression parentDef = defBuilder.build();
-         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef);
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef, MetaData.CONCEPT_ASSEMBLAGE____SOLOR.getNid());
          DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(
                 semanticPreferredTerm,
@@ -459,19 +454,18 @@ public class Frills
     * @param columns - The column information for this new refex.  May be an empty list or null.
     * @param parentConceptNid  - optional - if null, uses {@link DynamicConstants#DYNAMIC_ASSEMBLAGES}
     * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or
-    * UUID that is set for the referenced component in an instance of this sememe.  If {@link ObjectChronologyType#UNKNOWN_NID} is passed, it is ignored, as
+    * UUID that is set for the referenced component in an instance of this sememe.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as
     * if it were null.
-    * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link ObjectChronologyType#SEMANTIC} restrictions
+    * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
     * @param editCoord - optional - the coordinate to use during create of the sememe concept (and related descriptions) - if not provided, uses system default.
     * @return a reference to the newly created sememe item
     */
-   @SuppressWarnings("deprecation")
    public static DynamicUsageDescription createNewDynamicSemanticUsageDescriptionConcept(String sememeFQN,
          String sememePreferredTerm,
          String sememeDescription,
          DynamicColumnInfo[] columns,
          Integer parentConceptNid,
-         ObjectChronologyType referencedComponentRestriction,
+         IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       final ConceptChronology newDynamicSememeUsageDescriptionConcept =
@@ -840,7 +834,6 @@ public class Frills
     * @return the string[] - position 0 being the "name" of the column, and position 1 being the description.
     * Suitable for a table label and tooltip.
     */
-   @SuppressWarnings("unchecked")
    @Override
    public String[] readDynamicColumnNameDescription(UUID columnDescriptionConcept) {
       String columnName           = null;
@@ -858,7 +851,6 @@ public class Frills
                break;
             }
 
-            @SuppressWarnings("rawtypes")
             final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
                                                                                          .getDefaultStampCoordinate()
                                                                                          .makeCoordinateAnalog(Status.ANY_STATUS_SET));
@@ -955,7 +947,7 @@ public class Frills
     *         convenience.
     * @throws RestException
     */
-   @SuppressWarnings({ "rawtypes", "unchecked" })
+   @SuppressWarnings({"unchecked" })
    private static <T extends Version> VersionUpdatePair<T> resetStatus(Status status, Chronology chronology, EditCoordinate editCoordinate,
          StampCoordinate... readCoordinates) throws Exception {
       String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
@@ -1009,7 +1001,6 @@ public class Frills
     * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
     * @throws Exception
     */
-   @SuppressWarnings("rawtypes")
    public static Optional<Chronology> resetStatusWithNoCommit(Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
 
       final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
@@ -1024,7 +1015,6 @@ public class Frills
             ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
             nid = cc.getNid();
 
-            @SuppressWarnings("unchecked")
             VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(status, cc, editCoordinate, readCoordinates);
             if (updatePair != null) {
                priorState = updatePair.latest.getStatus();
@@ -1038,7 +1028,6 @@ public class Frills
             nid = semantic.getNid();
             switch (semantic.getVersionType()) {
                case DESCRIPTION: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<DescriptionVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1052,7 +1041,6 @@ public class Frills
                   break;
                }
                case STRING: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<StringVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1064,7 +1052,6 @@ public class Frills
                   break;
                }
                case DYNAMIC: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<DynamicImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1075,7 +1062,6 @@ public class Frills
                   break;
                }
                case COMPONENT_NID: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<ComponentNidVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1086,7 +1072,6 @@ public class Frills
                   break;
                }
                case LOGIC_GRAPH: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<LogicGraphVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1097,7 +1082,6 @@ public class Frills
                   break;
                }
                case LONG: {
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<LongVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1108,7 +1092,6 @@ public class Frills
                   break;
                }
                case MEMBER:
-                  @SuppressWarnings("unchecked")
                   VersionUpdatePair<VersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
                   if (sememeUpdatePair != null) {
@@ -1275,18 +1258,12 @@ public class Frills
          int assemblageConceptId,
          StampCoordinate stamp) {
       try {
-         final Optional<UUID> assemblageConceptUuid = Get.identifierService()
+         final UUID assemblageConceptUuid = Get.identifierService()
                                                          .getUuidPrimordialForNid(assemblageConceptId);
-
-         if (!assemblageConceptUuid.isPresent()) {
-            throw new RuntimeException(
-                "getUuidPrimordialFromConceptId() return empty UUID for assemblageConceptId " + assemblageConceptId);
-         }
 
          final int               componentNid = componentId;
          final ArrayList<String> values       = new ArrayList<>(1);
-         final int assemblageConceptSequence = Get.identifierService()
-                                                  .getNidForUuids(assemblageConceptUuid.get());
+         final int assemblageConceptSequence = Get.identifierService().getNidForUuids(assemblageConceptUuid);
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
@@ -1371,7 +1348,6 @@ public class Frills
                ).findAny();
 
       if (sememe.isPresent()) {
-         @SuppressWarnings({ "unchecked", "rawtypes" })
          final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (sv.isPresent()) {
@@ -1530,7 +1506,6 @@ public class Frills
          .getSemanticChronologyStreamForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
                 if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
-                   @SuppressWarnings({ "rawtypes", "unchecked" })
                   final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe)
                         .getLatestVersion(
                               (stamp == null) ? Get.configurationService().getDefaultStampCoordinate(): stamp);
@@ -1586,7 +1561,6 @@ public class Frills
          .getSemanticChronologyStreamForComponent(conceptNid)
          .forEach(descriptionC -> {
                 if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
-                   @SuppressWarnings({ "unchecked", "rawtypes" })
                    final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion(
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
@@ -1770,7 +1744,6 @@ public class Frills
          LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
-         @SuppressWarnings("unchecked")
          final SemanticChronology semanticChronology =
             (SemanticChronology) defChronologyOptional.get();
 
@@ -1809,7 +1782,6 @@ public class Frills
          LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-         @SuppressWarnings("unchecked")
          final SemanticChronology semanticChronology =
             (SemanticChronology) defChronologyOptional.get();
 
@@ -1834,7 +1806,6 @@ public class Frills
       LOG.debug("Getting logic graph sememe for {}",
           Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
 
-      @SuppressWarnings({ "unchecked", "rawtypes" })
       final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSemanticChronology).getLatestVersion(
                                                                 stampCoordinate);
 
@@ -2252,7 +2223,6 @@ public class Frills
    public static Class<? extends StampedVersion> getVersionType(Chronology obj) {
       switch (obj.getIsaacObjectType()) {
          case SEMANTIC: {
-            @SuppressWarnings({ "unchecked" })
             final SemanticChronology semanticChronology = (SemanticChronology) obj;
 
             switch (semanticChronology.getVersionType()) {
@@ -2344,7 +2314,7 @@ public class Frills
 
                   // Data model bug path (can go away, after bug is fixed)
                   else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
-                     vuids.add(Long.parseLong(((DynamicVersion) latestSememe.get()).getData()[0].dataToString()));
+                     vuids.add(Long.parseLong(((DynamicVersion<?>) latestSememe.get()).getData()[0].dataToString()));
                   }
                });
 
@@ -2386,9 +2356,10 @@ public class Frills
       final Predicate<Integer> filter = new Predicate<Integer>() {
          @Override
          public boolean test(Integer t) {
-            final Optional<SemanticChronology> SemanticChronologyToCheck = (Optional<SemanticChronology>) Get.assemblageService().getOptionalSemanticChronology(t);
-            if (SemanticChronologyToCheck.isPresent() && SemanticChronologyToCheck.get().getAssemblageNid() == MetaData.VUID____SOLOR.getNid() // This check should be redundant
-            ) {
+            final Optional<? extends SemanticChronology> SemanticChronologyToCheck = 
+                  (Optional<? extends SemanticChronology>) Get.assemblageService().getOptionalSemanticChronology(t);
+            // This check should be redundant
+            if (SemanticChronologyToCheck.isPresent() && SemanticChronologyToCheck.get().getAssemblageNid() == MetaData.VUID____SOLOR.getNid()) {
                final SemanticChronology existingVuidSememe = ((SemanticChronology) SemanticChronologyToCheck.get());
                LatestVersion<Version> latestVersionOptional = existingVuidSememe.getLatestVersion(stampCoordinate);
 

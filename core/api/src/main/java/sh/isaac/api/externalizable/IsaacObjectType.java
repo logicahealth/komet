@@ -48,6 +48,11 @@ package sh.isaac.api.externalizable;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.util.Locale;
+
+import org.apache.commons.lang3.StringUtils;
+
 import sh.isaac.api.DataSource;
 
 //~--- enums ------------------------------------------------------------------
@@ -62,41 +67,42 @@ public enum IsaacObjectType {
     * A concept. An identifier with status. Descriptions and definitions of concepts
     * are provided as SEMANTICs.
     */
-   CONCEPT((byte) 1, (byte) 1),
+   CONCEPT((byte) 1, (byte) 1, "Concept"),
 
    /**
     * A semantic unit of meaning, associated with a concept or another SEMANTIC.
     */
-   SEMANTIC((byte) 2, (byte) 1),
+   SEMANTIC((byte) 2, (byte) 1, "Semantic"),
 
    /**
     * A stamp comment.
     */
-   STAMP_COMMENT((byte) 4, (byte) 1),
+   STAMP_COMMENT((byte) 4, (byte) 1, "Stamp Comment"),
 
    /**
     * A stamp alias.
     */
-   STAMP_ALIAS((byte) 5, (byte) 1),
+   STAMP_ALIAS((byte) 5, (byte) 1, "Stamp Alias"),
 
    /**
     * A stamp.
     */
-   STAMP((byte) 6, (byte) 1),
+   STAMP((byte) 6, (byte) 1, "Stamp"),
 
    /**
     * A logical expression.
     */
-   LOGICAL_EXPRESSION((byte) 7, (byte) 1),
+   LOGICAL_EXPRESSION((byte) 7, (byte) 1, "Logical Expression"),
 
    /**
     * A logical expression.
     */
-   UNKNOWN((byte) 128, (byte) 0);
+   UNKNOWN((byte) 128, (byte) 0, "Unknown");
 
    /** The token. */
    private final byte token;
    private final byte dataFormatVersion;
+   private final String niceName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -105,9 +111,10 @@ public enum IsaacObjectType {
     *
     * @param token the token
     */
-   private IsaacObjectType(byte token, byte dataFormatVersion) {
+   private IsaacObjectType(byte token, byte dataFormatVersion, String niceName) {
       this.token             = token;
       this.dataFormatVersion = dataFormatVersion;
+      this.niceName = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -213,6 +220,45 @@ public enum IsaacObjectType {
          DataSource.INTERNAL.writeDataSourceToken(out);
       }
    }
+   
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the object chronology type
+    */
+   public static IsaacObjectType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
+      if (nameOrEnumId == null) {
+      	if (exceptionOnParseFail) {
+            throw new InvalidParameterException("Could not determine ObjectChronologyType from 'null'");
+         }
+         return null;
+      }
+
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH).trim();
+
+      if (StringUtils.isBlank(clean)) {
+      	if (exceptionOnParseFail) {
+            throw new InvalidParameterException("Could not determine ObjectChronologyType from 'null'");
+         }
+         return null;
+      }
+
+      for (final IsaacObjectType ct: values()) {
+         if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
+               ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
+               (ct.ordinal() + "").equals(clean)) {
+            return ct;
+         }
+      }
+
+      if (exceptionOnParseFail) {
+         throw new InvalidParameterException("Could not determine ObjectChronologyType from " + nameOrEnumId);
+      }
+
+      return UNKNOWN;
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -227,6 +273,11 @@ public enum IsaacObjectType {
     */
    public byte getToken() {
       return this.token;
+   }
+   
+   @Override
+   public String toString() {
+      return this.niceName;
    }
 }
 

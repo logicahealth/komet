@@ -41,11 +41,11 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -58,7 +58,7 @@ public class PropertyAssociation
    private final String associationInverseName;
 
    /** The association component type restriction. */
-   private final ObjectChronologyType associationComponentTypeRestriction;
+   private final IsaacObjectType associationComponentTypeRestriction;
 
    /** The association component type sub restriction. */
    private final VersionType associationComponentTypeSubRestriction;
@@ -109,7 +109,7 @@ public class PropertyAssociation
                               String associationInverseName,
                               String associationDescription,
                               boolean disabled,
-                              ObjectChronologyType associationComponentTypeRestriction,
+                              IsaacObjectType associationComponentTypeRestriction,
                               VersionType associationComponentTypeSubRestriction) {
       super(owner,
             sourcePropertyNameFQN,
@@ -135,7 +135,7 @@ public class PropertyAssociation
     *
     * @return the association component type restriction
     */
-   public ObjectChronologyType getAssociationComponentTypeRestriction() {
+   public IsaacObjectType getAssociationComponentTypeRestriction() {
       return this.associationComponentTypeRestriction;
    }
 

@@ -37,9 +37,12 @@
 
 package sh.isaac.converters.sharedUtils;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+
 import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,20 +63,29 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -100,19 +112,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.SemanticBuilderService;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 
 /**
  * 
@@ -1707,7 +1706,7 @@ public class IBDFCreationUtility
     * @param referencedComponentTypeSubRestriction
     */
    public void configureConceptAsDynamicRefex(ComponentReference concept, String semanticDescription,
-         DynamicColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction)
+         DynamicColumnInfo[] columns, IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction)
    {
       if (semanticDescription == null)
       {

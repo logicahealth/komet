@@ -42,7 +42,6 @@ package sh.isaac.model.semantic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -56,22 +55,22 @@ import org.apache.commons.lang3.StringUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
-import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.model.configuration.StampCoordinates;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -104,7 +103,7 @@ public class DynamicUsageDescriptionImpl
    DynamicColumnInfo[] refexColumnInfo;
 
    /** The referenced component type restriction. */
-   ObjectChronologyType referencedComponentTypeRestriction;
+   IsaacObjectType referencedComponentTypeRestriction;
 
    /** The referenced component type sub restriction. */
    VersionType referencedComponentTypeSubRestriction;
@@ -302,17 +301,17 @@ public class DynamicUsageDescriptionImpl
                                  "a DynamicSememeData Refex Type.  If it contains a " +
                                  DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getFullyQualifiedName() +
                                  " then it must contain a single column of data, of type string, parseable as a " +
-                                 ObjectChronologyType.class.getName());
+                                 IsaacObjectType.class.getName());
                               }
 
                               // col 0 is Referenced component restriction information - as a string.
                               try {
-                                 final ObjectChronologyType type =
-                                    ObjectChronologyType.parse(refexDefinitionData[0].getDataObject()
+                                 final IsaacObjectType type =
+                                       IsaacObjectType.parse(refexDefinitionData[0].getDataObject()
                                                                                      .toString(),
                                                                false);
 
-                                 if (type == ObjectChronologyType.UNKNOWN_NID) {
+                                 if (type == IsaacObjectType.UNKNOWN) {
                                     // just ignore - it shouldn't have been saved that way anyway.
                                  } else {
                                     this.referencedComponentTypeRestriction = type;
@@ -431,7 +430,7 @@ public class DynamicUsageDescriptionImpl
       case COMPONENT_NID:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
                 DynamicDataType.NID,
@@ -445,7 +444,7 @@ public class DynamicUsageDescriptionImpl
       case LONG:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_LONG.getPrimordialUuid(),
                 DynamicDataType.LONG,
@@ -461,7 +460,7 @@ public class DynamicUsageDescriptionImpl
       case LOGIC_GRAPH:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(),
                 DynamicDataType.STRING,
@@ -595,7 +594,7 @@ public class DynamicUsageDescriptionImpl
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getReferencedComponentTypeRestriction()
     */
    @Override
-   public ObjectChronologyType getReferencedComponentTypeRestriction() {
+   public IsaacObjectType getReferencedComponentTypeRestriction() {
       return this.referencedComponentTypeRestriction;
    }
 
@@ -624,7 +623,7 @@ public class DynamicUsageDescriptionImpl
        dsud.refexUsageDescriptorNid = identifierAssemblageConceptId;
        dsud.sememeUsageDescription = "-";
        dsud.refexColumnInfo = new DynamicColumnInfo[]{new DynamicColumnInfo(
-           Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId).get(),
+           Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId),
            0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null, false)};
         return dsud;
    }

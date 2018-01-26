@@ -48,23 +48,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -320,14 +321,13 @@ public class CompositeSearchResult {
     * @return the optional
     */
    private Optional<ConceptSnapshot> locateContainingConcept(int componentNid) {
-      final ObjectChronologyType type = Get.identifierService()
-                                           .getOldChronologyTypeForNid(componentNid);
+      final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentNid);
 
       if (null == type) {
          throw new RuntimeException("oops");
       } else {
          switch (type) {
-            case UNKNOWN_NID:
+            case UNKNOWN:
                return Optional.empty();
             case CONCEPT:
                return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));

@@ -42,9 +42,9 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
-
 import java.util.Arrays;
 import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -70,13 +70,13 @@ import org.apache.logging.log4j.LogManager;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -116,7 +116,7 @@ public interface DynamicUtility {
     * @param referencedComponentSubRestriction the referenced component sub restriction
     * @return the dynamic data[]
     */
-   public DynamicData[] configureDynamicRestrictionData(ObjectChronologyType referencedComponentRestriction,
+   public DynamicData[] configureDynamicRestrictionData(IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction);
 
    /**
@@ -163,17 +163,16 @@ public interface DynamicUtility {
             throws IllegalArgumentException {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
-            (dsud.getReferencedComponentTypeRestriction() != ObjectChronologyType.UNKNOWN_NID)) {
-         final ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
-         final ObjectChronologyType foundType = Get.identifierService()
-                                                   .getOldChronologyTypeForNid(referencedComponentNid);
+            (dsud.getReferencedComponentTypeRestriction() != IsaacObjectType.UNKNOWN)) {
+         final IsaacObjectType requiredType = dsud.getReferencedComponentTypeRestriction();
+         final IsaacObjectType foundType = Get.identifierService().getObjectTypeForComponent(referencedComponentNid);
 
          if (requiredType != foundType) {
             throw new IllegalArgumentException("The referenced component must be of type " + requiredType +
                                                ", but a " + foundType + " was passed");
          }
 
-         if ((requiredType == ObjectChronologyType.SEMANTIC) &&
+         if ((requiredType == IsaacObjectType.SEMANTIC) &&
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN)) {
             final VersionType requiredSemanticType = dsud.getReferencedComponentTypeSubRestriction();

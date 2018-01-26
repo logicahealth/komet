@@ -38,7 +38,6 @@ package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.UUID;
-import javafx.application.Platform;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -46,32 +45,31 @@ import javax.annotation.PreDestroy;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyWeakRefImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -160,8 +158,7 @@ public class ObservableChronologyProvider
 
          // handle referenced component
          // Concept, description, or sememe
-         final ObjectChronologyType oct = Get.identifierService()
-                 .getOldChronologyTypeForNid(sc.getReferencedComponentNid());
+         final IsaacObjectType oct = Get.identifierService().getObjectTypeForComponent(sc.getReferencedComponentNid());
          ChronologyChangeListener referencedComponent = null;
 
          switch (oct) {

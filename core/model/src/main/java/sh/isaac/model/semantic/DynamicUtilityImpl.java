@@ -51,21 +51,21 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.model.semantic.types.DynamicArrayImpl;
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.model.semantic.types.DynamicArrayImpl;
+import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -185,10 +185,10 @@ public class DynamicUtilityImpl
     * @return the dynamic element data[]
     */
    @Override
-   public DynamicData[] configureDynamicRestrictionData(ObjectChronologyType referencedComponentRestriction,
+   public DynamicData[] configureDynamicRestrictionData(IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction) {
       if ((referencedComponentRestriction != null) &&
-            (ObjectChronologyType.UNKNOWN_NID != referencedComponentRestriction)) {
+            (IsaacObjectType.UNKNOWN != referencedComponentRestriction)) {
          int size = 1;
 
          if ((referencedComponentSubRestriction != null) && (VersionType.UNKNOWN != referencedComponentSubRestriction)) {
