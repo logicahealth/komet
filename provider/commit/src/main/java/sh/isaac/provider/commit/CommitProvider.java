@@ -893,8 +893,6 @@ public class CommitProvider
                     = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
                             COMMIT_MANAGER_DATA_FILENAME)))) {
                this.databaseSequence.set(in.readLong());
-               UuidIntMapMap.getNextNidProvider()
-                       .set(in.readInt());
                this.uncommittedConceptsWithChecksNidSet.read(in);
                this.uncommittedConceptsNoChecksNidSet.read(in);
                this.uncommittedSemanticsWithChecksNidSet.read(in);
@@ -1049,8 +1047,6 @@ public class CommitProvider
                               this.commitManagerFolder.toFile(),
                               COMMIT_MANAGER_DATA_FILENAME)))) {
          out.writeLong(this.databaseSequence.get());
-         out.writeInt(UuidIntMapMap.getNextNidProvider()
-                 .get());
          this.uncommittedConceptsWithChecksNidSet.write(out);
          this.uncommittedConceptsNoChecksNidSet.write(out);
          this.uncommittedSemanticsWithChecksNidSet.write(out);

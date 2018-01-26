@@ -42,9 +42,11 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,6 +57,7 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.DiskSemaphore;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryManagedReference;
@@ -81,12 +84,12 @@ public class UuidIntMapMap
     /**
      * The Constant NUMBER_OF_MAPS.
      */
-    public static final int NUMBER_OF_MAPS = 256;
+    private static final int NUMBER_OF_MAPS = 256;
 
     /**
      * The nid to uuid cache size.
      */
-    public static int NID_TO_UUID_CACHE_SIZE = 0;  // defaults to disabled / not normally used.
+    public static int NID_TO_UUID_CACHE_SIZE = 1000;  // defaults to something large enough to keep most metadata mappings in cache
 
     // Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
     // when the data isn't being written to the DB.
@@ -108,7 +111,7 @@ public class UuidIntMapMap
     /**
      * The Constant NEXT_NID_PROVIDER.
      */
-    private static final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
+    private final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
 
     /**
      * The Constant SERIALIZER.
@@ -129,7 +132,7 @@ public class UuidIntMapMap
     /**
      * The nid to primoridial cache.
      */
-    private LruCache<Integer, UUID[]> nidToPrimoridialCache = null;
+    private Map<Integer, UUID[]> nidToPrimoridialCache = null;
 
     /**
      * The lock.
@@ -157,8 +160,18 @@ public class UuidIntMapMap
         }
 
         if (NID_TO_UUID_CACHE_SIZE > 0) {
-            this.nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
+            this.nidToPrimoridialCache = Collections.synchronizedMap(new LruCache<>(NID_TO_UUID_CACHE_SIZE));
         }
+        
+        File params = new File(folder, "map.params");
+        try {
+         if (params.isFile()) {
+              ByteArrayDataBuffer badb = new ByteArrayDataBuffer(Files.readAllBytes(params.toPath()));
+              NEXT_NID_PROVIDER.set(badb.getInt());
+           }
+      } catch (IOException e) {
+         throw new RuntimeException(e);
+      }
 
         LOG.debug("Created UuidIntMapMap: " + this);
     }
@@ -280,6 +293,11 @@ public class UuidIntMapMap
                 this.maps[i].write();
             }
         }
+        
+        ByteArrayDataBuffer badb = new ByteArrayDataBuffer();
+        badb.putInt(NEXT_NID_PROVIDER.get());
+
+        Files.write(new File(folder, "map.params").toPath(), badb.getData());
     }
 
     public int getMemoryInUse() {
@@ -384,12 +402,12 @@ public class UuidIntMapMap
     /**
      * Gets the keys for value.
      *
-     * @param value the value
+     * @param nid the value
      * @return the keys for value
      */
-    public UUID[] getKeysForValue(int value) {
+    public UUID[] getKeysForValue(int nid) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] cacheHit = this.nidToPrimoridialCache.get(value);
+            final UUID[] cacheHit = this.nidToPrimoridialCache.get(nid);
 
             if ((cacheHit != null) && (cacheHit.length > 0)) {
                 return cacheHit;
@@ -399,7 +417,7 @@ public class UuidIntMapMap
         final ArrayList<UUID> uuids = new ArrayList<>();
 
         for (int index = 0; index < this.maps.length; index++) {
-            getMap(index).keysOf(value)
+            getMap(index).keysOf(nid)
                     .stream()
                     .forEach(uuid -> {
                         uuids.add(uuid);
@@ -409,7 +427,7 @@ public class UuidIntMapMap
         final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
 
         if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
-            this.nidToPrimoridialCache.put(value, temp);
+            this.nidToPrimoridialCache.put(nid, temp);
         }
 
         return temp;
@@ -465,15 +483,11 @@ public class UuidIntMapMap
     private int getMapIndex(UUID key) {
         return (((byte) key.hashCode())) - Byte.MIN_VALUE;
     }
-
-    /**
-     * Gets the next nid provider.
-     *
-     * @return the next nid provider
-     */
-    public static AtomicInteger getNextNidProvider() {
-        return NEXT_NID_PROVIDER;
+    
+    public int getMaxNid() {
+      return NEXT_NID_PROVIDER.get();
     }
+    
 
     /**
      * Checks if shutdown.
