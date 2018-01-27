@@ -154,38 +154,31 @@ public class FileSystemDataStore
    //~--- methods -------------------------------------------------------------
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
-       try {
-           int nid = chronology.getNid();
-           
-           int assemblageNid = chronology.getAssemblageNid();
-           if (ModelGet.identifierService()
-                   .getAssemblageNidForNid(nid) == Integer.MAX_VALUE) {
-               ModelGet.identifierService()
-                       .setupNid(chronology.getNid(), assemblageNid, chronology.getIsaacObjectType(),
-                               chronology.getVersionType());
-               
-               if (chronology instanceof SemanticChronologyImpl) {
-                   SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
-                   int referencedComponentNid = semanticChronology.getReferencedComponentNid();
-                   
-                   componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
-               }
-           } else if (ModelGet.identifierService()
-                   .getAssemblageNidForNid(nid) != assemblageNid) {
-               throw new IllegalStateException("Assemblage identifiers do not match: " + ModelGet.identifierService()
-                   .getAssemblageNidForNid(nid) + " \n" + chronology);
-           }
-           
-           SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-           int elementSequence = ModelGet.identifierService()
-                   .getElementSequenceForNid(chronology.getNid(), assemblageNid);
-           
-           spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
-           
-       } catch (Throwable e) {
-           LOG.error("Unexpected error putting chronology data!", e);
-           throw e;
-       }
+      try {
+         int assemblageNid = chronology.getAssemblageNid();
+         boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid, 
+               chronology.getIsaacObjectType(), chronology.getVersionType());
+
+         if (chronology instanceof SemanticChronologyImpl) {
+            SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
+            int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+
+            if (!wasNidSetup || !componentToSemanticNidsMap.containsKey(referencedComponentNid)) {
+               componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
+            }
+         }
+
+         if (!wasNidSetup) {
+            SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
+            int elementSequence = ModelGet.identifierService().getElementSequenceForNid(chronology.getNid(), assemblageNid);
+
+            spinedByteArrayArrayMap.put(elementSequence, chronology.getDataList());
+         }
+
+      } catch (Throwable e) {
+         LOG.error("Unexpected error putting chronology data!", e);
+         throw e;
+      }
    }
 
    @Override
@@ -463,44 +456,40 @@ public class FileSystemDataStore
 
    @Override
    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
-      OptionalInt assemblageNidOptional = ModelGet.identifierService()
-              .getAssemblageNid(nid);
-
-      if (assemblageNidOptional.isPresent()) {
-         int assemblageNid = assemblageNidOptional.getAsInt();
-         int elementSequence = ModelGet.identifierService()
-                 .getElementSequenceForNid(nid, assemblageNid);
-         SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
-         byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
-
-         if (data == null) {
-            return Optional.empty();
-         }
-
-         int size = 0;
-
-         for (byte[] dataEntry : data) {
-            size = size + dataEntry.length;
-         }
-
-         ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-                 size + 4);  // room for 0 int value at end to indicate last version
-
-         for (byte[] dataEntry : data) {
-            byteBuffer.put(dataEntry);
-         }
-
-         byteBuffer.putInt(0);
-         byteBuffer.rewind();
-
-         if (byteBuffer.getInt() != 0) {
-            throw new IllegalStateException("Record does not start with zero...");
-         }
-
-         return Optional.of(byteBuffer);
+      OptionalInt assemblageNidOptional = ModelGet.identifierService().getAssemblageNid(nid);
+      if (!assemblageNidOptional.isPresent()) {
+         return Optional.empty();
       }
 
-      return Optional.empty();
+      int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNidOptional.getAsInt());
+      SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNidOptional.getAsInt());
+      byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
+
+      if (data == null) {
+         return Optional.empty();
+      }
+
+      int size = 0;
+
+      for (byte[] dataEntry : data) {
+         size = size + dataEntry.length;
+      }
+
+      ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
+              size + 4);  // room for 0 int value at end to indicate last version
+
+      for (byte[] dataEntry : data) {
+         byteBuffer.put(dataEntry);
+      }
+
+      byteBuffer.putInt(0);
+      byteBuffer.rewind();
+
+      if (byteBuffer.getInt() != 0) {
+         throw new IllegalStateException("Record does not start with zero...");
+      }
+
+      return Optional.of(byteBuffer);
    }
    
    @Override
@@ -598,6 +587,24 @@ public class FileSystemDataStore
               });
 
       return spinedMap;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean hasChronologyData(int nid) {
+      OptionalInt assemblageNid = ModelGet.identifierService().getAssemblageNid(nid);
+      if (assemblageNid.isPresent()) {
+         int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid.getAsInt());
+         SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid.getAsInt());
+         byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
+   
+         return data != null;
+      }
+      else {
+         return false;
+      }
    }
 
    //~--- inner classes -------------------------------------------------------

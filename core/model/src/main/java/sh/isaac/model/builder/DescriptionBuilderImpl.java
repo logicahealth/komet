@@ -114,6 +114,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                                       ConceptBuilder conceptBuilder,
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
+      super(languageForDescription.getNid());
       this.descriptionText        = descriptionText;
       this.descriptionType        = descriptionType;
       this.languageForDescription = languageForDescription;
@@ -132,6 +133,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                                       int conceptSequence,
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
+      super(languageForDescription.getNid());
       this.descriptionText        = descriptionText;
       this.conceptNid        = conceptSequence;
       this.descriptionType        = descriptionType;
@@ -263,7 +265,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 
 			setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace,
 					conceptBuilder.getPrimordialUuid(), 
-					Get.identifierService().getUuidPrimordialForNid(caseSigNid).get(),
+					Get.identifierService().getUuidPrimordialForNid(caseSigNid),
 					descriptionType.getPrimordialUuid(), 
 					languageForDescription.getPrimordialUuid(), 
 					descriptionText,
@@ -284,7 +286,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         for (Entry<ConceptSpecification, SemanticBuilder<?>> p : preferredInDialectAssemblages.entrySet()) {
             if (p.getValue() == null) {
                 p.setValue(sememeBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(), this,
-                    Get.identifierService().getNidForProxy(p.getKey())));
+                    p.getKey().getNid()));
             }
             temp.add(p.getValue());
         }
@@ -292,7 +294,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         for (Entry<ConceptSpecification, SemanticBuilder<?>> a : acceptableInDialectAssemblages.entrySet()) {
             if (a.getValue() == null) {
                 a.setValue(sememeBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(), this,
-                    Get.identifierService().getNidForProxy(a.getKey())));
+                    a.getKey().getNid()));
             }
             temp.add(a.getValue());
         }

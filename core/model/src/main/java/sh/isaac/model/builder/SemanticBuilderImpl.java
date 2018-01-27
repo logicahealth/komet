@@ -112,16 +112,17 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     * Instantiates a new sememe builder impl.
     *
     * @param referencedComponentBuilder the referenced component builder
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptId the assemblage concept sequence
     * @param semanticType the sememe type
     * @param paramaters the paramaters
     */
    public SemanticBuilderImpl(IdentifiedComponentBuilder referencedComponentBuilder,
-                            int assemblageConceptSequence,
+                            int assemblageConceptId,
                             VersionType semanticType,
                             Object... paramaters) {
+      super(assemblageConceptId);
       this.referencedComponentBuilder = referencedComponentBuilder;
-      this.assemblageConceptNid  = assemblageConceptSequence;
+      this.assemblageConceptNid  = assemblageConceptId;
       this.semanticType                 = semanticType;
       this.parameters                 = paramaters;
    }
@@ -130,16 +131,17 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     * Instantiates a new sememe builder impl.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptId the assemblage concept sequence
     * @param semanticType the sememe type
     * @param paramaters the paramaters
     */
    public SemanticBuilderImpl(int referencedComponentNid,
-                            int assemblageConceptSequence,
+                            int assemblageConceptId,
                             VersionType semanticType,
                             Object... paramaters) {
+      super(assemblageConceptId);
       this.referencedComponentNid    = referencedComponentNid;
-      this.assemblageConceptNid = assemblageConceptSequence;
+      this.assemblageConceptNid = assemblageConceptId;
       this.semanticType                = semanticType;
       this.parameters                = paramaters;
    }
@@ -181,7 +183,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       SemanticVersion version = null;
       SemanticChronologyImpl semanticChronicle;
 
-      final int semanticNid = Get.identifierService().getNidForUuids(this.getUuids());
+      final int semanticNid = getNid();
       if (Get.assemblageService().hasSemantic(semanticNid)) {
          semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
                .getSemanticChronology(semanticNid);
@@ -319,7 +321,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       SemanticVersion version;
       SemanticChronologyImpl sememeChronicle;
 
-      final int semanticNid = Get.identifierService().getNidForUuids(this.getUuids());
+      final int semanticNid = getNid();
       if (Get.assemblageService().hasSemantic(semanticNid)) {
          sememeChronicle = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
 
@@ -439,13 +441,13 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
 
       if (!isPrimordialUuidSet()) {
-         UUID assemblageUuid = Get.identifierService().getUuidPrimordialForNid(this.assemblageConceptNid).get();
+         UUID assemblageUuid = Get.identifierService().getUuidPrimordialForNid(this.assemblageConceptNid);
    
            UUID refCompUuid = null;
            if (referencedComponentBuilder != null) {
                refCompUuid = referencedComponentBuilder.getPrimordialUuid();
            } else {
-               refCompUuid = Get.identifierService().getUuidPrimordialForNid(referencedComponentNid).get();
+               refCompUuid = Get.identifierService().getUuidPrimordialForNid(referencedComponentNid);
            }
    
            if (semanticType == semanticType.LOGIC_GRAPH) {
@@ -456,13 +458,13 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
               setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid, 
                  (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>)parameters[0]).get() : null), consumer));
            } else if (semanticType == semanticType.COMPONENT_NID) {
-               UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]).get();
+               UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]);
                setPrimordialUuid(UuidFactory.getUuidForComponentNidSememe(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
            } else if (semanticType == semanticType.DESCRIPTION) {
               setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, refCompUuid, 
-                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]).get(),
-                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]).get(),
-                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]).get(),
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
+                                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
                                         (String) parameters[3],
                                         consumer));
            } else if (semanticType == semanticType.STRING) {

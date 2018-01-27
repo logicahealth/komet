@@ -77,15 +77,7 @@ public class ConceptBuilderProvider
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept builder.
-    *
-    * @param conceptName the concept name
-    * @param semanticTag the semantic tag
-    * @param logicalExpression the logical expression
-    * @param languageForDescriptions the language for descriptions
-    * @param dialectAssemblageForDescriptions the dialect assemblage for descriptions
-    * @param logicCoordinate the logic coordinate
-    * @return the concept builder
+    * {@inheritDoc}
     */
    @Override
    public ConceptBuilder getConceptBuilder(String conceptName,
@@ -93,33 +85,32 @@ public class ConceptBuilderProvider
          LogicalExpression logicalExpression,
          ConceptSpecification languageForDescriptions,
          ConceptSpecification dialectAssemblageForDescriptions,
-         LogicCoordinate logicCoordinate) {
+         LogicCoordinate logicCoordinate, 
+         int assemblageId) {
       return new ConceptBuilderImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
                                          languageForDescriptions,
                                          dialectAssemblageForDescriptions,
-                                         logicCoordinate);
+                                         logicCoordinate,
+                                         assemblageId);
    }
 
    /**
-    * Gets the default concept builder.
-    *
-    * @param conceptName the concept name
-    * @param semanticTag the semantic tag
-    * @param logicalExpression the logical expression
-    * @return the default concept builder
+    * {@inheritDoc}
     */
    @Override
    public ConceptBuilder getDefaultConceptBuilder(String conceptName,
          String semanticTag,
-         LogicalExpression logicalExpression) {
+         LogicalExpression logicalExpression,
+         int assemblageId) {
       return new ConceptBuilderImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
                                          this.defaultLanguageForDescriptions,
                                          this.defaultDialectAssemblageForDescriptions,
-                                         this.defaultLogicCoordinate);
+                                         this.defaultLogicCoordinate,
+                                         assemblageId);
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -117,11 +117,9 @@ public class SemanticChronologyImpl
                                  UUID primordialUuid,
                                  int assemblageNid,
                                  int referencedComponentNid) {
-      super(primordialUuid, assemblageNid);
+      super(primordialUuid, assemblageNid, IsaacObjectType.SEMANTIC, semanticType);
       this.semanticTypeToken      = semanticType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
-      ModelGet.identifierService().setupNid(getNid(), assemblageNid, 
-              IsaacObjectType.SEMANTIC, semanticType);
       ModelGet.identifierService()
               .addToSemanticIndex(referencedComponentNid, getNid());
    }

@@ -96,5 +96,14 @@ public interface DataStore
    int getAssemblageMemoryInUse(int assemblageNid);
 
    int getAssemblageSizeOnDisk(int assemblageNid);
+   
+   /**
+    * return true if the store has data for this nid, false otherwise.  
+    * This operation will be quicker than {@link #getChronologyData(int)} if you are just testing for existence, 
+    * as it saves some data copying time.  If you need the data, however, you should use the get with the optional return.
+    * @param nid
+    * @return
+    */
+   boolean hasChronologyData(int nid);
 }
 

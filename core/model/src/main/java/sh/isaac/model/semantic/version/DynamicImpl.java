@@ -226,7 +226,7 @@ public class DynamicImpl
 
                if (data.isExternalData() && (column.getDynamicDataType() == DynamicDataType.NID)) {
                   final DynamicUUIDImpl temp = new DynamicUUIDImpl(
-                                                        Get.identifierService().getUuidPrimordialForNid(((DynamicNidImpl) column).getDataNid()).get());
+                                                        Get.identifierService().getUuidPrimordialForNid(((DynamicNidImpl) column).getDataNid()));
 
                   data.putByteArrayField(temp.getData());
                } else {

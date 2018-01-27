@@ -85,8 +85,7 @@ public class ConceptNodeWithUuids
    public ConceptNodeWithUuids(ConceptNodeWithNids internalForm) {
       super(internalForm);
       this.conceptUuid = Get.identifierService()
-                            .getUuidPrimordialForNid(internalForm.getConceptNid())
-                            .get();
+                            .getUuidPrimordialForNid(internalForm.getConceptNid());
    }
 
    /**

@@ -93,6 +93,7 @@ public class GetConceptNidForExpressionTask
 
    //~--- constructors --------------------------------------------------------
 
+   //TODO should this take in an assemblageID?
    /**
     * Instantiates a new gets the concept nid for expression task.
     *
@@ -184,7 +185,8 @@ public class GetConceptNidForExpressionTask
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(
                                             uuidForNewConcept.toString(),
                                             "expression",
-                                            this.expression);
+                                            this.expression,
+                                            MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
          final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
                                                   .get();
 

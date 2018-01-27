@@ -254,22 +254,19 @@ public class MultiParentTreeView
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
             SemanticChronology semanticChronology = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
-            Optional<UUID> optionalPrimordial = Get.identifierService()
+            UUID primordial = Get.identifierService()
                     .getUuidPrimordialForNid(semanticChronology.getReferencedComponentNid());
-            if (optionalPrimordial.isPresent()) {
-                showConcept(optionalPrimordial.get());
-                success = true;
-            }
+            showConcept(primordial);
+            success = true;
+
 
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
             DescriptionVersion descriptionVersion = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
-            Optional<UUID> optionalPrimordial = Get.identifierService()
+            UUID primordial = Get.identifierService()
                     .getUuidPrimordialForNid(descriptionVersion.getReferencedComponentNid());
-            if (optionalPrimordial.isPresent()) {
-                showConcept(optionalPrimordial.get());
-                success = true;
-            }
+            showConcept(primordial);
+            success = true;
         }
         /* let the source know if the droped item was successfully 
                  * transferred and used */

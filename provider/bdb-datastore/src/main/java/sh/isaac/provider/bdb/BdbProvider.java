@@ -171,22 +171,22 @@ public class BdbProvider
    }
 
    //~--- methods -------------------------------------------------------------
-
-   private void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
-      AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
-      Database                       database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry                  key      = new DatabaseEntry();
-
-      IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
-
-      DatabaseEntry value = new DatabaseEntry();
-
-      binding.objectToEntry(map, value);
-
-      OperationStatus result = database.put(null, key, value);
-
-      LOG.info("Put assemblage type map with result of: " + result);
-   }
+// TODO abandoned?
+//   private void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
+//      AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
+//      Database                       database = getNoDupDatabase(MISC_MAP);
+//      DatabaseEntry                  key      = new DatabaseEntry();
+//
+//      IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
+//
+//      DatabaseEntry value = new DatabaseEntry();
+//
+//      binding.objectToEntry(map, value);
+//
+//      OperationStatus result = database.put(null, key, value);
+//
+//      LOG.info("Put assemblage type map with result of: " + result);
+//   }
 
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
@@ -195,17 +195,14 @@ public class BdbProvider
       assemblageNids.add(assemblageNid);
 
       IsaacObjectType objectType       = chronology.getIsaacObjectType();
-      int             assemblageForNid = ModelGet.identifierService()
-                                                 .getAssemblageNidForNid(chronology.getNid());
-
-      if (assemblageForNid == Integer.MAX_VALUE) {
-         ModelGet.identifierService()
-                 .setupNid(chronology.getNid(), assemblageNid, objectType, chronology.getVersionType());
-
-         if (chronology instanceof SemanticChronologyImpl) {
-            SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
-            int                    referencedComponentNid = semanticChronology.getReferencedComponentNid();
-
+      
+      boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid, objectType, chronology.getVersionType());
+      
+      if (chronology instanceof SemanticChronologyImpl) {
+         SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
+         int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+         if (!wasNidSetup || !componentToSemanticMap.containsKey(referencedComponentNid))
+         {
             componentToSemanticMap.add(referencedComponentNid, semanticChronology.getNid());
          }
       }
@@ -434,7 +431,7 @@ public class BdbProvider
             } else if (metaDbFolder.exists()) {
                metaDbFolder.renameTo(isaacDbFolder);
             } else {
-            	this.databaseStartState = DataStoreStartState.NO_DATASTORE;
+               this.databaseStartState = DataStoreStartState.NO_DATASTORE;
             }
          }
          else
@@ -848,6 +845,33 @@ public class BdbProvider
          LOG.info("Taxonomy count at open for " + database.getDatabaseName() + " is " + database.count());
          return origin_DestinationTaxonomyRecord_Map;
    }
+   
+   @Override
+   public boolean hasChronologyData(int nid) {
+      int assemblageNid = ModelGet.identifierService().getAssemblageNid(nid).getAsInt();
+      int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid);
+      Database database = getChronologyDatabase(assemblageNid);
+
+      try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
+         DatabaseEntry key = new DatabaseEntry();
+
+         IntegerBinding.intToEntry(elementSequence, key);
+
+         DatabaseEntry value = new DatabaseEntry();
+         OperationStatus status = cursor.getSearchKey(key, value, LockMode.DEFAULT);
+
+         switch (status) {
+            case KEYEMPTY:
+            case KEYEXIST:
+            case NOTFOUND:
+               return false;
+
+            case SUCCESS:
+               return true;
+         }
+      }
+      return false;
+   }
 
    //~--- inner classes -------------------------------------------------------
 
@@ -911,22 +935,22 @@ public class BdbProvider
       }
    }
 
-	@Override
-	public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
-	}
+   @Override
+   public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
+      // TODO [KEC] Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
 
-	@Override
-	public int getAssemblageMemoryInUse(int assemblageNid) {
-		// TODO [KEC ]Auto-generated method stub
-		return 0;
-	}
+   @Override
+   public int getAssemblageMemoryInUse(int assemblageNid) {
+      // TODO [KEC] Auto-generated method stub
+      return 0;
+   }
 
-	@Override
-	public int getAssemblageSizeOnDisk(int assemblageNid) {
-		// TODO [KEC] Auto-generated method stub
-		return 0;
-	}
+   @Override
+   public int getAssemblageSizeOnDisk(int assemblageNid) {
+      // TODO [KEC] Auto-generated method stub
+      return 0;
+   }
 }
 

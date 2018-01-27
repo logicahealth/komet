@@ -158,13 +158,16 @@ public class ConceptBuilderImpl
     * @param defaultLogicCoordinate - Optional - used during the creation of the logical expression, if either a
     * logicalExpression is passed, or if @link {@link #addLogicalExpression(LogicalExpression)} or
     * {@link #addLogicalExpressionBuilder(LogicalExpressionBuilder)} are used later.
+    * @param assemblageId the assemblage ID to create this concept in
     */
    public ConceptBuilderImpl(String conceptName,
            String semanticTag,
            LogicalExpression logicalExpression,
            ConceptSpecification defaultLanguageForDescriptions,
            ConceptSpecification defaultDialectAssemblageForDescriptions,
-           LogicCoordinate defaultLogicCoordinate) {
+           LogicCoordinate defaultLogicCoordinate,
+           int assemblageId) {
+      super(assemblageId);
       this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
       this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
       this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
@@ -276,8 +279,7 @@ public class ConceptBuilderImpl
       
       
       UUID[] uuids = getUuids();
-      // TODO handle assemblage nid properly, by adding it to the builder. 
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }
@@ -304,9 +306,8 @@ public class ConceptBuilderImpl
            List<Chronology> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      // TODO handle assemblage nid properly, by adding it to the builder. 
       UUID[] uuids = getUuids();
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }

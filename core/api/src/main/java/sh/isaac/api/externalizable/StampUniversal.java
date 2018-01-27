@@ -124,12 +124,9 @@ public class StampUniversal implements IsaacExternalizable {
 
       this.status     = stampService.getStatusForStamp(stamp);
       this.time       = stampService.getTimeForStamp(stamp);
-      this.authorUuid = idService.getUuidPrimordialForNid(stampService.getAuthorNidForStamp(stamp))
-                                 .get();
-      this.moduleUuid = idService.getUuidPrimordialForNid(stampService.getModuleNidForStamp(stamp))
-                                 .get();
-      this.pathUuid   = idService.getUuidPrimordialForNid(stampService.getPathNidForStamp(stamp))
-                                 .get();
+      this.authorUuid = idService.getUuidPrimordialForNid(stampService.getAuthorNidForStamp(stamp));
+      this.moduleUuid = idService.getUuidPrimordialForNid(stampService.getModuleNidForStamp(stamp));
+      this.pathUuid   = idService.getUuidPrimordialForNid(stampService.getPathNidForStamp(stamp));
    }
 
    //~--- methods -------------------------------------------------------------

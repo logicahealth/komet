@@ -73,12 +73,18 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    /** The primordial uuid. */
    private UUID primordialUuid = null;
+   
+   protected final int assemblageId;
 
    /** The sememe builders. */
    private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
    protected Status state = Status.ACTIVE;
+   
+   public ComponentBuilder(int assemblageId) {
+      this.assemblageId = assemblageId;
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -152,8 +158,12 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     */
    @Override
    public int getNid() {
-      return Get.identifierService()
-                .getNidForUuids(getUuids());
+      if (!Get.identifierService().hasUuid(getUuids())) {
+         return Get.identifierService().assignNid(getUuids());
+      }
+      else {
+         return Get.identifierService().getNidForUuids(getUuids()); 
+      }
    }
 
    /**

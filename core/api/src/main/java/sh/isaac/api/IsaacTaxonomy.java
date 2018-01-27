@@ -608,7 +608,7 @@ public class IsaacTaxonomy {
 
       if (this.parentStack.isEmpty() && (parentId == null)) {
          this.current = Get.conceptBuilderService()
-                 .getDefaultConceptBuilder(name, this.semanticTag, null);
+                 .getDefaultConceptBuilder(name, this.semanticTag, null, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       } else {
          final LogicalExpressionBuilderService expressionBuilderService
                  = LookupService.getService(LogicalExpressionBuilderService.class);
@@ -626,7 +626,7 @@ public class IsaacTaxonomy {
          final LogicalExpression logicalExpression = defBuilder.build();
 
          this.current = Get.conceptBuilderService()
-                 .getDefaultConceptBuilder(name, this.semanticTag, logicalExpression);
+                 .getDefaultConceptBuilder(name, this.semanticTag, logicalExpression, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       }
 
       if (org.apache.commons.lang3.StringUtils.isNotBlank(nonPreferredSynonym)) {

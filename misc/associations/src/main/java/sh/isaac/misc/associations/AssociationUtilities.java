@@ -140,7 +140,7 @@ public class AssociationUtilities
       
       try
       {
-         uuid = Get.identifierService().getUuidPrimordialForNid(componentNid).orElse(null);   
+         uuid = Get.identifierService().getUuidPrimordialForNid(componentNid);
 
          for (Integer associationTypeSequenece : getAssociationConceptSequences())
          {

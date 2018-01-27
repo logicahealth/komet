@@ -48,7 +48,7 @@ package sh.isaac.api;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -57,9 +57,6 @@ import java.util.stream.IntStream;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
@@ -78,7 +75,7 @@ public interface IdentifierService
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Adds the uuid for nid.
+    * Adds the uuid for nid.  The nid must already be known to the system.
     *
     * @param uuid the uuid
     * @param nid the nid
@@ -88,9 +85,8 @@ public interface IdentifierService
    /**
     * 
     * @param componentNid
-    * @return the OptionalInt containing an assemblageNid within which this component was 
-    * created or an empty OptionalInt if the component has not yet been written to the 
-    * database. 
+    * @return the assemblageNid within which this component was created, or an empty OptionalInt if the component 
+    * has not yet been setup / written to the database. 
     */
    OptionalInt getAssemblageNid(int componentNid);
 
@@ -100,23 +96,31 @@ public interface IdentifierService
     */
    int[] getAssemblageNids();
    
+   /**
+    * Map a UUID to a new nid.  
+    * @param uuids 1 or more UUIDs that are tied to the object represented by the nid
+    * @return the new nid
+    * @throws IllegalArgumentException if one or more of the specified uuids is tied more than one distinct nids.
+    * This method is a noop, if the specified UUID(s) are already all assigned to the same nid.
+    */
+   int assignNid(UUID ...uuids) throws IllegalArgumentException;
+   
+   /**
+    * Return the nids that represent all objects in the system of the specified type
+    * @param objectType
+    * @return
+    */
    IntStream getNidStreamOfType(IsaacObjectType objectType);
 
+   /**
+    * Return the nids of objects which are members of the specified assemblage
+    * @param assemblageNid
+    * @return
+    */
    IntStream getNidsForAssemblage(int assemblageNid);
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the chronology type for nid.
-    * 
-    * @param nid the nid
-    * @return the chronology type for nid
-    * @deprecated need to replace with IsaacChronologyType, and eliminate ObjectChronologyType. Use
-    * getObjectTypeForComponent instead. 
-    */
-   @Deprecated
-   ObjectChronologyType getOldChronologyTypeForNid(int nid);
-   
    /**
     * 
     * @param componentNid the identifier that the object type is requested for. 
@@ -125,65 +129,49 @@ public interface IdentifierService
    IsaacObjectType getObjectTypeForComponent(int componentNid);
 
    /**
-    * Gets the concept sequence for proxy.
-    *
-    * @param conceptProxy the concept proxy
-    * @return the concept sequence for proxy
-    */
-   int getNidForProxy(ConceptSpecification conceptProxy);
-
-   int getCachedNidForProxy(ConceptSpecification conceptProxy);
-   /**
-    * Gets the concept sequence for uuids.
+    * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
     * @return the concept sequence for uuids
+    * @throws NoSuchElementException if no nid has been assigned
     */
-   int getNidForUuids(Collection<UUID> uuids);
+   int getNidForUuids(Collection<UUID> uuids) throws NoSuchElementException;
 
    /**
-    * Gets the concept sequence for uuids.
+    * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
     * @return the concept sequence for uuids
+    * @throws NoSuchElementException if no nid has been assigned
     */
-   int getNidForUuids(UUID... uuids);
-
-   /**
-    * Gets the identifier for authority.
-    *
-    * @param nid the nid
-    * @param identifierAuthorityUuid the identifier authority uuid
-    * @param stampCoordinate the stamp coordinate
-    * @return the identifier for authority
-    */
-   Optional<String> getIdentifierForAuthority(int nid,
-         UUID identifierAuthorityUuid,
-         StampCoordinate stampCoordinate);
+   int getNidForUuids(UUID... uuids) throws NoSuchElementException;
 
    /**
     * Checks for uuid.
     *
     * @param uuids the uuids
     * @return true, if successful
+    * @throws IllegalArgumentException if a UUID isn't specified
     */
-   boolean hasUuid(Collection<UUID> uuids);
+   boolean hasUuid(Collection<UUID> uuids) throws IllegalArgumentException;
 
    /**
     * Checks for uuid.
     *
     * @param uuids the uuids
     * @return true, if successful
+    * @throws IllegalArgumentException if a UUID isn't specified
     */
-   boolean hasUuid(UUID... uuids);
-
+   boolean hasUuid(UUID... uuids) throws IllegalArgumentException;
+   
    /**
     * Gets the uuid array for nid.
     *
     * @param nid the nid
     * @return the uuid array for nid
+    * @throws NoSuchElementException if the nid is unknown
     */
-   default UUID[] getUuidArrayForNid(int nid) {
+   default UUID[] getUuidArrayForNid(int nid) throws NoSuchElementException {
       final List<UUID> uuids = getUuidsForNid(nid);
 
       return uuids.toArray(new UUID[uuids.size()]);
@@ -194,16 +182,18 @@ public interface IdentifierService
     *
     * @param nid the nid
     * @return the uuid primordial for nid
+    * @throws NoSuchElementException if the nid is unknown
     */
-   Optional<UUID> getUuidPrimordialForNid(int nid);
+   UUID getUuidPrimordialForNid(int nid) throws NoSuchElementException;
 
    /**
     * Gets the uuids for nid.
     *
     * @param nid the nid
     * @return the uuids for nid
+    * @throws NoSuchElementException if the nid is unknown
     */
-   List<UUID> getUuidsForNid(int nid);
+   List<UUID> getUuidsForNid(int nid) throws NoSuchElementException;
 
    /**
     * 

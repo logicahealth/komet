@@ -409,12 +409,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                for (int parentAccordingToNewLogicGraphVersion : parentsAccordingToNewLogicGraphVersion) {
                   if (!parentsAccordingToHasParentAssociationDynamicSememes.contains(parentAccordingToNewLogicGraphVersion)) {
 
-                     Optional<UUID> uuidOfParentAccordingToNewLogicGraphVersion = Get.identifierService().getUuidPrimordialForNid(parentAccordingToNewLogicGraphVersion);
-                     if (!uuidOfParentAccordingToNewLogicGraphVersion.isPresent()) {
-                        LOG.error("FAILED finding UUID for parent seq=" + parentAccordingToNewLogicGraphVersion + " from logic graph for concept NID=" + referencedConcept.getNid()
-                              + ", UUID=" + referencedConcept.getPrimordialUuid());
-                        continue;
-                     }
+                     UUID uuidOfParentAccordingToNewLogicGraphVersion = Get.identifierService().getUuidPrimordialForNid(parentAccordingToNewLogicGraphVersion);
 
                      // Check for existence of retired version of has_parent association with this parent target
                      Optional<Version> retiredHasParentSemanticVersion = getInactiveHasParentAssociationDynamicSememeAttachedToComponent(referencedConcept.getNid(),
@@ -454,7 +449,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                         // If retired version on this has_parent association does not exist, then create a new one
 
                         DynamicData[] data = new DynamicData[1];
-                        data[0] = new DynamicUUIDImpl(uuidOfParentAccordingToNewLogicGraphVersion.get());
+                        data[0] = new DynamicUUIDImpl(uuidOfParentAccordingToNewLogicGraphVersion);
 
                         SemanticBuilder<? extends SemanticChronology> associationSememeBuilder = Get.semanticBuilderService().getDynamicBuilder(referencedConcept.getNid(),
                               VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getNid(), data);
@@ -466,7 +461,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                         builtObjects.add(associationSememeBuilder.build(editCoordinate, ChangeCheckerMode.ACTIVE).getNoThrow());
 
                         LOG.debug("Built new has_parent association sememe with SOURCE/CHILD={} and TARGET/PARENT={}", referencedConcept.getPrimordialUuid(),
-                              uuidOfParentAccordingToNewLogicGraphVersion.get());
+                              uuidOfParentAccordingToNewLogicGraphVersion);
                      }
                   }
                }

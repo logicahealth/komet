@@ -1539,7 +1539,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                .getLatestVersion(StampCoordinates.getDevelopmentLatest());
          final StringVersion ss = lv.get();
          final Long sctId = Long.parseLong(ss.getString());
-         final UUID conceptUUID = Get.identifierService().getUuidPrimordialForNid(ss.getReferencedComponentNid()).get();
+         final UUID conceptUUID = Get.identifierService().getUuidPrimordialForNid(ss.getReferencedComponentNid());
 
          this.sctIdToUUID.put(sctId, conceptUUID);
       });

@@ -77,8 +77,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
 
                 for (int parent : multiParentTreeView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
                     current = Get.identifierService()
-                            .getUuidPrimordialForNid(parent)
-                            .get();
+                            .getUuidPrimordialForNid(parent);
                     pathToRoot.add(current);
                     found = true;
                     break;

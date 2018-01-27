@@ -214,7 +214,8 @@ public class ConceptSuite {
                                                                                      null,
                                                                                      defaultLanguageForDescriptions,
                                                                                      defaultDialectAssemblageForDescriptions,
-                                                                                     defaultLogicCoordinate);
+                                                                                     defaultLogicCoordinate,
+                                                                                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
 
       testConceptBuilder.setPrimordialUuid(uuidString);
 

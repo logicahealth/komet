@@ -87,8 +87,7 @@ public abstract class TypedNodeWithUuids
    public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
       super(internalForm);
       this.typeConceptUuid = Get.identifierService()
-                                .getUuidPrimordialForNid(internalForm.getTypeConceptNid())
-                                .get();
+                                .getUuidPrimordialForNid(internalForm.getTypeConceptNid());
    }
 
    /**

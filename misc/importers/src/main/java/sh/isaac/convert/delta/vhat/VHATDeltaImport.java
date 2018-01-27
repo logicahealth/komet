@@ -76,12 +76,10 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -106,6 +104,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
@@ -906,7 +905,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                      if (me.getAction() == ActionType.UPDATE)
                      {
                         UUID existingSourceUUID = Get.identifierService().getUuidPrimordialForNid(Get.assemblageService().getSemanticChronology(
-                              Get.identifierService().getNidForUuids(createNewMapItemUUID(mapsetUUID, me.getVUID().toString()))).getReferencedComponentNid()).get();
+                              Get.identifierService().getNidForUuids(createNewMapItemUUID(mapsetUUID, me.getVUID().toString()))).getReferencedComponentNid());
                         if (existingSourceUUID.equals(findConcept(me.getSourceCode()).get()))
                         {
                            throw new IOException("Changing the source concept of a map entry isn't allowed.  Retire the map entry, create a new one.");
@@ -1148,7 +1147,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   }
                   else
                   {
-                     this.vuidToSubsetMap.put(sm.getVUID(), Get.identifierService().getUuidPrimordialForNid(subsetNid.get()).get());
+                     this.vuidToSubsetMap.put(sm.getVUID(), Get.identifierService().getUuidPrimordialForNid(subsetNid.get()));
                   }
                }
                if (sm.getAction() == null)
@@ -1435,7 +1434,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             return false;
          }).findFirst().<UUID>map(sememe -> 
          {
-            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid()).get();
+            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid());
          });
    }
    
@@ -1456,7 +1455,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             return false;
          }).findFirst().<UUID>map(sememe -> 
          {
-            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid()).get();
+            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid());
          });
    }
    
@@ -1628,7 +1627,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                                  DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getPrimordialUuid(),
                                  Status.ACTIVE,
                                  /*time*/ null,
-                                 Get.identifierService().getUuidPrimordialForNid(this.editCoordinate.getModuleNid()).get());
+                                 Get.identifierService().getUuidPrimordialForNid(this.editCoordinate.getModuleNid()));
                         }
                      } else {
                         String msg = "Encountered unexpected description extended type name " + d.getTypeName() + ". Expected one of " 
@@ -1739,7 +1738,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                                  ComponentReference.fromSememe(newDescription.getPrimordialUuid()),
                                  null,
                                  ((DynamicVersion<?>)latestVersionOfExistingNestedSememe.get()).getData(),
-                                 Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()).get(),
+                                 Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()),
                                  Status.ACTIVE,
                                  null,
                                  null);
@@ -1747,13 +1746,13 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         case MEMBER:
                            SemanticVersion memberSememe = (SemanticVersion)latestVersionOfExistingNestedSememe.get();
                            copyOfExistingNestedSememe = importUtil_.addAssemblageMembership(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
-                                 Get.identifierService().getUuidPrimordialForNid(memberSememe.getAssemblageNid()).get(), Status.ACTIVE, null);
+                                 Get.identifierService().getUuidPrimordialForNid(memberSememe.getAssemblageNid()), Status.ACTIVE, null);
                            break;
                         case STRING:
                            StringVersion stringSememe = (StringVersion)latestVersionOfExistingNestedSememe.get();
                            // TODO is Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()) == refsetUuid?
                            copyOfExistingNestedSememe = importUtil_.addStringAnnotation(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
-                                 stringSememe.getString(), Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()).get(), 
+                                 stringSememe.getString(), Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()), 
                                  Status.ACTIVE);
                            break;
 
@@ -1877,7 +1876,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                      ComponentReference.fromChronology(copyOfParentComponent),
                      null,
                      dynamicSememe.getData(),
-                     Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()).get(),
+                     Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()),
                      Status.ACTIVE,
                      null,
                      null);
@@ -1885,14 +1884,14 @@ public class VHATDeltaImport extends ConverterBaseMojo
             case MEMBER:
                SemanticVersion memberSememe = (SemanticVersion)latestVersionOfExistingNestedSememe.get();
                copyOfExistingNestedSememe = importUtil.addAssemblageMembership(ComponentReference.fromChronology(copyOfParentComponent), Get.identifierService()
-                     .getUuidPrimordialForNid(memberSememe.getAssemblageNid()).get(), Status.ACTIVE, null);
+                     .getUuidPrimordialForNid(memberSememe.getAssemblageNid()), Status.ACTIVE, null);
                
                break;
             case STRING:
                StringVersion stringSememe = (StringVersion)latestVersionOfExistingNestedSememe.get();
                // TODO is Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()) == refsetUuid?
                copyOfExistingNestedSememe = importUtil.addStringAnnotation(ComponentReference.fromChronology(copyOfParentComponent), stringSememe.getString(), 
-                     Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()).get(), Status.ACTIVE);
+                     Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()), Status.ACTIVE);
                break;
 
                //None of these are expected in vhat data
@@ -1979,7 +1978,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
          }
          else
          {
-            return Get.identifierService().getUuidPrimordialForNid(candidates.get(0).getReferencedComponentNid());
+            return Optional.of(Get.identifierService().getUuidPrimordialForNid(candidates.get(0).getReferencedComponentNid()));
          }
       } else {
          LOG.warn("Sememe Index not available - can't lookup VUID");
@@ -2132,7 +2131,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
                .getTaxonomyParentConceptNids(concept.getNid()))
                {
-                  UUID potential = Get.identifierService().getUuidPrimordialForNid(parent).get();
+                  UUID potential = Get.identifierService().getUuidPrimordialForNid(parent);
                   
                   if (!gatheredisA.contains(potential) && !retireIsA.contains(potential))
                   {
@@ -2260,7 +2259,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   int col = 0;
                   columns[col] = new DynamicColumnInfo(col++, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
                         DynamicDataType.UUID, null, false, DynamicValidatorType.COMPONENT_TYPE,
-                        new DynamicArrayImpl<>(new DynamicString[] { new DynamicStringImpl(ObjectChronologyType.CONCEPT.name()) }), true);
+                        new DynamicArrayImpl<>(new DynamicString[] { new DynamicStringImpl(IsaacObjectType.CONCEPT.name()) }), true);
                   columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE.getPrimordialUuid(), DynamicDataType.UUID,
                         null, false, DynamicValidatorType.IS_KIND_OF, new DynamicUUIDImpl(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getPrimordialUuid()), true);
                   columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_SEQUENCE.getPrimordialUuid(), DynamicDataType.INTEGER,
@@ -2276,7 +2275,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            DynamicDataType.STRING, null, false, true);
                   }
                   
-                  importUtil_.configureConceptAsDynamicRefex(concept, ms.getName(), columns, ObjectChronologyType.CONCEPT, null);
+                  importUtil_.configureConceptAsDynamicRefex(concept, ms.getName(), columns, IsaacObjectType.CONCEPT, null);
                   
                   //Annotate this concept as a mapset definition concept.
                   importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, null);

@@ -421,16 +421,9 @@ public class ByteArrayDataBuffer {
     */
    public void putNid(int nid) {
       if (this.externalData) {
-         final Optional<UUID> optionalUuid = this.identifierService.getUuidPrimordialForNid(nid);
-
-         if (optionalUuid.isPresent()) {
-            final UUID uuid = optionalUuid.get();
-
+         final UUID uuid = this.identifierService.getUuidPrimordialForNid(nid);
             putLong(uuid.getMostSignificantBits());
             putLong(uuid.getLeastSignificantBits());
-         } else {
-            throw new RuntimeException("Can't find uuid for nid: " + nid);
-         }
       } else {
          putInt(nid);
       }
@@ -1138,7 +1131,13 @@ public class ByteArrayDataBuffer {
     */
    public int getNid() {
       if (this.externalData) {
-         return this.identifierService.getNidForUuids(new UUID(getLong(), getLong()));
+         UUID uuid = new UUID(getLong(), getLong());
+         if (this.identifierService.hasUuid(uuid)) {
+            return this.identifierService.getNidForUuids(uuid);
+         }
+         else {
+            return this.identifierService.assignNid(uuid);
+         }
       }
 
       return getInt();

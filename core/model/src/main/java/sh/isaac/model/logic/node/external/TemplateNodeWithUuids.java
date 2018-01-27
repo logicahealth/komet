@@ -89,11 +89,9 @@ public class TemplateNodeWithUuids
    public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
       super(internalForm);
       this.templateConceptUuid = Get.identifierService()
-                                    .getUuidPrimordialForNid(internalForm.getTemplateConceptNid())
-                                    .get();
+                                    .getUuidPrimordialForNid(internalForm.getTemplateConceptNid());
       this.assemblageConceptUuid = Get.identifierService()
-                                      .getUuidPrimordialForNid(internalForm.getAssemblageConceptNid())
-                                      .get();
+                                      .getUuidPrimordialForNid(internalForm.getAssemblageConceptNid());
    }
 
    /**

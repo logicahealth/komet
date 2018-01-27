@@ -65,6 +65,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
@@ -185,12 +186,13 @@ public abstract class ChronologyImpl
     * @param primordialUuid A unique external identifier for this chronicle
     * @param assemblageNid The identifier for the concept that defines what assemblage this element is defined within.
     */
-   protected ChronologyImpl(UUID primordialUuid, int assemblageNid) {
+   protected ChronologyImpl(UUID primordialUuid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
       this.writeSequence = Integer.MIN_VALUE;
       this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
       this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
-      this.nid = Get.identifierService().getNidForUuids(primordialUuid);
+      this.nid = Get.identifierService().assignNid(primordialUuid);
       this.assemblageNid = assemblageNid;
+      ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, objectType, versionType);
       this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
    }
 
@@ -528,13 +530,19 @@ public abstract class ChronologyImpl
       this.assemblageNid = data.getNid();
       
       if (data.isExternalData()) {
-         this.nid = Get.identifierService()
-                 .getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
-         getUuidList().forEach(
-                 (uuid) -> {
-                    Get.identifierService()
-                            .addUuidForNid(uuid, this.nid);
-                 });
+         UUID primordialUUID = new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
+         List<UUID> allUUIDs = getUuidList();
+         if (!Get.identifierService().hasUuid(primordialUUID)) {
+            this.nid = Get.identifierService().assignNid(allUUIDs.toArray(new UUID[allUUIDs.size()]));
+         }
+         else {
+            this.nid = Get.identifierService().getNidForUuids(allUUIDs);
+            if (allUUIDs.size() > 1) {
+               for (UUID additionalUuid : allUUIDs.subList(1, allUUIDs.size())) {
+                  Get.identifierService().addUuidForNid(additionalUuid,this.nid);
+               }
+            }
+         }
          this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
          setAdditionalChronicleFieldsFromBuffer(data);
          readVersionList(data);
@@ -557,8 +565,7 @@ public abstract class ChronologyImpl
             }
          }
       }
-      ModelGet.identifierService().setupNid(this.nid, assemblageNid, 
-                 this.getIsaacObjectType(), this.getVersionType());
+      ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
 
    }
 
@@ -634,9 +641,9 @@ public abstract class ChronologyImpl
       data.getLong();   // this.primordialUuidMsb =
       data.getLong();   // this.primordialUuidLsb =
       skipAdditionalUuids(data);
+      data.getNid();    // this.assemblageNid =
       data.getNid();    // this.nid =
       data.getInt();    // this.elementSequence =
-      data.getShort();  // this.versionSequence =
       skipAdditionalChronicleFields(data);
    }
 
