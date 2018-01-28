@@ -22,7 +22,7 @@
                 <goal>-e</goal>
             </goals>
             <properties>
-                <Env.MAVEN_OPTS>-Xmx16g -Xms16g</Env.MAVEN_OPTS>
+                <Env.MAVEN_OPTS>-Xmx8g -Xms8g</Env.MAVEN_OPTS>
             </properties>
         </action>
         <action>
@@ -35,7 +35,7 @@
             </goals>
             <properties>
                 <jpda.listen>true</jpda.listen>
-                <Env.MAVEN_OPTS>-XX:+UseCompressedOops -Xmx12g -Xms12g -Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</Env.MAVEN_OPTS>
+                <Env.MAVEN_OPTS>-XX:+UseCompressedOops -Xmx8g -Xms8g -Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</Env.MAVEN_OPTS>
             </properties>
         </action>
         <action>
