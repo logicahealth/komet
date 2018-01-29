@@ -167,9 +167,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexBuilderService indexer : indexers) {
-            indexer.sync().get();
-         }
          Get.activeTasks().remove(this);
       }
    }

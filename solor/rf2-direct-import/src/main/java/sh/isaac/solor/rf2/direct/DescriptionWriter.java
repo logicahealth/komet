@@ -163,9 +163,6 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexBuilderService indexer : indexers) {
-            indexer.sync().get();
-         }
          Get.activeTasks().remove(this);
       }
    }

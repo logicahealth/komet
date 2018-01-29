@@ -195,9 +195,6 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             return null;
         } finally {
             this.writeSemaphore.release();
-            for (IndexBuilderService indexer : indexers) {
-                indexer.sync();
-            }
             Get.activeTasks().remove(this);
         }
     }

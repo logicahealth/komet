@@ -171,10 +171,6 @@ public class DialectWriter
       } finally {
          this.writeSemaphore.release();
 
-         for (IndexBuilderService indexer : indexers) {
-            indexer.sync().get();
-
-         }
          Get.activeTasks()
             .remove(this);
       }

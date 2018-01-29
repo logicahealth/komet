@@ -59,19 +59,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.MetaData;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.index.IndexBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -483,6 +480,13 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing semantic database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
@@ -1251,6 +1255,13 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for concept file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing concept database...");
         conceptService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
@@ -1303,6 +1314,15 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for description file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing description database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
@@ -1340,18 +1360,26 @@ public class Rf2DirectImporter
             LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
         }
         if (!columnsToWrite.isEmpty()) {
-            DialectWriter descriptionWriter = new DialectWriter(
+            DialectWriter dialectWriter = new DialectWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing dialect from: " + trimZipName(
                             importSpecification.zipEntry.getName()), importType);
 
             Get.executor()
-                    .submit(descriptionWriter);
+                    .submit(dialectWriter);
         }
 
         updateMessage("Waiting for dialect file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing dialect database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
@@ -1404,6 +1432,14 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for inferred relationship file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
@@ -1455,6 +1491,14 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for stated relationship file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);

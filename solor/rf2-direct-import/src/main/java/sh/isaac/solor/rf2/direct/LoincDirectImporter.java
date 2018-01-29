@@ -36,6 +36,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.index.IndexBuilderService;
+
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -180,6 +183,13 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
 
         updateMessage("Waiting for LOINC file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+           try {
+               indexer.sync().get();
+           } catch (Exception e) {
+              LOG.error("problem calling sync on index", e);
+           }
+        }
         updateMessage("Synchronizing LOINC records to database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);

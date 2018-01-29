@@ -21,6 +21,7 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -32,7 +33,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
@@ -250,9 +250,6 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          return null;
       } finally {
          this.writeSemaphore.release();
-         for (IndexBuilderService indexer : indexers) {
-            indexer.sync().get();
-         }
          Get.activeTasks().remove(this);
       }
    }
