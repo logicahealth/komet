@@ -109,7 +109,12 @@ public class TreeBuilderTask
             throws Exception {
       try {
          return compute();
-      } finally {
+      }
+      catch (Exception e) {
+         LOG.error("Error in Tree Builder task", e);
+         throw e;
+      }
+      finally {
          Get.activeTasks()
             .remove(this);
       }
