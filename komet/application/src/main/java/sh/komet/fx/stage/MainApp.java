@@ -61,14 +61,13 @@ import java.lang.management.ManagementFactory;
 import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Circle;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,9 +99,7 @@ public class MainApp
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
-    
-    MenuToolkit menuToolkit;
-    Menu defaultApplicationMenu;
+
     //~--- methods -------------------------------------------------------------
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
@@ -124,22 +121,12 @@ public class MainApp
     public void start(Stage stage)
             throws Exception {
         MainApp.primaryStage = stage;
+        //stage.initStyle(StageStyle.UTILITY);
         // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
-        LOG.info("Startup memory info: " + 
-                ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
-        
-        // Get the toolkit
-        menuToolkit = MenuToolkit.toolkit();
+        LOG.info("Startup memory info: "
+                + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
-        // Create the default Application menu
-        defaultApplicationMenu = menuToolkit.createDefaultApplicationMenu("SOLOR Viewer");
-        MenuItem aboutItem = defaultApplicationMenu.getItems().get(0);
-        aboutItem.setOnAction(this::handleAbout);
-        MenuItem quitItem = defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size() -1);
-        quitItem.setOnAction(this::close);
-        menuToolkit.setApplicationMenu(defaultApplicationMenu);
-        
-        
+
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
 
@@ -175,13 +162,8 @@ public class MainApp
         root.setId(UUID.randomUUID()
                 .toString());
 
-        Scene scene = new Scene(root);
 
-        // GraphController.setSceneForControllers(scene);
-        scene.getStylesheets()
-                .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-        scene.getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
+        stage.setTitle("Viewer");
 
         // SNAPSHOT
         // Chronology
@@ -194,57 +176,85 @@ public class MainApp
         // CHILLDE
         // Knowledge, Language, Dialect, Chronology
         // KOLDAC
-        stage.setTitle("Viewer");
+        // Get the toolkit
+        MenuToolkit menuToolkit = MenuToolkit.toolkit();
+        if (menuToolkit != null) {
+            // Create the default Application menu
+            Menu defaultApplicationMenu = menuToolkit.createDefaultApplicationMenu("SOLOR Viewer");
+            MenuItem aboutItem = defaultApplicationMenu.getItems().get(0);
+            aboutItem.setOnAction(this::handleAbout);
+            MenuItem quitItem = defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size() - 1);
+            quitItem.setOnAction(this::close);
+            menuToolkit.setApplicationMenu(defaultApplicationMenu);
+        } else {
+            BorderPane wrappingPane = new BorderPane(root);
+            Menu defaultApplicationMenu = new Menu("Viewer");
+            MenuItem aboutItem = new MenuItem("About...");
+            defaultApplicationMenu.getItems().add(aboutItem);
+            defaultApplicationMenu.getItems().add(new SeparatorMenuItem());
+            aboutItem.setOnAction(this::handleAbout);
+            MenuItem quitItem = new MenuItem("Quit");
+            defaultApplicationMenu.getItems().add(quitItem);
+            quitItem.setOnAction(this::close);
+            wrappingPane.setTop(new MenuBar(defaultApplicationMenu));
+            root = wrappingPane;
+            stage.setHeight(stage.getHeight() + 20);
+        }
+        Scene scene = new Scene(root);
         stage.setScene(scene);
+
+        // GraphController.setSceneForControllers(scene);
+        scene.getStylesheets()
+                .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+        scene.getStylesheets()
+                .add(Iconography.getStyleSheetStringUrl());
         FxGet.statusMessageService()
                 .addScene(scene, controller::reportStatus);
         stage.show();
         stage.setOnCloseRequest(this::handleShutdown);
-        
 
         // ScenicView.show(scene);
-        
     }
-    
+
     private void close(ActionEvent event) {
         event.consume();
         shutdown();
     }
-    
+
     private void handleAbout(ActionEvent event) {
         event.consume();
         System.out.println("Handle about...");
-          //create stage which has set stage style transparent
-            final Stage stage = new Stage(StageStyle.TRANSPARENT);
- 
-            //create root node of scene, i.e. group
-            Group rootGroup = new Group();
- 
-            //create scene with set width, height and color
-            Scene scene = new Scene(rootGroup, 806, 675, Color.TRANSPARENT);
- 
-            //set scene to stage
-            stage.setScene(scene);
- 
-            //center stage on screen
-            stage.centerOnScreen();
-            Image image = new Image(MainApp.class.getResourceAsStream("/images/about@2x.png"));
-            ImageView aboutView = new ImageView(image);
+        //create stage which has set stage style transparent
+        final Stage stage = new Stage(StageStyle.TRANSPARENT);
 
-            aboutView.setFitHeight(675);
-            aboutView.setPreserveRatio(true);
-            aboutView.setSmooth(true);
-            aboutView.setCache(true);
-            rootGroup.getChildren().add(aboutView);
-            //show the stage
-            stage.show();
-           
-            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == false) {
-                    stage.close();
-                } 
-            });
-     }
+        //create root node of scene, i.e. group
+        Group rootGroup = new Group();
+
+        //create scene with set width, height and color
+        Scene scene = new Scene(rootGroup, 806, 675, Color.TRANSPARENT);
+
+        //set scene to stage
+        stage.setScene(scene);
+
+        //center stage on screen
+        stage.centerOnScreen();
+        Image image = new Image(MainApp.class.getResourceAsStream("/images/about@2x.png"));
+        ImageView aboutView = new ImageView(image);
+
+        aboutView.setFitHeight(675);
+        aboutView.setPreserveRatio(true);
+        aboutView.setSmooth(true);
+        aboutView.setCache(true);
+        rootGroup.getChildren().add(aboutView);
+        //show the stage
+        stage.show();
+
+        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == false) {
+                stage.close();
+            }
+        });
+    }
 
     private void handleShutdown(WindowEvent e) {
         // need this to all happen on a non event thread...
