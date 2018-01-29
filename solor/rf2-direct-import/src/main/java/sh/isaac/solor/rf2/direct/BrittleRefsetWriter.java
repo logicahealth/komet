@@ -139,7 +139,12 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    }
    
    int nidFromSctid(String sctid) {
-      return identifierService.getNidForUuids(UuidT3Generator.fromSNOMED(sctid));
+      try {
+         return identifierService.getNidForUuids(UuidT3Generator.fromSNOMED(sctid));
+      } catch (NoSuchElementException e) {
+         LOG.error("The SCTID {} was mapped to UUID {} but that UUID has not been loaded into the system", sctid, UuidT3Generator.fromSNOMED(sctid));
+         throw e;
+      }
    }
 
    @Override
