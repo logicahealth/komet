@@ -132,17 +132,18 @@ public class DescriptionIndexer extends LuceneIndexer
 //         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
 //      }
       
-      boolean isMetadata = false;
+      Boolean isMetadata = null;
       
       final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 
       for (final StampedVersion stampedVersion : semanticChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
 
-         if (!isMetadata)
+         //TODO [DAN] use wasEverKindOf
+         if (isMetadata == null)
          {
             isMetadata = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
-                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(stampedVersion.getTime(), stampedVersion.getPathNid()), 
+                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, stampedVersion.getPathNid()), 
                         NidSet.of(stampedVersion.getModuleNid()), Status.ACTIVE_ONLY_SET), null))
             .isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
          }
