@@ -39,6 +39,8 @@
 
 package sh.isaac.provider.commit;
 
+import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.FileNotFoundException;
@@ -48,7 +50,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -69,13 +70,11 @@ import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 
 //~--- classes ----------------------------------------------------------------
@@ -263,7 +262,11 @@ public class ChangeSetLoadProvider
 
          this.processedChangesets = (mcs == null) ? null : mcs.<String, Boolean>openStore("processedChangesets");
 
-         final int loaded = readChangesetFiles();
+         //TODO [DAN] need to find out why Keith added this.... processedChangesets store is serialized into the MetaContent service.
+         if (Get.applicationPreferences().getBoolean(LOAD_CHANGESETS_ON_STARTUP, true)) {
+             final int loaded = readChangesetFiles();
+         }
+         
 
          if (semanticDbId == null) {
             semanticDbId = readSemanticDbId();

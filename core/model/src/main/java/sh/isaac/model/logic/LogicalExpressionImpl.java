@@ -917,8 +917,12 @@ public class LogicalExpressionImpl
     */
    @Override
    public boolean contains(NodeSemantic semantic) {
-      return this.logicNodes.stream()
-              .anyMatch((node) -> (node.getNodeSemantic() == semantic));
+      for (LogicNode node: this.logicNodes) {
+          if (node.getNodeSemantic() == semantic) {
+              return true;
+          }
+      }
+      return false;
    }
 
    /**

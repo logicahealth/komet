@@ -357,9 +357,17 @@ public class ProcessClassificationResults
                                                 conceptNid,
                                                 this.logicCoordinate.getInferredAssemblageNid());
 
+                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                    TestConcept.WATCH_NID_SET.add(builder.getNid());
+                }
                                 // get classifier edit coordinate...
                                 builder.build(EditCoordinates.getClassifierSolorOverlay(),
                                         ChangeCheckerMode.INACTIVE);
+                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                    TestConcept.WATCH_NID_SET.add(builder.getNid());
+                }
                             } else {
                                 final SemanticChronology inferredChronology
                                         = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
@@ -402,7 +410,7 @@ public class ProcessClassificationResults
         });
 
         final Task<Optional<CommitRecord>> commitTask = commitService.commit(
-                Get.configurationService().getDefaultEditCoordinate(), "classifier run");
+                EditCoordinates.getClassifierSolorOverlay(), "classifier run");
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

@@ -72,10 +72,10 @@ public class CommitTaskChronology extends CommitTask {
    private Chronology chronicle;
    private EditCoordinate editCoordinate;
    private String commitComment;
-   private NidSet uncommittedConceptsWithChecksNidSet;
-   private NidSet uncommittedConceptsNoChecksNidSet;
-   private NidSet uncommittedSemanticsWithChecksNidSet;
-   private NidSet uncommittedSemanticsNoChecksNidSet;
+   private NidSet uncommittedConceptNidsWithChecks;
+   private NidSet uncommittedConceptNidsNoChecks;
+   private NidSet uncommittedSemanticNidsWithChecks;
+   private NidSet uncommittedSemanticNidsNoChecksNidSet;
    private ConcurrentSkipListSet<ChangeChecker> checkers;
    private CommitProvider commitProvider;
 
@@ -103,10 +103,10 @@ public class CommitTaskChronology extends CommitTask {
       this.chronicle = chronicle;
       this.editCoordinate = editCoordinate;
       this.commitComment = commitComment;
-      this.uncommittedConceptsWithChecksNidSet = uncommittedConceptsWithChecksNidSet;
-      this.uncommittedConceptsNoChecksNidSet = uncommittedConceptsNoChecksNidSet;
-      this.uncommittedSemanticsWithChecksNidSet = uncommittedSemanticsWithChecksNidSet;
-      this.uncommittedSemanticsNoChecksNidSet = uncommittedSemanticsNoChecksNidSet;
+      this.uncommittedConceptNidsWithChecks = uncommittedConceptsWithChecksNidSet;
+      this.uncommittedConceptNidsNoChecks = uncommittedConceptsNoChecksNidSet;
+      this.uncommittedSemanticNidsWithChecks = uncommittedSemanticsWithChecksNidSet;
+      this.uncommittedSemanticNidsNoChecksNidSet = uncommittedSemanticsNoChecksNidSet;
       this.checkers = checkers;
       this.commitProvider = commitProvider;
       if (chronicle instanceof ConceptChronology) {
@@ -138,7 +138,8 @@ public class CommitTaskChronology extends CommitTask {
          if (this.chronicle instanceof ConceptChronology) {
             final ConceptChronology conceptChronology = (ConceptChronology) this.chronicle;
 
-            if (this.uncommittedConceptsWithChecksNidSet.contains(conceptChronology.getNid())) {
+           //TODO [KEC] in the merge, Keith switched all these streams back to for loops... see if necessary.
+            if (this.uncommittedConceptNidsWithChecks.contains(conceptChronology.getNid())) {
                this.checkers.stream().forEach((check) -> {
                   AlertObject ao = check.check(conceptChronology, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
@@ -151,7 +152,7 @@ public class CommitTaskChronology extends CommitTask {
          } else if (this.chronicle instanceof SemanticChronology) {
             final SemanticChronology semanticChronology = (SemanticChronology) this.chronicle;
 
-            if (this.uncommittedSemanticsWithChecksNidSet.contains(semanticChronology.getNid())) {
+            if (this.uncommittedSemanticNidsWithChecks.contains(semanticChronology.getNid())) {
                this.checkers.stream().forEach((check) -> {
                   AlertObject ao = check.check(semanticChronology, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
@@ -188,15 +189,15 @@ public class CommitTaskChronology extends CommitTask {
                final ConceptChronology conceptChronology = (ConceptChronology) this.chronicle;
 
                conceptsInCommit.add(conceptChronology.getNid());
-               this.uncommittedConceptsWithChecksNidSet.remove(conceptChronology.getNid());
-               this.uncommittedConceptsNoChecksNidSet.remove(conceptChronology.getNid());
+               this.uncommittedConceptNidsWithChecks.remove(conceptChronology.getNid());
+               this.uncommittedConceptNidsNoChecks.remove(conceptChronology.getNid());
                Get.conceptService().writeConcept(conceptChronology);
             } else {
                final SemanticChronology semanticChronology = (SemanticChronology) this.chronicle;
 
                sememesInCommit.add(semanticChronology.getNid());
-               this.uncommittedSemanticsWithChecksNidSet.remove(semanticChronology.getNid());
-               this.uncommittedSemanticsNoChecksNidSet.remove(semanticChronology.getNid());
+               this.uncommittedSemanticNidsWithChecks.remove(semanticChronology.getNid());
+               this.uncommittedSemanticNidsNoChecksNidSet.remove(semanticChronology.getNid());
                Get.assemblageService().writeSemanticChronology(semanticChronology);
             }
 

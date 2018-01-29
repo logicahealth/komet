@@ -80,16 +80,16 @@ public class CommitTaskGlobal extends CommitTask{
    //~--- fields --------------------------------------------------------------
 
    /** The concepts to commit. */
-   final NidSet conceptsToCommit = new NidSet();
+   final NidSet conceptNidsToCommit = new NidSet();
 
    /** The concepts to check. */
-   final NidSet conceptsToCheck = new NidSet();
+   final NidSet conceptNidsToCheck = new NidSet();
 
    /** The semantics to commit. */
-   final NidSet semanticsToCommit = new NidSet();
+   final NidSet semanticNidsToCommit = new NidSet();
 
    /** The semantics to check. */
-   final NidSet semanticsToCheck = new NidSet();
+   final NidSet semanticNidsToCheck = new NidSet();
 
    /** The commit comment. */
    final String commitComment;
@@ -135,12 +135,12 @@ public class CommitTaskGlobal extends CommitTask{
                       Map<UncommittedStamp, Integer> pendingStampsForCommit,
                       CommitProvider commitProvider) {
       this.commitComment = commitComment;
-      this.conceptsToCommit.or(uncommittedConceptsNoChecksNidSet);
-      this.conceptsToCommit.or(uncommittedConceptsWithChecksNidSet);
-      this.conceptsToCheck.or(uncommittedConceptsWithChecksNidSet);
-      this.semanticsToCommit.or(uncommittedSememesNoChecksNidSet);
-      this.semanticsToCommit.or(uncommittedSememesWithChecksNidSet);
-      this.semanticsToCheck.or(uncommittedSememesWithChecksNidSet);
+      this.conceptNidsToCommit.or(uncommittedConceptsNoChecksNidSet);
+      this.conceptNidsToCommit.or(uncommittedConceptsWithChecksNidSet);
+      this.conceptNidsToCheck.or(uncommittedConceptsWithChecksNidSet);
+      this.semanticNidsToCommit.or(uncommittedSememesNoChecksNidSet);
+      this.semanticNidsToCommit.or(uncommittedSememesWithChecksNidSet);
+      this.semanticNidsToCheck.or(uncommittedSememesWithChecksNidSet);
       uncommittedConceptsNoChecksNidSet.clear();
       uncommittedConceptsWithChecksNidSet.clear();
       uncommittedSememesNoChecksNidSet.clear();
@@ -150,8 +150,8 @@ public class CommitTaskGlobal extends CommitTask{
       this.pendingStampsForCommit = pendingStampsForCommit;
       this.commitProvider         = commitProvider;
       this.stampProvider          = Get.stampService();
-      addToTotalWork(this.conceptsToCommit.size());
-      addToTotalWork(this.semanticsToCommit.size());
+      addToTotalWork(this.conceptNidsToCommit.size());
+      addToTotalWork(this.semanticNidsToCommit.size());
       updateTitle("Commit");
       updateMessage(commitComment);
       LOG.info("Spawning CommitTask " + taskSequenceId);
@@ -170,10 +170,11 @@ public class CommitTaskGlobal extends CommitTask{
       try {
 
          LOG.debug("performing commit for '{}'", this.commitComment);
-         this.conceptsToCommit.stream().forEach((conceptNid) -> {
+         this.conceptNidsToCommit.stream().forEach((conceptNid) -> {
             final ConceptChronology c = Get.conceptService().getConceptChronology(conceptNid);
 
-            if (this.conceptsToCheck.contains(conceptNid)) {
+            //TODO [KEC] in the merge, Keith switched all these streams back to for loops... see if necessary.
+            if (this.conceptNidsToCheck.contains(conceptNid)) {
                this.checkers.stream().forEach((check) -> {
                   AlertObject ao = check.check(c, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
@@ -184,10 +185,10 @@ public class CommitTaskGlobal extends CommitTask{
             }
             completedUnitOfWork();
          });
-         this.semanticsToCommit.stream().forEach((semanticNid) -> {
+         this.semanticNidsToCommit.stream().forEach((semanticNid) -> {
             final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticNid);
 
-            if (this.semanticsToCheck.contains(semanticNid)) {
+            if (this.semanticNidsToCheck.contains(semanticNid)) {
                this.checkers.stream().forEach((check) -> {
                   AlertObject ao = check.check(sc, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
@@ -201,10 +202,10 @@ public class CommitTaskGlobal extends CommitTask{
 
          if (this.alertCollection.size() > 0) {
             this.commitProvider.revertCommit(
-                  this.conceptsToCommit, 
-                  this.conceptsToCheck, 
-                  this.semanticsToCommit, 
-                  this.semanticsToCheck, 
+                  this.conceptNidsToCommit, 
+                  this.conceptNidsToCheck, 
+                  this.semanticNidsToCommit, 
+                  this.semanticNidsToCheck, 
                   this.pendingStampsForCommit);
             return Optional.empty();
          }
@@ -231,8 +232,8 @@ public class CommitTaskGlobal extends CommitTask{
             final CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime), 
                   stampSequenceSet, 
                   new OpenIntIntHashMap(),
-                  NidSet.of(this.conceptsToCheck).or(this.conceptsToCommit), 
-                  NidSet.of(this.semanticsToCheck).or(this.semanticsToCommit), 
+                  NidSet.of(this.conceptNidsToCheck).or(this.conceptNidsToCommit), 
+                  NidSet.of(this.semanticNidsToCheck).or(this.semanticNidsToCommit), 
                   this.commitComment);
 
             this.commitProvider.handleCommitNotification(commitRecord);

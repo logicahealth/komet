@@ -79,6 +79,7 @@ import sh.isaac.api.preferences.PreferencesService;
 import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
+import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
 import static sh.isaac.api.constants.Constants.PREFERENCES_FOLDER_LOCATION;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
@@ -204,6 +205,7 @@ public class PreferencesProvider
          this.applicationPreferences.put(
              DATA_STORE_ROOT_LOCATION_PROPERTY,
              System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+         this.applicationPreferences.putBoolean(LOAD_CHANGESETS_ON_STARTUP, false);  //TODO [DAN] need to find out why Keith is doing this
          this.applicationPreferences.sync();
       } catch (Throwable ex) {
          LOG.error("Unexpected error stating preferences provider", ex);

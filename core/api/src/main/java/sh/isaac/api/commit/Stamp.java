@@ -302,7 +302,13 @@ public class Stamp
       sb.append("Stamp{s:");
       sb.append(this.status);
       sb.append(", t:");
-      sb.append(getTimeAsInstant());
+      if (this.time == Long.MAX_VALUE) {
+          sb.append(" UNCOMMITTED");
+      } else if (this.time == Long.MIN_VALUE) {
+          sb.append(" CANCELED");
+      } else {
+          sb.append(getTimeAsInstant());
+      }
       sb.append(", a:");
       sb.append(Get.conceptDescriptionText(this.authorNid));
       sb.append(", m:");

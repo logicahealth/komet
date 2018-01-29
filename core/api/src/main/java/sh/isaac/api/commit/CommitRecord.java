@@ -76,10 +76,10 @@ public class CommitRecord {
    protected String commitComment;
 
    /** The concepts in commit. */
-   protected NidSet conceptSequencesInCommit;
+   protected NidSet conceptNidsInCommit;
 
    /** The semantic sequences in a commit. */
-   protected NidSet semanticSequencesInCommit;
+   protected NidSet semanticNidsInCommit;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,21 +94,21 @@ public class CommitRecord {
     * @param commitTime the commit time
     * @param stampsInCommit the stamps in commit
     * @param stampAliases the stamp aliases
-    * @param conceptSequencesInCommit the concepts in commit
-    * @param semanticSequencesInCommit the semantics in commit
+    * @param conceptNidsInCommit the concepts in commit
+    * @param semanticNidsInCommit the semantics in commit
     * @param commitComment the commit comment
     */
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
-                       NidSet conceptSequencesInCommit,
-                       NidSet semanticSequencesInCommit,
+                       NidSet conceptNidsInCommit,
+                       NidSet semanticNidsInCommit,
                        String commitComment) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
       this.stampAliases     = stampAliases.copy();
-      this.conceptSequencesInCommit = NidSet.of(conceptSequencesInCommit);
-      this.semanticSequencesInCommit  = NidSet.of(semanticSequencesInCommit);
+      this.conceptNidsInCommit = NidSet.of(conceptNidsInCommit);
+      this.semanticNidsInCommit  = NidSet.of(semanticNidsInCommit);
       this.commitComment    = commitComment;
    }
 
@@ -123,7 +123,7 @@ public class CommitRecord {
    public String toString() {
       return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
              ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptSequencesInCommit=" +
-             this.conceptSequencesInCommit + ", semanticSequencesInCommit=" + this.semanticSequencesInCommit + '}';
+             this.conceptNidsInCommit + ", semanticSequencesInCommit=" + this.semanticNidsInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -152,7 +152,7 @@ public class CommitRecord {
     * @return the concepts in commit
     */
    public NidSet getConceptsInCommit() {
-      return this.conceptSequencesInCommit;
+      return this.conceptNidsInCommit;
    }
 
    /**
@@ -161,7 +161,7 @@ public class CommitRecord {
     * @return the semantic sequences in commit
     */
    public NidSet getSemanticNidsInCommit() {
-      return this.semanticSequencesInCommit;
+      return this.semanticNidsInCommit;
    }
 
    /**

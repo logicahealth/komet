@@ -37,6 +37,7 @@
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
+import de.codecentric.centerdevice.MenuToolkit;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -57,6 +58,18 @@ import static javafx.application.Application.launch;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import java.lang.management.ManagementFactory;
+import javafx.event.ActionEvent;
+import javafx.scene.Group;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
+import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ApplicationStates;
@@ -86,7 +99,10 @@ public class MainApp
 
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
+    private static Stage primaryStage;
     
+    MenuToolkit menuToolkit;
+    Menu defaultApplicationMenu;
     //~--- methods -------------------------------------------------------------
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
@@ -107,9 +123,21 @@ public class MainApp
     @Override
     public void start(Stage stage)
             throws Exception {
+        MainApp.primaryStage = stage;
         // TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service.
         LOG.info("Startup memory info: " + 
                 ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
+        
+        // Get the toolkit
+        menuToolkit = MenuToolkit.toolkit();
+
+        // Create the default Application menu
+        defaultApplicationMenu = menuToolkit.createDefaultApplicationMenu("SOLOR Viewer");
+        MenuItem aboutItem = defaultApplicationMenu.getItems().get(0);
+        aboutItem.setOnAction(this::handleAbout);
+        MenuItem quitItem = defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size() -1);
+        quitItem.setOnAction(this::close);
+        menuToolkit.setApplicationMenu(defaultApplicationMenu);
         
         
         SvgImageLoaderFactory.install();
@@ -172,14 +200,59 @@ public class MainApp
                 .addScene(scene, controller::reportStatus);
         stage.show();
         stage.setOnCloseRequest(this::handleShutdown);
+        
 
         // ScenicView.show(scene);
         
     }
+    
+    private void close(ActionEvent event) {
+        event.consume();
+        shutdown();
+    }
+    
+    private void handleAbout(ActionEvent event) {
+        event.consume();
+        System.out.println("Handle about...");
+          //create stage which has set stage style transparent
+            final Stage stage = new Stage(StageStyle.TRANSPARENT);
+ 
+            //create root node of scene, i.e. group
+            Group rootGroup = new Group();
+ 
+            //create scene with set width, height and color
+            Scene scene = new Scene(rootGroup, 806, 675, Color.TRANSPARENT);
+ 
+            //set scene to stage
+            stage.setScene(scene);
+ 
+            //center stage on screen
+            stage.centerOnScreen();
+            Image image = new Image(MainApp.class.getResourceAsStream("/images/about@2x.png"));
+            ImageView aboutView = new ImageView(image);
+
+            aboutView.setFitHeight(675);
+            aboutView.setPreserveRatio(true);
+            aboutView.setSmooth(true);
+            aboutView.setCache(true);
+            rootGroup.getChildren().add(aboutView);
+            //show the stage
+            stage.show();
+           
+            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == false) {
+                    stage.close();
+                } 
+            });
+     }
 
     private void handleShutdown(WindowEvent e) {
         // need this to all happen on a non event thread...
         e.consume();
+        shutdown();
+    }
+
+    protected void shutdown() {
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         Get.executor().execute(() -> {

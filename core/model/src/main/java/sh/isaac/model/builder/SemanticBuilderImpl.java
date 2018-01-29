@@ -64,7 +64,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.UuidFactory;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
@@ -95,7 +94,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
    int referencedComponentNid = Integer.MAX_VALUE;
 
    /** The referenced component builder. */
-   IdentifiedComponentBuilder referencedComponentBuilder;
+   IdentifiedComponentBuilder<?> referencedComponentBuilder;
 
    /** The assemblage concept sequence. */
    int assemblageConceptNid;
@@ -116,7 +115,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     * @param semanticType the sememe type
     * @param paramaters the paramaters
     */
-   public SemanticBuilderImpl(IdentifiedComponentBuilder referencedComponentBuilder,
+   public SemanticBuilderImpl(IdentifiedComponentBuilder<?> referencedComponentBuilder,
                             int assemblageConceptId,
                             VersionType semanticType,
                             Object... paramaters) {
@@ -319,38 +318,38 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
 
       SemanticVersion version;
-      SemanticChronologyImpl sememeChronicle;
+      SemanticChronologyImpl semanticChronology;
 
       final int semanticNid = getNid();
       if (Get.assemblageService().hasSemantic(semanticNid)) {
-         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
+         semanticChronology = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
 
-         if ((sememeChronicle.getVersionType() != this.semanticType) ||
-               !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
-               (sememeChronicle.getAssemblageNid() != this.assemblageConceptNid) ||
-               (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
+         if ((semanticChronology.getVersionType() != this.semanticType) ||
+               !semanticChronology.isIdentifiedBy(getPrimordialUuid()) ||
+               (semanticChronology.getAssemblageNid() != this.assemblageConceptNid) ||
+               (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
          }
       } else {
-         sememeChronicle = new SemanticChronologyImpl(this.semanticType,
+         semanticChronology = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
                this.assemblageConceptNid,
                this.referencedComponentNid);
       }
 
-      sememeChronicle.setAdditionalUuids(this.additionalUuids);
+      semanticChronology.setAdditionalUuids(this.additionalUuids);
 
       switch (this.semanticType) {
       case COMPONENT_NID:
          final ComponentNidVersionImpl cnsi =
-            (ComponentNidVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (ComponentNidVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                           editCoordinate);
          version = cnsi;
          cnsi.setComponentNid((Integer) this.parameters[0]);
          break;
 
       case LONG:
-         final LongVersionImpl lsi = (LongVersionImpl) sememeChronicle.createMutableVersion(this.state,
+         final LongVersionImpl lsi = (LongVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                                           editCoordinate);
          version = lsi;
          lsi.setLongValue((Long) this.parameters[0]);
@@ -358,19 +357,19 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       case LOGIC_GRAPH:
          final LogicGraphVersionImpl lgsi =
-            (LogicGraphVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (LogicGraphVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                         editCoordinate);
          version = lgsi;
          lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
          break;
 
       case MEMBER:
-         final SemanticVersionImpl svi = sememeChronicle.createMutableVersion(this.state, editCoordinate);
+         final SemanticVersionImpl svi = semanticChronology.createMutableVersion(this.state, editCoordinate);
          version = svi;
          break;
 
       case STRING:
-         final StringVersionImpl ssi = (StringVersionImpl) sememeChronicle.createMutableVersion(this.state,
+         final StringVersionImpl ssi = (StringVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                                               editCoordinate);
          version = ssi;
          ssi.setString((String) this.parameters[0]);
@@ -378,7 +377,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       case DESCRIPTION: {
          final DescriptionVersionImpl dsi =
-            (DescriptionVersionImpl) sememeChronicle.createMutableVersion(this.state,
+            (DescriptionVersionImpl) semanticChronology.createMutableVersion(this.state,
                                                                          editCoordinate);
          version = dsi;
          dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
@@ -389,7 +388,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
 
       case DYNAMIC: {
-         final DynamicImpl dsi = (DynamicImpl) sememeChronicle.createMutableVersion(this.state,
+         final DynamicImpl dsi = (DynamicImpl) semanticChronology.createMutableVersion(this.state,
                                                                                                 editCoordinate);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
@@ -409,10 +408,10 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       if (changeCheckerMode == ChangeCheckerMode.ACTIVE) {
          primaryNested = Get.commitService()
-                            .addUncommitted(sememeChronicle);
+                            .addUncommitted(semanticChronology);
       } else {
          primaryNested = Get.commitService()
-                            .addUncommittedNoChecks(sememeChronicle);
+                            .addUncommittedNoChecks(semanticChronology);
       }
 
       final ArrayList<OptionalWaitTask<?>> nested = new ArrayList<>();
@@ -420,7 +419,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       getSemanticBuilders().forEach((builder) -> nested.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
-      builtObjects.add(sememeChronicle);
+      builtObjects.add(semanticChronology);
       for (SemanticBuildListenerI listener : sememeBuildListeners) {
          if (listener != null) {
             if (listener.isEnabled()) {
@@ -431,7 +430,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
          }
       }
-      return new OptionalWaitTask<>(primaryNested, (C) sememeChronicle, nested);
+      return new OptionalWaitTask<>(primaryNested, (C) semanticChronology, nested);
    }
    
    @Override
@@ -450,24 +449,24 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                refCompUuid = Get.identifierService().getUuidPrimordialForNid(referencedComponentNid);
            }
    
-           if (semanticType == semanticType.LOGIC_GRAPH) {
+           if (semanticType == VersionType.LOGIC_GRAPH) {
               setPrimordialUuid(UuidFactory.getUuidForLogicGraphSememe(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
-           } else if (semanticType == semanticType.MEMBER) {
+           } else if (semanticType == VersionType.MEMBER) {
               setPrimordialUuid(UuidFactory.getUuidForMemberSememe(namespace, assemblageUuid, refCompUuid, consumer));
-           } else if (semanticType == semanticType.DYNAMIC) {
+           } else if (semanticType == VersionType.DYNAMIC) {
               setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid, 
                  (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>)parameters[0]).get() : null), consumer));
-           } else if (semanticType == semanticType.COMPONENT_NID) {
+           } else if (semanticType == VersionType.COMPONENT_NID) {
                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]);
                setPrimordialUuid(UuidFactory.getUuidForComponentNidSememe(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
-           } else if (semanticType == semanticType.DESCRIPTION) {
+           } else if (semanticType == VersionType.DESCRIPTION) {
               setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, refCompUuid, 
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
                                         (String) parameters[3],
                                         consumer));
-           } else if (semanticType == semanticType.STRING) {
+           } else if (semanticType == VersionType.STRING) {
               setPrimordialUuid(UuidFactory.getUuidForStringSememe(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
            }
        }
