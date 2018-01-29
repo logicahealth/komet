@@ -120,8 +120,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to concept assemblage
-            int moduleNid = identifierService.getNidForUuids(moduleUuid);
-            int legacyDefStatusNid = identifierService.getNidForUuids(legacyDefStatus);
+            int moduleNid = identifierService.assignNid(moduleUuid);
+            int legacyDefStatusNid = identifierService.assignNid(legacyDefStatus);
             
             ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
             index(conceptToWrite);
