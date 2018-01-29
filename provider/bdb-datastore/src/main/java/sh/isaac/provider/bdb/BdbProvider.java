@@ -95,6 +95,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -196,7 +197,7 @@ public class BdbProvider
 
       if (assemblageForNid == Integer.MAX_VALUE) {
          ModelGet.identifierService()
-                 .setupNid(chronology.getNid(), assemblageNid, objectType);
+                 .setupNid(chronology.getNid(), assemblageNid, objectType, chronology.getVersionType());
 
          if (chronology instanceof SemanticChronologyImpl) {
             SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
@@ -571,7 +572,7 @@ public class BdbProvider
    }
 
    @Override
-   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap() {
+   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap() {
       Database      database = getNoDupDatabase(MISC_MAP);
       DatabaseEntry key      = new DatabaseEntry();
 
@@ -884,5 +885,22 @@ public class BdbProvider
          }
       }
    }
+	@Override
+	public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getAssemblageMemoryInUse(int assemblageNid) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getAssemblageSizeOnDisk(int assemblageNid) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
 
