@@ -81,6 +81,7 @@ import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 
@@ -137,6 +138,10 @@ public class MainApp
 
         
         LookupService.startupIsaac();
+        //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
+        //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
+        //be configured at the assemblage level.
+        LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
 
         if (Get.metadataService()
                 .wasMetadataImported()) {

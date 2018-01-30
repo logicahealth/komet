@@ -33,6 +33,7 @@ import sh.isaac.api.classifier.ClassifierResults;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.DBLocator;
 import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
@@ -96,6 +97,10 @@ public class SolorMojo extends AbstractMojo {
                     .setDataStoreFolderPath(this.dataStoreLocation.toPath());
             getLog().info("  Setup AppContext, data store location = " + this.dataStoreLocation.getCanonicalPath());
             LookupService.startupIsaac();
+            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
+            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
+            //be configured at the assemblage level.
+            LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
             Rf2DirectImporter importer = new Rf2DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             importer.run();
