@@ -70,6 +70,9 @@ import org.apache.logging.log4j.Logger;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -79,7 +82,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -168,9 +170,9 @@ public class Frills
          implements DynamicColumnUtility {
    private static final Logger LOG = LogManager.getLogger(Frills.class);
 
-   private static final LruCache<Integer, Boolean> IS_ASSOCIATION_CLASS = new LruCache<>(50);
-   private static final LruCache<Integer, Boolean> IS_MAPPING_CLASS = new LruCache<>(50);
-   private static final LruCache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = new LruCache<>(50);
+   private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Boolean> IS_MAPPING_CLASS = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
 
 
    /**
@@ -519,18 +521,11 @@ public class Frills
     * @return true, if the concept is properly defined as a semantic which represents an association.  See {@link DynamicConstants#DYNAMIC_ASSOCIATION}
     */
    public static boolean definesAssociation(int conceptNid) {
-      if (IS_ASSOCIATION_CLASS.containsKey(conceptNid)) {
-         return IS_ASSOCIATION_CLASS.get(conceptNid);
-      }
-
-      final boolean temp = Get.assemblageService()
-                              .getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
-                                  DynamicConstants.get().DYNAMIC_ASSOCIATION
-                                        .getNid())
-                              .anyMatch(semantic -> true);
-
-      IS_ASSOCIATION_CLASS.put(conceptNid, temp);
-      return temp;
+      return IS_ASSOCIATION_CLASS.get(conceptNid, nid -> {
+         return Get.assemblageService()
+               .getSemanticChronologyStreamForComponentFromAssemblage(nid, DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid())
+               .anyMatch(semantic -> true);
+      });
    }
    
    /**
@@ -579,19 +574,12 @@ public class Frills
     * @return true, if successful
     */
    public static boolean definesMapping(int conceptNid) {
-      if (IS_MAPPING_CLASS.containsKey(conceptNid)) {
-         return IS_MAPPING_CLASS.get(conceptNid);
-      }
 
-      final boolean temp = Get.assemblageService()
-                              .getSemanticChronologyStreamForComponentFromAssemblage(
-                                  conceptNid,
-                                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE
-                                        .getNid())
-                              .anyMatch(semantic -> true);
-
-      IS_MAPPING_CLASS.put(conceptNid, temp);
-      return temp;
+      return IS_MAPPING_CLASS.get(conceptNid, nid -> {
+         return Get.assemblageService()
+               .getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid())
+               .anyMatch(semantic -> true);
+      });
    }
    
    /**
@@ -2199,16 +2187,14 @@ public class Frills
       }
 
       for (int moduleNid : modules) {
-         if (MODULE_TO_TERM_TYPE_CACHE.containsKey(moduleNid)) {
-            terminologyTypes.add(MODULE_TO_TERM_TYPE_CACHE.get(moduleNid));
-         } else {
-            if (Get.taxonomyService().wasEverKindOf(moduleNid, MetaData.MODULE____SOLOR.getNid())) {
-               Integer termTypeConcept = findTermTypeConcept(moduleNid, coord);
-               if (termTypeConcept != null) {
-                  terminologyTypes.add(termTypeConcept);
-                  MODULE_TO_TERM_TYPE_CACHE.put(moduleNid, termTypeConcept);
-               }
+         Integer temp = (MODULE_TO_TERM_TYPE_CACHE.get(moduleNid, mNid -> {
+            if (Get.taxonomyService().wasEverKindOf(mNid, MetaData.MODULE____SOLOR.getNid())) {
+               return findTermTypeConcept(moduleNid, coord);
             }
+            return null;
+         }));
+         if (temp != null){
+            terminologyTypes.add(temp);
          }
       }
       return terminologyTypes;

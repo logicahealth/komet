@@ -45,8 +45,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -54,6 +52,9 @@ import java.util.concurrent.locks.ReentrantLock;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
@@ -132,7 +133,7 @@ public class UuidIntMapMap
     /**
      * The nid to primoridial cache.
      */
-    private Map<Integer, UUID[]> nidToPrimoridialCache = null;
+    private Cache<Integer, UUID[]> nidToPrimoridialCache = null;
 
     /**
      * The lock.
@@ -160,7 +161,9 @@ public class UuidIntMapMap
         }
 
         if (NID_TO_UUID_CACHE_SIZE > 0) {
-            this.nidToPrimoridialCache = Collections.synchronizedMap(new LruCache<>(NID_TO_UUID_CACHE_SIZE));
+            this.nidToPrimoridialCache = Caffeine.newBuilder()
+                   .maximumSize(NID_TO_UUID_CACHE_SIZE)
+                   .build();
         }
         
         File params = new File(folder, "map.params");
@@ -187,7 +190,7 @@ public class UuidIntMapMap
      */
     public boolean cacheContainsNid(int nid) {
         if (this.nidToPrimoridialCache != null) {
-            return this.nidToPrimoridialCache.containsKey(nid);
+            return this.nidToPrimoridialCache.getIfPresent(nid) != null;
         }
 
         return false;
@@ -373,7 +376,7 @@ public class UuidIntMapMap
      */
     private void updateCache(int nid, UUID uuidKey) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] temp = this.nidToPrimoridialCache.get(nid);
+            final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
             UUID[] temp1;
 
             if (temp == null) {
@@ -407,7 +410,7 @@ public class UuidIntMapMap
      */
     public UUID[] getKeysForValue(int nid) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] cacheHit = this.nidToPrimoridialCache.get(nid);
+            final UUID[] cacheHit = this.nidToPrimoridialCache.getIfPresent(nid);
 
             if ((cacheHit != null) && (cacheHit.length > 0)) {
                 return cacheHit;

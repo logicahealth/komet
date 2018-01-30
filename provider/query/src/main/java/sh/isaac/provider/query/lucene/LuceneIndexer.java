@@ -108,6 +108,9 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -115,7 +118,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -167,7 +169,7 @@ public abstract class LuceneIndexer
    private static final String FIELD_INDEXED_PATH_NID = "_path_content_";
    private static final String FIELD_INDEXED_AUTHOR_NID = "_author_content_";
    
-   private final Map<Integer, ScoreDoc> lastDocCache = Collections.synchronizedMap(new LruCache<>(100));
+   private final Cache<Integer, ScoreDoc> lastDocCache = Caffeine.newBuilder().maximumSize(100).build();
 
    //~--- fields --------------------------------------------------------------
 
@@ -246,7 +248,7 @@ public abstract class LuceneIndexer
    private final void clearIndex() {
       try {
          this.indexWriter.deleteAll();
-         this.lastDocCache.clear();
+         this.lastDocCache.invalidateAll();;
          //When we wipe the index, write out the data store ID that we know will apply to anything we index going forward
          Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
       } catch (IOException ex) {
@@ -745,7 +747,12 @@ public abstract class LuceneIndexer
          {
             lastDoc.set(after);
          }
-         this.lastDocCache.put(hashQueryForCache(q, filter, internalPage, internalSize), after);
+         if (after != null) {
+            this.lastDocCache.put(hashQueryForCache(q, filter, internalPage, internalSize), after);
+         }
+         else {
+            this.lastDocCache.invalidate(hashQueryForCache(q, filter, internalPage, internalSize));
+         }
          return results;
 
       } catch (IOException e) {
@@ -786,7 +793,7 @@ public abstract class LuceneIndexer
       }
       else
       {
-         ScoreDoc lastDoc = this.lastDocCache.get(hashQueryForCache(q, filter, (pageNum - 1), sizeLimit));
+         ScoreDoc lastDoc = this.lastDocCache.getIfPresent(hashQueryForCache(q, filter, (pageNum - 1), sizeLimit));
          if (lastDoc != null)
          {
             LOG.debug("Cache hit for last doc");
@@ -863,7 +870,7 @@ public abstract class LuceneIndexer
                               int chronicleNid) {
       if (!this.enabled) {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
-         return null;
+         return UNINDEXED_FUTURE;
       }
 
       if (indexChronicle.getAsBoolean()) {
@@ -1077,7 +1084,7 @@ public abstract class LuceneIndexer
          throw new RuntimeException(ex);
       }
       this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
-      this.lastDocCache.clear();
+      this.lastDocCache.invalidateAll();
       clearIndexedStatistics();
       this.dbBuildMode = null;
       

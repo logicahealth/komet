@@ -52,11 +52,13 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -85,8 +87,8 @@ public class DynamicUsageDescriptionImpl
    protected static final Logger logger = Logger.getLogger(DynamicUsageDescription.class.getName());
 
    /** The cache. */
-   private static LruCache<Integer, DynamicUsageDescriptionImpl> cache =
-      new LruCache<Integer, DynamicUsageDescriptionImpl>(25);
+   private static Cache<Integer, DynamicUsageDescriptionImpl> cache =
+         Caffeine.newBuilder().maximumSize(25).build();
 
    //~--- fields --------------------------------------------------------------
 
@@ -496,7 +498,7 @@ public class DynamicUsageDescriptionImpl
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
       // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic element.  Perhaps
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
-      DynamicUsageDescriptionImpl temp     = cache.get(assemblageNid);
+      DynamicUsageDescriptionImpl temp     = cache.getIfPresent(assemblageNid);
 
       if (temp == null) {
          logger.log(Level.FINEST, "Cache miss on DynamicSememeUsageDescription Cache");
