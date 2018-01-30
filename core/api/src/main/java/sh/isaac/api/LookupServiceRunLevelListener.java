@@ -69,9 +69,6 @@ public class LookupServiceRunLevelListener implements RunLevelListener{
       LOG.info("RunLevel change was cancelled?  Current Job: {} levelAchieved: {}", currentJob, levelAchieved);
    }
 
-   //TODO [KEC] it would appear that when moving down levels, HK2 doesn't throw exceptions.. it eats them.
-   //We should decide if we should pick up the exception this way, and throw it as part of our level change, 
-   //Or, just log and let it go, since we are shutting down.
    @Override
    public void onError(RunLevelFuture currentJob, ErrorInformation errorInformation) {
       LOG.error("Error during Runlevel change - currentJob: {} Failed Service: {}", currentJob, 
