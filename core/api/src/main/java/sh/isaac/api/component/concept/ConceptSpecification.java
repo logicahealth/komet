@@ -94,5 +94,10 @@ public interface ConceptSpecification
     * @return a text description for the specified concept.
     */
    Optional<String> getRegularName();
-}
 
+   /**
+    * If the implementation of conceptSpecification caches any data that may become invalid with a stop/start cycle
+    * (especially with static storage) it should override this method, and clear the caches as appropriate.
+    */
+   default void clearCache() {};
+}

@@ -65,6 +65,7 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
@@ -87,7 +88,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
  */
 @Service
 @Singleton
-public class DynamicConstants implements ModuleProvidedConstants {
+public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    /** The cache. */
    private static DynamicConstants cache;
 
@@ -440,6 +441,12 @@ public class DynamicConstants implements ModuleProvidedConstants {
    private DynamicConstants() {
       // making this class impossible to construct outside of HK2
    }
+   
+   @Override
+   public void reset() {
+      cache = null;
+   }
+
 
    // ~--- get methods ---------------------------------------------------------
 

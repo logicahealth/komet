@@ -88,11 +88,11 @@ public class UuidIntMapMap
 
     /**
      * The nid to uuid cache size.
+     * Loader utility code sets this to a much larger value, for certain loader patterns as there is no alternate cache 
+     * to get from nid back to UUID  - this prevents it from doing table scans.
      */
-    public static int NID_TO_UUID_CACHE_SIZE = 1000;  // defaults to something large enough to keep most metadata mappings in cache
+    public static int NID_TO_UUID_CACHE_SIZE = 0;  // not typically needed at runtime with a complete DB.
 
-    // Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
-    // when the data isn't being written to the DB.
     /**
      * The Constant DEFAULT_MAP_SIZE.
      */

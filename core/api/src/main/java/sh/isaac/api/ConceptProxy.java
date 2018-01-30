@@ -77,6 +77,8 @@ public class ConceptProxy
     * The regular name for this object.
     */
    private Optional<String> regularName = null;  //leave null, so we know if we have done a lookup or not
+   
+   private int cachedNid = 0;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -242,16 +244,25 @@ public class ConceptProxy
     */
    @Override
    public int getNid() throws NoSuchElementException {
-      if (cachedNid.get() == 0) {
+      if (cachedNid == 0) {
          try {
-          cachedNid.set(Get.identifierService().getNidForUuids(getPrimordialUuid()));
+          cachedNid = Get.identifierService().getNidForUuids(getPrimordialUuid());
          }
          catch (NoSuchElementException e) {
             //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
-            cachedNid.set(Get.identifierService().assignNid(getUuids()));
+            cachedNid = Get.identifierService().assignNid(getUuids());
          }
       }
-      return cachedNid.get();
+      return cachedNid;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearCache() {
+      cachedNid = 0;
+      ConceptSpecification.super.clearCache();
    }
 
    /**

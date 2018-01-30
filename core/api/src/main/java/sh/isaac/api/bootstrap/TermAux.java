@@ -44,10 +44,16 @@ import java.util.ArrayList;
 
 import java.util.UUID;
 
+import javax.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.jvnet.hk2.annotations.Service;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -63,7 +69,10 @@ import sh.isaac.api.util.UuidT5Generator;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TermAux {
+
+@Service
+@Singleton
+public class TermAux implements IsaacCache {
    // J-
    public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
    public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
@@ -478,6 +487,14 @@ public class TermAux {
    public static void main(String[] args) {
       for (int i = 0; i < 19; i++) {
          System.out.println(UuidT5Generator.get(UUID.randomUUID().toString()));
+      }
+   }
+
+   @Override
+   public void reset() {
+      LogManager.getLogger().info("Clearing cached nids in static metadata from TermAux");
+      for (ConceptSpecification cs : getAllSpecs()) {
+         cs.clearCache();
       }
    }
 }

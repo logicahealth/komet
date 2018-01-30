@@ -47,6 +47,7 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -78,7 +79,7 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
  */
 @Service
 @Singleton
-public class IsaacMappingConstants implements ModuleProvidedConstants {
+public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCache {
    
    /** The cache. */
    private static IsaacMappingConstants cache;
@@ -102,6 +103,11 @@ public class IsaacMappingConstants implements ModuleProvidedConstants {
       return cache;
    }
    
+   @Override
+   public void reset() {
+      cache = null;
+   }
+
    // This is just used as salt for generating other UUIDs
    public final MetadataConceptConstant MAPPING_NAMESPACE = new MetadataConceptConstant("mapping namespace", 
          UUID.fromString("9b93f811-7b66-5024-bebf-6a7019743e88"),
