@@ -870,7 +870,7 @@ public abstract class LuceneIndexer
                               int chronicleNid) {
       if (!this.enabled) {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
-         return UNINDEXED_FUTURE;
+         return null;
       }
 
       if (indexChronicle.getAsBoolean()) {
