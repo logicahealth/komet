@@ -295,6 +295,20 @@ public abstract class LuceneIndexer
    public final CompletableFuture<Long> index(Chronology chronicle) {
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public final long indexNow(Chronology chronicle) {
+      if (this.enabled && indexChronicle(chronicle)) {
+         return new AddDocument(chronicle).get();
+      }
+      else {
+         releaseLatch(chronicle.getNid(), Long.MIN_VALUE);
+      }
+      return Long.MIN_VALUE;
+   }
 
    /**
     * {@inheritDoc}
@@ -551,51 +565,51 @@ public abstract class LuceneIndexer
    protected abstract boolean indexChronicle(Chronology chronicle);
    
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchResult> query(String query) {
-		return query(query, false, null, null, null, null, null, null);
-	}
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> query(String query) {
+      return query(query, false, null, null, null, null, null, null);
+   }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchResult> query(String query,
-			Integer sizeLimit) {
-		return query(query, false, null, null, null, null, sizeLimit, null);
-	}
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> query(String query,
+         Integer sizeLimit) {
+      return query(query, false, null, null, null, null, sizeLimit, null);
+   }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchResult> query(String query,
-			int[] assemblageConcept,
-			AmpRestriction amp,
-			Integer pageNum,
-			Integer sizeLimit,
-			Long targetGeneration) {
-		return query(query, false, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
-	}
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> query(String query,
+         int[] assemblageConcept,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      return query(query, false, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
+   }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SearchResult> query(String query,
-			boolean prefixSearch,
-			int[] assemblageConcept,
-			AmpRestriction amp,
-			Integer pageNum,
-			Integer sizeLimit,
-			Long targetGeneration) {
-		return query(query, prefixSearch, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
-	}
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> query(String query,
+         boolean prefixSearch,
+         int[] assemblageConcept,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      return query(query, prefixSearch, assemblageConcept, null, amp, pageNum, sizeLimit, targetGeneration);
+   }
 
-	/**
+   /**
     * Release latch.
     *
     * @param latchNid the latch nid

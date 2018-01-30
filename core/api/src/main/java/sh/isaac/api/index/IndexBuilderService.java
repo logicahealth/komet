@@ -93,10 +93,15 @@ public interface IndexBuilderService
 
    /**
     * Index the Chronology in a manner appropriate to the
-    * indexer implementation. The implementation is responsible for 
+    * indexer implementation in a background thread. 
+    * 
+    * This method returns almost immediately.
+    * 
+    * The implementation is responsible for 
     * determining if the component is appropriate for indexing.
     * 
-    * The implementation must not perform lengthy operations on this thread.
+    * The implementation must not perform lengthy operations on the thread calling the index method, 
+    * rather, it should put all long work into the thread that will return the result to the CompleteableFuture.
     *
     * @param chronicle the chronicle
     * @return a {@code CompletableFuture<Long>} for the index generation to which this chronicle is attached.  
@@ -106,6 +111,18 @@ public interface IndexBuilderService
     * a search where the chronicle's results must be included.
     */
    CompletableFuture<Long> index(Chronology chronicle);
+   
+   /**
+    * Index the Chronology in a maner appropriate to the indexer implementation.  Unlike {@link #index(Chronology)}, this 
+    * operation occurs on the calling thread, and does not return until the index operation is complete.
+    * 
+    * @param chronicle
+    * @return the index generation to which this chronicle is attached.  If this chronicle is not indexed by this indexer, 
+    * it returns{@code Long.MIN_VALUE}.
+    * The generation can be used with searchers to make sure that the component's indexing is complete prior to performing
+    * a search where the chronicle's results must be included.
+    */
+   long indexNow(Chronology chronicle);
 
    /**
     * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.
