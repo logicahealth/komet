@@ -781,7 +781,7 @@ public class Get
     *
     * Cause all index generators implementing the {@link IndexBuilderService} to first
     * <code>clearIndex()</code> then iterate over all semanticChronologies in the database
-    * and pass those chronicles to {@link IndexBuilderService#index(sh.isaac.api.chronicle.ObjectChronology)}
+    * and pass those chronicles to {@link IndexBuilderService#index(sh.isaac.api.chronicle.Chronology)}
     * and when complete, to call <code>commitWriter()</code>.
     * {@link IndexBuilderService} services will be discovered using the HK2 dependency injection framework.
     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and

@@ -105,7 +105,7 @@ public class AssociationUtilities
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
       StampCoordinate localStamp = stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp;
-      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, getAssociationConceptSequences())
+      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, getAssociationConceptNids())
          .forEach(associationC -> 
             {
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
@@ -142,7 +142,7 @@ public class AssociationUtilities
       {
          uuid = Get.identifierService().getUuidPrimordialForNid(componentNid);
 
-         for (Integer associationTypeSequenece : getAssociationConceptSequences())
+         for (Integer associationTypeSequenece : getAssociationConceptNids())
          {
             associationTypes.add(associationTypeSequenece);
 //            colIndex.add(findTargetColumnIndex(associationTypeSequenece));
@@ -194,10 +194,10 @@ public class AssociationUtilities
    }
 
    /**
-    * Get a list of all of the concepts that identify a type of association - returning their concept sequence identifier.
+    * Get a list of all of the concepts that identify a type of association - returning their concept nid identifier.
     * @return
     */
-   public static Set<Integer> getAssociationConceptSequences()
+   public static Set<Integer> getAssociationConceptNids()
    {
       HashSet<Integer> result = new HashSet<>();
 
