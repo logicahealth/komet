@@ -483,27 +483,29 @@ public class TaxonomyProvider
             this.tc = tc;
             this.treeTask = treeTask;
 
-            if (Platform.isFxApplicationThread()) {
-                this.treeTask.stateProperty()
-                        .addListener(this::succeeded);
-            } else {
-                Platform.runLater(
-                        () -> {
-                            Task<Tree> theTask = treeTask;
-
-                            if (theTask != null) {
-                                if (!theTask.isDone()) {
-                                    theTask.stateProperty()
-                                            .addListener(this::succeeded);
-                                } else {
-                                    try {
-                                        this.treeSnapshot = treeTask.get();
-                                    } catch (InterruptedException | ExecutionException ex) {
-                                        LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
-                                    }
-                                }
-                            }
-                        });
+            if (!treeTask.isDone()) { 
+               if (Platform.isFxApplicationThread()) {
+                   this.treeTask.stateProperty()
+                           .addListener(this::succeeded);
+               } else {
+                   Platform.runLater(
+                           () -> {
+                               Task<Tree> theTask = treeTask;
+   
+                               if (theTask != null) {
+                                   if (!theTask.isDone()) {
+                                       theTask.stateProperty()
+                                               .addListener(this::succeeded);
+                                   } else {
+                                       try {
+                                           this.treeSnapshot = treeTask.get();
+                                       } catch (InterruptedException | ExecutionException ex) {
+                                           LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
+                                       }
+                                   }
+                               }
+                           });
+               }
             }
 
             if (treeTask.isDone()) {
