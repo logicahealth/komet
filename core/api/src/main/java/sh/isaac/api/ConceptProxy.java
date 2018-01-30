@@ -168,6 +168,9 @@ public class ConceptProxy
     */
    @Override
    public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
       if (obj == null) {
          return false;
       }
@@ -239,13 +242,16 @@ public class ConceptProxy
     */
    @Override
    public int getNid() throws NoSuchElementException {
-      try {
-       return Get.identifierService().getNidForUuids(getPrimordialUuid());
+      if (cachedNid.get() == 0) {
+         try {
+          cachedNid.set(Get.identifierService().getNidForUuids(getPrimordialUuid()));
+         }
+         catch (NoSuchElementException e) {
+            //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
+            cachedNid.set(Get.identifierService().assignNid(getUuids()));
+         }
       }
-      catch (NoSuchElementException e) {
-         //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
-         return Get.identifierService().assignNid(getUuids());
-      }
+      return cachedNid.get();
    }
 
    /**
