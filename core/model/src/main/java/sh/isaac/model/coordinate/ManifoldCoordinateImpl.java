@@ -94,7 +94,7 @@ public class ManifoldCoordinateImpl
    LogicCoordinate logicCoordinate;
 
    /** The uuid. */
-   UUID uuid;
+   UUID uuid = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -121,7 +121,7 @@ public class ManifoldCoordinateImpl
       this.stampCoordinate    = stampCoordinate;
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
-      this.uuid               = UUID.randomUUID();
+      //this.uuid               //lazy load
    }
    
    /**
@@ -237,7 +237,7 @@ public class ManifoldCoordinateImpl
    @Override
    public String toString() {
       return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" +
-             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + this.uuid + '}';
+             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -301,6 +301,9 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public UUID getCoordinateUuid() {
+      if (this.uuid == null) {
+         uuid = UUID.randomUUID();
+      }
       return this.uuid;
    }
 
