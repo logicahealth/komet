@@ -242,11 +242,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
         }
         for (IndexBuilderService indexer : indexers) {
-            try {
-                indexer.index(chronicle).get();
-            } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
-            }
+           indexer.indexNow(chronicle);
         }
 
     }

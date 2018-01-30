@@ -122,11 +122,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
     private void index(Chronology chronicle) {
         for (IndexBuilderService indexer : indexers) {
-            try {
-                indexer.index(chronicle).get();
-            } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
-            }
+           indexer.indexNow(chronicle);
         }
     }
 

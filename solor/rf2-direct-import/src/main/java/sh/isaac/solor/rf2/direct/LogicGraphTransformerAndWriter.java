@@ -129,11 +129,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             this.taxonomyService.updateTaxonomy((SemanticChronology) chronicle);
         }
         for (IndexBuilderService indexer : indexers) {
-            try {
-                indexer.index(chronicle).get();
-            } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
-            }
+           indexer.indexNow(chronicle);
         }
     }
 
