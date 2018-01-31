@@ -197,7 +197,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             completedUnitOfWork();
          }
          if (!noSuchElementList.isEmpty()) {
-            LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList);
+            LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
          }
             return null;
         } finally {

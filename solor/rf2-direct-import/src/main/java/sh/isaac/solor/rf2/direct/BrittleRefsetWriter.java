@@ -153,6 +153,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
          List<String[]> noSuchElementList = new ArrayList<>();
 
+         boolean skippedAny = false;
          for (String[] refsetRecord : refsetRecords) {
              try {
                  UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
@@ -164,6 +165,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                     // if the referenced component not previously imported, may
                     // have been inactive, so don't import. 
                     if (!identifierService.hasUuid(referencedComponentUuid)) {
+                        if (!skippedAny) {
+                            skippedAny = true;
+                            StringBuilder builder = new StringBuilder();
+                            int assemblageNid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
+                            builder.append("Skipping at least one record in: ");
+                            builder.append(Get.conceptDescriptionText(assemblageNid));
+                            builder.append("\n");
+                            builder.append(Arrays.toString(refsetRecord));
+                            LOG.warn(builder.toString());
+                        }
                         continue;
                     }
                  }

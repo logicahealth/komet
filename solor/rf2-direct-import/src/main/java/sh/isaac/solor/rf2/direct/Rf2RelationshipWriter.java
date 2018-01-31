@@ -122,6 +122,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                     continue;
                 }
             }
+            
+
             UUID betterRelUuid = UuidT5Generator.get(
                     relationshipRecord[REL_SCT_ID_INDEX] +
                     relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX] +
@@ -152,6 +154,14 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
             SemanticChronologyImpl relationshipToWrite
                     = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid, 
                             relAssemblageNid, referencedConceptNid);
+            // Add in original uuids for AMT content...
+            // 900062011000036108 = AU module
+            if (relationshipRecord[MODULE_SCTID_INDEX].equals("900062011000036108")) {
+                UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
+                identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
+                relationshipToWrite.addAdditionalUuids(relUuid);
+            }
+            
             int relStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
             Rf2RelationshipImpl relVersion = relationshipToWrite.createMutableVersion(relStamp);
             relVersion.setCharacteristicNid(relCharacteristicNid);
