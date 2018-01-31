@@ -19,12 +19,14 @@ package sh.isaac.solor.rf2.direct;
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import org.apache.mahout.math.Arrays;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -142,112 +144,128 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          throw e;
       }
    }
-
+   
    @Override
    protected Void call() throws Exception {
       try {
 
          int authorNid = TermAux.USER.getNid();
          int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
+         List<String[]> noSuchElementList = new ArrayList<>();
 
          for (String[] refsetRecord : refsetRecords) {
-            final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
-                continue;
-            }
-            if (refsetsToIgnore.contains(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX])) {
-                continue;
-            }
-            
-            UUID   elementUuid       = UUID.fromString(refsetRecord[REFSET_MEMBER_UUID]);
-            int   moduleNid          = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
-            int   assemblageNid      = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-            int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
-            TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
-            long time = accessor.getLong(INSTANT_SECONDS) * 1000;
-            int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
-            
-            SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                                        this.importSpecification.streamType.getSemanticVersionType(),
-                                                              elementUuid,
-                                                              assemblageNid,
-                                                              referencedComponentNid);
-            
-            switch (importSpecification.streamType) {
-               case NID1_NID2_INT3_REFSET:
-                  addVersionNID1_NID2_INT3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_INT2_REFSET:
-                  addVersionNID1_INT2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_INT2_STR3_STR4_NID5_NID6_REFSET:
-                  addVersionNID1_INT2_STR3_STR4_NID5_NID6_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_REFSET:
-                  addVersionNID1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case STR1_STR2_NID3_NID4_REFSET:
-                  addVersionSTR1_STR2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case STR1_STR2_REFSET:
-                  addVersionSTR1_STR2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET:
-                  addVersionSTR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case MEMBER_REFSET:
-                  addVersionMEMBER_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET:
-                  addVersionINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case STR1_REFSET:
-                  addVersionSTR1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_NID2_REFSET:
-                  addVersionNID1_NID2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_NID2_STR3_REFSET:
-                  addVersionNID1_NID2_STR3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case NID1_STR2_REFSET:
-                  addVersionNID1_STR2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case INT1_REFSET:
-                  addVersionINT1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-
-               case STR1_NID2_NID3_NID4_REFSET:
-                  addVersionSTR1_NID2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-                   
-               case STR1_STR2_NID3_NID4_NID5_REFSET:
-                  addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
-                  break;
-                   
-               default:
-                  throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
-               
-            }
-
-            index(refsetMemberToWrite);
-            assemblageService.writeSemanticChronology(refsetMemberToWrite);
+             try {
+                 UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
+                 if (importType == ImportType.ACTIVE_ONLY) {
+                    if (state == Status.INACTIVE) {
+                        continue;
+                    }
+                    // if the referenced component not previously imported, may
+                    // have been inactive, so don't import. 
+                    if (!identifierService.hasUuid(referencedComponentUuid)) {
+                        continue;
+                    }
+                 }
+                 if (refsetsToIgnore.contains(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX])) {
+                     continue;
+                 }
+                 
+                 
+                 UUID elementUuid = UUID.fromString(refsetRecord[REFSET_MEMBER_UUID]);
+                 int moduleNid = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
+                 int assemblageNid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
+                 int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
+                 long time = accessor.getLong(INSTANT_SECONDS) * 1000;
+                 int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+                 
+                 SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
+                         this.importSpecification.streamType.getSemanticVersionType(),
+                         elementUuid,
+                         assemblageNid,
+                         referencedComponentNid);
+                 
+                 switch (importSpecification.streamType) {
+                     case NID1_NID2_INT3_REFSET:
+                         addVersionNID1_NID2_INT3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_INT2_REFSET:
+                         addVersionNID1_INT2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_INT2_STR3_STR4_NID5_NID6_REFSET:
+                         addVersionNID1_INT2_STR3_STR4_NID5_NID6_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_REFSET:
+                         addVersionNID1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_STR2_NID3_NID4_REFSET:
+                         addVersionSTR1_STR2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_STR2_REFSET:
+                         addVersionSTR1_STR2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET:
+                         addVersionSTR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case MEMBER_REFSET:
+                         addVersionMEMBER_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET:
+                         addVersionINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_REFSET:
+                         addVersionSTR1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_NID2_REFSET:
+                         addVersionNID1_NID2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_NID2_STR3_REFSET:
+                         addVersionNID1_NID2_STR3_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case NID1_STR2_REFSET:
+                         addVersionNID1_STR2_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case INT1_REFSET:
+                         addVersionINT1_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_NID2_NID3_NID4_REFSET:
+                         addVersionSTR1_NID2_NID3_NID4_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     case STR1_STR2_NID3_NID4_NID5_REFSET:
+                         addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(refsetMemberToWrite, versionStamp, refsetRecord);
+                         break;
+                     
+                     default:
+                         throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
+                     
+                 }
+                 
+                 index(refsetMemberToWrite);
+                 assemblageService.writeSemanticChronology(refsetMemberToWrite);
+             } catch (NoSuchElementException ex) {
+                 noSuchElementList.add(refsetRecord);
+             }
             completedUnitOfWork();
          }
-
+         if (!noSuchElementList.isEmpty()) {
+            LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList);
+         }
          return null;
       } finally {
          this.writeSemaphore.release();
