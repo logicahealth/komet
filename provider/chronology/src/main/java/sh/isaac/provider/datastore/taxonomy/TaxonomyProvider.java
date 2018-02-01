@@ -279,6 +279,10 @@ public class TaxonomyProvider
     private void stopMe() {
         LOG.info("Stopping TaxonomyProvider");
         try {
+            // ensure all pending operations have completed. 
+            for (Task<?> updateTask: this.pendingUpdateTasks) {
+                updateTask.get();
+            }
             this.sync().get();
             this.semanticNidsForUnhandledChanges.clear();
             this.pendingUpdateTasks.clear();
@@ -288,7 +292,7 @@ public class TaxonomyProvider
             this.store = null;
             Get.commitService().removeChangeListener(this);
         } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
+            LOG.error("Exception during service stop. ", ex);
         }
         // make sure updates are done prior to allowing other services to stop.
         this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);

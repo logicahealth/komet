@@ -16,11 +16,14 @@
  */
 package sh.isaac.solor.rf2.direct;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import org.apache.mahout.math.Arrays;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -136,58 +139,66 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
 
-            for (String[] loincRecord : loincRecords) {
+         List<String[]> noSuchElementList = new ArrayList<>();
 
-                if (loincRecord[STATUS].equals("ACTIVE")) {
+         for (String[] loincRecord : loincRecords) {
+                try {
+                    
+                    if (loincRecord[STATUS].equals("ACTIVE")) {
+                        
+                        int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
+                        // See if the concept is created (from the SNOMED/LOINC expressions. 
+                        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
+                        int conceptNid = identifierService.getNidForUuids(conceptUuid);
+                        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
+                        if (optionalConcept.isPresent()) {
+                            // only import the ones with expressions already imported...
+                            // make 2 LOINC descriptions
+                            String longCommonName = loincRecord[LONG_COMMON_NAME];
+                            if (longCommonName == null || longCommonName.isEmpty()) {
+                                longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
+                            }
+                            
+                            addDescription(loincRecord, longCommonName,
+                                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+                            
+                            String shortName = loincRecord[SHORTNAME];
+                            if (shortName == null || shortName.isEmpty()) {
+                                shortName = longCommonName + " with no sn";
+                            }
+                            
+                            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
 
-                    int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
-                    // See if the concept is created (from the SNOMED/LOINC expressions. 
-                    UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
-                    int conceptNid = identifierService.getNidForUuids(conceptUuid);
-                    Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
-                    if (optionalConcept.isPresent()) {
-                        // only import the ones with expressions already imported...
-                        // make 2 LOINC descriptions
-                        String longCommonName = loincRecord[LONG_COMMON_NAME];
-                        if (longCommonName == null || longCommonName.isEmpty()) {
-                            longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
+                            // make a LOINC semantic
+                            UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
+                                    loincRecord[LOINC_NUM]);
+                            
+                            SemanticChronologyImpl recordToWrite
+                                    = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
+                                            TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                            LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
+                            recordVersion.setComponent(loincRecord[COMPONENT]);
+                            recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
+                            recordVersion.setLoincStatus(loincRecord[STATUS]);
+                            recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
+                            recordVersion.setMethodType(loincRecord[METHOD_TYP]);
+                            recordVersion.setProperty(loincRecord[PROPERTY]);
+                            recordVersion.setScaleType(loincRecord[SCALE_TYP]);
+                            recordVersion.setShortName(loincRecord[SHORTNAME]);
+                            recordVersion.setSystem(loincRecord[SYSTEM]);
+                            recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
+                            assemblageService.writeSemanticChronology(recordToWrite);
                         }
-
-                        addDescription(loincRecord, longCommonName,
-                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
-
-                        String shortName = loincRecord[SHORTNAME];
-                        if (shortName == null || shortName.isEmpty()) {
-                            shortName = longCommonName + " with no sn";
-                        }
-
-                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
-
-                        // make a LOINC semantic
-                        UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
-                                loincRecord[LOINC_NUM]);
-
-                        SemanticChronologyImpl recordToWrite
-                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid, 
-                                        TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                        LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
-                        recordVersion.setComponent(loincRecord[COMPONENT]);
-                        recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
-                        recordVersion.setLoincStatus(loincRecord[STATUS]);
-                        recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
-                        recordVersion.setMethodType(loincRecord[METHOD_TYP]);
-                        recordVersion.setProperty(loincRecord[PROPERTY]);
-                        recordVersion.setScaleType(loincRecord[SCALE_TYP]);
-                        recordVersion.setShortName(loincRecord[SHORTNAME]);
-                        recordVersion.setSystem(loincRecord[SYSTEM]);
-                        recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
-                        assemblageService.writeSemanticChronology(recordToWrite);
+                        
                     }
-
-                }
-                completedUnitOfWork();
-            }
-
+             } catch (NoSuchElementException ex) {
+                 noSuchElementList.add(loincRecord);
+             }
+            completedUnitOfWork();
+         }
+         if (!noSuchElementList.isEmpty()) {
+            LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
+         }
             return null;
         } finally {
             this.writeSemaphore.release();
