@@ -202,7 +202,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the identified component builder
     */
    @Override
-   public IdentifiedComponentBuilder<T> setState(Status state) {
+   public IdentifiedComponentBuilder<T> setStatus(Status state) {
       this.state = state;
       return this;
    }

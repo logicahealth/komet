@@ -93,7 +93,7 @@ public interface ConceptBuilderService {
     * supplied semantic tag.
     *   - If the specified FQN does not contain a semantic tag, no preferred term will be created.
     * @param logicalExpression - Optional
-    * @param assemblageId the assemblaged to create the conept in
+    * @param assemblageId the assemblage id to create the concept in
     * @return the default concept builder
     */
    ConceptBuilder getDefaultConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, int assemblageId);

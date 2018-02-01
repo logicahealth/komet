@@ -176,7 +176,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @param state the state
     * @return the builder for chaining of operations in a fluent pattern.
     */
-   IdentifiedComponentBuilder<T> setState(Status state);
+   IdentifiedComponentBuilder<T> setStatus(Status state);
    
    
    /**

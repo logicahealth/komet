@@ -231,7 +231,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
       final OptionalWaitTask<SemanticChronology> newDescription =
-         (OptionalWaitTask<SemanticChronology>) descBuilder.setState(this.state)
+         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state)
                                                                                     .build(editCoordinate,
                                                                                           changeCheckerMode,
                                                                                           builtObjects);

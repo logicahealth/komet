@@ -39,6 +39,7 @@ package sh.isaac.api.index;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 /**
  * A class for passing Author, Module and/or Path restrictions into lucene queries.
@@ -94,6 +95,19 @@ public class AmpRestriction {
       ar.authors = NidSet.EMPTY;
       ar.modules = mc.getModuleNids();
       ar.paths = NidSet.of(mc.getStampCoordinate().getStampPosition().getStampPathNid());
+      return ar;
+   }
+   
+   /**
+    * Build an AmpRestriction by extracting the modules and Path from the manifold coordinate
+    * @param sc
+    * @return
+    */
+   public static AmpRestriction restrict(StampCoordinate sc) {
+      AmpRestriction ar = new AmpRestriction();
+      ar.authors = NidSet.EMPTY;
+      ar.modules = sc.getModuleNids();
+      ar.paths = NidSet.of(sc.getStampPosition().getStampPathNid());
       return ar;
    }
 

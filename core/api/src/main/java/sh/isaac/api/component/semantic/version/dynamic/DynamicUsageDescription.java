@@ -123,9 +123,9 @@ public interface DynamicUsageDescription {
    public String getDynamicUsageDescription();
 
    /**
-    * Gets the dynamic usage descriptor sequence.
+    * Gets the dynamic usage descriptor nid.
     *
-    * @return The sequence of the concept that the rest of the attributes of this type were read from.
+    * @return The nid of the concept that the rest of the attributes of this type were read from.
     */
    public int getDynamicUsageDescriptorNid();
 

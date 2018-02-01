@@ -104,6 +104,7 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -627,6 +628,19 @@ public class Frills
    public static Optional<String> getDescription(UUID conceptUUID, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) 
    {
       return getDescription(Get.identifierService().getNidForUuids(conceptUUID), stampCoordinate, languageCoordinate);
+   }
+   
+   /**
+    * Utility method to get the best text value description for a concept, according to the passed in options, 
+    * or the user preferences. 
+    * @param conceptNid - The nid of the concept
+    * @param manifoldCoordinate - optional - if not provided, defaults to system preferences values
+    * @return
+    */
+   public static Optional<String> getDescription(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
+      return getDescription(conceptNid, 
+          manifoldCoordinate == null ? Get.configurationService().getDefaultManifoldCoordinate().getStampCoordinate() : manifoldCoordinate.getStampCoordinate(), 
+          manifoldCoordinate == null ? Get.configurationService().getDefaultManifoldCoordinate().getLanguageCoordinate() : manifoldCoordinate.getLanguageCoordinate());
    }
    
    /**
