@@ -164,11 +164,11 @@
                            <classifier>all</classifier>
                            <file>${project.build.directory}/${project.build.finalName}-ibdf.zip</file>
                         </artifact>
-                        <!--artifact>
+                        <artifact>
                            <type>json.zip</type>
                            <classifier>all</classifier>
                            <file>${project.build.directory}/${project.build.finalName}-json.zip</file>
-                        </artifact-->
+                        </artifact>
                         <artifact>
                            <type>xml.zip</type>
                            <classifier>all</classifier>
@@ -201,7 +201,7 @@
             <configuration>
                <descriptors>
                   <descriptor>src/main/assembly/ibdf.xml</descriptor>
-                  <!--descriptor>src/main/assembly/json.xml</descriptor-->
+                  <descriptor>src/main/assembly/json.xml</descriptor>
                   <descriptor>src/main/assembly/xml-all.xml</descriptor>
                   <descriptor>src/main/assembly/yaml.xml</descriptor>
                </descriptors>
