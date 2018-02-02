@@ -946,7 +946,7 @@ public class CommitProvider
                      }
                   }
                   // Warn or fail if multiple uncommitted versions in passed chronology
-                  if (uncommittedVersions.size() > 0) {
+                  if (uncommittedVersions.size() > 1) {
                      return new AlertObject("Data loss warning",
                            "Found " + uncommittedVersions.size() + " uncommitted versions in concept chronology " + cc.getPrimordialUuid(), AlertType.WARNING,
                            AlertCategory.ADD_UNCOMMITTED);
