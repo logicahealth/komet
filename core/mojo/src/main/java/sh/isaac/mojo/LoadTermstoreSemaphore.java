@@ -135,6 +135,9 @@ public class LoadTermstoreSemaphore
             if (this.ibdfFiles != null) {
                 for (final File f : this.ibdfFiles) {
                     mergedFiles.add(f.getCanonicalFile());
+                    if (f.getName().equals("IsaacMetadataAuxiliary.ibdf")) {
+                        hasMetadata.set(true);
+                    }
                 }
             }
 
