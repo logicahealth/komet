@@ -433,21 +433,20 @@ public class IsaacTaxonomy {
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String preferredName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
-         String constantName = preferredName.toUpperCase();
+         final String regularName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
+         String constantName = regularName.toUpperCase();
          
-         if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
-             throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+         if (regularName.indexOf("(") > 0 || regularName.indexOf(")") > 0) {
+             throw new RuntimeException("The metadata concept '" + regularName + "' contains parens, which is illegal.");
          }
 
-//         constantName = constantName.replace("(", "\u01C1");
-//         constantName = constantName.replace(")", "\u01C1");
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");
          constantName = constantName.replace("+", "_PLUS");
          constantName = constantName.replace("/", "_AND");
          out.append("\n" + constantName + ":\n");
-         out.append("    fqn: " + preferredName + "\n");
+         out.append("    fqn: " + concept.getFullyQualifiedName() + "\n");
+         out.append("    regular: " + regularName + "\n");
          out.append("    uuids:\n");
 
          for (final UUID uuid : concept.getUuidList()) {
