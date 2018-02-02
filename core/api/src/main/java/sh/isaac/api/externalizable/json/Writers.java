@@ -99,10 +99,6 @@ public class Writers {
          output.write(cc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
-         output.write("\"conceptNid\":\"");
-         output.write(cc.getNid() + "");
-         output.write("\",");
-         mainWriter.newLine();
          output.write("\"uuidList\":[");
          mainWriter.tabIn();
 
@@ -144,7 +140,6 @@ public class Writers {
       @Override
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
-         @SuppressWarnings("unchecked")
          final SemanticChronology sc         = (SemanticChronology) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
