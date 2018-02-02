@@ -50,17 +50,20 @@ import java.util.regex.Pattern;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
@@ -76,7 +79,7 @@ import sh.isaac.api.util.NumericUtils;
  * {@link DynamicValidatorType#LESS_THAN_OR_EQUAL}
  * {@link DynamicValidatorType#GREATER_THAN_OR_EQUAL}
  *
- * are one of ( {@link DynamicSememeInteger}, {@link DynamicSememeLong}, {@link DynamicSememeFloat}, {@link DynamicSememeDouble})
+ * are one of ( {@link DynamicInteger}, {@link DynamicLong}, {@link DynamicFloat}, {@link DynamicDouble})
  *
  * {@link DynamicValidatorType#INTERVAL} - Should be a {@link DynamicString} with valid interval notation - such as "[4,6)"
  *
@@ -86,11 +89,11 @@ import sh.isaac.api.util.NumericUtils;
  * And for the following two:
  * {@link DynamicValidatorType#IS_CHILD_OF}
  * {@link DynamicValidatorType#IS_KIND_OF}
- * The validatorDefinitionData should be either an {@link DynamicNid} or {@link DynamicSequence} or a {@link DynamicUUID}.
+ * The validatorDefinitionData should be either an {@link DynamicNid} or a {@link DynamicUUID}.
  *
  * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSememeString>}
- * where position 0 is a string constant parseable by {@link IsaacObjectType#parse(String)}.  Postion 1 is optional, and is only applicable when
- * position 0 is {@link IsaacObjectType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String)}
+ * where position 0 is a string constant parseable by {@link IsaacObjectType#parse(String, boolean)}.  Postion 1 is optional, and is only applicable when
+ * position 0 is {@link IsaacObjectType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String, boolean)}
  *
  * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSememeString>}
  * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicExternalValidator}
@@ -249,18 +252,15 @@ public enum DynamicValidatorType {
     *
     * @param userData the user data
     * @param validatorDefinitionData the validator definition data
-    * @param sc The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    *   {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
-    * @param tc The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    *    {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
+    * @param stampSequence - the stamp where this data will live.  For tests that don't require a stamp to be executed, 
+    * pass -1 - but you will get an exception, if you the validator requires a stamp sequence to be evaluated.
     * @return true, if successful
     * @throws IllegalArgumentException the illegal argument exception
     */
    @SuppressWarnings("unchecked")
    public boolean passesValidator(DynamicData userData,
                                   DynamicData validatorDefinitionData,
-                                  StampCoordinate sc,
-                                  ManifoldCoordinate tc)
+                                  int stampSequence)
             throws IllegalArgumentException {
       if (validatorDefinitionData == null) {
          throw new RuntimeException("The validator definition data is required");
@@ -269,7 +269,7 @@ public enum DynamicValidatorType {
       if (userData instanceof DynamicArray) {
          // If the user data is an array, unwrap, and validate each.
          for (final DynamicData userDataItem: ((DynamicArray<?>) userData).getDataArray()) {
-            if (!passesValidator(userDataItem, validatorDefinitionData, sc, tc)) {
+            if (!passesValidator(userDataItem, validatorDefinitionData, stampSequence)) {
                return false;
             }
          }
@@ -304,7 +304,7 @@ public enum DynamicValidatorType {
                 valName + "'");
          }
 
-         return validator.validate(userData, stringValidatorDefData, sc, tc);
+         return validator.validate(userData, stringValidatorDefData, stampSequence);
       } else if (this == DynamicValidatorType.REGEXP) {
          try {
             if (userData == null) {
@@ -343,18 +343,19 @@ public enum DynamicValidatorType {
             }
 
             if (this == DynamicValidatorType.IS_CHILD_OF) {
-               if (tc == null) {
-                  throw new IllegalArgumentException("A taxonomy coordinate must be provided to evaluate IS_CHILD_OF");
+               if (stampSequence == -1) {
+                  throw new IllegalArgumentException("A valid stamp sequence must be provided to evaluate IS_CHILD_OF");
                }
-
-               return Get.taxonomyService().getSnapshot(tc).isChildOf(childId, parentId);
-            } else {
-               if (tc == null) {
-                  return Get.taxonomyService()
-                            .wasEverKindOf(childId, parentId);
-               } else {
-                  return Get.taxonomyService().getSnapshot(tc).isKindOf(childId, parentId);
-               }
+               
+               return Get.taxonomyService().getStatedLatestSnapshot(
+                     Get.stampService().getPathNidForStamp(stampSequence), 
+                     NidSet.of(Get.stampService().getModuleNidForStamp(stampSequence)),
+                     Status.ACTIVE_ONLY_SET).isChildOf(childId, parentId);
+            } else {  //IS_KIND_OF
+               return Get.taxonomyService().getStatedLatestSnapshot(
+                      Get.stampService().getPathNidForStamp(stampSequence), 
+                      NidSet.of(Get.stampService().getModuleNidForStamp(stampSequence)),
+                      Status.ACTIVE_ONLY_SET).isKindOf(childId, parentId);
             }
          } catch (final IllegalArgumentException e) {
             throw e;
@@ -470,7 +471,7 @@ public enum DynamicValidatorType {
    }
 
    /**
-    * A convenience wrapper of {@link #passesValidator(DynamicSememeDataBI, DynamicSememeDataBI, ViewCoordinate)} that just returns a string - never
+    * A convenience wrapper of {@link #passesValidator(DynamicData, DynamicData, int)} that just returns a string - never
     * throws an error
     *
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
@@ -478,16 +479,14 @@ public enum DynamicValidatorType {
     *
     * @param userData the user data
     * @param validatorDefinitionData the validator definition data
-    * @param sc - The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+    * @param stampSequence - The stamp sequence
     * @return - empty string if valid, an error message otherwise.
     */
    public String passesValidatorStringReturn(DynamicData userData,
          DynamicData validatorDefinitionData,
-         StampCoordinate sc,
-         ManifoldCoordinate tc) {
+         int stampSequence) {
       try {
-         if (passesValidator(userData, validatorDefinitionData, sc, tc)) {
+         if (passesValidator(userData, validatorDefinitionData, stampSequence)) {
             return "";
          } else {
             return "The value does not pass the validator";

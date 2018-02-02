@@ -150,16 +150,14 @@ public interface DynamicUtility {
     * @param dsud the dsud
     * @param data the data
     * @param referencedComponentNid the referenced component nid
-    * @param stampCoordinate - optional - column specific validators may be skipped if this is not provided
-    * @param manifoldCoordinate - optional - column specific validators may be skipped if this is not provided
+    * @param stampSequence the stamp sequence of this data
     * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
    public default void validate(DynamicUsageDescription dsud,
                                 DynamicData[] data,
                                 int referencedComponentNid,
-                                StampCoordinate stampCoordinate,
-                                ManifoldCoordinate manifoldCoordinate)
+                                int stampSequence)
             throws IllegalArgumentException {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
@@ -261,8 +259,7 @@ public interface DynamicUtility {
                         if (!dsci.getValidator()[i]
                                  .passesValidator(data[dataColumn],
                                                   dsci.getValidatorData()[i],
-                                                  stampCoordinate,
-                                                  manifoldCoordinate)) {
+                                                  stampSequence)) {
                            rethrow = true;
                            throw new IllegalArgumentException(
                                "The supplied data for column " + dataColumn +

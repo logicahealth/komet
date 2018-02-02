@@ -39,6 +39,8 @@
 
 package sh.isaac.api;
 
+import java.util.EnumSet;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.function.Supplier;
@@ -48,8 +50,9 @@ import java.util.stream.IntStream;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
-
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
@@ -79,15 +82,15 @@ public interface TaxonomyService
     */
    void updateTaxonomy(SemanticChronology logicGraphChronology);
 
-   /**
-    * Method to determine if a concept was ever a kind of another, without
- knowing a ManifoldCoordinate.
-    *
-    * @param childId a concept sequence or nid for the child concept
-    * @param parentId a concept sequence or nid for the parent concept
-    * @return true if child was ever a kind of the parent.
-    */
-   boolean wasEverKindOf(int childId, int parentId);
+//   /**
+//    * Method to determine if a concept was ever a kind of another, without
+// knowing a ManifoldCoordinate.
+//    *
+//    * @param childId a concept sequence or nid for the child concept
+//    * @param parentId a concept sequence or nid for the parent concept
+//    * @return true if child was ever a kind of the parent.
+//    */
+//   boolean wasEverKindOf(int childId, int parentId);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -107,6 +110,18 @@ public interface TaxonomyService
     * @return the snapshot
     */
    TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
+   
+
+	/**
+	 * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path, 
+	 * modules, and states.  Uses {@link PremiseType#STATED} and a time of MAX_VALUE.  Language is set to the 
+	 * system default.
+	 * @param pathNid
+	 * @param modules
+	 * @param allowedStates
+	 * @return the Snapshot service
+	 */
+	TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates);
    
    /**
     * 

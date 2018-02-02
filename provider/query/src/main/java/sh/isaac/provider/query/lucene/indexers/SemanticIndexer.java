@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
@@ -154,7 +155,7 @@ public class SemanticIndexer
     * {@inheritDoc}
     */
    @Override
-   protected void addFields(Chronology chronicle, Document doc) {
+   protected void addFields(Chronology chronicle, Document doc, Set<Integer> pathNids) {
       final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_NID,

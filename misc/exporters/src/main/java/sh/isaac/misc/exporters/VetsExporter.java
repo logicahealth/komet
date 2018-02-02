@@ -52,21 +52,18 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.TaxonomyService;
+import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -75,9 +72,9 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
@@ -119,7 +116,7 @@ public class VetsExporter {
 
    private StampCoordinate STAMP_COORDINATES = null;
 
-   TaxonomyService ts = Get.taxonomyService();
+   TaxonomySnapshotService tss;
    
    boolean fullExportMode = false;
 
@@ -141,6 +138,8 @@ public class VetsExporter {
 
       STAMP_COORDINATES = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(endDate, MetaData.DEVELOPMENT_PATH____SOLOR.getNid()),
             NidSet.EMPTY, Status.ANY_STATUS_SET);
+      
+      tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, null));
 
       // XML object
       terminology = new Terminology();
@@ -427,7 +426,7 @@ public class VetsExporter {
             });
          }
          
-         if (!ts.wasEverKindOf(concept.getNid(), VHATConstants.VHAT_ROOT_CONCEPT.getNid()))
+         if (!tss.isKindOf(concept.getNid(), VHATConstants.VHAT_ROOT_CONCEPT.getNid()))
          {
             // Needed to ignore all the dynamically created/non-imported concepts
             skippedForNonVHAT.getAndIncrement();
@@ -542,7 +541,7 @@ public class VetsExporter {
       {
          //skip code and vuid properties - they have special handling
          if (sememe.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() && sememe.getAssemblageNid() != MetaData.CODE____SOLOR.getNid()
-               && ts.wasEverKindOf(sememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
+               && tss.isKindOf(sememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
          {
             PropertyType property = buildProperty(sememe, startDate, endDate, constructor);
             if (property != null)
@@ -844,7 +843,7 @@ public class VetsExporter {
                      if (nestedSememe.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
                            && nestedSememe.getAssemblageNid() != MetaData.CODE____SOLOR.getNid())
                      {
-                        if (ts.wasEverKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
+                        if (tss.isKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
                         {
                            PropertyType property = buildProperty(nestedSememe, startDate, endDate, null);
                            if (property != null)
@@ -853,8 +852,8 @@ public class VetsExporter {
                            }
                         }
                         //a refset that doesn't represent a mapset
-                        else if (ts.wasEverKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_REFSETS.getNid()) &&
-                              ! ts.wasEverKindOf(nestedSememe.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()))
+                        else if (tss.isKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_REFSETS.getNid()) &&
+                              ! tss.isKindOf(nestedSememe.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()))
                         {
                            SubsetMembership sm = buildSubsetMembership(nestedSememe, startDate, endDate);
                            if (sm != null)

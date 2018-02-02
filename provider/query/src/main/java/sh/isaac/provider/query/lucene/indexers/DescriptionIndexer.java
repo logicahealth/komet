@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -33,10 +33,12 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -93,8 +95,13 @@ public class DescriptionIndexer extends LuceneIndexer
    
    /** The desc extended type sequence. */
    private int descExtendedTypeNid= 0;
+   
+   //As we are indexing, typically, each concept has more than one description, and they will likely come in near each other.
+   //Cache the answer as to whether or not a concept is part of the metadata tree.  The key will be a combination of the concept nid
+   //along with the path nid.  This really only matters for bulk indexing, so let the cache clear after a few minutes.
+   private Cache<String, Boolean> isMetadataCache = Caffeine.newBuilder().maximumSize(5000).expireAfterWrite(5, TimeUnit.MINUTES).build();
 
-   public DescriptionIndexer() throws IOException {
+   private DescriptionIndexer() throws IOException {
       super(INDEX_NAME);
    }
 
@@ -102,12 +109,12 @@ public class DescriptionIndexer extends LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   protected void addFields(Chronology chronicle, Document doc) {
+   protected void addFields(Chronology chronicle, Document doc, Set<Integer> pathNids) {
       if (chronicle instanceof SemanticChronology) {
          final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
          if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
-            indexDescription(doc, semanticChronology);
+            indexDescription(doc, semanticChronology, pathNids);
             incrementIndexedItemCount("Description");
          }
       }
@@ -119,35 +126,44 @@ public class DescriptionIndexer extends LuceneIndexer
     * @param doc the doc
     * @param semanticChronology the semantic chronology
     */
-   private void indexDescription(Document doc,SemanticChronology semanticChronology) {
+   private void indexDescription(Document doc,SemanticChronology semanticChronology, Set<Integer> pathNids) {
       doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_NID, semanticChronology.getAssemblageNid() + "", Field.Store.NO));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
-      
-      // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
-      // support in the isaac-rest API
-      //TODO [DAN 2] switch back to using wasEverKindOf
-//      if (Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid())) {
-//         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
-//      }
-      
+
       Boolean isMetadata = null;
+      //We don't keep track of isMetadata per path (or module), if the user really wants to only get hits from metadata on a particular
+      //stamp, they will have to post-filter.  This is meant to be a quick filter - so we error toward marking it metadata if it is metadata 
+      //anywhere.
+      for (final int pathNid : pathNids)
+      {
+         //Because we are only indexing descriptions, we will assume the referencedComponentNid is a concept.
+         String key = pathNid + ":" + semanticChronology.getReferencedComponentNid();
+         isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
+           //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
+            TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
+                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), NidSet.EMPTY, Status.ACTIVE_ONLY_SET), null));
+            return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+         });
+         
+         // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
+         // support in the isaac-rest API
+         if (isMetadata) {
+            break;
+         }
+      }
+      
+      if (isMetadata)
+      {
+         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+      }
       
       final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 
       for (final StampedVersion stampedVersion : semanticChronology.getVersionList()) {
          DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
 
-         //TODO [DAN] use wasEverKindOf
-         if (isMetadata == null)
-         {
-            isMetadata = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
-                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, stampedVersion.getPathNid()), 
-                        NidSet.of(stampedVersion.getModuleNid()), Status.ACTIVE_ONLY_SET), null))
-            .isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-         }
-         
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) || (lastDescType == null) || !lastDescText.equals(descriptionVersion.getText())) {
             // Add to the field that carries all text
@@ -155,11 +171,6 @@ public class DescriptionIndexer extends LuceneIndexer
             uniqueDescriptionTypes.add(descriptionVersion.getDescriptionTypeConceptNid());
             lastDescText = descriptionVersion.getText();
          }
-      }
-      
-      if (isMetadata)
-      {
-         doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
       }
       
       for (Integer i : uniqueDescriptionTypes)

@@ -387,8 +387,10 @@ public abstract class LuceneIndexer
     *
     * @param chronicle the chronicle
     * @param doc the doc
+    * @param - a set of nids that represent the paths that this chonicle lives on.  Provided for convenience, 
+    * may be ignored if not required by the implementation.
     */
-   protected abstract void addFields(Chronology chronicle, Document doc);
+   protected abstract void addFields(Chronology chronicle, Document doc, Set<Integer> pathNids);
 
    /**
     * Builds the prefix query.
@@ -1289,8 +1291,8 @@ public abstract class LuceneIndexer
             final Document doc = new Document();
             doc.add(new StoredField(FIELD_COMPONENT_NID,
                     this.chronicle.getNid()));
-            indexStamp(chronicle, doc);
-            addFields(this.chronicle, doc);
+            Set<Integer> foundPathNids = indexStamp(chronicle, doc);
+            addFields(this.chronicle, doc, foundPathNids);
             // Note that the addDocument operation could cause duplicate documents to be
             // added to the index if a new version is added after initial index
             // creation. It does this to avoid the performance penalty of
@@ -1314,8 +1316,9 @@ public abstract class LuceneIndexer
        * Add the necessary ids to the index to represent author, module and path
        * @param chron
        * @param doc
+       * @return the nids of the unique paths found
        */
-      private void indexStamp(Chronology chron, Document doc)
+      private Set<Integer> indexStamp(Chronology chron, Document doc)
       {
          Set<Integer> uniqPathNid = new HashSet<>();
          Set<Integer> uniqModuleNid = new HashSet<>();
@@ -1347,6 +1350,7 @@ public abstract class LuceneIndexer
                uniqPathNid.add(sv.getPathNid());
             }
          }
+         return uniqPathNid;
       }
 
       //~--- get methods ------------------------------------------------------

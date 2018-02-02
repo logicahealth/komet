@@ -2160,7 +2160,7 @@ public class Frills
    }
    
    /**
-    * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept or sememe in the system as a 
+    * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
     * set of concept sequences.
     * 
     * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
@@ -2168,33 +2168,36 @@ public class Frills
     * an easy way to identify "metadata" concepts.
     * 
     * @param oc
-    *           - the object to read modules for
-    * @param coord
+    *           - the concept to read modules for
+    * @param stamp
     *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    * @return the types
     */
-   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate coord) {
+   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
       HashSet<Integer> modules = new HashSet<>();
       HashSet<Integer> terminologyTypes = new HashSet<>();
+      
+      TaxonomySnapshotService tss = Get.taxonomyService().getStatedLatestSnapshot(
+            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathNid() : stamp.getStampPosition().getStampPathNid()),
+            (stamp == null ? NidSet.EMPTY : stamp.getModuleNids()),
+            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()));
 
-      if (coord == null) {
-         for (int stampSequence : oc.getVersionStampSequences())
-         {
+      if (stamp == null) {
+         for (int stampSequence : oc.getVersionStampSequences()) {
             modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
          }
-         if (Get.taxonomyService().wasEverKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
+         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
             terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
       } else {
          oc.getVersionList().stream().filter(version -> {
-            return coord.getAllowedStates().contains(version.getStatus())
-                  && (coord.getModuleNids().size() == 0 ? true : coord.getModuleNids().contains(version.getModuleNid()));
+            return stamp.getAllowedStates().contains(version.getStatus())
+                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid()));
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
          
-         // lang doesn't matter for our use case.
-         if (Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(coord, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
-               .isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
+         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
          {
             terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
@@ -2202,8 +2205,8 @@ public class Frills
 
       for (int moduleNid : modules) {
          Integer temp = (MODULE_TO_TERM_TYPE_CACHE.get(moduleNid, mNid -> {
-            if (Get.taxonomyService().wasEverKindOf(mNid, MetaData.MODULE____SOLOR.getNid())) {
-               return findTermTypeConcept(moduleNid, coord);
+            if (tss.isKindOf(mNid, MetaData.MODULE____SOLOR.getNid())) {
+               return findTermTypeConcept(moduleNid, stamp);
             }
             return null;
          }));

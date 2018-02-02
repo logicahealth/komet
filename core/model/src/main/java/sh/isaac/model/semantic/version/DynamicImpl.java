@@ -306,7 +306,7 @@ public class DynamicImpl
 
          LookupService.get()
                       .getService(DynamicUtility.class)
-                      .validate(dsud, data, getReferencedComponentNid(), null, null);
+                      .validate(dsud, data, getReferencedComponentNid(), getStampSequence());
       }
 
       this.data = (data == null) ? new DynamicData[] {}

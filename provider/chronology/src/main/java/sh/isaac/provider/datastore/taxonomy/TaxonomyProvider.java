@@ -93,6 +93,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
@@ -100,6 +101,9 @@ import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.coordinate.StampCoordinateImpl;
+import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.model.DataStore;
 import sh.isaac.provider.datastore.identifier.IdentifierProvider;
@@ -244,11 +248,11 @@ public class TaxonomyProvider
         }
     }
 
-    @Override
-    public boolean wasEverKindOf(int childId, int parentId) {
-        throw new UnsupportedOperationException(
-                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public boolean wasEverKindOf(int childId, int parentId) {
+//        throw new UnsupportedOperationException(
+//                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+//    }
 
     /**
      * Start me.
@@ -358,6 +362,14 @@ public class TaxonomyProvider
 
     public SpinedIntIntArrayMap getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
         return store.getTaxonomyMap(conceptAssemblageNid);
+    }
+    
+    @Override
+    public TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
+       return getSnapshot(new ManifoldCoordinateImpl(
+             new StampCoordinateImpl(StampPrecedence.TIME, 
+                   new StampPositionImpl(Long.MAX_VALUE, pathNid), 
+                   modules, allowedStates), null));
     }
 
     @Override
