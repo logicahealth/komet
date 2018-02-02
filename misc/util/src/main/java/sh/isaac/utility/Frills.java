@@ -286,7 +286,7 @@ public class Frills
     * @param editCoord the edit coord
     * @return the concept chronology that represents the new dynamic semantic type.
     */
-   public static ConceptChronology buildUncommittedNewDynamicSememeUsageDescription(String semanticFQN,
+   public static ConceptChronology buildUncommittedNewDynamicSemanticUsageDescription(String semanticFQN,
          String semanticPreferredTerm,
          String semanticDescription,
          DynamicColumnInfo[] columns,
@@ -472,7 +472,7 @@ public class Frills
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       final ConceptChronology newDynamicSememeUsageDescriptionConcept =
-         buildUncommittedNewDynamicSememeUsageDescription(sememeFQN,
+         buildUncommittedNewDynamicSemanticUsageDescription(sememeFQN,
              sememePreferredTerm,
              sememeDescription,
              columns,
@@ -540,11 +540,11 @@ public class Frills
    }
    
    /**
-    * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE} semantic attached to it (at any coordinate)
+    * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE____SOLOR} semantic attached to it (at any coordinate)
     * @param assemblageNid
-    * @return
+    * @return true, if it is a semantic definition
     */
-   public static boolean definesIdentifierSememe(int assemblageNid) 
+   public static boolean definesIdentifierSemantic(int assemblageNid) 
    {
       if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
       {
@@ -559,13 +559,13 @@ public class Frills
    }
 
    /**
-    * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSememe(int)}
+    * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSemantic(int)}
     *
     * @param conceptSequence the concept sequence
     * @return true, if successful
     */
-   public static boolean definesDynamicSememe(int conceptSequence) {
-      return DynamicUsageDescriptionImpl.isDynamicSememe(conceptSequence);
+   public static boolean definesDynamicSemantic(int conceptSequence) {
+      return DynamicUsageDescriptionImpl.isDynamicSemantic(conceptSequence);
    }
 
    /**
@@ -673,7 +673,7 @@ public class Frills
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
    {
       Optional<SemanticChronology> descriptionExtendedTypeAnnotationSememe =
-            getAnnotationSememe(Get.identifierService().getAssemblageNid(descriptionId).getAsInt(), 
+            getAnnotationSemantic(Get.identifierService().getAssemblageNid(descriptionId).getAsInt(), 
                   DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
       
       if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
@@ -1228,9 +1228,9 @@ public class Frills
     * annotation of a particular type, this method will throw a runtime exception.
     * @param componentNid - the component to check for the assemblage
     * @param assemblageConceptId - the assemblage type you are interested in
-    * @return
+    * @return the annotation, if present
     */
-   public static Optional<SemanticChronology> getAnnotationSememe(int componentNid, int assemblageConceptId) 
+   public static Optional<SemanticChronology> getAnnotationSemantic(int componentNid, int assemblageConceptId) 
    {
       Set<SemanticChronology> sememeSet= Get.assemblageService()
             .getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId).collect(Collectors.toSet());

@@ -41,14 +41,14 @@ public class FrillsTest {
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.VERSION_PROPERTIES____SOLOR.getNid(), false, true, null).size(), 7);
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.VERSION_PROPERTIES____SOLOR.getNid(), true, true, null).size(), 11);
 		
-		Assert.assertTrue(Frills.definesIdentifierSememe(MetaData.SCTID____SOLOR.getNid()));
-		Assert.assertTrue(Frills.definesIdentifierSememe(MetaData.SCTID____SOLOR.getNid()));
+		Assert.assertTrue(Frills.definesIdentifierSemantic(MetaData.SCTID____SOLOR.getNid()));
+		Assert.assertTrue(Frills.definesIdentifierSemantic(MetaData.SCTID____SOLOR.getNid()));
 		
-		Assert.assertTrue(Frills.definesIdentifierSememe(MetaData.VUID____SOLOR.getNid()));
-		Assert.assertTrue(Frills.definesIdentifierSememe(MetaData.CODE____SOLOR.getNid()));
-		Assert.assertTrue(Frills.definesIdentifierSememe(MetaData.UUID____SOLOR.getNid()));
+		Assert.assertTrue(Frills.definesIdentifierSemantic(MetaData.VUID____SOLOR.getNid()));
+		Assert.assertTrue(Frills.definesIdentifierSemantic(MetaData.CODE____SOLOR.getNid()));
+		Assert.assertTrue(Frills.definesIdentifierSemantic(MetaData.UUID____SOLOR.getNid()));
 		
-		Assert.assertFalse(Frills.definesIdentifierSememe(MetaData.ACCEPTABLE____SOLOR.getNid()));
+		Assert.assertFalse(Frills.definesIdentifierSemantic(MetaData.ACCEPTABLE____SOLOR.getNid()));
 	}
 
 }

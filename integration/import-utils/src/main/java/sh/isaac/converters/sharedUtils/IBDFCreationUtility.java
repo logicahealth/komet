@@ -965,7 +965,7 @@ public class IBDFCreationUtility
    {
       if (this.refexAllowedColumnTypes == null)
       {
-         return DynamicUsageDescriptionImpl.isDynamicSememe(Get.identifierService().getNidForUuids(assemblageType));
+         return DynamicUsageDescriptionImpl.isDynamicSemantic(Get.identifierService().getNidForUuids(assemblageType));
       }
       else
       {

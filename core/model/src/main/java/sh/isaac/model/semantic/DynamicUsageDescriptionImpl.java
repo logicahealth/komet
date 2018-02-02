@@ -535,7 +535,7 @@ public class DynamicUsageDescriptionImpl
     * @param assemblageNid the assemblage nid 
     * @return true, if dynamic element
     */
-   public static boolean isDynamicSememe(int assemblageNid) {
+   public static boolean isDynamicSemantic(int assemblageNid) {
          try {
             read(assemblageNid);
             return true;

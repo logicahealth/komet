@@ -341,7 +341,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
          final EditCoordinate editCoordinate = new EditCoordinateImpl(logicGraph.get().getAuthorNid(), logicGraph.get().getModuleNid(), logicGraph.get().getPathNid());
 
-         final Collection<DynamicVersion<?>> hasParentAssociationDynamicSememes = getActiveHasParentAssociationDynamicSememesAttachedToComponent(
+         final Collection<DynamicVersion<?>> hasParentAssociationDynamicSememes = getActiveHasParentAssociationDynamicSemanticsAttachedToComponent(
                ((LogicGraphVersion) logicGraph.get()).getReferencedComponentNid());
          Set<Integer> parentsAccordingToHasParentAssociationDynamicSememes = new HashSet<>();
          AtomicReference<Future<?>> f = new AtomicReference<Future<?>>(null);
@@ -511,7 +511,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          // Handle changes to associations
 
          // Get active has_parent association dynamic sememes attached to component
-         Collection<DynamicVersion<?>> hasParentAssociationDynamicSememes = getActiveHasParentAssociationDynamicSememesAttachedToComponent(referencedConcept.getNid());
+         Collection<DynamicVersion<?>> hasParentAssociationDynamicSememes = getActiveHasParentAssociationDynamicSemanticsAttachedToComponent(referencedConcept.getNid());
 
          // Create set of parent concept sequences from active has_parent association dynamic sememes attached to component
          Set<Integer> parentSequencesFromHasParentAssociationDynamicSememes = new HashSet<>();
@@ -611,7 +611,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       return Frills.getSemanticForComponentFromAssemblagesFilteredBySememeType(nid, selectedAssemblages, sememeTypesToExclude);
    }
 
-   public static Collection<DynamicVersion<?>> getActiveHasParentAssociationDynamicSememesAttachedToComponent(int nid) {
+   public static Collection<DynamicVersion<?>> getActiveHasParentAssociationDynamicSemanticsAttachedToComponent(int nid) {
       final Iterator<SemanticChronology> it = getSememesForComponentFromAssemblagesFilteredBySememeType(nid).iterator();
       final List<DynamicVersion<?>> hasParentAssociationDynamicSememesToReturn = new ArrayList<>();
       while (it.hasNext()) {

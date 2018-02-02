@@ -1585,7 +1585,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
                   // Each VHAT description should have an extended type
                   Optional<SemanticChronology> existingDescriptionExtendedTypeAnnotationSememe =
-                        Frills.getAnnotationSememe(
+                        Frills.getAnnotationSemantic(
                               descRef.getNid(), 
                               DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
                   if (! existingDescriptionExtendedTypeAnnotationSememe.isPresent()) {
