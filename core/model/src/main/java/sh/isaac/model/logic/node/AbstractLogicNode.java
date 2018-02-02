@@ -425,7 +425,7 @@ public abstract class AbstractLogicNode
 
    @Override
    public int getSequenceForConceptBeingDefined() {
-      return logicalExpression.getConceptSequence();
+      return logicalExpression.getConceptNid();
    }
 }
 

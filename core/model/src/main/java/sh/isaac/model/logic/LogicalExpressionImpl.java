@@ -479,7 +479,7 @@ public class LogicalExpressionImpl
    /**
     * Concept.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @return the concept node with sequences
     */
    public final ConceptNodeWithNids Concept(int conceptSequence) {
@@ -1431,7 +1431,7 @@ public class LogicalExpressionImpl
     * @return the concept sequence
     */
    @Override
-   public int getConceptSequence() {
+   public int getConceptNid() {
       return this.conceptNid;
    }
 

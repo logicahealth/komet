@@ -61,7 +61,7 @@ public class ConceptSearchResult
    public Set<Integer> nids = new HashSet<>();
 
    /** The sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example). */
-   public int conceptSequence;
+   public int conceptNid;
 
    /**
     * The score of the component with the best score, relative to the other matches.
@@ -73,12 +73,12 @@ public class ConceptSearchResult
    /**
     * Instantiates a new concept search result.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param componentNid the component nid
     * @param score the score
     */
-   public ConceptSearchResult(int conceptSequence, int componentNid, float score) {
-      this.conceptSequence = conceptSequence;
+   public ConceptSearchResult(int conceptNid, int componentNid, float score) {
+      this.conceptNid = conceptNid;
       this.nids.add(componentNid);
       this.bestScore = score;
    }
@@ -91,7 +91,7 @@ public class ConceptSearchResult
     * @param other the other
     */
    public void merge(ConceptSearchResult other) {
-      if (this.conceptSequence != other.conceptSequence) {
+      if (this.conceptNid != other.conceptNid) {
          throw new RuntimeException("Unmergeable!");
       }
 
@@ -131,8 +131,8 @@ public class ConceptSearchResult
     *
     * @return the sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example)
     */
-   public int getConceptSequence() {
-      return this.conceptSequence;
+   public int getConceptNid() {
+      return this.conceptNid;
    }
 
    /**
@@ -167,13 +167,13 @@ public class ConceptSearchResult
    
    @Override
    public int hashCode() {
-      return Integer.hashCode(conceptSequence);
+      return Integer.hashCode(conceptNid);
    }
 
    @Override
    public boolean equals(Object obj) {
       if (obj != null && obj instanceof ConceptSearchResult) {
-         return new Integer(conceptSequence).equals(((ConceptSearchResult)obj).conceptSequence);
+         return new Integer(conceptNid).equals(((ConceptSearchResult)obj).conceptNid);
       }
       return false;
    }

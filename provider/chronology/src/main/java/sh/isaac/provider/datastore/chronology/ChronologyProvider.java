@@ -759,7 +759,7 @@ public class ChronologyProvider
         /**
          * Checks if concept active.
          *
-         * @param conceptSequence the concept sequence
+         * @param conceptNid the concept sequence
          * @return true, if concept active
          */
         @Override
@@ -775,7 +775,7 @@ public class ChronologyProvider
         /**
          * Gets the concept snapshot.
          *
-         * @param conceptSequence the concept sequence
+         * @param conceptNid the concept sequence
          * @return the concept snapshot
          */
         @Override

@@ -125,7 +125,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * Instantiates a new description builder ochre impl.
     *
     * @param descriptionText the description text
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param descriptionType the description type
     * @param languageForDescription the language for description - also used as the assemblage
     */

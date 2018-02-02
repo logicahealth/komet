@@ -163,7 +163,7 @@ public class TaxonomyRecord {
     /**
      * Adds the concept sequence stamp records.
      *
-     * @param conceptSequence the concept sequence
+     * @param conceptNid the concept sequence
      * @param newRecord the new record
      */
     public void addConceptSequenceStampRecords(int conceptSequence, TypeStampTaxonomyRecords newRecord) {
@@ -785,7 +785,7 @@ public class TaxonomyRecord {
         /**
          * Apply.
          *
-         * @param conceptSequence the concept sequence
+         * @param conceptNid the concept sequence
          * @param stampRecordsUnpacked the stamp records unpacked
          * @return true, if successful
          */

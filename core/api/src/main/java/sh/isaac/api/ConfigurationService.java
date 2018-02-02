@@ -218,7 +218,7 @@ public interface ConfigurationService {
     * objects that reference this object will be updated accordingly. Default:
     * The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultDescriptionLogicProfile(int conceptId);
 
@@ -260,7 +260,7 @@ public interface ConfigurationService {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultInferredAssemblage(int conceptId);
 
@@ -269,7 +269,7 @@ public interface ConfigurationService {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultLanguage(int conceptId);
 
@@ -298,7 +298,7 @@ public interface ConfigurationService {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultModule(int conceptId);
 
@@ -307,7 +307,7 @@ public interface ConfigurationService {
     * objects that reference this object will be updated accordingly. Default:
     * The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultPath(int conceptId);
 
@@ -328,7 +328,7 @@ public interface ConfigurationService {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultStatedAssemblage(int conceptId);
 
@@ -359,7 +359,7 @@ public interface ConfigurationService {
     * changed, other default objects that reference this object will be updated
     * accordingly. Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    void setDefaultUser(int conceptId);
 

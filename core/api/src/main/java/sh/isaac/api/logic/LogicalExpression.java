@@ -112,7 +112,7 @@ public interface LogicalExpression {
     *
     * @return the concept sequence this expression is associated with
     */
-   int getConceptSequence();
+   int getConceptNid();
 
    /**
     * Gets the data.

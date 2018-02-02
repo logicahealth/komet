@@ -99,7 +99,7 @@ public class Writers {
          output.write(cc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
-         output.write("\"conceptSequence\":\"");
+         output.write("\"conceptNid\":\"");
          output.write(cc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();

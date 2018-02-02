@@ -48,7 +48,7 @@ public interface ObservableConceptService
    /**
     * Gets the concept.
     *
-    * @param conceptId either a concept sequence or a concept nid.
+    * @param conceptId either a concept nid.
     * @return the concept chronology associated with the identifier.
     */
    ObservableConceptChronology getConcept(int conceptId);
@@ -64,7 +64,7 @@ public interface ObservableConceptService
    /**
     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
     * without incurring the overhead of reading back the object.
-    * @param conceptId Either a nid or concept sequence
+    * @param conceptId a nid 
     * @return true if present, false otherwise
     */
    boolean hasConcept(int conceptId);
@@ -72,11 +72,11 @@ public interface ObservableConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept nids
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+   boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
 
    /**
     * Gets the concept chronology stream.
@@ -88,7 +88,7 @@ public interface ObservableConceptService
    /**
     * Gets the concept chronology stream.
     *
-    * @param conceptNids the concept sequences
+    * @param conceptNids the concept nids
     * @return the concept chronology stream
     */
    Stream<ConceptChronology> getConceptChronologyStream(
@@ -117,7 +117,7 @@ public interface ObservableConceptService
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
-    * @param conceptId Either a nid or concept sequence
+    * @param conceptId a concept nid 
     * @return an Optional ConceptChronology.
     */
    Optional<? extends ObservableConceptChronology> getOptionalConcept(int conceptId);
@@ -141,7 +141,7 @@ public interface ObservableConceptService
    /**
     * Gets the parallel concept chronology stream.
     *
-    * @param conceptNids the concept sequences
+    * @param conceptNids the concept nids
     * @return the parallel concept chronology stream
     */
    Stream<ConceptChronology> getParallelConceptChronologyStream(

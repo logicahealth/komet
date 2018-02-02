@@ -50,7 +50,7 @@ public class Set {
     * reference this object will be updated accordingly. Default: The value to
     * use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultClassifier(int conceptId) {
       Get.configurationService()
@@ -62,7 +62,7 @@ public class Set {
     * objects that reference this object will be updated accordingly. Default:
     * The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultDescriptionLogicProfile(int conceptId) {
       Get.configurationService()
@@ -101,7 +101,7 @@ public class Set {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultInferredAssemblage(int conceptId) {
       Get.configurationService()
@@ -113,7 +113,7 @@ public class Set {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultLanguage(int conceptId) {
       Get.configurationService()
@@ -125,7 +125,7 @@ public class Set {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultModule(int conceptId) {
       Get.configurationService()
@@ -137,7 +137,7 @@ public class Set {
     * objects that reference this object will be updated accordingly. Default:
     * The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultPath(int conceptId) {
       Get.configurationService()
@@ -149,7 +149,7 @@ public class Set {
     * default objects that reference this object will be updated accordingly.
     * Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultStatedAssemblage(int conceptId) {
       Get.configurationService()
@@ -174,7 +174,7 @@ public class Set {
     * changed, other default objects that reference this object will be updated
     * accordingly. Default: The value to use if another value is not provided.
     *
-    * @param conceptId either a nid or conceptSequence
+    * @param conceptId either a nid or conceptNid
     */
    public static void defaultUser(int conceptId) {
       Get.configurationService()

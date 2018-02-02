@@ -561,7 +561,7 @@ public class Frills
    /**
     * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSemantic(int)}
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @return true, if successful
     */
    public static boolean definesDynamicSemantic(int conceptSequence) {
