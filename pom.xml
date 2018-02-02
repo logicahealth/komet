@@ -729,6 +729,8 @@
                <source>${javac.version}</source>
                <target>${javac.version}</target>
                <encoding>UTF-8</encoding>
+               <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
+               <!--<compilerArgument>-Xlint:deprecation</compilerArgument>-->
             </configuration>
          </plugin>
          <plugin>
@@ -765,6 +767,18 @@
                </execution>
             </executions>
          </plugin>
+         <!-- plugin>  Not sure why this is off globally
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>attach-javadocs</id>
+                  <goals>
+                     <goal>jar</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin-->
       </plugins>
    </build>
 
