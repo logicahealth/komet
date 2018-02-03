@@ -1639,7 +1639,7 @@ public class Frills
 
    /**
     * 
-    * @param id String identifier may parse to int NID, int sequence or UUID
+    * @param id String identifier may parse to int NID, or UUID
     * @param sc The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
     * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
@@ -1988,12 +1988,12 @@ public class Frills
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
-         final LatestVersion<StringVersionImpl> sememe = Get.assemblageService()
+         final List<LatestVersion<StringVersionImpl>> sememe = Get.assemblageService()
                .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid()).get(0);
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid());
 
-         if (sememe.isPresent()) {
-            return Optional.of(Long.parseLong(sememe.get().getString()));
+         if (sememe.size() > 0 && sememe.get(0).isPresent()) {
+            return Optional.of(Long.parseLong(sememe.get(0).get().getString()));
          }
       } catch (final Exception e) {
          LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
