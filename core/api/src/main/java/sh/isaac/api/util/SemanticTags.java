@@ -74,7 +74,7 @@ public class SemanticTags {
       StringBuilder temp = new StringBuilder(text.length() + semanticTag.length() + 3);
       temp.append(text);
       
-      if (text.charAt(text.length() - 1) != ' ')
+      if (text.length() > 0 && text.charAt(text.length() - 1) != ' ')
       {
          temp.append(' ');
       }

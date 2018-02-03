@@ -84,6 +84,7 @@ public class SemanticTagsTest {
       Assert.assertEquals(SemanticTags.addSemanticTagIfAbsent("a fred", " (bear)"), "a fred (bear)");
       
       Assert.assertEquals(SemanticTags.addSemanticTagIfAbsent("a fred (bear)", "(bear)"), "a fred (bear)");
+      Assert.assertEquals(SemanticTags.addSemanticTagIfAbsent("", "(bear)"), "(bear)");
    }
 
    @Test
