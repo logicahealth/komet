@@ -847,8 +847,12 @@ public class BdbProvider
    }
    
    @Override
-   public boolean hasChronologyData(int nid) {
+   public boolean hasChronologyData(int nid, IsaacObjectType expectedType) {
       int assemblageNid = ModelGet.identifierService().getAssemblageNid(nid).getAsInt();
+//      if (expectedType != assemblageToObjectType_Map.get(assemblageNid)) {
+//          return false;
+//       }
+      //TODO [KEC] this must validate the expectedType, with info that doesn't appear to be here - but maybe related to the "abandoned" method at the top?
       int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid);
       Database database = getChronologyDatabase(assemblageNid);
 

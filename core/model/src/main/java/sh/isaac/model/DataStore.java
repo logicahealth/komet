@@ -98,12 +98,13 @@ public interface DataStore
    int getAssemblageSizeOnDisk(int assemblageNid);
    
    /**
-    * return true if the store has data for this nid, false otherwise.  
+    * return true if the store has data for this nid, of the expected type, false otherwise.  
     * This operation will be quicker than {@link #getChronologyData(int)} if you are just testing for existence, 
     * as it saves some data copying time.  If you need the data, however, you should use the get with the optional return.
     * @param nid
-    * @return
+    * @param ofType The expected type of the nid 
+    * @return true if it has data of the matching type
     */
-   boolean hasChronologyData(int nid);
+   boolean hasChronologyData(int nid, IsaacObjectType ofType);
 }
 

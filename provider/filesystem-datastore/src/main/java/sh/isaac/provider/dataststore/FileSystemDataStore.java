@@ -593,9 +593,12 @@ public class FileSystemDataStore
     * {@inheritDoc}
     */
    @Override
-   public boolean hasChronologyData(int nid) {
+   public boolean hasChronologyData(int nid, IsaacObjectType expectedType) {
       OptionalInt assemblageNid = ModelGet.identifierService().getAssemblageNid(nid);
       if (assemblageNid.isPresent()) {
+         if (expectedType != assemblageToObjectType_Map.get(assemblageNid.getAsInt())) {
+            return false;
+         }
          int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid.getAsInt());
          SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid.getAsInt());
          byte[][] data = spinedByteArrayArrayMap.get(elementSequence);
