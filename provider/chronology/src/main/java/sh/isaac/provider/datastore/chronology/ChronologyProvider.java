@@ -622,9 +622,9 @@ public class ChronologyProvider
        if (componentNid >= 0) {
           throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
        }
-       if (assemblageConceptNids == null)
+       if (assemblageConceptNids == null || assemblageConceptNids.isEmpty())
        {
-          throw new IndexOutOfBoundsException("Assemblage identifier(s) must be provided.");
+          return getSemanticNidsForComponent(componentNid);
        }
        
        for (int assemblageNid : assemblageConceptNids) {
@@ -686,12 +686,12 @@ public class ChronologyProvider
     
     @Override
     public boolean hasConcept(int conceptId) {
-      return store.hasChronologyData(conceptId);
+      return store.hasChronologyData(conceptId, IsaacObjectType.CONCEPT);
     }
     
     @Override
     public boolean hasSemantic(int semanticId) {
-       return store.hasChronologyData(semanticId);
+       return store.hasChronologyData(semanticId, IsaacObjectType.SEMANTIC);
     }
 
     @Override
