@@ -42,6 +42,12 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
@@ -55,10 +61,10 @@ import sh.isaac.api.externalizable.IsaacObjectType;
  * <br>
  * <br>
  * The assemblage concept must define the combination of data columns being used within this Sememe.
- * To do this, the assemblage concept must itself contain 0 or more {@link DynamicSememeVersion} annotation(s) with
- * an assemblage concept that is {@link DynamicConstants#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
- * [{@link DynamicSememeInteger}, {@link DynamicSememeUUID}, {@link DynamicSememeString}, {@link DynamicSememePolymorphic},
- * {@link DynamicSememBoolean}, {@link DynamicSememeArray< DynamicSememeString >}, {@link DynamicSememeData< DynamicSememePolymorphic >}]
+ * To do this, the assemblage concept must itself contain 0 or more {@link DynamicVersion} annotation(s) with
+ * an assemblage concept that is {@link DynamicConstants#DYNAMIC_EXTENSION_DEFINITION} and the attached data is<br>
+ * [{@link DynamicInteger}, {@link DynamicUUID}, {@link DynamicString}, {@link DynamicPolymorphic},
+ * {@link DynamicBoolean}, {@link DynamicArray< DynamicString >}, {@link DynamicData< DynamicPolymorphic >}]
  *
  * <ul>
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
