@@ -42,15 +42,17 @@ package sh.isaac.model.taxonomy;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
+import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,6 +66,8 @@ import sh.isaac.model.collections.SpinedIntIntArrayMap;
  */
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
+   
+   private static final Logger LOG = LogManager.getLogger();
    /** The isa concept sequence. */
    private final int ISA_CONCEPT_NID = TermAux.IS_A.getNid();
 
@@ -124,13 +128,12 @@ public class GraphCollector
       final int[] taxonomyData = this.taxonomyMap.get(originNid);
       
       if (taxonomyData == null) {
-            System.out.println("No taxonomy data for: " + Get.conceptDescriptionText(originNid));
-            System.out.println("Nid: " + originNid);
+         LOG.warn("No taxonomy data for: {} with NID: {}", Get.conceptDescriptionText(originNid), originNid);
          
       } else {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
          // For debugging.
-         if (this.watchList.contains(originNid)) {
+         if (Get.configurationService().enableVerboseDebug() && this.watchList.contains(originNid)) {
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
