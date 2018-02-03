@@ -265,7 +265,9 @@ public interface DynamicUtility {
                                "The supplied data for column " + dataColumn +
                                " does not pass the assigned validator(s) for this dynamic field.  Data: " +
                                data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
-                               " Validator Data: " + dsci.getValidatorData()[i].dataToString());
+                               " Validator Data: " + dsci.getValidatorData()[i].dataToString() + " Semantic: " + dsud.getDynamicName()
+                               + " Referenced Component " 
+                               + Get.identifiedObjectService().getIdentifiedObjectChronology(referencedComponentNid).get().toUserString());
                         }
                      } catch (final IllegalArgumentException e) {
                         if (rethrow) {
