@@ -19,13 +19,11 @@ package sh.isaac.solor.rf2.direct;
 import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -104,8 +102,10 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
         final long time = System.currentTimeMillis();
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
-                .filter(p -> p.toString().toLowerCase().endsWith("_text.zip")
-                && p.toString().toLowerCase().contains("loinc"))
+                .filter(p -> (p.toString().toLowerCase().endsWith("_text.zip")
+                && p.toFile().getName().toLowerCase().startsWith("loinc")) ||
+                (p.toFile().getName().toLowerCase().startsWith("loinc-")
+                && p.toString().toLowerCase().endsWith(".zip")))
                 .collect(Collectors.toList());
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {

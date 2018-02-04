@@ -36,6 +36,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.DBLocator;
 import sh.isaac.solor.rf2.direct.ImportType;
+import sh.isaac.solor.rf2.direct.LoincDirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 
@@ -101,11 +102,15 @@ public class SolorMojo extends AbstractMojo {
             //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
             //be configured at the assemblage level.
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
-            Rf2DirectImporter importer = new Rf2DirectImporter(ImportType.valueOf(importType));
+            Rf2DirectImporter rf2Importer = new Rf2DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
-            importer.run();
+            rf2Importer.run();
             LookupService.syncAll();
-
+            
+            LoincDirectImporter loincImporter = new LoincDirectImporter();
+            getLog().info("  Importing LOINC files.");
+            loincImporter.run();
+            LookupService.syncAll();
             if (transform) {
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
