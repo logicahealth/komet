@@ -7,8 +7,8 @@
         <version>4.48-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
-    <artifactId>javascript</artifactId>
-   <name>ISAAC’s KOMET: Javascript</name>
+    <artifactId>scripting</artifactId>
+   <name>ISAAC’s KOMET: Scripting</name>
    <description>
       Javascript integration for ISAAC's KOMET.
    </description>
@@ -29,5 +29,10 @@
          <artifactId>iconography</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
+    <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>2.4.13</version>
+    </dependency>
    </dependencies>
 </project>

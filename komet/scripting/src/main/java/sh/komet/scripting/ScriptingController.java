@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.javascript;
+package sh.komet.scripting;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author kec
  */
-public class JavascriptController {
+public class ScriptingController {
     private static final Logger              LOG               = LogManager.getLogger();
 
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -72,7 +72,7 @@ public class JavascriptController {
     }
     
     @FXML
-    void runJavascript(ActionEvent event) {
+    void runScript(ActionEvent event) {
         try {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -84,4 +84,12 @@ public class JavascriptController {
             LOG.error("script error", ex);
         }
     }    
+    
+    public void setEngine(String engineName) {
+        engine = new ScriptEngineManager().getEngineByName(engineName);
+    }
+    
+    public void setScript(String script) {
+        scriptText.setText(script);
+    }
 }

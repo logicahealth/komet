@@ -7,14 +7,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-
-<AnchorPane id="AnchorPane" fx:id="topPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9" fx:controller="sh.komet.javascript.JavascriptController">
+<AnchorPane id="AnchorPane" fx:id="topPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.scripting.ScriptingController">
    <children>
       <BorderPane layoutX="86.0" layoutY="24.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
             <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <items>
-                <Button fx:id="runButton" mnemonicParsing="false" onAction="#runJavascript" text="run" />
+                <Button fx:id="runButton" mnemonicParsing="false" onAction="#runScript" text="run" />
               </items>
             </ToolBar>
          </top>

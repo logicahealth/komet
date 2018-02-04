@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.javascript;
+package sh.komet.scripting.javascript;
 
 import java.util.function.Consumer;
 import javafx.scene.Node;
@@ -30,7 +30,7 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-@Service(name = "Assemblage View Provider")
+@Service(name = "Javascript View Provider")
 @RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 public class JavascriptViewFactory implements ExplorationNodeFactory {
 

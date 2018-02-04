@@ -180,7 +180,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.komet</groupId>
-         <artifactId>javascript</artifactId>
+         <artifactId>scripting</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>

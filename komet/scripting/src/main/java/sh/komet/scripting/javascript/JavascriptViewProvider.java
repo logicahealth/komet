@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.javascript;
+package sh.komet.scripting.javascript;
 
+import sh.komet.scripting.ScriptingController;
 import java.io.IOException;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
@@ -34,14 +35,14 @@ public class JavascriptViewProvider implements ExplorationNode {
    private Manifold manifold;
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("javascript runner");
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("javascript");
-   private final JavascriptController javascriptController;
+   private final ScriptingController javascriptController;
    private final Node titleNode = Iconography.JAVASCRIPT.getIconographic();
     public JavascriptViewProvider(Manifold manifold) {
        try {
            this.manifold = manifold;
            
            FXMLLoader loader = new FXMLLoader(
-                 getClass().getResource("/sh/komet/javascript/scriptrunner.fxml"));
+                 getClass().getResource("/sh/komet/scripting/scriptrunner.fxml"));
            loader.load();
            this.javascriptController = loader.getController();
        } catch (IOException ex) {

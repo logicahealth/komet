@@ -46,6 +46,6 @@
         <module>concept-detail</module>
         <module>progress-view</module>
         <module>assemblage-view</module>
-        <module>javascript</module>
+        <module>scripting</module>
     </modules>
 </project> 
