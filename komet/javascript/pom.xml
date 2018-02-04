@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>komet</artifactId>
+        <version>4.48-SNAPSHOT</version>
+    </parent>
+    <groupId>sh.isaac.komet</groupId>
+    <artifactId>javascript</artifactId>
+   <name>ISAAC’s KOMET: Javascript</name>
+   <description>
+      Javascript integration for ISAAC's KOMET.
+   </description>
+   <dependencies>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>api</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>gui-contracts</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>iconography</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+   </dependencies>
+</project>

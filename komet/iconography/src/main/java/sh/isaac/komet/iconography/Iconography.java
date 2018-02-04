@@ -173,6 +173,8 @@ public enum Iconography {
   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
   DASHBOARD(OCT_ICON, "dashboard"),
+  
+  JAVASCRIPT(FONT_AWSOME, "code"),
 
    ;
 
