@@ -16,37 +16,11 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
-
 /**
- *
+ * Needs to be based on the repeat section of the timing
+ * resource: https://www.hl7.org/fhir/datatypes.html#Timing
  * @author kec
  */
-public interface RequestCircumstance extends Circumstance {
-
-     /**
-     *
-     * @return the participants requested to complete the request.
-     */
-    Collection<? extends Participant> getRequestedParticipants();
-
-    /**
-     *
-     * @return the priority of the request.
-     */
-    LogicalExpression getPriority();
+public interface Repetition {
     
-    /**
-     * 
-     * @return repetition information regarding the request. 
-     */
-    Optional<Repetition> getRepetition();
-
-    /**
-     *
-     * @return the goal of the request.
-     */
-    Measure getGoal();
 }
