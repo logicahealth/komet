@@ -664,7 +664,7 @@ public class Frills
    
    /**
     * If this description is flagged as an extended description type, return the type concept of the extension.
-    * @param sc - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
+    * @param stampCoordinate - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
     * @param descriptionId - the nid or sequence of the description sememe to check for an extended type. 
     * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .  
     * false to only return the extended description type if it is present and active (returns EMPTY if the extended type is missing or inactive)
@@ -673,8 +673,7 @@ public class Frills
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
    {
       Optional<SemanticChronology> descriptionExtendedTypeAnnotationSememe =
-            getAnnotationSemantic(Get.identifierService().getAssemblageNid(descriptionId).getAsInt(), 
-                  DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
+            getAnnotationSemantic(descriptionId, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
       
       if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
       {
