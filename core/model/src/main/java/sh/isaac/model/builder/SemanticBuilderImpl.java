@@ -96,9 +96,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
    /** The referenced component builder. */
    IdentifiedComponentBuilder<?> referencedComponentBuilder;
 
-   /** The assemblage concept sequence. */
-   int assemblageConceptNid;
-
    /** The sememe type. */
    VersionType semanticType;
 
@@ -121,7 +118,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                             Object... paramaters) {
       super(assemblageConceptId);
       this.referencedComponentBuilder = referencedComponentBuilder;
-      this.assemblageConceptNid  = assemblageConceptId;
       this.semanticType                 = semanticType;
       this.parameters                 = paramaters;
    }
@@ -140,7 +136,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                             Object... paramaters) {
       super(assemblageConceptId);
       this.referencedComponentNid    = referencedComponentNid;
-      this.assemblageConceptNid = assemblageConceptId;
       this.semanticType                = semanticType;
       this.parameters                = paramaters;
    }
@@ -189,14 +184,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
          if ((semanticChronicle.getVersionType() != this.semanticType) ||
                !semanticChronicle.isIdentifiedBy(getPrimordialUuid()) ||
-               (semanticChronicle.getAssemblageNid() != this.assemblageConceptNid) ||
+               (semanticChronicle.getAssemblageNid() != this.assemblageId) ||
                (semanticChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
          }
       } else {
          semanticChronicle = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
-               this.assemblageConceptNid,
+               this.assemblageId,
                this.referencedComponentNid);
       }
 
@@ -326,14 +321,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
          if ((semanticChronology.getVersionType() != this.semanticType) ||
                !semanticChronology.isIdentifiedBy(getPrimordialUuid()) ||
-               (semanticChronology.getAssemblageNid() != this.assemblageConceptNid) ||
+               (semanticChronology.getAssemblageNid() != this.assemblageId) ||
                (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
          }
       } else {
          semanticChronology = new SemanticChronologyImpl(this.semanticType,
                getPrimordialUuid(),
-               this.assemblageConceptNid,
+               this.assemblageId,
                this.referencedComponentNid);
       }
 
@@ -396,7 +391,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
          version = dsi;
-         // TODO [DAN 2] this needs to fire the validator!
          break;
       }
 
@@ -440,7 +434,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
       }
 
       if (!isPrimordialUuidSet()) {
-         UUID assemblageUuid = Get.identifierService().getUuidPrimordialForNid(this.assemblageConceptNid);
+         UUID assemblageUuid = Get.identifierService().getUuidPrimordialForNid(this.assemblageId);
    
            UUID refCompUuid = null;
            if (referencedComponentBuilder != null) {
