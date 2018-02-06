@@ -134,8 +134,12 @@ public class SemanticIndexer
    /** The Constant INDEX_NAME. */
    public static final String INDEX_NAME = "semantics-index";
 
-   /** The Constant COLUMN_FIELD_DATA. */
-   private static final String COLUMN_FIELD_DATA = "colData";
+   /** The Constant COLUMN_STRING_FIELD_DATA. */
+   private static final String COLUMN_STRING_FIELD_DATA = "sColData";
+   private static final String COLUMN_INT_FIELD_DATA = "iColData";
+   private static final String COLUMN_LONG_FIELD_DATA = "lColData";
+   private static final String COLUMN_FLOAT_FIELD_DATA = "fColData";
+   private static final String COLUMN_DOUBLE_FIELD_DATA = "dColData";
 
    @Inject
    private SemanticIndexerConfiguration lric;
@@ -286,14 +290,14 @@ public class SemanticIndexer
     * @param queryDataLowerInclusive the query data lower inclusive
     * @param queryDataUpper the query data upper
     * @param queryDataUpperInclusive the query data upper inclusive
-    * @param columnName the column name
+    * @param columnNamePostFixIfAny the column position idenifier, if any.
     * @return the query
     */
    private Query buildNumericQuery(Number queryDataLower,
                                     boolean queryDataLowerInclusive,
                                    Number queryDataUpper,
                                    boolean queryDataUpperInclusive,
-                                   String columnName) {
+                                   String columnNamePostFixIfAny) {
       // Convert both to the same type (if they differ) - go largest data type to smallest, so we don't lose precision
       // Also - if they pass in longs that would fit in an int, also generate an int query.
       // likewise, with Double - if they pass in a double, that would fit in a float, also generate a float query.
@@ -308,7 +312,7 @@ public class SemanticIndexer
             final double lowerVal = ((queryDataLower == null) ? Double.NEGATIVE_INFINITY
                   : queryDataLowerInclusive ? queryDataLower.doubleValue() : DoublePoint.nextUp(queryDataLower.doubleValue()));
 
-            bqBuilder.add(DoublePoint.newRangeQuery(columnName, lowerVal, upperVal), Occur.SHOULD);
+            bqBuilder.add(DoublePoint.newRangeQuery(COLUMN_DOUBLE_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
 
             if (((queryDataUpper != null) && (queryDataUpper.floatValue() <= Float.MAX_VALUE) && (queryDataUpper.floatValue() >= Float.MIN_VALUE))
                   || ((queryDataLower != null) && (queryDataLower.doubleValue() <= Float.MAX_VALUE) && (queryDataLower.doubleValue() >= Float.MIN_VALUE))) {
@@ -326,7 +330,7 @@ public class SemanticIndexer
                         : ((fitsInFloat && (queryDataLower.doubleValue() < Float.MIN_VALUE) ? Float.MIN_VALUE : 
                            queryDataLowerInclusive ? queryDataLower.floatValue() : FloatPoint.nextUp(queryDataLower.floatValue())))));
 
-            bqBuilder.add(FloatPoint.newRangeQuery(columnName, lowerVal, upperVal), Occur.SHOULD);
+            bqBuilder.add(FloatPoint.newRangeQuery(COLUMN_FLOAT_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
          }
 
          if ((queryDataLower instanceof Long) || (queryDataUpper instanceof Long)) {
@@ -335,7 +339,7 @@ public class SemanticIndexer
             final long lowerVal = ((queryDataLower == null) ? Long.MIN_VALUE
                   : queryDataLowerInclusive ? queryDataLower.longValue() : Math.addExact(queryDataLower.longValue(),  1));
 
-            bqBuilder.add(LongPoint.newRangeQuery(columnName, lowerVal, upperVal), Occur.SHOULD);
+            bqBuilder.add(LongPoint.newRangeQuery(COLUMN_LONG_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
 
             if (((queryDataUpper != null) && (queryDataUpper.longValue() <= Integer.MAX_VALUE) && (queryDataUpper.longValue() >= Integer.MIN_VALUE))
                   || ((queryDataLower != null) && (queryDataLower.longValue() <= Integer.MAX_VALUE) && (queryDataLower.longValue() >= Integer.MIN_VALUE))) {
@@ -353,7 +357,7 @@ public class SemanticIndexer
                         : ((fitsInInt && queryDataLower.longValue() < Integer.MIN_VALUE) ? Integer.MIN_VALUE
                               : queryDataLowerInclusive ? queryDataLower.intValue() : Math.addExact(queryDataLower.intValue(), 1))));
 
-            bqBuilder.add(IntPoint.newRangeQuery(columnName, lowerVal, upperVal), Occur.SHOULD);
+            bqBuilder.add(IntPoint.newRangeQuery(COLUMN_INT_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
          }
          BooleanQuery bq = bqBuilder.build();
          if (bq.clauses().isEmpty()) {
@@ -395,12 +399,12 @@ public class SemanticIndexer
       if (dataCol == null) {
          // noop
       } else if (dataCol instanceof DynamicBoolean) {
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                     Store.NO));
          }
@@ -409,49 +413,49 @@ public class SemanticIndexer
       } else if (dataCol instanceof DynamicByteArray) {
          LOG.warn("Sememe Indexer configured to index a field that isn''t indexable (byte array)");
       } else if (dataCol instanceof DynamicDouble) {
-         doc.add(new DoublePoint(COLUMN_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
+         doc.add(new DoublePoint(COLUMN_DOUBLE_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
 
          if (colNumber >= 0) {
-            doc.add(new DoublePoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new DoublePoint(COLUMN_DOUBLE_FIELD_DATA + "_" + colNumber,
                                     ((DynamicDouble) dataCol).getDataDouble()));
          }
 
          incrementIndexedItemCount("Dynamic Double");
       } else if (dataCol instanceof DynamicFloat) {
-         doc.add(new FloatPoint(COLUMN_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
+         doc.add(new FloatPoint(COLUMN_FLOAT_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
 
          if (colNumber >= 0) {
-            doc.add(new FloatPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new FloatPoint(COLUMN_FLOAT_FIELD_DATA + "_" + colNumber,
                                    ((DynamicFloat) dataCol).getDataFloat()));
          }
 
          incrementIndexedItemCount("Dynamic Float");
       } else if (dataCol instanceof DynamicInteger) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
+         doc.add(new IntPoint(COLUMN_INT_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
 
          if (colNumber >= 0) {
-            doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new IntPoint(COLUMN_INT_FIELD_DATA + "_" + colNumber,
                                  ((DynamicInteger) dataCol).getDataInteger()));
          }
 
          incrementIndexedItemCount("Dynamic Integer");
       } else if (dataCol instanceof DynamicLong) {
-         doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
+         doc.add(new LongPoint(COLUMN_LONG_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
 
          if (colNumber >= 0) {
-            doc.add(new LongPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new LongPoint(COLUMN_LONG_FIELD_DATA + "_" + colNumber,
                                   ((DynamicLong) dataCol).getDataLong()));
          }
 
          incrementIndexedItemCount("Dynamic Long");
       } else if (dataCol instanceof DynamicNid) {
          // No need for ranges on a nid, no need for tokenization (so textField, instead of string field).
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicNid) dataCol).getDataNid() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicNid) dataCol).getDataNid() + "",
                                     Store.NO));
          }
@@ -460,21 +464,21 @@ public class SemanticIndexer
       } else if (dataCol instanceof DynamicPolymorphic) {
          LOG.error("This should have been impossible (polymorphic?)");
       } else if (dataCol instanceof DynamicString) {
-         doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
+         doc.add(new TextField(COLUMN_STRING_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber,
                                   ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
 
          // yes, indexed 4 different times - twice with the standard analyzer, twice with the whitespace analyzer.
-         doc.add(new TextField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new TextField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                ((DynamicString) dataCol).getDataString(),
                                Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                   ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
@@ -482,12 +486,12 @@ public class SemanticIndexer
          incrementIndexedItemCount("Dynamic String");
       } else if (dataCol instanceof DynamicUUID) {
          // Use the whitespace analyzer on UUIDs
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicUUID) dataCol).getDataUUID().toString(),
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicUUID) dataCol).getDataUUID().toString(),
                                     Store.NO));
          }
@@ -511,10 +515,10 @@ public class SemanticIndexer
       /**
        * Builds the query.
        *
-       * @param columnName the column name
+       * @param columnNamePostFixIfAny the column postfix identifier, if necessary
        * @return the query
        */
-      abstract Query buildQuery(String columnName);
+      abstract Query buildQuery(String columnNamePostFixIfAny);
 
       /**
        * Builds the column handling query.
@@ -541,13 +545,13 @@ public class SemanticIndexer
                (searchColumns.length == 0) ||
                (assemblageIndexedColumns == null) ||
                (assemblageIndexedColumns.length < 2)) {
-            return buildQuery(COLUMN_FIELD_DATA);
+            return buildQuery("");
          } else  // If they passed a specific column to search AND the Dynamic type has more than 1 indexed column, then do a column specific search.
          {
             final BooleanQuery.Builder group = new BooleanQuery.Builder();
 
             for (final int i: searchColumns) {
-               group.add(buildQuery(COLUMN_FIELD_DATA + "_" + i), Occur.SHOULD);
+               group.add(buildQuery("_" + i), Occur.SHOULD);
             }
 
             return group.build();
@@ -589,9 +593,9 @@ public class SemanticIndexer
       Query q = new QueryWrapperForColumnHandling()
       {
          @Override
-         Query buildQuery(String columnName)
+         Query buildQuery(String columnNamePostFixIfAny)
          {
-            return buildNumericQuery(queryDataLower, queryDataLowerInclusive, queryDataUpper, queryDataUpperInclusive, columnName);
+            return buildNumericQuery(queryDataLower, queryDataLowerInclusive, queryDataUpper, queryDataUpperInclusive, columnNamePostFixIfAny);
          }
       }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
       
@@ -614,8 +618,8 @@ public class SemanticIndexer
       
       final Query q = new QueryWrapperForColumnHandling() {
          @Override
-         Query buildQuery(String columnName) {
-            return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
+         Query buildQuery(String columnNamePostFixIfAny) {
+            return new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
          }
       }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
 
@@ -655,7 +659,7 @@ public class SemanticIndexer
       if (queryData instanceof DynamicString) {
          q = new QueryWrapperForColumnHandling() {
             @Override
-            Query buildQuery(String columnName) {
+            Query buildQuery(String columnNamePostFixIfAny) {
                // This is the only query type that needs tokenizing, etc.
                String queryString = ((DynamicString) queryData).getDataString();
 
@@ -668,30 +672,31 @@ public class SemanticIndexer
 
                queryString = queryString.replaceAll("\\s-", " \\\\-");
                LOG.debug("Modified search string is: ''{}''", queryString);
-               return buildTokenizedStringQuery(queryString, columnName, prefixSearch, false);
+               return buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, prefixSearch, false);
             }
          }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
       } else {
          if ((queryData instanceof DynamicBoolean) || (queryData instanceof DynamicNid) || (queryData instanceof DynamicUUID)) {
             q = new QueryWrapperForColumnHandling() {
                @Override
-               Query buildQuery(String columnName) {
-                  return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, queryData.getDataObject().toString()));
+               Query buildQuery(String columnNamePostFixIfAny) {
+                  return new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, queryData.getDataObject().toString()));
                }
             }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
             //By checking for DynamicNumeric, we inadvertently capture nid, but that is already handled in the if above.
          } else if ((queryData instanceof DynamicNumeric)) {  
             q = new QueryWrapperForColumnHandling() {
                @Override
-               Query buildQuery(String columnName) {
-                  Query temp = buildNumericQuery(((DynamicNumeric) queryData).getDataNumeric(), true, ((DynamicNumeric) queryData).getDataNumeric(), true, columnName);
+               Query buildQuery(String columnNamePostFixIfAny) {
+                  Query temp = buildNumericQuery(((DynamicNumeric) queryData).getDataNumeric(), true, ((DynamicNumeric) queryData).getDataNumeric(),
+                        true, columnNamePostFixIfAny);
 
                   if (((queryData instanceof DynamicLong) && ((DynamicLong) queryData).getDataLong() < 0)
                         || ((queryData instanceof DynamicInteger) && ((DynamicInteger) queryData).getDataInteger() < 0)) {
                      // Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
                      final BooleanQuery.Builder wrapper = new BooleanQuery.Builder();
 
-                     wrapper.add(new TermQuery(new Term(columnName, queryData.getDataObject().toString())), Occur.SHOULD);
+                     wrapper.add(new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, queryData.getDataObject().toString())), Occur.SHOULD);
                      wrapper.add(temp, Occur.SHOULD);
                      temp = wrapper.build();
                   }
