@@ -28,8 +28,10 @@ import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import sh.isaac.MetaData;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -38,26 +40,29 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
+import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
+import sh.isaac.utility.Frills;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @HK2("integration")
-@Test(suiteName="suite1")
+@Test(suiteName = "suite1")
 public class BugDemo
 {
 	private static final Logger LOG = LogManager.getLogger();
-	
+
 	@Test(groups = { "bugs" }, dependsOnGroups = { "load" })
 	public void bugTestOne() throws InterruptedException, ExecutionException
 	{
-		//Read descriptions on a concept:
+		// Read descriptions on a concept:
 		// Attempt to read back the description.
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_STATEMENT____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
@@ -67,11 +72,11 @@ public class BugDemo
 					// Try to read each semantic...
 					for (int nestedNid : semanticNids.asArray())
 					{
-						//We fail here, trying to read the nested semantic that describes the extended description type.
+						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
 					}
 				});
-		
+
 		// Add a description to an arbitrary concept (MetaData.ACTION_STATEMENT____SOLOR.getNid()) with an INVALID extended desription type.
 		SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
 		SemanticBuilder<? extends SemanticChronology> descriptionSemanticBuilder = semanticBuilderService.getDescriptionBuilder(
@@ -79,7 +84,7 @@ public class BugDemo
 				"foo", MetaData.ACTION_STATEMENT____SOLOR.getNid());
 
 		// add an extended type (which is a nested semantic on the description which references the concept created above) - this is added in the same
-		// builder.  Note, the extended type here is invalid, and will fail a validator.
+		// builder. Note, the extended type here is invalid, and will fail a validator.
 		descriptionSemanticBuilder.addSemantic(
 				Get.semanticBuilderService().getDynamicBuilder(descriptionSemanticBuilder, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid(),
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(MetaData.AND____SOLOR.getAssemblageNid())) }));
@@ -92,10 +97,10 @@ public class BugDemo
 		}
 		catch (Exception e)
 		{
-			//expected
+			// expected
 		}
 
-		//This will now fail, due to traces left behind by the attempted new description create.
+		// This will now fail, due to traces left behind by the attempted new description create.
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_STATEMENT____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
@@ -104,11 +109,10 @@ public class BugDemo
 					// Try to read each semantic...
 					for (int nestedNid : semanticNids.asArray())
 					{
-						//We fail here, trying to read the nested semantic that describes the extended description type.
+						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
 					}
 				});
-	
 
 	}
 
@@ -167,9 +171,32 @@ public class BugDemo
 					// Try to read each semantic...
 					for (int nestedNid : semanticNids.asArray())
 					{
-						//We fail here, trying to read the nested semantic that describes the extended description type.
+						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
 					}
 				});
+	}
+
+	@Test(groups = { "bugs" }, dependsOnGroups = { "load" })
+	public void logicGraphMergeBug() throws InterruptedException, ExecutionException
+	{
+		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_STATEMENT____SOLOR.getNid(), true).get();
+
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getDefaultEditCoordinate());
+
+		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
+		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.CLINICAL_STATEMENT____SOLOR.getNid(), defBuilder),
+				ConceptAssertion(MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getNid(), defBuilder) }));
+		LogicalExpression parentDef = defBuilder.build();
+
+		mlg.setGraphData(parentDef.getData(DataTarget.INTERNAL));
+
+		//fails
+		Get.commitService().addUncommittedNoChecks(lg).get();
+		
+		//works????
+		//Get.commitService().addUncommitted(lg).get();
+		
+		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getDefaultEditCoordinate(), "test"));
 	}
 }
