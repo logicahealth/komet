@@ -120,8 +120,6 @@ public class SemanticChronologyImpl
       super(primordialUuid, assemblageNid, IsaacObjectType.SEMANTIC, semanticType);
       this.semanticTypeToken      = semanticType.getVersionTypeToken();
       this.referencedComponentNid = referencedComponentNid;
-      ModelGet.identifierService()
-              .addToSemanticIndex(referencedComponentNid, getNid());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -263,8 +261,8 @@ public class SemanticChronologyImpl
       final SemanticChronologyImpl semanticChronology = new SemanticChronologyImpl();
 
       semanticChronology.readData(data);
-      ModelGet.identifierService()
-              .addToSemanticIndex(semanticChronology.referencedComponentNid, semanticChronology.getNid());
+//      ModelGet.identifierService()
+//              .addToSemanticIndex(semanticChronology.referencedComponentNid, semanticChronology.getNid());
       return semanticChronology;
    }
 

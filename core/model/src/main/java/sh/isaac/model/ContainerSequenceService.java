@@ -44,13 +44,6 @@ public interface ContainerSequenceService extends IdentifierService {
    
    /**
     * 
-    * @param nid a component nid
-    * @param referencingSemanticNid the nid for a semantic that references the component
-    */
-   void addToSemanticIndex(int nid, int referencingSemanticNid);
-
-   /**
-    * 
     * @param componentNid
     * @return the semantic nids associated with the component 
     */
