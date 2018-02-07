@@ -40,7 +40,6 @@ package sh.isaac.misc.modules.vhat;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,21 +51,17 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -376,8 +371,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                   if (itemsToCommit.size() > 0) {
                      for (Chronology c : itemsToCommit) {
                         try {
-                           Get.commitService().commit(c, editCoordinate, "Retiring VHAT has_parent sememes").get();
-                        } catch (InterruptedException | ExecutionException e) {
+                           Frills.commitCheck(Get.commitService().commit(c, editCoordinate, "Retiring VHAT has_parent sememes"));
+                        } catch (RuntimeException e) {
                            LOG.error("FAILED commit while retiring " + c + " VHAT has_parent sememes");
                         }
                      }
@@ -431,11 +426,10 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                            return;
                         }
                         try {
-                           Get.commitService()
+                           Frills.commitCheck(Get.commitService()
                                  .commit(retiredHasParentSemanticVersion.get().getChronology(), editCoordinate, "Unretiring VHAT has_parent association sememe (target UUID="
-                                       + uuidOfParentAccordingToNewLogicGraphVersion + ") for concept (UUID=" + referencedConcept.getPrimordialUuid() + ")")
-                                 .get();
-                        } catch (Exception e) {
+                                       + uuidOfParentAccordingToNewLogicGraphVersion + ") for concept (UUID=" + referencedConcept.getPrimordialUuid() + ")"));
+                        } catch (RuntimeException e) {
                            // New version of this sememe may have failed to be committed, so remove sememe from list so listener won't ignore it
                            nidsOfGeneratedSememesToIgnore.remove(retiredHasParentSemanticVersion.get().getNid());
                            LOG.error("FAILED calling commit() to unretire has_parent association sememe (target UUID=" + uuidOfParentAccordingToNewLogicGraphVersion
@@ -468,8 +462,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                if (builtObjects.size() > 0) {
                   for (Chronology c : builtObjects) {
                      try {
-                        Get.commitService().commit(c, editCoordinate, "Committing new has_parent association sememes.").get();
-                     } catch (InterruptedException | ExecutionException e) {
+                        Frills.commitCheck(Get.commitService().commit(c, editCoordinate, "Committing new has_parent association sememes."));
+                     } catch (RuntimeException e) {
                         LOG.error("FAILED committing new has_parent association sememes", e);
                         return;
                      }
@@ -557,11 +551,10 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                      LOG.error("FAILED calling addUncommitted() on logic graph of VHAT concept " + referencedConcept, e);
                      return;
                   }
-                  Get.commitService()
+                  Frills.commitCheck(Get.commitService()
                         .commit(newLogicGraphSememeVersion.getChronology(), editCoordinate,
                               "Committing new version of logic graph sememe " + conceptLogicGraphSemanticChronology.get().getPrimordialUuid() + " with "
-                                    + parentSequencesFromHasParentAssociationDynamicSememes.size() + " parent(s) for concept " + referencedConcept.getPrimordialUuid())
-                        .get();
+                                    + parentSequencesFromHasParentAssociationDynamicSememes.size() + " parent(s) for concept " + referencedConcept.getPrimordialUuid()));
                } catch (Exception e) {
                   LOG.error("FAILED committing new version of logic graph sememe " + conceptLogicGraphSemanticChronology.get().getPrimordialUuid() + " with "
                         + parentSequencesFromHasParentAssociationDynamicSememes.size() + " parent(s) for concept " + referencedConcept.getPrimordialUuid(), e);
