@@ -72,7 +72,6 @@ import org.jvnet.hk2.annotations.Service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -83,6 +82,8 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
@@ -2425,6 +2426,25 @@ public class Frills
       public void set(T mutable, T latest) {
          this.mutable = mutable;
          this.latest = latest;
+      }
+   }
+   
+   public static CommitRecord commitCheck(CommitTask commitTask) throws RuntimeException {
+      try {
+         Optional<CommitRecord> cr = commitTask.get();
+         if (!cr.isPresent())
+         {
+            LOG.error("Commit Failure - reasons - {}", Arrays.toString(commitTask.getAlerts().toArray()));
+            throw new RuntimeException("Commit failure - " + Arrays.toString(commitTask.getAlerts().toArray()));
+         }
+         return cr.get();
+      }
+      catch (RuntimeException e) {
+         throw e;
+      }
+      catch (Exception e) {
+         LOG.error("Commit Failure", e);
+         throw new RuntimeException("Commit failure", e);
       }
    }
 }
