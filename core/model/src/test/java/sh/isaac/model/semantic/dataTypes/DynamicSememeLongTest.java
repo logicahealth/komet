@@ -37,11 +37,11 @@
 
 
 
-package sh.isaac.model.sememe.dataTypes;
+package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -52,16 +52,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeIntegerTest}.
+ * {@link DynamicSememeLongTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeIntegerTest {
+public class DynamicSememeLongTest {
    /**
     * Test serialization.
     *
@@ -71,12 +69,12 @@ public class DynamicSememeIntegerTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final int[] testValues = new int[] {
-         Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532
+      final long[] testValues = new long[] {
+         Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l
       };
 
-      for (final int i: testValues) {
-         test(i);
+      for (final long l: testValues) {
+         test(l);
       }
    }
 
@@ -87,15 +85,14 @@ public class DynamicSememeIntegerTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(int value)
+   private void test(long value)
             throws PropertyVetoException, IOException {
-      final DynamicIntegerImpl i = new DynamicIntegerImpl(value);
+      final DynamicLongImpl l = new DynamicLongImpl(value);
 
-      assertEquals(value, i.getDataInteger());
-      assertEquals(value, ((Integer) i.getDataObject()).intValue());
-      assertEquals(value, ((Integer) i.getDataObjectProperty()
-                                      .get()).intValue());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.INTEGER);
+      assertEquals(value, l.getDataLong());
+      assertEquals(value, ((Long) l.getDataObject()).longValue());
+      assertEquals(value, ((Long) l.getDataObjectProperty()
+                                   .get()).longValue());
    }
 }
 

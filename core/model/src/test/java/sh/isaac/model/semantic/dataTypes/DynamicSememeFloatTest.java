@@ -37,11 +37,11 @@
 
 
 
-package sh.isaac.model.sememe.dataTypes;
+package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicByteArrayImpl;
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -57,11 +57,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeByteArrayTest}.
+ * {@link DynamicSememeFloatTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeByteArrayTest {
+public class DynamicSememeFloatTest {
    /**
     * Test serialization.
     *
@@ -71,12 +71,13 @@ public class DynamicSememeByteArrayTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final byte[][] testValues = new byte[][] {
-         "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
+      final float[] testValues = new float[] {
+         Float.MIN_VALUE, Float.MAX_VALUE, 0, 4, 6, 4.56f, 4.292732f, 984, -234, -29837, 4532, 3289402830942309f,
+         -9128934721874891f
       };
 
-      for (final byte[] i: testValues) {
-         test(i);
+      for (final float l: testValues) {
+         test(l);
       }
    }
 
@@ -87,15 +88,15 @@ public class DynamicSememeByteArrayTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(byte[] value)
+   private void test(float value)
             throws PropertyVetoException, IOException {
-      final DynamicByteArrayImpl i = new DynamicByteArrayImpl(value);
+      final DynamicFloatImpl l = new DynamicFloatImpl(value);
 
-      assertEquals(value, i.getDataByteArray());
-      assertEquals(value, i.getDataObject());
-      assertEquals(value, i.getDataObjectProperty()
-                           .get());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.BYTEARRAY);
+      assertEquals(value, l.getDataFloat(), 0);
+      assertEquals(value, (Float) l.getDataObject(), 0);
+      assertEquals(value, (Float) l.getDataObjectProperty()
+                                   .get(), 0);
+      assertEquals(l.getDynamicDataType(), DynamicDataType.FLOAT);
    }
 }
 

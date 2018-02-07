@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model.sememe;
+package sh.isaac.model.semantic;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -62,7 +62,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeValidatorTypeImplTest}.
+ * {@link LogicCoordinateTests}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */

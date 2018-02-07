@@ -37,11 +37,11 @@
 
 
 
-package sh.isaac.model.sememe.dataTypes;
+package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicByteArrayImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -57,11 +57,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeBooleanTest}.
+ * {@link DynamicSememeByteArrayTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeBooleanTest {
+public class DynamicSememeByteArrayTest {
    /**
     * Test serialization.
     *
@@ -71,9 +71,11 @@ public class DynamicSememeBooleanTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final boolean[] testValues = new boolean[] { true, false };
+      final byte[][] testValues = new byte[][] {
+         "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
+      };
 
-      for (final boolean i: testValues) {
+      for (final byte[] i: testValues) {
          test(i);
       }
    }
@@ -85,15 +87,15 @@ public class DynamicSememeBooleanTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(boolean value)
+   private void test(byte[] value)
             throws PropertyVetoException, IOException {
-      final DynamicBooleanImpl i = new DynamicBooleanImpl(value);
+      final DynamicByteArrayImpl i = new DynamicByteArrayImpl(value);
 
-      assertEquals(value, i.getDataBoolean());
+      assertEquals(value, i.getDataByteArray());
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
                            .get());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.BOOLEAN);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.BYTEARRAY);
    }
 }
 

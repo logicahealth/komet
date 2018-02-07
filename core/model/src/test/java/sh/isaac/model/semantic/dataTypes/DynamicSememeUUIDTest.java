@@ -37,14 +37,16 @@
 
 
 
-package sh.isaac.model.sememe.dataTypes;
+package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicLongImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
+
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -52,14 +54,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeLongTest}.
+ * {@link DynamicSememeUUIDTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeLongTest {
+public class DynamicSememeUUIDTest {
    /**
     * Test serialization.
     *
@@ -69,12 +73,10 @@ public class DynamicSememeLongTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final long[] testValues = new long[] {
-         Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l
-      };
+      final UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
-      for (final long l: testValues) {
-         test(l);
+      for (final UUID uuid: testValues) {
+         test(uuid);
       }
    }
 
@@ -85,14 +87,15 @@ public class DynamicSememeLongTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(long value)
+   private void test(UUID value)
             throws PropertyVetoException, IOException {
-      final DynamicLongImpl l = new DynamicLongImpl(value);
+      final DynamicUUIDImpl uuid = new DynamicUUIDImpl(value);
 
-      assertEquals(value, l.getDataLong());
-      assertEquals(value, ((Long) l.getDataObject()).longValue());
-      assertEquals(value, ((Long) l.getDataObjectProperty()
-                                   .get()).longValue());
+      assertEquals(value, uuid.getDataUUID());
+      assertEquals(value, uuid.getDataObject());
+      assertEquals(value, uuid.getDataObjectProperty()
+                              .get());
+      assertEquals(uuid.getDynamicDataType(), DynamicDataType.UUID);
    }
 }
 
