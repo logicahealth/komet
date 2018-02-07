@@ -313,7 +313,6 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          LOG.debug("HandleCommit handling logic graph " + logicGraphNid + ". " + semanticNidsForUnhandledLogicGraphChanges.size() + " logic graphs remaining");
 
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(logicGraphNid);
-         @SuppressWarnings("unchecked")
          LatestVersion<Version> logicGraph = sc.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
          if (!logicGraph.isPresent()) {
             // Apparently not a relevant LOGIC_GRAPH sememe
