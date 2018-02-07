@@ -456,6 +456,9 @@ public abstract class ChronologyImpl
             if (stampSequence >= 0) {
                results.add(makeVersion(stampSequence, bb));
             }
+            else {
+               LOG.warn("read a version length, but no stamp sequence? versionLength {}, stampSequence {}, {}", versionLength, stampSequence, bb);
+            }
          } else {
             nextPosition = Integer.MAX_VALUE;
          }
@@ -824,10 +827,10 @@ public abstract class ChronologyImpl
          int versionTo = versionStart + versionSize;
          int newLength = versionTo - versionStart;
          if (versionTo < 0) {
-            System.out.println("Error versionTo: " + versionTo);
+            LOG.error("Error versionTo: " + versionTo);
          }
         if (newLength < 0) {
-            System.out.println("Error newLength: " + newLength);
+           LOG.error("Error newLength: " + newLength);
         }
          dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
          versionStart = versionStart + versionSize;
