@@ -417,7 +417,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                         nidsOfGeneratedSememesToIgnore.add(retiredHasParentSemanticVersion.get().getNid());
 
                         try {
-                           Get.commitService().addUncommittedNoChecks(((SemanticChronology) retiredHasParentSemanticVersion.get().getChronology())).get();
+                           Get.commitService().addUncommitted(((SemanticChronology) retiredHasParentSemanticVersion.get().getChronology())).get();
                         } catch (Exception e) {
                            // New version of this sememe failed to be added to commit list, so remove sememe from list so listener won't ignore it
                            nidsOfGeneratedSememesToIgnore.remove(retiredHasParentSemanticVersion.get().getNid());
@@ -544,7 +544,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                   nidsOfGeneratedSememesToIgnore.add(conceptLogicGraphSemanticChronology.get().getNid());
                   LOG.debug("Created the logic graph " + newLogicGraphSememeVersion + " due to an association change ");
                   try {
-                     Get.commitService().addUncommittedNoChecks(conceptLogicGraphSemanticChronology.get()).get();
+                     Get.commitService().addUncommitted(conceptLogicGraphSemanticChronology.get()).get();
                   } catch (Exception e) {
                      // New version of this sememe failed to be added to commit list, so remove sememe from list so listener won't ignore it
                      nidsOfGeneratedSememesToIgnore.remove(conceptLogicGraphSemanticChronology.get().getNid());
