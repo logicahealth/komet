@@ -98,6 +98,7 @@ public class ObservableLogicCoordinateImpl
    /**
     * Instantiates a new observable logic coordinate impl.
     */
+   @SuppressWarnings("unused")
    private ObservableLogicCoordinateImpl() {
       // for jaxb
    }
@@ -171,9 +172,6 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public boolean equals(Object obj) {
-      if (!this.getClass().isAssignableFrom(obj.getClass())) {
-         throw new IllegalStateException("Object: " + obj + " is not assignable from: " + this.getClass());
-      }
       return this.logicCoordinate.equals(obj);
    }
 
@@ -307,6 +305,5 @@ public class ObservableLogicCoordinateImpl
    public ObservableLogicCoordinateImpl deepClone() {
       return new ObservableLogicCoordinateImpl(logicCoordinate.deepClone());
    }
-
 }
 

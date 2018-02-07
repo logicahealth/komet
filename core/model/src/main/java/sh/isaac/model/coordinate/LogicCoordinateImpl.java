@@ -127,10 +127,15 @@ public class LogicCoordinateImpl
       if (obj == null) {
          return false;
       }
-      if (obj instanceof LogicCoordinate) {
+      
+      if (this == obj) {
+         return true;
+      }
+      
+      if (!(obj instanceof LogicCoordinate)) {
          return false;
       }
-      // Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
+
       final LogicCoordinate other = (LogicCoordinate) obj;
 
       if (this.statedAssemblageNid != other.getStatedAssemblageNid()) {
@@ -142,6 +147,10 @@ public class LogicCoordinateImpl
       }
 
       if (this.descriptionLogicProfileNid != other.getDescriptionLogicProfileNid()) {
+         return false;
+      }
+      
+      if (this.conceptAssemblageNid != other.getConceptAssemblageNid()) {
          return false;
       }
 
