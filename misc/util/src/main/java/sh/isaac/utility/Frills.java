@@ -2008,7 +2008,7 @@ public class Frills
     * 
     * @param componentNid
     *           - referenced component nid of requested sememes
-    * @param allowedAssemblageSequences
+    * @param allowedAssemblageNids
     *           - set of concept sequences of allowed assemblages
     * @param typesToExclude
     *           - set of VersionType restrictions
