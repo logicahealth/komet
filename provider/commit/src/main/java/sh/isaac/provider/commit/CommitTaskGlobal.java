@@ -53,7 +53,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
@@ -239,7 +241,10 @@ public class CommitTaskGlobal extends CommitTask{
             this.commitProvider.handleCommitNotification(commitRecord);
             return Optional.of(commitRecord);
          }
-         return Optional.empty();
+         else{
+            this.alertCollection.add(new AlertObject("nothing to commit", "Nothing was found to commit", AlertType.INFORMATION, AlertCategory.COMMIT));
+            return Optional.empty();
+         }
       } catch (final Exception e1) {
          LOG.error("Unexpected commit failure", e1);
          throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);
