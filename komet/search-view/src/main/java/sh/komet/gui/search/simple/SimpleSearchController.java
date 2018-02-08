@@ -46,6 +46,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -57,7 +58,6 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
@@ -100,6 +100,8 @@ public class SimpleSearchController implements ExplorationNode {
     private ProgressBar                                       searchProgressBar;
     @FXML
     private FlowPane searchTagFlowPane;
+    @FXML
+    private Label searchTextFieldLabel;
 
 
 
@@ -142,6 +144,8 @@ public class SimpleSearchController implements ExplorationNode {
                 "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
         assert searchTagFlowPane != null :
                 "fx:id=\"searchTagFlowPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchTextFieldLabel != null :
+                "fx:id=\"searchTextFieldLabel\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
         this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -160,9 +164,20 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
     private void initializeControls() {
+        initializeSearchTextField();
         initializeProgressBar();
         initializeSearchService();
         initializeSearchTagFlowPlane();
+    }
+
+    private void initializeSearchTextField(){
+        this.searchTextFieldLabel.setOnMouseEntered(mouseEnteredEvent
+                -> this.searchTextFieldLabel.setCursor(Cursor.HAND));
+        this.searchTextFieldLabel.setOnMouseClicked(mouseClickedEvent -> executeSearch());
+        //Tool Tip for text field
+        Tooltip searchTextFieldToolTip = new Tooltip();
+        searchTextFieldToolTip.setText("Enter Keyword(s) to use for Simple Search.");
+        this.searchTextField.setTooltip(searchTextFieldToolTip);
     }
 
     private void initializeSearchTagFlowPlane(){
@@ -172,22 +187,15 @@ public class SimpleSearchController implements ExplorationNode {
         allLabel.setText("All");
         allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
         + "-fx-font-weight:bold;");
-        allLabel.setUserData(new ConceptSpecification() {
-            @Override
-            public String getFullyQualifiedName() {
-                return "ALL";
-            }
 
-            @Override
-            public Optional<String> getRegularName() {
-                return Optional.of("ALL");
-            }
+        //Tool Tip for All Filter
+        Tooltip allFilterToolTip = new Tooltip();
+        allFilterToolTip.setText("Allow all Simple Search results.");
+        allLabel.setTooltip(allFilterToolTip);
+        //Tool Tip for Drag and Drop Filters
+        Tooltip dragAndDropToolTip = new Tooltip();
+        dragAndDropToolTip.setText("Additional restriction on Simple Search results.");
 
-            @Override
-            public List<UUID> getUuidList() {
-                return null;
-            }
-        });
         this.searchTagFlowPane.getChildren().add(allLabel);
 
         this.searchTagFlowPane.setOnDragOver(event -> {
@@ -211,13 +219,15 @@ public class SimpleSearchController implements ExplorationNode {
                         .remove((Object)((ConceptChronology)labelFromDrop.getUserData()).getNid());
             });
 
+            labelFromDrop.setTooltip(dragAndDropToolTip);
+            labelFromDrop.setOnMouseEntered(mouseEnteredEvent
+                    -> labelFromDrop.setCursor(Cursor.HAND));
+
             this.searchTagFlowPane.getChildren().add(labelFromDrop);
             this.draggedTaxonomyConceptsForFilteringListProperty.get().add(droppedChronology.getNid());
+
         });
-
     }
-
-
 
     private void initializeProgressBar(){
         this.searchService.progressProperty().addListener((observable, oldValue, newValue) -> {
@@ -264,7 +274,6 @@ public class SimpleSearchController implements ExplorationNode {
 
         });
     }
-
 
 
     @Override
