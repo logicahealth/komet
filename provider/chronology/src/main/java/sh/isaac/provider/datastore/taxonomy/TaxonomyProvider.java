@@ -193,6 +193,14 @@ public class TaxonomyProvider
         this.updatePermits.acquireUninterruptibly();
         UpdateTaxonomyAfterCommitTask updateTask
                 = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
+        try {
+           //wait for completion
+         updateTask.get();
+      }
+      catch (InterruptedException  | ExecutionException e) {
+         LOG.error("Unexpected error waiting for taxonomy update after commit",e);
+         throw new RuntimeException(e);
+      }
     }
 
     @Override
