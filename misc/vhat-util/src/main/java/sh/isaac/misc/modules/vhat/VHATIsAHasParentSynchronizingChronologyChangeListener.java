@@ -369,12 +369,10 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                   }
 
                   if (itemsToCommit.size() > 0) {
-                     for (Chronology c : itemsToCommit) {
-                        try {
-                           Frills.commitCheck(Get.commitService().commit(c, editCoordinate, "Retiring VHAT has_parent sememes"));
-                        } catch (RuntimeException e) {
-                           LOG.error("FAILED commit while retiring " + c + " VHAT has_parent sememes");
-                        }
+                     try {
+                        Frills.commitCheck(Get.commitService().commit(editCoordinate, "Retiring VHAT has_parent sememes"));
+                     } catch (RuntimeException e) {
+                        LOG.error("FAILED commit while retiring {} VHAT has_parent sememes", itemsToCommit.size());
                      }
                   }
                }
@@ -427,7 +425,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                         }
                         try {
                            Frills.commitCheck(Get.commitService()
-                                 .commit(retiredHasParentSemanticVersion.get().getChronology(), editCoordinate, "Unretiring VHAT has_parent association sememe (target UUID="
+                                 .commit(editCoordinate, "Unretiring VHAT has_parent association sememe (target UUID="
                                        + uuidOfParentAccordingToNewLogicGraphVersion + ") for concept (UUID=" + referencedConcept.getPrimordialUuid() + ")"));
                         } catch (RuntimeException e) {
                            // New version of this sememe may have failed to be committed, so remove sememe from list so listener won't ignore it
@@ -460,13 +458,11 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                }
 
                if (builtObjects.size() > 0) {
-                  for (Chronology c : builtObjects) {
-                     try {
-                        Frills.commitCheck(Get.commitService().commit(c, editCoordinate, "Committing new has_parent association sememes."));
-                     } catch (RuntimeException e) {
-                        LOG.error("FAILED committing new has_parent association sememes", e);
-                        return;
-                     }
+                  try {
+                     Frills.commitCheck(Get.commitService().commit(editCoordinate, "Committing new has_parent association sememes."));
+                  } catch (RuntimeException e) {
+                     LOG.error("FAILED committing new has_parent association sememes", e);
+                     return;
                   }
                }
             }
@@ -552,7 +548,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                      return;
                   }
                   Frills.commitCheck(Get.commitService()
-                        .commit(newLogicGraphSememeVersion.getChronology(), editCoordinate,
+                        .commit(editCoordinate,
                               "Committing new version of logic graph sememe " + conceptLogicGraphSemanticChronology.get().getPrimordialUuid() + " with "
                                     + parentSequencesFromHasParentAssociationDynamicSememes.size() + " parent(s) for concept " + referencedConcept.getPrimordialUuid()));
                } catch (Exception e) {

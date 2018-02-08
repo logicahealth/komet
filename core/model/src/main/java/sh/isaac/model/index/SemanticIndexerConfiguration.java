@@ -242,10 +242,10 @@ public class SemanticIndexerConfiguration {
                               .getNid(),
                       data);
 
-      SemanticChronology sc = sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
+      sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
               .get();
       Get.commitService()
-              .commit(sc, Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
+              .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
               .get();
 
       if (!skipReindex) {

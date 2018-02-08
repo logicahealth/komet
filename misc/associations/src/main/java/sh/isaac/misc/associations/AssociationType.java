@@ -190,8 +190,8 @@ public class AssociationType
     * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or 
     * UUID that is set for the referenced component in an instance of this sememe.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
     * if it were null.
-    * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMEME} restrictions
-    * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate)}
+    * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
+    * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate, LanguageCoordinate)}
     * @param editCoord - optional - the edit coordinate to use when creating the association.  Uses the system default if not provided.
     * @return the concept sequence of the created concept that carries the association definition
     */
@@ -230,18 +230,16 @@ public class AssociationType
                   .getDescriptionBuilder(associationInverseName, rdud.getDynamicUsageDescriptorNid(), 
                         MetaData.REGULAR_NAME____SOLOR, MetaData.ENGLISH_LANGUAGE____SOLOR).build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
             
-            SemanticChronology sc = Get.semanticBuilderService().getDynamicBuilder(builtDesc.getNid(), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getAssemblageNid())
+            Get.semanticBuilderService().getDynamicBuilder(builtDesc.getNid(), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getAssemblageNid())
                         .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
-            
-            Get.commitService().commit(sc, localEditCoord, "add description to association").get();  
          }
          
          //Add the association marker sememe
-         SemanticChronology sc = Get.semanticBuilderService().getDynamicBuilder(rdud.getDynamicUsageDescriptorNid(),
+         Get.semanticBuilderService().getDynamicBuilder(rdud.getDynamicUsageDescriptorNid(),
                   DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid())
                      .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow(); 
          
-         Get.commitService().commit(sc, localEditCoord, "mark assocation as association type sememe").get();
+         Frills.commitCheck(Get.commitService().commit(localEditCoord, "create assoication steps"));
          //final get is to wait for commit completion
 
          return read(rdud.getDynamicUsageDescriptorNid(), stampCoord, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
