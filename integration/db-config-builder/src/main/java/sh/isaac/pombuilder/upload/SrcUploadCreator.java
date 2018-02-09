@@ -102,7 +102,7 @@ public class SrcUploadCreator
 	 * @param workingFolder - optional - if provided, the working files are created inside this folder. If not provided, uses a system temp folder.
 	 * @param moveSourceFiles - default is true meaning the files from filesToUpload will be moved into the baseFolder.
 	 *            specify false to copy instead of move the files from filesToUpload.
-	 * @param deleteAfterPublish - true if any content created inside of baseFolder should be deleted after a successful publish.
+	 * @param deleteAfterPublish - true if any content created inside of workingFolder should be deleted after a successful publish.
 	 * @return - the task handle - which will return the tag that was created in the git repository upon completion. Note that the task is NOT yet
 	 *         started, when it is returned.
 	 * @throws Throwable the throwable

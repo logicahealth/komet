@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import sh.isaac.api.LookupService;
 import sh.isaac.converters.sharedUtils.config.ConfigOptionsDescriptor;
 import sh.isaac.pombuilder.VersionFinder;
@@ -117,7 +118,12 @@ public class CreateMojoExecutionProject
 					System.out.println("What version of the dependency " + dependency.getNiceName() + " should be used?");
 					System.out.println(dependency.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
-					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion);
+					
+					System.out.println("Please specify the classifier (delta, snapshot, etc) if any - just push enter for none.");
+					String classifier = bufferedReader.readLine();
+					
+					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion, 
+							StringUtils.isNotBlank(classifier.trim()) ? classifier.trim() : null);
 					System.out.println("Added the dependency " + additionalSourceDependencies[i]);
 					System.out.println();
 				}
@@ -145,6 +151,7 @@ public class CreateMojoExecutionProject
 			Map<ConverterOptionParam, Set<String>> converterOptionValues = new HashMap<>();
 			for (ConfigOptionsDescriptor cod : LookupService.getServices(ConfigOptionsDescriptor.class))
 			{
+				//TODO test this after I get the mojo converters moved
 				if (cod.getName().equals(selectedConverter.getArtifactId()))
 				{
 					System.out.println("The selected requires configuration parameters.");
@@ -173,7 +180,7 @@ public class CreateMojoExecutionProject
 			}
 
 			ContentConverterCreator.createContentConverter(ssc, converterVersion, additionalSourceDependencies, additionalIBDFDependencies,
-					converterOptionValues, null, null, null);
+					converterOptionValues, null, null, null, new File("target"), false);
 
 			System.out.println("Configuration created in " + new File("target").getAbsolutePath());
 			LookupService.shutdownSystem();

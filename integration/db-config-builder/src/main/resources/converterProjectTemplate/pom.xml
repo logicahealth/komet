@@ -27,17 +27,35 @@
 			<name>The Apache Software License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
-			<comments>Copyright Notice
-				This is a work of the U.S. Government and is not subject to copyright
-				protection in the United States. Foreign copyrights may apply.
+			<comments>
+				Contributions from 2013-2017 where performed either by US government
+				employees, or under US Veterans Health Administration contracts.
+
+				US Veterans Health Administration contributions by government employees
+				are work of the U.S. Government and are not subject to copyright
+				protection in the United States. Portions contributed by government
+				employees are USGovWork (17USC §105). Not subject to copyright.
+
+				Contribution by contractors to the US Veterans Health Administration
+				during this period are contractually contributed under the
+				Apache License, Version 2.0.
+
+				See: https://www.usa.gov/government-works
+
+				Contributions prior to 2013:
+
+				Copyright © International Health Terminology Standards Development Organisation.
+
+				Content packaged by SOLOR projects are subject to licenses specific to the content packaged.
 			</comments>
 		</license>
 #LICENSE#
 	</licenses>
 
 	<organization>
-		<name>U.S. Department of Veterans Affairs</name>
-		<url>www.va.gov</url>
+		<name>Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+				US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium.
+		</name>
 	</organization>
 	
 	<developers>
@@ -49,8 +67,8 @@
 	</developers>
 	
 	<issueManagement>
-		<system>Jazz</system>
-		<url>https://clm.rational.oit.va.gov/ccm/web/projects/CTT (CM)</url>
+		<system>Jira</system>
+		<url>https://issues.osehra.org/projects/ISAAC/summary</url>
 	</issueManagement>
 
 	<dependencies>
