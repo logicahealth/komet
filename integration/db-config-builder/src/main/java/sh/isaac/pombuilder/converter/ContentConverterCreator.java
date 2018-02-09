@@ -83,6 +83,7 @@ import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 public class ContentConverterCreator {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
+   public static final String IBDF_OUTPUT_GROUP = "sh.isaac.terminology.converted";
 
    //~--- methods -------------------------------------------------------------
 
@@ -336,7 +337,7 @@ public class ContentConverterCreator {
 
          pomSwaps.put("#PROFILE#", profiles.toString());
 
-         final String tagWithoutRevNumber = "sh.isaac.terminology.converted" + "/" + pomSwaps.get("#ARTIFACTID#") +
+         final String tagWithoutRevNumber = IBDF_OUTPUT_GROUP + "/" + pomSwaps.get("#ARTIFACTID#") +
                                             "/" + pomSwaps.get("#VERSION#");
 
          LOG.debug("Generated tag (without rev number): '{}'", tagWithoutRevNumber);
@@ -408,7 +409,7 @@ public class ContentConverterCreator {
    }
 
    /**
-    * Gets the converter options.
+    * Gets the converter options.  Look at {@link ConverterOptionParam#fromArtifact(Converter, String, String, String)};
     *
     * @param converter the converter
     * @param repositoryBaseURL the repository base URL
@@ -416,7 +417,6 @@ public class ContentConverterCreator {
     * @param repositoryPassword the repository password
     * @return the converter options
     * @throws Exception the exception
-    * @see {@link ConverterOptionParam#fromArtifact(Converter, String, String, String)};
     */
    public static ConverterOptionParam[] getConverterOptions(Converter converter,
          String repositoryBaseURL,
