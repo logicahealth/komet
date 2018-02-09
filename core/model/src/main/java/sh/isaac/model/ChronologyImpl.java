@@ -441,12 +441,16 @@ public abstract class ChronologyImpl
    protected <V extends StampedVersion> void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
       int nextPosition = bb.getPosition();
 
-      assert nextPosition >= 0 : bb;
+      assert nextPosition >= 0 : "next position negative: " + nextPosition + " buffer: " + bb;
 
       while (nextPosition < bb.getLimit()) {
          final int versionLength = bb.getInt();
 
-         assert versionLength >= 0 : bb;
+         if (versionLength < 0) {
+             LOG.error("Negative version length...");
+         }
+         assert versionLength >= 0 : "Length negative: " + versionLength + " buffer: " + bb;
+                  
 
          if (versionLength > 0) {
             nextPosition = nextPosition + versionLength;

@@ -243,8 +243,6 @@ public abstract class VersionImpl
     */
    protected void writeVersionData(ByteArrayDataBuffer data) {
       data.putStampSequence(this.stampSequence);
-      // legacy version sequence...
-      data.putShort((short) 0);
    }
 
    //~--- get methods ---------------------------------------------------------

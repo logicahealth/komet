@@ -478,16 +478,23 @@ public class FileSystemDataStore
       ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
               size + 4);  // room for 0 int value at end to indicate last version
 
-      for (byte[] dataEntry : data) {
-         byteBuffer.put(dataEntry);
+      for (int i = 0; i < data.length; i++) {
+          if (i == 0) {
+              // discard the 0 integer at the beginning of the record. 
+              // 0 put in to enable the chronicle to sort before the versions. 
+             if (data[0][0] != 0 && data[0][1] != 0 && data[0][2] != 0 && data[0][3] != 0) {
+                throw new IllegalStateException("Record does not start with zero...");
+              }
+              byteBuffer.put(data[0], 4, data[0].length - 4);
+          } else {
+              byteBuffer.put(data[i]);
+          }
+          
       }
 
       byteBuffer.putInt(0);
       byteBuffer.rewind();
 
-      if (byteBuffer.getInt() != 0) {
-         throw new IllegalStateException("Record does not start with zero...");
-      }
 
       return Optional.of(byteBuffer);
    }

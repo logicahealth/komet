@@ -205,10 +205,10 @@ public class ChronologyProvider
         commitService.postProcessImportNoChecks();
         
       //Store the DB id as a semantic
-      SemanticChronology sc = Get.semanticBuilderService()
+      Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
             .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get();
-      Get.commitService().commit(sc, EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept");
+      Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept").get();
     }
 
     /**

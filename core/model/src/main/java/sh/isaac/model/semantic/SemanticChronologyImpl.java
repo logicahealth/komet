@@ -58,7 +58,6 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
@@ -443,8 +442,6 @@ public class SemanticChronologyImpl
     */
    @Override
    protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
-      // consume legacy version sequence.
-      db.getShort();
       return (V) createSemantic(this.semanticTypeToken, this, stampSequence, db);
    }
 

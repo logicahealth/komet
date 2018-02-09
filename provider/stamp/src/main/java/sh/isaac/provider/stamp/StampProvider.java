@@ -227,6 +227,7 @@ public class StampProvider
    public void addStamp(Stamp stamp, int stampSequence) {
       this.stampMap.put(stamp, stampSequence);
       this.inverseStampMap.put(stampSequence, stamp);
+      LOG.trace("Added stamp {}", stamp);
    }
 
    /**
@@ -760,6 +761,7 @@ public class StampProvider
 
                final int stampSequence = this.nextStampSequence.getAndIncrement();
 
+               LOG.trace("Putting {}, {} into uncommitted stamp to sequence map",  usp, stampSequence);
                UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
                      .put(usp, stampSequence);
                this.inverseStampMap.put(stampSequence, stampKey);

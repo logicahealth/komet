@@ -248,8 +248,6 @@ public class ConceptChronologyImpl
     */
    @Override
    protected ConceptVersionImpl makeVersion(int stampSequence, ByteArrayDataBuffer bb) {
-      // discard old short value for version sequence
-      bb.getShort();
       return new ConceptVersionImpl(this, stampSequence);
    }
 

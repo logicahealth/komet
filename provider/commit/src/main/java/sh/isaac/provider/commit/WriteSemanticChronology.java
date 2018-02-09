@@ -120,10 +120,10 @@ public class WriteSemanticChronology
         try {
             Get.assemblageService()
                     .writeSemanticChronology(this.sc);
-            this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
-                if (TestConcept.WATCH_NID_SET.contains(this.sc.getNid())) {
-                    System.out.println("Writing INFERRED watch semantic for: " + TestConcept.HOMOCYSTINE_MV_URINE);
-                }
+//            this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
+//                if (TestConcept.WATCH_NID_SET.contains(this.sc.getNid())) {
+//                    System.out.println("Writing INFERRED watch semantic for: " + TestConcept.HOMOCYSTINE_MV_URINE);
+//                }
 
 
             this.uncommittedTracking.accept(this.sc, false);

@@ -58,6 +58,7 @@ public interface ClinicalStatement {
 
     /**
      * The statement type must be consistent with the circumstance class.
+     * Statements are generally either "request" or "performance"
      * @return the type of statement.
      */
     LogicalExpression getStatementType();

@@ -77,7 +77,7 @@ import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger; 
+import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
@@ -97,7 +97,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
@@ -485,6 +484,9 @@ public class CommitProvider
    public synchronized CommitTask commit(Chronology chronicle,
            EditCoordinate editCoordinate,
            String commitComment) {
+	   //TODO chronicle commit is broken, as it doesn't update the uncommited stamp set.
+	   //thus, if you commit a concept using this method, then later do a global commit, the global commit will
+	   //recommit this concept, leading it to have two commit stamps with the same time.
       CommitTaskChronology task = CommitTaskChronology.get(
             chronicle, 
             editCoordinate, 
@@ -647,6 +649,7 @@ public class CommitProvider
     */
    protected void addComment(int stamp, String commitComment) {
       this.stampCommentMap.addComment(stamp, commitComment);
+      LOG.trace("stamp {} comment: {}", stamp, commitComment);
    }
 
    /**

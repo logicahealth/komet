@@ -191,11 +191,9 @@ public class BugDemo
 
 		mlg.setGraphData(parentDef.getData(DataTarget.INTERNAL));
 
-		//fails
 		Get.commitService().addUncommittedNoChecks(lg).get();
 		
-		//works????
-		//Get.commitService().addUncommitted(lg).get();
+		Get.commitService().addUncommitted(lg).get();
 		
 		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getDefaultEditCoordinate(), "test"));
 	}

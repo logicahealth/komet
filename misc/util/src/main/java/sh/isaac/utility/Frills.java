@@ -484,7 +484,7 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(newDynamicSememeUsageDescriptionConcept, Get.configurationService().getDefaultEditCoordinate(), 
+            .commit(Get.configurationService().getDefaultEditCoordinate(), 
                   "creating new dynamic assemblage (DynamicSememeUsageDescription): NID=" +
                 newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
                 sememePreferredTerm + ", DESC=" + sememeDescription)
