@@ -169,11 +169,11 @@ public class CommitTaskGlobal extends CommitTask{
 
          LOG.debug("performing commit for '{}'", this.commitComment);
          this.conceptNidsToCommit.stream().forEach((conceptNid) -> {
-            final ConceptChronology c = Get.conceptService().getConceptChronology(conceptNid);
 
             //TODO [KEC] in the merge, Keith switched all these streams back to for loops... see if necessary.
             if (this.conceptNidsToCheck.contains(conceptNid)) {
                this.checkers.stream().forEach((check) -> {
+                  final ConceptChronology c = Get.conceptService().getConceptChronology(conceptNid);
                   AlertObject ao = check.check(c, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
                      this.alertCollection.add(ao);
