@@ -48,8 +48,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;
@@ -74,8 +72,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class CommitTaskGlobal extends CommitTask{
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -186,9 +182,9 @@ public class CommitTaskGlobal extends CommitTask{
             completedUnitOfWork();
          });
          this.semanticNidsToCommit.stream().forEach((semanticNid) -> {
-            final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticNid);
 
             if (this.semanticNidsToCheck.contains(semanticNid)) {
+            final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticNid);  
                this.checkers.stream().forEach((check) -> {
                   AlertObject ao = check.check(sc, CheckPhase.COMMIT);
                   if (ao.getAlertType().preventsCheckerPass()) {
