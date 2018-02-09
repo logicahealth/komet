@@ -52,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.pombuilder.FileUtil;
+import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -338,7 +339,7 @@ public enum SupportedConverterTypes
     * In order to execute a conversion of the specified type, you must also provide dependencies for each of the listed
     * Source artifact identifiers.
     *
-    * This is used during SOURCE UPLOAD
+    * This is used during IBDF CONVERSION
     *
     * @return the artifact dependencies
     */
@@ -444,9 +445,9 @@ public enum SupportedConverterTypes
    
 
    /**
-    * The descriptive text to provide to the end user to meet the regexp requirements given by {@link #getSourceVersionRegExpValidator()}
     * 
     * This is used during SOURCE UPLOAD
+    * @return The descriptive text to provide to the end user to meet the regexp requirements given by {@link #getSourceVersionRegExpValidator()}  
     */
    public String getSourceVersionDescription()
    {
@@ -455,10 +456,12 @@ public enum SupportedConverterTypes
    
    /**
     * The regular expression that should be satisfied for the version number given to the uploaded source artifact(s).  The value provided to 
-    * the {@link SrcUploadCreator#createSrcUploadConfiguration(SupportedConverterTypes, String, String, List, String, String, char[], String, String, String)}
+    * the {@link SrcUploadCreator#createSrcUploadConfiguration(SupportedConverterTypes, String, String, List, String, String, char[], String, 
+    * String, String, java.io.File, boolean, boolean)}
     * for the 'version' parameter should meet this regexp.
     * 
     * This is used during SOURCE UPLOAD
+    * @return the regular expression 
     */
    public String getSourceVersionRegExpValidator()
    {
@@ -474,6 +477,24 @@ public enum SupportedConverterTypes
     */
    public List<UploadFileInfo> getUploadFileInfo() {
       return this.uploadFileInfo;
+   }
+   
+   public static SupportedConverterTypes find(String artifactId) {
+      for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
+         if (sct.getArtifactId().equals(artifactId)) {
+            return sct;
+         }
+      }
+      return null;
+   }
+   
+   public static SupportedConverterTypes findSourceArtifactForIBDFArtifact(String artifactId) {
+      for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
+         if (sct.getConverterOutputArtifactId().equals(artifactId)) {
+            return sct;
+         }
+      }
+      return null;
    }
 }
 
