@@ -35,7 +35,7 @@
  *
  */
 
-package sh.isaac.convert.rxnorm.standard;
+package sh.isaac.convert.mojo.rxnorm;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -73,7 +73,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -83,9 +82,10 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.convert.rxnorm.RxNormConstants;
-import sh.isaac.convert.rxnorm.propertyTypes.PT_Annotations;
-import sh.isaac.convert.rxnorm.propertyTypes.ValuePropertyPairWithSAB;
+import sh.isaac.convert.mojo.rxnorm.propertyTypes.PT_Annotations;
+import sh.isaac.convert.mojo.rxnorm.propertyTypes.ValuePropertyPairWithSAB;
+import sh.isaac.convert.mojo.rxnorm.rrf.RXNCONSO;
+import sh.isaac.convert.mojo.rxnorm.rrf.RXNSAT;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
@@ -111,8 +111,6 @@ import sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes.PT_Relationship_M
 import sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes.PT_SAB_Metadata;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.rxnorm.rrf.RXNCONSO;
-import sh.isaac.rxnorm.rrf.RXNSAT;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -1732,8 +1730,6 @@ public class RxNormMojo extends ConverterBaseMojo {
                .forEachOrdered((vpp) -> {
                   items.add(vpp.getProperty().getSourcePropertyNameFQN() + " " + vpp.getProperty().getPropertySubType());
                }); // Numbers come from the rankings down below in makeDescriptionType(...)
-
-         final HashSet<String> ranksLookedAt = new HashSet<>();
 
          if (items.size() > 1) {
             for (final String x : items) {

@@ -35,7 +35,7 @@
  *
  */
 
-package sh.isaac.convert.rxnorm;
+package sh.isaac.convert.mojo.rxnorm;
 
 //~--- non-JDK imports --------------------------------------------------------
 

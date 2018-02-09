@@ -89,7 +89,7 @@ import sh.isaac.model.logic.node.LiteralNodeFloat;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.rxnorm.rrf.RXNCONSO;
+//import sh.isaac.rxnorm.rrf.RXNCONSO;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;

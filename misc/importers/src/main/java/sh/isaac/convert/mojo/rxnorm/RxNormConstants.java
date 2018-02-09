@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package sh.isaac.convert.rxnorm;
+package sh.isaac.convert.mojo.rxnorm;
 
 /**
  * 

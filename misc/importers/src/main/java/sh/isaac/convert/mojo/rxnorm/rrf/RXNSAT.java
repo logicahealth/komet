@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.rxnorm.rrf;
+package sh.isaac.convert.mojo.rxnorm.rrf;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -47,31 +47,33 @@ import java.sql.SQLException;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class RXNCONSO.
+ * {@link RXNSAT}.
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RXNCONSO {
+public class RXNSAT {
    /** The cvf. */
-   public String rxcui, lat, rxaui, saui, scui, sab, tty, code, str, suppress, cvf;
+   public String rxcui, rxaui, stype, code, atui, satui, atn, sab, atv, suppress, cvf;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new rxnconso.
+    * Instantiates a new rxnsat.
     *
     * @param rs the rs
     * @throws SQLException the SQL exception
     */
-   public RXNCONSO(ResultSet rs)
+   public RXNSAT(ResultSet rs)
             throws SQLException {
       this.rxcui    = rs.getString("RXCUI");
-      this.lat      = rs.getString("LAT");
       this.rxaui    = rs.getString("RXAUI");
-      this.saui     = rs.getString("SAUI");
-      this.scui     = rs.getString("SCUI");
-      this.sab      = rs.getString("SAB");
-      this.tty      = rs.getString("TTY");
+      this.stype    = rs.getString("STYPE");
       this.code     = rs.getString("CODE");
-      this.str      = rs.getString("STR");
+      this.atui     = rs.getString("ATUI");
+      this.satui    = rs.getString("SATUI");
+      this.atn      = rs.getString("ATN");
+      this.sab      = rs.getString("SAB");
+      this.atv      = rs.getString("ATV");
       this.suppress = rs.getString("SUPPRESS");
       this.cvf      = rs.getString("CVF");
    }
@@ -84,8 +86,8 @@ public class RXNCONSO {
     */
    @Override
    public String toString() {
-      return "RXNCONSO [rxcui=" + rxcui + ", lat=" + lat + ", rxaui=" + rxaui + ", saui=" + saui + ", scui=" + scui + ", sab=" + sab + ", tty=" + tty + ", code=" + code + ", str="
-            + str + ", suppress=" + suppress + ", cvf=" + cvf + "]";
+      return "RXNSAT [rxcui=" + rxcui + ", rxaui=" + rxaui + ", stype=" + stype + ", code=" + code + ", atui=" + atui + ", satui=" + satui + ", atn=" + atn + ", sab=" + sab
+            + ", atv=" + atv + ", suppress=" + suppress + ", cvf=" + cvf + "]";
    }
 }
 

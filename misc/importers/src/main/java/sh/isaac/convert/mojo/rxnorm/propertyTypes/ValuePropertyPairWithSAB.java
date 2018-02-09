@@ -37,16 +37,12 @@
 
 
 
-package sh.isaac.convert.rxnorm.propertyTypes;
+package sh.isaac.convert.mojo.rxnorm.propertyTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.rxnorm.rrf.RXNSAT;
-
+import sh.isaac.convert.mojo.rxnorm.rrf.RXNSAT;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.umlsUtils.ValuePropertyPairWithAttributes;

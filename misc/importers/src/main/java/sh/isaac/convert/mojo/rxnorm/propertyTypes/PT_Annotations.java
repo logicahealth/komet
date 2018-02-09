@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.convert.rxnorm.propertyTypes;
+package sh.isaac.convert.mojo.rxnorm.propertyTypes;
 
 import sh.isaac.MetaData;
 
