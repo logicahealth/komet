@@ -40,6 +40,12 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>logic</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
          <groupId>com.opencsv</groupId>
          <artifactId>opencsv</artifactId>
          <scope>compile</scope>

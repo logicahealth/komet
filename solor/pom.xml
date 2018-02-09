@@ -11,8 +11,6 @@
     <description>Aggregator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>
-        <module>loinc-mojo</module>
-        <module>rf2-mojo</module>
         <module>rxnorm-mojo</module>
         <module>solor-parent</module>
         <module>rf2-direct-import</module>
