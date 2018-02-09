@@ -75,9 +75,22 @@ public class VersionFinder {
     * Note that while this finds the project version from either the metadata embedded in the jar that contains this, 
     * or from the pom.xml file, if we are running in eclipse - it will not return SNAPSHOT versions, rather, it 
     * removes -SNAPSHOT and decrements the versions by 1, to simplify testing in AITC.
+    * calls {@link #findProjectVersion(boolean)} with false
     * @return the string
     */
    public static String findProjectVersion() {
+	   return findProjectVersion(false);
+   }
+   
+   /**
+    * Note that while this finds the project version from either the metadata embedded in the jar that contains this, 
+    * or from the pom.xml file if we are running from a dev enviornment, see notes on allowSNAPSHOT.
+    * 
+    * @param allowSNAPSHOT if set to false, and we are running in eclipse - it will not return SNAPSHOT versions, rather, it 
+    * removes -SNAPSHOT and decrements the versions by 1, to simplify testing in AITC.
+    * @return the string
+    */
+   public static String findProjectVersion(boolean allowSNAPSHOT) {
       try (InputStream is =
             VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.integration/db-config-builder/pom.xml");) {
          final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -106,7 +119,7 @@ public class VersionFinder {
          // refs that won't be resolvable in AITC
 
          try {
-            if (temp.endsWith("-SNAPSHOT")) {
+            if (!allowSNAPSHOT && temp.endsWith("-SNAPSHOT")) {
                String subString = temp.substring(0, temp.indexOf("-SNAPSHOT"));
                String[] parts = subString.split("\\.");
 
