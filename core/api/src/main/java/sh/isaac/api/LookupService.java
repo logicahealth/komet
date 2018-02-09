@@ -520,7 +520,7 @@ public class LookupService {
             LOG.info("Setting run level to: " + --currentRunLevel);
             getService(RunLevelController.class).proceedTo(currentRunLevel);
          }
-         getServices(IsaacCache.class).forEach((cache) -> {
+         getActiveServices(IsaacCache.class).forEach((cache) -> {
             LOG.info("Clear cache for: {}", cache.getClass().getName());
             cache.reset();
          });
