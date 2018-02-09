@@ -44,7 +44,7 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.IsaacCache;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.MetadataConceptConstant;
@@ -64,7 +64,7 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
  */
 @Service
 @Singleton
-public class VHATConstants implements ModuleProvidedConstants, IsaacCache {
+public class VHATConstants implements ModuleProvidedConstants, StaticIsaacCache {
 
    
    public final static MetadataConceptConstant VHAT_HAS_PARENT_ASSOCIATION_TYPE = 

@@ -42,12 +42,12 @@ import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.MetaData;
-import sh.isaac.api.IsaacCache;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 @Service
 @PerLookup
-public class MetaDataCleanup implements IsaacCache {
+public class MetaDataCleanup implements StaticIsaacCache {
 
 	@Override
 	public void reset() {

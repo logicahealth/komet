@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.IsaacCache;
+import sh.isaac.api.StaticIsaacCache;
 
 /**
  * Provides services that are not part of the base API to the model, which makes particular
@@ -33,7 +33,7 @@ import sh.isaac.api.IsaacCache;
 //Even though this class is static, needs to be a service, so that the reset() gets fired at appropriate times.
 @Service
 @Singleton
-public class ModelGet implements IsaacCache {
+public class ModelGet implements StaticIsaacCache {
    private static final Logger LOG = LogManager.getLogger();
    
    static ContainerSequenceService containerSequenceService;

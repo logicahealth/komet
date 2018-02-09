@@ -53,7 +53,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.IsaacCache;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -72,7 +72,7 @@ import sh.isaac.api.util.UuidT5Generator;
 
 @Service
 @Singleton
-public class TermAux implements IsaacCache {
+public class TermAux implements StaticIsaacCache {
    // J-
    public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
    public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
