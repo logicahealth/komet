@@ -109,6 +109,7 @@ public class RF2Mojo extends ConverterBaseMojo
    String contentNameVersion_;
    String timeString_;
 
+   @SuppressWarnings("unused")
    private String CONCEPT, IDENTIFIER, RELATIONSHIP, STATED_RELATIONSHIP;
    private ArrayList<String> DESCRIPTIONS = new ArrayList<>();
    private ArrayList<String> LANGUAGES = new ArrayList<>();

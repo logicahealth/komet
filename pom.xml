@@ -118,6 +118,7 @@
       <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
       <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
       <opencsv.version>3.3</opencsv.version>
+      <poi-ooxml.version>3.17</poi-ooxml.version>
       <plexus-archiver.version>3.4</plexus-archiver.version>
       <plexus-classworlds.version>2.5.2</plexus-classworlds.version>
       <plexus-component-annotations.version>1.7.1</plexus-component-annotations.version>
@@ -371,6 +372,11 @@
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
             <scope>compile</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi-ooxml.version}</version>
          </dependency>
          <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>

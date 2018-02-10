@@ -194,83 +194,87 @@ public class LoincCsvFileReader
                                                                  new SimpleDateFormat("MMM yyyy"),
                                                                  new SimpleDateFormat("MMMyyyy"),
                                                                  new SimpleDateFormat("MM/dd/yy") };
-         final BufferedReader br           = new BufferedReader(new FileReader(relNotes));
-         String               line         = br.readLine();
-         boolean              first        = true;
-         String               versionCache = null;
-
-         while (line != null) {
-            if (line.matches("\\s*\\|\\s*Version [\\w\\.\\-\\(\\)]*\\s*\\|\\s*")) {
-               final String temp = line.substring(line.indexOf("Version") + "Version ".length());
-
-               versionCache = temp.replace('|', ' ')
-                                  .trim();
-
-               if (first) {
-                  this.version = versionCache;
-               }
-            }
-
-            if (line.matches("\\s*\\|\\s*Released [\\w\\s/,]*\\|")) {
-               String temp = line.substring(line.indexOf("Released") + "Released ".length());
-
-               temp = temp.replace('|', ' ')
-                          .trim();
-
-               if (first) {
-                  this.release = temp;
-                  first        = false;
-
-                  if (!populateVersionTimeMap) {
-                     break;
-                  }
-               }
-
-               Long time = -1l;
-
-               for (final SimpleDateFormat f: sdf) {
-                  try {
-                     time = f.parse(temp)
-                             .getTime();
-                     break;
-                  } catch (final ParseException e) {
-                     // noop
-                  }
-               }
-
-               if (time < 0) {
-                  throw new IOException("Failed to parse " + temp);
-               }
-
-               if (versionCache == null) {
-                  ConsoleUtil.printErrorln("No version for line " + line);
-               } else {
-                  this.versionTimeMap.put(versionCache, time);
-               }
-
-               versionCache = null;
-            }
-
-            line = br.readLine();
-         }
-
-         br.close();
-
-         if (populateVersionTimeMap) {
-            // release notes is missing this one...set it to a time before 2.03.
-            if (!this.versionTimeMap.containsKey("2.02")) {
-               final Date temp = new Date(this.versionTimeMap.get("2.03"));
-
-               temp.setMonth(temp.getMonth() - 1);
-               this.versionTimeMap.put("2.02", temp.getTime());
-            }
-
-            // Debug codel
-//          ConsoleUtil.println("Release / Time map read from readme file:");
-//          for (Entry<String, Long> x : versionTimeMap.entrySet())
-//          {
-//                  ConsoleUtil.println(x.getKey() + " " + new Date(x.getValue()).toString());
-//          }
+         try (final BufferedReader br           = new BufferedReader(new FileReader(relNotes)))
+         {
+        	 
+         
+	         String               line         = br.readLine();
+	         boolean              first        = true;
+	         String               versionCache = null;
+	
+	         while (line != null) {
+	            if (line.matches("\\s*\\|\\s*Version [\\w\\.\\-\\(\\)]*\\s*\\|\\s*")) {
+	               final String temp = line.substring(line.indexOf("Version") + "Version ".length());
+	
+	               versionCache = temp.replace('|', ' ')
+	                                  .trim();
+	
+	               if (first) {
+	                  this.version = versionCache;
+	               }
+	            }
+	
+	            if (line.matches("\\s*\\|\\s*Released [\\w\\s/,]*\\|")) {
+	               String temp = line.substring(line.indexOf("Released") + "Released ".length());
+	
+	               temp = temp.replace('|', ' ')
+	                          .trim();
+	
+	               if (first) {
+	                  this.release = temp;
+	                  first        = false;
+	
+	                  if (!populateVersionTimeMap) {
+	                     break;
+	                  }
+	               }
+	
+	               Long time = -1l;
+	
+	               for (final SimpleDateFormat f: sdf) {
+	                  try {
+	                     time = f.parse(temp)
+	                             .getTime();
+	                     break;
+	                  } catch (final ParseException e) {
+	                     // noop
+	                  }
+	               }
+	
+	               if (time < 0) {
+	                  throw new IOException("Failed to parse " + temp);
+	               }
+	
+	               if (versionCache == null) {
+	                  ConsoleUtil.printErrorln("No version for line " + line);
+	               } else {
+	                  this.versionTimeMap.put(versionCache, time);
+	               }
+	
+	               versionCache = null;
+	            }
+	
+	            line = br.readLine();
+	         }
+	
+	         br.close();
+	
+	         if (populateVersionTimeMap) {
+	            // release notes is missing this one...set it to a time before 2.03.
+	            if (!this.versionTimeMap.containsKey("2.02")) {
+	               final Date temp = new Date(this.versionTimeMap.get("2.03"));
+	
+	               temp.setMonth(temp.getMonth() - 1);
+	               this.versionTimeMap.put("2.02", temp.getTime());
+	            }
+	
+	            // Debug codel
+	//          ConsoleUtil.println("Release / Time map read from readme file:");
+	//          for (Entry<String, Long> x : versionTimeMap.entrySet())
+	//          {
+	//                  ConsoleUtil.println(x.getKey() + " " + new Date(x.getValue()).toString());
+	//          }
+	         }
          }
       } else {
          ConsoleUtil.printErrorln("Couldn't find release notes file - can't read version or release date!");

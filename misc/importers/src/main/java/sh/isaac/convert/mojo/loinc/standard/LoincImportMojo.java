@@ -160,7 +160,8 @@ public class LoincImportMojo extends ConverterBaseMojo {
     *
     * @throws MojoExecutionException the mojo execution exception
     */
-   @Override
+   @SuppressWarnings("deprecation")
+@Override
    public void execute() throws MojoExecutionException {
       ConsoleUtil.println("LOINC Processing Begins " + new Date().toString());
 
