@@ -53,13 +53,13 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -90,12 +90,28 @@ public class Rf2DirectImporter
 
     //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
-    
+
     protected final ImportType importType;
+
+    protected final List<ZipFileEntry> entriesToImport;
 
     //~--- constructors --------------------------------------------------------
     public Rf2DirectImporter(ImportType importType) {
         this.importType = importType;
+        this.entriesToImport = null;
+        File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+//        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
+//        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
+//        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
+
+        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        Get.activeTasks()
+                .add(this);
+    }
+
+    public Rf2DirectImporter(ImportType importType, List<ZipFileEntry> entriesToImport) {
+        this.importType = importType;
+        this.entriesToImport = entriesToImport;
         File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
@@ -116,21 +132,31 @@ public class Rf2DirectImporter
     public Void call()
             throws Exception {
         try {
-            File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+            final long time = System.currentTimeMillis();
+  
+            if (this.entriesToImport != null) {
+                ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
+                for (ZipFileEntry entry: this.entriesToImport) {
+                    processEntry(entry.zipEntry, specificationsToImport, entry.zipFile);
+                }
+                doImport(specificationsToImport, time);
+            } else {
+                File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
 
-            System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+                System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
-            int fileCount = loadDatabase(importDirectory);
+                int fileCount = loadDatabase(importDirectory, time);
 
-            if (fileCount == 0) {
-                System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
+                if (fileCount == 0) {
+                    System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
 
-                File fallbackDirectory = new File("/Users/kec/isaac/import");
+                    File fallbackDirectory = new File("/Users/kec/isaac/import");
 
-                if (fallbackDirectory.exists()) {
-                    System.out.println("Fallback import from: " + fallbackDirectory.getAbsolutePath());
-                    updateTitle("Importing from " + fallbackDirectory.getAbsolutePath());
-                    loadDatabase(fallbackDirectory);
+                    if (fallbackDirectory.exists()) {
+                        System.out.println("Fallback import from: " + fallbackDirectory.getAbsolutePath());
+                        updateTitle("Importing from " + fallbackDirectory.getAbsolutePath());
+                        loadDatabase(fallbackDirectory, time);
+                    }
                 }
             }
 
@@ -153,20 +179,18 @@ public class Rf2DirectImporter
      * @param contentDirectory the zip file
      * @throws Exception the exception
      */
-    private int loadDatabase(File contentDirectory)
+    private int loadDatabase(File contentDirectory, long time)
             throws Exception {
-        final long time = System.currentTimeMillis();
-        int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
                 .filter(
                         p -> p.toString().toLowerCase().endsWith(".zip")
                         && (p.toString().toUpperCase().contains("SNOMEDCT")
                         || p.toString().toLowerCase().contains("sct")))
                 .collect(Collectors.toList());
-        ArrayList<ImportSpecification> entriesToImport = new ArrayList<>();
+        ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
         StringBuilder importPrefixRegex = new StringBuilder();
         importPrefixRegex.append("([a-z/0-9_]*)?(rf2release/)?"); //ignore parent directories
-        switch (importType){
+        switch (importType) {
             case FULL:
                 importPrefixRegex.append("(full/)"); //prefixes to match
                 break;
@@ -174,155 +198,40 @@ public class Rf2DirectImporter
             case ACTIVE_ONLY:
                 importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
-        } 
+        }
         importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String entryName = entry.getName()
                             .toLowerCase();
-
-                    if(entryName.matches(importPrefixRegex.toString())) {
-                        if (entryName.contains("sct2_concept_")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.CONCEPT, entry));
-                        } else if (entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.DESCRIPTION, entry));
-                        } else if (entryName.contains("der2_crefset_") && entryName.contains("language")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.DIALECT, entry));
-                        } else if (entryName.contains("sct2_identifier_")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.ALTERNATIVE_IDENTIFIER, entry));
-                        } else if (entryName.contains("sct2_relationship_")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.INFERRED_RELATIONSHIP, entry));
-                        } else if (entryName.contains("sct2_statedrelationship_")) {
-                            entriesToImport.add(
-                                    new ImportSpecification(zipFilePath.toFile(), ImportStreamType.STATED_RELATIONSHIP, entry));
-                        } else if (entryName.contains("refset")) {
-                            if (entryName.contains("_ccirefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_NID2_INT3_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_cirefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_INT2_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_cissccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_crefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_ssccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_STR2_NID3_NID4_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_ssrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_STR2_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_sssssssrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_refset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.MEMBER_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_iisssccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_srefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_ccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_NID2_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_ccsrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_NID2_STR3_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_csrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.NID1_STR2_REFSET,
-                                                entry));
-                            } else if (entryName.contains("_irefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.INT1_REFSET,
-                                                entry));
-                            }  else if (entryName.contains("_scccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_NID2_NID3_NID4_REFSET,
-                                                entry));
-                            }  else if (entryName.contains("_sscccrefset")) {
-                                entriesToImport.add(
-                                        new ImportSpecification(
-                                                zipFilePath.toFile(),
-                                                ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET,
-                                                entry));
-                            } else {
-                                LOG.info("Ignoring: " + entry.getName());
-                            }
-                        }
+                    if (entryName.matches(importPrefixRegex.toString())) {
+                        processEntry(entry, specificationsToImport, zipFilePath.toFile());
                     }
                 }
             }
         }
 
-        Collections.sort(entriesToImport);
+        return doImport(specificationsToImport, time);
+    }
+
+    protected int doImport(ArrayList<ImportSpecification> specificationsToImport, final long time) throws ExecutionException, IOException, UnsupportedOperationException, InterruptedException {
+        int fileCount = 0;
+        Collections.sort(specificationsToImport);
         StringBuilder builder = new StringBuilder();
         builder.append("Importing the following zip entries: \n");
-        for (ImportSpecification spec : entriesToImport) {
+        for (ImportSpecification spec : specificationsToImport) {
             builder.append("     ").append(spec.streamType);
             builder.append(": ").append(spec.zipEntry.getName()).append("\n");
         }
 
         LOG.info(builder.toString());
 
-        addToTotalWork(entriesToImport.size());
+        addToTotalWork(specificationsToImport.size());
 
-        for (ImportSpecification importSpecification : entriesToImport) {
+        for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.zipEntry.getName());
             updateMessage(message);
             LOG.info("\n\n" + message);
@@ -406,7 +315,6 @@ public class Rf2DirectImporter
                         case STR1_STR2_NID3_NID4_NID5_REFSET:
                             readSTR1_STR2_NID3_NID4_NID5_REFSET(br, importSpecification);
                             break;
-                                
 
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
@@ -416,17 +324,120 @@ public class Rf2DirectImporter
 
             completedUnitOfWork();
         }
-        
+
         updateMessage("Transforming LOINC expressions...");
         LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
         Get.executor().submit(expressionToConceptTask).get();
-        
+
         updateMessage("Importing LOINC records...");
         LoincDirectImporter importTask = new LoincDirectImporter();
         Get.executor().submit(importTask).get();
 
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
+    }
+
+    protected void processEntry(ZipEntry entry, ArrayList<ImportSpecification> entriesToImport1, 
+            File zipFile) {
+        String entryName = entry.getName().toLowerCase();
+        if (entryName.contains("sct2_concept_")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.CONCEPT, entry));
+        } else if (entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.DESCRIPTION, entry));
+        } else if (entryName.contains("der2_crefset_") && entryName.contains("language")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.DIALECT, entry));
+        } else if (entryName.contains("sct2_identifier_")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.ALTERNATIVE_IDENTIFIER, entry));
+        } else if (entryName.contains("sct2_relationship_")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.INFERRED_RELATIONSHIP, entry));
+        } else if (entryName.contains("sct2_statedrelationship_")) {
+            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.STATED_RELATIONSHIP, entry));
+        } else if (entryName.contains("refset")) {
+            if (entryName.contains("_ccirefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_NID2_INT3_REFSET,
+                        entry));
+            } else if (entryName.contains("_cirefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_INT2_REFSET,
+                        entry));
+            } else if (entryName.contains("_cissccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET,
+                        entry));
+            } else if (entryName.contains("_crefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_REFSET,
+                        entry));
+            } else if (entryName.contains("_ssccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_STR2_NID3_NID4_REFSET,
+                        entry));
+            } else if (entryName.contains("_ssrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_STR2_REFSET,
+                        entry));
+            } else if (entryName.contains("_sssssssrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET,
+                        entry));
+            } else if (entryName.contains("_refset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.MEMBER_REFSET,
+                        entry));
+            } else if (entryName.contains("_iisssccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET,
+                        entry));
+            } else if (entryName.contains("_srefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_REFSET,
+                        entry));
+            } else if (entryName.contains("_ccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_NID2_REFSET,
+                        entry));
+            } else if (entryName.contains("_ccsrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_NID2_STR3_REFSET,
+                        entry));
+            } else if (entryName.contains("_csrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.NID1_STR2_REFSET,
+                        entry));
+            } else if (entryName.contains("_irefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.INT1_REFSET,
+                        entry));
+            } else if (entryName.contains("_scccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_NID2_NID3_NID4_REFSET,
+                        entry));
+            } else if (entryName.contains("_sscccrefset")) {
+                entriesToImport1.add(new ImportSpecification(
+                        zipFile,
+                        ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET,
+                        entry));
+            } else {
+                LOG.info("Ignoring: " + entry.getName());
+            }
+        }
+
     }
 
     private void readINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(BufferedReader br,
@@ -471,11 +482,11 @@ public class Rf2DirectImporter
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing semantic database...");
         assemblageService.sync();
@@ -494,9 +505,9 @@ public class Rf2DirectImporter
 
             }
             if (watchCount >= 3) {
-                    LOG.info("Found watch tokens in: "
-                            + importSpecification.zipFile.getName() + " entry: " + importSpecification.zipEntry.getName()
-                            + " \n" + rowString);
+                LOG.info("Found watch tokens in: "
+                        + importSpecification.zipFile.getName() + " entry: " + importSpecification.zipEntry.getName()
+                        + " \n" + rowString);
             }
         }
         return columns;
@@ -1100,8 +1111,8 @@ public class Rf2DirectImporter
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
-    private void readSTR1_NID2_NID3_NID4_REFSET(BufferedReader br, 
-            ImportSpecification importSpecification) throws IOException  {
+    private void readSTR1_NID2_NID3_NID4_REFSET(BufferedReader br,
+            ImportSpecification importSpecification) throws IOException {
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
@@ -1145,7 +1156,7 @@ public class Rf2DirectImporter
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
-    private void readSTR1_STR2_NID3_NID4_NID5_REFSET(BufferedReader br, 
+    private void readSTR1_STR2_NID3_NID4_NID5_REFSET(BufferedReader br,
             ImportSpecification importSpecification) throws IOException {
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
@@ -1189,6 +1200,7 @@ public class Rf2DirectImporter
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
+
     private void readAlternativeIdentifiers(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
@@ -1246,11 +1258,11 @@ public class Rf2DirectImporter
         updateMessage("Waiting for concept file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing concept database...");
         conceptService.sync();
@@ -1304,14 +1316,14 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for description file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        
+
         updateMessage("Synchronizing indexes...");
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing description database...");
         assemblageService.sync();
@@ -1364,11 +1376,11 @@ public class Rf2DirectImporter
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         updateMessage("Synchronizing indexes...");
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing dialect database...");
         assemblageService.sync();
@@ -1424,11 +1436,11 @@ public class Rf2DirectImporter
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         updateMessage("Synchronizing indexes...");
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();
@@ -1483,11 +1495,11 @@ public class Rf2DirectImporter
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         updateMessage("Synchronizing indexes...");
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-           try {
-               indexer.sync().get();
-           } catch (Exception e) {
-              LOG.error("problem calling sync on index", e);
-           }
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
         }
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();

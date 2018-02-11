@@ -19,6 +19,7 @@ package sh.isaac.solor.rf2.direct;
 import java.io.File;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  *
