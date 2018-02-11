@@ -20,7 +20,7 @@ package sh.komet.gui.importation;
  *
  * @author kec
  */
-public enum ImportType {
+public enum SelectedImportType {
     FULL("Full import"), 
     SNAPSHOT("Snapshot import"), 
     ACTIVE_ONLY("Active-only import"),
@@ -29,7 +29,7 @@ public enum ImportType {
     
     final String preferredName;
 
-    private ImportType(String preferredName) {
+    private SelectedImportType(String preferredName) {
         this.preferredName = preferredName;
     }
 

@@ -45,12 +45,13 @@ import sh.isaac.api.Get;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import static sh.komet.gui.importation.ImportItemZipEntry.FILE_PARENT_KEY;
 import sh.isaac.solor.rf2.direct.ZipFileEntry;
+import sh.komet.gui.manifold.Manifold;
 public class ImportViewController {
 
     protected static final Logger LOG = LogManager.getLogger();
 
     @FXML
-    private ChoiceBox<ImportType> importType;
+    private ChoiceBox<SelectedImportType> importType;
 
     @FXML
     private ResourceBundle resources;
@@ -76,6 +77,7 @@ public class ImportViewController {
     Stage importStage;
 
     Map<TreeItem<ImportItem>, HashMap<String, TreeItem<ImportItem>>> fileItemsMap = new HashMap<>();
+    private Manifold manifold;
 
     @FXML
     void addImportDataLocation(ActionEvent event) {
@@ -121,7 +123,7 @@ public class ImportViewController {
         // hook all up here...
         for (TreeItem<ImportItem> fileItem : fileItemsMap.keySet()) {
             
-            ImportType type = importType.getValue();
+            SelectedImportType type = importType.getValue();
             HashMap<String, TreeItem<ImportItem>> treeItems = fileItemsMap.get(fileItem);
             
             for (Map.Entry<String, TreeItem<ImportItem>> entry : treeItems.entrySet()) {
@@ -129,7 +131,7 @@ public class ImportViewController {
                 ImportItemZipEntry treeItemValue = (ImportItemZipEntry) treeItem.getValue();
                 
                 if (treeItemValue.importType == null || treeItemValue.importType == type ||
-                        (type == ImportType.ACTIVE_ONLY && treeItemValue.importType == ImportType.SNAPSHOT)) {
+                        (type == SelectedImportType.ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
                     if (treeItemValue.getParentKey().equals(FILE_PARENT_KEY)) {
                         fileTreeTable.getRoot().getChildren().add(treeItem);
                     } else {
@@ -154,7 +156,7 @@ public class ImportViewController {
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
         
         sh.isaac.solor.rf2.direct.ImportType directImportType = null;
- ;
+ 
         switch (importType.getValue()) {
             case ACTIVE_ONLY:
                 directImportType = sh.isaac.solor.rf2.direct.ImportType.ACTIVE_ONLY;
@@ -168,7 +170,8 @@ public class ImportViewController {
  
         }
         if (directImportType != null) {
-            Rf2DirectImporter importer = new Rf2DirectImporter(directImportType, entriesToImport);
+            ImportSelectedAndTransformTask importer = 
+                    new ImportSelectedAndTransformTask(manifold, directImportType, entriesToImport);
             Get.executor().execute(importer);
         }
         importStage.close();
@@ -210,14 +213,14 @@ public class ImportViewController {
         this.fileTreeTable.setEditable(true);
         this.fileTreeTable.treeColumnProperty().set(treeColumn);
 
-        this.importType.getItems().addAll(ImportType.ACTIVE_ONLY, ImportType.SNAPSHOT, ImportType.FULL);
-        this.importType.getSelectionModel().select(ImportType.ACTIVE_ONLY);
+        this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
+        this.importType.getSelectionModel().select(SelectedImportType.ACTIVE_ONLY);
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
         });
     }
 
-    private void importTypeChanged(ImportType importType) {
+    private void importTypeChanged(SelectedImportType importType) {
         setupEntryTree();
     }
 
@@ -227,5 +230,9 @@ public class ImportViewController {
 
     public void setImportStage(Stage importStage) {
         this.importStage = importStage;
+    }
+
+    void setManifold(Manifold manifold) {
+        this.manifold = manifold;
     }
 }

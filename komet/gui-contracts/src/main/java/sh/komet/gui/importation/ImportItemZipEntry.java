@@ -30,7 +30,7 @@ public class ImportItemZipEntry extends ImportItemAbstract {
     final File zipFile;
     final ZipEntry entry;
     final String parentKey;
-    ImportType importType;
+    SelectedImportType importType;
 
     public ImportItemZipEntry(File zipFile, ZipEntry entry) {
         this.zipFile = zipFile;
@@ -38,21 +38,21 @@ public class ImportItemZipEntry extends ImportItemAbstract {
         String[] nameParts = entry.getName().split("/");
         for (String namePart: nameParts) {
             if (namePart.toLowerCase().startsWith("readme")) {
-                importType = ImportType.IGNORE;
+                importType = SelectedImportType.IGNORE;
                 break;
             }
             switch (namePart.toLowerCase()) {
                 case "full":
-                    importType = ImportType.FULL;
+                    importType = SelectedImportType.FULL;
                     break;
                 case "snapshot":
-                    importType = ImportType.SNAPSHOT;
+                    importType = SelectedImportType.SNAPSHOT;
                     break;
                 case "delta":
-                    importType = ImportType.DELTA;
+                    importType = SelectedImportType.DELTA;
                     break;
                 case "documentation":
-                    importType = ImportType.IGNORE;
+                    importType = SelectedImportType.IGNORE;
                     break;
             }
             if (importType != null) {
@@ -78,7 +78,7 @@ public class ImportItemZipEntry extends ImportItemAbstract {
         return parentKey;
     }
 
-    public ImportType getImportType() {
+    public SelectedImportType getImportType() {
         return importType;
     }
 

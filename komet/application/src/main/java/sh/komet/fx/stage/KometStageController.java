@@ -227,7 +227,7 @@ public class KometStageController
         if (FxGet.showBetaFeatures()) {
             MenuItem selectiveImport = new MenuItem("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
-                ImportView.show();
+                ImportView.show(TAXONOMY_MANIFOLD);
             });
             items.add(selectiveImport);
             

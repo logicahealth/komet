@@ -19,7 +19,6 @@ package sh.isaac.solor.rf2.direct;
 import java.io.File;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  *
@@ -62,10 +61,7 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       if (this.streamType != other.streamType) {
          return false;
       }
-      if (!Objects.equals(this.zipEntry, other.zipEntry)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(this.zipEntry, other.zipEntry);
    }
 
    @Override

@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -32,7 +33,7 @@ public class ImportView {
     final Stage stage;
     ImportViewController controller;
     
-    private ImportView() {
+    private ImportView(Manifold manifold) {
         try {
             this.stage = new Stage();
             //stage.initModality(Modality.NONE);
@@ -41,6 +42,7 @@ public class ImportView {
             Parent root = loader.load();
             this.controller = loader.getController();
             this.controller.setImportStage(stage);
+            this.controller.setManifold(manifold);
             
             //create scene with set width, height and color
             Scene scene = new Scene(root, 900, 600, Color.WHITESMOKE);
@@ -58,8 +60,8 @@ public class ImportView {
         }
     }
 
-    public static void show() {
-        ImportView importView = new ImportView();
+    public static void show(Manifold manifold) {
+        ImportView importView = new ImportView(manifold);
         //show the stage
         //center stage on screen
         importView.stage.centerOnScreen();
