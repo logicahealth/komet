@@ -34,7 +34,7 @@
                         <TreeTableView fx:id="fileTreeTable" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <columns>
                             <TreeTableColumn fx:id="importColumn" prefWidth="49.0" text="import" />
-                            <TreeTableColumn fx:id="treeColumn" minWidth="200.0" prefWidth="848.0" text="Data file" />
+                            <TreeTableColumn fx:id="treeColumn" minWidth="200.0" prefWidth="848.0" text="data source" />
                           </columns>
                         </TreeTableView>
                      </children>
