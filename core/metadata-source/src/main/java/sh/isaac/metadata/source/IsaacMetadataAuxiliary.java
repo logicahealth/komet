@@ -317,9 +317,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE);
                   pushParent(current());
-                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
                      createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE);
-                     createConcept("US Nursing dialect");
+                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
+                     pushParent(current());
+                        createConcept("US Nursing dialect").setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
+                        popParent();
                      popParent();
                   createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE);
                   pushParent(current());

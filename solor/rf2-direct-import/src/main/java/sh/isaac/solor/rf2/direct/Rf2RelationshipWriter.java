@@ -20,9 +20,11 @@ import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
+import org.apache.mahout.math.Arrays;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -111,67 +113,75 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          }
 
          for (String[] relationshipRecord : relationshipRecords) {
-            final Status state = Status.fromZeroOneToken(relationshipRecord[ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
-                continue;
-            }
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
-            if (importType == ImportType.ACTIVE_ONLY) {
-                if (!identifierService.hasUuid(referencedConceptUuid)) {
-                    // if concept was not imported because inactive then skip
-                    continue;
-                }
-            }
+             try {
+                 final Status state = Status.fromZeroOneToken(relationshipRecord[ACTIVE_INDEX]);
+                 if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                     continue;
+                 }
+                 UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 if (importType == ImportType.ACTIVE_ONLY) {
+                     if (!identifierService.hasUuid(referencedConceptUuid)) {
+                         // if concept was not imported because inactive then skip
+                         continue;
+                     }
+                 }
+                 
+                 UUID betterRelUuid = UuidT5Generator.get(
+                         relationshipRecord[REL_SCT_ID_INDEX]
+                         + relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]
+                         + relationshipRecord[REL_TYPE_NID_INDEX]
+                         + relationshipRecord[DESTINATION_NID_INDEX]
+                         + relationshipRecord[REL_CHARACTERISTIC_NID_INDEX]
+                         + relationshipRecord[REL_MODIFIER_NID_INDEX]
+                         + importSpecification.streamType
+                 );
+                 UUID moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[MODULE_SCTID_INDEX]);
+                 
+                 UUID destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[DESTINATION_NID_INDEX]);
+                 UUID relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_TYPE_NID_INDEX]);
+                 UUID relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_CHARACTERISTIC_NID_INDEX]);
+                 UUID relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_MODIFIER_NID_INDEX]);
+                 
+                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(relationshipRecord[EFFECTIVE_TIME_INDEX]));
+                 long time = accessor.getLong(INSTANT_SECONDS) * 1000;
+
+                 // add to rel assemblage
+                 int destinationNid = identifierService.getNidForUuids(destinationUuid);
+                 int moduleNid = identifierService.getNidForUuids(moduleUuid);
+                 int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
+                 int relTypeNid = identifierService.getNidForUuids(relTypeUuid);
+                 int relCharacteristicNid = identifierService.getNidForUuids(relCharacteristicUuid);
+                 int relModifierNid = identifierService.getNidForUuids(relModifierUuid);
+                 
+                 SemanticChronologyImpl relationshipToWrite
+                         = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid,
+                                 relAssemblageNid, referencedConceptNid);
+                 // Add in original uuids for AMT content...
+                 // 900062011000036108 = AU module
+                 if (relationshipRecord[MODULE_SCTID_INDEX].equals("900062011000036108")) {
+                     UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
+                     identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
+                     relationshipToWrite.addAdditionalUuids(relUuid);
+                 }
+                 
+                 int relStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+                 Rf2RelationshipImpl relVersion = relationshipToWrite.createMutableVersion(relStamp);
+                 relVersion.setCharacteristicNid(relCharacteristicNid);
+                 relVersion.setDestinationNid(destinationNid);
+                 relVersion.setModifierNid(relModifierNid);
+                 relVersion.setTypeNid(relTypeNid);
+                 relVersion.setRelationshipGroup(Integer.parseInt(relationshipRecord[REL_GROUP_INDEX]));
+                 index(relationshipToWrite);
+                 assemblageService.writeSemanticChronology(relationshipToWrite);
+             } catch (NoSuchElementException noSuchElementException) {
+                 StringBuilder builder = new StringBuilder();
+                 builder.append("Error importing record: \n").append(Arrays.toString(relationshipRecord));
+                 builder.append("\n");
+                 LOG.error(builder.toString(), noSuchElementException);
+             } finally {
+                 completedUnitOfWork();
+             }
             
-
-            UUID betterRelUuid = UuidT5Generator.get(
-                    relationshipRecord[REL_SCT_ID_INDEX] +
-                    relationshipRecord[REFERENCED_CONCEPT_SCT_ID_INDEX] +
-                    relationshipRecord[REL_TYPE_NID_INDEX] +
-                    relationshipRecord[DESTINATION_NID_INDEX] +
-                    relationshipRecord[REL_CHARACTERISTIC_NID_INDEX] +
-                    relationshipRecord[REL_MODIFIER_NID_INDEX]  
-                    + importSpecification.streamType    
-                    );
-            UUID moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[MODULE_SCTID_INDEX]);
-
-            UUID destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[DESTINATION_NID_INDEX]);
-            UUID relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_TYPE_NID_INDEX]);
-            UUID relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_CHARACTERISTIC_NID_INDEX]);
-            UUID relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_MODIFIER_NID_INDEX]);
-
-            TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(relationshipRecord[EFFECTIVE_TIME_INDEX]));
-            long time = accessor.getLong(INSTANT_SECONDS) * 1000;
-
-            // add to rel assemblage
-            int destinationNid = identifierService.getNidForUuids(destinationUuid);
-            int moduleNid = identifierService.getNidForUuids(moduleUuid);
-            int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
-            int relTypeNid = identifierService.getNidForUuids(relTypeUuid);
-            int relCharacteristicNid = identifierService.getNidForUuids(relCharacteristicUuid);
-            int relModifierNid = identifierService.getNidForUuids(relModifierUuid);
-
-            SemanticChronologyImpl relationshipToWrite
-                    = new SemanticChronologyImpl(VersionType.RF2_RELATIONSHIP, betterRelUuid, 
-                            relAssemblageNid, referencedConceptNid);
-            // Add in original uuids for AMT content...
-            // 900062011000036108 = AU module
-            if (relationshipRecord[MODULE_SCTID_INDEX].equals("900062011000036108")) {
-                UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_SCT_ID_INDEX]);
-                identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
-                relationshipToWrite.addAdditionalUuids(relUuid);
-            }
-            
-            int relStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
-            Rf2RelationshipImpl relVersion = relationshipToWrite.createMutableVersion(relStamp);
-            relVersion.setCharacteristicNid(relCharacteristicNid);
-            relVersion.setDestinationNid(destinationNid);
-            relVersion.setModifierNid(relModifierNid);
-            relVersion.setTypeNid(relTypeNid);
-            relVersion.setRelationshipGroup(Integer.parseInt(relationshipRecord[REL_GROUP_INDEX]));
-            index(relationshipToWrite);
-            assemblageService.writeSemanticChronology(relationshipToWrite);
-            completedUnitOfWork();
          }
 
          return null;

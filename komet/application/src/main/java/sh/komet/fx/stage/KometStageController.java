@@ -101,6 +101,7 @@ import sh.isaac.solor.rf2.direct.LoincExpressionToConcept;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
 import sh.komet.assemblage.view.AssemblageViewProviderFactory;
+import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory;
 import sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory;
 
@@ -224,6 +225,12 @@ public class KometStageController
         ArrayList<MenuItem> items = new ArrayList<>();
 
         if (FxGet.showBetaFeatures()) {
+            MenuItem selectiveImport = new MenuItem("Selective import and transform");
+            selectiveImport.setOnAction((ActionEvent event) -> {
+                ImportView.show(TAXONOMY_MANIFOLD);
+            });
+            items.add(selectiveImport);
+            
             MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
             importTransformFull.setOnAction((ActionEvent event) -> {
