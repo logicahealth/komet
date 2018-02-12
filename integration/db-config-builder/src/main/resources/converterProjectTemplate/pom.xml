@@ -73,8 +73,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>sh.isaac.terminology.converters</groupId>
-			<artifactId>#LOADER_ARTIFACT#</artifactId>
+			<groupId>#CONVERTER_GROUP_ID#</groupId>
+			<artifactId>#CONVERTER_ARTIFACT_ID#</artifactId>
 			<version>${loader.version}</version>
 			<scope>compile</scope>
 			<optional>true</optional>  <!-- Not needed at runtime -->

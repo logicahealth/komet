@@ -533,24 +533,6 @@ public class LoincImportMojo extends ConverterBaseMojo {
    }
 
    /**
-    * Used for debug. Sets up the same paths that maven would use.... allow the code to be run standalone.
-    *
-    * @param args the arguments
-    * @throws Exception the exception
-    */
-   public static void main(String[] args) throws Exception {
-      final LoincImportMojo loincConverter = new LoincImportMojo();
-
-      loincConverter.outputDirectory = new File("../loinc-ibdf/target/");
-      loincConverter.inputFileLocation = new File("../loinc-ibdf/target/generated-resources/src");
-      loincConverter.converterVersion = "foo";
-      loincConverter.converterOutputArtifactVersion = "foo";
-      loincConverter.converterOutputArtifactClassifier = "foo";
-      loincConverter.converterSourceArtifactVersion = "foo";
-      loincConverter.execute();
-   }
-
-   /**
     * Supports annotation skip list.
     *
     * @return true, if successful
@@ -855,7 +837,7 @@ public class LoincImportMojo extends ConverterBaseMojo {
             this.importUtil.addStringAnnotation(concept, pathString, this.propertyToPropertyType_.get("PATH_TO_ROOT").getProperty("PATH_TO_ROOT").getUUID(), Status.ACTIVE);
          }
 
-         this.importUtil.addStringAnnotation(concept, code, this.propertyToPropertyType_.get("LOINC_NUM").getProperty("LOINC_NUM").getUUID(), Status.ACTIVE);
+         this.importUtil.addStaticStringAnnotation(concept, code, this.propertyToPropertyType_.get("LOINC_NUM").getProperty("LOINC_NUM").getUUID(), Status.ACTIVE);
          this.importUtil.addStaticStringAnnotation(concept, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
          this.concepts_.put(concept.getPrimordialUuid(), concept);
       }
@@ -864,5 +846,24 @@ public class LoincImportMojo extends ConverterBaseMojo {
       checkPath(concept, pathToRoot);
    }
 
-   // ~--- get methods ---------------------------------------------------------
+
+   /**
+    * Used for debug. Sets up the same paths that maven would use.... allow the code to be run standalone.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
+   public static void main(String[] args) throws Exception {
+      //Prior to running this, you should execute the class CreateMojoExecutionProject, and then go to the 
+      //integration/db-config-builder-ui/target/converter-executor and run that maven project once, so it can populate the sources.
+      final LoincImportMojo loincConverter = new LoincImportMojo();
+
+      loincConverter.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+      loincConverter.inputFileLocation = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+      loincConverter.converterVersion = "foo";
+      loincConverter.converterOutputArtifactVersion = "foo";
+      loincConverter.converterOutputArtifactClassifier = "foo";
+      loincConverter.converterSourceArtifactVersion = "foo";
+      loincConverter.execute();
+   }
 }

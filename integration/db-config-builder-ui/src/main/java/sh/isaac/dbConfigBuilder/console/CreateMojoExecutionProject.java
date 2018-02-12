@@ -35,7 +35,8 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
- *         TODO describe this class
+ * A simple command-line tool to collect the necessary parameters to create a maven project which will 
+ * execute one of the mojo-based converters for content.
  */
 public class CreateMojoExecutionProject
 {
@@ -182,7 +183,7 @@ public class CreateMojoExecutionProject
 			ContentConverterCreator.createContentConverter(ssc, converterVersion, additionalSourceDependencies, additionalIBDFDependencies,
 					converterOptionValues, null, null, null, new File("target"), false);
 
-			System.out.println("Configuration created in " + new File("target").getAbsolutePath());
+			System.out.println("Configuration created in " + new File("target/converter-executor").getAbsolutePath());
 			LookupService.shutdownSystem();
 		}
 	}

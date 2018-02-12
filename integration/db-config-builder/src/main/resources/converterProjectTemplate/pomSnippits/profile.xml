@@ -6,8 +6,8 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>sh.isaac.terminology.converters</groupId>
-						<artifactId>#CONVERTER#</artifactId>
+						<groupId>#CONVERTER_GROUP_ID#</groupId>
+						<artifactId>#CONVERTER_ARTIFACT_ID#</artifactId>
 						<version>#CONVERTER_VERSION#</version>
 						<executions>
 							<execution>

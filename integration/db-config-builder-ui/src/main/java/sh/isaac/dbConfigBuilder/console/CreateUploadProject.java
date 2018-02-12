@@ -19,15 +19,18 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
+import org.codehaus.plexus.util.StringUtils;
 import javafx.concurrent.Task;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
- *         TODO describe this class
+ * A simple command-line tool to collect the necessary parameters to create a maven project which will 
+ * upload source content of various types in a standard form / format.
  */
 public class CreateUploadProject
 {
@@ -43,10 +46,12 @@ public class CreateUploadProject
 			System.out.println("This application builds Source Upload configurations");
 			System.out.println("Supported content types:");
 			System.out.println("");
-			int i = 1;
-			for (SupportedConverterTypes x : SupportedConverterTypes.values())
 			{
-				System.out.println("  " + i++ +") " + x.getNiceName());
+				int i = 1;
+				for (SupportedConverterTypes x : SupportedConverterTypes.values())
+				{
+					System.out.println("  " + i++ +") " + x.getNiceName());
+				}
 			}
 			
 			System.out.println();
@@ -127,7 +132,31 @@ public class CreateUploadProject
 			WorkExecutors.get().getExecutor().submit(builder);
 			builder.get();
 			
-			System.out.println("Configuration created in " + new File("target").getAbsolutePath());
+			System.out.println("Configuration created in " + new File("target/src-upload").getAbsolutePath());
+			System.out.println();
+			System.out.println("You may now populate 'target/src-upload/native-source' with the source content for " 
+					+ SupportedConverterTypes.values()[selection - 1].getNiceName() + ", which expects:");
+			
+			{
+				int i = 1;
+				for (UploadFileInfo fi :SupportedConverterTypes.values()[selection - 1].getUploadFileInfo())
+				{
+					System.out.println(i++ + ")");
+					System.out.println("  File Description: " + fi.getExpectedNamingPatternDescription());
+					System.out.println("  File Pattern: " + fi.getExpectedNamingPatternRegExpPattern());
+					System.out.println("  File Sample Name: " + fi.getSampleName());
+					if (StringUtils.isNotBlank(fi.getSuggestedSourceLocation()))
+					{
+						System.out.println("  File Suggested Source: " + fi.getSuggestedSourceLocation());
+					}
+					if (StringUtils.isNotBlank(fi.getSuggestedSourceURL()))
+					{
+						System.out.println("  File Suggested Source URL: " + fi.getSuggestedSourceURL());
+					}
+					System.out.println();
+				}
+			}
+			
 			LookupService.shutdownSystem();
 		}
 		

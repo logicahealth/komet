@@ -199,7 +199,8 @@ public class ContentConverterCreator
 
 			final String goal = conversionType.getConverterMojoName();
 
-			pomSwaps.put("#LOADER_ARTIFACT#", conversionType.getConverterArtifactId());
+			pomSwaps.put("#CONVERTER_GROUP_ID#", conversionType.getConverterGroupId());
+			pomSwaps.put("#CONVERTER_ARTIFACT_ID#", conversionType.getConverterArtifactId());
 			pomSwaps.put("#ARTIFACTID#", conversionType.getConverterOutputArtifactId() + extensionSuffix);
 
 			final StringBuffer licenseInfo = new StringBuffer();
@@ -314,7 +315,8 @@ public class ContentConverterCreator
 			{
 				temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/profile.xml");
 				temp = temp.replaceAll("#CLASSIFIER#", classifier);
-				temp = temp.replaceAll("#CONVERTER#", conversionType.getConverterArtifactId());
+				temp = temp.replaceAll("#CONVERTER_GROUP_ID#", conversionType.getConverterGroupId());
+				temp = temp.replaceAll("#CONVERTER_ARTIFACT_ID#", conversionType.getConverterArtifactId());
 				temp = temp.replaceAll("#CONVERTER_VERSION#", converterVersion);
 				temp = temp.replaceAll("#GOAL#", goal);
 				temp = temp.replaceAll("#USER_CONFIGURATION_OPTIONS#", userOptions.toString());

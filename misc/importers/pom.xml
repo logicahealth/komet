@@ -9,10 +9,13 @@
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
-	<packaging>jar</packaging>
+	<packaging>maven-plugin</packaging>
+	
 	<name>ISAAC misc: Importers</name>
+	
 	<properties>
 	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>sh.isaac.misc</groupId>
@@ -72,6 +75,7 @@
 	</dependencies>
 	<build>
 		<plugins>
+		
 			<!-- Create the options.json file -->
 			<plugin>
 				<groupId>sh.isaac.core</groupId>
@@ -103,7 +107,7 @@
 				</executions>
 			</plugin>
 
-         <!-- Attach the options.json file -->
+			<!-- Attach the options.json file -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -125,6 +129,7 @@
 				</executions>
 			</plugin>
 
+			<!-- Attach the options.json.zip file to the build -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -146,6 +151,7 @@
 				</executions>
 			</plugin>
 
+			<!-- generate code from various xsd files -->
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
 				<artifactId>maven-jaxb2-plugin</artifactId>
@@ -203,6 +209,20 @@
 								<include>mif-COMPLETE.xsd</include>
 							</schemaIncludes>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- Mark this project as a maven mojo -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
