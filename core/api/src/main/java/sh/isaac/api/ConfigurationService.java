@@ -93,33 +93,18 @@ public interface ConfigurationService {
    }
 
    /**
-    * There are some cases where validators and such cannot be properly executed if we are in bootstrap mode - building
-    * the system for the first time.  The default implementation of this returns false.
-    *
-    * @return true, if successful
-    */
-   public default boolean inBootstrapMode() {
-      return false;
-   }
-
-   /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
     * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
+    * 
+    * There are some cases where validators and such cannot be properly executed if we are building a DB 
+    * 
+    * The default implementation of this returns false.
     *
     * @return true, if successful
     */
    public default boolean inDBBuildMode() {
       return false;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * See {@link #inBootstrapMode()}.
-    */
-   public default void setBootstrapMode() {
-      throw new UnsupportedOperationException();
    }
 
    //~--- get methods ---------------------------------------------------------

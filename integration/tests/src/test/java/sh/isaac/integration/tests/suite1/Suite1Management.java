@@ -116,7 +116,6 @@ public class Suite1Management {
       final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
 
       LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
-      Get.configurationService().setDBBuildMode();
       LookupService.startupIsaac();
       ActiveTasksTicker.start(10);
       HeapUseTicker.start(10);
