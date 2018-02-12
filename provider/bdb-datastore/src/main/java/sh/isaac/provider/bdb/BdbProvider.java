@@ -211,16 +211,16 @@ public class BdbProvider
 
       IntegerBinding.intToEntry(chronology.getElementSequence(), key);
 
-      List<byte[]> dataList = chronology.getDataList();
+      //TODO [KEC] this probably isn't right, see the changes made in commit 7064a7b50cac9666fd93d252605d2d25ad173d86 to FileSystemDataStore, 
+      //specifically, the getDataList method.
+      byte[] data = chronology.getDataToWrite();
       Database     database = getChronologyDatabase(assemblageNid);
 
-      for (byte[] data: dataList) {
-         DatabaseEntry   value  = new DatabaseEntry(data);
-         OperationStatus status = database.put(null, key, value);
+      DatabaseEntry   value  = new DatabaseEntry(data);
+      OperationStatus status = database.put(null, key, value);
 
-         if (status != OperationStatus.SUCCESS) {
-            throw new RuntimeException("Operation failed: " + status);
-         }
+      if (status != OperationStatus.SUCCESS) {
+         throw new RuntimeException("Operation failed: " + status);
       }
    }
 
