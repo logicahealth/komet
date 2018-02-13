@@ -6,4 +6,4 @@ pipelines:
         caches:
           - maven
         script:
-          - mvn -B -e clean install
+          - mvn -B -e -Djava.awt.headless=true clean install
