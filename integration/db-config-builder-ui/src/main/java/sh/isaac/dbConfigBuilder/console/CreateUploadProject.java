@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import org.codehaus.plexus.util.StringUtils;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.util.WorkExecutors;
@@ -158,6 +159,7 @@ public class CreateUploadProject
 			}
 			
 			LookupService.shutdownSystem();
+			Platform.exit();
 		}
 		
 		

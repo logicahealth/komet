@@ -71,6 +71,7 @@ import com.sun.javafx.application.PlatformImpl;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
+import javafx.application.Platform;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.index.IndexQueryService;
@@ -141,7 +142,9 @@ public class LookupService {
    }
 
    /**
-    * Stop all system services, blocking until stopped (or failed).
+    * Stop all system services, blocking until stopped (or failed).  Note, it is very likely
+    * you will need to call {@link Platform#exit()} after this, if you are truly exiting the JVM.
+    * But, be careful, if you are in a webserver environment....
     */
    public static void shutdownSystem() {
       LOG.info("Shutdown system called");
@@ -177,6 +180,7 @@ public class LookupService {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
                if (GraphicsEnvironment.isHeadless()) {
+                  //TODO [DAN] do we not need the headless toolkit anymore?  Need to test on a truely headless VM...  
                   //LOG.info("Installing headless toolkit");
                   //HeadlessToolkit.installToolkit();
                }
