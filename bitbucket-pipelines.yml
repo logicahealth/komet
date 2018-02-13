@@ -1,0 +1,9 @@
+image: 
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - maven 3.5-jdk-8
+        script:
+          - mvn -B clean install
