@@ -75,6 +75,7 @@ import javafx.application.Platform;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.util.HeadlessToolkit;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -180,9 +181,8 @@ public class LookupService {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
                if (GraphicsEnvironment.isHeadless()) {
-                  //TODO [DAN] do we not need the headless toolkit anymore?  Need to test on a truely headless VM...  
-                  //LOG.info("Installing headless toolkit");
-                  //HeadlessToolkit.installToolkit();
+                  LOG.info("Installing headless toolkit");
+                  HeadlessToolkit.installToolkit();
                }
 
                LOG.debug("Starting JavaFX Platform");
@@ -369,8 +369,7 @@ public class LookupService {
    }
    
    /**
-    * Gets the run level we are working toward, or, if we are not working toward any run level, returns the current run level.
-    * @return
+    * @return the run level we are working toward, or, if we are not working toward any run level, returns the current run level.
     */
    public static int getProceedingToRunLevel() {
       RunLevelFuture rlf = getService(RunLevelController.class).getCurrentProceeding();
@@ -573,7 +572,7 @@ public class LookupService {
     * as it will attempt to sync services that were never even started.
     * See {@link #getActiveServices(Class)}
     * @param contractOrImpl
-    * @return
+    * @return all services that implement the specified contract
     */
    public static <T> List<T> getServices(Class<T> contractOrImpl) {
       final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
@@ -585,7 +584,7 @@ public class LookupService {
    /**
     * Return implementations of the specified contract that are active at our current runlevel.
     * @param contractOrImpl
-    * @return
+    * @return implementations of the specified contract that are active at our current runlevel
     */
    public static <T> List<T> getActiveServices(Class<T> contractOrImpl) {
       
