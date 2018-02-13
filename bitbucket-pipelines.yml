@@ -1,9 +1,9 @@
-image: 
+image: flate/maven-openjfx:latest
 
 pipelines:
   default:
     - step:
         caches:
-          - maven 3.5-jdk-8
+          - maven
         script:
           - mvn -B clean install
