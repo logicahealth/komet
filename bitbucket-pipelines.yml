@@ -13,4 +13,4 @@ pipelines:
           caches:
             - maven
           script:
-            - mvn -B -e -Djava.awt.headless=true -s settings.xml clean deploy -DaltDeploymentRepository=deploymentRepo::default::${DEPLOYMENT_SNAPSHOT_REPO}
+            - mvn -B -e -Djava.awt.headless=true -s settings.xml clean deploy -DaltDeploymentRepository=deploymentRepo::default::$DEPLOYMENT_SNAPSHOT_REPO
