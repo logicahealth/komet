@@ -7,3 +7,9 @@ pipelines:
           - maven
         script:
           - mvn -B -e -Djava.awt.headless=true clean install
+  custom:
+    - step:
+        caches:
+          - maven
+        script:
+          - mvn -B -e -Djava.awt.headless=true -s settings.xml clean deploy -DaltDeploymentRepository=deploymentRepo::default::${DEPLOYMENT_SNAPSHOT_REPO}
