@@ -16,6 +16,8 @@
  */
 package sh.isaac.api.statement;
 
+import java.util.Optional;
+import java.util.UUID;
 import sh.isaac.api.logic.LogicalExpression;
 
 /**
@@ -28,4 +30,9 @@ public interface Participant {
      * @return the role this participant plays in the clinical statement
      */
     LogicalExpression getParticipantRole();
+    /**
+     *
+     * @return a unique identifier for the participant in the clinical statement.
+     */
+    Optional<UUID> getParticipantId();
 }

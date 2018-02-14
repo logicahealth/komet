@@ -22,14 +22,17 @@ import sh.isaac.api.statement.Interval;
 import sh.isaac.api.statement.ObservationResult;
 
 import java.util.Optional;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class ObservationResultImpl extends ResultImpl implements ObservationResult {
-    private final SimpleObjectProperty<LogicalExpression> healthRisk = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Interval> normalRange = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<LogicalExpression> healthRisk = 
+            new SimpleObjectProperty<>(this, ObservableFields.OBSERVATION_RESULT_HEALTH_RISK.toExternalString());
+    private final SimpleObjectProperty<Interval> normalRange = 
+            new SimpleObjectProperty<>(this, ObservableFields.OBSERVATION_RESULT_NORMAL_RANGE.toExternalString());
 
     @Override
     public Optional<LogicalExpression> getHealthRisk() {

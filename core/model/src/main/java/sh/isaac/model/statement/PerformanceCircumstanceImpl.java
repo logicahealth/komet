@@ -19,21 +19,22 @@ package sh.isaac.model.statement;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.statement.IdentifiedParticipant;
 import sh.isaac.api.statement.PerformanceCircumstance;
 import sh.isaac.api.statement.Result;
 
-import java.util.Collection;
 import java.util.List;
+import sh.isaac.api.statement.Participant;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class PerformanceCircumstanceImpl extends CircumstanceImpl implements PerformanceCircumstance {
-    private final SimpleObjectProperty<Result> result = new SimpleObjectProperty<>();
-    private final SimpleListProperty<IdentifiedParticipant> performanceParticipants = new SimpleListProperty();
+    private final SimpleObjectProperty<Result> result = 
+            new SimpleObjectProperty<>(this, ObservableFields.PERFORMANCE_CIRCUMSTANCE_RESULT.toExternalString());
+    private final SimpleListProperty<Participant> performanceParticipants = 
+            new SimpleListProperty(this, ObservableFields.PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS.toExternalString());
 
     @Override
     public Result getResult() {
@@ -49,15 +50,15 @@ public class PerformanceCircumstanceImpl extends CircumstanceImpl implements Per
     }
 
     @Override
-    public ObservableList<IdentifiedParticipant> getPerformanceParticipants() {
+    public ObservableList<Participant> getPerformanceParticipants() {
         return performanceParticipants.get();
     }
 
-    public SimpleListProperty<IdentifiedParticipant> performanceParticipantsProperty() {
+    public SimpleListProperty<Participant> performanceParticipantsProperty() {
         return performanceParticipants;
     }
 
-    public void setPerformanceParticipants(List<IdentifiedParticipant> performanceParticipants) {
+    public void setPerformanceParticipants(List<Participant> performanceParticipants) {
         this.performanceParticipants.get().setAll(performanceParticipants);
     }
 

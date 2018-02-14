@@ -19,13 +19,15 @@ package sh.isaac.model.statement;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.InterventionResult;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class InterventionResultImpl extends ResultImpl implements InterventionResult {
-    private final SimpleObjectProperty<LogicalExpression> status = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<LogicalExpression> status = 
+            new SimpleObjectProperty<>(this, ObservableFields.INTERVENTION_RESULT_STATUS.toExternalString());
 
     @Override
     public LogicalExpression getStatus() {

@@ -18,28 +18,56 @@ package sh.isaac.model.statement;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.*;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class ClinicalStatementImpl implements ClinicalStatement {
-    private final SimpleObjectProperty<Measure> statementTime = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<UUID> statementId = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<UUID> subjectOfRecordId = new SimpleObjectProperty<>();
-    private final SimpleListProperty<Participant> statementAuthors = new SimpleListProperty();
-    private final SimpleObjectProperty<LogicalExpression> subjectOfInformation = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<LogicalExpression> statementType = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<LogicalExpression> topic = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Circumstance> circumstance = new SimpleObjectProperty<>();
-    private final SimpleListProperty<StatementAssociation> statementAssociations = new SimpleListProperty();
+
+    private final SimpleStringProperty narrative =
+            new SimpleStringProperty(this, ObservableFields.STATEMENT_NARRATIVE.toExternalString());
+
+    private final SimpleObjectProperty<Measure> statementTime = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TIME.toExternalString());
+    private final SimpleObjectProperty<UUID> statementId = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_ID.toExternalString());
+    private final SimpleObjectProperty<UUID> subjectOfRecordId = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_SOR.toExternalString());
+    private final SimpleListProperty<Participant> statementAuthors = 
+            new SimpleListProperty(this, ObservableFields.STATEMENT_AUTHORS.toExternalString());
+    private final SimpleObjectProperty<LogicalExpression> subjectOfInformation = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_SOI.toExternalString());
+    private final SimpleObjectProperty<LogicalExpression> statementType = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TYPE.toExternalString());
+    private final SimpleObjectProperty<LogicalExpression> topic = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TOPIC.toExternalString());
+    private final SimpleObjectProperty<Circumstance> circumstance = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_CIRCUMSTANCE.toExternalString());
+    private final SimpleListProperty<StatementAssociation> statementAssociations = 
+            new SimpleListProperty(this, ObservableFields.STATEMENT_ASSOCIATIONS.toExternalString());
+
+    @Override
+    public Optional<String> getNarrative() {
+        return Optional.ofNullable(narrative.get());
+    }
+
+    public SimpleStringProperty narrativeProperty() {
+        return narrative;
+    }
+
+    public void setNarrative(String narrative) {
+        this.narrative.set(narrative);
+    }
 
     @Override
     public Measure getStatementTime() {

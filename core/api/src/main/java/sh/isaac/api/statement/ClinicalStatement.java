@@ -16,8 +16,8 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.logic.LogicalExpression;
 
@@ -26,6 +26,11 @@ import sh.isaac.api.logic.LogicalExpression;
  * @author kec
  */
 public interface ClinicalStatement {
+    /**
+     * 
+     * @return An optional narrative of this clinical statement. 
+     */
+    Optional<String> getNarrative();
     /**
      * 
      * @return measure of the time during which this clinical 

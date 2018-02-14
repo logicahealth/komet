@@ -21,17 +21,23 @@ import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.statement.Interval;
 import sh.isaac.api.statement.Measure;
 import sh.isaac.api.statement.Repetition;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class RepetitionImpl implements Repetition {
-    private final SimpleObjectProperty<Measure> periodStart = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Measure> periodDuration = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Interval> eventFrequency = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Measure> eventSeparation = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Measure> eventDuration = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<Measure> periodStart = 
+            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_START.toExternalString());
+    private final SimpleObjectProperty<Measure> periodDuration = 
+            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_DURATION.toExternalString());
+    private final SimpleObjectProperty<Interval> eventFrequency = 
+            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_FREQUENCY.toExternalString());
+    private final SimpleObjectProperty<Measure> eventSeparation = 
+            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_SEPARATION.toExternalString());
+    private final SimpleObjectProperty<Measure> eventDuration = 
+            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_DURATION.toExternalString());
 
     @Override
     public Measure getPeriodStart() {

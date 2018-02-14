@@ -22,20 +22,24 @@ import javafx.collections.ObservableList;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.*;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class RequestCircumstanceImpl extends CircumstanceImpl implements RequestCircumstance {
-    private final SimpleListProperty<ClinicalStatement> conditionalTriggers = new SimpleListProperty();
-    private final SimpleListProperty<Participant> requestedParticipants = new SimpleListProperty();
-    private final SimpleObjectProperty<LogicalExpression> priority = new SimpleObjectProperty<>();
-    private final SimpleListProperty<Repetition> repetitions = new SimpleListProperty();
-    private final SimpleObjectProperty<Result> requestedResult = new SimpleObjectProperty<>();
+    private final SimpleListProperty<ClinicalStatement> conditionalTriggers = 
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS.toExternalString());
+    private final SimpleListProperty<Participant> requestedParticipants = 
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS.toExternalString());
+    private final SimpleObjectProperty<LogicalExpression> priority = 
+            new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_PRIORITY.toExternalString());
+    private final SimpleListProperty<Repetition> repetitions = 
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS.toExternalString());
+    private final SimpleObjectProperty<Result> requestedResult = 
+            new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT.toExternalString());
 
     @Override
     public ObservableList<ClinicalStatement> getConditionalTriggers() {
@@ -51,7 +55,7 @@ public class RequestCircumstanceImpl extends CircumstanceImpl implements Request
     }
 
     @Override
-    public ObservableList<? extends Participant> getRequestedParticipants() {
+    public ObservableList<Participant> getRequestedParticipants() {
         return requestedParticipants.get();
     }
 

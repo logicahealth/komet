@@ -215,30 +215,78 @@ public enum ObservableFields
    
    MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship"),
    
-   NID1("Refset nid1"),
-   NID2("Refset nid2"),
-   NID3("Refset nid3"),
-   NID4("Refset nid4"),
-   NID5("Refset nid5"),
-   NID6("Refset nid6"),
-   NID7("Refset nid7"),
-   STR1("Refset str1"),
-   STR2("Refset str2"),
-   STR3("Refset str3"),
-   STR4("Refset str4"),
-   STR5("Refset str5"),
-   STR6("Refset str6"),
-   STR7("Refset str7"),
-   INT1("Refset int1"),
-   INT2("Refset int2"),
-   INT3("Refset int3"),
-   INT4("Refset int4"),
-   INT5("Refset int5"),
-   INT6("Refset int6"),
-   INT7("Refset int7")
-           
-         
+   NID1("Component id 1"),
+   NID2("Component id 2"),
+   NID3("Component id 3"),
+   NID4("Component id 4"),
+   NID5("Component id 5"),
+   NID6("Component id 6"),
+   NID7("Component id 7"),
+   STR1("String 1"),
+   STR2("String 2"),
+   STR3("String 3"),
+   STR4("String 4"),
+   STR5("String 5"),
+   STR6("String 6"),
+   STR7("String 7"),
+   INT1("Integer 1"),
+   INT2("Integer 2"),
+   INT3("Integer 3"),
+   INT4("Integer 4"),
+   INT5("Integer 5"),
+   INT6("Integer 6"),
+   INT7("Integer 7"),
+   
+   CIRCUMSTANCE_PURPOSE_LIST("Action purpose"),
+   CIRCUMSTANCE_TIMING("Timing"),
+   
+   STATEMENT_NARRATIVE("Narrative"),
+   STATEMENT_TIME("Time"),
+   STATEMENT_ID("Identifier"),
+   STATEMENT_SOR("Subject of record"),
+   STATEMENT_AUTHORS("Authors"),
+   STATEMENT_SOI("Subject of information"),
+   STATEMENT_TYPE("Type"),
+   STATEMENT_TOPIC("Topic"),
+   STATEMENT_CIRCUMSTANCE("Circumstance"),
+   STATEMENT_ASSOCIATIONS("Associations"),
+   
+   INTERVAL_LOWER_BOUND("Lower bound"),
+   INTERVAL_UPPER_BOUND("Upper bound"),
+   INTERVAL_INCLUDE_UPPER_BOUND("Include upper bound"),
+   INTERVAL_INCLUDE_LOWER_BOUND("Include lower bound"),
+   
+   INTERVENTION_RESULT_STATUS("Status"),
+   
+   MEASURE_RESOLUTION("Resolution"),
+   MEASURE_SEMANTIC("Measurement semantic"),
+   OBSERVATION_RESULT_HEALTH_RISK("Health risk"),
+   OBSERVATION_RESULT_NORMAL_RANGE("Normal range"),
+   
+   PARTICIPANT_ID("Participant id"),   
+   PARTICIPANT_ROLE("Participant role"),
+   
+   PERFORMANCE_CIRCUMSTANCE_RESULT("Result"),
+   PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS("Participants"),
+   
+   REPETITION_PERIOD_START("Period start"),
+   REPETITION_PERIOD_DURATION("Period duration"),
+   REPETITION_EVENT_FREQUENCY("Event frequency"),
+   REPETITION_EVENT_SEPARATION("Event separation"),
+   REPETITION_EVENT_DURATION("Event duration"),
+   
+   REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS("Conditional triggers"),
+   REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS("Requested participants"),
+   REQUEST_CIRCUMSTANCE_PRIORITY("Priority"),
+   REQUEST_CIRCUMSTANCE_REPETITIONS("Repetitions"),
+   REQUEST_CIRCUMSTANCE_REQUESTED_RESULT("Requested result"),
+   
+   STATEMENT_ASSOCIATION_SEMANTIC("Association semantic"),
+   STATEMENT_ASSOCIATION_ID("Association id"),
+   
+   UNSTRUCTURED_CIRCUMSTANCE_TEXT("text"),
 ;
+   // this, ObservableFields..toExternalString()
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 

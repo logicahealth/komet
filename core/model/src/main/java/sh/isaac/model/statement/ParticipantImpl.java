@@ -16,9 +16,12 @@
  */
 package sh.isaac.model.statement;
 
+import java.util.Optional;
+import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.Participant;
+import sh.isaac.model.observable.ObservableFields;
 
 
 /**
@@ -27,8 +30,24 @@ import sh.isaac.api.statement.Participant;
  */
 public class ParticipantImpl implements Participant {
 
-    private final SimpleObjectProperty<LogicalExpression> participantRole = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<LogicalExpression> participantRole = 
+            new SimpleObjectProperty<>(this, ObservableFields.PARTICIPANT_ROLE.toExternalString());
 
+    private final SimpleObjectProperty<UUID> participantId = 
+            new SimpleObjectProperty(this, ObservableFields.PARTICIPANT_ID.toExternalString());
+
+    @Override
+    public Optional<UUID> getParticipantId() {
+        return Optional.ofNullable(participantId.get());
+    }
+
+    public SimpleObjectProperty<UUID> participantIdProperty() {
+        return participantId;
+    }
+
+    public void setParticipantId(UUID participantId) {
+        this.participantId.set(participantId);
+    }
     @Override
     public LogicalExpression getParticipantRole() {
         return participantRole.get();

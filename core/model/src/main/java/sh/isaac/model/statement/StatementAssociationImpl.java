@@ -21,14 +21,17 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.StatementAssociation;
 
 import java.util.UUID;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class StatementAssociationImpl implements StatementAssociation {
-    private final SimpleObjectProperty<LogicalExpression> associationSemantic = new SimpleObjectProperty();
-    private final SimpleObjectProperty<UUID> associatedStatementId = new SimpleObjectProperty();
+    private final SimpleObjectProperty<LogicalExpression> associationSemantic = 
+            new SimpleObjectProperty(this, ObservableFields.STATEMENT_ASSOCIATION_SEMANTIC.toExternalString());
+    private final SimpleObjectProperty<UUID> associatedStatementId = 
+            new SimpleObjectProperty(this, ObservableFields.STATEMENT_ASSOCIATION_ID.toExternalString());
 
     @Override
     public LogicalExpression getAssociationSemantic() {

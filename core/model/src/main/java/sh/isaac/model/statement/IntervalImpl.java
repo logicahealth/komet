@@ -19,16 +19,21 @@ package sh.isaac.model.statement;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import sh.isaac.api.statement.Interval;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class IntervalImpl implements Interval {
-    private final SimpleFloatProperty lowerBound = new SimpleFloatProperty();
-    private final SimpleBooleanProperty includeLowerBound = new SimpleBooleanProperty();
-    private final SimpleFloatProperty upperBound = new SimpleFloatProperty();
-    private final SimpleBooleanProperty includeUpperBound = new SimpleBooleanProperty();
+    private final SimpleFloatProperty lowerBound = 
+            new SimpleFloatProperty(this, ObservableFields.INTERVAL_LOWER_BOUND.toExternalString());
+    private final SimpleBooleanProperty includeLowerBound = 
+            new SimpleBooleanProperty(this, ObservableFields.INTERVAL_INCLUDE_UPPER_BOUND.toExternalString());
+    private final SimpleFloatProperty upperBound = 
+            new SimpleFloatProperty(this, ObservableFields.INTERVAL_UPPER_BOUND.toExternalString());
+    private final SimpleBooleanProperty includeUpperBound = 
+            new SimpleBooleanProperty(this, ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND.toExternalString());
 
     @Override
     public float getLowerBound() {

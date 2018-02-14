@@ -36,7 +36,7 @@ public interface RequestCircumstance extends Circumstance {
      *
      * @return the participants requested to complete the request.
      */
-    List<? extends Participant> getRequestedParticipants();
+    List<Participant> getRequestedParticipants();
 
     /**
      *

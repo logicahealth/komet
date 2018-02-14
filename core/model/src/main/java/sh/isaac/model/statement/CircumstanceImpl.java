@@ -22,6 +22,7 @@ import javafx.collections.ObservableList;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.Circumstance;
 import sh.isaac.api.statement.Measure;
+import sh.isaac.model.observable.ObservableFields;
 
 
 /**
@@ -29,8 +30,10 @@ import sh.isaac.api.statement.Measure;
  * @author kec
  */
 public class CircumstanceImpl implements Circumstance {
-    private final SimpleListProperty<LogicalExpression> purposeList = new SimpleListProperty();
-    private final SimpleObjectProperty<Measure> timing = new SimpleObjectProperty<>();
+    private final SimpleListProperty<LogicalExpression> purposeList = 
+            new SimpleListProperty(this, ObservableFields.CIRCUMSTANCE_PURPOSE_LIST.toExternalString());
+    private final SimpleObjectProperty<Measure> timing = 
+            new SimpleObjectProperty<>(this, ObservableFields.CIRCUMSTANCE_TIMING.toExternalString());
 
     @Override
     public ObservableList<LogicalExpression> getPurposeList() {

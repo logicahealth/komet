@@ -16,17 +16,17 @@
  */
 package sh.isaac.model.statement;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.UnstructuredCircumstance;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
 public class UnstructuredCircumstanceImpl extends CircumstanceImpl implements UnstructuredCircumstance {
-    private final SimpleStringProperty unstructuredText = new SimpleStringProperty();
+    private final SimpleStringProperty unstructuredText = 
+            new SimpleStringProperty(this, ObservableFields.UNSTRUCTURED_CIRCUMSTANCE_TEXT.toExternalString());
 
     @Override
     public String getUnstructuredText() {

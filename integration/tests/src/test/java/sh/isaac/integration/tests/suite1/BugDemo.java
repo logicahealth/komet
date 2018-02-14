@@ -64,7 +64,7 @@ public class BugDemo
 	{
 		// Read descriptions on a concept:
 		// Attempt to read back the description.
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_STATEMENT____SOLOR.getNid(),
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
 					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
@@ -81,7 +81,7 @@ public class BugDemo
 		SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
 		SemanticBuilder<? extends SemanticChronology> descriptionSemanticBuilder = semanticBuilderService.getDescriptionBuilder(
 				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME____SOLOR.getNid(),
-				"foo", MetaData.ACTION_STATEMENT____SOLOR.getNid());
+				"foo", MetaData.ACTION_PURPOSE____SOLOR.getNid());
 
 		// add an extended type (which is a nested semantic on the description which references the concept created above) - this is added in the same
 		// builder. Note, the extended type here is invalid, and will fail a validator.
@@ -101,7 +101,7 @@ public class BugDemo
 		}
 
 		// This will now fail, due to traces left behind by the attempted new description create.
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_STATEMENT____SOLOR.getNid(),
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
 					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
@@ -139,7 +139,7 @@ public class BugDemo
 		SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
 		SemanticBuilder<? extends SemanticChronology> descriptionSemanticBuilder = semanticBuilderService.getDescriptionBuilder(
 				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME____SOLOR.getNid(),
-				"foo", MetaData.ACTION_STATEMENT____SOLOR.getNid());
+				"foo", MetaData.ACTION_PURPOSE____SOLOR.getNid());
 
 		// add an extended type (which is a nested semantic on the description which references the concept created above) - this is added in the same
 		// builder.
@@ -163,7 +163,7 @@ public class BugDemo
 		LOG.debug("commit {}", cr.get());
 
 		// Attempt to read back the description.
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_STATEMENT____SOLOR.getNid(),
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
 					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
@@ -180,12 +180,12 @@ public class BugDemo
 	@Test(groups = { "bugs" }, dependsOnGroups = { "load" })
 	public void logicGraphMergeBug() throws InterruptedException, ExecutionException
 	{
-		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_STATEMENT____SOLOR.getNid(), true).get();
+		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
 		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getDefaultEditCoordinate());
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
-		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.CLINICAL_STATEMENT____SOLOR.getNid(), defBuilder),
+		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),
 				ConceptAssertion(MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getNid(), defBuilder) }));
 		LogicalExpression parentDef = defBuilder.build();
 
