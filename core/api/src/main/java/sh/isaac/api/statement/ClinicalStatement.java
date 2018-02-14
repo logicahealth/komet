@@ -17,6 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import sh.isaac.api.logic.LogicalExpression;
 
@@ -30,7 +31,7 @@ public interface ClinicalStatement {
      * @return measure of the time during which this clinical 
      * statement was recorded. 
      */
-    Measure getStatmentTime();
+    Measure getStatementTime();
 
     /**
      *
@@ -48,7 +49,7 @@ public interface ClinicalStatement {
      *
      * @return the authors of this statement.
      */
-    Collection<? extends Participant> getStatementAuthors();
+    List<? extends Participant> getStatementAuthors();
 
     /**
      *
@@ -79,5 +80,5 @@ public interface ClinicalStatement {
      *
      * @return a collection of associations to other clinical statements, including panel parts.
      */
-    Collection<StatementAssociation> getStatementAssociations();
+    List<StatementAssociation> getStatementAssociations();
 }

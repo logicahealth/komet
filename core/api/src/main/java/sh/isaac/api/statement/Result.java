@@ -16,26 +16,10 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
-
 /**
- * The Result measures the actual state of the 
- * clinical statement topic during the timing specified
- * by the performance circumstance. 
+ *
  * @author kec
  */
 public interface Result extends Measure {
-    /**
-     * 
-     * @return an indicator as to the possibility of an immediate 
-     * health risk to the individual that may require immediate action. 
-     */
-    Optional<LogicalExpression> getHealthRisk();
-
-    /**
-     * 
-     * @return the normal range for this measure. 
-     */
-    Optional<Interval> getNormalRange();
+    
 }

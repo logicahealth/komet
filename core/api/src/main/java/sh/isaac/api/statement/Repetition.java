@@ -16,11 +16,49 @@
  */
 package sh.isaac.api.statement;
 
+import java.util.Optional;
+
 /**
- * Needs to be based on the repeat section of the timing
+    Day of week, MWF or TH. 
+    
+    Handle as multiple weekly repetitions. M every week; W every week; etc. 
+    
+    Put "with meals" as part of the topic, not the repetition. 
+
  * resource: https://www.hl7.org/fhir/datatypes.html#Timing
  * @author kec
  */
 public interface Repetition {
     
+    /**
+     * 
+     * @return a specific time period or day
+     */
+    Measure getPeriodStart();
+    /**
+     * 
+     * 
+     * @return the duration of one cycle in a repeating event
+     */
+    Measure getPeriodDuration();
+    
+    /**
+     * 
+     * @return number of times the event may occur in a period. 
+     */
+    Interval getEventFrequency();
+    
+    /**
+     * 
+     * @return the requested separation between events 
+     */
+    Measure getEventSeparation();
+    
+    /**
+     * 
+     * @return The length of the event (e.g. exercise for 30 minutes)
+     */
+    Optional<Measure> getEventDuration();
+    
+
 }

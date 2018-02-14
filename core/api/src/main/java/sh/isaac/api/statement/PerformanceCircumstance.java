@@ -17,6 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -33,5 +34,5 @@ public interface PerformanceCircumstance extends Circumstance {
      *
      * @return the participants in the performance of an action.
      */
-    Collection<IdentifiedParticipant> getPerformanceParticipants();
+    List<? extends Participant> getPerformanceParticipants();
 }

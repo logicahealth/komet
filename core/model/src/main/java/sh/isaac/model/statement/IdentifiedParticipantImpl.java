@@ -14,32 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.model.statement;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.statement.IdentifiedParticipant;
+
+import java.util.UUID;
 
 /**
  *
  * @author kec
  */
-public interface Circumstance {
-    /**
-     * 
-     * @return the timing Measure for this circumstance as it 
-     * relates to the clinical statement topic. It may  represent a time
-     * in the past (a past history of appendectomy), now (current pain)
-     * or in the future (planned surgery). 
-     */
-    Measure getTiming();
-    
-    /**
-     * A purpose could be diagnostic of a condition, or therapeutic for a 
-     * malady. 
-     * @return A purpose associated with the clinical statement. 
-     */
-    List<LogicalExpression> getPurposeList();
-    
+public class IdentifiedParticipantImpl extends ParticipantImpl implements IdentifiedParticipant {
+
+    private final SimpleObjectProperty<UUID> participantId = new SimpleObjectProperty();
+
+    @Override
+    public UUID getParticipantId() {
+        return participantId.get();
+    }
+
+    public SimpleObjectProperty<UUID> participantIdProperty() {
+        return participantId;
+    }
+
+    public void setParticipantId(UUID participantId) {
+        this.participantId.set(participantId);
+    }
 }
