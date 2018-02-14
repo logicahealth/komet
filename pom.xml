@@ -69,22 +69,22 @@
       <dependency.locations.enabled>false</dependency.locations.enabled>
       <activation.version>1.1.1</activation.version>
       <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-      <commons-lang3.version>3.5</commons-lang3.version>
+      <commons-lang3.version>3.7</commons-lang3.version>
       <commons-logging.version>1.2</commons-logging.version>
       <commons-io.version>2.6</commons-io.version>
       <caffeine.version>2.6.1</caffeine.version>
       <disruptor.version>3.3.7</disruptor.version>
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
-      <enforcer-api.version>1.4.1</enforcer-api.version>
+      <enforcer-api.version>3.0.0-M1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
-      <gitflow-maven-plugin-version>1.7.0</gitflow-maven-plugin-version>
-      <guava.version>21.0</guava.version>
+      <gitflow-maven-plugin-version>1.8.0</gitflow-maven-plugin-version>
+      <guava.version>24.0-jre</guava.version>
       <hk2.version>2.5.0-b60</hk2.version>
       <HK2Utilities.version>1.5.1</HK2Utilities.version>
-      <httpclient.version>4.5.3</httpclient.version>
-      <javassist.version>3.21.0-GA</javassist.version>
+      <httpclient.version>4.5.4</httpclient.version>
+      <javassist.version>3.22.0-GA</javassist.version>
       <javac.version>1.8</javac.version>
-      <jaxb-impl.version>2.2.11</jaxb-impl.version>
+      <jaxb-impl.version>2.3.0</jaxb-impl.version>
       <jaxb2-maven-plugin.version>2.3.1</jaxb2-maven-plugin.version>
       <jbpm.version>6.5.0.Final</jbpm.version>
       <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
@@ -92,22 +92,22 @@
       <jgitflow-maven-plugin.version>1.0-m5.1</jgitflow-maven-plugin.version>
       <isaac-conventions.version>1.0</isaac-conventions.version>
       <jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
-      <jna.version>4.4.0</jna.version>
-      <json-io.version>4.9.10</json-io.version>
+      <jna.version>4.5.0</jna.version>
+      <json-io.version>4.10.0</json-io.version>
       <junit.version>4.12</junit.version>
       <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-      <log4j.version>2.9.1</log4j.version>
-      <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
+      <log4j.version>2.10.0</log4j.version>
+      <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
       <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
       <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-      <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-      <maven-core.version>3.3.9</maven-core.version>
+      <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+      <maven-core.version>3.5.2</maven-core.version>
       <maven-dependency-plugin.version>3.0.0</maven-dependency-plugin.version>
       <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-      <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+      <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
       <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-      <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-      <maven-jaxb2-plugin.version>0.13.2</maven-jaxb2-plugin.version>
+      <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
+      <maven-jaxb2-plugin.version>0.13.3</maven-jaxb2-plugin.version>
       <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
       <maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
       <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
@@ -116,17 +116,17 @@
       <maven-scm-publish-plugin.version>1.1</maven-scm-publish-plugin.version>
       <maven-site-plugin.version>3.6</maven-site-plugin.version>
       <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-      <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+      <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
       <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-      <opencsv.version>3.3</opencsv.version>
+      <opencsv.version>4.1</opencsv.version>
       <poi-ooxml.version>3.17</poi-ooxml.version>
-      <plexus-archiver.version>3.4</plexus-archiver.version>
+      <plexus-archiver.version>3.5</plexus-archiver.version>
       <plexus-classworlds.version>2.5.2</plexus-classworlds.version>
       <plexus-component-annotations.version>1.7.1</plexus-component-annotations.version>
       <plexus-container-default.version>1.7.1</plexus-container-default.version>
       <plexus-interpolation.version>1.24</plexus-interpolation.version>
-      <plexus-io.version>2.7.1</plexus-io.version>
-      <plexus-utils.version>3.0.24</plexus-utils.version>
+      <plexus-io.version>3.0.0</plexus-io.version>
+      <plexus-utils.version>3.1.0</plexus-utils.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -135,9 +135,9 @@
       <sisu-inject-plexus.version>2.6.0</sisu-inject-plexus.version>
       <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
       <sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
-      <testng.version>6.10</testng.version>
+      <testng.version>6.13.1</testng.version>
       <tilesfx.version>1.5.2</tilesfx.version>
-      <wagon-provider-api.version>2.12</wagon-provider-api.version>
+      <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
    </properties>
 
    <developers>
