@@ -19,17 +19,14 @@
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-openAPI</artifactId>
-         <version>1.0.6</version>
       </dependency>
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-utils</artifactId>
-         <version>1.0.6</version>
       </dependency>
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-environment</artifactId>
-         <version>1.0.6</version>
       </dependency>
    </dependencies>
 </project>
