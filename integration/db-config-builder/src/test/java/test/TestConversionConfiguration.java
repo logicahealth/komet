@@ -117,7 +117,7 @@ public class TestConversionConfiguration {
                   "3.3-SNAPSHOT", 
                   new SDOSourceContent[0], 
                   new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
-                     options, gitTestURL, gitUsername, gitPassword));
+                     options, gitTestURL, gitUsername, gitPassword, null, true));
          }
          catch (Exception e)
          {
@@ -128,13 +128,13 @@ public class TestConversionConfiguration {
          "3.3-SNAPSHOT", 
          new SDOSourceContent[0], 
          new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
-            options, gitTestURL, gitUsername, gitPassword));
+            options, gitTestURL, gitUsername, gitPassword, null, true));
       
       System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-us-extension", "aabbCcdd"), 
             "3.3-SNAPSHOT", 
             new SDOSourceContent[0], 
             new IBDFFile[] {new IBDFFile("sh.isaac.terminology.converted", "rf2-ibdf-sct", "20150731-loader-3.3-SNAPSHOT", "Snapshot")},
-               options, gitTestURL, gitUsername, gitPassword));
+               options, gitTestURL, gitUsername, gitPassword, null, true));
 
       // rxnorm
 //    ConverterOptionParam[] optionTypes = ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters", "rxnorm-mojo", "5.1-SNAPSHOT"), 

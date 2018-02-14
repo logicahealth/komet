@@ -276,6 +276,12 @@ public class IBDFCreationUtility
          new IndexTermstore().execute();
       }
       
+      //While I don't need/want the metadata to be loaded into the datastore/ibdf output file - I do need UUID to nid mappings for the metadata.
+      for (ConceptSpecification cs : MetaData.META_DATA_CONCEPTS)
+      {
+         Get.identifierService().assignNid(cs.getUuids());
+      }
+      
       this.authorNid = MetaData.USER____SOLOR.getNid();
       this.terminologyPathNid = MetaData.DEVELOPMENT_PATH____SOLOR.getNid();
       

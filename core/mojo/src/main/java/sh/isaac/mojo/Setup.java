@@ -76,12 +76,6 @@ public class Setup
    private final boolean dbBuildMode = false;
 
    /**
-    * See {@link ConfigurationService#setBootstrapMode()} for details on this option.
-    */
-   @Parameter(required = false)
-   private final boolean bootstrapMode = false;
-
-   /**
     * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
     * be in the passed in folder location.
     *
@@ -117,11 +111,6 @@ public class Setup
          if (this.dbBuildMode) {
             Get.configurationService()
                .setDBBuildMode();
-         }
-
-         if (this.bootstrapMode) {
-            Get.configurationService()
-               .setBootstrapMode();
          }
 
          this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);

@@ -230,11 +230,11 @@ public class VHATDeltaImport extends ConverterBaseMojo
          
          LOG.info("VHA XML Parsed");
          
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_ABBREVIATION.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_ABBREVIATION.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_PREFERRED_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_SYNONYM.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_SYNONYM.getPrimordialUuid());
-         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_VISTA_NAME.getFullyQualifiedName().toLowerCase(), VHATConstants.VHAT_VISTA_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_ABBREVIATION.getRegularName().get().toLowerCase(), VHATConstants.VHAT_ABBREVIATION.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getRegularName().get().toLowerCase(), VHATConstants.VHAT_FULLY_SPECIFIED_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_PREFERRED_NAME.getRegularName().get().toLowerCase(), VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_SYNONYM.getRegularName().get().toLowerCase(), VHATConstants.VHAT_SYNONYM.getPrimordialUuid());
+         extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_VISTA_NAME.getRegularName().get().toLowerCase(), VHATConstants.VHAT_VISTA_NAME.getPrimordialUuid());
          
          ConverterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());
          

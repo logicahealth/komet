@@ -684,88 +684,98 @@ public class FileSystemDataStore
 
       public SyncTask() {
          updateTitle("Writing data to disk");
-         addToTotalWork(9);  // TODO figure out total amoutn of work...
-         Get.activeTasks()
-                 .add(this);
       }
 
       //~--- methods ----------------------------------------------------------
       @Override
       protected Void call()
               throws Exception {
+          Get.activeTasks().add(this);
          pendingSync.release();
          syncSemaphore.acquireUninterruptibly();
 
          try {
-            updateMessage("Writing sequence generator map...");
-            writeSequenceGeneratorMapFile();
-
-
-            completedUnitOfWork();  // 1
-            updateMessage("Writing assemblage nids...");
-            writeAssemblageToObjectTypeFile();
-            writeAssemblageToVersionTypeFile();
-            completedUnitOfWork();  // 2
-            updateMessage("Writing component to semantics map...");
-
-            if (componentToSemanticNidsMap.write(componentToSemanticMapDirectory)) {
-               LOG.info("Synchronized component to semantics map changes.");
+            if (Get.configurationService().inDBBuildMode())
+            {
+               //No reason to write out all the files below (some of which fail anyway) during DB Build mode, because the 
+               //purpose oof DBBuildMode is to generate IBDF files, not a valid database.
+               addToTotalWork(1);
+               updateMessage("Bypass writes on shutdown due to DB Build mode");
+               completedUnitOfWork();
             }
-
-            completedUnitOfWork();  // 3
-            updateMessage("Writing chronology spines...");
-            spinedChronologyMapMap.forEach(
-                    (assemblageNid, spinedMap) -> {
-                       File directory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
-
-                       addInfoFile(directory, assemblageNid);
-
-                       if (spinedMap.write(directory)) {
-                          String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
-                          LOG.info("Syncronized chronologies: " + assemblageNid
-                          + " " + assemblageDescription);
-                       }
-                    });
-            completedUnitOfWork();  // 4
-            updateMessage("Writing taxonomy spines...");
-            spinedTaxonomyMapMap.forEach(
-                    (assemblageNid, spinedMap) -> {
-                       File directory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
-
-                       addInfoFile(directory, assemblageNid);
-
-                       if (spinedMap.write(directory)) {
-                          String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
-                          LOG.info("Syncronizing taxonomies: " + assemblageNid
-                          + " " + assemblageDescription);
-                       }
-                    });
-            completedUnitOfWork();  // 5
-            updateMessage("Writing component to assemblage map...");
-            nidToAssemblageNidMap.write(nidToAssemblageNidMapDirectory);
-            completedUnitOfWork();  // 6
-            updateMessage("Writing component to assemblage element map...");
-            nidToElementSequenceMap.write(nidToElementSequenceMapDirectory);
-            completedUnitOfWork();  // 7
-
-            // assemblage_ElementToNid_Map
-            updateMessage("Writing assemblage element to component map...");
-
-            for (Map.Entry<Integer, SpinedIntIntMap> entry : assemblage_ElementToNid_Map.entrySet()) {
-               File directory = getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey());
-
-               addInfoFile(directory, entry.getKey());
-               entry.getValue()
-                       .write(directory);
+            else
+            {
+               addToTotalWork(9);
+               updateMessage("Writing sequence generator map...");
+               writeSequenceGeneratorMapFile();
+   
+   
+               completedUnitOfWork();  // 1
+               updateMessage("Writing assemblage nids...");
+               writeAssemblageToObjectTypeFile();
+               writeAssemblageToVersionTypeFile();
+               completedUnitOfWork();  // 2
+               updateMessage("Writing component to semantics map...");
+   
+               if (componentToSemanticNidsMap.write(componentToSemanticMapDirectory)) {
+                  LOG.info("Synchronized component to semantics map changes.");
+               }
+   
+               completedUnitOfWork();  // 3
+               updateMessage("Writing chronology spines...");
+               spinedChronologyMapMap.forEach(
+                       (assemblageNid, spinedMap) -> {
+                          File directory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
+   
+                          addInfoFile(directory, assemblageNid);
+   
+                          if (spinedMap.write(directory)) {
+                             String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
+                             LOG.info("Syncronized chronologies: " + assemblageNid
+                             + " " + assemblageDescription);
+                          }
+                       });
+               completedUnitOfWork();  // 4
+               updateMessage("Writing taxonomy spines...");
+               spinedTaxonomyMapMap.forEach(
+                       (assemblageNid, spinedMap) -> {
+                          File directory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
+   
+                          addInfoFile(directory, assemblageNid);
+   
+                          if (spinedMap.write(directory)) {
+                             String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
+                             LOG.info("Syncronizing taxonomies: " + assemblageNid
+                             + " " + assemblageDescription);
+                          }
+                       });
+               completedUnitOfWork();  // 5
+               updateMessage("Writing component to assemblage map...");
+               nidToAssemblageNidMap.write(nidToAssemblageNidMapDirectory);
+               completedUnitOfWork();  // 6
+               updateMessage("Writing component to assemblage element map...");
+               nidToElementSequenceMap.write(nidToElementSequenceMapDirectory);
+               completedUnitOfWork();  // 7
+   
+               // assemblage_ElementToNid_Map
+               updateMessage("Writing assemblage element to component map...");
+   
+               for (Map.Entry<Integer, SpinedIntIntMap> entry : assemblage_ElementToNid_Map.entrySet()) {
+                  File directory = getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey());
+   
+                  addInfoFile(directory, entry.getKey());
+                  entry.getValue()
+                          .write(directory);
+               }
+   
+               completedUnitOfWork();  // 8
+               updateMessage("Writing properties...");
+   
+               try (FileWriter writer = new FileWriter(propertiesFile)) {
+                  FileSystemDataStore.this.properties.store(writer, null);
+               }
+               completedUnitOfWork();  // 9
             }
-
-            completedUnitOfWork();  // 8
-            updateMessage("Writing properties...");
-
-            try (FileWriter writer = new FileWriter(propertiesFile)) {
-               FileSystemDataStore.this.properties.store(writer, null);
-            }
-            completedUnitOfWork();  // 9
             updateMessage("Write complete");
             LOG.info("FileSystemDataStore sync complete.");
             return null;
@@ -807,7 +817,7 @@ public class FileSystemDataStore
                      }
                   }
                } catch (Throwable e) {
-                  LOG.error("Unexpected", e);
+                  LOG.error("Unexpected error while writing on info files for assemblages", e);
                }
             }
          }

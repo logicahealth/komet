@@ -78,8 +78,8 @@ public class DynamicImpl
         extends AbstractVersionImpl
          implements MutableDynamicVersion<DynamicImpl> {
    /** The bootstrap mode. */
-   private static boolean bootstrapMode = Get.configurationService()
-                                             .inBootstrapMode();
+   private static boolean dbBuildMode = Get.configurationService()
+                                             .inDBBuildMode();
 
    //~--- fields --------------------------------------------------------------
 
@@ -299,7 +299,7 @@ public class DynamicImpl
          checkUncommitted();
       }
 
-      if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
+      if (!dbBuildMode) {  // We can't run the validators when we are building the initial system.
          final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
 
          LookupService.get()

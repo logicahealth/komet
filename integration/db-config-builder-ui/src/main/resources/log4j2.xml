@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+   <Appenders>
+      <Console name="STDOUT" target="SYSTEM_OUT">
+         <PatternLayout pattern="%-5p %d  [%t] %C{2} (%F:%L) - %m%n" />
+      </Console>
+   </Appenders>
+   <Loggers>
+      <!-- Quiet down various loggers that we don't want flooding the console with debug info -->
+      <!--Logger name="gov.va.oia.HK2Utilities" level="info" /-->
+      <Root level="warn">
+         <AppenderRef ref="STDOUT" />
+      </Root>
+   </Loggers>
+</Configuration>
+

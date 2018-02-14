@@ -188,7 +188,7 @@ public abstract class ConverterBaseMojo
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService().setBootstrapMode();
+      Get.configurationService().setDBBuildMode();
 
       ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
                                        (this.createDebugUUIDMap.length() == 0)) ? false

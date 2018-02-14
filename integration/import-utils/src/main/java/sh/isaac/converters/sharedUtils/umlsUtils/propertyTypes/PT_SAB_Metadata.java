@@ -57,6 +57,7 @@ public class PT_SAB_Metadata
         extends PropertyType {
    /**
     * Instantiates a new p T SA B metadata.
+    * @param termName 
     */
    public PT_SAB_Metadata(String termName) {
       // from http://www.nlm.nih.gov/research/umls/rxnorm/docs/2013/rxnorm_doco_full_2013-2.html#s12_8

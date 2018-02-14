@@ -105,7 +105,10 @@ public class TestSourceUploadConfiguration {
                                                                            gitPassword,
                                                                            artifactRepository,
                                                                            repositoryUsername,
-                                                                           repositoryPassword);
+                                                                           repositoryPassword, 
+                                                                           null, 
+                                                                           true, 
+                                                                           true);
 
       t.progressProperty()
        .addListener((ChangeListener<Number>) (observable, oldValue,

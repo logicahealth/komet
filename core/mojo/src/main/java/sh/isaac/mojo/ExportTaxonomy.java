@@ -115,8 +115,6 @@ public class ExportTaxonomy
             throws MojoExecutionException, MojoFailureException {
       try {
          Get.configurationService()
-            .setBootstrapMode();
-         Get.configurationService()
             .setDBBuildMode();
 
          final IsaacTaxonomy taxonomy = LookupService.get()

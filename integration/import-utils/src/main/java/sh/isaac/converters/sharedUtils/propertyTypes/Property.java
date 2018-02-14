@@ -214,6 +214,7 @@ public class Property {
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param disabled the disabled
+    * @param isIdentifier true if this should be treated as an identifier type
     * @param propertySubType the property sub type
     * @param columnInforForDynamicRefex the column infor for dynamic refex
     */
@@ -230,7 +231,7 @@ public class Property {
       this.sourcePropertyAltName    = sourcePropertyAltName;
       this.sourcePropertyDefinition = sourcePropertyDefinition;
       this.isDisabled               = disabled;
-      this.isIdentifier            = isIdentifier;
+      this.isIdentifier             = isIdentifier;
       this.propertySubType          = propertySubType;
       
       if (this.isIdentifier)

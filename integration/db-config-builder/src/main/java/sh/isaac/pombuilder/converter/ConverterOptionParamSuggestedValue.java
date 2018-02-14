@@ -172,7 +172,7 @@ public class ConverterOptionParamSuggestedValue {
    }
 
    /**
-    * The value to be passed in to the {@link ConverterOptionValue} class.
+    * The value to be passed in to the {@link ConverterOptionParam} class.
     *
     * @return the value
     */

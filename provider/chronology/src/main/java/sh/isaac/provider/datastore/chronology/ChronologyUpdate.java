@@ -51,7 +51,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.IsaacCache;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -66,11 +66,11 @@ import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.provider.datastore.identifier.IdentifierProvider;
-import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
+import sh.isaac.provider.datastore.identifier.IdentifierProvider;
+import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -79,7 +79,7 @@ import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
  */
 @Service
 @Singleton
-public class ChronologyUpdate implements IsaacCache{
+public class ChronologyUpdate implements StaticIsaacCache{
 
    private static final Logger LOG = LogManager.getLogger();
    private static int INFERRED_ASSEMBLAGE_NID;

@@ -127,7 +127,7 @@ import sh.isaac.api.util.WorkExecutors;
 @Service
 @Singleton
 public class Get
-         implements IsaacCache {
+         implements StaticIsaacCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private static final Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(

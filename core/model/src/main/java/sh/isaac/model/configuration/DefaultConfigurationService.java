@@ -102,9 +102,6 @@ public class DefaultConfigurationService
    /** The init complete. */
    private volatile boolean initComplete = false;
 
-   /** The bootstrap mode. */
-   private boolean bootstrapMode = false;
-
    /** The db build mode. */
    private boolean dbBuildMode = false;
 
@@ -123,16 +120,6 @@ public class DefaultConfigurationService
    //~--- methods -------------------------------------------------------------
 
    /**
-    * In bootstrap mode.
-    *
-    * @return true, if successful
-    */
-   @Override
-   public boolean inBootstrapMode() {
-      return this.bootstrapMode;
-   }
-
-   /**
     * In DB build mode.
     *
     * @return true, if successful
@@ -143,14 +130,6 @@ public class DefaultConfigurationService
    }
 
    //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Set bootstrap mode.
-    */
-   @Override
-   public void setBootstrapMode() {
-      this.bootstrapMode = true;
-   }
 
    /**
     * Set DB build mode.

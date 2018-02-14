@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -520,10 +521,20 @@ public class LookupService {
             LOG.info("Setting run level to: " + --currentRunLevel);
             getService(RunLevelController.class).proceedTo(currentRunLevel);
          }
-         getServices(IsaacCache.class).forEach((cache) -> {
+         HashSet<String> clearedCaches = new HashSet<>();
+         getActiveServices(IsaacCache.class).forEach((cache) -> {
             LOG.info("Clear cache for: {}", cache.getClass().getName());
             cache.reset();
+            clearedCaches.add(cache.getClass().getName());
          });
+         //There are some cache services that have static methods, that may not have been "active" here.  clear those too.
+         getServices(StaticIsaacCache.class).forEach((cache) -> {
+             if (!clearedCaches.contains(cache.getClass().getName()))
+             {
+                LOG.info("Clear cache for: {}", cache.getClass().getName());
+                cache.reset();
+             }
+          });
       } else {
          while (currentRunLevel < targetRunLevel) {
             LOG.info("Setting run level to: " + ++currentRunLevel);

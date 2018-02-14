@@ -16,9 +16,7 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import sh.isaac.api.logic.LogicalExpression;
 
 /**

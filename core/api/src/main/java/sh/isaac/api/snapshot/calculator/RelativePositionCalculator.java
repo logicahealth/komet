@@ -65,6 +65,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.IsaacCache;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -103,8 +104,8 @@ public class RelativePositionCalculator
    /** The coordinate. */
    private StampCoordinate coordinate;
    private EnumSet<Status>  allowedStates;
-   private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap();
-   private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap();
+   private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap<>();
 
    /**
     * Mapping from pathNid to each segment for that pathNid. There is one entry
@@ -118,7 +119,8 @@ public class RelativePositionCalculator
    /**
     * Instantiates a new relative position calculator.
     */
-   public RelativePositionCalculator() {
+   @SuppressWarnings("unused")
+   private RelativePositionCalculator() {
       // No arg constructor for HK2 managed instance
    }
 
@@ -579,7 +581,7 @@ public class RelativePositionCalculator
 
       // the sequence of the preceding segments is set in the recursive
       // call.
-      final ConcurrentSkipListSet<Integer> precedingSegments = new ConcurrentSkipListSet();
+      final ConcurrentSkipListSet<Integer> precedingSegments = new ConcurrentSkipListSet<>();
 
       // call to recursive method...
       addOriginsToPathSequenceSegmentMap(
@@ -605,7 +607,7 @@ public class RelativePositionCalculator
       stampIsAllowedState.put(stampSequence, allowed);
       return allowed;
    }
-
+   
    /**
     * Gets the calculator.
     *
@@ -613,6 +615,16 @@ public class RelativePositionCalculator
     * @return the calculator
     */
    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
+      return LookupService.get().getService(RelativePositionCalculator.class).getCalculatorInstance(coordinate);
+   }
+
+   /**
+    * Gets the calculator.
+    *
+    * @param coordinate the coordinate
+    * @return the calculator
+    */
+   public RelativePositionCalculator getCalculatorInstance(StampCoordinate coordinate) {
       RelativePositionCalculator calculator = CALCULATOR_CACHE.get(coordinate);
 
       if (calculator != null) {
@@ -684,7 +696,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {
@@ -785,7 +797,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {
@@ -821,7 +833,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {

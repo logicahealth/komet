@@ -260,11 +260,6 @@ public class IdentifierProvider
          return lastFoundNid;
       }
       final int nid = this.uuidIntMapMap.getWithGeneration(uuids[0]);
-      
-      if (nid == -2147481039)
-      {
-    	  System.out.println("hi");
-      }
 
       for (int i = 1; i < uuids.length; i++) {
          this.uuidIntMapMap.put(uuids[i], nid);

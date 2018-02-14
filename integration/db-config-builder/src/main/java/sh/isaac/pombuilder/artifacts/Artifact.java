@@ -95,8 +95,8 @@ public abstract class Artifact {
     */
    @Override
    public String toString() {
-      return "Artifact [groupId_=" + this.groupId + ", artifactId_=" + this.artifactId + ", version_=" +
-             this.version + ", classifier_=" + this.classifier + "]";
+      return "Artifact groupId=" + this.groupId + ", artifactId=" + this.artifactId + ", version=" +
+             this.version + ", classifier=" + (this.classifier == null ? "" : this.classifier) + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
