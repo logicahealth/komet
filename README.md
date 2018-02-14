@@ -1,6 +1,8 @@
 ISAAC: Informatics Analytic Architecture
 ======================
 
+[![Build Status](https://travis-ci.org/darmbrust/ISAAC.svg?branch=develop)](https://travis-ci.org/darmbrust/ISAAC)
+
 A dynamic semantic architecture for the analysis of models, logic, and language.
 
 This software now depends on the Oracle Berkeley JE database. This database is licensed under Apache 2, 
