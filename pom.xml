@@ -80,6 +80,7 @@
       <gitflow-maven-plugin-version>1.7.0</gitflow-maven-plugin-version>
       <guava.version>21.0</guava.version>
       <hk2.version>2.5.0-b60</hk2.version>
+      <HK2Utilities.version>1.5.1</HK2Utilities.version>
       <httpclient.version>4.5.3</httpclient.version>
       <javassist.version>3.21.0-GA</javassist.version>
       <javac.version>1.8</javac.version>
@@ -342,6 +343,11 @@
             <artifactId>javax.inject</artifactId>
             <version>${hk2.version}</version>
          </dependency>
+         <dependency>
+            <groupId>net.sagebits</groupId>
+            <artifactId>HK2Utilities</artifactId>
+            <version>${HK2Utilities.version}</version>
+        </dependency>
          <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
@@ -659,18 +665,6 @@
       </pluginManagement>
 
       <plugins>
-         <!-- Isaac doesn't use inhabitant files -->
-         <!--plugin>
-             <groupId>org.glassfish.hk2</groupId>
-             <artifactId>hk2-inhabitant-generator</artifactId>
-             <executions>
-                 <execution>
-                     <goals>
-                         <goal>generate-inhabitants</goal>
-                     </goals>
-                 </execution>
-             </executions>
-         </plugin-->
          <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>

@@ -35,11 +35,7 @@
  *
  */
 
-
-
 package sh.isaac.api;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
@@ -52,9 +48,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,15 +56,9 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import com.sun.javafx.application.PlatformImpl;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import javafx.application.Platform;
+import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.index.IndexQueryService;
