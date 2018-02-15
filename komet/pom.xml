@@ -32,6 +32,66 @@
                 <artifactId>centerdevice-nsmenufx</artifactId>
                 <version>2.1.5</version>
             </dependency>
+            <dependency>
+                <groupId>no.tornado</groupId>
+                <artifactId>tornadofx-controls</artifactId>
+                <version>1.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-fontawesome</artifactId>
+                <version>4.7.0-5</version>
+            </dependency>        
+            <dependency>
+                <groupId>de.codecentric.centerdevice</groupId>
+                <artifactId>javafxsvg</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-commons</artifactId>
+                <version>8.15</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-controls</artifactId>
+                <version>8.15</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-emojione</artifactId>
+                <version>2.2.7-2</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-icons525</artifactId>
+                <version>3.0.0-4</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-materialdesignfont</artifactId>
+                <version>1.7.22-4</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-materialicons</artifactId>
+                <version>2.2.0-5</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-materialstackicons</artifactId>
+                <version>2.1-5</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-octicons</artifactId>
+                <version>4.3.0-5</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jensd</groupId>
+                <artifactId>fontawesomefx-weathericons</artifactId>
+                <version>2.0.10-5</version>
+            </dependency>             
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -47,5 +107,6 @@
         <module>progress-view</module>
         <module>assemblage-view</module>
         <module>scripting</module>
+        <module>statement-view</module>
     </modules>
 </project> 

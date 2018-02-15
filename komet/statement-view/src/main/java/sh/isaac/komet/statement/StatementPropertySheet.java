@@ -14,33 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.komet.statement;
 
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.statement.ClinicalStatement;
 
 /**
  *
  * @author kec
  */
-public interface Measure extends Interval {
-
-    /**
-     * In most cases, the semantics of the measurement are the units of measure.
-     * @return the semantics for this measurement.
-     */
-    LogicalExpression getMeasureSemantic();
-
-    /**
-     *
-     * @return the resolution of this measurement.
-     */
-    Optional<Float> getResolution();
-
-    /**
-     * 
-     * @return the normal range for this measure. 
-     */
-    Optional<Interval> getNormalRange();
+public class StatementPropertySheet {
+    private final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
+    private final PropertySheet propertySheet = new PropertySheet(this.items);
+    {
+        this.propertySheet.setMode(PropertySheet.Mode.NAME);
+        this.propertySheet.setSearchBoxVisible(true);
+    }
     
+    public void setClinicalStatement(ClinicalStatement clinicalStatement) {
+        items.clear();
+        
+    }
 }

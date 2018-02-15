@@ -89,6 +89,7 @@ import sh.komet.gui.util.FxGet;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.komet.statement.StatementView;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
@@ -219,6 +220,8 @@ public class MainApp
         stage.setOnCloseRequest(this::handleShutdown);
 
         // ScenicView.show(scene);
+        
+        StatementView.show();
     }
 
     private void close(ActionEvent event) {

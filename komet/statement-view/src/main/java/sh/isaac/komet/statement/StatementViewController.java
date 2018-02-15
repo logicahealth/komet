@@ -14,33 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.komet.statement;
 
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
 
-/**
- *
- * @author kec
- */
-public interface Measure extends Interval {
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.FXML;
+import javafx.scene.layout.AnchorPane;
 
-    /**
-     * In most cases, the semantics of the measurement are the units of measure.
-     * @return the semantics for this measurement.
-     */
-    LogicalExpression getMeasureSemantic();
+public class StatementViewController {
 
-    /**
-     *
-     * @return the resolution of this measurement.
-     */
-    Optional<Float> getResolution();
+    @FXML // ResourceBundle that was given to the FXMLLoader
+    private ResourceBundle resources;
 
-    /**
-     * 
-     * @return the normal range for this measure. 
-     */
-    Optional<Interval> getNormalRange();
-    
+    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    private URL location;
+
+    @FXML // fx:id="rootPane"
+    private AnchorPane rootPane; // Value injected by FXMLLoader
+
+    @FXML // This method is called by the FXMLLoader when initialization is complete
+    void initialize() {
+        assert rootPane != null : "fx:id=\"rootPane\" was not injected: check your FXML file 'StatementView.fxml'.";
+    }
 }
