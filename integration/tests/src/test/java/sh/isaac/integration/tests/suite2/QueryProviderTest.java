@@ -110,8 +110,8 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("s*", null, null, 2, 375, null).size(), expectedMaxHits - 375);
 	}
 	
-        @Test(enabled = false)
- 	public void testPaging() {
+	@Test
+	public void testPaging() {
 		
 		int expectedMaxHits = 16;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
@@ -122,8 +122,8 @@ public class QueryProviderTest {
 		List<SearchResult> paged = new ArrayList<>(expectedMaxHits);
 		
 		//Get in two pages
-		paged.addAll(di.query("h*", null, null, 1, 7, null));
-		paged.addAll(di.query("h*", null, null, 2, 7, null));
+		paged.addAll(di.query("h*", null, null, 1, 8, null));
+		paged.addAll(di.query("h*", null, null, 2, 8, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
@@ -131,8 +131,8 @@ public class QueryProviderTest {
 
 		//Try with page one twice
 		paged = new ArrayList<>(expectedMaxHits);
-		paged.addAll(di.query("h*", null, null, 1, 7, null));
-		paged.addAll(di.query("h*", null, null, 1, 7, null));
+		paged.addAll(di.query("h*", null, null, 1, 8, null));
+		paged.addAll(di.query("h*", null, null, 1, 8, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertFalse(CollectionUtils.containsAll(paged, allResults));
@@ -154,31 +154,37 @@ public class QueryProviderTest {
 		paged.addAll(di.query("h*", null, null, 12, 1, null));
 		paged.addAll(di.query("h*", null, null, 13, 1, null));
 		paged.addAll(di.query("h*", null, null, 14, 1, null));
+		paged.addAll(di.query("h*", null, null, 15, 1, null));
+		paged.addAll(di.query("h*", null, null, 16, 1, null));
 		
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
 	}
 	
-	@Test(enabled = false)
+	@Test
 	public void testReversePaging() {
 		
-		int expectedMaxHits = 16;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 8;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
-		Assert.assertEquals(di.query("RF2", null, null, null, null, null).size(), expectedMaxHits);
+		Assert.assertEquals(di.query("RF2 AND nid", null, null, null, null, null).size(), expectedMaxHits);
 		
-		final List<SearchResult> allResults = di.query("RF2", null, null, null, null, null);
+		final List<SearchResult> allResults = di.query("RF2 AND nid", null, null, null, null, null);
 		
 		List<SearchResult> paged = new ArrayList<>(expectedMaxHits);
+		
+		printResults(allResults);
 		
 		//One page at a time...
 		paged = new ArrayList<>(expectedMaxHits);
 		
-		paged.addAll(di.query("RF2", null, null, 6, 1, null));
-		paged.addAll(di.query("RF2", null, null, 5, 1, null));
-		paged.addAll(di.query("RF2", null, null, 4, 1, null));
-		paged.addAll(di.query("rf2", null, null, 3, 1, null));
-		paged.addAll(di.query("rf2", null, null, 2, 1, null));
-		paged.addAll(di.query("rf2", null, null, 1, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 8, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 7, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 6, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 5, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 4, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 3, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 2, 1, null));
+		paged.addAll(di.query("RF2 AND nid", null, null, 1, 1, null));
 				
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
