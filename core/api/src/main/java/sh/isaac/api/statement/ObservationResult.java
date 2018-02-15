@@ -16,30 +16,27 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import sh.isaac.api.logic.LogicalExpression;
 
 /**
- *
+ * The Result measures the actual state of the 
+ * clinical statement topic during the timing specified
+ * by the performance circumstance. 
  * @author kec
  */
-public interface Circumstance {
+public interface ObservationResult extends Result {
     /**
      * 
-     * @return the timing Measure for this circumstance as it 
-     * relates to the clinical statement topic. It may  represent a time
-     * in the past (a past history of appendectomy), now (current pain)
-     * or in the future (planned surgery). 
+     * @return an indicator as to the possibility of an immediate 
+     * health risk to the individual that may require immediate action. 
      */
-    Measure getTiming();
-    
+    Optional<LogicalExpression> getHealthRisk();
+
     /**
-     * A purpose could be diagnostic of a condition, or therapeutic for a 
-     * malady. 
-     * @return A purpose associated with the clinical statement. 
+     * 
+     * @return the normal range for this measure. 
      */
-    List<LogicalExpression> getPurposeList();
+    Optional<Interval> getNormalRange();
     
 }

@@ -10,7 +10,6 @@
     <name>ISAAC’s KOMET: (MMP)</name>
     <description>Aggregator project for ISAAC's KOMET modules</description>
     <packaging>pom</packaging>
-
     <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>

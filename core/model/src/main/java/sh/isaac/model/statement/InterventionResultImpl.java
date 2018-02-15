@@ -14,20 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.model.statement;
 
-import java.util.UUID;
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.statement.InterventionResult;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
- * An identified participant in a clinical statement.
+ *
  * @author kec
  */
-public interface IdentifiedParticipant extends Participant {
+public class InterventionResultImpl extends ResultImpl implements InterventionResult {
+    private final SimpleObjectProperty<LogicalExpression> status = 
+            new SimpleObjectProperty<>(this, ObservableFields.INTERVENTION_RESULT_STATUS.toExternalString());
 
-    /**
-     *
-     * @return a unique identifier for the participant in the clinical statement.
-     */
-    UUID getParticipantId();
-    
+    @Override
+    public LogicalExpression getStatus() {
+        return status.get();
+    }
+
+    public SimpleObjectProperty<LogicalExpression> statusProperty() {
+        return status;
+    }
+
+    public void setStatus(LogicalExpression status) {
+        this.status.set(status);
+    }
 }

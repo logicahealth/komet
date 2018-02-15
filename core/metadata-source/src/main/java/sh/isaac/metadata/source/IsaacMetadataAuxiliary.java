@@ -558,21 +558,117 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.STRING_VALUE_FOR_SEMANTIC);
                   createConcept(ObservableFields.COMPONENT_NID_FOR_SEMANTIC);
                   createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC);
-                  createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);
-                  popParent();
-               popParent();
+                  createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);   
+                   createConcept(ObservableFields.TYPE_NID_FOR_RF2_REL);
+                   createConcept(ObservableFields.DESTINATION_NID_FOR_RF2_REL);
+                   createConcept(ObservableFields.REL_GROUP_FOR_RF2_REL);
+                   createConcept(ObservableFields.CHARACTERISTIC_NID_FOR_RF2_REL);
+                   createConcept(ObservableFields.MODIFIER_NID_FOR_RF2_REL);
+                   createConcept(ObservableFields.NID1);
+                   createConcept(ObservableFields.NID2);
+                   createConcept(ObservableFields.NID3);
+                   createConcept(ObservableFields.NID4);
+                   createConcept(ObservableFields.NID5);
+                   createConcept(ObservableFields.NID6);
+                   createConcept(ObservableFields.NID7);
+                   createConcept(ObservableFields.STR1);
+                   createConcept(ObservableFields.STR2);
+                   createConcept(ObservableFields.STR3);
+                   createConcept(ObservableFields.STR4);
+                   createConcept(ObservableFields.STR5);
+                   createConcept(ObservableFields.STR6);
+                   createConcept(ObservableFields.STR7);
+                   createConcept(ObservableFields.INT1);
+                   createConcept(ObservableFields.INT2);
+                   createConcept(ObservableFields.INT3);
+                   createConcept(ObservableFields.INT4);
+                   createConcept(ObservableFields.INT5);
+                   createConcept(ObservableFields.INT6);
+                   createConcept(ObservableFields.INT7);
+                   popParent();
             createConcept("Clinical statement properties");
             pushParent(current());
-               createConcept("Topic");
-               createConcept("Circumstance");
-               popParent();
-            createConcept("Circumstance properties");
-            pushParent(current());
-               createConcept("Measurement circumstance properties");
-               createConcept("Goal circumstance properties");
-               createConcept("Request circumstance properties");
-               createConcept("Performance circumstance properties");
-               popParent();
+               createConcept("Circumstance properties");
+               pushParent(current());
+                    createConcept(ObservableFields.CIRCUMSTANCE_PURPOSE_LIST);
+                    createConcept(ObservableFields.CIRCUMSTANCE_TIMING);
+                    
+                    createConcept("Performance circumstance properties");
+                    pushParent(current());
+                        createConcept(ObservableFields.PERFORMANCE_CIRCUMSTANCE_RESULT);
+                        createConcept(ObservableFields.PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS);
+                        popParent();
+                    
+                    
+                    createConcept("Request circumstance properties");
+                    pushParent(current());
+                        createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS);
+                        createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS);
+                        createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_PRIORITY);
+                        createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS);
+                        createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT);
+                        popParent();
+                        
+                    createConcept("Unstructured circumstance properties");
+                    pushParent(current());
+                        createConcept(ObservableFields.UNSTRUCTURED_CIRCUMSTANCE_TEXT);
+                        popParent();
+                    popParent();
+               createConcept("Statement properties");
+               pushParent(current());
+                   createConcept(ObservableFields.STATEMENT_NARRATIVE);
+                   createConcept(ObservableFields.STATEMENT_TIME);
+                   createConcept(ObservableFields.STATEMENT_ID);
+                   createConcept(ObservableFields.STATEMENT_SOR);
+                   createConcept(ObservableFields.STATEMENT_AUTHORS);
+                   createConcept(ObservableFields.STATEMENT_SOI);
+                   createConcept(ObservableFields.STATEMENT_TYPE);
+                   createConcept(ObservableFields.STATEMENT_TOPIC);
+                   createConcept(ObservableFields.STATEMENT_CIRCUMSTANCE);
+                   createConcept(ObservableFields.STATEMENT_ASSOCIATIONS);
+                   popParent();
+               createConcept("Interval properties");
+               pushParent(current());
+                   createConcept(ObservableFields.INTERVAL_LOWER_BOUND);
+                   createConcept(ObservableFields.INTERVAL_UPPER_BOUND);
+                   createConcept(ObservableFields.INTERVAL_INCLUDE_UPPER_BOUND);
+                   createConcept(ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND);
+                   popParent();
+               createConcept("Result properties");
+               pushParent(current());
+                    createConcept(ObservableFields.INTERVENTION_RESULT_STATUS);
+                    popParent();
+
+               createConcept("Measure properties");
+               pushParent(current());
+                   createConcept(ObservableFields.MEASURE_RESOLUTION);
+                   createConcept(ObservableFields.MEASURE_SEMANTIC);
+                   createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);
+                   createConcept(ObservableFields.OBSERVATION_RESULT_NORMAL_RANGE);
+                   popParent();
+               
+               createConcept("Participant properties");
+               pushParent(current());
+                    createConcept(ObservableFields.PARTICIPANT_ID);   
+                    createConcept(ObservableFields.PARTICIPANT_ROLE);
+                    popParent();
+                    
+ 
+               createConcept("Repetition properties");
+               pushParent(current());
+                    createConcept(ObservableFields.REPETITION_PERIOD_START);
+                    createConcept(ObservableFields.REPETITION_PERIOD_DURATION);
+                    createConcept(ObservableFields.REPETITION_EVENT_FREQUENCY);
+                    createConcept(ObservableFields.REPETITION_EVENT_SEPARATION);
+                    createConcept(ObservableFields.REPETITION_EVENT_DURATION);
+                    popParent();
+
+               createConcept("Statement association properties");
+               pushParent(current());
+                    createConcept(ObservableFields.STATEMENT_ASSOCIATION_SEMANTIC);
+                    createConcept(ObservableFields.STATEMENT_ASSOCIATION_ID);
+                    popParent();
+                popParent();
 
             createConcept("Query clauses");
             pushParent(current());
@@ -608,12 +704,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE);
                popParent();
-            popParent(); // ISAAC root should still be parent on stack...
-         createConcept("Clinical statement");
-         pushParent(current());
-            createConcept("Request statement");
-            createConcept("Action statement");
-            popParent();
+            popParent(); 
+         popParent(); // ISAAC root should still be parent on stack...
+         //createConcept("Clinical statement");
+         //pushParent(current());
+            //createConcept("Request statement");
+            //createConcept("Action statement");
+            //popParent();
 
          if (false) {
             addMultiparentTestConcepts();

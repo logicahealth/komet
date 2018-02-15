@@ -16,30 +16,16 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import sh.isaac.api.logic.LogicalExpression;
 
 /**
  *
  * @author kec
  */
-public interface Circumstance {
+public interface InterventionResult extends Result {
     /**
      * 
-     * @return the timing Measure for this circumstance as it 
-     * relates to the clinical statement topic. It may  represent a time
-     * in the past (a past history of appendectomy), now (current pain)
-     * or in the future (planned surgery). 
+     * @return the status of the intervention. Completed, incomplete, canceled. 
      */
-    Measure getTiming();
-    
-    /**
-     * A purpose could be diagnostic of a condition, or therapeutic for a 
-     * malady. 
-     * @return A purpose associated with the clinical statement. 
-     */
-    List<LogicalExpression> getPurposeList();
-    
+    LogicalExpression getStatus();
 }

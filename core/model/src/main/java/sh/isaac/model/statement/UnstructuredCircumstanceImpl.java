@@ -14,32 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.model.statement;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import javafx.beans.property.SimpleStringProperty;
+import sh.isaac.api.statement.UnstructuredCircumstance;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
-public interface Circumstance {
-    /**
-     * 
-     * @return the timing Measure for this circumstance as it 
-     * relates to the clinical statement topic. It may  represent a time
-     * in the past (a past history of appendectomy), now (current pain)
-     * or in the future (planned surgery). 
-     */
-    Measure getTiming();
-    
-    /**
-     * A purpose could be diagnostic of a condition, or therapeutic for a 
-     * malady. 
-     * @return A purpose associated with the clinical statement. 
-     */
-    List<LogicalExpression> getPurposeList();
-    
+public class UnstructuredCircumstanceImpl extends CircumstanceImpl implements UnstructuredCircumstance {
+    private final SimpleStringProperty unstructuredText = 
+            new SimpleStringProperty(this, ObservableFields.UNSTRUCTURED_CIRCUMSTANCE_TEXT.toExternalString());
+
+    @Override
+    public String getUnstructuredText() {
+        return unstructuredText.get();
+    }
+
+    public SimpleStringProperty unstructuredTextProperty() {
+        return unstructuredText;
+    }
+
+    public void setUnstructuredText(String unstructuredText) {
+        this.unstructuredText.set(unstructuredText);
+    }
 }

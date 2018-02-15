@@ -16,8 +16,7 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 import sh.isaac.api.logic.LogicalExpression;
 
 /**
@@ -26,11 +25,18 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 public interface RequestCircumstance extends Circumstance {
 
-     /**
+    /**
+     * If there are no conditional triggers, the request is unconditional. 
+     * Chest pain could be a conditional trigger. Headache. 
+     * @return 
+     */
+    List<ClinicalStatement> getConditionalTriggers();
+    
+    /**
      *
      * @return the participants requested to complete the request.
      */
-    Collection<? extends Participant> getRequestedParticipants();
+    List<Participant> getRequestedParticipants();
 
     /**
      *
@@ -42,11 +48,11 @@ public interface RequestCircumstance extends Circumstance {
      * 
      * @return repetition information regarding the request. 
      */
-    Optional<Repetition> getRepetition();
+    List<Repetition> getRepetitions();
 
     /**
      *
-     * @return the goal of the request.
+     * @return the requested result. 
      */
-    Measure getGoal();
+    Result getRequestedResult();
 }
