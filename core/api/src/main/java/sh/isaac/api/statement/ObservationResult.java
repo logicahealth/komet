@@ -33,10 +33,4 @@ public interface ObservationResult extends Result {
      */
     Optional<LogicalExpression> getHealthRisk();
 
-    /**
-     * 
-     * @return the normal range for this measure. 
-     */
-    Optional<Interval> getNormalRange();
-    
 }

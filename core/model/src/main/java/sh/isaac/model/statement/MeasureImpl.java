@@ -21,6 +21,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.Measure;
 
 import java.util.Optional;
+import sh.isaac.api.statement.Interval;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -33,6 +34,9 @@ public class MeasureImpl extends IntervalImpl implements Measure {
             new SimpleObjectProperty(this, ObservableFields.MEASURE_RESOLUTION.toExternalString());
     private final SimpleObjectProperty<LogicalExpression> measureSemantic = 
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_SEMANTIC.toExternalString());
+    private final SimpleObjectProperty<Interval> normalRange = 
+            new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
+
 
     @Override
     public Optional<Float> getResolution() {
@@ -58,5 +62,18 @@ public class MeasureImpl extends IntervalImpl implements Measure {
 
     public void setMeasureSemantic(LogicalExpression measureSemantic) {
         this.measureSemantic.set(measureSemantic);
+    }
+
+    @Override
+    public Optional<Interval> getNormalRange() {
+        return Optional.ofNullable(normalRange.get());
+    }
+
+    public SimpleObjectProperty<Interval> normalRangeProperty() {
+        return normalRange;
+    }
+
+    public void setNormalRange(Interval normalRange) {
+        this.normalRange.set(normalRange);
     }
 }
