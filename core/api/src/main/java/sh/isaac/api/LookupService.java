@@ -35,11 +35,7 @@
  *
  */
 
-
-
 package sh.isaac.api;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
@@ -52,9 +48,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,17 +56,13 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import com.sun.javafx.application.PlatformImpl;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
+import javafx.application.Platform;
+import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.util.HeadlessToolkit;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -141,7 +130,9 @@ public class LookupService {
    }
 
    /**
-    * Stop all system services, blocking until stopped (or failed).
+    * Stop all system services, blocking until stopped (or failed).  Note, it is very likely
+    * you will need to call {@link Platform#exit()} after this, if you are truly exiting the JVM.
+    * But, be careful, if you are in a webserver environment....
     */
    public static void shutdownSystem() {
       LOG.info("Shutdown system called");
@@ -177,8 +168,8 @@ public class LookupService {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
                if (GraphicsEnvironment.isHeadless()) {
-                  //LOG.info("Installing headless toolkit");
-                  //HeadlessToolkit.installToolkit();
+                  LOG.info("Installing headless toolkit");
+                  HeadlessToolkit.installToolkit();
                }
 
                LOG.debug("Starting JavaFX Platform");
@@ -365,8 +356,7 @@ public class LookupService {
    }
    
    /**
-    * Gets the run level we are working toward, or, if we are not working toward any run level, returns the current run level.
-    * @return
+    * @return the run level we are working toward, or, if we are not working toward any run level, returns the current run level.
     */
    public static int getProceedingToRunLevel() {
       RunLevelFuture rlf = getService(RunLevelController.class).getCurrentProceeding();
@@ -569,7 +559,7 @@ public class LookupService {
     * as it will attempt to sync services that were never even started.
     * See {@link #getActiveServices(Class)}
     * @param contractOrImpl
-    * @return
+    * @return all services that implement the specified contract
     */
    public static <T> List<T> getServices(Class<T> contractOrImpl) {
       final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
@@ -581,7 +571,7 @@ public class LookupService {
    /**
     * Return implementations of the specified contract that are active at our current runlevel.
     * @param contractOrImpl
-    * @return
+    * @return implementations of the specified contract that are active at our current runlevel
     */
    public static <T> List<T> getActiveServices(Class<T> contractOrImpl) {
       

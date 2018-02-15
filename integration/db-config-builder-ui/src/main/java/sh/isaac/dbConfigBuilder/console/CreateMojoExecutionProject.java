@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import javafx.application.Platform;
 import sh.isaac.api.LookupService;
 import sh.isaac.converters.sharedUtils.config.ConfigOptionsDescriptor;
 import sh.isaac.pombuilder.VersionFinder;
@@ -185,6 +186,7 @@ public class CreateMojoExecutionProject
 
 			System.out.println("Configuration created in " + new File("target/converter-executor").getAbsolutePath());
 			LookupService.shutdownSystem();
+			Platform.exit();
 		}
 	}
 

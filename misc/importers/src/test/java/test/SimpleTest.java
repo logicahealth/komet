@@ -43,7 +43,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-
+import javafx.application.Platform;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.constants.Constants;
@@ -86,6 +86,7 @@ public class SimpleTest
       {
          LookupService.shutdownSystem();
          System.exit(0);
+         Platform.exit();
       }
       
    }

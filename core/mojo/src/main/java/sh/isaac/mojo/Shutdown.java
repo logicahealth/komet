@@ -45,16 +45,12 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-
 import sh.isaac.api.LookupService;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Goal which shuts down an open data store. Note that this duplicates
- * functionality found in {@link ShutdownSystem} but we can't use that in
- * combination with other things in this mojo package, due to limitations of
- * maven.
+ * Goal which shuts down an open data store.
  */
 @Mojo(
    defaultPhase = LifecyclePhase.PROCESS_RESOURCES,

@@ -39,7 +39,6 @@
       <dependency>
           <groupId>no.tornado</groupId>
           <artifactId>tornadofx-controls</artifactId>
-          <version>1.0.5</version>
       </dependency>
        <dependency>
            <groupId>sh.isaac.komet</groupId>
@@ -49,7 +48,6 @@
        <dependency>
            <groupId>de.jensd</groupId>
            <artifactId>fontawesomefx-fontawesome</artifactId>
-           <version>4.7.0-5</version>
        </dependency>
    </dependencies>  
 </project>

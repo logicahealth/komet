@@ -16,7 +16,6 @@
       <dependency>
          <groupId>com.h2database</groupId>
          <artifactId>h2-mvstore</artifactId>
-         <version>1.4.192</version>
       </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>

@@ -21,12 +21,10 @@
       <dependency>
          <groupId>com.h2database</groupId>
          <artifactId>h2</artifactId>
-         <version>1.4.187</version>
       </dependency>
       <dependency>
          <groupId>org.jdom</groupId>
          <artifactId>jdom2</artifactId>
-         <version>2.0.6</version>
       </dependency>
       <dependency>
          <groupId>org.apache.maven</groupId>

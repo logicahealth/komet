@@ -11,9 +11,7 @@
    <artifactId>query</artifactId>
    <packaging>jar</packaging>
    <name>ISAAC provider: Query</name>
-   <properties>
-      <org.apache.lucene.version>7.0.0</org.apache.lucene.version>
-   </properties>
+
    <dependencies>
       <dependency>
          <groupId>sh.isaac.core</groupId>
@@ -23,18 +21,15 @@
       <dependency>
          <groupId>org.apache.lucene</groupId>
          <artifactId>lucene-core</artifactId>
-         <version>${org.apache.lucene.version}</version>
          <type>jar</type>
       </dependency>
       <dependency>
          <groupId>org.apache.lucene</groupId>
          <artifactId>lucene-analyzers-common</artifactId>
-         <version>${org.apache.lucene.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.lucene</groupId>
          <artifactId>lucene-queryparser</artifactId>
-         <version>${org.apache.lucene.version}</version>
       </dependency>
       <dependency>
          <groupId>com.github.ben-manes.caffeine</groupId>

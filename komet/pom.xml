@@ -94,7 +94,7 @@
             </dependency>             
         </dependencies>
     </dependencyManagement>
-    <modules>
+=   <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>
         <module>drag-tab</module>
