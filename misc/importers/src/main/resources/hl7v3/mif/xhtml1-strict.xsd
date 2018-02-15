@@ -98,7 +98,7 @@
     $Id: xhtml1-strict.xsd,v 1.2 2002/08/28 08:05:44 mimasa Exp $
     </xs:documentation>
 	</xs:annotation>
-	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 	<xs:annotation>
 		<xs:documentation>
     ================ Character mnemonic entities =========================
