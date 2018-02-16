@@ -50,6 +50,7 @@ import java.util.function.Supplier;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -61,9 +62,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * The Class ComponentReference.
  */
 public class ComponentReference {
-   /** The sequence provider. */
-   private final IntSupplier sequenceProvider;
-
    /** The uuid provider. */
    private final Supplier<UUID> uuidProvider;
 
@@ -82,32 +80,52 @@ public class ComponentReference {
     * Instantiates a new component reference.
     *
     * @param uuidProvider the uuid provider
-    * @param sequenceProvider the sequence provider
+    * @param nidProvider the nid provider
     */
-   private ComponentReference(Supplier<UUID> uuidProvider, IntSupplier sequenceProvider) {
+   private ComponentReference(IntSupplier nidProvider) {
+      this.uuidProvider     = () -> Get.identifierService().getUuidPrimordialForNid(nidProvider.getAsInt());
+      this.timeProvider     = () -> null;                                     // a lambda that retuns null time.
+      this.nidProvider = nidProvider;  // a lambda that returns a nid
+   }
+   
+   /**
+    * Instantiates a new component reference.
+    *
+    * @param uuidProvider the uuid provider
+    * @param nidProvider the nid provider
+    */
+   private ComponentReference(Supplier<UUID> uuidProvider, IntSupplier nidProvider) {
       this.uuidProvider     = uuidProvider;
       this.timeProvider     = () -> null;                                     // a lambda that retuns null time.
-      this.sequenceProvider = sequenceProvider;
-      this.nidProvider = () -> Get.identifierService()
-                                   .getNidForUuids(this.uuidProvider.get());  // a lambda that returns a nid
+      this.nidProvider = nidProvider;  // a lambda that returns a nid
    }
 
    /**
     * Instantiates a new component reference.
     *
     * @param uuidProvider the uuid provider
-    * @param sequenceProvider the sequence provider
+    * @param nidProvider the nid provider
     * @param typeLabelSupplier the type label supplier
     */
    private ComponentReference(Supplier<UUID> uuidProvider,
-                              IntSupplier sequenceProvider,
+                              IntSupplier nidProvider,
                               Supplier<String> typeLabelSupplier) {
-      this(uuidProvider, sequenceProvider);
+      this(uuidProvider, nidProvider);
       this.typeLabelSupplier = typeLabelSupplier;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * From chronology.
+    *
+    * @param nid the nid
+    * @return the component reference
+    */
+   public static ComponentReference fromChronology(int nid) {
+      return new ComponentReference(() -> nid);
+   }
+   
    /**
     * From chronology.
     *
@@ -125,7 +143,6 @@ public class ComponentReference {
     * @param typeLabelSupplier the type label supplier
     * @return the component reference
     */
-   @SuppressWarnings("rawtypes")
    public static ComponentReference fromChronology(Chronology object, Supplier<String> typeLabelSupplier) {
       ComponentReference cr;
 
@@ -158,9 +175,30 @@ public class ComponentReference {
 
       cr.nidProvider  = () -> object.getNid();
       cr.timeProvider = () -> {
-                            @SuppressWarnings({ "unchecked" })
                             final LatestVersion<Version> latest =
                                ((Chronology) object).getLatestVersion(IBDFCreationUtility.readBackStamp);
+
+                            return latest.get()
+                                         .getTime();
+                         };
+      return cr;
+   }
+   
+   /**
+    * From concept.
+    *
+    * @param concept the concept
+    * @return the component reference
+    */
+   public static ComponentReference fromConcept(ConceptVersion concept) {
+      final ComponentReference cr = new ComponentReference(() -> concept.getChronology().getPrimordialUuid(),
+                                                           () -> concept.getNid(),
+                                                           () -> "Concept");
+
+      cr.nidProvider  = () -> concept.getNid();
+      cr.timeProvider = () -> {
+                            final LatestVersion<Version> latest =
+                               ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
                                          .getTime();
@@ -181,7 +219,6 @@ public class ComponentReference {
 
       cr.nidProvider  = () -> concept.getNid();
       cr.timeProvider = () -> {
-                            @SuppressWarnings({ "rawtypes", "unchecked" })
                             final LatestVersion<Version> latest =
                                ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
@@ -208,11 +245,11 @@ public class ComponentReference {
     * From concept.
     *
     * @param uuid the uuid
-    * @param seq the seq
+    * @param nid the nid
     * @return the component reference
     */
-   public static ComponentReference fromConcept(UUID uuid, int seq) {
-      return new ComponentReference(() -> uuid, () -> seq, () -> "Concept");
+   public static ComponentReference fromConcept(UUID uuid, int nid) {
+      return new ComponentReference(() -> uuid, () -> nid, () -> "Concept");
    }
 
    /**
@@ -246,16 +283,6 @@ public class ComponentReference {
     */
    public UUID getPrimordialUuid() {
       return this.uuidProvider.get();
-   }
-
-   /**
-    * Danger Danger
-    * Don't use this unless you KNOW the type of component you have a handle to....
-    *
-    * @return the sequence
-    */
-   protected int getSequence() {
-      return this.sequenceProvider.getAsInt();
    }
 
    /**

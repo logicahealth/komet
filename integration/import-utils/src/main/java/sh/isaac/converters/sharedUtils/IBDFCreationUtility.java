@@ -1431,15 +1431,17 @@ public class IBDFCreationUtility
    /**
     * Set up all the boilerplate stuff.
     * 
-    * @param Status - Status or null (for active)
+    * @param status - Status or null (for active)
+    * @param module - module or null for default module
     * @param time - time or null (for default)
+    * @return the stamp identifier
     */
    public int createStamp(Status status, Long time, UUID module) 
    {
       return Get.stampService().getStampSequence(
            status == null ? Status.ACTIVE : status,
             time == null ? this.defaultTime : time.longValue(), 
-                 this.authorNid, (module == null ? this.module.getSequence() : Get.identifierService().getNidForUuids(module)), this.terminologyPathNid);
+                 this.authorNid, (module == null ? this.module.getNid() : Get.identifierService().getNidForUuids(module)), this.terminologyPathNid);
    }
 
    /**
