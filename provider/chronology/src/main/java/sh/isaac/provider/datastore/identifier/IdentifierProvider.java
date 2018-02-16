@@ -247,7 +247,7 @@ public class IdentifierProvider
          if (nid != Integer.MAX_VALUE) {
             if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid) {
                throw new IllegalArgumentException("The UUIDs  " + Arrays.toString(uuids) 
-                  + " provided are already assigned to different, distinct nids, and cannot be assigned to a single nid");
+                  + " provided are already assigned to different, distinct nids, and cannot be assigned to a single nid.  Found " + lastFoundNid + " and " + nid);
             }
             lastFoundNid = nid;
          }
