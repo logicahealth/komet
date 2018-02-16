@@ -71,6 +71,11 @@ public class CategorizedVersion
    //~--- methods -------------------------------------------------------------
 
    @Override
+   public void addAdditionalUuids(UUID... uuids) {
+      delegate.addAdditionalUuids(uuids);
+   }
+   
+   @Override
    public boolean equals(Object obj) {
       if (obj == null) {
          return false;

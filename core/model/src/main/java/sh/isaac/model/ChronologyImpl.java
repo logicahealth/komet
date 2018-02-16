@@ -43,9 +43,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -200,12 +202,16 @@ public abstract class ChronologyImpl
    /**
     * Adds the additional uuids.
     *
-    * @param uuid the uuid
+    * @param uuids the uuids
     */
-   public void addAdditionalUuids(UUID uuid) {
-      final List<UUID> temp = getUuidList();
+   public void addAdditionalUuids(UUID ...uuids) {
+      final Set<UUID> temp = new HashSet<>(getUuidList());
 
-      temp.add(uuid);
+      for (UUID uuid : uuids) {
+         temp.add(uuid);
+      }
+      //Make sure the primordial isn't in the additional
+      temp.remove(getPrimordialUuid());
       setAdditionalUuids(temp);
    }
 
@@ -736,15 +742,16 @@ public abstract class ChronologyImpl
     *
     * @param uuids the new additional uuids
     */
-   public void setAdditionalUuids(List<UUID> uuids) {
+   public void setAdditionalUuids(Collection<UUID> uuids) {
       this.additionalUuidParts = new long[uuids.size() * 2];
 
-      for (int i = 0; i < uuids.size(); i++) {
-         final UUID uuid = uuids.get(i);
-
+      int i = 0;
+      for (final UUID uuid : uuids) {
          this.additionalUuidParts[2 * i] = uuid.getMostSignificantBits();
          this.additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
+         i++;
       }
+      Get.identifierService().assignNid(getUuids());
    }
 
    //~--- get methods ---------------------------------------------------------

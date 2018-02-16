@@ -80,6 +80,13 @@ public abstract class VersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
+
+   @Override
+   public void addAdditionalUuids(UUID... uuids)
+   {
+      chronicle.addAdditionalUuids(uuids);
+   }
+   
    /**
     * Cancel.
     */

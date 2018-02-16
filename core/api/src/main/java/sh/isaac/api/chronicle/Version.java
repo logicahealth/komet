@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.chronicle;
 
+import java.util.UUID;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 
@@ -46,5 +47,12 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     * @return the mutable version
     */
    <V extends Version> V makeAnalog(EditCoordinate ec);
+   
+   /**
+    * Adds the additional uuids.
+    *
+    * @param uuids the uuid
+    */
+   public void addAdditionalUuids(UUID ...uuids);
 
 }
