@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -244,11 +245,12 @@ public class CVXImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		CVXImportMojo i = new CVXImportMojo();
-		i.outputDirectory = new File("../cvx-ibdf/target");
-		i.inputFileLocation = new File("../cvx-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "17.0";
 		i.execute();
+		Platform.exit();
 	}
 }
