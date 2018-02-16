@@ -44,6 +44,7 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 import java.util.UUID;
 
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -261,6 +262,11 @@ public class Property {
       if ((this.dataColumnsForDynamicRefex != null) && (this.owner != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
       }
+      if (owner != null)
+      {
+         //Need to assign these early now, due to usage patterns.
+         Get.identifierService().assignNid(this.getUUID());
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -331,6 +337,9 @@ public class Property {
       if ((this.dataColumnsForDynamicRefex != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
       }
+      
+      //Need to assign these early now, due to usage patterns.
+      Get.identifierService().assignNid(this.getUUID());
    }
 
    //~--- get methods ---------------------------------------------------------
