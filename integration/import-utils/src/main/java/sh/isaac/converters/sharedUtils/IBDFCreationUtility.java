@@ -792,19 +792,6 @@ public class IBDFCreationUtility
    }
 
    /**
-    * Add an alternate ID to the concept.
-    * @param existingUUID the current identifier
-    * @param newUUID the new identifier
-    */
-   public void addUUID(UUID existingUUID, UUID newUUID)
-   {
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConceptChronology(existingUUID);
-      conceptChronology.addAdditionalUuids(newUUID);
-      this.writer.put(conceptChronology);
-      dbWrite(conceptChronology);
-   }
-   
-   /**
     * uses the concept time, UUID is created from the component UUID, the annotation value and type.  Creates a dynamic string semantic
     * @param referencedComponent the component to put an annotation on
     * @param annotationValue the value of the annotation
