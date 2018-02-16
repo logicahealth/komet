@@ -40,7 +40,6 @@ package sh.isaac.converters.sharedUtils;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,11 +52,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.codehaus.plexus.util.FileUtils;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -70,6 +67,7 @@ import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -104,6 +102,7 @@ import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -406,6 +405,7 @@ public class IBDFCreationUtility
     * the UUID, status current, etc)
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
+    * @return the created concept
     */
    public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN)
    {
@@ -417,6 +417,7 @@ public class IBDFCreationUtility
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
     * @param parentConceptPrimordial create an isA relationship to this concept
+    * @return the created concept
     */
    public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
@@ -431,6 +432,7 @@ public class IBDFCreationUtility
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
     * @param parentConceptPrimordial create an isA relationship to this concept
+    * @return the created concept
     */
    public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
@@ -439,9 +441,9 @@ public class IBDFCreationUtility
       return concept;
    }
    
-   public ConceptChronology createConcept(UUID conceptPrimordialUuid)
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid, UUID ...additionalUUIDs)
    {
-      return createConcept(conceptPrimordialUuid, (Long)null, Status.ACTIVE, null);
+      return createConcept(conceptPrimordialUuid, (Long)null, Status.ACTIVE, null, additionalUUIDs);
    }
 
    /**
@@ -450,7 +452,7 @@ public class IBDFCreationUtility
     * @param conceptPrimordial the UUID to use for the concept
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
-
+    * @return the created concept
     */
    public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN)
    {
@@ -462,8 +464,8 @@ public class IBDFCreationUtility
     * @param conceptPrimordial the UUID to use for the concept
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
-
     * @param time - set to now if null
+    * @return the created concept
     */
    public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, Long time, Status status)
    {
@@ -485,12 +487,41 @@ public class IBDFCreationUtility
     * @param time - if null, set to default
     * @param status - if null, set to ACTIVE
     * @param module - if null, uses the default
-    * @return
+    * @param additionalUUIDs additional UUIDs for this concept 
+    * @return the created concept
     */
-   public ConceptChronology createConcept(UUID conceptPrimordialUuid, Long time, Status status, UUID module) 
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid, Long time, Status status, UUID module, UUID ... additionalUUIDs) 
    {
-      ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(conceptPrimordialUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-      conceptChronology.createMutableVersion(createStamp(status, time, module));
+      //If any of the provided UUIDs already have a nid assigned, use that one as the primordial.
+      //If more than one of the provided UUIDs have a nid assigned, and they don't match, we are SOL.... but it will error out in the create later.
+      UUID uuidWithNid = null;
+      if (additionalUUIDs != null && additionalUUIDs.length > 0)
+      {
+         if (Get.identifierService().hasUuid(conceptPrimordialUuid))
+         {
+            uuidWithNid = conceptPrimordialUuid;
+         }
+         else
+         {
+            for (UUID uuid : additionalUUIDs)
+            {
+               if (Get.identifierService().hasUuid(uuid))
+               {
+                  uuidWithNid = uuid;
+                  break;
+               }
+            }
+         }
+      }
+      
+      ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuidWithNid == null ? conceptPrimordialUuid : uuidWithNid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+      ConceptVersionImpl conceptVersion = conceptChronology.createMutableVersion(createStamp(status, time, module));
+      if (additionalUUIDs != null)
+      {
+         conceptVersion.addAdditionalUuids(additionalUUIDs);
+         conceptVersion.addAdditionalUuids(conceptPrimordialUuid);  //We may not have used the primoridial in the constructor above, make sure its added here.
+         //The addAdditionalUUIDs already remove duplicates / don't duplicate the primordial.
+      }
       this.writer.put(conceptChronology);
       dbWrite(conceptChronology);
       this.ls.addConcept();
@@ -506,7 +537,7 @@ public class IBDFCreationUtility
     * @param definition - optional
     * @param parentConceptPrimordial
     * @param secondParent - optional
-    * @return
+    * @return the created concept
     */
    public ConceptChronology createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
          String definition, UUID parentConceptPrimordial, UUID secondParent)
