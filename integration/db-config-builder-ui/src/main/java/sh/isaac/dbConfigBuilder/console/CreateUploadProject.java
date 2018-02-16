@@ -51,7 +51,7 @@ public class CreateUploadProject
 				int i = 1;
 				for (SupportedConverterTypes x : SupportedConverterTypes.values())
 				{
-					System.out.println("  " + i++ +") " + x.getNiceName());
+					System.out.println("  " + i++ +") " + x.getArtifactId() + " - " + x.getNiceName());
 				}
 			}
 			

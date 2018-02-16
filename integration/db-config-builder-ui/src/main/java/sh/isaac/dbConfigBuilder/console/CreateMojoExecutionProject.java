@@ -57,7 +57,7 @@ public class CreateMojoExecutionProject
 				int i = 1;
 				for (SupportedConverterTypes x : ContentConverterCreator.getSupportedConversions())
 				{
-					System.out.println("  " + i++ + ") " + x.getArtifactId());
+					System.out.println("  " + i++ + ") " + x.getArtifactId() + " - " + x.getNiceName());
 				}
 			}
 
