@@ -49,6 +49,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -308,12 +309,14 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws Exception
 	{
 		ICD10ImportMojo icd10Converter = new ICD10ImportMojo();
-		icd10Converter.outputDirectory = new File("../icd10-ibdf/cm/target/");
-		icd10Converter.inputFileLocation = new File("../icd10-ibdf/cm/target/generated-resources/src/");
+		icd10Converter.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		icd10Converter.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+		icd10Converter.sourceType = "CM";
 		icd10Converter.converterVersion = "0.1";
 		icd10Converter.converterOutputArtifactVersion = "0.2";
 		icd10Converter.converterOutputArtifactClassifier = "foo";
-		icd10Converter.converterSourceArtifactVersion = "2017";
+		icd10Converter.converterSourceArtifactVersion = "2018";
 		icd10Converter.execute();
+		Platform.exit();
 	}
 }
