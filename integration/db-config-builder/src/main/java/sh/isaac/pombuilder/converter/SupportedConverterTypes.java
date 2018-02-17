@@ -376,11 +376,11 @@ public enum SupportedConverterTypes
    }
 
    /**
-    * Not for PRISME.
+    * Not for PRISME.  
     *
     * @return the converter mojo name
     */
-   protected String getConverterMojoName() {
+   public String getConverterMojoName() {
       return this.converterMojoName;
    }
 

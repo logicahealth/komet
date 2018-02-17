@@ -72,6 +72,6 @@ public class Rf2ConfigOptions implements ConfigOptionsDescriptor
    @Override
    public String getName()
    {
-      return "rf2-mojo";
+      return "convert-RF2-to-ibdf";
    }
 }

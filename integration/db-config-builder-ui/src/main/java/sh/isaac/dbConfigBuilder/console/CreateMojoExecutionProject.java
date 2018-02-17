@@ -153,8 +153,7 @@ public class CreateMojoExecutionProject
 			Map<ConverterOptionParam, Set<String>> converterOptionValues = new HashMap<>();
 			for (ConfigOptionsDescriptor cod : LookupService.getServices(ConfigOptionsDescriptor.class))
 			{
-				//TODO test this after I get the mojo converters moved
-				if (cod.getName().equals(selectedConverter.getArtifactId()))
+				if (cod.getName().equals(selectedConverter.getConverterMojoName()))
 				{
 					System.out.println("The selected requires configuration parameters.");
 					for (ConverterOptionParam cop : cod.getConfigOptions())

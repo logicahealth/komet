@@ -221,7 +221,7 @@ public class ContentConverterCreator
 
 			if (converterOptionValues != null)
 			{
-				final String optionIndent = "                                                                 ";
+				final String optionIndent = "\t\t\t\t\t\t\t\t\t";
 
 				for (final Entry<ConverterOptionParam, Set<String>> option : converterOptionValues.entrySet())
 				{
