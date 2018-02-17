@@ -231,6 +231,17 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
                createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
                popParent();
+               
+            createConcept(TermAux.STATEMENT_TYPE);
+                pushParent(current());
+                createConcept(TermAux.REQUEST_STATEMENT);
+                createConcept(TermAux.PERFORMANCE_STATEMENT);
+                popParent();
+            createConcept(TermAux.MODE);
+                pushParent(current());
+                createConcept(TermAux.TEMPLATE);
+                createConcept(TermAux.INSTANCE);
+                popParent();
             createConcept("EL profile set operator");
             pushParent(current());
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
@@ -474,7 +485,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("SnoRocket classifier").mergeFromSpec(TermAux.SNOROCKET_CLASSIFIER);
                createConcept("ConDOR classifier");
                popParent();
-            createConcept("role").setPrimordialUuid("6155818b-09ed-388e-82ce-caa143423e99");
+            createConcept("Role").setPrimordialUuid("6155818b-09ed-388e-82ce-caa143423e99");
             pushParent(current());
                createConcept("Has strength");
                createConcept("Intrinsic role");
@@ -616,6 +627,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     popParent();
                createConcept("Statement properties");
                pushParent(current());
+                   createConcept(ObservableFields.STATEMENT_STAMP_COORDINATE);
                    createConcept(ObservableFields.STATEMENT_NARRATIVE);
                    createConcept(ObservableFields.STATEMENT_TIME);
                    createConcept(ObservableFields.STATEMENT_ID);
@@ -623,6 +635,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                    createConcept(ObservableFields.STATEMENT_AUTHORS);
                    createConcept(ObservableFields.STATEMENT_SOI);
                    createConcept(ObservableFields.STATEMENT_TYPE);
+                   createConcept(ObservableFields.STATEMENT_MODE);
                    createConcept(ObservableFields.STATEMENT_TOPIC);
                    createConcept(ObservableFields.STATEMENT_CIRCUMSTANCE);
                    createConcept(ObservableFields.STATEMENT_ASSOCIATIONS);

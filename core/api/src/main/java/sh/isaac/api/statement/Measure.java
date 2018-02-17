@@ -17,7 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
@@ -29,7 +29,7 @@ public interface Measure extends Interval {
      * In most cases, the semantics of the measurement are the units of measure.
      * @return the semantics for this measurement.
      */
-    LogicalExpression getMeasureSemantic();
+    ConceptChronology getMeasureSemantic();
 
     /**
      *

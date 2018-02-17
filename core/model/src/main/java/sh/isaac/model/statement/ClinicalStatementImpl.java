@@ -20,12 +20,16 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javafx.beans.property.SimpleIntegerProperty;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -45,17 +49,35 @@ public class ClinicalStatementImpl implements ClinicalStatement {
             new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_SOR.toExternalString());
     private final SimpleListProperty<Participant> statementAuthors = 
             new SimpleListProperty(this, ObservableFields.STATEMENT_AUTHORS.toExternalString());
-    private final SimpleObjectProperty<LogicalExpression> subjectOfInformation = 
-            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_SOI.toExternalString());
-    private final SimpleObjectProperty<LogicalExpression> statementType = 
-            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TYPE.toExternalString());
-    private final SimpleObjectProperty<LogicalExpression> topic = 
-            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TOPIC.toExternalString());
+    private final SimpleIntegerProperty mode = 
+            new SimpleIntegerProperty(this, ObservableFields.STATEMENT_MODE.toExternalString());
+    private final SimpleIntegerProperty subjectOfInformation = 
+            new SimpleIntegerProperty(this, ObservableFields.STATEMENT_SOI.toExternalString());
+    private final SimpleIntegerProperty statementType = 
+            new SimpleIntegerProperty(this, ObservableFields.STATEMENT_TYPE.toExternalString());
+    private final SimpleIntegerProperty topic = 
+            new SimpleIntegerProperty(this, ObservableFields.STATEMENT_TOPIC.toExternalString());
     private final SimpleObjectProperty<Circumstance> circumstance = 
             new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_CIRCUMSTANCE.toExternalString());
     private final SimpleListProperty<StatementAssociation> statementAssociations = 
             new SimpleListProperty(this, ObservableFields.STATEMENT_ASSOCIATIONS.toExternalString());
 
+    private final SimpleObjectProperty<ManifoldCoordinate> manifold = 
+            new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_STAMP_COORDINATE.toExternalString());
+    
+    @Override
+    public StampCoordinate getStampCoordinate() {
+        return manifold.get();
+    }
+
+    public SimpleObjectProperty<ManifoldCoordinate> stampCoordinateProperty() {
+        return manifold;
+    }
+
+    public void setManifold(ManifoldCoordinate coordinate) {
+        this.manifold.set(coordinate);
+    }
+    
     @Override
     public Optional<String> getNarrative() {
         return Optional.ofNullable(narrative.get());
@@ -122,42 +144,56 @@ public class ClinicalStatementImpl implements ClinicalStatement {
     }
 
     @Override
-    public LogicalExpression getSubjectOfInformation() {
-        return subjectOfInformation.get();
+    public ConceptChronology getMode() {
+        return Get.concept(mode.get());
     }
 
-    public SimpleObjectProperty<LogicalExpression> subjectOfInformationProperty() {
+    public SimpleIntegerProperty modeProperty() {
+        return mode;
+    }
+
+    public void setMode(ConceptChronology mode) {
+        this.mode.set(mode.getNid());
+    }
+
+
+    @Override
+    public ConceptChronology getSubjectOfInformation() {
+        return Get.concept(subjectOfInformation.get());
+    }
+
+    public SimpleIntegerProperty subjectOfInformationProperty() {
         return subjectOfInformation;
     }
 
-    public void setSubjectOfInformation(LogicalExpression subjectOfInformation) {
-        this.subjectOfInformation.set(subjectOfInformation);
+    public void setSubjectOfInformation(ConceptChronology subjectOfInformation) {
+        this.subjectOfInformation.set(subjectOfInformation.getNid());
     }
 
     @Override
-    public LogicalExpression getStatementType() {
-        return statementType.get();
+    public ConceptChronology getStatementType() {
+        return Get.concept(statementType.get());
     }
 
-    public SimpleObjectProperty<LogicalExpression> statementTypeProperty() {
+    public SimpleIntegerProperty statementTypeProperty() {
         return statementType;
     }
 
-    public void setStatementType(LogicalExpression statementType) {
-        this.statementType.set(statementType);
+    public void setStatementType(ConceptChronology statementType) {
+        this.statementType.set(statementType.getNid());
     }
 
     @Override
-    public LogicalExpression getTopic() {
-        return topic.get();
+    public ConceptChronology getTopic() {
+        return Get.concept(topic.get());
     }
 
-    public SimpleObjectProperty<LogicalExpression> topicProperty() {
+    public SimpleIntegerProperty topicProperty() {
         return topic;
     }
 
-    public void setTopic(LogicalExpression topic) {
-        this.topic.set(topic);
+    public void setTopic(ConceptChronology topic) {
+        this.topic.set(topic.getNid());
     }
 
     @Override

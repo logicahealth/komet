@@ -151,7 +151,7 @@ public class NidSet
       return new NidSet(members);
    }
 
-     /**
+   /**
     * Adds the all.
     *
     * @param otherSet the set to add
@@ -161,6 +161,15 @@ public class NidSet
          throw new UnsupportedOperationException("Read only set");
       }
       this.or(otherSet);
+   }
+
+   public void addAll(int... values) {
+      if (this.readOnly) {
+         throw new UnsupportedOperationException("Read only set");
+      }
+      for (int value: values) {
+          this.add(value);
+      }
    }
 
    //~--- methods -------------------------------------------------------------

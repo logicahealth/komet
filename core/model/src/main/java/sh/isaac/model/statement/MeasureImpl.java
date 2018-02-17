@@ -21,6 +21,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.Measure;
 
 import java.util.Optional;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.statement.Interval;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -32,7 +33,7 @@ public class MeasureImpl extends IntervalImpl implements Measure {
 
     private final SimpleObjectProperty<Float> resolution = 
             new SimpleObjectProperty(this, ObservableFields.MEASURE_RESOLUTION.toExternalString());
-    private final SimpleObjectProperty<LogicalExpression> measureSemantic = 
+    private final SimpleObjectProperty<ConceptChronology> measureSemantic = 
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_SEMANTIC.toExternalString());
     private final SimpleObjectProperty<Interval> normalRange = 
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
@@ -52,15 +53,15 @@ public class MeasureImpl extends IntervalImpl implements Measure {
     }
 
     @Override
-    public LogicalExpression getMeasureSemantic() {
+    public ConceptChronology getMeasureSemantic() {
         return measureSemantic.get();
     }
 
-    public SimpleObjectProperty<LogicalExpression> measureSemanticProperty() {
+    public SimpleObjectProperty<ConceptChronology> measureSemanticProperty() {
         return measureSemantic;
     }
 
-    public void setMeasureSemantic(LogicalExpression measureSemantic) {
+    public void setMeasureSemantic(ConceptChronology measureSemantic) {
         this.measureSemantic.set(measureSemantic);
     }
 

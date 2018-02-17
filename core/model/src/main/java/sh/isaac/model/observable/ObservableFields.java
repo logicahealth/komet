@@ -285,6 +285,10 @@ public enum ObservableFields
    STATEMENT_ASSOCIATION_ID("Association id"),
    
    UNSTRUCTURED_CIRCUMSTANCE_TEXT("text"),
+   
+   STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
+   
+   STATEMENT_MODE("Statement mode"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

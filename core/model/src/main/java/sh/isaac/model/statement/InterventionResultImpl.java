@@ -17,7 +17,7 @@
 package sh.isaac.model.statement;
 
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.statement.InterventionResult;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -26,19 +26,19 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class InterventionResultImpl extends ResultImpl implements InterventionResult {
-    private final SimpleObjectProperty<LogicalExpression> status = 
+    private final SimpleObjectProperty<ConceptChronology> status = 
             new SimpleObjectProperty<>(this, ObservableFields.INTERVENTION_RESULT_STATUS.toExternalString());
 
     @Override
-    public LogicalExpression getStatus() {
+    public ConceptChronology getStatus() {
         return status.get();
     }
 
-    public SimpleObjectProperty<LogicalExpression> statusProperty() {
+    public SimpleObjectProperty<ConceptChronology> statusProperty() {
         return status;
     }
 
-    public void setStatus(LogicalExpression status) {
+    public void setStatus(ConceptChronology status) {
         this.status.set(status);
     }
 }

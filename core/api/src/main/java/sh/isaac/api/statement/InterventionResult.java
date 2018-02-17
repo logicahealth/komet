@@ -16,7 +16,7 @@
  */
 package sh.isaac.api.statement;
 
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
@@ -27,5 +27,5 @@ public interface InterventionResult extends Result {
      * 
      * @return the status of the intervention. Completed, incomplete, canceled. 
      */
-    LogicalExpression getStatus();
+    ConceptChronology getStatus();
 }
