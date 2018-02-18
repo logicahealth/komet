@@ -62,8 +62,9 @@ public class MVXReader
 
 	/**
 	 * @param inputFileOrDirectory
+	 * @throws IOException 
 	 */
-	public MVXReader(File inputFileOrDirectory)
+	public MVXReader(File inputFileOrDirectory) throws IOException
 	{
 		if (inputFileOrDirectory.isDirectory())
 		{
@@ -89,7 +90,7 @@ public class MVXReader
 			file_ = inputFileOrDirectory;
 		}
 
-		ConsoleUtil.println("Prepared to process: " + file_.getAbsolutePath());
+		ConsoleUtil.println("Prepared to process: " + file_.getCanonicalPath());
 	}
 
 	public MVXCodes process() throws IOException, JAXBException
