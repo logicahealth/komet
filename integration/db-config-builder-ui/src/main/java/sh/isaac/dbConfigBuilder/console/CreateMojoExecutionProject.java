@@ -121,7 +121,7 @@ public class CreateMojoExecutionProject
 					System.out.println(dependency.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
 					
-					System.out.println("Please specify the classifier (delta, snapshot, etc) if any - just push enter for none.");
+					System.out.println("Please specify the classifier of the additional source dependency (delta, snapshot, full, etc) if any - just push enter for none.");
 					String classifier = bufferedReader.readLine();
 					
 					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion, 
@@ -143,8 +143,12 @@ public class CreateMojoExecutionProject
 					System.out.println("For the sourceVersion parameter, " + SupportedConverterTypes.findSourceArtifactForIBDFArtifact(selectedConverter.getIBDFDependencies().get(i))
 							.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
+					
+					System.out.println("Please specify the classifier of the additional ibdf dependency (delta, snapshot, full, etc) if any - just push enter for none.");
+					String classifier = bufferedReader.readLine();
+					
 					additionalIBDFDependencies[i] = new IBDFFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, selectedConverter.getIBDFDependencies().get(i),
-							dependencyVersion);
+							dependencyVersion, StringUtils.isNotBlank(classifier.trim()) ? classifier.trim() : null);
 					System.out.println("Added the dependency " + additionalIBDFDependencies[i]);
 					System.out.println();
 				}
