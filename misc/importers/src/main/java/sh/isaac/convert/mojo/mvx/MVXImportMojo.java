@@ -47,9 +47,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes.MVXInfo;
@@ -146,7 +148,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 			importUtil_.clearLoadStats();
 
 			// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology mvxRootConcept = importUtil_.createConcept("MVX", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion mvxRootConcept = importUtil_.createConcept("MVX", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created MVX root concept " + mvxRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
 			final UUID fsnSourceDescriptionTypeUUID = PT_Descriptions.Descriptions.ManufacturerName.getProperty().getUUID();
@@ -167,7 +169,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 
 					// Create row concept
 					UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
-					final ConceptChronology rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdated, state, null);
+					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdated, state, null);
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
 					importUtil_.addParent(rowComponentReference, mvxRootConcept.getPrimordialUuid());
 
@@ -217,9 +219,9 @@ public class MVXImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
@@ -228,11 +230,12 @@ public class MVXImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		MVXImportMojo i = new MVXImportMojo();
-		i.outputDirectory = new File("../mvx-ibdf/target");
-		i.inputFileLocation = new File("../mvx-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "17.0";
 		i.execute();
+		Platform.exit();
 	}
 }

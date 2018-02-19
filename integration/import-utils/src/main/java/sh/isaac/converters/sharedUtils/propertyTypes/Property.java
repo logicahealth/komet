@@ -44,6 +44,7 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 import java.util.UUID;
 
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -118,9 +119,10 @@ public class Property {
     *
     * @param owner the owner
     * @param cs the cs
+    * @param isIdentifier set to true, if this type should be handled as an identifier.
     */
    public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
-      this(owner, cs.getFullyQualifiedName(), null, null, false, false, Integer.MAX_VALUE, null);
+      this(owner, cs.getFullyQualifiedName(), cs.getRegularName().get(), null, false, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
       ConverterUUID.addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
@@ -260,6 +262,11 @@ public class Property {
       if ((this.dataColumnsForDynamicRefex != null) && (this.owner != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
       }
+      if (owner != null)
+      {
+         //Need to assign these early now, due to usage patterns.
+         Get.identifierService().assignNid(this.getUUID());
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -330,6 +337,9 @@ public class Property {
       if ((this.dataColumnsForDynamicRefex != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
       }
+      
+      //Need to assign these early now, due to usage patterns.
+      Get.identifierService().assignNid(this.getUUID());
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -67,6 +67,6 @@ public class ICD10ConfigOptions implements ConfigOptionsDescriptor
 	@Override
 	public String getName()
 	{
-		return "icd10-mojo";
+		return "convert-ICD10-to-ibdf";
 	}
 }

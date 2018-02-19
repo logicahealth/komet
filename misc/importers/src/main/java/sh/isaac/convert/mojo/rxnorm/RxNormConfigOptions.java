@@ -101,6 +101,6 @@ public class RxNormConfigOptions implements ConfigOptionsDescriptor {
     */
    @Override
    public String getName() {
-      return "rxnorm-mojo";
+      return "convert-rxnorm-to-ibdf";
    }
 }

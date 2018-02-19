@@ -98,6 +98,7 @@ public class ConceptNodeWithUuids
                                ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.conceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      Get.identifierService().assignNid(this.conceptUuid);
    }
 
    /**

@@ -57,7 +57,7 @@ public class CreateMojoExecutionProject
 				int i = 1;
 				for (SupportedConverterTypes x : ContentConverterCreator.getSupportedConversions())
 				{
-					System.out.println("  " + i++ + ") " + x.getArtifactId());
+					System.out.println("  " + i++ + ") " + x.getArtifactId() + " - " + x.getNiceName());
 				}
 			}
 
@@ -88,11 +88,22 @@ public class CreateMojoExecutionProject
 
 			SupportedConverterTypes selectedConverter = ContentConverterCreator.getSupportedConversions()[selection - 1];
 
+			String artifactId = selectedConverter.getArtifactId();
+			
+			if (selectedConverter.getArtifactId().contains("*"))
+			{
+				System.out.println("This selected converter type (" + selectedConverter.getArtifactId() + ") contains a wild card");
+				System.out.println("Please provide the value to replace the '*'.  For snomed extensions, this is typically a language such as 'en' or a country code such as 'us'");
+				String wildCard = bufferedReader.readLine();
+				artifactId = selectedConverter.getArtifactId().replaceAll("\\*", wildCard);
+			}
+
+			System.out.println();
 			System.out.println(selectedConverter.getSourceVersionDescription());
 			System.out.println("What version of the source content will be converted?");
 			String sourceVersion = bufferedReader.readLine();
 
-			SDOSourceContent ssc = new SDOSourceContent(selectedConverter.getSourceUploadGroupId(), selectedConverter.getArtifactId(), sourceVersion);
+			SDOSourceContent ssc = new SDOSourceContent(selectedConverter.getSourceUploadGroupId(), artifactId, sourceVersion);
 
 			System.out.println("Creating a content converter config for " + ssc);
 			System.out.println();
@@ -121,7 +132,7 @@ public class CreateMojoExecutionProject
 					System.out.println(dependency.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
 					
-					System.out.println("Please specify the classifier (delta, snapshot, etc) if any - just push enter for none.");
+					System.out.println("Please specify the classifier of the additional source dependency (Delta, Snapshot, Full, etc) if any - just push enter for none.");
 					String classifier = bufferedReader.readLine();
 					
 					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion, 
@@ -143,8 +154,12 @@ public class CreateMojoExecutionProject
 					System.out.println("For the sourceVersion parameter, " + SupportedConverterTypes.findSourceArtifactForIBDFArtifact(selectedConverter.getIBDFDependencies().get(i))
 							.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
+					
+					System.out.println("Please specify the classifier of the additional ibdf dependency (Delta, Snapshot, Full, etc) if any - just push enter for none.");
+					String classifier = bufferedReader.readLine();
+					
 					additionalIBDFDependencies[i] = new IBDFFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, selectedConverter.getIBDFDependencies().get(i),
-							dependencyVersion);
+							dependencyVersion, StringUtils.isNotBlank(classifier.trim()) ? classifier.trim() : null);
 					System.out.println("Added the dependency " + additionalIBDFDependencies[i]);
 					System.out.println();
 				}
@@ -153,8 +168,7 @@ public class CreateMojoExecutionProject
 			Map<ConverterOptionParam, Set<String>> converterOptionValues = new HashMap<>();
 			for (ConfigOptionsDescriptor cod : LookupService.getServices(ConfigOptionsDescriptor.class))
 			{
-				//TODO test this after I get the mojo converters moved
-				if (cod.getName().equals(selectedConverter.getArtifactId()))
+				if (cod.getName().equals(selectedConverter.getConverterMojoName()))
 				{
 					System.out.println("The selected requires configuration parameters.");
 					for (ConverterOptionParam cop : cod.getConfigOptions())

@@ -106,8 +106,8 @@ public class DBConfigurationCreator {
     * @param description - Describe the purpose / contents of the database being constructed
     * @param resultClassifier - The (optional) maven classifer to use for the maven artifact that will result from executing this generated pom file.
     * @param classify - True to classify the content with the snorocket classifer as part of the database build, false to skip classification.
-    * @param ibdfFiles - The set of IBDF files to be included in the DB.  Do not include the ochre-metadata IBDF file from ISAAC, it is always included.
-    * @param metadataVersion - The version of the ochre-metadata content to include in the DB
+    * @param ibdfFiles - The set of IBDF files to be included in the DB.  Do not include the metadata IBDF file from ISAAC, it is always included.
+    * @param metadataVersion - The version of the metadata content to include in the DB
     * @param gitRepositoryURL - The URL to publish this built project to
     * @param gitUsername - The username to utilize to publish this project
     * @param gitPassword the git password
@@ -249,7 +249,7 @@ public class DBConfigurationCreator {
             sb.append(",");
          }
    
-         sb.append("ochre-metadata");
+         sb.append("metadata");
          configuration.setIncludeArtifactIds(sb.toString());
          configuration.setOutputDirectory("${project.build.directory}/data");
          pe.setConfiguration(configuration);

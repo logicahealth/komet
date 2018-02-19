@@ -60,7 +60,7 @@ public class CVXReader
 {
 	private final File file_;
 
-	public CVXReader(File inputFileOrDirectory)
+	public CVXReader(File inputFileOrDirectory) throws IOException
 	{
 		if (inputFileOrDirectory.isDirectory())
 		{
@@ -86,7 +86,7 @@ public class CVXReader
 			file_ = inputFileOrDirectory;
 		}
 
-		ConsoleUtil.println("Prepared to process: " + file_.getAbsolutePath());
+		ConsoleUtil.println("Prepared to process: " + file_.getCanonicalPath());
 	}
 
 	public CVXCodes process() throws IOException, JAXBException

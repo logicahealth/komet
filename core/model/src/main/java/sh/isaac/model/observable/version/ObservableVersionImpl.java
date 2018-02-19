@@ -140,6 +140,13 @@ public abstract class ObservableVersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
+   
+   @Override
+   public void addAdditionalUuids(UUID... uuids)
+   {
+      ((VersionImpl) this.stampedVersionProperty.get()).addAdditionalUuids(uuids);
+   }
+   
    /**
     * Author nid property.
     *

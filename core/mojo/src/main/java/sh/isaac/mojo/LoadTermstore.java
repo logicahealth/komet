@@ -83,6 +83,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -179,7 +180,7 @@ public class LoadTermstore
     *
     * @throws MojoExecutionException the mojo execution exception
     */
-   @SuppressWarnings({ "rawtypes", "unchecked" })
+   @SuppressWarnings({"unchecked" })
    @Override
    public void execute()
             throws MojoExecutionException {
@@ -541,13 +542,22 @@ public class LoadTermstore
     * @return true, if active
     */
    private boolean isActive(Chronology object) {
-      if (object.getVersionList()
-                .size() != 1) {
-         throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
-      } else {
-         return ((StampedVersion) object.getVersionList()
-                                        .get(0)).getStatus() == Status.ACTIVE;
+      Boolean foundStatus = null;
+      for (Version v : object.getVersionList())
+      {
+         if (foundStatus == null)
+         {
+             foundStatus = v.getStatus() == Status.ACTIVE;
+         }
+         else if (foundStatus != (v.getStatus() == Status.ACTIVE))
+         {
+             throw new RuntimeException("Simple implementation can't handle version list with differing status values");
+         }
       }
+      if (foundStatus == null) {
+         throw new RuntimeException("no version found???");
+      } 
+      return foundStatus.booleanValue();
    }
 
    //~--- set methods ---------------------------------------------------------

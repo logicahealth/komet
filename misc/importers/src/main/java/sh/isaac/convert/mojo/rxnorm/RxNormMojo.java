@@ -1605,8 +1605,8 @@ public class RxNormMojo extends ConverterBaseMojo {
          }
          cuiConcept = ComponentReference.fromConcept(sctIdToUUID.get(temp));
 
-         // Add the RxCUI UUID
-         this.importUtil.addUUID(cuiConcept.getPrimordialUuid(), createCUIConceptUUID(rxCui));
+         // Add the RxCUI UUID - we need to create a stub concept, so we can record the extra UUIDs.
+         this.importUtil.createConcept(cuiConcept.getPrimordialUuid(), createCUIConceptUUID(rxCui));
          // TODO need to look at what else I should be grabbing - the RXCUI for example should be attached. What else?
       } else {
          // just creating the reference here, with the UUID - because we don't know if it should be active or inactive yet.

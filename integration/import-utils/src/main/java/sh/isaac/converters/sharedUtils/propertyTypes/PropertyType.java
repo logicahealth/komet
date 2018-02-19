@@ -131,8 +131,7 @@ public abstract class PropertyType {
    public Property addProperty(Property property) {
       if (this.skipList != null) {
          for (final String s: this.skipList) {
-            if (property.getSourcePropertyNameFQN()
-                        .equals(s)) {
+            if (property.getSourcePropertyNameFQN().equals(s) || property.getSourcePropertyAltName().equals(s)) {
                ConsoleUtil.println("Skipping property '" + s + "' because of skip list configuration");
                return property;
             }

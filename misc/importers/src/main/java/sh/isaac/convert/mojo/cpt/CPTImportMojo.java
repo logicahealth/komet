@@ -52,9 +52,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
 import sh.isaac.convert.mojo.cpt.propertyTypes.PT_Annotations;
 import sh.isaac.converters.sharedUtils.ComponentReference;
@@ -158,7 +160,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 			importUtil_.loadMetaDataItems(Arrays.asList(attributes, refsets_, descriptions), cptMetadata.getPrimordialUuid());
 
 			// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology cptRootConcept = importUtil_.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion cptRootConcept = importUtil_.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata load stats");
 			for (String line : importUtil_.getLoadStats().getSummary())
@@ -247,9 +249,9 @@ public class CPTImportMojo extends ConverterBaseMojo
 		importUtil_.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
@@ -257,11 +259,12 @@ public class CPTImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		CPTImportMojo i = new CPTImportMojo();
-		i.outputDirectory = new File("../cpt-ibdf/target");
-		i.inputFileLocation = new File("../cpt-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "2017";
 		i.execute();
+		Platform.exit();
 	}
 }

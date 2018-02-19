@@ -79,6 +79,7 @@ public class PT_Annotations extends BPT_Annotations
 	public PT_Annotations(String type)
 	{
 		super("ICD-10-" + type.toUpperCase());
+		indexByAltNames();
 		for (Attribute attr : Attribute.values())
 		{
 			addProperty(attr.getProperty());

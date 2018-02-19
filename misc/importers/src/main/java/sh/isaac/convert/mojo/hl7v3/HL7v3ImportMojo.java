@@ -109,6 +109,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -165,8 +166,8 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 	private HashMap<String, List<UUID>> codeUUIDPointers = new HashMap<>();
 	private HashMap<String, List<Concept>> codeConceptPointers = new HashMap<>();
 
-	// valueSetUUID-> members of the valueSet
-	private HashMap<UUID, Set<UUID>> inProgressRefsetMembers = new HashMap<>();
+	// valueSetUUID-> nid members of the valueSet
+	private HashMap<UUID, Set<Integer>> inProgressRefsetMembers = new HashMap<>();
 	// valueSetUUIDs that are 'complete'
 	private HashSet<UUID> fullyCalculatedRefsetMembers = new HashSet<>();
 
@@ -584,7 +585,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 					importUtil_.addAnnotation(cr, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(
-									createConceptCodeUUID(p.getValue().substring(0, split), p.getValue().substring((split + 1), p.getValue().length())))),
+									createConceptCodeUUID(p.getValue().substring(0, split), p.getValue().substring((split + 1), p.getValue().length()), true))),
 							property.getUUID(), null, null);
 				}
 
@@ -721,18 +722,21 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 						conceptCount++;
 						totalConceptCount++;
 
-						UUID conceptUUID = createConceptCodeUUID(cs.getName(), c.getCode().get(0).getCode());
-
+						UUID conceptUUID = createConceptCodeUUID(cs.getName(), c.getCode().get(0).getCode(), false);
+						
+						ArrayList<UUID> additionalUUIDs = new ArrayList<>();
 						// Need to add additional primary UUIDs
 						for (int i = 1; i < c.getCode().size(); i++)
 						{
-							importUtil_.addUUID(conceptUUID, createConceptCodeUUID(cs.getName(), c.getCode().get(i).getCode()));
+							additionalUUIDs.add(createConceptCodeUUID(cs.getName(), c.getCode().get(i).getCode(), false));
 						}
+						
+						ComponentReference concept = ComponentReference.fromConcept(importUtil_
+								.createConcept(conceptUUID, additionalUUIDs.toArray(new UUID[additionalUUIDs.size()])));
 
 						codeSystemCodePointers.add(conceptUUID);
 						codeSystemConceptPointers.add(c);
 
-						ComponentReference concept = ComponentReference.fromConcept(importUtil_.createConcept(conceptUUID));
 						try
 						{
 							importUtil_.addParent(concept, codeSystem.getPrimordialUuid());
@@ -807,23 +811,32 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 							}
 						}
 
-						for (ConceptRelationship r : c.getConceptRelationship())
-						{
-							importUtil_.addAssociation(concept, null,
-									createConceptCodeUUID(
-											StringUtils.isBlank(r.getTargetConcept().getCodeSystem()) ? cs.getName() : r.getTargetConcept().getCodeSystem(),
-											r.getTargetConcept().getCode()),
-									associations_.getProperty(r.getRelationshipName()).getUUID(), null, null, null);
-							// TODO handle these
-							// r.getProperty()
-							// r.isIsDerived();
-						}
+						//We need to delay processing the relationships until creating all of the concepts, because of the way 
+						//they have defined their targets, sometimes they use one code, sometimes another, then later, merge those two codes
+						//into a single concept, causing us issues merging UUIDs onto a single concept.
+						
 
 						// c.getEffectiveDate();
 						// c.getHistoryItem();
 						// c.getIntendedUse();
 						// c.getPropertyGroup();
 
+					}
+					
+					//process delayed relationships
+					for (Concept c : csv.getConcept())
+					{
+						for (ConceptRelationship r : c.getConceptRelationship())
+						{
+							importUtil_.addAssociation(ComponentReference.fromConcept(createConceptCodeUUID(cs.getName(), c.getCode().get(0).getCode(), false)), null,
+									createConceptCodeUUID(
+											StringUtils.isBlank(r.getTargetConcept().getCodeSystem()) ? cs.getName() : r.getTargetConcept().getCodeSystem(),
+											r.getTargetConcept().getCode(), true),
+									associations_.getProperty(r.getRelationshipName()).getUUID(), null, null, null);
+							// TODO handle these
+							// r.getProperty()
+							// r.isIsDerived();
+						}
 					}
 					ConsoleUtil.println("Added " + conceptCount + " concepts to " + cs.getName());
 					conceptCount = 0;
@@ -926,14 +939,13 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			}
 
 			// Now that we have fully resolved all of the value sets, and removed duplicate entries (some of the unions on the hl7 content make
-			// duplicates)
+			// duplicates) 
 			// populate our refsets.
-
-			for (Entry<UUID, Set<UUID>> refsetData : inProgressRefsetMembers.entrySet())
+			for (Entry<UUID, Set<Integer>> refsetData : inProgressRefsetMembers.entrySet())
 			{
-				for (UUID refsetMember : refsetData.getValue())
+				for (Integer refsetMember : refsetData.getValue())
 				{
-					importUtil_.addAssemblageMembership(ComponentReference.fromConcept(refsetMember), refsetData.getKey(), Status.ACTIVE, null);
+					importUtil_.addAssemblageMembership(ComponentReference.fromChronology(refsetMember), refsetData.getKey(), Status.ACTIVE, null);
 					valueSetMemberCount++;
 				}
 			}
@@ -1022,10 +1034,10 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				String codeSystemOid = cd.getCodeSystem();
 				for (IncludeRelatedCodes irc : cbcd.getIncludeRelatedCodes())
 				{
-					for (UUID member : resolveRels(irc.getRelationshipTraversal(), irc.getRelationshipName(), 0,
+					for (Integer member : resolveRels(irc.getRelationshipTraversal(), irc.getRelationshipName(), 0,
 							findTargetConcept(codeSystemOid, cbcd.getCode()), codeSystemOid))
 					{
-						Set<UUID> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
+						Set<Integer> members = inProgressRefsetMembers.get(Get.identifierService().getNidForUuids(refset.getPrimordialUuid()));
 						if (members == null)
 						{
 							members = new HashSet<>();
@@ -1037,8 +1049,8 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				if (cbcd.isIncludeHeadCode())
 				{
 
-					UUID refsetMember = createConceptCodeUUID(codeSystemOid, cbcd.getCode());
-					Set<UUID> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
+					Integer refsetMember = Get.identifierService().getNidForUuids(createConceptCodeUUID(codeSystemOid, cbcd.getCode(), true));
+					Set<Integer> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
 					if (members == null)
 					{
 						members = new HashSet<>();
@@ -1101,9 +1113,9 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				}
 				else
 				{
-					for (UUID targetMember : inProgressRefsetMembers.get(targetRefset.getPrimordialUuid()))
+					for (Integer targetMember : inProgressRefsetMembers.get(targetRefset.getPrimordialUuid()))
 					{
-						Set<UUID> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
+						Set<Integer> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
 						if (members == null)
 						{
 							members = new HashSet<>();
@@ -1136,13 +1148,13 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			}
 			for (UUID conceptUUID : codeUUIDPointers.get(codeSystemOid))
 			{
-				Set<UUID> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
+				Set<Integer> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
 				if (members == null)
 				{
 					members = new HashSet<>();
 					inProgressRefsetMembers.put(refset.getPrimordialUuid(), members);
 				}
-				members.add(conceptUUID);
+				members.add(Get.identifierService().getNidForUuids(conceptUUID));
 			}
 		}
 
@@ -1311,17 +1323,17 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 		return retiredMarker;
 	}
 
-	private ConceptChronology createType(UUID parentUuid, UUID primordial, String typeName, Status state) throws Exception
+	private ConceptVersion createType(UUID parentUuid, UUID primordial, String typeName, Status state) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(primordial, typeName, true, null, state);
+		ConceptVersion concept = importUtil_.createConcept(primordial, typeName, true, null, state);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
@@ -1329,10 +1341,12 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 	private UUID createConceptDomainUUID(String name)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("ConceptDomain|" + name, true);
+		UUID temp =  ConverterUUID.createNamespaceUUIDFromString("ConceptDomain|" + name, true);
+		Get.identifierService().assignNid(temp);  //We load some things out of order, so need to assign early.
+		return temp;
 	}
 
-	private UUID createConceptCodeUUID(String codeSystemNameOrOID, String name) throws MojoExecutionException
+	private UUID createConceptCodeUUID(String codeSystemNameOrOID, String name, boolean assignNid) throws MojoExecutionException
 	{
 		String oid = codeSystemNameToOID.get(codeSystemNameOrOID.toLowerCase());
 		if (oid == null)
@@ -1346,7 +1360,12 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				throw new MojoExecutionException("No oid for " + codeSystemNameOrOID + " and it doesn't appear to be an OID");
 			}
 		}
-		return ConverterUUID.createNamespaceUUIDFromString("Code|" + oid + "|" + name, true);
+		UUID temp = ConverterUUID.createNamespaceUUIDFromString("Code|" + oid + "|" + name, true);
+		if (assignNid) 
+		{
+			Get.identifierService().assignNid(temp);  //We load some things out of order, so need to assign early.
+		}
+		return temp;
 	}
 
 	private UUID createCodeSystemUUID(String codeSystemName) throws MojoExecutionException
@@ -1359,16 +1378,16 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 		return ConverterUUID.createNamespaceUUIDFromString("CodeSystem|" + oid, true);
 	}
 
-	private List<UUID> resolveRels(RelationshipTraversalKind traversalKind, String relKind, int depth, Concept concept, String codeSystemOid)
+	private List<Integer> resolveRels(RelationshipTraversalKind traversalKind, String relKind, int depth, Concept concept, String codeSystemOid)
 			throws MojoExecutionException
 	{
-		ArrayList<UUID> result = new ArrayList<>();
+		ArrayList<Integer> result = new ArrayList<>();
 
 		for (ConceptRelationship r : concept.getConceptRelationship())
 		{
 			if (r.getRelationshipName().equals(relKind))
 			{
-				UUID target = createConceptCodeUUID(r.getTargetConcept().getCodeSystem(), r.getTargetConcept().getCode());
+				int target = Get.identifierService().getNidForUuids(createConceptCodeUUID(r.getTargetConcept().getCodeSystem(), r.getTargetConcept().getCode(), true));
 
 				Concept targetCon = findTargetConcept(r.getTargetConcept().getCodeSystem(), r.getTargetConcept().getCode());
 
@@ -1427,7 +1446,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 										.equals(codeSystemOid)
 								&& r.getTargetConcept().getCode().equals(concept.getCode().get(0).getCode()))
 						{
-							UUID target = createConceptCodeUUID(allConcepts.getKey(), c.getCode().get(0).getCode());
+							Integer target = Get.identifierService().getNidForUuids(createConceptCodeUUID(allConcepts.getKey(), c.getCode().get(0).getCode(), true));
 							switch (traversalKind)
 							{
 								case DIRECT_RELATIONS_ONLY:
@@ -1517,9 +1536,9 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				{
 					if (inProgressRefsetMembers.get(targetRefset.getPrimordialUuid()) != null)
 					{
-						for (UUID targetMember : inProgressRefsetMembers.get(targetRefset.getPrimordialUuid()))
+						for (Integer targetMember : inProgressRefsetMembers.get(targetRefset.getPrimordialUuid()))
 						{
-							Set<UUID> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
+							Set<Integer> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
 							if (members == null)
 							{
 								members = new HashSet<>();
@@ -1538,8 +1557,8 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		HL7v3ImportMojo i = new HL7v3ImportMojo();
-		i.outputDirectory = new File("../hl7v3-ibdf/target");
-		i.inputFileLocation = new File("../hl7v3-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2.47.1-1.0-SNAPSHOT";
 		i.converterVersion = "1.0-SNAPSHOT";
 		i.converterSourceArtifactVersion = "2.47.1";

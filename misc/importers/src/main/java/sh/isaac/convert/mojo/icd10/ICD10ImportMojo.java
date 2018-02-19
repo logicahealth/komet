@@ -49,9 +49,10 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.mojo.icd10.data.ICD10;
 import sh.isaac.convert.mojo.icd10.propertyTypes.PT_Annotations;
@@ -292,9 +293,9 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
@@ -308,12 +309,14 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 	public static void main(String[] args) throws Exception
 	{
 		ICD10ImportMojo icd10Converter = new ICD10ImportMojo();
-		icd10Converter.outputDirectory = new File("../icd10-ibdf/cm/target/");
-		icd10Converter.inputFileLocation = new File("../icd10-ibdf/cm/target/generated-resources/src/");
+		icd10Converter.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		icd10Converter.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+		icd10Converter.sourceType = "CM";
 		icd10Converter.converterVersion = "0.1";
 		icd10Converter.converterOutputArtifactVersion = "0.2";
 		icd10Converter.converterOutputArtifactClassifier = "foo";
-		icd10Converter.converterSourceArtifactVersion = "2017";
+		icd10Converter.converterSourceArtifactVersion = "2018";
 		icd10Converter.execute();
+		Platform.exit();
 	}
 }

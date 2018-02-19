@@ -100,6 +100,7 @@ public abstract class TypedNodeWithUuids
                              ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.typeConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      Get.identifierService().assignNid(this.typeConceptUuid);
    }
 
    /**
