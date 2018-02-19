@@ -132,7 +132,7 @@
       <drools.version>7.6.0.Final</drools.version>
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
-      <fontawesome.version>9.1.2</fontawesome.version>
+      <fontawesome.version>4.7.0-5</fontawesome.version>
 
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
@@ -158,6 +158,15 @@
       <system>Jira</system>
       <url>http://issues.osehra.org/projects/ISAAC/summary</url>
    </issueManagement>
+   
+   <repositories>
+      <repository>
+         <!-- Fontawesomefx -->
+         <id>bintray-jerady-maven</id>
+         <name>bintray-plugins</name>
+         <url>http://dl.bintray.com/jerady/maven</url>
+      </repository>
+   </repositories>
 
    <dependencyManagement>
       <dependencies>
@@ -443,7 +452,7 @@
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-fontawesome</artifactId>
-            <version>4.7.0-${fontawesome.version}</version>
+            <version>${fontawesome.version}</version>
          </dependency>
          <dependency>
             <groupId>de.codecentric.centerdevice</groupId>
@@ -453,52 +462,52 @@
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-commons</artifactId>
-            <version>${fontawesome.version}</version>
+            <version>8.15</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-controls</artifactId>
-            <version>${fontawesome.version}</version>
+            <version>8.15</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-emojione</artifactId>
-            <version>3.1.1-${fontawesome.version}</version>
+            <version>2.2.7-2</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-icons525</artifactId>
-            <version>4.2.0-${fontawesome.version}</version>
+            <version>3.0.0-4</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-materialdesignfont</artifactId>
-            <version>2.0.26-${fontawesome.version}</version>
+            <version>1.7.22-4</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-materialicons</artifactId>
-            <version>2.2.0-${fontawesome.version}</version>
+            <version>2.2.0-5</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-materialstackicons</artifactId>
-            <version>2.1-5-${fontawesome.version}</version>
+            <version>2.1-5</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-octicons</artifactId>
-            <version>4.3.0-${fontawesome.version}</version>
+            <version>4.3.0-5</version>
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-weathericons</artifactId>
-            <version>2.0.10-${fontawesome.version}</version>
+            <version>2.0.10-5</version>
          </dependency>
          <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>9.0.0</version>
+            <version>8.40.14</version>
          </dependency>
          <dependency>
             <groupId>org.jfxtras</groupId>
