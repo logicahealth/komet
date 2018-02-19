@@ -174,7 +174,7 @@ public class RF2Mojo extends ConverterBaseMojo
          super.execute();
 
          ConsoleUtil.println(
-               "input moduleUUID: " + (moduleUUID == null ? "NULL!?!" : moduleUUID.getPrimordialUuid() + " [" + moduleUUID.getRegularName().get() + "]"));
+               "input moduleUUID: " + (moduleUUID == null ? "NULL!?!" : moduleUUID.getPrimordialUuid() + " [" + moduleUUID.getRegularName().orElse("") + "]"));
 
          inputType = InputType.parse(converterOutputArtifactClassifier);
 
@@ -997,7 +997,7 @@ public class RF2Mojo extends ConverterBaseMojo
          throw new MojoExecutionException("The module UUID must be provided.");
       }
 
-      String modulePrefix = moduleUUID.getRegularName().get();
+      String modulePrefix = moduleUUID.getRegularName().orElse("");
 
       // There is a design issue with the way Prisme builds the config file - in that the description field doesn't get populated.
       // But if the UUID is for a constant we know about, we need to go get the proper designation for the logic below to work properly.
@@ -1046,6 +1046,8 @@ public class RF2Mojo extends ConverterBaseMojo
       mojo.converterOutputArtifactVersion = "bar";
       mojo.converterOutputArtifactClassifier = "Delta";  //Use this to switch which one is loaded...
       mojo.converterSourceArtifactVersion = "bar";
+      //mojo.moduleUUID = MetaData.SNOMED_CT_CORE_MODULES____SOLOR;
+      mojo.moduleUUID = MetaData.US_EXTENSION_MODULES____SOLOR;
       mojo.execute();
       Platform.exit();
    }
