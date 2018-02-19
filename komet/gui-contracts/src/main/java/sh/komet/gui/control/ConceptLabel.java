@@ -53,221 +53,225 @@ import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
  *
  * @author kec
  */
-public class ConceptLabel 
-        extends Label implements PropertyEditor<Object>{
-   private static final String EMPTY_TEXT = "empty";
-   TransferMode[] transferMode = null;
-   Manifold manifold;
-   Consumer<ConceptLabel> descriptionTextUpdater;
-   Background originalBackground;
-   final Supplier<List<MenuItem>> menuSupplier;
-   final SimpleObjectProperty<ConceptSpecification> conceptInLabel = new SimpleObjectProperty<>();
-;
+public class ConceptLabel
+        extends Label implements PropertyEditor<Object> {
+
+    private static final String EMPTY_TEXT = "empty";
+    TransferMode[] transferMode = null;
+    Manifold manifold;
+    Consumer<ConceptLabel> descriptionTextUpdater;
+    Background originalBackground;
+    final Supplier<List<MenuItem>> menuSupplier;
+    final SimpleObjectProperty<ConceptSpecification> conceptInLabel = new SimpleObjectProperty<>();
+
+    ;
 
    //~--- constructors --------------------------------------------------------
    public ConceptLabel(Manifold manifold,
-           Consumer<ConceptLabel> descriptionTextUpdater, 
-           Supplier<List<MenuItem>> menuSupplier) {
-      super(EMPTY_TEXT);
-      if (menuSupplier == null) {
-          throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
-      }
-      this.manifold = manifold;
-      this.descriptionTextUpdater = descriptionTextUpdater;
-      this.menuSupplier = menuSupplier;
-      this.getStyleClass().add(CONCEPT_LABEL.toString());
-      this.setOnDragOver(this::handleDragOver);
-      this.setOnDragEntered(this::handleDragEntered);
-      this.setOnDragDetected(this::handleDragDetected);
-      this.setOnDragExited(this::handleDragExited);
-      this.setOnDragDropped(this::handleDragDropped);
-      this.setOnDragDone(this::handleDragDone);
-      this.setMinWidth(100);
+            Consumer<ConceptLabel> descriptionTextUpdater,
+            Supplier<List<MenuItem>> menuSupplier) {
+        super(EMPTY_TEXT);
+        if (menuSupplier == null) {
+            throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
+        }
+        this.manifold = manifold;
+        this.descriptionTextUpdater = descriptionTextUpdater;
+        this.menuSupplier = menuSupplier;
+        this.getStyleClass().add(CONCEPT_LABEL.toString());
+        this.setOnDragOver(this::handleDragOver);
+        this.setOnDragEntered(this::handleDragEntered);
+        this.setOnDragDetected(this::handleDragDetected);
+        this.setOnDragExited(this::handleDragExited);
+        this.setOnDragDropped(this::handleDragDropped);
+        this.setOnDragDone(this::handleDragDone);
+        this.setMinWidth(100);
+        
+        ContextMenu contextMenu = new ContextMenu();
+        
+        this.setContextMenu(contextMenu);
+        contextMenu.setOnShowing(this::handle);
+    }
 
-      ContextMenu contextMenu = new ContextMenu();
+    //~--- methods -------------------------------------------------------------
+    private void handle(WindowEvent event) {
+        ContextMenu contextMenu = (ContextMenu) event.getSource();
+        contextMenu.getItems().clear();
+        
+        if (this.menuSupplier != null) {
+            List<MenuItem> menuItems = this.menuSupplier.get();
+            if (!menuItems.isEmpty()) {
+                for (MenuItem menu : menuItems) {
+                    contextMenu.getItems().add(menu);
+                }
+                contextMenu.getItems().add(new SeparatorMenuItem());
+            }
+        }
+    }
+    
+    private void handleDragDetected(MouseEvent event) {
+        System.out.println("Drag detected: " + event);
+        
+        DragImageMaker dragImageMaker = new DragImageMaker(this);
+        Dragboard db = this.startDragAndDrop(TransferMode.COPY);
+        
+        db.setDragView(dragImageMaker.getDragImage());
 
-      this.setContextMenu(contextMenu);
-      contextMenu.setOnShowing(this::handle);
-   }
+        /* put a string on dragboard */
+        IsaacClipboard content = new IsaacClipboard(Get.concept(this.conceptInLabel.get()));
+        db.setContent(content);
+        event.consume();
+    }
+    
+    private void handleDragDone(DragEvent event) {
+        System.out.println("Dragging done: " + event);
+        this.setBackground(originalBackground);
+        this.transferMode = null;
+    }
+    
+    public void setConceptChronology(ConceptChronology conceptChronology) {
+        this.conceptInLabel.set(conceptChronology);
+    }
+    
+    private void handleDragDropped(DragEvent event) {
+        System.out.println("Dragging dropped: " + event);
+        
+        Dragboard db = event.getDragboard();
+        
+        if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+            ConceptChronology conceptChronology = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+            
+            this.conceptInLabel.set(conceptChronology);
+        } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
+            ConceptVersion conceptVersion = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
+            
+            this.conceptInLabel.set(conceptVersion.getChronology());
+        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
+            SemanticChronology semanticChronology = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
+            
+            this.conceptInLabel.set(Get.conceptService()
+                    .getConceptChronology(semanticChronology.getReferencedComponentNid()));
+        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
+            DescriptionVersion descriptionVersion = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
+            
+            this.conceptInLabel.set(
+                    Get.conceptService()
+                            .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
+        }
+        
+        this.setBackground(originalBackground);
+    }
+    
+    private void handleDragEntered(DragEvent event) {
+        System.out.println("Dragging entered: " + event);
+        this.originalBackground = this.getBackground();
+        
+        Color backgroundColor;
+        Set<DataFormat> contentTypes = event.getDragboard()
+                .getContentTypes();
+        
+        if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
+            backgroundColor = Color.AQUA;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
+            backgroundColor = Color.OLIVEDRAB;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else {
+            backgroundColor = Color.RED;
+            this.transferMode = null;
+        }
+        
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        
+        this.setBackground(new Background(fill));
+    }
+    
+    private void handleDragExited(DragEvent event) {
+        System.out.println("Dragging exited: " + event);
+        this.setBackground(originalBackground);
+        this.transferMode = null;
+    }
+    
+    private void handleDragOver(DragEvent event) {
+        // System.out.println("Dragging over: " + event );
+        if (this.transferMode != null) {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
+        }
+    }
 
-   //~--- methods -------------------------------------------------------------
-   private void handle(WindowEvent event) {
-      ContextMenu contextMenu = (ContextMenu) event.getSource();
-      contextMenu.getItems().clear();
-      
-      if (this.menuSupplier != null) {
-          List<MenuItem> menuItems = this.menuSupplier.get();
-          if (!menuItems.isEmpty()) {
-              for (MenuItem menu: menuItems) {
-                  contextMenu.getItems().add(menu);
-              }
-              contextMenu.getItems().add(new SeparatorMenuItem());
-          }
-      }
-   }
-
-   private void handleDragDetected(MouseEvent event) {
-      System.out.println("Drag detected: " + event);
-
-      DragImageMaker dragImageMaker = new DragImageMaker(this);
-      Dragboard db = this.startDragAndDrop(TransferMode.COPY);
-
-      db.setDragView(dragImageMaker.getDragImage());
-
-      /* put a string on dragboard */
-      IsaacClipboard content = new IsaacClipboard(Get.concept(this.conceptInLabel.get()));
-      db.setContent(content);
-      event.consume();
-   }
-
-   private void handleDragDone(DragEvent event) {
-      System.out.println("Dragging done: " + event);
-      this.setBackground(originalBackground);
-      this.transferMode = null;
-   }
-   
-   public void setConceptChronology(ConceptChronology conceptChronology) {
-       this.conceptInLabel.set(conceptChronology);
-   }
-
-   private void handleDragDropped(DragEvent event) {
-      System.out.println("Dragging dropped: " + event);
-
-      Dragboard db = event.getDragboard();
-
-      if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
-         ConceptChronology conceptChronology = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
-
-         this.conceptInLabel.set(conceptChronology);
-      } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
-         ConceptVersion conceptVersion = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
-
-         this.conceptInLabel.set(conceptVersion.getChronology());
-      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
-         SemanticChronology semanticChronology = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
-
-         this.conceptInLabel.set(Get.conceptService()
-                                 .getConceptChronology(semanticChronology.getReferencedComponentNid()));
-      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
-         DescriptionVersion descriptionVersion = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
-
-         this.conceptInLabel.set(
-                         Get.conceptService()
-                                 .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
-      }
-
-      this.setBackground(originalBackground);
-   }
-
-   private void handleDragEntered(DragEvent event) {
-      System.out.println("Dragging entered: " + event);
-      this.originalBackground = this.getBackground();
-
-      Color backgroundColor;
-      Set<DataFormat> contentTypes = event.getDragboard()
-              .getContentTypes();
-
-      if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
-         backgroundColor = Color.AQUA;
-         this.transferMode = TransferMode.COPY_OR_MOVE;
-      } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
-         backgroundColor = Color.OLIVEDRAB;
-         this.transferMode = TransferMode.COPY_OR_MOVE;
-      } else {
-         backgroundColor = Color.RED;
-         this.transferMode = null;
-      }
-
-      BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
-
-      this.setBackground(new Background(fill));
-   }
-
-   private void handleDragExited(DragEvent event) {
-      System.out.println("Dragging exited: " + event);
-      this.setBackground(originalBackground);
-      this.transferMode = null;
-   }
-
-   private void handleDragOver(DragEvent event) {
-      // System.out.println("Dragging over: " + event );
-      if (this.transferMode != null) {
-         event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-         event.consume();
-      }
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   private void setDescriptionText(DescriptionVersion latestDescriptionVersion) {
-      if (latestDescriptionVersion != null) {
-         this.setText(latestDescriptionVersion.getText());
-      }
-   }
-
-   private void setEmptyText() {
-      setEmptyText(this);
-   }
-
-   private static void setEmptyText(Label label) {
-      label.setText(EMPTY_TEXT);
-   }
-
-   public static void setFullySpecifiedText(ConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
-      if (focusedConcept != null) {
-         focusedConcept
-                 .getFullySpecifiedDescription(label.manifold)
-                 .ifPresent(label::setDescriptionText)
-                 .ifAbsent(label::setEmptyText);
-      } else {
-         setEmptyText(label);
-      }
-   }
-
-   public static void setPreferredText(ConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
-      if (focusedConcept != null) {
-         focusedConcept
-                 .getPreferredDescription(label.manifold)
-                 .ifPresent(label::setDescriptionText)
-                 .ifAbsent(label::setEmptyText);
-      } else {
-         setEmptyText(label);
-      }
-   }
-
+    //~--- set methods ---------------------------------------------------------
+    private void setDescriptionText(DescriptionVersion latestDescriptionVersion) {
+        if (latestDescriptionVersion != null) {
+            this.setText(latestDescriptionVersion.getText());
+        }
+    }
+    
+    private void setEmptyText() {
+        setEmptyText(this);
+    }
+    
+    private static void setEmptyText(Label label) {
+        label.setText(EMPTY_TEXT);
+    }
+    
+    public static void setFullySpecifiedText(ConceptLabel label) {
+        ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
+        if (focusedConcept != null) {
+            focusedConcept
+                    .getFullySpecifiedDescription(label.manifold)
+                    .ifPresent(label::setDescriptionText)
+                    .ifAbsent(label::setEmptyText);
+        } else {
+            setEmptyText(label);
+        }
+    }
+    
+    public static void setPreferredText(ConceptLabel label) {
+        ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
+        if (focusedConcept != null) {
+            focusedConcept
+                    .getPreferredDescription(label.manifold)
+                    .ifPresent(label::setDescriptionText)
+                    .ifAbsent(label::setEmptyText);
+        } else {
+            setEmptyText(label);
+        }
+    }
+    
     @Override
     public Node getEditor() {
         return this;
     }
-
+    
     @Override
     public Integer getValue() {
         return conceptInLabel.get().getNid();
     }
-
+    
     @Override
     public void setValue(Object value) {
-        if (value instanceof Integer) {
-            Integer intValue = (Integer) value;
-            if (intValue < 0) {
-                conceptInLabel.set(Get.concept((Integer) value));
+        if (value != null) {
+            if (value instanceof Integer) {
+                Integer intValue = (Integer) value;
+                if (intValue < 0) {
+                    conceptInLabel.set(Get.concept((Integer) value));
+                }
+            } else if (value instanceof ConceptSpecification) {
+                ConceptSpecification spec = (ConceptSpecification) value;
+                if (spec.getNid() < 0) {
+                    conceptInLabel.set(Get.concept((ConceptSpecification) value));
+                }
+            } else {
+                throw new UnsupportedOperationException("ConceptLabel can't handle: " + value);
             }
-        } else if (value instanceof ConceptSpecification) {
-            ConceptSpecification spec = (ConceptSpecification) value;
-            if (spec.getNid() < 0) {
-               conceptInLabel.set(Get.concept((ConceptSpecification) value));
-            }
-            
+            descriptionTextUpdater.accept(this);
         } else {
-            throw new UnsupportedOperationException("ConceptLabel can't handle: " + value);
+            this.setText(EMPTY_TEXT);
         }
-        
     }
-   
-   
+    
 }
