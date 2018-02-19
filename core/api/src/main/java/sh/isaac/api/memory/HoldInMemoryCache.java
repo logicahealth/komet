@@ -90,11 +90,12 @@ public class HoldInMemoryCache {
                queue.addFirst(cache);
 
                while (queue.size() > GENERATIONS) {
-                  final Set<MemoryManagedReference> oldCache = queue.removeLast();
-
-                  oldCache.stream().forEach(memoryManagedReference -> {
-                                      memoryManagedReference.cacheExit();
-                                   });
+                  final Set<MemoryManagedReference> oldCache = queue.pollLast();
+                  if (oldCache != null) {
+                     oldCache.stream().forEach(memoryManagedReference -> {
+                                         memoryManagedReference.cacheExit();
+                                      });
+                  }
                }
             }
          }
