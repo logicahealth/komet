@@ -102,6 +102,9 @@ public class StampUniversal implements IsaacExternalizable {
       this.authorUuid = new UUID(in.getLong(), in.getLong());
       this.moduleUuid = new UUID(in.getLong(), in.getLong());
       this.pathUuid   = new UUID(in.getLong(), in.getLong());
+      Get.identifierService().assignNid(this.authorUuid);
+      Get.identifierService().assignNid(this.moduleUuid);
+      Get.identifierService().assignNid(this.pathUuid);
    }
    
    /**

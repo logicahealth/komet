@@ -105,6 +105,8 @@ public class TemplateNodeWithUuids
       super(logicGraphVersion, dataInputStream);
       this.templateConceptUuid   = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
       this.assemblageConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      Get.identifierService().assignNid(this.templateConceptUuid);
+      Get.identifierService().assignNid(this.assemblageConceptUuid);
    }
 
    /**

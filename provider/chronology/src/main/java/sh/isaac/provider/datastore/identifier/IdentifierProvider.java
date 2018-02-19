@@ -42,6 +42,7 @@ package sh.isaac.provider.datastore.identifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -241,6 +242,7 @@ public class IdentifierProvider
    @Override
    public int assignNid(UUID... uuids) throws IllegalArgumentException {
       int lastFoundNid = Integer.MAX_VALUE;
+      ArrayList<UUID> uuidsWithoutNid = new ArrayList<>(uuids.length);
       for (final UUID uuid: uuids) {
          final int nid =  this.uuidIntMapMap.get(uuid);
 
@@ -251,10 +253,13 @@ public class IdentifierProvider
             }
             lastFoundNid = nid;
          }
+         else {
+            uuidsWithoutNid.add(uuid);
+         }
       }
       
       if (lastFoundNid != Integer.MAX_VALUE) {
-         for (UUID uuid : uuids) {
+         for (UUID uuid : uuidsWithoutNid) {
             addUuidForNid(uuid, lastFoundNid);
          }
          return lastFoundNid;
