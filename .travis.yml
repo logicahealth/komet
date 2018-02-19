@@ -5,3 +5,11 @@ cache:
   - $HOME/.m2
 install: /bin/true
 script: mvn -B -e clean verify
+notifications:
+  webhooks:
+    urls:
+      - https://hooks.glip.com/webhook/2e72766c-a8e9-4ab8-8520-ca78d236b043
+    on_success: change # default: always
+    on_failure: always # default: always
+    on_start: never   # default: never
+    on_cancel: never
