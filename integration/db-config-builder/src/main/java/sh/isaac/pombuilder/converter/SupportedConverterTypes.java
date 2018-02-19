@@ -109,7 +109,7 @@ public enum SupportedConverterTypes
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
    SCT_EXTENSION("rf2-src-data-*-extension", "\\d{8}.*$", 
-         "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+         "A typical Snomed extension version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
          + "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
          new String[] {}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
          new UploadFileInfo("Snomed Extensions come from a variety of sources.  Note that the NLM has choosen to stop advertising the download links to the "

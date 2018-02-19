@@ -124,6 +124,11 @@ public class ContentConverterCreator
 		}
 		baseFolder.mkdirs();
 		boolean haveLock = false;
+		
+		if (sourceContent.getArtifactId().contains("*"))
+		{
+			throw new Exception("The source content artifact id contains a wildcard that must be replaced before calling this method");
+		}
 
 		try
 		{
@@ -188,9 +193,9 @@ public class ContentConverterCreator
 				temp = temp.replace("#GROUPID#", "sh.isaac.core");
 				temp = temp.replace("#ARTIFACTID#", "metadata");
 				temp = temp.replace("#CLASSIFIER#", "all");
-				temp = temp.replace("#VERSION#", VersionFinder.findProjectVersion());
+				temp = temp.replace("#VERSION#", converterVersion);
 				dependencies.append(temp);
-				unpackArtifacts.append("ochre-metadata");
+				unpackArtifacts.append("metadata");
 				unpackDependencies = unpackDependencies.replace("#UNPACK_ARTIFACTS#", unpackArtifacts.toString());
 			}
 

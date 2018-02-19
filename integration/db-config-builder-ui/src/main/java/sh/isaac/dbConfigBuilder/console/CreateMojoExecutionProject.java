@@ -88,11 +88,22 @@ public class CreateMojoExecutionProject
 
 			SupportedConverterTypes selectedConverter = ContentConverterCreator.getSupportedConversions()[selection - 1];
 
+			String artifactId = selectedConverter.getArtifactId();
+			
+			if (selectedConverter.getArtifactId().contains("*"))
+			{
+				System.out.println("This selected converter type (" + selectedConverter.getArtifactId() + ") contains a wild card");
+				System.out.println("Please provide the value to replace the '*'.  For snomed extensions, this is typically a language such as 'en' or a country code such as 'us'");
+				String wildCard = bufferedReader.readLine();
+				artifactId = selectedConverter.getArtifactId().replaceAll("\\*", wildCard);
+			}
+
+			System.out.println();
 			System.out.println(selectedConverter.getSourceVersionDescription());
 			System.out.println("What version of the source content will be converted?");
 			String sourceVersion = bufferedReader.readLine();
 
-			SDOSourceContent ssc = new SDOSourceContent(selectedConverter.getSourceUploadGroupId(), selectedConverter.getArtifactId(), sourceVersion);
+			SDOSourceContent ssc = new SDOSourceContent(selectedConverter.getSourceUploadGroupId(), artifactId, sourceVersion);
 
 			System.out.println("Creating a content converter config for " + ssc);
 			System.out.println();
@@ -121,7 +132,7 @@ public class CreateMojoExecutionProject
 					System.out.println(dependency.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
 					
-					System.out.println("Please specify the classifier of the additional source dependency (delta, snapshot, full, etc) if any - just push enter for none.");
+					System.out.println("Please specify the classifier of the additional source dependency (Delta, Snapshot, Full, etc) if any - just push enter for none.");
 					String classifier = bufferedReader.readLine();
 					
 					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion, 
@@ -144,7 +155,7 @@ public class CreateMojoExecutionProject
 							.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
 					
-					System.out.println("Please specify the classifier of the additional ibdf dependency (delta, snapshot, full, etc) if any - just push enter for none.");
+					System.out.println("Please specify the classifier of the additional ibdf dependency (Delta, Snapshot, Full, etc) if any - just push enter for none.");
 					String classifier = bufferedReader.readLine();
 					
 					additionalIBDFDependencies[i] = new IBDFFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, selectedConverter.getIBDFDependencies().get(i),

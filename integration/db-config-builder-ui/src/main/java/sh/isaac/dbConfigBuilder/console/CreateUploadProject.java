@@ -107,7 +107,7 @@ public class CreateUploadProject
 			if (SupportedConverterTypes.values()[selection - 1].getArtifactId().contains("*"))
 			{
 				System.out.println("This source upload type (" + SupportedConverterTypes.values()[selection - 1].getArtifactId() + ") contains a wild card");
-				System.out.println("Please provide the value - for snomed extensions, this is typically a language such as 'en'");
+				System.out.println("Please provide the value - for snomed extensions, this is typically a language such as 'en' or a country code such as 'us'");
 				extensionName = bufferedReader.readLine();
 			}
 			
