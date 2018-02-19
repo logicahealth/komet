@@ -51,6 +51,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.convert.mojo.sopt.data.EnumValidatedTableData;
 import sh.isaac.convert.mojo.sopt.data.EnumValidatedTableDataReader;
 import sh.isaac.convert.mojo.sopt.propertyTypes.PT_Annotations;
@@ -142,7 +143,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), soptMetadata.getPrimordialUuid());
 
 			// Create SOPT root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology soptRootConcept = importUtil_.createConcept(REFSET_NAME, true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion soptRootConcept = importUtil_.createConcept(REFSET_NAME, true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created SOPT root concept " + soptRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
 //			// Code System OID
@@ -358,7 +359,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 
 					// add to map
 					parentConcepts.put(conceptCode, rowConceptUuid);
-					final ConceptChronology rowConcept;
+					final ConceptVersion rowConcept;
 
 					rowConcept = importUtil_.createConcept(rowConceptUuid, // UUID conceptPrimordialUuid,
 							conceptName, // String fsn,
@@ -448,9 +449,9 @@ public class SOPTImportMojo extends ConverterBaseMojo
 		importUtil_.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;

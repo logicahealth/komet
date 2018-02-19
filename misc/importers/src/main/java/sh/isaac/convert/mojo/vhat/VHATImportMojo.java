@@ -63,6 +63,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
@@ -321,11 +322,11 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			if (missingConcepts.size() > 0)
 			{
-				ConceptChronology missingParent = importUtil_.createConcept("Missing Concepts", true);
-				importUtil_.addParent(ComponentReference.fromChronology(missingParent), rootConceptUUID);
+				ConceptVersion missingParent = importUtil_.createConcept("Missing Concepts", true);
+				importUtil_.addParent(ComponentReference.fromConcept(missingParent), rootConceptUUID);
 				for (UUID refUUID : missingConcepts)
 				{
-					ComponentReference c = ComponentReference.fromChronology(importUtil_.createConcept(refUUID, "-MISSING-", true));
+					ComponentReference c = ComponentReference.fromConcept(importUtil_.createConcept(refUUID, "-MISSING-", true));
 					importUtil_.addParent(c, missingParent.getPrimordialUuid());
 				}
 			}
@@ -722,9 +723,9 @@ public class VHATImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;

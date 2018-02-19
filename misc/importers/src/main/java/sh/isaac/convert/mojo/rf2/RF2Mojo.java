@@ -68,6 +68,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
@@ -75,8 +76,8 @@ import sh.isaac.api.MavenConceptProxy;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -366,6 +367,13 @@ public class RF2Mojo extends ConverterBaseMojo
             {
                // TODO handle history - only loading latest for now.
                Rel r = rb.getRels().last();
+               
+               if (inputType == InputType.DELTA) {
+                  //make sure nids are assigned for the load process
+                  Get.identifierService().assignNid(r.destinationId);
+                  Get.identifierService().assignNid(r.sourceId);
+                  Get.identifierService().assignNid(r.typeId);
+               }
 
                if ((stated && r.characteristicTypeId.equals(MetaData.INFERRED_PREMISE_TYPE____SOLOR.getPrimordialUuid()))
                      || (!stated && r.characteristicTypeId.equals(MetaData.STATED_PREMISE_TYPE____SOLOR.getPrimordialUuid())))
@@ -592,6 +600,12 @@ public class RF2Mojo extends ConverterBaseMojo
                   ? UuidT3Generator.fromSNOMED(descRS.getLong("CASESIGNIFICANCEID"))
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
 
+            if (inputType == InputType.DELTA) 
+            {
+               //Need to make sure the concept has a nid, because we probably didn't load it here.
+               Get.identifierService().assignNid(conceptId);
+            }
+            
             SemanticChronology desc = importUtil_.addDescription(ComponentReference.fromConcept(conceptId), id, term, DescriptionType.parse(typeId), null,
                   null, caseSigId, LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(languageCode)).getPrimordialUuid(), moduleId, null,
                   active ? Status.ACTIVE : Status.INACTIVE, time);
@@ -653,7 +667,7 @@ public class RF2Mojo extends ConverterBaseMojo
                      acceptActive ? Status.ACTIVE : Status.INACTIVE, acceptTime, acceptModuleId);
 
             }
-            if (!foundAcceptability)
+            if (inputType != InputType.DELTA && !foundAcceptability)
             {
                ConsoleUtil.printErrorln("No acceptibility found for: " + id + " " + sctID);
             }
@@ -703,8 +717,10 @@ public class RF2Mojo extends ConverterBaseMojo
          boolean active = rs.getBoolean("ACTIVE");
          moduleId = (td.getColDataType("MODULEID").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("MODULEID"))
                : UUID.fromString(rs.getString("MODULEID")));
+         Get.identifierService().assignNid(moduleId);
          definitionStatusId = (td.getColDataType("DEFINITIONSTATUSID").isLong() ? UuidT3Generator.fromSNOMED(rs.getLong("DEFINITIONSTATUSID"))
                : UUID.fromString(rs.getString("DEFINITIONSTATUSID")));
+         Get.identifierService().assignNid(definitionStatusId);
 
          TreeMap<Long, UUID> conDefStatus = conceptDefinitionStatusCache.get(id);
          if (conDefStatus == null)
@@ -718,7 +734,7 @@ public class RF2Mojo extends ConverterBaseMojo
             throw new RuntimeException("Unexpeted - multiple definition status values at the same time: " + sctID + " " + id + " " + definitionStatusId);
          }
 
-         ConceptChronology con = importUtil_.createConcept(id, time, active ? Status.ACTIVE : Status.INACTIVE, moduleId);
+         ConceptVersion con = importUtil_.createConcept(id, time, active ? Status.ACTIVE : Status.INACTIVE, moduleId);
          if (sctID != null && !id.equals(lastId))
          {
             lastId = id;
@@ -798,6 +814,8 @@ public class RF2Mojo extends ConverterBaseMojo
             TableDefinition td = createTableDefinition(tableName, fileReader.getHeader(), fileReader.peekNextRow());
             tables_.put(tableName, td);
 
+            tableCount++;
+            
             if (!createdNew)
             {
                // Only need to process this far to read the metadata about the DB
@@ -805,7 +823,6 @@ public class RF2Mojo extends ConverterBaseMojo
             }
 
             db_.createTable(td);
-            tableCount++;
 
             int rowCount = db_.loadDataIntoTable(td, fileReader);
             fileReader.close();
@@ -1023,12 +1040,13 @@ public class RF2Mojo extends ConverterBaseMojo
    public static void main(String[] args) throws MojoExecutionException
    {
       RF2Mojo mojo = new RF2Mojo();
-      mojo.outputDirectory = new File("target");
-      mojo.inputFileLocation = new File("target/generated-resources/src/");
+      mojo.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+      mojo.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
       mojo.converterVersion = "foo";
       mojo.converterOutputArtifactVersion = "bar";
-      mojo.converterOutputArtifactClassifier = "Full";
+      mojo.converterOutputArtifactClassifier = "Delta";  //Use this to switch which one is loaded...
       mojo.converterSourceArtifactVersion = "bar";
       mojo.execute();
+      Platform.exit();
    }
 }

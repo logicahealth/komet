@@ -52,7 +52,7 @@ import org.codehaus.plexus.util.StringUtils;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.mojo.icd10.data.ICD10;
 import sh.isaac.convert.mojo.icd10.propertyTypes.PT_Annotations;
@@ -293,9 +293,9 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;

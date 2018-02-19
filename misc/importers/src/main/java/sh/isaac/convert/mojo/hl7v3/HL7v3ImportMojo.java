@@ -109,6 +109,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -1322,17 +1323,17 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 		return retiredMarker;
 	}
 
-	private ConceptChronology createType(UUID parentUuid, UUID primordial, String typeName, Status state) throws Exception
+	private ConceptVersion createType(UUID parentUuid, UUID primordial, String typeName, Status state) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(primordial, typeName, true, null, state);
+		ConceptVersion concept = importUtil_.createConcept(primordial, typeName, true, null, state);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;

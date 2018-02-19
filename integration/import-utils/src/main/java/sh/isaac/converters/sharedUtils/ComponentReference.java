@@ -113,6 +113,22 @@ public class ComponentReference {
       this(uuidProvider, nidProvider);
       this.typeLabelSupplier = typeLabelSupplier;
    }
+   
+   /**
+    * Instantiates a new component reference.
+    *
+    * @param uuidSupplier the uuid provider
+    * @param nidSupplier the nid provider
+    * @param typeLabelSupplier the type label supplier
+    */
+   private ComponentReference(Supplier<UUID> uuidSupplier,
+                              IntSupplier nidSupplier,
+                              Supplier<String> typeLabelSupplier,
+                              Supplier<Long> timeSupplier) {
+      this(uuidSupplier, nidSupplier);
+      this.typeLabelSupplier = typeLabelSupplier;
+      this.timeProvider = timeSupplier;
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -191,41 +207,10 @@ public class ComponentReference {
     * @return the component reference
     */
    public static ComponentReference fromConcept(ConceptVersion concept) {
-      final ComponentReference cr = new ComponentReference(() -> concept.getChronology().getPrimordialUuid(),
+      return new ComponentReference(() -> concept.getChronology().getPrimordialUuid(),
                                                            () -> concept.getNid(),
-                                                           () -> "Concept");
-
-      cr.nidProvider  = () -> concept.getNid();
-      cr.timeProvider = () -> {
-                            final LatestVersion<Version> latest =
-                               ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
-
-                            return latest.get()
-                                         .getTime();
-                         };
-      return cr;
-   }
-
-   /**
-    * From concept.
-    *
-    * @param concept the concept
-    * @return the component reference
-    */
-   public static ComponentReference fromConcept(ConceptChronology concept) {
-      final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
-                                                           () -> concept.getNid(),
-                                                           () -> "Concept");
-
-      cr.nidProvider  = () -> concept.getNid();
-      cr.timeProvider = () -> {
-                            final LatestVersion<Version> latest =
-                               ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
-
-                            return latest.get()
-                                         .getTime();
-                         };
-      return cr;
+                                                           () -> "Concept",
+                                                           () -> concept.getTime());
    }
 
    /**

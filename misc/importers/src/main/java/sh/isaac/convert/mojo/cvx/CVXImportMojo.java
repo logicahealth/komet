@@ -51,6 +51,7 @@ import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.convert.mojo.cvx.data.CVXCodes;
 import sh.isaac.convert.mojo.cvx.data.CVXCodes.CVXInfo;
@@ -148,7 +149,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 			importUtil_.clearLoadStats();
 
 			// Create CVX root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology cvxRootConcept = importUtil_.createConcept(CVXConstants.TERMINOLOGY_NAME, true,
+			final ConceptVersion cvxRootConcept = importUtil_.createConcept(CVXConstants.TERMINOLOGY_NAME, true,
 					MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created CVX root concept " + cvxRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
@@ -175,7 +176,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 
 					// Create row concept
 					final UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
-					final ConceptChronology rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdateTime, status, null);
+					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdateTime, status, null);
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
 					importUtil_.addParent(rowComponentReference, cvxRootConcept.getPrimordialUuid());
 
@@ -234,9 +235,9 @@ public class CVXImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;

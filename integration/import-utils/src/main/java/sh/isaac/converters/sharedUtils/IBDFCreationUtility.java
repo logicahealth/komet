@@ -249,7 +249,7 @@ public class IBDFCreationUtility
          String outputArtifactId, String outputArtifactVersion, String outputArtifactClassifier, boolean outputGson, long defaultTime, 
          Collection<VersionType> versionTypesToSkip, Boolean preloadActiveOnly, File ... ibdfPreLoadFiles) throws Exception
    {
-      UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 5000000;
+      UuidIntMapMap.NID_TO_UUID_CACHE_ENABLED = true;
       File file = new File(outputDirectory, "isaac-db");
       //make sure this is empty
       FileUtils.deleteDirectory(file);
@@ -407,7 +407,7 @@ public class IBDFCreationUtility
     * @param createSynonymFromFSN true, to also create a preferred synonym
     * @return the created concept
     */
-   public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN)
+   public ConceptVersion createConcept(String fsn, boolean createSynonymFromFSN)
    {
       return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
    }
@@ -419,9 +419,9 @@ public class IBDFCreationUtility
     * @param parentConceptPrimordial create an isA relationship to this concept
     * @return the created concept
     */
-   public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
+   public ConceptVersion createConcept(String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
-      ConceptChronology concept = createConcept(fsn, createSynonymFromFSN);
+	   ConceptVersion concept = createConcept(fsn, createSynonymFromFSN);
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
    }
@@ -434,14 +434,14 @@ public class IBDFCreationUtility
     * @param parentConceptPrimordial create an isA relationship to this concept
     * @return the created concept
     */
-   public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
+   public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
-      ConceptChronology concept = createConcept(conceptPrimordial, fsn, createSynonymFromFSN);
+	   ConceptVersion concept = createConcept(conceptPrimordial, fsn, createSynonymFromFSN);
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
    }
    
-   public ConceptChronology createConcept(UUID conceptPrimordialUuid, UUID ...additionalUUIDs)
+   public ConceptVersion createConcept(UUID conceptPrimordialUuid, UUID ...additionalUUIDs)
    {
       return createConcept(conceptPrimordialUuid, (Long)null, Status.ACTIVE, null, additionalUUIDs);
    }
@@ -454,7 +454,7 @@ public class IBDFCreationUtility
     * @param createSynonymFromFSN true, to also create a preferred synonym
     * @return the created concept
     */
-   public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN)
+   public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN)
    {
       return createConcept(conceptPrimordial, fsn, createSynonymFromFSN, null, Status.ACTIVE);
    }
@@ -467,9 +467,9 @@ public class IBDFCreationUtility
     * @param time - set to now if null
     * @return the created concept
     */
-   public ConceptChronology createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, Long time, Status status)
+   public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, Long time, Status status)
    {
-      ConceptChronology cc = createConcept(conceptPrimordial, time, status, null);
+	   ConceptVersion cc = createConcept(conceptPrimordial, time, status, null);
       ComponentReference concept = ComponentReference.fromConcept(cc);
       addFullySpecifiedName(concept, fsn);
       if (createSynonymFromFSN)
@@ -490,7 +490,7 @@ public class IBDFCreationUtility
     * @param additionalUUIDs additional UUIDs for this concept 
     * @return the created concept
     */
-   public ConceptChronology createConcept(UUID conceptPrimordialUuid, Long time, Status status, UUID module, UUID ... additionalUUIDs) 
+   public ConceptVersion createConcept(UUID conceptPrimordialUuid, Long time, Status status, UUID module, UUID ... additionalUUIDs) 
    {
       //If any of the provided UUIDs already have a nid assigned, use that one as the primordial.
       //If more than one of the provided UUIDs have a nid assigned, and they don't match, we are SOL.... but it will error out in the create later.
@@ -525,7 +525,7 @@ public class IBDFCreationUtility
       this.writer.put(conceptChronology);
       dbWrite(conceptChronology);
       this.ls.addConcept();
-      return conceptChronology;
+      return conceptVersion;
    }
    
    /**
@@ -539,10 +539,10 @@ public class IBDFCreationUtility
     * @param secondParent - optional
     * @return the created concept
     */
-   public ConceptChronology createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
+   public ConceptVersion createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
          String definition, UUID parentConceptPrimordial, UUID secondParent)
    {
-      ConceptChronology concept = createConcept(primordial == null ? ConverterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
+	   ConceptVersion concept = createConcept(primordial == null ? ConverterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
             fsnName, StringUtils.isEmpty(preferredName) ? true : false);
       
       LogicalExpressionBuilder leb = this.expressionBuilderService.getLogicalExpressionBuilder();
@@ -1540,7 +1540,7 @@ public class IBDFCreationUtility
          
          if (!this.writeToDB || !Get.conceptService().hasConcept(Get.identifierService().getNidForUuids(pt.getPropertyTypeUUID())))
          {
-            groupingConcept = createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true);
+            groupingConcept = createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true).getChronology();
             if (pt instanceof BPT_HasAltMetaDataParent && ((BPT_HasAltMetaDataParent)pt).getAltMetaDataParentUUID() != null) {
                addParents(ComponentReference.fromChronology(groupingConcept), parentPrimordial, ((BPT_HasAltMetaDataParent)pt).getAltMetaDataParentUUID());
             } else {
@@ -1574,7 +1574,7 @@ public class IBDFCreationUtility
             {
                //don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
                UUID secondParentToUse = p.getSecondParent();
-               ConceptChronology concept = createConcept(p.getUUID(), p.getSourcePropertyNameFQN() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, 
+               ConceptVersion concept = createConcept(p.getUUID(), p.getSourcePropertyNameFQN() + IBDFCreationUtility.METADATA_SEMANTIC_TAG, 
                      p.getSourcePropertyNameFQN(), 
                      p.getSourcePropertyAltName(), (p instanceof PropertyAssociation ? null : p.getSourcePropertyDefinition()), 
                      pt.getPropertyTypeUUID(),

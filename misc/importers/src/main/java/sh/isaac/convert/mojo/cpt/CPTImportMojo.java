@@ -56,6 +56,7 @@ import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
 import sh.isaac.convert.mojo.cpt.propertyTypes.PT_Annotations;
 import sh.isaac.converters.sharedUtils.ComponentReference;
@@ -159,7 +160,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 			importUtil_.loadMetaDataItems(Arrays.asList(attributes, refsets_, descriptions), cptMetadata.getPrimordialUuid());
 
 			// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology cptRootConcept = importUtil_.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion cptRootConcept = importUtil_.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata load stats");
 			for (String line : importUtil_.getLoadStats().getSummary())
@@ -248,9 +249,9 @@ public class CPTImportMojo extends ConverterBaseMojo
 		importUtil_.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}

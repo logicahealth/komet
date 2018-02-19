@@ -88,11 +88,10 @@ public class UuidIntMapMap
     private static final int NUMBER_OF_MAPS = 256;
 
     /**
-     * The nid to uuid cache size.
-     * Loader utility code sets this to a much larger value, for certain loader patterns as there is no alternate cache 
-     * to get from nid back to UUID  - this prevents it from doing table scans.
+     * The nid to uuid cache enabler
+     * Loader utility enables this when doing IBDF file creation to to get from nid back to UUID  - this prevents it from doing table scans.
      */
-    public static int NID_TO_UUID_CACHE_SIZE = 0;  // not typically needed at runtime with a complete DB.
+    public static boolean NID_TO_UUID_CACHE_ENABLED = false;  // not typically needed at runtime with a complete DB.
 
     /**
      * The Constant DEFAULT_MAP_SIZE.
@@ -160,9 +159,8 @@ public class UuidIntMapMap
             WriteToDiskCache.addToCache(this.maps[i]);
         }
 
-        if (NID_TO_UUID_CACHE_SIZE > 0) {
+        if (NID_TO_UUID_CACHE_ENABLED) {
             this.nidToPrimoridialCache = Caffeine.newBuilder()
-                   .maximumSize(NID_TO_UUID_CACHE_SIZE)
                    .build();
         }
         

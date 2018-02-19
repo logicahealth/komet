@@ -53,6 +53,7 @@ import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.convert.mojo.nucc.data.EnumValidatedTableData;
 import sh.isaac.convert.mojo.nucc.data.EnumValidatedTableDataReader;
@@ -94,9 +95,9 @@ public class NUCCImportMojo extends ConverterBaseMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
-		final Map<String, ConceptChronology> groupingValueConceptByValueMap = new HashMap<>();
-		final Map<String, ConceptChronology> classificationValueConceptByValueMap = new HashMap<>();
-		final Map<String, ConceptChronology> specializationValueConceptByValueMap = new HashMap<>();
+		final Map<String, ConceptVersion> groupingValueConceptByValueMap = new HashMap<>();
+		final Map<String, ConceptVersion> classificationValueConceptByValueMap = new HashMap<>();
+		final Map<String, ConceptVersion> specializationValueConceptByValueMap = new HashMap<>();
 
 		try
 		{
@@ -151,7 +152,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_), nuccMetadata.getPrimordialUuid());
 
 			// Create NUCC root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptChronology nuccRootConcept = importUtil_.createConcept("NUCC", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion nuccRootConcept = importUtil_.createConcept("NUCC", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created NUCC root concept " + nuccRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
 			ConsoleUtil.println("Metadata load stats");
@@ -178,7 +179,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				// Create the Grouping value concept as a child of both NUCC root and the Grouping property metadata concept
 				// and store in map for later retrieval
 				final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(groupingPropertyUuid.toString() + "|" + value, true);
-				final ConceptChronology valueConcept = importUtil_.createConcept(valueConceptUuid, value, null, null, null, groupingPropertyUuid,
+				final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, null, null, null, groupingPropertyUuid,
 						nuccRootConcept.getPrimordialUuid());
 				// ConsoleUtil.println("Created NUCC Grouping value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\" under
 				// parents Grouping property " + groupingPropertyUuid + " and NUCC root concept " + nuccRootConcept);
@@ -194,7 +195,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				if (StringUtils.isNotBlank(value))
 				{
 					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(classificationPropertyUuid.toString() + "|" + value, true);
-					final ConceptChronology valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, classificationPropertyUuid);
+					final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, classificationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Classification value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Classification property concept " + classificationPropertyUuid);
 					// Store Classification value concept in map by value
@@ -209,7 +210,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				if (StringUtils.isNotBlank(value))
 				{
 					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(specializationPropertyUuid.toString() + "|" + value, true);
-					final ConceptChronology valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, specializationPropertyUuid);
+					final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, specializationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Specialization value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Specialization property concept " + classificationPropertyUuid);
 					// Store Specialization value concept in map by value
@@ -223,13 +224,13 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			// Populate hierarchy, one row at a time, creating concepts as children of their respective Grouping concepts
 			for (Map<NUCCColumnsV1, String> row : terminology.rows())
 			{
-				final ConceptChronology groupingValueConcept = row.get(NUCCColumnsV1.Grouping) != null
+				final ConceptVersion groupingValueConcept = row.get(NUCCColumnsV1.Grouping) != null
 						? groupingValueConceptByValueMap.get(row.get(NUCCColumnsV1.Grouping))
 						: null;
-				final ConceptChronology classificationValueConcept = row.get(NUCCColumnsV1.Classification) != null
+				final ConceptVersion classificationValueConcept = row.get(NUCCColumnsV1.Classification) != null
 						? classificationValueConceptByValueMap.get(row.get(NUCCColumnsV1.Classification))
 						: null;
-				final ConceptChronology specializationValueConcept = row.get(NUCCColumnsV1.Specialization) != null
+				final ConceptVersion specializationValueConcept = row.get(NUCCColumnsV1.Specialization) != null
 						? specializationValueConceptByValueMap.get(row.get(NUCCColumnsV1.Specialization))
 						: null;
 
@@ -243,7 +244,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 					// Create row concept
 					UUID rowConceptUuid = ConverterUUID
 							.createNamespaceUUIDFromString(groupingValueConcept.getPrimordialUuid().toString() + "|" + row.get(NUCCColumnsV1.Code), true);
-					final ConceptChronology rowConcept = importUtil_.createConcept(rowConceptUuid, row.get(NUCCColumnsV1.Code), true,
+					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, row.get(NUCCColumnsV1.Code), true,
 							groupingValueConcept.getPrimordialUuid());
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
 
@@ -322,9 +323,9 @@ public class NUCCImportMojo extends ConverterBaseMojo
 		}
 	}
 
-	private ConceptChronology createType(UUID parentUuid, String typeName) throws Exception
+	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptChronology concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil_.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
