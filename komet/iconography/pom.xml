@@ -63,6 +63,6 @@
       <dependency>
          <groupId>de.jensd</groupId>
          <artifactId>fontawesomefx-weathericons</artifactId>
-      </dependency>
+      </dependency>      
    </dependencies>
 </project>

@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.komet.statement;
 
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.statement.ClinicalStatement;
 
 /**
- * The Result measures the actual state of the 
- * clinical statement topic during the timing specified
- * by the performance circumstance. 
+ *
  * @author kec
  */
-public interface ObservationResult extends Result {
-    /**
-     * 
-     * @return an indicator as to the possibility of an immediate 
-     * health risk to the individual that may require immediate action. 
-     */
-    Optional<LogicalExpression> getHealthRisk();
-
+public class StatementPropertySheet {
+    private final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
+    private final PropertySheet propertySheet = new PropertySheet(this.items);
+    {
+        this.propertySheet.setMode(PropertySheet.Mode.NAME);
+        this.propertySheet.setSearchBoxVisible(true);
+    }
+    
+    public void setClinicalStatement(ClinicalStatement clinicalStatement) {
+        items.clear();
+        
+    }
 }

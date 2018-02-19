@@ -644,7 +644,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                    createConcept(ObservableFields.MEASURE_RESOLUTION);
                    createConcept(ObservableFields.MEASURE_SEMANTIC);
                    createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);
-                   createConcept(ObservableFields.OBSERVATION_RESULT_NORMAL_RANGE);
+                   createConcept(ObservableFields.MEASURE_NORMAL_RANGE);
                    popParent();
                
                createConcept("Participant properties");

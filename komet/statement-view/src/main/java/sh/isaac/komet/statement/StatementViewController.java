@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.statement;
+package sh.isaac.komet.statement;
 
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
 
-/**
- * The Result measures the actual state of the 
- * clinical statement topic during the timing specified
- * by the performance circumstance. 
- * @author kec
- */
-public interface ObservationResult extends Result {
-    /**
-     * 
-     * @return an indicator as to the possibility of an immediate 
-     * health risk to the individual that may require immediate action. 
-     */
-    Optional<LogicalExpression> getHealthRisk();
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.FXML;
+import javafx.scene.layout.AnchorPane;
 
+public class StatementViewController {
+
+    @FXML // ResourceBundle that was given to the FXMLLoader
+    private ResourceBundle resources;
+
+    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    private URL location;
+
+    @FXML // fx:id="rootPane"
+    private AnchorPane rootPane; // Value injected by FXMLLoader
+
+    @FXML // This method is called by the FXMLLoader when initialization is complete
+    void initialize() {
+        assert rootPane != null : "fx:id=\"rootPane\" was not injected: check your FXML file 'StatementView.fxml'.";
+    }
 }

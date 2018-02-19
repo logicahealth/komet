@@ -162,6 +162,12 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.komet</groupId>
+         <artifactId>statement-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
          <artifactId>taxonomy-view</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>

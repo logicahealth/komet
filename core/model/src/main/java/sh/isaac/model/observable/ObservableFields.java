@@ -261,7 +261,7 @@ public enum ObservableFields
    MEASURE_RESOLUTION("Resolution"),
    MEASURE_SEMANTIC("Measurement semantic"),
    OBSERVATION_RESULT_HEALTH_RISK("Health risk"),
-   OBSERVATION_RESULT_NORMAL_RANGE("Normal range"),
+   MEASURE_NORMAL_RANGE("Normal range"),
    
    PARTICIPANT_ID("Participant id"),   
    PARTICIPANT_ROLE("Participant role"),

@@ -31,9 +31,6 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservationResultImpl extends ResultImpl implements ObservationResult {
     private final SimpleObjectProperty<LogicalExpression> healthRisk = 
             new SimpleObjectProperty<>(this, ObservableFields.OBSERVATION_RESULT_HEALTH_RISK.toExternalString());
-    private final SimpleObjectProperty<Interval> normalRange = 
-            new SimpleObjectProperty<>(this, ObservableFields.OBSERVATION_RESULT_NORMAL_RANGE.toExternalString());
-
     @Override
     public Optional<LogicalExpression> getHealthRisk() {
         return Optional.ofNullable(healthRisk.get());
@@ -47,16 +44,4 @@ public class ObservationResultImpl extends ResultImpl implements ObservationResu
         this.healthRisk.set(healthRisk);
     }
 
-    @Override
-    public Optional<Interval> getNormalRange() {
-        return Optional.ofNullable(normalRange.get());
-    }
-
-    public SimpleObjectProperty<Interval> normalRangeProperty() {
-        return normalRange;
-    }
-
-    public void setNormalRange(Interval normalRange) {
-        this.normalRange.set(normalRange);
-    }
 }

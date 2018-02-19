@@ -21,11 +21,7 @@ import tornadofx.control.DateTimePicker;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import sh.isaac.api.TaxonomySnapshotService;
-import sh.isaac.api.bootstrap.TermAux;
 
 /**
  *

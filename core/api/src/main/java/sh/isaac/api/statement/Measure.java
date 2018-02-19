@@ -26,14 +26,21 @@ import sh.isaac.api.logic.LogicalExpression;
 public interface Measure extends Interval {
 
     /**
+     * In most cases, the semantics of the measurement are the units of measure.
+     * @return the semantics for this measurement.
+     */
+    LogicalExpression getMeasureSemantic();
+
+    /**
      *
      * @return the resolution of this measurement.
      */
     Optional<Float> getResolution();
 
     /**
-     * In most cases, the semantics of the measurement are the units of measure.
-     * @return the semantics for this measurement.
+     * 
+     * @return the normal range for this measure. 
      */
-    LogicalExpression getMeasureSemantic();
+    Optional<Interval> getNormalRange();
+    
 }
