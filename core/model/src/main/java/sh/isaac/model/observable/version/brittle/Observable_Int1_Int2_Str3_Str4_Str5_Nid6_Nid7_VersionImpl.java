@@ -41,7 +41,11 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -327,5 +331,33 @@ public class Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
 
       getInt1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version().setStr5(value);
    }
+
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+
+      properties.add(int1Property());
+      properties.add(int2Property());
+      properties.add(nid6Property());
+      properties.add(nid7Property());
+      properties.add(str3Property());
+      properties.add(str4Property());
+      properties.add(str5Property());
+      return properties;
+   }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(int1Property());
+      properties.add(int2Property());
+      properties.add(nid6Property());
+      properties.add(nid7Property());
+      properties.add(str3Property());
+      properties.add(str4Property());
+      properties.add(str5Property());
+      return properties;
+    }
 }
 

@@ -391,17 +391,19 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification INSTANCE = new ConceptProxy("Instance mode", "Instance", UUID.fromString("fa0b8eeb-374c-5a31-a5b4-b6334abe31f5"));
     public static ConceptSpecification TEMPLATE = new ConceptProxy("Template mode", "Template", UUID.fromString("727dd2af-4cca-5cdb-b776-75dc7f4c1733"));
 
-    public static ConceptSpecification STATEMENT_TYPE = new ConceptProxy("Statement type", "Statement type", UUID.fromString("eefc0031-43b0-5eed-aec4-9fe9ed66c624"));
+    public static ConceptSpecification STATEMENT_TYPE = new ConceptProxy("Type of statement", "Statement type", UUID.fromString("eefc0031-43b0-5eed-aec4-9fe9ed66c624"));
     public static ConceptSpecification REQUEST_STATEMENT = new ConceptProxy("Request statement", "Request", UUID.fromString("2e2a53ac-a1bc-5eca-bef5-56fa31ee7ea7"));
     public static ConceptSpecification PERFORMANCE_STATEMENT = new ConceptProxy("Performance statement", "Statement", UUID.fromString("1c0d30a0-b7aa-5b2a-b295-4cd5c68ab4ec"));
 
+    public static ConceptSpecification SUBJECT_OF_INFORMATION = new ConceptProxy("Subject of information", "Subject of information", UUID.fromString("4aebb90a-e361-5d07-b5e2-2250b7d8b60d"));
+    public static ConceptSpecification SUBJECT_OF_RECORD = new ConceptProxy("Subject of record", "Subject of record", UUID.fromString("8fbaaefc-e7df-5cd3-8f91-788cbb4997c9"));
+    public static ConceptSpecification MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD = new ConceptProxy("Maternal ancestor of subject of record", "Maternal ancestor", UUID.fromString("bb34ccb6-857d-5cbd-8114-8c34a14b1e42"));
+    public static ConceptSpecification MOTHER_OF_SUBJECT_OF_RECORD = new ConceptProxy("Mother of subject of record", "Mother", UUID.fromString("270737bc-2454-5bb5-b9eb-c142f2cc6004"));
+    public static ConceptSpecification FATHER_OF_SUBJECT_OF_RECORD = new ConceptProxy("Father of subject of record", "Father", UUID.fromString("eada0aea-a14c-549d-89c8-9aa48aa6d184"));
+    public static ConceptSpecification PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD = new ConceptProxy("Paternal ancestor of subject of record", "Paternal ancestor", UUID.fromString("e6ec4948-9167-5c16-9698-ab2747e5cdf3"));
+
+
     /*
-    public static ConceptSpecification SPEC6 = new ConceptProxy("", "", UUID.fromString("4aebb90a-e361-5d07-b5e2-2250b7d8b60d"));
-    public static ConceptSpecification SPEC7 = new ConceptProxy("", "", UUID.fromString("8fbaaefc-e7df-5cd3-8f91-788cbb4997c9"));
-    public static ConceptSpecification SPEC8 = new ConceptProxy("", "", UUID.fromString("270737bc-2454-5bb5-b9eb-c142f2cc6004"));
-    public static ConceptSpecification SPEC9 = new ConceptProxy("", "", UUID.fromString("eada0aea-a14c-549d-89c8-9aa48aa6d184"));
-    public static ConceptSpecification SPEC10 = new ConceptProxy("", "", UUID.fromString("bb34ccb6-857d-5cbd-8114-8c34a14b1e42"));
-    public static ConceptSpecification SPEC11 = new ConceptProxy("", "", UUID.fromString("e6ec4948-9167-5c16-9698-ab2747e5cdf3"));
     public static ConceptSpecification SPEC12 = new ConceptProxy("", "", UUID.fromString("38baca53-e626-5196-91a5-76e05cb3e115"));
     public static ConceptSpecification SPEC13 = new ConceptProxy("", "", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
     public static ConceptSpecification SPEC14 = new ConceptProxy("", "", UUID.fromString("0b7d4e60-7ef5-57fa-ad0e-ee13433b7ee1"));

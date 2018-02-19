@@ -38,7 +38,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.ConceptLabel;
+import sh.komet.gui.control.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
@@ -56,7 +56,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    private final Manifold manifold;
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("listing of assemblage members");
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty assemblage view");
-   private ConceptLabel titleLabel = null;
+   private ManifoldLinkedConceptLabel titleLabel = null;
    private final ConceptLabelToolbar conceptLabelToolbar;
 
    public AssemblageViewProvider(Manifold manifold) {
@@ -117,7 +117,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    @Override
    public Optional<Node> getTitleNode() {
       if (titleLabel == null) {
-         this.titleLabel = new ConceptLabel(manifold, ConceptLabel::setPreferredText, this);
+         this.titleLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setPreferredText, this);
          this.titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
          this.titleProperty.set("");
       }

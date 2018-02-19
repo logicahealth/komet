@@ -41,7 +41,11 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
@@ -146,5 +150,22 @@ public class Observable_Nid1_Int2_VersionImpl
    private Nid1_Int2_VersionImpl getNid1_Int2_Version() {
       return (Nid1_Int2_VersionImpl) this.stampedVersionProperty.get();
    }
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+
+      properties.add(nid1Property());
+      properties.add(int2Property());
+      return properties;
+   }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(nid1Property());
+      properties.add(int2Property());
+      return properties;
+    }
 }
 

@@ -41,18 +41,28 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TreeTableRow;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -84,6 +94,10 @@ import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.PropertyToPropertySheetItem;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -98,12 +112,24 @@ public class TreeTableGeneralCell
     //~--- fields --------------------------------------------------------------
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final Manifold manifold;
-
+    private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
+    private final GridPane textAndEditGrid = new GridPane();
+    private final BorderPane editPanel = new BorderPane();
+    private SemanticVersion semanticVersion;
+    private final FixedSizePane paneForText = new FixedSizePane();
     //~--- constructors --------------------------------------------------------
     public TreeTableGeneralCell(Manifold manifold) {
         this.manifold = manifold;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
+        editButton.getStyleClass()
+              .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
+        editButton.setOnAction(this::toggleEdit);
+        textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
+        // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
+        GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
+        GridPane.setConstraints(editButton,    2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+        GridPane.setConstraints(editPanel,     0, 2, 3, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.ALWAYS);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -115,15 +141,13 @@ public class TreeTableGeneralCell
         textFlow.setLayoutX(1);
         textFlow.setLayoutY(1);
 
-        FixedSizePane fixedSizePane = new FixedSizePane(textFlow);
-
         this.widthProperty()
                 .addListener(
                         new WeakChangeListener<>(
                                 (ObservableValue<? extends Number> observable,
                                         Number oldValue,
                                         Number newValue) -> {
-                                    double newTextFlowWidth = newValue.doubleValue() - 8;
+                                    double newTextFlowWidth = newValue.doubleValue() - 32;
                                     double newTextFlowHeight = textFlow.prefHeight(newTextFlowWidth);
 
                                     textFlow.setPrefWidth(newTextFlowWidth);
@@ -131,21 +155,43 @@ public class TreeTableGeneralCell
                                     textFlow.setPrefHeight(newTextFlowHeight);
                                     textFlow.setMaxHeight(newTextFlowHeight);
 
-                                    double newFixedSizeWidth = newTextFlowWidth + 4;
-                                    double newFixedSizeHeight = newTextFlowHeight + 4;
+                                    double newFixedSizeWidth = newTextFlowWidth + 28;
+                                    double newFixedSizeHeight = newTextFlowHeight + 28;
 
-                                    fixedSizePane.setWidth(newFixedSizeWidth);
-                                    fixedSizePane.setHeight(newFixedSizeHeight);
+                                    paneForText.setWidth(newFixedSizeWidth);
+                                    paneForText.setHeight(newFixedSizeHeight);
                                 }));
+        paneForText.getChildren().clear();
+        paneForText.getChildren().add(textFlow);
         this.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        this.setGraphic(fixedSizePane);
+        this.setGraphic(textAndEditGrid);
+   }
+    
+    private void toggleEdit(ActionEvent event) {
+        
+        if (editPanel.getChildren().isEmpty()) {
+            if (this.semanticVersion != null) {
+                if (this.semanticVersion instanceof ObservableVersion) {
+                    ObservableVersion observableVersion = (ObservableVersion) this.semanticVersion;
+                    List<Property<?>> propertiesToEdit = observableVersion.getEditableProperties();
+                    PropertySheet propertySheet = new PropertySheet();
+                    propertySheet.setMode(PropertySheet.Mode.NAME);
+                    propertySheet.setSearchBoxVisible(false);
+                    propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+                    editPanel.setCenter(propertySheet);
+                }
+            }
+        } else {
+            editPanel.getChildren().clear();
+        }
     }
 
     @Override
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
         setWrapText(true);
 
-        SemanticVersion semanticVersion = version.unwrap();
+        this.semanticVersion = version.unwrap();
         VersionType semanticType = semanticVersion.getChronology()
                 .getVersionType();
 

@@ -48,6 +48,7 @@ import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.ConceptProxy;
@@ -131,6 +132,8 @@ public interface ObservableVersion
     */
    List<ReadOnlyProperty<?>> getProperties();
    
+   List<Property<?>> getEditableProperties();
+
    default Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
       Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = new HashMap<>();
       getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));

@@ -41,6 +41,9 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.Property;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -83,6 +86,11 @@ public class ObservableConceptVersionImpl
    protected void updateVersion() {
       // nothing to update. 
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties2() {
+        return new ArrayList<>();
+    }
 
 
    //~--- get methods ---------------------------------------------------------

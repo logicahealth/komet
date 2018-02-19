@@ -41,11 +41,13 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
@@ -346,6 +348,16 @@ public class ObservableDescriptionVersionImpl
       properties.add(caseSignificanceConceptNidProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(textProperty());
+      properties.add(languageConceptNidProperty());
+      properties.add(descriptionTypeConceptNidProperty());
+      properties.add(caseSignificanceConceptNidProperty());
+      return properties;
+    }
 
    /**
     * Gets the text.

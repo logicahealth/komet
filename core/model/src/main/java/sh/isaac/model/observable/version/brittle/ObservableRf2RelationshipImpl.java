@@ -41,11 +41,13 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
@@ -267,6 +269,17 @@ public class ObservableRf2RelationshipImpl
       properties.add(modifierNidProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(typeNidProperty());
+      properties.add(destinationNidProperty());
+      properties.add(relationshipGroupProperty());
+      properties.add(characteristicNidProperty());
+      properties.add(modifierNidProperty());
+      return properties;
+    }
 
    @Override
    public int getRelationshipGroup() {

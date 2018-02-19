@@ -41,11 +41,17 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableLoincVersion;
+import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
@@ -79,62 +85,92 @@ public class ObservableLoincVersionImpl
 
    @Override
    public StringProperty componentProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (componentProperty == null) {
+          componentProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_COMPONENT.toExternalString(), getComponent());
+      }
+      return componentProperty;
    }
 
    @Override
    public StringProperty loincNumProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (loincNumProperty == null) {
+          loincNumProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_NUMBER.toExternalString(), getComponent());
+      }
+      return loincNumProperty;
    }
 
    @Override
    public StringProperty loincStatusProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), getComponent());
+      }
+      return propertyProperty;
    }
 
    @Override
    public StringProperty longCommonNameProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (longCommonNameProperty == null) {
+          longCommonNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_LONG_COMMON_NAME.toExternalString(), getComponent());
+      }
+      return longCommonNameProperty;
    }
 
    @Override
    public StringProperty methodTypeProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (methodTypeProperty == null) {
+          methodTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_METHOD_TYPE.toExternalString(), getComponent());
+      }
+      return methodTypeProperty;
    }
 
    @Override
    public StringProperty propertyProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), getComponent());
+      }
+      return propertyProperty;
    }
 
    @Override
    public StringProperty scaleTypeProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (scaleTypeProperty == null) {
+          scaleTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SCALE_TYPE.toExternalString(), getComponent());
+      }
+      return scaleTypeProperty;
    }
 
    @Override
    public StringProperty shortNameProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (shortNameProperty == null) {
+          shortNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SHORT_NAME.toExternalString(), getComponent());
+      }
+      return shortNameProperty;
    }
 
    @Override
    public StringProperty systemProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+     if (systemProperty == null) {
+          systemProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SYSTEM.toExternalString(), getComponent());
+      }
+      return systemProperty;
+    }
 
    @Override
    public StringProperty timeAspectProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+     if (timeAspectProperty == null) {
+          timeAspectProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_TIME_ASPECT.toExternalString(), getComponent());
+      }
+      return timeAspectProperty;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -360,5 +396,38 @@ public class ObservableLoincVersionImpl
 
       getLoincVersion().setTimeAspect(value);
    }
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+
+      properties.add(componentProperty());
+      properties.add(loincNumProperty());
+      properties.add(loincStatusProperty());
+      properties.add(longCommonNameProperty());
+      properties.add(methodTypeProperty());
+      properties.add(propertyProperty());
+      properties.add(scaleTypeProperty());
+      properties.add(shortNameProperty());
+      properties.add(systemProperty());
+      properties.add(timeAspectProperty());
+      return properties;
+   }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(componentProperty());
+      properties.add(loincNumProperty());
+      properties.add(loincStatusProperty());
+      properties.add(longCommonNameProperty());
+      properties.add(methodTypeProperty());
+      properties.add(propertyProperty());
+      properties.add(scaleTypeProperty());
+      properties.add(shortNameProperty());
+      properties.add(systemProperty());
+      properties.add(timeAspectProperty());
+      return properties;
+    }
 }
 

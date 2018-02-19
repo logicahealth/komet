@@ -103,6 +103,9 @@ public enum VersionType {
    
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
+   
+   MEASURE_CONSTRAINTS((byte) (Byte.MAX_VALUE - 13), "Measure constraints", "Measure constraints"),
+   
    Str1_Nid2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 12), "String Component Component Component", "Str1_C2_C3_C4"),
    
    Str1_Str2_Nid3_Nid4_Nid5((byte) (Byte.MAX_VALUE - 11), "String String Component Component Component", "Str1_Str2_C3_C4_C5"),

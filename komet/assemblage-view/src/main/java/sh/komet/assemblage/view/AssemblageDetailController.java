@@ -27,6 +27,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import org.controlsfx.control.table.TableRowExpanderColumn;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -58,6 +59,8 @@ public class AssemblageDetailController {
    private URL location;
    @FXML  // fx:id="assemblageExtensionTreeTable"
    private TreeTableView<ObservableCategorizedVersion> assemblageExtensionTreeTable;
+   @FXML
+   private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> rowExpanderColumn;
    @FXML  // fx:id="assemblageWhatColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> assemblageWhatColumn;
    @FXML  // fx:id="assemblageGeneralColumn"
@@ -104,6 +107,8 @@ public class AssemblageDetailController {
               "fx:id=\"assemblageExtensionModule\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       assert assemblagePathColumn != null :
               "fx:id=\"assemblageExtensionPath\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
+      assert rowExpanderColumn != null : "fx:id=\"rowExpanderColumn\" was not injected: check your FXML file 'AssemblageDetail.fxml'.";
+
       assemblageAuthorTimeColumn.setText("author\ntime");
       assemblageModulePathColumn.setText("module\npath");
       assemblageExtensionTreeTable.setTableMenuButtonVisible(true);

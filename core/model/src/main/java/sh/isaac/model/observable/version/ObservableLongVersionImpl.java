@@ -41,11 +41,13 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.chronicle.Version;
@@ -172,5 +174,12 @@ public class ObservableLongVersionImpl
       properties.add(longValueProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(longValueProperty());
+      return properties;
+    }
 }
 

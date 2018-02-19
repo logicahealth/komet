@@ -16,35 +16,44 @@
  */
 package sh.isaac.model.statement;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.Measure;
 
 import java.util.Optional;
+import javafx.beans.property.SimpleFloatProperty;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.statement.Interval;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
  * @author kec
  */
-public class MeasureImpl extends IntervalImpl implements Measure {
+public class MeasureImpl implements Measure {
 
-    private final SimpleObjectProperty<Float> resolution = 
-            new SimpleObjectProperty(this, ObservableFields.MEASURE_RESOLUTION.toExternalString());
+    private final SimpleFloatProperty resolution = 
+            new SimpleFloatProperty(this, ObservableFields.MEASURE_RESOLUTION.toExternalString());
     private final SimpleObjectProperty<ConceptChronology> measureSemantic = 
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_SEMANTIC.toExternalString());
-    private final SimpleObjectProperty<Interval> normalRange = 
-            new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
+    private final SimpleFloatProperty lowerBound =
+            new SimpleFloatProperty(this, ObservableFields.INTERVAL_LOWER_BOUND.toExternalString());
+    private final SimpleBooleanProperty includeLowerBound =
+            new SimpleBooleanProperty(this, ObservableFields.INTERVAL_INCLUDE_UPPER_BOUND.toExternalString());
+    private final SimpleFloatProperty upperBound =
+            new SimpleFloatProperty(this, ObservableFields.INTERVAL_UPPER_BOUND.toExternalString());
+    private final SimpleBooleanProperty includeUpperBound =
+            new SimpleBooleanProperty(this, ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND.toExternalString());
 
 
-    @Override
+    /**
+         *
+         * @return the resolution of this measurement.
+         */
     public Optional<Float> getResolution() {
         return Optional.ofNullable(resolution.get());
     }
 
-    public SimpleObjectProperty<Float> resolutionProperty() {
+    public SimpleFloatProperty resolutionProperty() {
         return resolution;
     }
 
@@ -52,7 +61,10 @@ public class MeasureImpl extends IntervalImpl implements Measure {
         this.resolution.set(resolution);
     }
 
-    @Override
+    /**
+         * In most cases, the semantics of the measurement are the units of measure.
+         * @return the semantics for this measurement.
+         */
     public ConceptChronology getMeasureSemantic() {
         return measureSemantic.get();
     }
@@ -65,16 +77,67 @@ public class MeasureImpl extends IntervalImpl implements Measure {
         this.measureSemantic.set(measureSemantic);
     }
 
-    @Override
-    public Optional<Interval> getNormalRange() {
-        return Optional.ofNullable(normalRange.get());
+    /**
+         *
+         * @return the lower bound for this measurement
+         */
+    public float getLowerBound() {
+        return lowerBound.get();
     }
 
-    public SimpleObjectProperty<Interval> normalRangeProperty() {
-        return normalRange;
+    public SimpleFloatProperty lowerBoundProperty() {
+        return lowerBound;
     }
 
-    public void setNormalRange(Interval normalRange) {
-        this.normalRange.set(normalRange);
+    public void setLowerBound(float lowerBound) {
+        this.lowerBound.set(lowerBound);
+    }
+
+    /**
+         *
+         * @return true if the lower bound is part of the interval.
+         */
+    public boolean includeLowerBound() {
+        return includeLowerBound.get();
+    }
+
+    public SimpleBooleanProperty includeLowerBoundProperty() {
+        return includeLowerBound;
+    }
+
+    public void setIncludeLowerBound(boolean includeLowerBound) {
+        this.includeLowerBound.set(includeLowerBound);
+    }
+
+    /**
+         *
+         * @return the upper bound for this measurement
+         */
+    public float getUpperBound() {
+        return upperBound.get();
+    }
+
+    public SimpleFloatProperty upperBoundProperty() {
+        return upperBound;
+    }
+
+    public void setUpperBound(float upperBound) {
+        this.upperBound.set(upperBound);
+    }
+
+    /**
+         *
+         * @return true if the upper bound is part of the interval.
+         */
+    public boolean includeUpperBound() {
+        return includeUpperBound.get();
+    }
+
+    public SimpleBooleanProperty includeUpperBoundProperty() {
+        return includeUpperBound;
+    }
+
+    public void setIncludeUpperBound(boolean includeUpperBound) {
+        this.includeUpperBound.set(includeUpperBound);
     }
 }

@@ -571,6 +571,20 @@ public abstract class ObservableVersionImpl
                          commitStateProperty(), stampSequenceProperty(),}));
    }
 
+    protected abstract List<Property<?>> getEditableProperties2();
+    
+    @Override
+    public final List<Property<?>> getEditableProperties() {
+        ArrayList<Property<?>> propertyList = new ArrayList();
+        propertyList.add(stateProperty());
+        propertyList.addAll(getEditableProperties2());
+        propertyList.addAll(Arrays.asList(new Property<?>[]{
+                    moduleNidProperty(), pathNidProperty()
+                }));
+      return propertyList;
+    }
+
+   
    /**
     * Gets the stamp sequence.
     *

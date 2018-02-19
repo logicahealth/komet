@@ -46,7 +46,7 @@ public interface Repetition {
      * 
      * @return number of times the event may occur in a period. 
      */
-    Interval getEventFrequency();
+    Measure getEventFrequency();
     
     /**
      * 

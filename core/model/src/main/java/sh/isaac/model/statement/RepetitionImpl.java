@@ -18,7 +18,6 @@ package sh.isaac.model.statement;
 
 import java.util.Optional;
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.statement.Interval;
 import sh.isaac.api.statement.Measure;
 import sh.isaac.api.statement.Repetition;
 import sh.isaac.model.observable.ObservableFields;
@@ -32,7 +31,7 @@ public class RepetitionImpl implements Repetition {
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_START.toExternalString());
     private final SimpleObjectProperty<Measure> periodDuration = 
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_DURATION.toExternalString());
-    private final SimpleObjectProperty<Interval> eventFrequency = 
+    private final SimpleObjectProperty<Measure> eventFrequency =
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_FREQUENCY.toExternalString());
     private final SimpleObjectProperty<Measure> eventSeparation = 
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_SEPARATION.toExternalString());
@@ -66,15 +65,15 @@ public class RepetitionImpl implements Repetition {
     }
 
     @Override
-    public Interval getEventFrequency() {
+    public Measure getEventFrequency() {
         return eventFrequency.get();
     }
 
-    public SimpleObjectProperty<Interval> eventFrequencyProperty() {
+    public SimpleObjectProperty<Measure> eventFrequencyProperty() {
         return eventFrequency;
     }
 
-    public void setEventFrequency(Interval eventFrequency) {
+    public void setEventFrequency(Measure eventFrequency) {
         this.eventFrequency.set(eventFrequency);
     }
 

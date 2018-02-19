@@ -41,7 +41,9 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -135,6 +137,13 @@ public class ObservableStringVersionImpl
       properties.add(stringProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(stringProperty());
+      return properties;
+    }
 
    /**
     * Gets the string.

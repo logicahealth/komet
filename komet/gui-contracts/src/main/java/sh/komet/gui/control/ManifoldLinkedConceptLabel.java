@@ -1,9 +1,8 @@
-/*
- * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
-         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
- *
+/* 
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ *
+ * You may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -11,20 +10,50 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Contributions from 2013-2017 where performed either by US government 
+ * employees, or under US Veterans Health Administration contracts. 
+ *
+ * US Veterans Health Administration contributions by government employees
+ * are work of the U.S. Government and are not subject to copyright
+ * protection in the United States. Portions contributed by government 
+ * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * 
+ * Contribution by contractors to the US Veterans Health Administration
+ * during this period are contractually contributed under the
+ * Apache License, Version 2.0.
+ *
+ * See: https://www.usa.gov/government-works
+ * 
+ * Contributions prior to 2013:
+ *
+ * Copyright (C) International Health Terminology Standards Development Organisation.
+ * Licensed under the Apache License, Version 2.0.
+ *
  */
 package sh.komet.gui.control;
 
+//~--- JDK imports ------------------------------------------------------------
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javafx.beans.property.SimpleObjectProperty;
+
+//~--- non-JDK imports --------------------------------------------------------
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+
+
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.DataFormat;
@@ -36,37 +65,40 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+
 import javafx.stage.WindowEvent;
 import org.controlsfx.property.editor.PropertyEditor;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
+import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
+//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  */
-public class ConceptLabel 
+public class ManifoldLinkedConceptLabel
         extends Label implements PropertyEditor<Object>{
    private static final String EMPTY_TEXT = "empty";
    TransferMode[] transferMode = null;
    Manifold manifold;
-   Consumer<ConceptLabel> descriptionTextUpdater;
+   Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater;
    Background originalBackground;
    final Supplier<List<MenuItem>> menuSupplier;
-   final SimpleObjectProperty<ConceptSpecification> conceptInLabel = new SimpleObjectProperty<>();
-;
 
    //~--- constructors --------------------------------------------------------
-   public ConceptLabel(Manifold manifold,
-           Consumer<ConceptLabel> descriptionTextUpdater, 
+   public ManifoldLinkedConceptLabel(Manifold manifold,
+           Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater, 
            Supplier<List<MenuItem>> menuSupplier) {
       super(EMPTY_TEXT);
       if (menuSupplier == null) {
@@ -75,6 +107,12 @@ public class ConceptLabel
       this.manifold = manifold;
       this.descriptionTextUpdater = descriptionTextUpdater;
       this.menuSupplier = menuSupplier;
+      this.manifold.focusedConceptProperty().addListener(
+              (ObservableValue<? extends ConceptSpecification> observable,
+                      ConceptSpecification oldValue,
+                      ConceptSpecification newValue) -> {
+                 this.descriptionTextUpdater.accept(this);
+              });
       this.getStyleClass().add(CONCEPT_LABEL.toString());
       this.setOnDragOver(this::handleDragOver);
       this.setOnDragEntered(this::handleDragEntered);
@@ -85,6 +123,12 @@ public class ConceptLabel
       this.setMinWidth(100);
 
       ContextMenu contextMenu = new ContextMenu();
+
+      for (String manifoldGroupName : Manifold.getGroupNames()) {
+         MenuItem item = new MenuItem(manifoldGroupName + " history");
+         contextMenu.getItems()
+                 .add(item);
+      }
 
       this.setContextMenu(contextMenu);
       contextMenu.setOnShowing(this::handle);
@@ -104,6 +148,43 @@ public class ConceptLabel
               contextMenu.getItems().add(new SeparatorMenuItem());
           }
       }
+      
+      
+      Menu manifoldHistoryMenu = new Menu("history");
+      contextMenu.getItems().add(manifoldHistoryMenu);
+      Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
+      
+      setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
+      
+      
+      for (String manifoldGroupName : Manifold.getGroupNames()) {
+         Menu groupHistory = new Menu(manifoldGroupName + " history");
+         contextMenu.getItems().add(groupHistory);
+         setupHistoryMenuItem(Manifold.getGroupHistory(manifoldGroupName), groupHistory);
+      }
+   }
+
+   private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
+      for (HistoryRecord historyRecord: historyCollection) {
+         MenuItem historyItem = new MenuItem(historyRecord.getComponentString());
+         historyItem.setUserData(historyRecord);
+         historyItem.setOnAction((ActionEvent actionEvent) -> {
+            unlink();
+            MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
+            HistoryRecord itemHistoryRecord = (HistoryRecord) historyItem.getUserData();
+            this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getComponentId()));
+         });
+         manifoldHistoryMenu.getItems().add(historyItem);
+      }
+   }
+
+   private void unlink() {
+      if (!this.manifold
+              .getGroupName()
+              .equals(Manifold.UNLINKED_GROUP_NAME)) {
+         this.manifold
+                 .setGroupName(Manifold.UNLINKED_GROUP_NAME);
+      }
    }
 
    private void handleDragDetected(MouseEvent event) {
@@ -115,7 +196,7 @@ public class ConceptLabel
       db.setDragView(dragImageMaker.getDragImage());
 
       /* put a string on dragboard */
-      IsaacClipboard content = new IsaacClipboard(Get.concept(this.conceptInLabel.get()));
+      IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept()));
       db.setContent(content);
       event.consume();
    }
@@ -127,11 +208,14 @@ public class ConceptLabel
    }
    
    public void setConceptChronology(ConceptChronology conceptChronology) {
-       this.conceptInLabel.set(conceptChronology);
+       this.manifold
+                 .setFocusedConceptChronology(conceptChronology);
    }
 
    private void handleDragDropped(DragEvent event) {
       System.out.println("Dragging dropped: " + event);
+
+      unlink();
 
       Dragboard db = event.getDragboard();
 
@@ -139,23 +223,27 @@ public class ConceptLabel
          ConceptChronology conceptChronology = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
 
-         this.conceptInLabel.set(conceptChronology);
+         this.manifold
+                 .setFocusedConceptChronology(conceptChronology);
       } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
          ConceptVersion conceptVersion = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
 
-         this.conceptInLabel.set(conceptVersion.getChronology());
+         this.manifold
+                 .setFocusedConceptChronology(conceptVersion.getChronology());
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
          SemanticChronology semanticChronology = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
 
-         this.conceptInLabel.set(Get.conceptService()
+         this.manifold
+                 .setFocusedConceptChronology(Get.conceptService()
                                  .getConceptChronology(semanticChronology.getReferencedComponentNid()));
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
          DescriptionVersion descriptionVersion = Get.serializer()
                  .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
 
-         this.conceptInLabel.set(
+         this.manifold
+                 .setFocusedConceptChronology(
                          Get.conceptService()
                                  .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
       }
@@ -216,8 +304,8 @@ public class ConceptLabel
       label.setText(EMPTY_TEXT);
    }
 
-   public static void setFullySpecifiedText(ConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
+   public static void setFullySpecifiedText(ManifoldLinkedConceptLabel label) {
+      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
       if (focusedConcept != null) {
          focusedConcept
                  .getFullySpecifiedDescription(label.manifold)
@@ -228,8 +316,8 @@ public class ConceptLabel
       }
    }
 
-   public static void setPreferredText(ConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
+   public static void setPreferredText(ManifoldLinkedConceptLabel label) {
+      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
       if (focusedConcept != null) {
          focusedConcept
                  .getPreferredDescription(label.manifold)
@@ -247,7 +335,7 @@ public class ConceptLabel
 
     @Override
     public Integer getValue() {
-        return conceptInLabel.get().getNid();
+        return this.manifold.getFocusedConcept().getNid();
     }
 
     @Override
@@ -255,12 +343,12 @@ public class ConceptLabel
         if (value instanceof Integer) {
             Integer intValue = (Integer) value;
             if (intValue < 0) {
-                conceptInLabel.set(Get.concept((Integer) value));
+                this.manifold.setFocusedConceptChronology(Get.concept((Integer) value));
             }
         } else if (value instanceof ConceptSpecification) {
             ConceptSpecification spec = (ConceptSpecification) value;
             if (spec.getNid() < 0) {
-               conceptInLabel.set(Get.concept((ConceptSpecification) value));
+               this.manifold.setFocusedConceptChronology(Get.concept((ConceptSpecification) value));
             }
             
         } else {

@@ -41,7 +41,9 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
@@ -131,6 +133,19 @@ public class ObservableSemanticVersionImpl
       return properties;
    }
 
+   @Override
+   protected List<Property<?>> getEditableProperties2() {
+         return getEditableProperties3();
+   }
+   
+   /**
+    * Wish we had a MUST_OVERRIDE annotation... 
+    * @return 
+    */
+   protected List<Property<?>> getEditableProperties3() {
+       return new ArrayList<>();
+   }
+  
    //~--- get methods ---------------------------------------------------------
 
    /**

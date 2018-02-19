@@ -237,7 +237,21 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept(TermAux.REQUEST_STATEMENT);
                 createConcept(TermAux.PERFORMANCE_STATEMENT);
                 popParent();
-            createConcept(TermAux.MODE);
+
+            createConcept(TermAux.SUBJECT_OF_INFORMATION);
+                pushParent(current());
+                createConcept(TermAux.SUBJECT_OF_RECORD);
+                createConcept(TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
+                    pushParent(current());
+                    createConcept(TermAux.MOTHER_OF_SUBJECT_OF_RECORD);
+                    popParent();
+                createConcept(TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
+                    pushParent(current());
+                    createConcept(TermAux.FATHER_OF_SUBJECT_OF_RECORD);
+                    popParent();
+                popParent();
+
+                createConcept(TermAux.MODE);
                 pushParent(current());
                 createConcept(TermAux.TEMPLATE);
                 createConcept(TermAux.INSTANCE);
@@ -596,6 +610,19 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                    createConcept(ObservableFields.INT5);
                    createConcept(ObservableFields.INT6);
                    createConcept(ObservableFields.INT7);
+                        pushParent(current());
+                        createConcept(ObservableFields.LOINC_NUMBER);
+                        createConcept(ObservableFields.LOINC_COMPONENT);
+                        createConcept(ObservableFields.LOINC_PROPERTY);
+                        createConcept(ObservableFields.LOINC_TIME_ASPECT);
+                        createConcept(ObservableFields.LOINC_SYSTEM);
+                        createConcept(ObservableFields.LOINC_SCALE_TYPE);
+                        createConcept(ObservableFields.LOINC_METHOD_TYPE);
+                        createConcept(ObservableFields.LOINC_STATUS);
+                        createConcept(ObservableFields.LOINC_SHORT_NAME);
+                        createConcept(ObservableFields.LOINC_LONG_COMMON_NAME);
+                        popParent();
+                   
                    popParent();
             createConcept("Clinical statement properties");
             pushParent(current());

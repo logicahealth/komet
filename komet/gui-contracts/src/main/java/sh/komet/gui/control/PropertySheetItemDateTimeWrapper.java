@@ -24,7 +24,7 @@ public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
         }else{
             instant = Instant.ofEpochMilli(timeProperty.get());
         }
-        this.dateObserver = new SimpleObjectProperty<LocalDateTime>(LocalDateTime.ofInstant(instant,
+        this.dateObserver = new SimpleObjectProperty<>(LocalDateTime.ofInstant(instant,
                 (OffsetDateTime.now(ZoneId.systemDefault())).getOffset()));
     }
 

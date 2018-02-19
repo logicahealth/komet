@@ -14,33 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.statement;
+package sh.isaac.api.statement.constraints;
 
-import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.statement.Measure;
-import sh.isaac.api.statement.Result;
-import sh.isaac.model.observable.ObservableFields;
-
-import java.util.Optional;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 /**
  *
  * @author kec
  */
-public class ResultImpl extends MeasureImpl implements Result {
-
-    private final SimpleObjectProperty<Measure> normalRange =
-            new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
-
-    public Optional<Measure> getNormalRange() {
-        return Optional.ofNullable(normalRange.get());
-    }
-
-    public SimpleObjectProperty<Measure> normalRangeProperty() {
-        return normalRange;
-    }
-
-    public void setNormalRange(Measure normalRange) {
-        this.normalRange.set(normalRange);
-    }
+public interface MeasureConstraints extends SemanticVersion {
+    
+    String getConstraintDescription();
+    
+    float getInitialLowerBound();
+    float getInitialUpperBound();
+    float getInitialGranularity();
+    boolean getInitialIncludeUpperBound();
+    boolean getInitialIncludeLowerBound();
+    
+    float getMinimumValue();
+    float getMaximumValue();
+    float getMinimumGranularity();
+    float getMaximumGranularity();
+    
+    boolean showRange();
+    boolean showGranularity();
+    boolean showIncludeBounds();
+    
+    int getMeasureSemanticConstraintAssemblageNid();
 }

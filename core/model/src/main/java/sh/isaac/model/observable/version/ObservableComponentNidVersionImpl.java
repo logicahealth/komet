@@ -16,8 +16,10 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
@@ -137,5 +139,14 @@ public class ObservableComponentNidVersionImpl
       properties.add(componentNidProperty());
       return properties;
    }  
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(componentNidProperty());
+      return properties;
+    }
+   
+   
 }
    

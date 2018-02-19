@@ -19,11 +19,11 @@ package sh.isaac.komet.statement;
 import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.control.IsaacPropertyEditorFactory;
 import sh.komet.gui.control.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertySheetItemMeasureWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -69,9 +69,17 @@ public class StatementPropertySheet {
                 clinicalStatement.statementTypeProperty(),
             TermAux.REQUEST_STATEMENT.getNid(), TermAux.PERFORMANCE_STATEMENT.getNid()));
         items.add(new PropertySheetItemConceptWrapper(manifold, 
-                clinicalStatement.subjectOfInformationProperty()));
+                clinicalStatement.subjectOfInformationProperty(), 
+                TermAux.SUBJECT_OF_RECORD.getNid(),
+                TermAux.MOTHER_OF_SUBJECT_OF_RECORD.getNid(), 
+                TermAux.FATHER_OF_SUBJECT_OF_RECORD.getNid(),
+                TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid(),
+                TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid()
+                
+        ));
         items.add(new PropertySheetItemConceptWrapper(manifold, 
                 clinicalStatement.topicProperty()));
+        items.add(new PropertySheetItemMeasureWrapper(manifold, clinicalStatement.statementTimeProperty()));
         
         return items;
     }

@@ -240,16 +240,16 @@ public enum ObservableFields
    CIRCUMSTANCE_PURPOSE_LIST("Action purpose"),
    CIRCUMSTANCE_TIMING("Timing"),
    
-   STATEMENT_NARRATIVE("Narrative"),
-   STATEMENT_TIME("Time"),
-   STATEMENT_ID("Identifier"),
-   STATEMENT_SOR("Subject of record"),
-   STATEMENT_AUTHORS("Authors"),
-   STATEMENT_SOI("Subject of information"),
-   STATEMENT_TYPE("Type"),
-   STATEMENT_TOPIC("Topic"),
-   STATEMENT_CIRCUMSTANCE("Circumstance"),
-   STATEMENT_ASSOCIATIONS("Associations"),
+   STATEMENT_NARRATIVE("Statement narrative", "Narrative"),
+   STATEMENT_TIME("Statement time", "Statement time"),
+   STATEMENT_ID("Statement identifier"),
+   STATEMENT_SOR("Statement subject of record", "Subject of record"),
+   STATEMENT_AUTHORS("Statement authors", "Authors"),
+   STATEMENT_SOI("Statement subject of information", "Subject"),
+   STATEMENT_TYPE("Statement type", "Type"),
+   STATEMENT_TOPIC("Statement topic", "Topic"),
+   STATEMENT_CIRCUMSTANCE("Statement circumstance", "Circumstance"),
+   STATEMENT_ASSOCIATIONS("Statement associations", "Associations"),
    
    INTERVAL_LOWER_BOUND("Lower bound"),
    INTERVAL_UPPER_BOUND("Upper bound"),
@@ -284,11 +284,22 @@ public enum ObservableFields
    STATEMENT_ASSOCIATION_SEMANTIC("Association semantic"),
    STATEMENT_ASSOCIATION_ID("Association id"),
    
-   UNSTRUCTURED_CIRCUMSTANCE_TEXT("text"),
+   UNSTRUCTURED_CIRCUMSTANCE_TEXT("Unstructured circumstance text", "Text"),
    
    STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
    
-   STATEMENT_MODE("Statement mode"),
+   STATEMENT_MODE("Statement mode", "Mode"),
+   
+   LOINC_NUMBER("LOINC number"),
+   LOINC_COMPONENT("LOINC component"),
+   LOINC_PROPERTY("LOINC property"),
+   LOINC_TIME_ASPECT("LOINC time aspect"),
+   LOINC_SYSTEM("LOINC system"),
+   LOINC_SCALE_TYPE("LOINC scale type"),
+   LOINC_METHOD_TYPE("LOINC method type"),
+   LOINC_STATUS("LOINC status"),
+   LOINC_SHORT_NAME("LOINC short name"),
+   LOINC_LONG_COMMON_NAME("LOINC long common name"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */
@@ -297,7 +308,8 @@ public enum ObservableFields
    //~--- fields --------------------------------------------------------------
 
    /** The description. */
-   String description;
+   String fullyQualifiedDescription;
+   String regularDescription;
 
    //~--- constructors --------------------------------------------------------
 
@@ -306,8 +318,13 @@ public enum ObservableFields
     *
     * @param description the description
     */
-   ObservableFields(String description) {
-      this.description = description;
+   ObservableFields(String fullyQualifiedDescription) {
+      this.fullyQualifiedDescription = fullyQualifiedDescription;
+      this.regularDescription = null;
+   }
+   ObservableFields(String fullyQualifiedDescription, String regularDescription) {
+      this.fullyQualifiedDescription = fullyQualifiedDescription;
+      this.regularDescription = regularDescription;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -321,7 +338,7 @@ public enum ObservableFields
    public String toExternalString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(this.description);
+      sb.append(this.fullyQualifiedDescription);
       sb.append(FIELD_SEPARATOR)
         .append(getUuid().toString());
       return sb.toString();
@@ -345,7 +362,7 @@ public enum ObservableFields
     * @return the description
     */
    public String getDescription() {
-      return this.description;
+      return this.fullyQualifiedDescription;
    }
 
    /**
@@ -369,7 +386,7 @@ public enum ObservableFields
 
    @Override
    public Optional<String> getRegularName() {
-      return Optional.empty();
+      return Optional.ofNullable(regularDescription);
    }
 
 }
