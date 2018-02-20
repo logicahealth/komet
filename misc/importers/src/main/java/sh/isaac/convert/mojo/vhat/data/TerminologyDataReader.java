@@ -156,7 +156,7 @@ public class TerminologyDataReader extends DefaultHandler
 	public TerminologyDataReader(File inputFile)
 	{
 		this.inputFile = inputFile;
-		this.schemaName = "/TerminologyData.xsd.hidden";
+		this.schemaName = "/TerminologyData.xsd";
 	}
 
 	public TerminologyDTO process() throws Exception 

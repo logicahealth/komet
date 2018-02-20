@@ -51,7 +51,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -442,8 +442,8 @@ public abstract class PropertyType {
    public UUID getPropertyTypeUUID() {
       if (this.propertyTypeUUID == null) {
          this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
+         Get.identifierService().assignNid(this.propertyTypeUUID);
       }
-
       return this.propertyTypeUUID;
    }
 

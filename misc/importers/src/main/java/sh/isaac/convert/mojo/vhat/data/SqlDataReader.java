@@ -895,16 +895,9 @@ public class SqlDataReader {
 		return _subsetmemberships;
 	}
 	
-	
-	public Optional<Map<Long, ArrayList<SubsetMembershipImportDTO>>> getSubsetMemberships()
+	public Map<Long, ArrayList<Long>> getSubsetMembershipsCodesByVuid()
 	{
-		return Optional.ofNullable(_subsetmemberships);
-	}
-	
-	
-	public Optional<Map<Long, ArrayList<Long>>> getSubsetMembershipsCodesByVuid()
-	{
-		return Optional.ofNullable(_subsetmembershipsByVuid);
+		return _subsetmembershipsByVuid;
 	}
 	
 	
