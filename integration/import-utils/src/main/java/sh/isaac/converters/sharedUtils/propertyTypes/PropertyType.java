@@ -157,6 +157,18 @@ public abstract class PropertyType {
 
       return property;
    }
+   
+   /**
+    * Add an additional alt name that can be used to look up a particular property.  Property needs to have already been added.
+    * @param property
+    * @param altName
+    */
+   public void addPropertyAltName(Property property, String altName) {
+      final String s = this.altNamePropertyMap.put(altName, property.getSourcePropertyNameFQN());
+      if (s != null) {
+         throw new RuntimeException("Alt Indexing Error - duplicate!");
+      }
+   }
 
    /**
     * Adds the property.
