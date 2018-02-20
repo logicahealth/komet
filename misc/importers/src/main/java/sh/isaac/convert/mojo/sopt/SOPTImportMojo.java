@@ -42,18 +42,23 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.convert.mojo.sopt.data.EnumValidatedTableData;
-import sh.isaac.convert.mojo.sopt.data.EnumValidatedTableDataReader;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.convert.mojo.sopt.data.EnumValidatedXSLFileReader;
+import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
+import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
 import sh.isaac.convert.mojo.sopt.propertyTypes.PT_Annotations;
 import sh.isaac.convert.mojo.sopt.propertyTypes.PT_Descriptions;
 import sh.isaac.converters.sharedUtils.ComponentReference;
@@ -75,8 +80,6 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 @Mojo(name = "convert-SOPT-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class SOPTImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 
 	private PropertyType attributes_;
@@ -102,7 +105,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 
 			Date date = new Date();
 
-			importUtil_ = new IBDFCreationUtility(Optional.of("SOPT " + converterSourceArtifactVersion), Optional.of(MetaData.SOPT_MODULES____SOLOR),
+			importUtil = new IBDFCreationUtility(Optional.of("SOPT " + converterSourceArtifactVersion), Optional.of(MetaData.SOPT_MODULES____SOLOR),
 					outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, false, date.getTime());
 
 			attributes_ = new PT_Annotations();
@@ -115,12 +118,11 @@ public class SOPTImportMojo extends ConverterBaseMojo
 			allSoptConceptsRefset = refsets_.getProperty(REFSET_PROPERTY_NAME).getUUID();
 
 			// Switch on version to select proper Columns enum to use in constructing reader
-			final EnumValidatedTableDataReader<SOPTColumnsV1> importer = new EnumValidatedTableDataReader<>(inputFileLocation, SOPTColumnsV1.class);
-			final EnumValidatedTableData<SOPTColumnsV1> terminology = importer.process();
+			final EnumValidatedXSLFileReader data = EnumValidatedXSLFileReader.readZip(inputFileLocation);
+			
+			ConsoleUtil.println("Loaded Terminology containing " + data.getValueSetData().size() + " entries");
 
-			ConsoleUtil.println("Loaded Terminology containing " + terminology.rows().size() + " entries");
-
-			// COLUMNS from NUCCColumnsV1:
+			// COLUMNS from SOPTDataColumnsV1:
 			// Concept Code - Hierarchical numbering eg. 1, 11, 111, 112, 113, 12, 121, 122, 129, 13, 14, 2, 21
 			// Concept Name - name of concept
 			// Preferred Concept Name - all rows the same as Concept Name except 1.
@@ -136,273 +138,130 @@ public class SOPTImportMojo extends ConverterBaseMojo
 					COMPONENT_REFERENCE_METADATA + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto soptMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), soptMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), soptMetadata.getPrimordialUuid());
 
 			// Create SOPT root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptVersion soptRootConcept = importUtil_.createConcept(REFSET_NAME, true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ComponentReference soptRootConcept = ComponentReference.fromConcept(importUtil.createConcept(REFSET_NAME, true, 
+					MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()));
 			ConsoleUtil.println("Created SOPT root concept " + soptRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
-
-//			// Code System OID
-//			final Map<String, ConceptChronology> codeSystemOIDValueConceptByValueMap = new HashMap<>();
-//			ConsoleUtil.println("attributes_ is null = " + (attributes_ == null));
-//			final UUID codeSystemOIDUuid = attributes_.getProperty(NUCCColumnsV1.CodeSystemOID.toString()).getUUID();
-//
-//			for (String value : terminology.getDistinctValues(NUCCColumnsV1.CodeSystemOID)) {
-//				if (StringUtils.isBlank(value)) {
-//					throw new RuntimeException("Cannot load SOPT data with blank Code System OID");
-//				}
-//
-//				// Create the Concept System OID concept as a child of both SOPT root and the Concept Name property
-//				// metadata concept and store in map for later retrieval
-//				final UUID valueConceptUuid = ConverterUUID
-//						.createNamespaceUUIDFromString(codeSystemOIDUuid.toString() + "|" + value, true);
-//				final ConceptChronology valueConcept = importUtil_.createConcept(
-//						valueConceptUuid, value, null, null, null, codeSystemOIDUuid,
-//						soptRootConcept.getPrimordialUuid());
-//
-//				ConsoleUtil.println("Created SOPT Code value concept " + valueConcept.getPrimordialUuid() + " for \""
-//						+ value + "\" under parents Code System OID property " + codeSystemOIDUuid
-//						+ " and SOPT root concept " + soptRootConcept);
-//
-//				// Store Code System OID value concept in map by value
-//				codeSystemOIDValueConceptByValueMap.put(value, valueConcept);
-//			}
-//
-//			// Code System Name
-//			final Map<String, ConceptChronology> codeSystemNameValueConceptByValueMap = new HashMap<>();
-//			final UUID codeSystemNameUuid = attributes_.getProperty(NUCCColumnsV1.CodeSystemName.toString()).getUUID();
-//
-//			for (String value : terminology.getDistinctValues(NUCCColumnsV1.CodeSystemName)) {
-//				if (StringUtils.isBlank(value)) {
-//					throw new RuntimeException("Cannot load SOPT data with blank Code System Name");
-//				}
-//
-//				// Create the Concept System Name concept as a child of both SOPT root and the Concept Name property
-//				// metadata concept and store in map for later retrieval
-//				final UUID valueConceptUuid = ConverterUUID
-//						.createNamespaceUUIDFromString(codeSystemNameUuid.toString() + "|" + value, true);
-//				final ConceptChronology valueConcept = importUtil_.createConcept(
-//						valueConceptUuid, value, null, null, null, codeSystemNameUuid,
-//						soptRootConcept.getPrimordialUuid());
-//
-//				ConsoleUtil.println("Created SOPT Code  value concept " + valueConcept.getPrimordialUuid() + " for \""
-//						+ value + "\" under parents Code System Name property " + codeSystemNameUuid
-//						+ " and SOPT root concept " + soptRootConcept);
-//
-//				// Store Code System Name value concept in map by value
-//				codeSystemNameValueConceptByValueMap.put(value, valueConcept);
-//			}
-//
-//			// Code System Code
-//			final Map<String, ConceptChronology> codeSystemCodeValueConceptByValueMap = new HashMap<>();
-//			final UUID codeSystemCodeUuid = attributes_.getProperty(NUCCColumnsV1.CodeSystemCode.toString()).getUUID();
-//
-//			for (String value : terminology.getDistinctValues(NUCCColumnsV1.CodeSystemCode)) {
-//				if (StringUtils.isBlank(value)) {
-//					throw new RuntimeException("Cannot load SOPT data with blank Code System Code");
-//				}
-//
-//				// Create the Concept System Code concept as a child of both SOPT root and the Concept Name property
-//				// metadata concept and store in map for later retrieval
-//				final UUID valueConceptUuid = ConverterUUID
-//						.createNamespaceUUIDFromString(codeSystemCodeUuid.toString() + "|" + value, true);
-//				final ConceptChronology valueConcept = importUtil_.createConcept(
-//						valueConceptUuid, value, null, null, null, codeSystemCodeUuid,
-//						soptRootConcept.getPrimordialUuid());
-//
-//				ConsoleUtil.println("Created SOPT Code  value concept " + valueConcept.getPrimordialUuid() + " for \""
-//						+ value + "\" under parents Code System Code property " + codeSystemCodeUuid
-//						+ " and SOPT root concept " + soptRootConcept);
-//
-//				// Store Code System Code value concept in map by value
-//				codeSystemCodeValueConceptByValueMap.put(value, valueConcept);
-//			}
-//
-//			// Code System Version
-//			final Map<String, ConceptChronology> codeSystemVersionValueConceptByValueMap = new HashMap<>();
-//			final UUID codeSystemVersionUuid = attributes_.getProperty(NUCCColumnsV1.CodeSystemVersion.toString())
-//					.getUUID();
-//
-//			for (String value : terminology.getDistinctValues(NUCCColumnsV1.CodeSystemVersion)) {
-//				if (StringUtils.isBlank(value)) {
-//					throw new RuntimeException("Cannot load SOPT data with blank Code Concept Version");
-//				}
-//
-//				// Create the Concept System Code concept as a child of both SOPT root and the Concept Name property
-//				// metadata concept and store in map for later retrieval
-//				final UUID valueConceptUuid = ConverterUUID
-//						.createNamespaceUUIDFromString(codeSystemCodeUuid.toString() + "|" + value, true);
-//				final ConceptChronology valueConcept = importUtil_.createConcept(
-//						valueConceptUuid, value, null, null, null, codeSystemVersionUuid,
-//						soptRootConcept.getPrimordialUuid());
-//
-//				ConsoleUtil.println("Created SOPT Code  value concept " + valueConcept.getPrimordialUuid() + " for \""
-//						+ value + "\" under parents Code System Version property " + codeSystemVersionUuid
-//						+ " and SOPT root concept " + soptRootConcept);
-//
-//				// Store Code System Version value concept in map by value
-//				codeSystemVersionValueConceptByValueMap.put(value, valueConcept);
-//			}
-//
-//			// HL7 Table 0396 Code
-//			final Map<String, ConceptChronology> hl7Table3096CodeValueConceptByValueMap = new HashMap<>();
-//			final UUID hl7Table3096CodeUuid = attributes_.getProperty(NUCCColumnsV1.HL7Table0396Code.toString()).getUUID();
-//
-//			for (String value : terminology.getDistinctValues(NUCCColumnsV1.HL7Table0396Code)) {
-//				if (StringUtils.isBlank(value)) {
-//					throw new RuntimeException("Cannot load SOPT data with blank HL7 Table 0396 Code");
-//				}
-//
-//				// Create the Concept System Code concept as a child of both SOPT root and the Concept Name property
-//				// metadata concept and store in map for later retrieval
-//				final UUID valueConceptUuid = ConverterUUID
-//						.createNamespaceUUIDFromString(codeSystemCodeUuid.toString() + "|" + value, true);
-//				final ConceptChronology valueConcept = importUtil_.createConcept(
-//						valueConceptUuid, value, null, null, null, codeSystemVersionUuid,
-//						soptRootConcept.getPrimordialUuid());
-//
-//				ConsoleUtil.println("Created SOPT Code  value concept " + valueConcept.getPrimordialUuid() + " for \""
-//						+ value + "\" under parents HL7 Table 3096 property " + hl7Table3096CodeUuid
-//						+ " and SOPT root concept " + soptRootConcept);
-//
-//				// Store HL7 Table 0396 Code value concept in map by value
-//				hl7Table3096CodeValueConceptByValueMap.put(value, valueConcept);
-//			}
-
-			// Populate hierarchy, one row at a time
-			for (Map<SOPTColumnsV1, String> row : terminology.rows())
+			
+			ComponentReference valueSetConcept = null;
+			for (Entry<SOPTValueSetColumnsV1, String> md : data.getValueSetMetaData().entrySet())
 			{
-
-				// if code is not a number, it is the header row, skip the row
-				if (!StringUtils.isNumeric(row.get(SOPTColumnsV1.ConceptCode)))
+				if (StringUtils.isNotBlank(md.getValue()))
 				{
-
-//					final ConceptChronology codeSystemOIDConcept = row
-//							.get(NUCCColumnsV1.CodeSystemName) != null
-//									? codeSystemOIDValueConceptByValueMap.get(row.get(NUCCColumnsV1.CodeSystemOID)) : null;
-//
-//					final ConceptChronology codeSystemNameConcept = row
-//							.get(NUCCColumnsV1.CodeSystemName) != null
-//									? codeSystemNameValueConceptByValueMap.get(row.get(NUCCColumnsV1.CodeSystemName))
-//									: null;
-//
-//					final ConceptChronology codeSystemCodeConcept = row
-//							.get(NUCCColumnsV1.CodeSystemVersion) != null
-//									? codeSystemCodeValueConceptByValueMap.get(row.get(NUCCColumnsV1.CodeSystemCode))
-//									: null;
-//
-//					final ConceptChronology codeSystemVersionConcept = row
-//							.get(NUCCColumnsV1.CodeSystemVersion) != null
-//									? codeSystemVersionValueConceptByValueMap.get(row.get(NUCCColumnsV1.CodeSystemVersion))
-//									: null;
-//
-//					final ConceptChronology hl7Table0396CodeConcept = row
-//							.get(NUCCColumnsV1.HL7Table0396Code) != null
-//									? hl7Table3096CodeValueConceptByValueMap.get(row.get(NUCCColumnsV1.HL7Table0396Code))
-//									: null;
-//					
-//					//(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, 
-//					//DynamicData value, UUID refexDynamicTypeUuid, Status state, Long time)
-//									
-//					// add annotations Code System OID NID
-//					importUtil_.addAnnotation(ComponentReference.fromChronology(codeSystemOIDConcept), soptMetadata.getPrimordialUuid(),
-//							new DynamicNidImpl(codeSystemOIDConcept.getNid()), codeSystemOIDUuid, Status.ACTIVE,
-//							(Long) null);
-//
-//					// add annotations Code System Name NID
-//					importUtil_.addAnnotation(ComponentReference.fromChronology(codeSystemNameConcept), soptMetadata.getPrimordialUuid(),
-//							new DynamicNidImpl(codeSystemNameConcept.getNid()), codeSystemNameUuid, Status.ACTIVE,
-//							(Long) null);
-//
-//					// add annotations Code System Code NID
-//					importUtil_.addAnnotation(ComponentReference.fromChronology(codeSystemVersionConcept), soptMetadata.getPrimordialUuid(),
-//							new DynamicNidImpl(codeSystemOIDConcept.getNid()), codeSystemCodeUuid, Status.ACTIVE,
-//							(Long) null);
-//
-//					// add annotations Code System Version NID
-//					importUtil_.addAnnotation(ComponentReference.fromChronology(codeSystemVersionConcept), soptMetadata.getPrimordialUuid(),
-//							new DynamicNidImpl(codeSystemVersionConcept.getNid()), codeSystemVersionUuid,
-//							Status.ACTIVE, (Long) null);
-//
-//					// add annotations Code System HL7 Table 0396 code NID
-//					importUtil_.addAnnotation(ComponentReference.fromChronology(hl7Table0396CodeConcept), soptMetadata.getPrimordialUuid(),
-//							new DynamicNidImpl(hl7Table0396CodeConcept.getNid()), hl7Table3096CodeUuid,
-//							Status.ACTIVE, (Long) null);
-					continue;
-				}
-
-				// 1, 11, 111, 112, 113, 12, 121, 122, 123, 129, 13, 14, 2, 21
-				// ...
-				String conceptCode;
-				String conceptName;
-				String preferredConceptCode;
-				String preferredConceptName;
-
-				try
-				{
-
-					conceptCode = row.get(SOPTColumnsV1.ConceptCode);
-					conceptName = row.get(SOPTColumnsV1.ConceptName);
-					preferredConceptCode = row.get(SOPTColumnsV1.PreferredAlternateCode);
-					preferredConceptName = row.get(SOPTColumnsV1.PreferredConceptName);
-
-					UUID parentUuid = findParentUuid(conceptCode);
-
-					ConsoleUtil.println("Creating " + conceptCode + " - " + conceptName);
-
-					// String name, boolean skipDupeCheck
-					UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(conceptCode + "|" + conceptName, true);
-
-					// add to map
-					parentConcepts.put(conceptCode, rowConceptUuid);
-					final ConceptVersion rowConcept;
-
-					rowConcept = importUtil_.createConcept(rowConceptUuid, // UUID conceptPrimordialUuid,
-							conceptName, // String fsn,
-							true, // boolean createSynonymFromFSN,
-							(parentUuid == null) ? soptRootConcept.getPrimordialUuid() : parentUuid); // relParentPrimordial);
-
-					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
-
-					importUtil_.addDescription(rowComponentReference, conceptCode, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
-
-					if (!conceptName.equals(preferredConceptName))
-					{
-						importUtil_.addDescription(rowComponentReference, preferredConceptName, DescriptionType.REGULAR_NAME, true, null, Status.ACTIVE);
+					switch (md.getKey()) {
+						case ValueSetCode:
+							importUtil.addStaticStringAnnotation(valueSetConcept, md.getValue(), attributes_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
+							break;
+						case ValueSetDefinition:
+							importUtil.addDescription(valueSetConcept, md.getValue(), DescriptionType.DEFINITION, true, 
+									descriptions_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
+							break;
+						case ValueSetName:
+							//Due to the order of the data in the metadata, this case will hit first as we iterate.
+							valueSetConcept = ComponentReference.fromConcept(importUtil.createConcept(
+									ConverterUUID.createNamespaceUUIDFromString("ValueSet|" + md.getValue()), md.getValue(), false, soptRootConcept.getPrimordialUuid()));
+							importUtil.addDescription(valueSetConcept, md.getValue(), DescriptionType.REGULAR_NAME, true, 
+									descriptions_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
+							
+							importUtil.configureConceptAsDynamicRefex(valueSetConcept, "Holds the Value Set members from SOPT", null, IsaacObjectType.CONCEPT, null);
+							
+							break;
+						case ValueSetOID:
+						case ValueSetReleaseComments:
+						case ValueSetStatus:
+						case ValueSetUpdatedDate:
+						case ValueSetVersion:
+							importUtil.addStringAnnotation(valueSetConcept, md.getValue(), attributes_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
+							break;
+						default :
+							throw new RuntimeException("Unmapped enum type");
 					}
-
-					if (preferredConceptCode != null && StringUtils.isNotEmpty(preferredConceptCode))
-					{
-						addDescription(rowComponentReference, preferredConceptCode, DescriptionType.REGULAR_NAME,
-								descriptions_.getProperty("PreferredConceptCode").getUUID(), false);
-					}
-
-					importUtil_.addStaticStringAnnotation(rowComponentReference, conceptCode, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
-
-					// add refset
-					importUtil_.addAssemblageMembership(rowComponentReference, allSoptConceptsRefset, Status.ACTIVE, (Long) null);
-
-					++conceptCount;
-
 				}
-				catch (Exception e)
+			}
+
+			HashMap<SOPTDataColumnsV1, Function<String[], String>> dataFetchers = new HashMap<>();
+			AtomicInteger i = new AtomicInteger(0);
+			for (SOPTDataColumnsV1 colType : data.getDataHeaders())
+			{
+				int col = i.getAndIncrement();
+				dataFetchers.put(colType, (dataIn) -> dataIn[col]);
+			}
+			
+			HashMap<String, ComponentReference> codeSystems = new HashMap<>();
+			
+			for (String[] row : data.getValueSetData())
+			{
+				String conceptCode = dataFetchers.get(SOPTDataColumnsV1.ConceptCode).apply(row); 
+				String conceptName = dataFetchers.get(SOPTDataColumnsV1.ConceptName).apply(row);
+				String preferredConceptName = dataFetchers.get(SOPTDataColumnsV1.PreferredConceptName).apply(row);
+				String preferredAltCode = dataFetchers.get(SOPTDataColumnsV1.PreferredAlternateCode).apply(row);
+				
+				String codeSystemOid = dataFetchers.get(SOPTDataColumnsV1.CodeSystemOID).apply(row);
+				String codeSystemName = dataFetchers.get(SOPTDataColumnsV1.CodeSystemName).apply(row);
+				String codeSystemCode = dataFetchers.get(SOPTDataColumnsV1.CodeSystemCode).apply(row);
+				String codeSystemVersion = dataFetchers.get(SOPTDataColumnsV1.CodeSystemVersion).apply(row);
+				String hl7TableCode = dataFetchers.get(SOPTDataColumnsV1.HL7Table0396Code).apply(row);
+				
+				String key = codeSystemOid + codeSystemName + codeSystemCode + codeSystemVersion + hl7TableCode;
+				
+				ComponentReference codeSystem = codeSystems.get(key);
+				if (codeSystem == null)
 				{
-					final String msg = "Failed processing row with " + e.getClass().getSimpleName() + " " + e.getLocalizedMessage() + ": " + row;
-					ConsoleUtil.println(msg);
-					throw new RuntimeException(msg, e);
+					codeSystem = ComponentReference.fromConcept(importUtil.createConcept(
+							ConverterUUID.createNamespaceUUIDFromString("CodeSystemSet|" + codeSystemName), codeSystemName,  false, soptRootConcept.getPrimordialUuid()));
+					importUtil.addDescription(codeSystem, codeSystemName, DescriptionType.REGULAR_NAME, true, 
+							descriptions_.getProperty(SOPTDataColumnsV1.CodeSystemName.name()).getUUID(), Status.ACTIVE);
+					importUtil.addStaticStringAnnotation(codeSystem, codeSystemCode, attributes_.getProperty(SOPTDataColumnsV1.CodeSystemCode.name()).getUUID(), Status.ACTIVE);
+					importUtil.addStringAnnotation(codeSystem, codeSystemOid, attributes_.getProperty(SOPTDataColumnsV1.CodeSystemOID.name()).getUUID(), Status.ACTIVE);
+					importUtil.addStringAnnotation(codeSystem, codeSystemVersion, attributes_.getProperty(SOPTDataColumnsV1.CodeSystemVersion.name()).getUUID(), Status.ACTIVE);
+					importUtil.addStaticStringAnnotation(codeSystem, hl7TableCode, attributes_.getProperty(SOPTDataColumnsV1.HL7Table0396Code.name()).getUUID(), Status.ACTIVE);
+					codeSystems.put(key, codeSystem);
 				}
+				
+				
+				UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(conceptCode + "|" + conceptName);
+				UUID parentUuid = findParentUuid(conceptCode);
+				parentUuid = parentUuid == null ? codeSystem.getPrimordialUuid() : parentUuid;
+				parentConcepts.put(conceptCode, rowConceptUuid);
+				
+				final ComponentReference cr = ComponentReference.fromConcept(importUtil.createConcept(rowConceptUuid));
+				importUtil.addParent(cr, parentUuid);
+				
+				importUtil.addDescription(cr, conceptName, DescriptionType.FULLY_QUALIFIED_NAME, true, 
+						descriptions_.getProperty(SOPTDataColumnsV1.ConceptName.name()).getUUID(), Status.ACTIVE);
+				
+				importUtil.addDescription(cr, conceptName, DescriptionType.REGULAR_NAME, true, 
+						descriptions_.getProperty(SOPTDataColumnsV1.ConceptName.name()).getUUID(), Status.ACTIVE);
+				
+				if (StringUtils.isNotBlank(preferredConceptName) && !preferredConceptName.equals(conceptName))
+				{
+					importUtil.addDescription(cr, preferredConceptName, DescriptionType.REGULAR_NAME, true, 
+							descriptions_.getProperty(SOPTDataColumnsV1.PreferredConceptName.name()).getUUID(), Status.ACTIVE);
+				}
+				
+				importUtil.addStaticStringAnnotation(cr, conceptCode, attributes_.getProperty(SOPTDataColumnsV1.ConceptCode.name()).getUUID(), Status.ACTIVE);
+				if (StringUtils.isNotBlank(preferredAltCode))
+				{
+					importUtil.addStaticStringAnnotation(cr, conceptCode, attributes_.getProperty(SOPTDataColumnsV1.PreferredAlternateCode.name()).getUUID(), Status.ACTIVE);
+				}
+				
+				importUtil.addAssemblageMembership(cr, valueSetConcept.getPrimordialUuid(), Status.ACTIVE, (Long) null);
+				importUtil.addAssemblageMembership(cr, allSoptConceptsRefset, Status.ACTIVE, (Long) null);
+				++conceptCount;
 			}
 
 			ConsoleUtil.println("Metadata load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			ConsoleUtil.println("Processed " + conceptCount + " concepts");
 
@@ -412,12 +271,13 @@ public class SOPTImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "soptUuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
+
 		}
-		catch (Exception ex)
+		catch (Exception e)
 		{
-			throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
+			throw new RuntimeException("Unexpected error", e);
 		}
 	}
 
@@ -442,29 +302,23 @@ public class SOPTImportMojo extends ConverterBaseMojo
 		return parentUUID;
 	}
 
-	private void addDescription(ComponentReference concept, String text, DescriptionType descriptionType, UUID extendedType, boolean preferred)
-	{
-		UUID descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), text, extendedType.toString(),
-				descriptionType.name(), new Boolean(preferred).toString());
-		importUtil_.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
-	}
-
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		SOPTImportMojo i = new SOPTImportMojo();
-		i.outputDirectory = new File("../sopt-ibdf/target");
-		i.inputFileLocation = new File("../sopt-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2016.06";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "7.0";
 		i.execute();
+		Platform.exit();
 	}
 }

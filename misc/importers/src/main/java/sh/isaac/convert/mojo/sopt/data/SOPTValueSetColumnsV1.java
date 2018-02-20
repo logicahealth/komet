@@ -35,28 +35,53 @@
  *
  */
 
-package sh.isaac.convert.mojo.sopt.propertyTypes;
-
-import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
-import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
+package sh.isaac.convert.mojo.sopt.data;
 
 /**
  * 
- * {@link PT_Descriptions}
+ * {@link SOPTValueSetColumnsV1}
+ * 
+ * Version 1 Column headers for SOPT import file
  *
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  *
  */
-public class PT_Descriptions extends BPT_Descriptions
+public enum SOPTValueSetColumnsV1
 {
-	public PT_Descriptions()
+	ValueSetName("Value Set Name"), 
+	ValueSetCode("Value Set Code"), 
+	ValueSetOID("Value Set OID"), 
+	ValueSetVersion("Value Set Version"), 
+	ValueSetDefinition("Value Set Definition"), 
+	ValueSetStatus("Value Set Status"), 
+	ValueSetUpdatedDate("VS Last Updated Date"), 
+	ValueSetReleaseComments("VS Release Comments");
+
+	final private String columnName;
+
+	private SOPTValueSetColumnsV1(String name)
 	{
-		super("SOPT");
-		addProperty(SOPTDataColumnsV1.ConceptName.name());
-		addProperty(SOPTDataColumnsV1.CodeSystemName.name());
-		addProperty(SOPTDataColumnsV1.PreferredConceptName.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetName.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetDefinition.name());
+		this.columnName = name;
+	}
+
+	public String toString()
+	{
+		return columnName;
+	}
+
+	/**
+	 * @param stringCellValue
+	 * @return the matching enum type
+	 */
+	public static SOPTValueSetColumnsV1 parse(String stringCellValue)
+	{
+		for (SOPTValueSetColumnsV1 col : SOPTValueSetColumnsV1.values())
+		{
+			if (col.columnName.equalsIgnoreCase(stringCellValue))
+			{
+				return col;
+			}
+		}
+		throw new RuntimeException("Can't locate known column for '" + stringCellValue + "'");
 	}
 }

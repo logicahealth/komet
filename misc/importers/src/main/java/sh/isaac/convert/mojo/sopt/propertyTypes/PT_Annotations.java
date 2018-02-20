@@ -38,53 +38,32 @@
 package sh.isaac.convert.mojo.sopt.propertyTypes;
 
 import sh.isaac.MetaData;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.convert.mojo.sopt.SOPTColumnsV1;
+import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
+import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 
 public class PT_Annotations extends BPT_Annotations
 {
-	public enum Attribute
-	{
-		CODE(MetaData.CODE____SOLOR, true),
-
-		CodeSystemOID(SOPTColumnsV1.CodeSystemOID, DynamicDataType.NID), CodeSystemName(SOPTColumnsV1.CodeSystemName, DynamicDataType.NID),
-		CodeSystemCode(SOPTColumnsV1.CodeSystemCode, DynamicDataType.NID), CodeSystemVersion(SOPTColumnsV1.CodeSystemVersion, DynamicDataType.NID),
-		HL7Table0396Code(SOPTColumnsV1.HL7Table0396Code, DynamicDataType.NID);
-
-		private Property property_;
-
-		private Attribute(SOPTColumnsV1 annotationConceptFsnColumn, DynamicDataType type)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property_ = new Property((PropertyType) null, annotationConceptFsnColumn.toString(), (String) null, (String) null, false, Integer.MAX_VALUE,
-					new DynamicColumnInfo[] { new DynamicColumnInfo(null, 0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), type, null, true,
-							null, null, true) });
-		}
-
-		private Attribute(ConceptSpecification cs, boolean isIdentifier)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property_ = new Property(null, cs, isIdentifier);
-		}
-
-		public Property getProperty()
-		{
-			return property_;
-		}
-	}
-
 	public PT_Annotations()
 	{
 		super("SOPT");
-		for (Attribute attr : Attribute.values())
-		{
-			addProperty(attr.getProperty());
-		}
+		indexByAltNames();
+		addProperty(SOPTDataColumnsV1.CodeSystemOID.name());
+		addProperty(SOPTDataColumnsV1.CodeSystemVersion.name());
+		Property p = new Property(MetaData.CODE____SOLOR, true);  //three different columns mapped here... not sure if I need to track that mapping anywhere. 
+		p.setSourcePropertyAltName(SOPTDataColumnsV1.CodeSystemCode.name());
+		addProperty(p);
+		addPropertyAltName(p, SOPTDataColumnsV1.ConceptCode.name());
+		addProperty(SOPTDataColumnsV1.HL7Table0396Code.name(), true);
+		addProperty(SOPTDataColumnsV1.PreferredAlternateCode.name(), true);
+		
+		
+		addPropertyAltName(p, SOPTValueSetColumnsV1.ValueSetCode.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetOID.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetReleaseComments.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetStatus.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetUpdatedDate.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetVersion.name());
 	}
 }
