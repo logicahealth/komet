@@ -287,5 +287,12 @@ public class ComponentReference {
    public String getTypeString() {
       return this.typeLabelSupplier.get();
    }
+
+   @Override
+   public String toString()
+   {
+      return "UUID: " + (uuidProvider != null ? uuidProvider.get() : "") + " nid: " + (nidProvider != null ? nidProvider.getAsInt() : "") + " type: " + 
+            (typeLabelSupplier != null ? typeLabelSupplier.get() : "");
+   }
 }
 
