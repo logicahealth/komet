@@ -421,7 +421,7 @@ public class IBDFCreationUtility
     */
    public ConceptVersion createConcept(String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
-	   ConceptVersion concept = createConcept(fsn, createSynonymFromFSN);
+      ConceptVersion concept = createConcept(fsn, createSynonymFromFSN);
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
    }
@@ -436,7 +436,7 @@ public class IBDFCreationUtility
     */
    public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
    {
-	   ConceptVersion concept = createConcept(conceptPrimordial, fsn, createSynonymFromFSN);
+      ConceptVersion concept = createConcept(conceptPrimordial, fsn, createSynonymFromFSN);
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
    }
@@ -469,7 +469,7 @@ public class IBDFCreationUtility
     */
    public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, Long time, Status status)
    {
-	   ConceptVersion cc = createConcept(conceptPrimordial, time, status, null);
+      ConceptVersion cc = createConcept(conceptPrimordial, time, status, null);
       ComponentReference concept = ComponentReference.fromConcept(cc);
       addFullySpecifiedName(concept, fsn);
       if (createSynonymFromFSN)
@@ -542,7 +542,7 @@ public class IBDFCreationUtility
    public ConceptVersion createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
          String definition, UUID parentConceptPrimordial, UUID secondParent)
    {
-	   ConceptVersion concept = createConcept(primordial == null ? ConverterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
+      ConceptVersion concept = createConcept(primordial == null ? ConverterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
             fsnName, StringUtils.isEmpty(preferredName) ? true : false);
       
       LogicalExpressionBuilder leb = this.expressionBuilderService.getLogicalExpressionBuilder();

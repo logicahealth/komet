@@ -52,7 +52,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.convert.mojo.nucc.data.EnumValidatedTableData;
@@ -81,10 +80,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 @Mojo(name = "convert-NUCC-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class NUCCImportMojo extends ConverterBaseMojo
 {
-	// private static Logger log = LogManager.getLogger(NUCCImportMojo.class);
-
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 
 	private PropertyType attributes_;
@@ -114,7 +109,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				date = new Date(); // TODO remove this when getting valid data from source
 			}
 
-			importUtil_ = new IBDFCreationUtility(Optional.of("NUCC" + " " + converterSourceArtifactVersion), Optional.of(MetaData.NUCC_MODULES____SOLOR),
+			importUtil = new IBDFCreationUtility(Optional.of("NUCC" + " " + converterSourceArtifactVersion), Optional.of(MetaData.NUCC_MODULES____SOLOR),
 					outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, false, date.getTime());
 
 			attributes_ = new PT_Annotations();
@@ -145,25 +140,25 @@ public class NUCCImportMojo extends ConverterBaseMojo
 					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "NUCC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto nuccMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_), nuccMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes_, refsets_), nuccMetadata.getPrimordialUuid());
 
 			// Create NUCC root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptVersion nuccRootConcept = importUtil_.createConcept("NUCC", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion nuccRootConcept = importUtil.createConcept("NUCC", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created NUCC root concept " + nuccRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
 			ConsoleUtil.println("Metadata load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
 
-			ConsoleUtil.println("Processed " + importUtil_.getLoadStats().getConceptCount() + " metadata concepts");
+			ConsoleUtil.println("Processed " + importUtil.getLoadStats().getConceptCount() + " metadata concepts");
 
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			// Create concepts for each unique value in each of three Grouping, Classification and Specialization columns
 			// Each concept is created as a child of its respective column type concept
@@ -179,7 +174,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				// Create the Grouping value concept as a child of both NUCC root and the Grouping property metadata concept
 				// and store in map for later retrieval
 				final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(groupingPropertyUuid.toString() + "|" + value, true);
-				final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, null, null, null, groupingPropertyUuid,
+				final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, null, null, null, groupingPropertyUuid,
 						nuccRootConcept.getPrimordialUuid());
 				// ConsoleUtil.println("Created NUCC Grouping value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\" under
 				// parents Grouping property " + groupingPropertyUuid + " and NUCC root concept " + nuccRootConcept);
@@ -195,7 +190,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				if (StringUtils.isNotBlank(value))
 				{
 					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(classificationPropertyUuid.toString() + "|" + value, true);
-					final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, classificationPropertyUuid);
+					final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, true, classificationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Classification value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Classification property concept " + classificationPropertyUuid);
 					// Store Classification value concept in map by value
@@ -210,7 +205,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				if (StringUtils.isNotBlank(value))
 				{
 					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(specializationPropertyUuid.toString() + "|" + value, true);
-					final ConceptVersion valueConcept = importUtil_.createConcept(valueConceptUuid, value, true, specializationPropertyUuid);
+					final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, true, specializationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Specialization value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Specialization property concept " + classificationPropertyUuid);
 					// Store Specialization value concept in map by value
@@ -244,46 +239,46 @@ public class NUCCImportMojo extends ConverterBaseMojo
 					// Create row concept
 					UUID rowConceptUuid = ConverterUUID
 							.createNamespaceUUIDFromString(groupingValueConcept.getPrimordialUuid().toString() + "|" + row.get(NUCCColumnsV1.Code), true);
-					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, row.get(NUCCColumnsV1.Code), true,
+					final ConceptVersion rowConcept = importUtil.createConcept(rowConceptUuid, row.get(NUCCColumnsV1.Code), true,
 							groupingValueConcept.getPrimordialUuid());
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
 
 					// Add required NUCC Code annotation
-					importUtil_.addStaticStringAnnotation(rowComponentReference, row.get(NUCCColumnsV1.Code), codePropertyUuid, Status.ACTIVE);
+					importUtil.addStaticStringAnnotation(rowComponentReference, row.get(NUCCColumnsV1.Code), codePropertyUuid, Status.ACTIVE);
 
 					// Add required Grouping NID annotation
-					importUtil_.addAnnotation(rowComponentReference, null, new DynamicNidImpl(groupingValueConcept.getNid()), groupingPropertyUuid,
+					importUtil.addAnnotation(rowComponentReference, null, new DynamicNidImpl(groupingValueConcept.getNid()), groupingPropertyUuid,
 							Status.ACTIVE, (Long) null);
 
 					// Add optional Classification NID annotation
 					if (classificationValueConcept != null)
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicNidImpl(classificationValueConcept.getNid()),
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicNidImpl(classificationValueConcept.getNid()),
 								classificationPropertyUuid, Status.ACTIVE, (Long) null);
 					}
 					// Add optional Specialization NID annotation
 					if (specializationValueConcept != null)
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicNidImpl(specializationValueConcept.getNid()),
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicNidImpl(specializationValueConcept.getNid()),
 								specializationPropertyUuid, Status.ACTIVE, (Long) null);
 					}
 
 					// Add optional Notes comment annotation
 					if (StringUtils.isNotBlank(row.get(NUCCColumnsV1.Notes)))
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicStringImpl(row.get(NUCCColumnsV1.Notes)),
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicStringImpl(row.get(NUCCColumnsV1.Notes)),
 								DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), Status.ACTIVE, (Long) null);
 					}
 
 					// Add optional Definition description
 					if (StringUtils.isNotBlank(row.get(NUCCColumnsV1.Definition)))
 					{
-						importUtil_.addDescription(rowComponentReference, row.get(NUCCColumnsV1.Definition), DescriptionType.DEFINITION, false, (UUID) null,
+						importUtil.addDescription(rowComponentReference, row.get(NUCCColumnsV1.Definition), DescriptionType.DEFINITION, false, (UUID) null,
 								Status.ACTIVE);
 					}
 
 					// Add to refset allNuccConceptsRefset
-					importUtil_.addAssemblageMembership(rowComponentReference, allNuccConceptsRefset, Status.ACTIVE, (Long) null);
+					importUtil.addAssemblageMembership(rowComponentReference, allNuccConceptsRefset, Status.ACTIVE, (Long) null);
 
 					++dataRows;
 				}
@@ -296,13 +291,13 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			}
 
 			ConsoleUtil.println("Load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
 
 			ConsoleUtil.println("Processed " + dataRows + " data rows");
-			ConsoleUtil.println("Processed " + importUtil_.getLoadStats().getConceptCount() + " total concepts");
+			ConsoleUtil.println("Processed " + importUtil.getLoadStats().getConceptCount() + " total concepts");
 
 			ConsoleUtil.println("Processed " + groupingValueConceptByValueMap.size() + " distinct NUCC " + NUCCColumnsV1.Grouping + " concepts");
 			ConsoleUtil.println("Processed " + classificationValueConceptByValueMap.size() + " distinct NUCC " + NUCCColumnsV1.Classification + " concepts");
@@ -314,7 +309,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "nuccUuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -325,9 +320,9 @@ public class NUCCImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 

@@ -77,8 +77,6 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 @Mojo(name = "convert-ICD10-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class ICD10ImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 
 	private PropertyType attributes_;
@@ -121,7 +119,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 				throw new MojoExecutionException("sourceType must be set to a value such as 'CM' or 'PCS'");
 			}
 
-			importUtil_ = new IBDFCreationUtility(Optional.of("ICD-10-" + sourceType.toUpperCase() + " " + converterSourceArtifactVersion),
+			importUtil = new IBDFCreationUtility(Optional.of("ICD-10-" + sourceType.toUpperCase() + " " + converterSourceArtifactVersion),
 					Optional.of(MetaData.ICD10_MODULES____SOLOR), outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion,
 					converterOutputArtifactClassifier, false, date.getTime());
 
@@ -159,21 +157,21 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 					"ICD-10-" + sourceType.toUpperCase() + " Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto icdMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), icdMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), icdMetadata.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata summary:");
-			for (String s : importUtil_.getLoadStats().getSummary())
+			for (String s : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println("  " + s);
 			}
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			// Create ICD root concept under SOLOR_CONCEPT____SOLOR
-			icdRootConcept = importUtil_.createConcept("ICD-10-" + sourceType.toUpperCase(), true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid())
+			icdRootConcept = importUtil.createConcept("ICD-10-" + sourceType.toUpperCase(), true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid())
 					.getPrimordialUuid();
 			ConsoleUtil.println("Created ICD-10-" + sourceType.toUpperCase() + " root concept " + icdRootConcept + " under SOLOR_CONCEPT____SOLOR");
 
@@ -191,7 +189,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Processed " + conceptCount + " concepts");
 
 			ConsoleUtil.println("Load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
@@ -200,7 +198,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "icd10Uuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception e)
@@ -221,34 +219,34 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 
 			// Create row concept
 			final UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
-			final ComponentReference conceptReference = ComponentReference.fromConcept(importUtil_.createConcept(rowConceptUuid));
+			final ComponentReference conceptReference = ComponentReference.fromConcept(importUtil.createConcept(rowConceptUuid));
 
-			importUtil_.addDescription(conceptReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, false, null, // dialect
+			importUtil.addDescription(conceptReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, false, null, // dialect
 					null, // caseSignificance
 					null, // languageCode
 					null, descriptions_.getProperty(PT_Descriptions.Descriptions.ShortDescription.name()).getUUID(), state, null);
 
-			importUtil_.addDescription(conceptReference, null, preferred, DescriptionType.REGULAR_NAME, true, null, // dialect
+			importUtil.addDescription(conceptReference, null, preferred, DescriptionType.REGULAR_NAME, true, null, // dialect
 					null, // caseSignificance
 					null, // languageCode
 					null, descriptions_.getProperty(PT_Descriptions.Descriptions.LongDescription.name()).getUUID(), state, null);
 
 			// Add required ICD-10 Code annotation
-			importUtil_.addStaticStringAnnotation(conceptReference, code, attributes_.getProperty(PT_Annotations.Attribute.CODE.get()).getUUID(), state);
+			importUtil.addStaticStringAnnotation(conceptReference, code, attributes_.getProperty(PT_Annotations.Attribute.CODE.get()).getUUID(), state);
 
 			// Add required ICD-10 Order annotation
-			importUtil_.addStaticStringAnnotation(conceptReference, order, attributes_.getProperty(PT_Annotations.Attribute.ORDER.get()).getUUID(), state);
+			importUtil.addStaticStringAnnotation(conceptReference, order, attributes_.getProperty(PT_Annotations.Attribute.ORDER.get()).getUUID(), state);
 
 			if (!row.isHeader())
 			{
-				importUtil_.addAssemblageMembership(conceptReference, HIPPA_Valid, state, null);
+				importUtil.addAssemblageMembership(conceptReference, HIPPA_Valid, state, null);
 			}
 
 			// Figure out the correct parent code.
 			if (code.length() <= 3)
 			{
 				// Hang it on root
-				importUtil_.addParent(conceptReference, icdRootConcept);
+				importUtil.addParent(conceptReference, icdRootConcept);
 			}
 			else
 			{
@@ -267,14 +265,14 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 					}
 					else
 					{
-						importUtil_.addParent(conceptReference, temp);
+						importUtil.addParent(conceptReference, temp);
 						break;
 					}
 				}
 			}
 
 			// Add to refset allIcdConceptsRefset
-			importUtil_.addAssemblageMembership(conceptReference, allIcdConceptsRefset, state, null);
+			importUtil.addAssemblageMembership(conceptReference, allIcdConceptsRefset, state, null);
 			codeToUuid.put(code, conceptReference.getPrimordialUuid());
 
 			conceptCount++;
@@ -295,9 +293,9 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 

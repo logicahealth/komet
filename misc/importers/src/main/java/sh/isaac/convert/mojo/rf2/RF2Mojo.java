@@ -103,7 +103,6 @@ import sh.isaac.utility.MetaDataFinder;
 @Mojo(name = "convert-RF2-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class RF2Mojo extends ConverterBaseMojo
 {
-   private IBDFCreationUtility importUtil_;
    private H2DatabaseHandle db_;
    private boolean outputJson = false;  // Set to true to produce a json dump file
 
@@ -181,10 +180,10 @@ public class RF2Mojo extends ConverterBaseMojo
          File zipFile = init();
          loadDatabase(zipFile);
 
-         ComponentReference rf2Metadata = ComponentReference.fromConcept(importUtil_.createConcept("RF2 Metadata " + contentNameVersion_, true));
-         importUtil_.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid());
+         ComponentReference rf2Metadata = ComponentReference.fromConcept(importUtil.createConcept("RF2 Metadata " + contentNameVersion_, true));
+         importUtil.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid());
 
-         importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.ofNullable(timeString_), converterOutputArtifactVersion,
+         importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.ofNullable(timeString_), converterOutputArtifactVersion,
                Optional.of(converterOutputArtifactClassifier), converterVersion);
 
          // process content
@@ -203,13 +202,13 @@ public class RF2Mojo extends ConverterBaseMojo
          ConverterUUID.dump(outputDirectory, converterOutputArtifactClassifier + "-RF2UUID");
 
          ConsoleUtil.println("Load Statistics");
-         for (String s : importUtil_.getLoadStats().getSummary())
+         for (String s : importUtil.getLoadStats().getSummary())
          {
             ConsoleUtil.println(s);
          }
 
          // shutdown
-         importUtil_.shutdown();
+         importUtil.shutdown();
          db_.shutdown();
 
          ConsoleUtil.println("Finished converting " + contentNameVersion_ + "-" + converterOutputArtifactClassifier);
@@ -431,13 +430,13 @@ public class RF2Mojo extends ConverterBaseMojo
                {
                   // kick it over into an association bucket
                   // TODO should I toss these when processing inferred?
-                  SemanticChronology assn = importUtil_.addAssociation(ComponentReference.fromConcept(r.sourceId), r.id, r.destinationId, r.typeId,
+                  SemanticChronology assn = importUtil.addAssociation(ComponentReference.fromConcept(r.sourceId), r.id, r.destinationId, r.typeId,
                         r.isActive ? Status.ACTIVE : Status.INACTIVE, r.effectiveTime, r.moduleId);
                   // TODO put on modifier, group
 
                   if (r.sctID != null && !r.id.equals(lastId))
                   {
-                     importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(assn, () -> "Association"), r.sctID + "",
+                     importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(assn, () -> "Association"), r.sctID + "",
                            MetaData.SCTID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
 
@@ -505,13 +504,13 @@ public class RF2Mojo extends ConverterBaseMojo
                      throw new RuntimeException("Time sort failure!");
                   }
                   // TODO [graph] what if the modules are different across the graph rels?
-                  importUtil_.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0).getSourceId()), null, le, stated, newestRelTime,
+                  importUtil.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0).getSourceId()), null, le, stated, newestRelTime,
                         conRels.get(0).getRels().first().moduleId);
 
                   if (!stated && consWithNoStatedRel.contains(conRels.get(0).getSourceId()))
                   {
                      // substitute inferred expression, as early SNOMED stated expressions where lost.
-                     importUtil_.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0).getSourceId()), null, le, true, newestRelTime,
+                     importUtil.addRelationshipGraph(ComponentReference.fromConcept(conRels.get(0).getSourceId()), null, le, true, newestRelTime,
                            conRels.get(0).getRels().first().moduleId);
                   }
                   consWithNoStatedRel.remove(conRels.get(0).getSourceId());
@@ -606,7 +605,7 @@ public class RF2Mojo extends ConverterBaseMojo
                Get.identifierService().assignNid(conceptId);
             }
             
-            SemanticChronology desc = importUtil_.addDescription(ComponentReference.fromConcept(conceptId), id, term, DescriptionType.parse(typeId), null,
+            SemanticChronology desc = importUtil.addDescription(ComponentReference.fromConcept(conceptId), id, term, DescriptionType.parse(typeId), null,
                   null, caseSigId, LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(languageCode)).getPrimordialUuid(), moduleId, null,
                   active ? Status.ACTIVE : Status.INACTIVE, time);
 
@@ -614,7 +613,7 @@ public class RF2Mojo extends ConverterBaseMojo
             if (sctID != null && !id.equals(lastId))
             {
                lastId = id;
-               importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(desc), sctID + "", MetaData.SCTID____SOLOR.getPrimordialUuid(),
+               importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(desc), sctID + "", MetaData.SCTID____SOLOR.getPrimordialUuid(),
                      Status.ACTIVE);
             }
 
@@ -663,7 +662,7 @@ public class RF2Mojo extends ConverterBaseMojo
                   throw new RuntimeException("Unexpected acceptibility: " + acceptabilityId);
                }
 
-               importUtil_.addDescriptionAcceptability(ComponentReference.fromChronology(desc), acceptID, refsetId, preferred,
+               importUtil.addDescriptionAcceptability(ComponentReference.fromChronology(desc), acceptID, refsetId, preferred,
                      acceptActive ? Status.ACTIVE : Status.INACTIVE, acceptTime, acceptModuleId);
 
             }
@@ -734,11 +733,11 @@ public class RF2Mojo extends ConverterBaseMojo
             throw new RuntimeException("Unexpeted - multiple definition status values at the same time: " + sctID + " " + id + " " + definitionStatusId);
          }
 
-         ConceptVersion con = importUtil_.createConcept(id, time, active ? Status.ACTIVE : Status.INACTIVE, moduleId);
+         ConceptVersion con = importUtil.createConcept(id, time, active ? Status.ACTIVE : Status.INACTIVE, moduleId);
          if (sctID != null && !id.equals(lastId))
          {
             lastId = id;
-            importUtil_.addStaticStringAnnotation(ComponentReference.fromConcept(con), sctID + "", MetaData.SCTID____SOLOR.getPrimordialUuid(),
+            importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(con), sctID + "", MetaData.SCTID____SOLOR.getPrimordialUuid(),
                   Status.ACTIVE);
          }
          if (conCount % 1000 == 0)
@@ -1020,7 +1019,7 @@ public class RF2Mojo extends ConverterBaseMojo
       {
          modulePrefix = modulePrefix.substring(0, modulePrefix.length() - " modules".length());
       }
-      importUtil_ = new IBDFCreationUtility(Optional.of(modulePrefix + " " + converterSourceArtifactVersion), Optional.of(moduleUUID), outputDirectory,
+      importUtil = new IBDFCreationUtility(Optional.of(modulePrefix + " " + converterSourceArtifactVersion), Optional.of(moduleUUID), outputDirectory,
             converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, outputJson, defaultTime,
             Arrays.asList(new VersionType[] { VersionType.DESCRIPTION, VersionType.COMPONENT_NID, VersionType.DYNAMIC, VersionType.LONG }), true,
             ibdfFiles);

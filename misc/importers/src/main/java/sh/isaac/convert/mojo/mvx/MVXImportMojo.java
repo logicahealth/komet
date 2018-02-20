@@ -50,7 +50,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes;
@@ -81,8 +80,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 @Mojo(name = "convert-MVX-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class MVXImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 
 	private PropertyType attributes_;
@@ -103,7 +100,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 			// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.
 			Date date = new Date();
 
-			importUtil_ = new IBDFCreationUtility(Optional.of("MVX" + " " + converterSourceArtifactVersion), Optional.of(MetaData.MVX_MODULES____SOLOR),
+			importUtil = new IBDFCreationUtility(Optional.of("MVX" + " " + converterSourceArtifactVersion), Optional.of(MetaData.MVX_MODULES____SOLOR),
 					outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, false, date.getTime());
 
 			attributes_ = new PT_Annotations();
@@ -134,21 +131,21 @@ public class MVXImportMojo extends ConverterBaseMojo
 					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "MVX Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto mvxMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), mvxMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), mvxMetadata.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata summary:");
-			for (String s : importUtil_.getLoadStats().getSummary())
+			for (String s : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println("  " + s);
 			}
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptVersion mvxRootConcept = importUtil_.createConcept("MVX", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion mvxRootConcept = importUtil.createConcept("MVX", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created MVX root concept " + mvxRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
 			final UUID fsnSourceDescriptionTypeUUID = PT_Descriptions.Descriptions.ManufacturerName.getProperty().getUUID();
@@ -169,25 +166,25 @@ public class MVXImportMojo extends ConverterBaseMojo
 
 					// Create row concept
 					UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
-					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdated, state, null);
+					final ConceptVersion rowConcept = importUtil.createConcept(rowConceptUuid, lastUpdated, state, null);
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
-					importUtil_.addParent(rowComponentReference, mvxRootConcept.getPrimordialUuid());
+					importUtil.addParent(rowComponentReference, mvxRootConcept.getPrimordialUuid());
 
-					importUtil_.addDescription(rowComponentReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, true, dialect, caseSignificance,
+					importUtil.addDescription(rowComponentReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, true, dialect, caseSignificance,
 							languageCode, null, fsnSourceDescriptionTypeUUID, null, lastUpdated);
 
 					// Add required MVXCode annotation
-					importUtil_.addStaticStringAnnotation(rowComponentReference, code, mvxCodePropertyUuid, null);
+					importUtil.addStaticStringAnnotation(rowComponentReference, code, mvxCodePropertyUuid, null);
 
 					// Add optional Notes comment annotation
 					if (StringUtils.isNotBlank(MVXCodesHelper.getNotes(row)))
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicStringImpl(MVXCodesHelper.getNotes(row)),
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicStringImpl(MVXCodesHelper.getNotes(row)),
 								DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), null, lastUpdated);
 					}
 
 					// Add to refset allMvxConceptsRefset
-					importUtil_.addAssemblageMembership(rowComponentReference, allMvxConceptsRefset, null, lastUpdated);
+					importUtil.addAssemblageMembership(rowComponentReference, allMvxConceptsRefset, null, lastUpdated);
 
 					++conceptCount;
 				}
@@ -202,7 +199,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 
 			ConsoleUtil.println("Load Statistics");
 
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
@@ -210,7 +207,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "mvxUuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -221,9 +218,9 @@ public class MVXImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 

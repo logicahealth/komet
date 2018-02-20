@@ -81,8 +81,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 @Mojo(name = "convert-CVX-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class CVXImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 
 	private PropertyType attributes_;
@@ -103,7 +101,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 			// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.
 			Date date = new Date();
 
-			importUtil_ = new IBDFCreationUtility(Optional.of(CVXConstants.TERMINOLOGY_NAME + " " + converterSourceArtifactVersion),
+			importUtil = new IBDFCreationUtility(Optional.of(CVXConstants.TERMINOLOGY_NAME + " " + converterSourceArtifactVersion),
 					Optional.of(MetaData.CVX_MODULES____SOLOR), outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion,
 					converterOutputArtifactClassifier, false, date.getTime());
 
@@ -135,21 +133,21 @@ public class CVXImportMojo extends ConverterBaseMojo
 					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "CVX Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto cvxMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), cvxMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes_, refsets_, descriptions_), cvxMetadata.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata summary:");
-			for (String s : importUtil_.getLoadStats().getSummary())
+			for (String s : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println("  " + s);
 			}
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			// Create CVX root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptVersion cvxRootConcept = importUtil_.createConcept(CVXConstants.TERMINOLOGY_NAME, true,
+			final ConceptVersion cvxRootConcept = importUtil.createConcept(CVXConstants.TERMINOLOGY_NAME, true,
 					MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 			ConsoleUtil.println("Created CVX root concept " + cvxRootConcept.getPrimordialUuid() + " under SOLOR_CONCEPT____SOLOR");
 
@@ -176,34 +174,34 @@ public class CVXImportMojo extends ConverterBaseMojo
 
 					// Create row concept
 					final UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
-					final ConceptVersion rowConcept = importUtil_.createConcept(rowConceptUuid, lastUpdateTime, status, null);
+					final ConceptVersion rowConcept = importUtil.createConcept(rowConceptUuid, lastUpdateTime, status, null);
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
-					importUtil_.addParent(rowComponentReference, cvxRootConcept.getPrimordialUuid());
+					importUtil.addParent(rowComponentReference, cvxRootConcept.getPrimordialUuid());
 
-					importUtil_.addDescription(rowComponentReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, true, dialect, caseSignificance,
+					importUtil.addDescription(rowComponentReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, true, dialect, caseSignificance,
 							languageCode, null, fsnSourceDescriptionTypeUUID, null, lastUpdateTime);
 
-					importUtil_.addDescription(rowComponentReference, null, preferred, DescriptionType.REGULAR_NAME, true, dialect, caseSignificance,
+					importUtil.addDescription(rowComponentReference, null, preferred, DescriptionType.REGULAR_NAME, true, dialect, caseSignificance,
 							languageCode, null, preferredSynonymSourceDescriptionTypeUUID, null, lastUpdateTime);
 
 					// Add required CVXCode annotation
-					importUtil_.addStaticStringAnnotation(rowComponentReference, code, cvxCodePropertyUuid, null);
+					importUtil.addStaticStringAnnotation(rowComponentReference, code, cvxCodePropertyUuid, null);
 
 					// Add required CVX extended Status annotation
 					if (!(cvxStatus.toUpperCase().equals("ACTIVE") || cvxStatus.toUpperCase().equals("INACTIVE")))
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicStringImpl(cvxStatus), cvxStatusPropertyUuid, null, lastUpdateTime);
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicStringImpl(cvxStatus), cvxStatusPropertyUuid, null, lastUpdateTime);
 					}
 
 					// Add optional Notes comment annotation
 					if (StringUtils.isNotBlank(CVXCodesHelper.getNotes(row)))
 					{
-						importUtil_.addAnnotation(rowComponentReference, null, new DynamicStringImpl(CVXCodesHelper.getNotes(row)),
+						importUtil.addAnnotation(rowComponentReference, null, new DynamicStringImpl(CVXCodesHelper.getNotes(row)),
 								DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), null, lastUpdateTime);
 					}
 
 					// Add to refset allCvxConceptsRefset
-					importUtil_.addAssemblageMembership(rowComponentReference, allCvxConceptsRefset, null, lastUpdateTime);
+					importUtil.addAssemblageMembership(rowComponentReference, allCvxConceptsRefset, null, lastUpdateTime);
 
 					++conceptCount;
 				}
@@ -218,7 +216,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 
 			ConsoleUtil.println("Load Statistics");
 
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
@@ -226,7 +224,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "cvxUuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -237,9 +235,9 @@ public class CVXImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 
