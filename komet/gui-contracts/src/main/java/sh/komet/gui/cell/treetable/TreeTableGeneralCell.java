@@ -177,6 +177,7 @@ public class TreeTableGeneralCell
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
+                    propertySheet.setModeSwitcherVisible(false);
                     propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
                     propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
                     editPanel.setCenter(propertySheet);

@@ -130,12 +130,12 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * @param languageForDescription the language for description - also used as the assemblage
     */
    public DescriptionBuilderImpl(String descriptionText,
-                                      int conceptSequence,
+                                      int conceptNid,
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
       super(languageForDescription.getNid());
       this.descriptionText        = descriptionText;
-      this.conceptNid        = conceptSequence;
+      this.conceptNid        = conceptNid;
       this.descriptionType        = descriptionType;
       this.languageForDescription = languageForDescription;
       this.conceptBuilder         = null;
@@ -300,6 +300,11 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         }
         
         return temp;
+    }
+
+    @Override
+    public String toString() {
+        return "DescriptionBuilderImpl{" + "descriptionText=" + descriptionText + '}';
     }
 }
 
