@@ -19,7 +19,6 @@ logging config -->
 		<Logger name="sh.isaac.provider.query.lucene" level="info" />
 		<Logger name="sh.isaac.provider.logic" level="info" />
 		<Logger name="sh.isaac.provider.datastore.taxonomy.TaxonomyProvider" level="info"/>
-		<Logger name="sh.isaac.provider.query.lucene" level="warn"/>
 		<Root level="debug">
 			<AppenderRef ref="STDOUT" />
 		</Root>
