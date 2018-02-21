@@ -25,7 +25,7 @@ import javafx.application.Platform;
  *         Just a runner class in the test package, so that eclipse launches with a classpath that includes test libraries, which makes
  *         logging work to the console.
  */
-public class RxNormRunner extends RxNormMojo
+public class RxNormMojoRunner extends RxNormMojo
 {
 
 	/**
@@ -36,7 +36,7 @@ public class RxNormRunner extends RxNormMojo
 	 */
 	public static void main(String[] args) throws MojoExecutionException
 	{
-		final RxNormRunner mojo = new RxNormRunner();
+		final RxNormMojoRunner mojo = new RxNormMojoRunner();
 
 		try
 		{
