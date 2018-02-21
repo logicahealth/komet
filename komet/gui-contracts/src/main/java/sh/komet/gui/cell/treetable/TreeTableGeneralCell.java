@@ -53,9 +53,13 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -117,19 +121,35 @@ public class TreeTableGeneralCell
     private final BorderPane editPanel = new BorderPane();
     private SemanticVersion semanticVersion;
     private final FixedSizePane paneForText = new FixedSizePane();
+    private final ToolBar toolBar;
+
     //~--- constructors --------------------------------------------------------
     public TreeTableGeneralCell(Manifold manifold) {
         this.manifold = manifold;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
-              .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
+                .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
         editButton.setOnAction(this::toggleEdit);
         textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
         // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
         GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
-        GridPane.setConstraints(editButton,    2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
-        GridPane.setConstraints(editPanel,     0, 2, 3, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.ALWAYS);
+        GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+        GridPane.setConstraints(editPanel, 0, 2, 3, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.ALWAYS);
+        final Pane leftSpacer = new Pane();
+        HBox.setHgrow(
+                leftSpacer,
+                Priority.SOMETIMES
+        );
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(this::toggleEdit);
+        toolBar = new ToolBar(
+                leftSpacer,
+                cancelButton,
+                new Separator(),
+                new Button("Commit")
+        );
+
     }
 
     //~--- methods -------------------------------------------------------------
@@ -165,10 +185,10 @@ public class TreeTableGeneralCell
         paneForText.getChildren().add(textFlow);
         this.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         this.setGraphic(textAndEditGrid);
-   }
-    
+    }
+
     private void toggleEdit(ActionEvent event) {
-        
+
         if (editPanel.getChildren().isEmpty()) {
             if (this.semanticVersion != null) {
                 if (this.semanticVersion instanceof ObservableVersion) {
@@ -180,11 +200,15 @@ public class TreeTableGeneralCell
                     propertySheet.setModeSwitcherVisible(false);
                     propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
                     propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+
+                    editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
+                    editButton.setVisible(false);
                 }
             }
         } else {
             editPanel.getChildren().clear();
+            editButton.setVisible(true);
         }
     }
 
@@ -557,8 +581,8 @@ public class TreeTableGeneralCell
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);
             }
             break;
-            
-            case Str1_Nid2_Nid3_Nid4:{
+
+            case Str1_Nid2_Nid3_Nid4: {
                 Str1_Nid2_Nid3_Nid4_Version brittleVersion = version.unwrap();
 
                 StringBuilder buff = new StringBuilder();
@@ -575,7 +599,7 @@ public class TreeTableGeneralCell
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);
             }
             break;
-            case Str1_Str2_Nid3_Nid4_Nid5:{
+            case Str1_Str2_Nid3_Nid4_Nid5: {
                 Str1_Str2_Nid3_Nid4_Nid5_Version brittleVersion = version.unwrap();
 
                 StringBuilder buff = new StringBuilder();

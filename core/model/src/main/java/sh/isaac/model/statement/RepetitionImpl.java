@@ -33,9 +33,7 @@ public class RepetitionImpl implements Repetition {
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_DURATION.toExternalString());
     private final SimpleObjectProperty<Measure> eventFrequency =
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_FREQUENCY.toExternalString());
-    private final SimpleObjectProperty<Measure> eventSeparation = 
-            new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_SEPARATION.toExternalString());
-    private final SimpleObjectProperty<Measure> eventDuration = 
+    private final SimpleObjectProperty<Measure> eventDuration =
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_DURATION.toExternalString());
 
     @Override
@@ -75,19 +73,6 @@ public class RepetitionImpl implements Repetition {
 
     public void setEventFrequency(Measure eventFrequency) {
         this.eventFrequency.set(eventFrequency);
-    }
-
-    @Override
-    public Measure getEventSeparation() {
-        return eventSeparation.get();
-    }
-
-    public SimpleObjectProperty<Measure> eventSeperationProperty() {
-        return eventSeparation;
-    }
-
-    public void setEventSeperation(Measure eventSeperation) {
-        this.eventSeparation.set(eventSeperation);
     }
 
     @Override

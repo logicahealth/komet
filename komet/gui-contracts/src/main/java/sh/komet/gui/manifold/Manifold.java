@@ -221,6 +221,7 @@ public class Manifold
              .getDefaultEditCoordinate());
    }
 
+   
    public static Manifold newManifold(String name,
                                       UUID manifoldUuid,
                                       ObservableManifoldCoordinate observableManifoldCoordinate,

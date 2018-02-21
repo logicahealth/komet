@@ -289,6 +289,11 @@ public class ObservableConceptChronologyImpl
    public String toString() {
       return "ObservableConceptChronologyImpl{" + getConceptChronology().toString() + '}';
    }
+
+    @Override
+    public ObservableConceptVersionImpl createAutonomousMutableVersion(EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
    
    
 }

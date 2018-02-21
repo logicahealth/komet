@@ -87,7 +87,7 @@ public class ConceptLabel
         this.setMinWidth(100);
         
         ContextMenu contextMenu = new ContextMenu();
-        
+        setupContextMenu(contextMenu);
         this.setContextMenu(contextMenu);
         contextMenu.setOnShowing(this::handle);
     }
@@ -95,16 +95,20 @@ public class ConceptLabel
     //~--- methods -------------------------------------------------------------
     private void handle(WindowEvent event) {
         ContextMenu contextMenu = (ContextMenu) event.getSource();
-        contextMenu.getItems().clear();
         
         if (this.menuSupplier != null) {
-            List<MenuItem> menuItems = this.menuSupplier.get();
-            if (!menuItems.isEmpty()) {
-                for (MenuItem menu : menuItems) {
-                    contextMenu.getItems().add(menu);
-                }
-                contextMenu.getItems().add(new SeparatorMenuItem());
+            setupContextMenu(contextMenu);
+        } 
+    }
+
+    private void setupContextMenu(ContextMenu contextMenu) {
+        contextMenu.getItems().clear();
+        List<MenuItem> menuItems = this.menuSupplier.get();
+        if (!menuItems.isEmpty()) {
+            for (MenuItem menu : menuItems) {
+                contextMenu.getItems().add(menu);
             }
+            contextMenu.getItems().add(new SeparatorMenuItem());
         }
     }
     

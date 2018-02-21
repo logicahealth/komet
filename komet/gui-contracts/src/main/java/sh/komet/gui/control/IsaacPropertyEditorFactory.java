@@ -28,6 +28,7 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Status;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -63,10 +64,17 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
         } else {
             return new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, () -> {
                 List<MenuItem> labelMenu = new ArrayList<>();
-                Menu assemblagesMenu = new Menu("No functions defined");
-                labelMenu.add(assemblagesMenu);
                 
-                
+                for (String manifoldGroup: Manifold.getGroupNames()) {
+                    Menu manifoldHistory = new Menu(manifoldGroup);
+                    labelMenu.add(manifoldHistory);
+                    Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+                    for (HistoryRecord record: groupHistory) {
+                        manifoldHistory.getItems().add(new MenuItem(
+                                manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
+                        ));
+                    }
+                }
                 return labelMenu;
             });
         }
