@@ -418,24 +418,6 @@ public class RxNormMojo extends ConverterBaseMojo {
    }
 
    /**
-    * The main method.
-    *
-    * @param args the arguments
-    * @throws MojoExecutionException the mojo execution exception
-    */
-   public static void main(String[] args) throws MojoExecutionException {
-      final RxNormMojo mojo = new RxNormMojo();
-
-      mojo.outputDirectory = new File("../rxnorm-ibdf/rxnorm/target");
-      mojo.inputFileLocation = new File("../rxnorm-ibdf/rxnorm/target/generated-resources/src");
-      mojo.converterVersion = "foo";
-      mojo.converterOutputArtifactVersion = "bar";
-      mojo.converterSourceArtifactVersion = "foooo";
-      mojo.converterOutputArtifactId = "rxnorm-ibdf";
-      mojo.execute();
-   }
-
-   /**
     * Adds the relationships.
     *
     * @param concept the concept
@@ -480,12 +462,12 @@ public class RxNormMojo extends ConverterBaseMojo {
                continue;
             }
 
-            final Property relTypeAsRel = this.ptRelationships.getProperty(((relationship.getRela() == null) ? relationship.getRel() : relationship.getRela()));
+            final Optional<Property> relTypeAsRel = this.ptRelationships.getPropertyOptional(((relationship.getRela() == null) ? relationship.getRel() : relationship.getRela()));
             final PropertyAssociation relTypeAsAssn = (PropertyAssociation) this.ptAssociations
                   .getProperty(((relationship.getRela() == null) ? relationship.getRel() : relationship.getRela()));
             ComponentReference r;
 
-            if (relTypeAsRel != null) {
+            if (relTypeAsRel.isPresent()) {
                parents.add(relationship.getTargetUUID());
                continue;
             } else if (relTypeAsAssn != null) {
@@ -608,7 +590,9 @@ public class RxNormMojo extends ConverterBaseMojo {
     * @return the uuid
     */
    private UUID createCUIConceptUUID(String cui) {
-      return ConverterUUID.createNamespaceUUIDFromString("CUI:" + cui, true);
+      UUID temp = ConverterUUID.createNamespaceUUIDFromString("CUI:" + cui, true);
+      Get.identifierService().assignNid(temp);
+      return temp;
    }
 
    /**
@@ -787,10 +771,10 @@ public class RxNormMojo extends ConverterBaseMojo {
       final boolean createdNew = this.db.createOrOpenDatabase(new File(this.outputDirectory, "rrfDB"));
 
       if (!createdNew) {
-         ConsoleUtil.println("Using existing database.  To load from scratch, delete the file '" + dbFile.getAbsolutePath() + ".*'");
+         ConsoleUtil.println("Using existing database.  To load from scratch, delete the file '" + dbFile.getCanonicalPath() + ".*'");
       } else {
          // RxNorm doesn't give us the UMLS tables that define the table definitions, so I put them into an XML file.
-         final List<TableDefinition> tables = this.db.loadTableDefinitionsFromXML(RxNormMojo.class.getResourceAsStream("/RxNormTableDefinitions.xml"));
+         final List<TableDefinition> tables = this.db.loadTableDefinitionsFromXML(RxNormMojo.class.getResourceAsStream("/rxnorm/RxNormTableDefinitions.xml"));
 
          for (final TableDefinition td : tables) {
             final ZipEntry ze = zf.getEntry("rrf/" + td.getTableName() + ".RRF");
@@ -889,6 +873,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                else if (ae == null) {
                   ConsoleUtil.println("No Abbreviation Expansion found for " + abbreviation + " using FSN: " + abbreviation 
                         + "  Alt:" + altName + " description:" + description);
+                  this.ptTermAttributes.addProperty(abbreviation, altName, description);
                } else {
                   this.ptTermAttributes.addProperty(ae.getExpansion(), ae.getAbbreviation(), ae.getDescription());
                }
@@ -1688,7 +1673,7 @@ public class RxNormMojo extends ConverterBaseMojo {
             desc.addUUIDAttribute(this.ptUMLSAttributes.getProperty("SAB").getUUID(), this.ptSABs.getProperty(atom.sab).getUUID());
 
             if (StringUtils.isNotBlank(atom.code) && !atom.code.equals("NOCODE")) {
-               desc.addIdentifierAttribute(this.ptUMLSAttributes.getProperty("CODE").getUUID(), atom.code);
+               desc.addIdentifierAttribute(this.ptUMLSAttributes.getProperty(MetaData.CODE____SOLOR.getFullyQualifiedName()).getUUID(), atom.code);
             }
 
             if (StringUtils.isNotBlank(atom.saui)) {
