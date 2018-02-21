@@ -1426,7 +1426,7 @@ public class Frills
 
       if (SctId.isValidSctId(localIdentifier)) {
 
-         IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
+         IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
          if (si != null) {
             // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
             List<SearchResult> result = si.query(localIdentifier + " ", true, new int[] { MetaData.SCTID____SOLOR.getNid() }, null, null, 5, Long.MIN_VALUE);
@@ -1440,7 +1440,7 @@ public class Frills
                }
             }
          } else {
-            LOG.warn("Sememe Index not available - can't lookup SCTID");
+            LOG.warn("Semantic Index not available - can't lookup SCTID");
          }
       } 
       return Optional.empty();
@@ -1867,7 +1867,7 @@ public class Frills
     * @return the nid for SCTID
     */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "semantic indexer");
+      final IndexQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
@@ -1883,7 +1883,7 @@ public class Frills
             return Optional.of(Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid());
          }
       } else {
-         LOG.warn("Sememe Index not available - can't lookup SCTID");
+         LOG.warn("Semantic Index not available - can't lookup SCTID");
       }
 
       return Optional.empty();
@@ -2344,7 +2344,7 @@ public class Frills
    public static Set<Integer> getVuidSemanticNidsForVUID(long vuID) {
       final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
       if (si == null) {
-         final String msg = "Sememe Index not available - can't lookup VUID " + vuID;
+         final String msg = "Semantic Index not available - can't lookup VUID " + vuID;
          LOG.error(msg);
          throw new RuntimeException(msg);
       }
