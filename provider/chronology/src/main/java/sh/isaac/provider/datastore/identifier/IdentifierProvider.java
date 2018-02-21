@@ -248,10 +248,14 @@ public class IdentifierProvider
 
          if (nid != Integer.MAX_VALUE) {
             if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid) {
-               throw new IllegalArgumentException("The UUIDs  " + Arrays.toString(uuids) 
-                  + " provided are already assigned to different, distinct nids, and cannot be assigned to a single nid.  Found " + lastFoundNid + " and " + nid);
+               LOG.trace("Two UUIDs are being merged onto a single nid!  Found " + lastFoundNid + " and " + nid);
+               //I don't want to update lastFoundNid in this case, because the uuid -> nid mapping is for the previously checked UUID.
+               //This UUID will need to be remaped to a new nid:
+               uuidsWithoutNid.add(uuid);
             }
-            lastFoundNid = nid;
+            else {
+               lastFoundNid = nid;
+            }
          }
          else {
             uuidsWithoutNid.add(uuid);
