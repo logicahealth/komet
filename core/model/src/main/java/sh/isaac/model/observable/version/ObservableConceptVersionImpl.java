@@ -44,12 +44,18 @@ package sh.isaac.model.observable.version;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,6 +78,20 @@ public class ObservableConceptVersionImpl
       super(stampedVersion, 
               chronology);
    }
+
+   public ObservableConceptVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+      super(chronology);
+      this.setStatus(versionToClone.getStatus());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {

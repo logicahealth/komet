@@ -74,7 +74,7 @@ public class ConceptForControlWrapper
       this.conceptNid = conceptNid;
 
       //TODO HACK for resolving issue with ListView items toString() not calling service to early
-      System.out.println("Created ConceptForControlWrapper: " + this.toString());
+      this.toString();
    }
 
    //~--- methods -------------------------------------------------------------

@@ -247,7 +247,7 @@ public enum ObservableFields
    STATEMENT_AUTHORS("Statement authors", "Authors"),
    STATEMENT_SOI("Statement subject of information", "Subject"),
    STATEMENT_TYPE("Statement type", "Type"),
-   STATEMENT_TOPIC("Statement topic", "Topic"),
+   STATEMENT_TOPIC("Statement action topic", "Action topic"),
    STATEMENT_CIRCUMSTANCE("Statement circumstance", "Circumstance"),
    STATEMENT_ASSOCIATIONS("Statement associations", "Associations"),
    

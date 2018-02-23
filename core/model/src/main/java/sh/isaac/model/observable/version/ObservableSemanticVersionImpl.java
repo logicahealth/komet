@@ -52,6 +52,7 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
@@ -82,6 +83,30 @@ public class ObservableSemanticVersionImpl
       super(stampedVersion, 
               chronology);
    }
+
+
+   public ObservableSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+      super(chronology);
+      this.assemblageNidProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+               ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
+               versionToClone.getAssemblageNid()));
+         this.referencedComponentNidProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
+               versionToClone.getReferencedComponentNid()));
+         this.setStatus(versionToClone.getStatus());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableSemanticVersionImpl analog = new ObservableSemanticVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
@@ -155,7 +180,10 @@ public class ObservableSemanticVersionImpl
     */
    @Override
    public int getAssemblageNid() {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
+       if (this.stampedVersionProperty != null) {
+           return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
+       }
+      return assemblageNidProperty().get();
    }
 
    /**
@@ -175,7 +203,10 @@ public class ObservableSemanticVersionImpl
     */
    @Override
    public int getReferencedComponentNid() {
+       if (this.stampedVersionProperty != null) {
       return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
+       }
+       return referencedComponentNidProperty().get();
    }
 
    @Override

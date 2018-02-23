@@ -48,6 +48,8 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Version;
 import sh.isaac.model.observable.CommitAwareStringProperty;
@@ -73,10 +75,28 @@ public class Observable_Str1_Str2_VersionImpl
       super(stampedVersion, chronology);
    }
 
+   private Observable_Str1_Str2_VersionImpl(Observable_Str1_Str2_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setStr1(versionToClone.getStr1());
+      setStr2(versionToClone.getStr2());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        Observable_Str1_Str2_VersionImpl analog = new Observable_Str1_Str2_VersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
    //~--- methods -------------------------------------------------------------
 
    @Override
    public StringProperty str1Property() {
+      if (this.stampedVersionProperty == null  && this.str1Property == null) {
+        this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(),
+        "");
+      }
       if (this.str1Property == null) {
          this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(), getStr1());
          this.str1Property.addListener(
@@ -90,6 +110,10 @@ public class Observable_Str1_Str2_VersionImpl
 
    @Override
    public StringProperty str2Property() {
+      if (this.stampedVersionProperty == null  && this.str2Property == null) {
+        this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(),
+        "");
+      }
       if (this.str2Property == null) {
          this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(), getStr2());
          this.str2Property.addListener(
@@ -115,12 +139,17 @@ public class Observable_Str1_Str2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr1(String value) {
+   public final void setStr1(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str1Property();
+       }
       if (this.str1Property != null) {
          this.str1Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Version().setStr1(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -141,12 +170,17 @@ public class Observable_Str1_Str2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr2(String value) {
+   public final void setStr2(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str2Property();
+       }
       if (this.str2Property != null) {
          this.str2Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Version().setStr2(value);
+      }
    }
 
    @Override

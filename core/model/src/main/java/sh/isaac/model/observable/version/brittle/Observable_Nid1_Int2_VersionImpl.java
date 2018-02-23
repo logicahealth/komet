@@ -48,6 +48,8 @@ import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Int2_Version;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -73,10 +75,29 @@ public class Observable_Nid1_Int2_VersionImpl
       super(stampedVersion, chronology);
    }
 
+   public Observable_Nid1_Int2_VersionImpl(Observable_Nid1_Int2_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setNid1(versionToClone.getNid1());
+      setInt2(versionToClone.getInt2());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        Observable_Nid1_Int2_VersionImpl analog = new Observable_Nid1_Int2_VersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty int2Property() {
+      if (this.stampedVersionProperty == null  && this.int2Property == null) {
+        this.int2Property = new CommitAwareIntegerProperty(this, ObservableFields.INT2.toExternalString(),
+        0);
+      }
       if (this.int2Property == null) {
          this.int2Property = new CommitAwareIntegerProperty(this, ObservableFields.INT2.toExternalString(), getInt2());
          this.int2Property.addListener(
@@ -90,6 +111,10 @@ public class Observable_Nid1_Int2_VersionImpl
 
    @Override
    public IntegerProperty nid1Property() {
+      if (this.stampedVersionProperty == null  && this.nid1Property == null) {
+        this.nid1Property = new CommitAwareIntegerProperty(this, ObservableFields.NID1.toExternalString(),
+        0);
+      }
       if (this.nid1Property == null) {
          this.nid1Property = new CommitAwareIntegerProperty(this, ObservableFields.NID1.toExternalString(), getNid1());
          this.nid1Property.addListener(
@@ -115,12 +140,17 @@ public class Observable_Nid1_Int2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setInt2(int value) {
+   public final void setInt2(int value) {
+       if (this.stampedVersionProperty == null) {
+           this.int2Property();
+       }
       if (this.int2Property != null) {
          this.int2Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getNid1_Int2_Version().setInt2(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -137,12 +167,17 @@ public class Observable_Nid1_Int2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setNid1(int nid) {
+   public final void setNid1(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.nid1Property();
+       }
       if (this.nid1Property != null) {
          this.nid1Property.set(nid);
       }
 
+      if (this.stampedVersionProperty != null) {
       getNid1_Int2_Version().setNid1(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------

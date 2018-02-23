@@ -25,6 +25,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -55,6 +56,22 @@ public class ObservableComponentNidVersionImpl
       super(version, 
               chronology);
    }
+   
+
+   public ObservableComponentNidVersionImpl(ObservableComponentNidVersion versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setComponentNid(versionToClone.getComponentNid());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableComponentNidVersionImpl analog = new ObservableComponentNidVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+   
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
@@ -74,6 +91,11 @@ public class ObservableComponentNidVersionImpl
     */
    @Override
    public IntegerProperty componentNidProperty() {
+      if (this.stampedVersionProperty == null && componentNidProperty == null) {
+         this.componentNidProperty = new CommitAwareIntegerProperty(this,
+               ObservableFields.COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                 0);
+      }
       if (this.componentNidProperty == null) {
          this.componentNidProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
@@ -119,11 +141,16 @@ public class ObservableComponentNidVersionImpl
     * @param componentNid the new case significance concept sequence
     */
    @Override
-   public void setComponentNid(int componentNid) {
+   public final void setComponentNid(int componentNid) {
+       if (this.stampedVersionProperty == null) {
+           this.componentNidProperty();
+       }
       if (this.componentNidProperty != null) {
          this.componentNidProperty.set(componentNid);
       }
-      ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(componentNid);
+      if (this.stampedVersionProperty != null) {
+        ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(componentNid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------

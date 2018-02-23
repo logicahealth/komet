@@ -393,7 +393,7 @@ public class TermAux implements StaticIsaacCache {
 
     public static ConceptSpecification STATEMENT_TYPE = new ConceptProxy("Type of statement", "Statement type", UUID.fromString("eefc0031-43b0-5eed-aec4-9fe9ed66c624"));
     public static ConceptSpecification REQUEST_STATEMENT = new ConceptProxy("Request statement", "Request", UUID.fromString("2e2a53ac-a1bc-5eca-bef5-56fa31ee7ea7"));
-    public static ConceptSpecification PERFORMANCE_STATEMENT = new ConceptProxy("Performance statement", "Statement", UUID.fromString("1c0d30a0-b7aa-5b2a-b295-4cd5c68ab4ec"));
+    public static ConceptSpecification PERFORMANCE_STATEMENT = new ConceptProxy("Performance statement", "Performance", UUID.fromString("1c0d30a0-b7aa-5b2a-b295-4cd5c68ab4ec"));
 
     public static ConceptSpecification SUBJECT_OF_INFORMATION = new ConceptProxy("Subject of information", "Subject of information", UUID.fromString("4aebb90a-e361-5d07-b5e2-2250b7d8b60d"));
     public static ConceptSpecification SUBJECT_OF_RECORD = new ConceptProxy("Subject of record", "Subject of record", UUID.fromString("8fbaaefc-e7df-5cd3-8f91-788cbb4997c9"));

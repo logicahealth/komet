@@ -98,7 +98,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 591;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 590;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
 		

@@ -49,6 +49,8 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Nid3_Nid4_Version;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -78,10 +80,31 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
       super(stampedVersion, chronology);
    }
 
+   private Observable_Str1_Str2_Nid3_Nid4_VersionImpl(Observable_Str1_Str2_Nid3_Nid4_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setStr1(versionToClone.getStr1());
+      setStr2(versionToClone.getStr2());
+      setNid3(versionToClone.getNid3());
+      setNid4(versionToClone.getNid4());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        Observable_Str1_Str2_Nid3_Nid4_VersionImpl analog = new Observable_Str1_Str2_Nid3_Nid4_VersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty nid3Property() {
+      if (this.stampedVersionProperty == null  && this.nid3Property == null) {
+        this.nid3Property = new CommitAwareIntegerProperty(this, ObservableFields.NID3.toExternalString(),
+        0);
+      }
       if (this.nid3Property == null) {
          this.nid3Property = new CommitAwareIntegerProperty(this, ObservableFields.NID3.toExternalString(), getNid3());
          this.nid3Property.addListener(
@@ -95,6 +118,10 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
 
    @Override
    public IntegerProperty nid4Property() {
+      if (this.stampedVersionProperty == null  && this.nid4Property == null) {
+        this.nid4Property = new CommitAwareIntegerProperty(this, ObservableFields.NID4.toExternalString(),
+        0);
+      }
       if (this.nid4Property == null) {
          this.nid4Property = new CommitAwareIntegerProperty(this, ObservableFields.NID4.toExternalString(), getNid4());
          this.nid4Property.addListener(
@@ -108,6 +135,10 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
 
    @Override
    public StringProperty str1Property() {
+      if (this.stampedVersionProperty == null  && this.str1Property == null) {
+        this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(),
+        "");
+      }
       if (this.str1Property == null) {
          this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(), getStr1());
          this.str1Property.addListener(
@@ -121,6 +152,10 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
 
    @Override
    public StringProperty str2Property() {
+      if (this.stampedVersionProperty == null  && this.str2Property == null) {
+        this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(),
+        "");
+      }
       if (this.str2Property == null) {
          this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(), getStr2());
          this.str2Property.addListener(
@@ -146,12 +181,17 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setNid3(int nid) {
+   public final void setNid3(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.nid3Property();
+       }
       if (this.nid3Property != null) {
          this.nid3Property.set(nid);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Nid3_Nid4_Version().setNid3(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -168,12 +208,17 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setNid4(int nid) {
+   public final void setNid4(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.nid4Property();
+       }
       if (this.nid4Property != null) {
          this.nid4Property.set(nid);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Nid3_Nid4_Version().setNid4(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -190,12 +235,17 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr1(String value) {
+   public final void setStr1(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str1Property();
+       }
       if (this.str1Property != null) {
          this.str1Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Nid3_Nid4_Version().setStr1(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -216,12 +266,17 @@ public class Observable_Str1_Str2_Nid3_Nid4_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr2(String value) {
+   public final void setStr2(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str2Property();
+       }
       if (this.str2Property != null) {
          this.str2Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Nid3_Nid4_Version().setStr2(value);
+      }
    }
 
    @Override

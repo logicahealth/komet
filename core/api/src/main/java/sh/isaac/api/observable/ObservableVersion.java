@@ -57,6 +57,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -162,5 +163,8 @@ public interface ObservableVersion
     * @return 
     */
    <T extends Object> Optional<T> removeUserObject(String objectKey);
+   
+   <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec);
+
 }
 

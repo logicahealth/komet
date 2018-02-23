@@ -48,6 +48,8 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.model.observable.CommitAwareStringProperty;
@@ -78,11 +80,34 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
          ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
+   private Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setStr1(versionToClone.getStr1());
+      setStr2(versionToClone.getStr2());
+      setStr3(versionToClone.getStr3());
+      setStr4(versionToClone.getStr4());
+      setStr5(versionToClone.getStr5());
+      setStr6(versionToClone.getStr6());
+      setStr7(versionToClone.getStr7());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl analog = new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public StringProperty str1Property() {
+      if (this.stampedVersionProperty == null  && this.str1Property == null) {
+        this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(),
+        "");
+      }
       if (this.str1Property == null) {
          this.str1Property = new CommitAwareStringProperty(this, ObservableFields.STR1.toExternalString(), getStr1());
          this.str1Property.addListener(
@@ -96,6 +121,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str2Property() {
+      if (this.stampedVersionProperty == null  && this.str2Property == null) {
+        this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(),
+        "");
+      }
       if (this.str2Property == null) {
          this.str2Property = new CommitAwareStringProperty(this, ObservableFields.STR2.toExternalString(), getStr2());
          this.str2Property.addListener(
@@ -109,6 +138,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str3Property() {
+      if (this.stampedVersionProperty == null  && this.str3Property == null) {
+        this.str3Property = new CommitAwareStringProperty(this, ObservableFields.STR3.toExternalString(),
+        "");
+      }
       if (this.str3Property == null) {
          this.str3Property = new CommitAwareStringProperty(this, ObservableFields.STR3.toExternalString(), getStr3());
          this.str3Property.addListener(
@@ -122,6 +155,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str4Property() {
+      if (this.stampedVersionProperty == null  && this.str4Property == null) {
+        this.str4Property = new CommitAwareStringProperty(this, ObservableFields.STR4.toExternalString(),
+        "");
+      }
       if (this.str4Property == null) {
          this.str4Property = new CommitAwareStringProperty(this, ObservableFields.STR4.toExternalString(), getStr4());
          this.str4Property.addListener(
@@ -135,6 +172,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str5Property() {
+      if (this.stampedVersionProperty == null  && this.str5Property == null) {
+        this.str5Property = new CommitAwareStringProperty(this, ObservableFields.STR5.toExternalString(),
+        "");
+      }
       if (this.str5Property == null) {
          this.str5Property = new CommitAwareStringProperty(this, ObservableFields.STR5.toExternalString(), getStr5());
          this.str5Property.addListener(
@@ -148,6 +189,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str6Property() {
+      if (this.stampedVersionProperty == null  && this.str6Property == null) {
+        this.str6Property = new CommitAwareStringProperty(this, ObservableFields.STR6.toExternalString(),
+        "");
+      }
       if (this.str6Property == null) {
          this.str6Property = new CommitAwareStringProperty(this, ObservableFields.STR6.toExternalString(), getStr6());
          this.str6Property.addListener(
@@ -161,6 +206,10 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
    @Override
    public StringProperty str7Property() {
+      if (this.stampedVersionProperty == null  && this.str7Property == null) {
+        this.str7Property = new CommitAwareStringProperty(this, ObservableFields.STR7.toExternalString(),
+        "");
+      }
       if (this.str7Property == null) {
          this.str7Property = new CommitAwareStringProperty(this, ObservableFields.STR7.toExternalString(), getStr7());
          this.str7Property.addListener(
@@ -186,12 +235,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr1(String value) {
+   public final void setStr1(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str1Property();
+       }
       if (this.str1Property != null) {
          this.str1Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr1(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -212,12 +266,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr2(String value) {
+   public final void setStr2(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str2Property();
+       }
       if (this.str2Property != null) {
          this.str2Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr2(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -234,12 +293,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr3(String value) {
+   public final void setStr3(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str3Property();
+       }
       if (this.str3Property != null) {
          this.str3Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr3(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -256,12 +320,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr4(String value) {
+   public final void setStr4(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str4Property();
+       }
       if (this.str4Property != null) {
          this.str4Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr4(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -278,12 +347,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr5(String value) {
+   public final void setStr5(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str5Property();
+       }
       if (this.str5Property != null) {
          this.str5Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr5(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -300,12 +374,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr6(String value) {
+   public final void setStr6(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str6Property();
+       }
       if (this.str6Property != null) {
          this.str6Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr6(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -322,12 +401,17 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setStr7(String value) {
+   public final void setStr7(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.str7Property();
+       }
       if (this.str7Property != null) {
          this.str7Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().setStr7(value);
+      }
    }
 
    @Override

@@ -192,8 +192,10 @@ public class TreeTableGeneralCell
         if (editPanel.getChildren().isEmpty()) {
             if (this.semanticVersion != null) {
                 if (this.semanticVersion instanceof ObservableVersion) {
-                    ObservableVersion observableVersion = (ObservableVersion) this.semanticVersion;
-                    List<Property<?>> propertiesToEdit = observableVersion.getEditableProperties();
+                    ObservableVersion currentVersion = (ObservableVersion) this.semanticVersion;
+                    ObservableVersion mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
+                    
+                    List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);

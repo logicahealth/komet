@@ -54,11 +54,13 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.CommitAwareLongProperty;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -84,6 +86,21 @@ public class ObservableStringVersionImpl
       super(stampedVersion, chronology);
    }
 
+   public ObservableStringVersionImpl(ObservableStringVersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setString(versionToClone.getString());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableStringVersionImpl analog = new ObservableStringVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
+
    //~--- methods -------------------------------------------------------------
 
    @Override
@@ -105,6 +122,12 @@ public class ObservableStringVersionImpl
     */
    @Override
    public StringProperty stringProperty() {
+      if (this.stampedVersionProperty == null && this.stringProperty == null) {
+         this.stringProperty = new CommitAwareStringProperty(
+             this,
+             ObservableFields.STRING_VALUE_FOR_SEMANTIC.toExternalString(),
+                 "");
+      }
       if (this.stringProperty == null) {
          this.stringProperty = new CommitAwareStringProperty(
              this,
@@ -168,11 +191,16 @@ public class ObservableStringVersionImpl
     */
    @Override
    public void setString(String string) {
+       if (this.stampedVersionProperty == null) {
+           this.stringProperty();
+       }
       if (this.stringProperty != null) {
          this.stringProperty.set(string);
       }
 
-      ((MutableStringVersion) this.stampedVersionProperty.get()).setString(string);
+      if (this.stampedVersionProperty != null) {
+        ((MutableStringVersion) this.stampedVersionProperty.get()).setString(string);
+      }
    }
 }
 
