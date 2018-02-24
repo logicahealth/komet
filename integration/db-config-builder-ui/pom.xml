@@ -29,6 +29,11 @@
          <artifactId>importers</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
+      
+      <dependency>
+          <groupId>org.controlsfx</groupId>
+          <artifactId>controlsfx</artifactId>
+      </dependency>
 
       <!-- Putting logging here for running command line / console mains from this project -->
       <dependency>
