@@ -19,6 +19,7 @@ package sh.komet.gui.control;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.util.Callback;
@@ -62,7 +63,7 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
 
             return Editors.createChoiceEditor(propertySheetItem, collection);
         } else {
-            return new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, () -> {
+            ConceptLabel conceptLabel = new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, (label) -> {
                 List<MenuItem> labelMenu = new ArrayList<>();
                 
                 for (String manifoldGroup: Manifold.getGroupNames()) {
@@ -70,13 +71,21 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
                     labelMenu.add(manifoldHistory);
                     Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                     for (HistoryRecord record: groupHistory) {
-                        manifoldHistory.getItems().add(new MenuItem(
+                        MenuItem conceptItem = new MenuItem(
                                 manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
-                        ));
+                        );
+                        conceptItem.setOnAction((ActionEvent event) -> {
+                            label.setValue(record.getComponentId());
+                        });
+                        manifoldHistory.getItems().add(conceptItem);
                     }
                 }
                 return labelMenu;
             });
+            
+            
+            
+            return conceptLabel;
         }
     }
    

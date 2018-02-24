@@ -19,14 +19,13 @@ package sh.komet.gui.control;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -61,15 +60,13 @@ public class ConceptLabel
     Manifold manifold;
     Consumer<ConceptLabel> descriptionTextUpdater;
     Background originalBackground;
-    final Supplier<List<MenuItem>> menuSupplier;
+    final Function<ConceptLabel, List<MenuItem>> menuSupplier;
     final SimpleObjectProperty<ConceptSpecification> conceptInLabel = new SimpleObjectProperty<>();
-
-    ;
 
    //~--- constructors --------------------------------------------------------
    public ConceptLabel(Manifold manifold,
             Consumer<ConceptLabel> descriptionTextUpdater,
-            Supplier<List<MenuItem>> menuSupplier) {
+            Function<ConceptLabel, List<MenuItem>> menuSupplier) {
         super(EMPTY_TEXT);
         if (menuSupplier == null) {
             throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
@@ -103,12 +100,11 @@ public class ConceptLabel
 
     private void setupContextMenu(ContextMenu contextMenu) {
         contextMenu.getItems().clear();
-        List<MenuItem> menuItems = this.menuSupplier.get();
+        List<MenuItem> menuItems = this.menuSupplier.apply(this);
         if (!menuItems.isEmpty()) {
             for (MenuItem menu : menuItems) {
                 contextMenu.getItems().add(menu);
             }
-            contextMenu.getItems().add(new SeparatorMenuItem());
         }
     }
     
@@ -145,23 +141,23 @@ public class ConceptLabel
             ConceptChronology conceptChronology = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
             
-            this.conceptInLabel.set(conceptChronology);
+            this.setValue(conceptChronology);
         } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
             ConceptVersion conceptVersion = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
             
-            this.conceptInLabel.set(conceptVersion.getChronology());
+            this.setValue(conceptVersion.getChronology());
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
             SemanticChronology semanticChronology = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
             
-            this.conceptInLabel.set(Get.conceptService()
+            this.setValue(Get.conceptService()
                     .getConceptChronology(semanticChronology.getReferencedComponentNid()));
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
             DescriptionVersion descriptionVersion = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
             
-            this.conceptInLabel.set(
+            this.setValue(
                     Get.conceptService()
                             .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
         }
