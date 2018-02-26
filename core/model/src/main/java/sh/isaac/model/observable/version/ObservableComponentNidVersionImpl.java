@@ -157,7 +157,10 @@ public class ObservableComponentNidVersionImpl
 
    @Override
    public String toString() {
-      return "ObservableComponentNidVersionImpl{component:" + Get.conceptDescriptionText(getComponentNid()) + '}';
+       if (this.stampedVersionProperty != null && this.stampedVersionProperty.get() != null) {
+           return "ObservableComponentNidVersionImpl{" + this.stampedVersionProperty.get() + '}';
+       }
+      return "ObservableComponentNidVersionImpl{component:" + Get.conceptDescriptionText(getComponentNid()) + " Uncommitted Observable Version}";
    }
 
    @Override

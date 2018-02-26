@@ -54,6 +54,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -165,6 +166,13 @@ public interface ObservableVersion
    <T extends Object> Optional<T> removeUserObject(String objectKey);
    
    <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec);
+   
+   /**
+    * 
+    * @return an independent chronicle that has this 
+    * version as a member of it's version list.
+    */
+   Chronology createIndependentChronicle();
 
 }
 

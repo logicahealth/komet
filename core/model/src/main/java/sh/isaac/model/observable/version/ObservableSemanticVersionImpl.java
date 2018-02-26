@@ -46,6 +46,7 @@ import java.util.List;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -55,6 +56,8 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -214,6 +217,27 @@ public class ObservableSemanticVersionImpl
       // nothing to update
       // only read-only values in this subclass. 
    }
+
+    @Override
+    public Chronology createIndependentChronicle() {
+        SemanticChronologyImpl independentChronology = 
+                new SemanticChronologyImpl(
+                        this.getSemanticType(),
+                        this.getPrimordialUuid(), this.getAssemblageNid(),
+                        this.getReferencedComponentNid());
+        boolean added = false;
+        for (Version v: this.getChronology().getVersionList()) {
+            if (v == this) {
+                added = true;
+            }
+            independentChronology.addVersion(v);
+        }
+        
+        if (!added) {
+            independentChronology.addVersion(this);
+        }
+        return independentChronology;
+    }
    
 }
 

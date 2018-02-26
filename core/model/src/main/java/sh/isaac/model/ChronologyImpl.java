@@ -37,23 +37,20 @@
 package sh.isaac.model;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.lang.ref.SoftReference;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.StampedLock;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.apache.logging.log4j.LogManager;
@@ -90,1254 +87,925 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public abstract class ChronologyImpl
-        implements Chronology, WaitFreeComparable {
-  protected static final Logger LOG = LogManager.getLogger();
-   /**
-    * The Constant STAMPED_LOCKS.
-    */
-   private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
+        implements Chronology {
 
-   //~--- static initializers -------------------------------------------------
-   static {
-      for (int i = 0; i < STAMPED_LOCKS.length; i++) {
-         STAMPED_LOCKS[i] = new StampedLock();
-      }
-   }
+    protected static final Logger LOG = LogManager.getLogger();
 
-   //~--- fields --------------------------------------------------------------
-   /**
-    * Position in the data where chronicle data ends, and version data starts.
-    */
-   private int versionStartPosition = -1;
+    //~--- fields --------------------------------------------------------------
+    /**
+     * Position in the data where chronicle data ends, and version data starts.
+     */
+    private int versionStartPosition = -1;
 
-   /**
-    * The write sequence is incremented each time data is written, and provides a check to see if this chronicle has had
-    * any changes written since the data for this chronicle was read. If the write sequence does not match the write
-    * sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of
-    * a {@code WaitFreeComparable} object.
-    */
-   private int writeSequence;
+    /**
+     * Primordial uuid most significant bits for this component.
+     */
+    private long primordialUuidMsb;
 
-   /**
-    * Primordial uuid most significant bits for this component.
-    */
-   private long primordialUuidMsb;
+    /**
+     * Primordial uuid least significant bits for this component.
+     */
+    private long primordialUuidLsb;
 
-   /**
-    * Primordial uuid least significant bits for this component.
-    */
-   private long primordialUuidLsb;
+    /**
+     * additional uuid most and least significant bits for this component.
+     */
+    protected long[] additionalUuidParts;
 
-   /**
-    * additional uuid most and least significant bits for this component.
-    */
-   protected long[] additionalUuidParts;
+    /**
+     * Native identifier of this component.
+     */
+    private int nid;
 
-   /**
-    * Native identifier of this component.
-    */
-   private int nid;
+    /**
+     * Native identifier of the assemblage concept that defines this chronology.
+     */
+    private int assemblageNid;
 
-   /**
-    * Native identifier of the assemblage concept that defines this chronology.
-    */
-   private int assemblageNid;
+    /**
+     * Sequence of this chronology within the assemblage that defines it.
+     */
+    private int elementSequence;
+    
+    protected VersionType versionType;
 
-   /**
-    * Sequence of this chronology within the assemblage that defines it.
-    */
-   private int elementSequence;
+    /**
+     * Data that has not yet been persisted. This data will need to be merged
+     * with the written data when the chronicle is next serialized.
+     */
+    private final CopyOnWriteArrayList<Version> uncommittedVersions = new CopyOnWriteArrayList<>();
 
-   /**
-    * Data previously persisted. Used for lazy instantiation of versions and objects that are part of this chronicle.
-    */
-   private byte[] writtenData;
+    /**
+     * Data that has already been persisted.
+     */
+    private final CopyOnWriteArrayList<Version> committedVersions = new CopyOnWriteArrayList<>();
 
-   /**
-    * Data that has not yet been persisted. This data will need to be merged with the written data when the chronicle is
-    * next serialized.
-    */
-   private ConcurrentSkipListMap<Integer, Version> unwrittenData;
+    //~--- constructors --------------------------------------------------------
+    /**
+     * No argument constructor for reconstituting an object previously
+     * serialized together with the readData(ByteArrayDataBuffer data) method.
+     *
+     */
+    protected ChronologyImpl() {
+    }
 
-   /**
-    * Version data is stored in a soft reference after lazy instantiation, to minimize unnecessary memory utilization.
-    */
-   private SoftReference<ArrayList<? extends Version>> versionListReference;
+    @Override
+    public final int getAssemblageNid() {
+        return assemblageNid;
+    }
 
-   //~--- constructors --------------------------------------------------------
-   /**
-    * No argument constructor for reconstituting an object previously serialized together with the
-    * readData(ByteArrayDataBuffer data) method.
-    *
-    */
-   protected ChronologyImpl() {
-   }
+    public final int getElementSequence() {
+        return elementSequence;
+    }
 
-   @Override
-   public final int getAssemblageNid() {
-      return assemblageNid;
-   }
+    /**
+     * For constructing an object for the first time.
+     *
+     * @param primordialUuid A unique external identifier for this chronicle
+     * @param assemblageNid The identifier for the concept that defines what
+     * assemblage this element is defined within.
+     * @param versionType
+     */
+    protected ChronologyImpl(UUID primordialUuid, int assemblageNid, VersionType versionType) {
+        this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
+        this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
+        this.nid = Get.identifierService().assignNid(primordialUuid);
+        this.assemblageNid = assemblageNid;
+        this.versionType = versionType;
+        ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), versionType);
+        this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
+    }
 
-   public final int getElementSequence() {
-      return elementSequence;
-   }
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Adds the additional uuids.
+     *
+     * @param uuids the uuids
+     */
+    public void addAdditionalUuids(UUID... uuids) {
+        final Set<UUID> temp = new HashSet<>(getUuidList());
 
-   /**
-    * For constructing an object for the first time.
-    *
-    * @param primordialUuid A unique external identifier for this chronicle
-    * @param assemblageNid The identifier for the concept that defines what assemblage this element is defined within.
-    */
-   protected ChronologyImpl(UUID primordialUuid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
-      this.writeSequence = Integer.MIN_VALUE;
-      this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
-      this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
-      this.nid = Get.identifierService().assignNid(primordialUuid);
-      this.assemblageNid = assemblageNid;
-      ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, objectType, versionType);
-      this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
-   }
+        for (UUID uuid : uuids) {
+            temp.add(uuid);
+        }
+        //Make sure the primordial isn't in the additional
+        temp.remove(getPrimordialUuid());
+        setAdditionalUuids(temp);
+    }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Adds the additional uuids.
-    *
-    * @param uuids the uuids
-    */
-   public void addAdditionalUuids(UUID ...uuids) {
-      final Set<UUID> temp = new HashSet<>(getUuidList());
+    /**
+     * Equals.
+     *
+     * @param o the o
+     * @return true, if successful
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
-      for (UUID uuid : uuids) {
-         temp.add(uuid);
-      }
-      //Make sure the primordial isn't in the additional
-      temp.remove(getPrimordialUuid());
-      setAdditionalUuids(temp);
-   }
+        if ((o == null) || (!Objects.equals(getClass(), o.getClass()))) {
+            return false;
+        }
 
-   /**
-    * Equals.
-    *
-    * @param o the o
-    * @return true, if successful
-    */
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) {
-         return true;
-      }
+        final ChronologyImpl that = (ChronologyImpl) o;
 
-      if ((o == null) || (getClass() != o.getClass())) {
-         return false;
-      }
+        if (this.nid != that.nid) {
+            return false;
+        }
 
-      final ChronologyImpl that = (ChronologyImpl) o;
+        final List<Version> versionList = (List<Version>) getVersionList();
 
-      if (this.nid != that.nid) {
-         return false;
-      }
+        if (versionList.size() != that.getVersionList().size()) {
+            return false;
+        }
 
-      final List<Version> versionList = (List<Version>) getVersionList();
+        return StampSequenceSet.of(getVersionStampSequences())
+                .equals(StampSequenceSet.of(that.getVersionStampSequences()));
+    }
 
-      if (versionList.size() != that.getVersionList().size()) {
-         return false;
-      }
+    /**
+     * Hash code.
+     *
+     * @return the int
+     */
+    @Override
+    public int hashCode() {
+        return Long.hashCode(this.nid);
+    }
 
-      return StampSequenceSet.of(getVersionStampSequences())
-              .equals(StampSequenceSet.of(that.getVersionStampSequences()));
-   }
+    /**
+     * Write a complete binary representation of this chronicle, including all
+     * versions, to the ByteArrayDataBuffer using externally valid identifiers
+     * (all nids, sequences, replaced with UUIDs).
+     *
+     * @param out the buffer to write to.
+     */
+    @Override
+    public final void putExternal(ByteArrayDataBuffer out) {
+        out.setExternalData(true);
+        writeChronicleData(out);
 
-   /**
-    * Hash code.
-    *
-    * @return the int
-    */
-   @Override
-   public int hashCode() {
-      return Long.hashCode(this.nid);
-   }
+        // add versions...
+        getVersionList().forEach(
+                (version) -> {
+                    final int stampSequenceForVersion = version.getStampSequence();
 
-   /**
-    * Merge this data, with data from another source to integrate into a single data sequence.
-    *
-    * @param writeSequence the write sequence to use for the merged data
-    * @param dataToMerge data from another source to integrate with this data
-    * @return the merged data
-    */
-   public byte[] mergeData(int writeSequence, byte[] dataToMerge) {
-      setWriteSequence(writeSequence);
+                    writeIfNotCanceled(out, version, stampSequenceForVersion);
+                });
+        out.putInt(0);  // last data is a zero length version record
+    }
 
-      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
+    /**
+     * To string.
+     *
+     * @return the string
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
 
-      writeChronicleData(db);
+        builder.append(this.getClass()
+                .getSimpleName());
+        builder.append("{");
+        toString(builder, true);
+        builder.append('}');
+        return builder.toString();
+    }
 
-      final OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
+    public void toString(StringBuilder builder, boolean addAttachments) {
+        getUuidList().forEach((uuid) -> builder
+                .append(" uuid: ").append(uuid).append("\n"));
+        builder.append(" nid: ")
+                .append(this.nid)
+                .append("\n container: ")
+                .append(this.elementSequence)
+                .append(",\n versions[");
+        getVersionList().forEach(
+                (version) -> {
+                    builder.append("\n  ");
+                    builder.append(version);
+                    builder.append(",");
+                });
 
-      if (this.unwrittenData != null) {
-         this.unwrittenData.values()
-                 .forEach(
-                         (version) -> {
-                            final int stampSequenceForVersion = version.getStampSequence();
+        if (getVersionList() != null) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
 
-                            if (Get.stampService()
-                                    .isNotCanceled(stampSequenceForVersion)) {
-                               writtenStamps.add(stampSequenceForVersion);
+        builder.append("\n ]\n}\n");
 
-                               final int startWritePosition = db.getPosition();
+        if (addAttachments) {
+            builder.append("\n[[\n");
+            AtomicInteger attachmentCount = new AtomicInteger(0);
+            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((sememe) -> {
+                builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
+                        .append(":\n  ");
+                ((SemanticChronologyImpl) sememe).toString(builder, false);
+            });
+            builder.append("]]\n");
+        }
+        builder.append("\n");
+    }
 
-                               db.putInt(0);  // placeholder for length
-                               ((VersionImpl) version).writeVersionData(db);
+    /**
+     * To user string.
+     *
+     * @return the string
+     */
+    @Override
+    public String toUserString() {
+        return toString();
+    }
 
-                               final int versionLength = db.getPosition() - startWritePosition;
+    /**
+     * Use to add a new version to the chronicle.
+     *
+     * @param <V>
+     * @param version the version to add
+     */
+    public <V extends Version> void addVersion(V version) {
+        if (version.isUncommitted()) {
+            this.uncommittedVersions.add(version);
+        } else {
+            this.committedVersions.add(version);
+        }
+    }
 
-                               db.setPosition(startWritePosition);
-                               db.putInt(versionLength);
-                               db.setPosition(db.getLimit());
-                            }
-                         });
-      }
+    /**
+     * Stores the location where the chronicle data ends, and the version data
+     * starts.
+     *
+     * @param data the buffer from which to derive the location data.
+     */
+    protected final void constructorEnd(ByteArrayDataBuffer data) {
+        this.versionStartPosition = data.getPosition();
+    }
 
-      if (this.writtenData != null) {
-         mergeData(this.writtenData, writtenStamps, db);
-      }
+    /**
+     * Call to subclass to read data from the data buffer, and create the
+     * corresponding version object. The subclass is not responsible to add the
+     * version to the version list, that task is performed by the calling method
+     * ({@code maveVersions}).
+     *
+     * @param <V>
+     * @param stampSequence the stamp sequence for this version
+     * @param bb the data buffer
+     * @return the version object
+     */
+    protected abstract <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer bb);
 
-      if (dataToMerge != null) {
-         mergeData(dataToMerge, writtenStamps, db);
-      }
+    /**
+     * Put additional chronicle fields.
+     *
+     * @param out the out
+     */
+    protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
 
-      db.putInt(0);  // last data is a zero length version record
-      db.trimToSize();
-      return db.getData();
-   }
+    /**
+     * Reads data from the ByteArrayDataBuffer. If the data is external, it
+     * reads all versions from the ByteArrayDataBuffer. If the data is internal,
+     * versions are lazily read.
+     *
+     * @param data the data
+     */
+    protected void readData(ByteArrayDataBuffer data) {
+        if (data.getObjectDataFormatVersion() != getIsaacObjectType().getDataFormatVersion()) {
+            throw new UnsupportedOperationException(
+                    "Can't handle data format version: " + data.getObjectDataFormatVersion());
+        }
 
-   /**
-    * Write a complete binary representation of this chronicle, including all versions, to the ByteArrayDataBuffer using
-    * externally valid identifiers (all nids, sequences, replaced with UUIDs).
-    *
-    * @param out the buffer to write to.
-    */
-   @Override
-   public final void putExternal(ByteArrayDataBuffer out) {
-      out.setExternalData(true);
-      writeChronicleData(out);
+        this.primordialUuidMsb = data.getLong();
+        this.primordialUuidLsb = data.getLong();
+        getAdditionalUuids(data);
 
-      // add versions...
-      getVersionList().forEach(
-              (version) -> {
-                 final int stampSequenceForVersion = version.getStampSequence();
+        this.assemblageNid = data.getNid();
+        
+        this.versionType = VersionType.getFromToken(data.getByte());
+        
 
-                 writeIfNotCanceled(out, version, stampSequenceForVersion);
-              });
-      out.putInt(0);  // last data is a zero length version record
-   }
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      final StringBuilder builder = new StringBuilder();
-
-      builder.append(this.getClass()
-              .getSimpleName());
-      builder.append("{");
-      toString(builder, true);
-      builder.append('}');
-      return builder.toString();
-   }
-
-   public void toString(StringBuilder builder, boolean addAttachments) {
-      getUuidList().forEach((uuid) -> builder
-              .append(" uuid: ").append(uuid).append("\n"));
-      builder.append(" nid: ")
-              .append(this.nid)
-              .append("\n container: ")
-              .append(this.elementSequence)
-              .append(",\n versions[");
-      getVersionList().forEach(
-              (version) -> {
-                 builder.append("\n  ");
-                 builder.append(version);
-                 builder.append(",");
-              });
-
-      if (getVersionList() != null) {
-         builder.deleteCharAt(builder.length() - 1);
-      }
-      
-      builder.append("\n ]\n}\n");
-      
-      if (addAttachments) {
-         builder.append("\n[[\n");
-         AtomicInteger attachmentCount = new AtomicInteger(0);
-         Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((sememe) -> {
-            builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
-                    .append(":\n  ");
-            ((SemanticChronologyImpl) sememe).toString(builder, false);
-         });
-         builder.append("]]\n");
-      }
-      builder.append("\n");
-   }
-
-   /**
-    * To user string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toUserString() {
-      return toString();
-   }
-
-   /**
-    * Use to add a new version to the chronicle.
-    *
-    * @param <V>
-    * @param version the version to add
-    */
-   public <V extends Version> void addVersion(V version) {
-      if (this.unwrittenData == null) {
-         final long lockStamp = getLock(this.nid).writeLock();
-
-         try {
-            this.unwrittenData = new ConcurrentSkipListMap<>();
-         } finally {
-            getLock(this.nid).unlockWrite(lockStamp);
-         }
-      }
-
-      this.unwrittenData.put(version.getStampSequence(), version);
-
-      // invalidate the version reference list, it will be reconstructed with the new version
-      // added if requested via a call to versionStream();
-      this.versionListReference = null;
-   }
-
-   /**
-    * Stores the location where the chronicle data ends, and the version data starts.
-    *
-    * @param data the buffer from which to derive the location data.
-    */
-   protected final void constructorEnd(ByteArrayDataBuffer data) {
-      this.versionStartPosition = data.getPosition();
-   }
-
-   /**
-    * Call to subclass to read data from the data buffer, and create the corresponding version object. The subclass is
-    * not responsible to add the version to the version list, that task is performed by the calling method
-    * ({@code maveVersions}).
-    *
-    * @param <V>
-    * @param stampSequence the stamp sequence for this version
-    * @param bb the data buffer
-    * @return the version object
-    */
-   protected abstract <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer bb);
-
-   /**
-    * Reconstitutes version objects previously serialized.
-    *
-    * @param <V>
-    * @param bb the byte buffer containing previously written data
-    * @param results list of the reconstituted version objects
-    */
-   protected <V extends StampedVersion> void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
-      int nextPosition = bb.getPosition();
-
-      assert nextPosition >= 0 : "next position negative: " + nextPosition + " buffer: " + bb;
-
-      while (nextPosition < bb.getLimit()) {
-         final int versionLength = bb.getInt();
-
-         if (versionLength < 0) {
-             LOG.error("Negative version length...");
-         }
-         assert versionLength >= 0 : "Length negative: " + versionLength + " buffer: " + bb;
-                  
-
-         if (versionLength > 0) {
-            nextPosition = nextPosition + versionLength;
-
-            final int stampSequence = bb.getStampSequence();
-
-            if (stampSequence >= 0) {
-               results.add(makeVersion(stampSequence, bb));
+        if (data.isExternalData()) {
+            UUID primordialUUID = new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
+            List<UUID> allUUIDs = getUuidList();
+            if (!Get.identifierService().hasUuid(primordialUUID)) {
+                this.nid = Get.identifierService().assignNid(allUUIDs.toArray(new UUID[allUUIDs.size()]));
+            } else {
+                this.nid = Get.identifierService().getNidForUuids(allUUIDs);
+                if (allUUIDs.size() > 1) {
+                    for (UUID additionalUuid : allUUIDs.subList(1, allUUIDs.size())) {
+                        Get.identifierService().addUuidForNid(additionalUuid, this.nid);
+                    }
+                }
             }
-            else {
-               LOG.warn("read a version length, but no stamp sequence? versionLength {}, stampSequence {}, {}", versionLength, stampSequence, bb);
+            this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
+            setAdditionalChronicleFieldsFromBuffer(data);
+
+        } else {
+            this.nid = data.getNid();
+            this.elementSequence = data.getInt();
+            setAdditionalChronicleFieldsFromBuffer(data);
+            constructorEnd(data);
+        }
+        readVersionList(data);
+        if (this.committedVersions.isEmpty() && this.uncommittedVersions.isEmpty()) {
+           throw new IllegalStateException();
+        }
+        ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
+
+    }
+    
+    @Override
+    public VersionType getVersionType() {
+        if (this.versionType == null) {
+            List<Version> versionList = getVersionList();
+            if (!versionList.isEmpty()) {
+                this.versionType = versionList.get(0).getSemanticType();
             }
-         } else {
-            nextPosition = Integer.MAX_VALUE;
-         }
+        }
+        return this.versionType;
+    }
+
+    /**
+     * Skip additional chronicle fields.
+     *
+     * @param in the in
+     */
+    protected abstract void skipAdditionalChronicleFields(ByteArrayDataBuffer in);
+
+    /**
+     * Write only the chronicle data (not the versions) to the
+     * ByteArrayDataBuffer using identifiers determined by the
+     * ByteArrayDataBuffer.isExternalData() to determine if the identifiers
+     * should be nids and sequences, or if they should be UUIDs.
+     *
+     * @param data the buffer to write to.
+     */
+    protected void writeChronicleData(ByteArrayDataBuffer data) {
+        IsaacObjectType isaacObjectType = getIsaacObjectType();
+        isaacObjectType.writeTypeVersionHeader(data);
+
+        data.putLong(this.primordialUuidMsb);
+        data.putLong(this.primordialUuidLsb);
+
+        if (this.additionalUuidParts == null) {
+            data.putInt(0);
+        } else {
+            data.putInt(this.additionalUuidParts.length);
+            LongStream.of(this.additionalUuidParts)
+                    .forEach((uuidPart) -> data.putLong(uuidPart));
+        }
+
+        data.putNid(this.assemblageNid);
+        
+        if (this.versionType == null) {
+            throw new IllegalStateException();
+        }
+        
+        data.putByte(this.versionType.getVersionTypeToken());
+
+        if (!data.isExternalData()) {
+            data.putInt(this.nid);
+            data.putInt(this.elementSequence);
+        }
+
+        putAdditionalChronicleFields(data);
+    }
+
+    /**
+     * Go to version start.
+     *
+     * @param data the data
+     */
+    private void goToVersionStart(ByteArrayDataBuffer data) {
+        if (data.isExternalData()) {
+            throw new UnsupportedOperationException("Can't handle external data for this method.");
+        }
+        getIsaacObjectType().readAndValidateHeader(data);
+        data.getInt();    // this.writeSequence =
+        data.getLong();   // this.primordialUuidMsb =
+        data.getLong();   // this.primordialUuidLsb =
+        skipAdditionalUuids(data);
+        data.getNid();    // this.assemblageNid =
+        data.getNid();    // this.nid =
+        data.getInt();    // this.elementSequence =
+        skipAdditionalChronicleFields(data);
+    }
+
+    /**
+     * Read version list.
+     *
+     * @param bb the bb
+     */
+    private void readVersionList(ByteArrayDataBuffer bb) {
+      if (bb.getUsed() == 0) {
+          throw new IllegalStateException();
       }
-   }
+        int nextPosition = bb.getPosition();
 
-   /**
-    * Merge data.
-    *
-    * @param dataToMerge the data to merge
-    * @param writtenStamps the written stamps
-    * @param db the db
-    */
-   protected void mergeData(byte[] dataToMerge, OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
-      final ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
-
-      goToVersionStart(writtenBuffer);
-
-      int nextPosition = writtenBuffer.getPosition();
-
-      while (nextPosition < writtenBuffer.getLimit()) {
-         writtenBuffer.setPosition(nextPosition);
-
-         final int versionLength = writtenBuffer.getInt();
-
-         if (versionLength > 0) {
-            final int stampSequenceForVersion = writtenBuffer.getInt();
-
-            if ((!writtenStamps.contains(stampSequenceForVersion))
-                    && Get.stampService().isNotCanceled(stampSequenceForVersion)) {
-               writtenStamps.add(stampSequenceForVersion);
-               db.append(writtenBuffer, nextPosition, versionLength);
-            }
-
-            nextPosition = nextPosition + versionLength;
-         } else {
-            nextPosition = writtenBuffer.getLimit();
-         }
-      }
-   }
-
-   /**
-    * Put additional chronicle fields.
-    *
-    * @param out the out
-    */
-   protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
-
-   /**
-    * Reads data from the ByteArrayDataBuffer. If the data is external, it reads all versions from the
-    * ByteArrayDataBuffer. If the data is internal, versions are lazily read.
-    *
-    * @param data the data
-    */
-   protected void readData(ByteArrayDataBuffer data) {
-      if (data.getObjectDataFormatVersion() != getIsaacObjectType().getDataFormatVersion()) {
-         throw new UnsupportedOperationException(
-                 "Can't handle data format version: " + data.getObjectDataFormatVersion());
-      }
-
-      if (data.isExternalData()) {
-         this.writeSequence = Integer.MIN_VALUE;
-      } else {
-         this.writeSequence = data.getInt();
-         this.writtenData = data.getData();
-      }
-
-      this.primordialUuidMsb = data.getLong();
-      this.primordialUuidLsb = data.getLong();
-      getAdditionalUuids(data);
-
-      this.assemblageNid = data.getNid();
-      
-      if (data.isExternalData()) {
-         UUID primordialUUID = new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
-         List<UUID> allUUIDs = getUuidList();
-         if (!Get.identifierService().hasUuid(primordialUUID)) {
-            this.nid = Get.identifierService().assignNid(allUUIDs.toArray(new UUID[allUUIDs.size()]));
-         }
-         else {
-            this.nid = Get.identifierService().getNidForUuids(allUUIDs);
-            if (allUUIDs.size() > 1) {
-               for (UUID additionalUuid : allUUIDs.subList(1, allUUIDs.size())) {
-                  Get.identifierService().addUuidForNid(additionalUuid,this.nid);
-               }
-            }
-         }
-         this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
-         setAdditionalChronicleFieldsFromBuffer(data);
-         readVersionList(data);
-      } else {
-         this.nid = data.getNid();
-         this.elementSequence = data.getInt();
-         setAdditionalChronicleFieldsFromBuffer(data);
-         constructorEnd(data);
-         // find if there are any uncommitted versions in the written data...
-
-         for (int stamp : getVersionStampSequences()) {
-            if (Get.stampService().isUncommitted(stamp)) {
-               this.unwrittenData = new ConcurrentSkipListMap<>();
-               this.versionListReference = null;
-               getVersionList().forEach((version) -> {
-                  this.unwrittenData.put(version.getStampSequence(), version);
-               });
-               this.writtenData = null;
-               break;
-            }
-         }
-      }
-      ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
-
-   }
-
-   protected void updateStampSequence(int oldStampSequence, int newStampSequence, VersionImpl version) {
-      if (this.unwrittenData == null) {
-         throw new IllegalStateException("Cannot update since unwritten data is null");
-      }
-      if (!this.unwrittenData.containsKey(oldStampSequence)) {
-         throw new IllegalStateException("No version with the old stamp sequence: " + oldStampSequence + "\n" + this.unwrittenData);
-      }
-      this.unwrittenData.remove(oldStampSequence);
-      if (newStampSequence == -1) {
-         this.versionListReference = null;
-      } else {
-         this.unwrittenData.put(newStampSequence, version);
-      }
-   }
-
-   /**
-    * Skip additional chronicle fields.
-    *
-    * @param in the in
-    */
-   protected abstract void skipAdditionalChronicleFields(ByteArrayDataBuffer in);
-
-   /**
-    * Write only the chronicle data (not the versions) to the ByteArrayDataBuffer using identifiers determined by the
-    * ByteArrayDataBuffer.isExternalData() to determine if the identifiers should be nids and sequences, or if they
-    * should be UUIDs.
-    *
-    * @param data the buffer to write to.
-    */
-   protected void writeChronicleData(ByteArrayDataBuffer data) {
-      IsaacObjectType isaacObjectType = getIsaacObjectType();
-      isaacObjectType.writeTypeVersionHeader(data);
-
-      if (!data.isExternalData()) {
-         data.putInt(this.writeSequence);
-      }
-
-      data.putLong(this.primordialUuidMsb);
-      data.putLong(this.primordialUuidLsb);
-
-      if (this.additionalUuidParts == null) {
-         data.putInt(0);
-      } else {
-         data.putInt(this.additionalUuidParts.length);
-         LongStream.of(this.additionalUuidParts)
-                 .forEach((uuidPart) -> data.putLong(uuidPart));
-      }
-      
-      data.putNid(this.assemblageNid);
-
-      if (!data.isExternalData()) {
-         data.putInt(this.nid);
-         data.putInt(this.elementSequence);
-      }
-
-      putAdditionalChronicleFields(data);
-   }
-
-   /**
-    * Go to version start.
-    *
-    * @param data the data
-    */
-   private void goToVersionStart(ByteArrayDataBuffer data) {
-      if (data.isExternalData()) {
-         throw new UnsupportedOperationException("Can't handle external data for this method.");
-      }
-      getIsaacObjectType().readAndValidateHeader(data);
-      data.getInt();    // this.writeSequence =
-      data.getLong();   // this.primordialUuidMsb =
-      data.getLong();   // this.primordialUuidLsb =
-      skipAdditionalUuids(data);
-      data.getNid();    // this.assemblageNid =
-      data.getNid();    // this.nid =
-      data.getInt();    // this.elementSequence =
-      skipAdditionalChronicleFields(data);
-   }
-
-   /**
-    * Read version list.
-    *
-    * @param bb the bb
-    */
-   private void readVersionList(ByteArrayDataBuffer bb) {
-      if (bb.isExternalData()) {
-         int nextPosition = bb.getPosition();
-
-         while (nextPosition < bb.getLimit()) {
+        while (nextPosition < bb.getLimit()) {
             final int versionLength = bb.getInt();
+            assert versionLength >= 0 : "Length negative: " + versionLength + " buffer: " + bb;
 
             if (versionLength > 0) {
-               nextPosition = nextPosition + versionLength;
+                nextPosition = nextPosition + versionLength;
 
-               final int stampSequence = bb.getStampSequence();
+                final int stampSequence = bb.getStampSequence();
 
-               if (stampSequence >= 0) {
-                  addVersion(makeVersion(stampSequence, bb));
-               }
+                if (stampSequence >= 0) {
+                    addVersion(makeVersion(stampSequence, bb));
+                } else {
+                    LOG.warn("read a version length, but no stamp sequence? versionLength {}, stampSequence {}, {}", versionLength, stampSequence, bb);
+                }
             } else {
-               nextPosition = Integer.MAX_VALUE;
+                nextPosition = Integer.MAX_VALUE;
             }
-         }
-      } else {
-         throw new UnsupportedOperationException("This method only supports external data");
-      }
-   }
+        }
+    }
 
-   /**
-    * Skip additional uuids.
-    *
-    * @param data the data
-    */
-   private void skipAdditionalUuids(ByteArrayDataBuffer data) {
-      final int additionalUuidPartsSize = data.getInt();
+    /**
+     * Skip additional uuids.
+     *
+     * @param data the data
+     */
+    private void skipAdditionalUuids(ByteArrayDataBuffer data) {
+        final int additionalUuidPartsSize = data.getInt();
 
-      if (additionalUuidPartsSize > 0) {
-         for (int i = 0; i < additionalUuidPartsSize; i++) {
-            data.getLong();
-         }
-      }
-   }
+        if (additionalUuidPartsSize > 0) {
+            for (int i = 0; i < additionalUuidPartsSize; i++) {
+                data.getLong();
+            }
+        }
+    }
 
-   /**
-    * Write if not canceled.
-    *
-    * @param db the db
-    * @param version the version
-    * @param stampSequenceForVersion the stamp sequence for version
-    */
-   private <V extends StampedVersion> void writeIfNotCanceled(ByteArrayDataBuffer db,
-           V version,
-           int stampSequenceForVersion) {
-      if (Get.stampService()
-              .isNotCanceled(stampSequenceForVersion)) {
-         final int startWritePosition = db.getPosition();
+    /**
+     * Write if not canceled.
+     *
+     * @param db the db
+     * @param version the version
+     * @param stampSequenceForVersion the stamp sequence for version
+     */
+    private <V extends StampedVersion> void writeIfNotCanceled(ByteArrayDataBuffer db,
+            V version,
+            int stampSequenceForVersion) {
+        if (Get.stampService()
+                .isNotCanceled(stampSequenceForVersion)) {
+            final int startWritePosition = db.getPosition();
 
-         db.putInt(0);  // placeholder for length
-         ((VersionImpl) version).writeVersionData(db);
+            db.putInt(0);  // placeholder for length
+            ((VersionImpl) version).writeVersionData(db);
 
-         final int versionLength = db.getPosition() - startWritePosition;
+            final int versionLength = db.getPosition() - startWritePosition;
 
-         db.setPosition(startWritePosition);
-         db.putInt(versionLength);
-         db.setPosition(db.getLimit());
-      }
-   }
+            db.setPosition(startWritePosition);
+            db.putInt(versionLength);
+            db.setPosition(db.getLimit());
+        }
+    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Gets the additional chronicle fields.
-    *
-    * @param in the in
-    */
-   protected abstract void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in);
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Gets the additional chronicle fields.
+     *
+     * @param in the in
+     */
+    protected abstract void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in);
 
-   /**
-    * Sets the additional uuids.
-    *
-    * @param uuids the new additional uuids
-    */
-   public void setAdditionalUuids(Collection<UUID> uuids) {
-      this.additionalUuidParts = new long[uuids.size() * 2];
+    /**
+     * Sets the additional uuids.
+     *
+     * @param uuids the new additional uuids
+     */
+    public void setAdditionalUuids(Collection<UUID> uuids) {
+        this.additionalUuidParts = new long[uuids.size() * 2];
 
-      int i = 0;
-      for (final UUID uuid : uuids) {
-         this.additionalUuidParts[2 * i] = uuid.getMostSignificantBits();
-         this.additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
-         i++;
-      }
-      Get.identifierService().assignNid(getUuids());
-   }
+        int i = 0;
+        for (final UUID uuid : uuids) {
+            this.additionalUuidParts[2 * i] = uuid.getMostSignificantBits();
+            this.additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
+            i++;
+        }
+        Get.identifierService().assignNid(getUuids());
+    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the additional uuids.
-    *
-    * @param data the data
-    * @return the additional uuids
-    */
-   private void getAdditionalUuids(ByteArrayDataBuffer data) {
-      final int additionalUuidPartsSize = data.getInt();
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the additional uuids.
+     *
+     * @param data the data
+     * @return the additional uuids
+     */
+    private void getAdditionalUuids(ByteArrayDataBuffer data) {
+        final int additionalUuidPartsSize = data.getInt();
 
-      if (additionalUuidPartsSize > 0) {
-         this.additionalUuidParts = new long[additionalUuidPartsSize];
+        if (additionalUuidPartsSize > 0) {
+            this.additionalUuidParts = new long[additionalUuidPartsSize];
 
-         for (int i = 0; i < additionalUuidPartsSize; i++) {
-            this.additionalUuidParts[i] = data.getLong();
-         }
-      }
-   }
+            for (int i = 0; i < additionalUuidPartsSize; i++) {
+                this.additionalUuidParts[i] = data.getLong();
+            }
+        }
+    }
 
-   /**
-    * Gets the commit state.
-    *
-    * @return the commit state
-    */
-   @Override
-   public CommitStates getCommitState() {
-      for (int stampSequence : getVersionStampSequences()) {
-         if (Get.stampService()
-                 .isUncommitted(stampSequence)) {
-            return CommitStates.UNCOMMITTED;
-         }
-      }
+    /**
+     * Gets the commit state.
+     *
+     * @return the commit state
+     */
+    @Override
+    public CommitStates getCommitState() {
+        for (int stampSequence : getVersionStampSequences()) {
+            if (Get.stampService()
+                    .isUncommitted(stampSequence)) {
+                return CommitStates.UNCOMMITTED;
+            }
+        }
 
-      return CommitStates.COMMITTED;
-   }
+        return CommitStates.COMMITTED;
+    }
 
-   /**
-    * Get data to write to datastore, use the writeSequence as it was originally read from the database.
-    *
-    * @return the data to write
-    */
-   public byte[] getDataToWrite() {
-      return getDataToWrite(this.writeSequence);
-   }
+    /**
+     * Get data to write to datastore. Set the write sequence to the specified
+     * value
+     *
+     * @return the data to write
+     */
+    public byte[] getDataToWrite() {
 
-   /**
-    * Get data to write to datastore. Set the write sequence to the specified value
-    *
-    * @param writeSequence the write sequence to prepend to the data
-    * @return the data to write
-    */
-   public byte[] getDataToWrite(int writeSequence) {
-      setWriteSequence(writeSequence);
+        if (this.uncommittedVersions == null) {
 
-      if (this.unwrittenData == null) {
-         // no changes, so nothing to merge.
-         if (this.writtenData != null) {
-            return this.writtenData;
-         }
+            // creating a brand new object
+            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
 
-         // creating a brand new object
-         final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
+            writeChronicleData(db);
+            db.putInt(0);  // zero length version record.
+            db.trimToSize();
+            return db.getData();
+        }
 
-         writeChronicleData(db);
-         db.putInt(0);  // zero length version record.
-         db.trimToSize();
-         return db.getData();
-      }
+        final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
+        writeChronicleData(db);
 
-      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
-      writeChronicleData(db);
-
-      this.versionStartPosition = db.getPosition();
-      for (Version version: getVersionList()) {
-         final int stampSequenceForVersion = version.getStampSequence();
-         writeIfNotCanceled(db, version, stampSequenceForVersion);
-      }
-      db.putInt(0);  // last data is a zero length version record
-      db.trimToSize();
-      return db.getData();
-   }
+        this.versionStartPosition = db.getPosition();
+        for (Version version : getVersionList()) {
+            final int stampSequenceForVersion = version.getStampSequence();
+            writeIfNotCanceled(db, version, stampSequenceForVersion);
+        }
+        db.putInt(0);  // last data is a zero length version record
+        db.trimToSize();
+        return db.getData();
+    }
 
     public int getVersionStartPosition() {
         return versionStartPosition;
     }
 
-   /**
-    * Gets the latest version.
-    *
-    * @param <V>
-    * @param coordinate the coordinate
-    * @return the latest version
-    */
-   @Override
-   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+    /**
+     * Gets the latest version.
+     *
+     * @param <V>
+     * @param coordinate the coordinate
+     * @return the latest version
+     */
+    @Override
+    public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
+        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
-      if (this.versionListReference != null) {
-         final ArrayList<V> versions = (ArrayList<V>) this.versionListReference.get();
+        final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
-         if (versions != null) {
-            return calc.getLatestVersion(this);
-         }
-      }
+        if (latestStampSequences.length == 0) {
+            return new LatestVersion<>();
+        }
 
-      final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
+    }
 
-      if (latestStampSequences.length == 0) {
-         return new LatestVersion<>();
-      }
+    @Override
+    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
+        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
-      return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
-   }
+        final int[] latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
 
-   @Override
-   public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        if (latestStampSequences.length == 0) {
+            return new LatestVersion<>();
+        }
 
-      if (this.versionListReference != null) {
-         final ArrayList<V> versions = (ArrayList<V>) this.versionListReference.get();
+        return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
+    }
 
-         if (versions != null) {
-            return calc.getLatestVersion(this);
-         }
-      }
+    /**
+     * Checks if latest version active.
+     *
+     * @param coordinate the coordinate
+     * @return true, if latest version active
+     */
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ACTIVE,
+                Status.INACTIVE,
+                Status.CANCELED,
+                Status.PRIMORDIAL));
+        final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
-      final int[] latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
-
-      if (latestStampSequences.length == 0) {
-         return new LatestVersion<>();
-      }
-
-      return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
-   }
-
-   /**
-    * Checks if latest version active.
-    *
-    * @param coordinate the coordinate
-    * @return true, if latest version active
-    */
-   @Override
-   public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ACTIVE,
-                      Status.INACTIVE,
-                      Status.CANCELED,
-                      Status.PRIMORDIAL));
-      final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
-
-      for (int stampSequence : latestStampSequences) {
-         if (Get.stampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   /**
-    * Gets the lock.
-    *
-    * @param key the key
-    * @return the lock
-    */
-   protected static StampedLock getLock(int key) {
-      return STAMPED_LOCKS[(((byte) key)) - Byte.MIN_VALUE];
-   }
-
-   /**
-    * Gets the native identifier of this component.
-    *
-    * @return the native identifier of this component
-    */
-   @Override
-   public int getNid() {
-      return this.nid;
-   }
-
-   /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
-    */
-   @Override
-   public UUID getPrimordialUuid() {
-      return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
-   }
-
-   /**
-    * Gets the sememe list.
-    *
-    * @return the sememe list
-    */
-   @Override
-   public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
-      return Get.assemblageService()
-              .<V>getSemanticChronologyStreamForComponent(this.nid)
-              .collect(Collectors.toList());
-   }
-
-   /**
-    * Gets the sememe list from assemblage.
-    *
-    * @param assemblageSequence the assemblage sequence
-    * @return the sememe list from assemblage
-    */
-   @Override
-   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
-      return Get.assemblageService()
-              .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence)
-              .collect(Collectors.toList());
-   }
-
-   /**
-    * Gets the unwritten version list.
-    *
-    * @return a list of all unwritten versions contained in this chronicle.
-    */
-   @Override
-   public <V extends Version> List<V> getUnwrittenVersionList() {
-      final ArrayList<V> results = new ArrayList<>();
-
-      if (this.unwrittenData != null) {
-         results.addAll((Collection<V>) this.unwrittenData.values());
-      }
-
-      return results;
-   }
-
-   /**
-    * Gets the uuid list.
-    *
-    * @return the uuid list
-    */
-   @Override
-   public List<UUID> getUuidList() {
-      final List<UUID> uuids = new ArrayList<>();
-
-      uuids.add(getPrimordialUuid());
-
-      if (this.additionalUuidParts != null) {
-         for (int i = 0; i < this.additionalUuidParts.length; i = i + 2) {
-            uuids.add(new UUID(this.additionalUuidParts[i], this.additionalUuidParts[i + 1]));
-         }
-      }
-
-      return uuids;
-   }
-
-   /**
-    * Used to retrieve a single version, without creating all version objects and storing them in a version list.
-    *
-    * @param <V>
-    * @param stampSequence the stamp sequence that specifies a particular version
-    * @return the version with the corresponding stamp sequence
-    */
-   public <V extends StampedVersion> Optional<V> getVersionForStamp(int stampSequence) {
-      if (this.versionListReference != null) {
-         final List<V> versions = (List<V>) this.versionListReference.get();
-
-         if (versions != null) {
-            for (final V v : versions) {
-               if (v.getStampSequence() == stampSequence) {
-                  return Optional.of(v);
-               }
+        for (int stampSequence : latestStampSequences) {
+            if (Get.stampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
+                return true;
             }
-         }
-      }
+        }
+        return false;
+    }
 
-      if ((this.unwrittenData != null) && this.unwrittenData.containsKey(stampSequence)) {
-         return Optional.of((V) this.unwrittenData.get(stampSequence));
-      }
+    /**
+     * Gets the native identifier of this component.
+     *
+     * @return the native identifier of this component
+     */
+    @Override
+    public int getNid() {
+        return this.nid;
+    }
 
-      final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
+    /**
+     * Gets the primordial uuid.
+     *
+     * @return the primordial uuid
+     */
+    @Override
+    public UUID getPrimordialUuid() {
+        return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
+    }
 
-      bb.setPosition(this.versionStartPosition);
+    /**
+     * Gets the sememe list.
+     *
+     * @return the sememe list
+     */
+    @Override
+    public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
+        return Get.assemblageService()
+                .<V>getSemanticChronologyStreamForComponent(this.nid)
+                .collect(Collectors.toList());
+    }
 
-      int nextPosition = bb.getPosition();
+    /**
+     * Gets the sememe list from assemblage.
+     *
+     * @param assemblageSequence the assemblage sequence
+     * @return the sememe list from assemblage
+     */
+    @Override
+    public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
+        return Get.assemblageService()
+                .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence)
+                .collect(Collectors.toList());
+    }
 
-      while (nextPosition < bb.getLimit()) {
-         final int versionLength = bb.getInt();
+    /**
+     * Gets the unwritten version list.
+     *
+     * @return a list of all unwritten versions contained in this chronicle.
+     */
+    @Override
+    public <V extends Version> List<V> getUnwrittenVersionList() {
+        final ArrayList<V> results = new ArrayList<>();
 
-         nextPosition = nextPosition + versionLength;
+        if (this.uncommittedVersions != null) {
+            results.addAll((Collection<V>) this.uncommittedVersions);
+        }
 
-         final int stampSequenceForVersion = bb.getStampSequence();
+        return results;
+    }
 
-         if (stampSequence == stampSequenceForVersion) {
-            return Optional.of(makeVersion(stampSequence, bb));
-         }
+    /**
+     * Gets the uuid list.
+     *
+     * @return the uuid list
+     */
+    @Override
+    public List<UUID> getUuidList() {
+        final List<UUID> uuids = new ArrayList<>();
 
-         bb.setPosition(nextPosition);
-      }
+        uuids.add(getPrimordialUuid());
 
-      return Optional.empty();
-   }
+        if (this.additionalUuidParts != null) {
+            for (int i = 0; i < this.additionalUuidParts.length; i = i + 2) {
+                uuids.add(new UUID(this.additionalUuidParts[i], this.additionalUuidParts[i + 1]));
+            }
+        }
 
-   /**
-    * Gets the version graph list.
-    *
-    * @return the version graph list
-    */
-   @Override
-   public <V extends Version> List<Graph<V>> getVersionGraphList() {
-      final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
+        return uuids;
+    }
 
-      getVersionList().<V>forEach(
-              (version) -> {
-                 final StampPath path = Get.versionManagmentPathService()
-                         .getStampPath(version.getPathNid());
-                 TreeSet<V> versionSet = versionMap.get(path);
+    /**
+     * Used to retrieve a single version, without creating all version objects
+     * and storing them in a version list.
+     *
+     * @param <V>
+     * @param stampSequence the stamp sequence that specifies a particular
+     * version
+     * @return the version with the corresponding stamp sequence
+     */
+    public <V extends StampedVersion> Optional<V> getVersionForStamp(int stampSequence) {
 
-                 if (versionSet == null) {
-                    versionSet = new TreeSet<>(
-                            (V v1,
-                                    V v2) -> {
-                               final int comparison = Long.compare(v1.getTime(), v2.getTime());
+        if (Get.stampService().isUncommitted(stampSequence)) {
+            for (Version version : this.uncommittedVersions) {
+                if (version.getStampSequence() == stampSequence) {
+                    return Optional.of((V) version);
+                }
+            }
+            return Optional.empty();
+        }
+        for (Version version : this.committedVersions) {
+            if (version.getStampSequence() == stampSequence) {
+                return Optional.of((V) version);
+            }
+        }
+        return Optional.empty();
 
-                               if (comparison != 0) {
-                                  return comparison;
-                               }
+    }
 
-                               return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
+    /**
+     * Gets the version graph list.
+     *
+     * @return the version graph list
+     */
+    @Override
+    public <V extends Version> List<Graph<V>> getVersionGraphList() {
+        final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
+
+        getVersionList().<V>forEach(
+                (version) -> {
+                    final StampPath path = Get.versionManagmentPathService()
+                            .getStampPath(version.getPathNid());
+                    TreeSet<V> versionSet = versionMap.get(path);
+
+                    if (versionSet == null) {
+                        versionSet = new TreeSet<>(
+                                (V v1,
+                                        V v2) -> {
+                                    final int comparison = Long.compare(v1.getTime(), v2.getTime());
+
+                                    if (comparison != 0) {
+                                        return comparison;
+                                    }
+
+                                    return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
+                                });
+                        versionMap.put(path, versionSet);
+                    }
+
+                    versionSet.add((V) version);
+                });
+
+        if (versionMap.size() == 1) {
+            // easy case...
+            final List<Graph<V>> results = new ArrayList<>();
+            final Graph<V> graph = new Graph<>();
+
+            results.add(graph);
+            versionMap.entrySet()
+                    .forEach(
+                            (entry) -> {
+                                entry.getValue()
+                                        .forEach(
+                                                (version) -> {
+                                                    if (graph.getRoot() == null) {
+                                                        graph.createRoot(version);
+                                                    } else {
+                                                        graph.getLastAddedNode()
+                                                                .addChild(version);
+                                                    }
+                                                });
                             });
-                    versionMap.put(path, versionSet);
-                 }
+            return results;
+        }
 
-                 versionSet.add((V) version);
-              });
+        // TODO support for more than one path...
+        throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
+    }
 
-      if (versionMap.size() == 1) {
-         // easy case...
-         final List<Graph<V>> results = new ArrayList<>();
-         final Graph<V> graph = new Graph<>();
+    /**
+     * Gets the version list.
+     *
+     * @return a list of all versions contained in this chronicle.
+     */
+    @Override
+    public <V extends Version> List<V> getVersionList() {
 
-         results.add(graph);
-         versionMap.entrySet()
-                 .forEach(
-                         (entry) -> {
-                            entry.getValue()
-                                    .forEach(
-                                            (version) -> {
-                                               if (graph.getRoot() == null) {
-                                                  graph.createRoot(version);
-                                               } else {
-                                                  graph.getLastAddedNode()
-                                                          .addChild(version);
-                                               }
-                                            });
-                         });
-         return results;
-      }
+        ArrayList<Version> versionList = new ArrayList<>(this.uncommittedVersions.size()
+                + this.committedVersions.size());
+        versionList.addAll(this.uncommittedVersions);
+        versionList.addAll(this.committedVersions);
+        return (List<V>) versionList;
+    }
 
-      // TODO support for more than one path...
-      throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
-   }
+    public Map<Integer, Version> getStampVersionMap() {
+        Map<Integer, Version> result = new HashMap<>();
+        getVersionList().forEach((version) -> result.put(version.getStampSequence(), version));
+        return result;
+    }
 
-   /**
-    * Gets the version list.
-    *
-    * @return a list of all versions contained in this chronicle.
-    */
-   @Override
-   public <V extends Version> List<V> getVersionList() {
-      ArrayList<V> results = null;
+    /**
+     * Gets the version stamp sequences.
+     *
+     * @return a stream of the stampSequences for each version of this
+     * chronology.
+     */
+    @Override
+    public int[] getVersionStampSequences() {
+        final OpenIntHashSet builder = new OpenIntHashSet();
 
-      if (this.versionListReference != null) {
-         results = (ArrayList<V>) this.versionListReference.get();
-      }
+        for (Version v : this.uncommittedVersions) {
+            builder.add(v.getStampSequence());
+        }
+        for (Version v : this.committedVersions) {
+            builder.add(v.getStampSequence());
+        }
+        return builder.keys().elements();
+    }
 
-      while (results == null) {
-         results = new ArrayList<>();
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
+     * not advertised in standard API, as this call may lose audit data.
+     *
+     * @param <V>
+     * @param versions the new versions
+     */
+    public <V extends Version> void setVersions(Collection<V> versions) {
+        this.uncommittedVersions.clear();
+        this.committedVersions.clear();
+        versions.forEach((V version) -> addVersion(version));
+    }
 
-         if ((this.writtenData != null) && (this.writtenData.length >= 4)) {
-            final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the versions for stamps.
+     *
+     * @param stampSequences the stamp sequences
+     * @return the versions for stamps
+     */
+    private <V extends StampedVersion> List<V> getVersionsForStamps(int[] stampSequences) {
+        final List<V> versions = new ArrayList<>(stampSequences.length);
+        for (int stampSequence : stampSequences) {
+            versions.add((V) getVersionForStamp(stampSequence).get());
+        }
+        return versions;
+    }
 
-            if (this.versionStartPosition < 0) {
-               goToVersionStart(bb);
-               this.versionStartPosition = bb.getPosition();
-            } else {
-               bb.setPosition(this.versionStartPosition);
-            }
+    /**
+     * Gets the visible ordered version list.
+     *
+     * @param stampCoordinate the stamp coordinate
+     * @return the visible ordered version list
+     */
+    @Override
+    public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+        final SortedSet<V> sortedLogicGraphs = new TreeSet<>(
+                (V graph1,
+                        V graph2) -> {
+                    final RelativePosition relativePosition = calc.fastRelativePosition(
+                            graph1,
+                            graph2,
+                            stampCoordinate.getStampPrecedence());
 
-            makeVersions(bb, results);
-         }
+                    switch (relativePosition) {
+                        case BEFORE:
+                            return -1;
 
-         if (this.unwrittenData != null) {
-            results.addAll((Collection<V>) this.unwrittenData.values());
-         }
+                        case EQUAL:
+                            return 0;
 
-         this.versionListReference = new SoftReference<>(results);
-      }
+                        case AFTER:
+                            return 1;
 
-      return results;
-   }
+                        case UNREACHABLE:
+                        case CONTRADICTION:
+                        default:
+                            throw new UnsupportedOperationException("o Can't handle: " + relativePosition);
+                    }
+                });
 
-   public Map<Integer, Version> getStampVersionMap() {
-      Map<Integer, Version> result = new HashMap<>();
-      getVersionList().forEach((version) -> result.put(version.getStampSequence(), version));
-      return result;
-   }
+        sortedLogicGraphs.addAll(getVersionList());
+        return sortedLogicGraphs.stream()
+                .collect(Collectors.toList());
+    }
 
-   /**
-    * Gets the version stamp sequences.
-    *
-    * @return a stream of the stampSequences for each version of this chronology.
-    */
-   @Override
-   public int[] getVersionStampSequences() {
-      final OpenIntHashSet builder = new OpenIntHashSet();
-      List<? extends StampedVersion> versions = null;
+    @Override
+    public NidSet getRecursiveSemanticNids() {
+        NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
+        sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
 
-      if (this.versionListReference != null) {
-         versions = this.versionListReference.get();
-      }
+        return sequenceSet;
+    }
 
-      if (versions != null) {
-         versions.forEach((version) -> builder.add(version.getStampSequence()));
-      } else if (this.writtenData != null) {
-         final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
+    private void addRecursiveSequences(IntSet sememeSequenceSet, int semanticNid) {
+        IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
+        sequenceSet.stream().forEach((sequence) -> {
+            sememeSequenceSet.add(sequence);
+            addRecursiveSequences(sememeSequenceSet, sequence);
+        });
 
-         getVersionStampSequences(this.versionStartPosition, bb, builder);
-      }
-
-      if (this.unwrittenData != null) {
-         this.unwrittenData.keySet()
-                 .forEach((stamp) -> builder.add(stamp));
-      }
-
-      return builder.keys().elements();
-   }
-
-   /**
-    * Gets the version stamp sequences.
-    *
-    * @param index the index
-    * @param bb the bb
-    * @param builder the builder
-    */
-   protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, OpenIntHashSet builder) {
-      final int limit = bb.getLimit();
-
-      while (index < limit) {
-         bb.setPosition(index);
-
-         final int versionLength = bb.getInt();
-
-         if (versionLength > 0) {
-            final int stampSequence = bb.getStampSequence();
-
-            builder.add(stampSequence);
-            index = index + versionLength;
-         } else {
-            index = Integer.MAX_VALUE;
-         }
-      }
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Overwrites existing versions. Use to remove duplicates, etc. Deliberately not advertised in standard API, as this
-    * call may lose audit data.
-    *
-    * @param <V>
-    * @param versions the new versions
-    */
-   public <V extends Version> void setVersions(Collection<V> versions) {
-      if (this.unwrittenData != null) {
-         this.unwrittenData.clear();
-      }
-
-      // reset written data
-      this.writtenData = null;
-      versions.forEach((V version) -> addVersion(version));
-   }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the versions for stamps.
-    *
-    * @param stampSequences the stamp sequences
-    * @return the versions for stamps
-    */
-   private <V extends StampedVersion> List<V> getVersionsForStamps(int[] stampSequences) {
-      final List<V> versions = new ArrayList<>(stampSequences.length);
-      for (int stampSequence : stampSequences) {
-         versions.add((V) getVersionForStamp(stampSequence).get());
-      }
-      return versions;
-   }
-
-   /**
-    * Gets the visible ordered version list.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @return the visible ordered version list
-    */
-   @Override
-   public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
-      final SortedSet<V> sortedLogicGraphs = new TreeSet<>(
-              (V graph1,
-                      V graph2) -> {
-                 final RelativePosition relativePosition = calc.fastRelativePosition(
-                         graph1,
-                         graph2,
-                         stampCoordinate.getStampPrecedence());
-
-                 switch (relativePosition) {
-                    case BEFORE:
-                       return -1;
-
-                    case EQUAL:
-                       return 0;
-
-                    case AFTER:
-                       return 1;
-
-                    case UNREACHABLE:
-                    case CONTRADICTION:
-                    default:
-                       throw new UnsupportedOperationException("o Can't handle: " + relativePosition);
-                 }
-              });
-
-      sortedLogicGraphs.addAll(getVersionList());
-      return sortedLogicGraphs.stream()
-              .collect(Collectors.toList());
-   }
-
-   /**
-    * Gets the write sequence is incremented each time data is written, and provides a check to see if this chronicle
-    * has had any changes written since the data for this chronicle was read. If the write sequence does not match the
-    * write sequences in the persistence storage, the data needs to be merged prior to writing, according to the
-    * principles of a {@code WaitFreeComparable} object.
-    *
-    * @return the write sequence is incremented each time data is written, and provides a check to see if this chronicle
-    * has had any changes written since the data for this chronicle was read
-    */
-   @Override
-   public int getWriteSequence() {
-      return this.writeSequence;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Set write sequence is incremented each time data is written, and provides a check to see if this chronicle has had
-    * any changes written since the data for this chronicle was read. If the write sequence does not match the write
-    * sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of
-    * a {@code WaitFreeComparable} object.
-    *
-    * @param writeSequence the new write sequence is incremented each time data is written, and provides a check to see
-    * if this chronicle has had any changes written since the data for this chronicle was read
-    */
-   @Override
-   public void setWriteSequence(int writeSequence) {
-      this.writeSequence = writeSequence;
-   }
-
-   /**
-    * Called after merge and write operations to set the objects data to be the data actually written so that the object
-    * in memory has the same value as the object just written to the database.
-    *
-    * @param writtenData the new data previously persisted
-    */
-   public void setWrittenData(byte[] writtenData) {
-      this.writtenData = writtenData;
-      this.unwrittenData = null;
-      this.versionListReference = null;
-   }
-
-   @Override
-   public NidSet getRecursiveSemanticNids() {
-      NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
-      sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
-
-      return sequenceSet;
-   }
-
-   private void addRecursiveSequences(IntSet sememeSequenceSet, int semanticNid) {
-      IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
-      sequenceSet.stream().forEach((sequence) -> {
-         sememeSequenceSet.add(sequence);
-         addRecursiveSequences(sememeSequenceSet, sequence);
-      });
-
-   }
+    }
 
 }

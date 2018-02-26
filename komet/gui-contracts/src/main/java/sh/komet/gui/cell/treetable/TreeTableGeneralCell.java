@@ -42,6 +42,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -72,6 +76,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -122,6 +128,7 @@ public class TreeTableGeneralCell
     private SemanticVersion semanticVersion;
     private final FixedSizePane paneForText = new FixedSizePane();
     private final ToolBar toolBar;
+    private ObservableVersion mutableVersion;
 
     //~--- constructors --------------------------------------------------------
     public TreeTableGeneralCell(Manifold manifold) {
@@ -143,11 +150,13 @@ public class TreeTableGeneralCell
         );
         Button cancelButton = new Button("Cancel");
         cancelButton.setOnAction(this::toggleEdit);
+        Button commitButton = new Button("Commit");
+        commitButton.setOnAction(this::commitEdit);
         toolBar = new ToolBar(
                 leftSpacer,
                 cancelButton,
                 new Separator(),
-                new Button("Commit")
+                commitButton
         );
 
     }
@@ -187,13 +196,36 @@ public class TreeTableGeneralCell
         this.setGraphic(textAndEditGrid);
     }
 
+    private void commitEdit(ActionEvent event) {
+        CommitTask commitTask = Get.commitService().commit(this.mutableVersion.getChronology(), 
+                this.manifold.getEditCoordinate(), 
+                "No comment", 
+                this.mutableVersion);
+        Get.executor().execute(() -> {
+            try {
+                Optional<CommitRecord> commitRecord = commitTask.get();
+                if (commitRecord.isPresent()) {
+                    Platform.runLater(() -> {
+                        editPanel.getChildren().clear();
+                        editButton.setVisible(true);
+                    });
+                } else {
+                    // TODO show errors. 
+                    commitTask.getAlerts();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                LOG.error("Error committing change.", ex);
+            } finally {
+             }
+        });
+    }
     private void toggleEdit(ActionEvent event) {
 
         if (editPanel.getChildren().isEmpty()) {
             if (this.semanticVersion != null) {
                 if (this.semanticVersion instanceof ObservableVersion) {
                     ObservableVersion currentVersion = (ObservableVersion) this.semanticVersion;
-                    ObservableVersion mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
+                    mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
                     
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();

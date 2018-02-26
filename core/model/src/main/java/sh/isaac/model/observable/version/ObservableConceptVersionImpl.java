@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -53,6 +54,7 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -124,5 +126,27 @@ public class ObservableConceptVersionImpl
    public ObservableConceptChronology getChronology() {
       return (ObservableConceptChronology) this.chronology;
    }   
+
+    @Override
+    public Chronology createIndependentChronicle() {
+        ConceptChronologyImpl independentChronology = 
+                new ConceptChronologyImpl(this.getPrimordialUuid(), this.getAssemblageNid());
+        boolean added = false;
+        for (Version v: this.getChronology().getVersionList()) {
+            if (v == this) {
+                added = true;
+            }
+            independentChronology.addVersion(v);
+        }
+        
+        if (!added) {
+            independentChronology.addVersion(this);
+        }
+        
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   
+   
 }
 

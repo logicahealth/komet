@@ -60,7 +60,6 @@ import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.observable.CommitAwareLongProperty;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -190,7 +189,7 @@ public class ObservableStringVersionImpl
     * @param string the new string
     */
    @Override
-   public void setString(String string) {
+   public final void setString(String string) {
        if (this.stampedVersionProperty == null) {
            this.stringProperty();
        }

@@ -126,6 +126,8 @@ public abstract class ObservableVersionImpl
     * The chronology.
     */
    protected final ObservableChronology chronology;
+   
+   protected final VersionType versionType;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -137,11 +139,13 @@ public abstract class ObservableVersionImpl
    public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
       this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
       this.chronology = chronology;
+      this.versionType = stampedVersion.getSemanticType();
    }
 
    protected ObservableVersionImpl(ObservableChronology chronology) {
       this.chronology = chronology;
       this.stampedVersionProperty = null;
+      this.versionType = chronology.getVersionType();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -767,8 +771,8 @@ public abstract class ObservableVersionImpl
    }
 
    @Override
-   public VersionType getSemanticType() {
-      return ((VersionImpl) this.stampedVersionProperty.get()).getSemanticType();
+   public final VersionType getSemanticType() {
+      return this.versionType;
    }
 
    @Override

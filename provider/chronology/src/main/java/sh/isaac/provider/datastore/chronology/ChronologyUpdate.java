@@ -180,6 +180,9 @@ public class ChronologyUpdate implements StaticIsaacCache{
    }
 
    private static int[] merge(int[] existing, int[] update) {
+      if (update == null || update.length == 0) {
+          return existing;
+      }
       if (existing == null) {
          existing = new int[0];
       }

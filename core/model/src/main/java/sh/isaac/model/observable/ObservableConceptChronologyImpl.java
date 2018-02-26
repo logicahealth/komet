@@ -46,7 +46,6 @@ package sh.isaac.model.observable;
 
 import java.util.List;
 import java.util.Optional;
-import javafx.beans.property.IntegerProperty;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

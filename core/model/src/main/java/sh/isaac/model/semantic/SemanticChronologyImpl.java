@@ -91,8 +91,6 @@ import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 public class SemanticChronologyImpl
         extends ChronologyImpl
          implements SemanticChronology, IsaacExternalizable {
-   /** The semantic type token. */
-   byte semanticTypeToken = -1;
 
    /** The referenced component nid. */
    int referencedComponentNid = Integer.MAX_VALUE;
@@ -116,8 +114,7 @@ public class SemanticChronologyImpl
                                  UUID primordialUuid,
                                  int assemblageNid,
                                  int referencedComponentNid) {
-      super(primordialUuid, assemblageNid, IsaacObjectType.SEMANTIC, semanticType);
-      this.semanticTypeToken      = semanticType.getVersionTypeToken();
+      super(primordialUuid, assemblageNid, semanticType);
       this.referencedComponentNid = referencedComponentNid;
    }
 
@@ -164,84 +161,82 @@ public class SemanticChronologyImpl
    /**
     * Creates the sememe.
     *
-    * @param token the token
-    * @param container the container
+    * @param chronology the container
     * @param stampSequence the stamp sequence
     * @param bb the bb
     * @return the sememe version impl
     */
-   public static AbstractVersionImpl createSemantic(byte token,
-         SemanticChronologyImpl container,
+   public static AbstractVersionImpl createSemantic(
+         SemanticChronologyImpl chronology,
          int stampSequence,
          ByteArrayDataBuffer bb) {
-      final VersionType st = VersionType.getFromToken(token);
 
-      switch (st) {
+      switch (chronology.versionType) {
       case MEMBER:
-         return new SemanticVersionImpl(container, stampSequence);
+         return new SemanticVersionImpl(chronology, stampSequence);
 
       case COMPONENT_NID:
-         return new ComponentNidVersionImpl(container, stampSequence, bb);
+         return new ComponentNidVersionImpl(chronology, stampSequence, bb);
 
       case LONG:
-         return new LongVersionImpl(container, stampSequence, bb);
+         return new LongVersionImpl(chronology, stampSequence, bb);
 
       case LOGIC_GRAPH:
-         return new LogicGraphVersionImpl(container, stampSequence, bb);
+         return new LogicGraphVersionImpl(chronology, stampSequence, bb);
 
       case DYNAMIC:
-         return new DynamicImpl(container, stampSequence, bb);
+         return new DynamicImpl(chronology, stampSequence, bb);
 
       case STRING:
-         return new StringVersionImpl(container, stampSequence, bb);
+         return new StringVersionImpl(chronology, stampSequence, bb);
 
       case DESCRIPTION:
-         return (new DescriptionVersionImpl(container, stampSequence, bb));
+         return (new DescriptionVersionImpl(chronology, stampSequence, bb));
 
       case RF2_RELATIONSHIP:
-         return new Rf2RelationshipImpl(container, stampSequence, bb);
+         return new Rf2RelationshipImpl(chronology, stampSequence, bb);
 
       case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-         return new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(container, stampSequence, bb);
+         return new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Int2:
-         return new Nid1_Int2_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Int2_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Int2_Str3_Str4_Nid5_Nid6:
-         return new Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Nid2_Int3:
-         return new Nid1_Nid2_Int3_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Nid2_Int3_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Nid2:
-         return new Nid1_Nid2_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Nid2_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Nid2_Str3:
-         return new Nid1_Nid2_Str3_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Nid2_Str3_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Str2:
-         return new Nid1_Str2_VersionImpl(container, stampSequence, bb);
+         return new Nid1_Str2_VersionImpl(chronology, stampSequence, bb);
 
       case Str1_Str2:
-         return new Str1_Str2_VersionImpl(container, stampSequence, bb);
+         return new Str1_Str2_VersionImpl(chronology, stampSequence, bb);
 
       case Str1_Str2_Nid3_Nid4:
-         return new Str1_Str2_Nid3_Nid4_VersionImpl(container, stampSequence, bb);
+         return new Str1_Str2_Nid3_Nid4_VersionImpl(chronology, stampSequence, bb);
 
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-         return new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(container, stampSequence, bb);
+         return new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(chronology, stampSequence, bb);
 
       case Str1_Nid2_Nid3_Nid4:
-         return new Str1_Nid2_Nid3_Nid4_VersionImpl(container, stampSequence, bb);
+         return new Str1_Nid2_Nid3_Nid4_VersionImpl(chronology, stampSequence, bb);
 
       case Str1_Str2_Nid3_Nid4_Nid5:
-         return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(container, stampSequence, bb);
+         return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(chronology, stampSequence, bb);
           
       case LOINC_RECORD:
-         return new LoincVersionImpl(container, stampSequence, bb);
+         return new LoincVersionImpl(chronology, stampSequence, bb);
 
       default:
-         throw new UnsupportedOperationException("ae Can't handle: " + token);
+         throw new UnsupportedOperationException("ae Can't handle: " + chronology.versionType);
       }
    }
 
@@ -282,10 +277,9 @@ public class SemanticChronologyImpl
    public void toString(StringBuilder builder, boolean addAttachments) {
       builder.append("SemanticChronology{");
 
-      if (this.semanticTypeToken == -1) {
-         builder.append("SemanticType token not initialized");
+      if (this.versionType == null) {
+         builder.append("versionType not initialized");
       } else {
-          VersionType versionType = VersionType.getFromToken(this.semanticTypeToken);
          builder.append(versionType);
          switch (versionType) {
              case DESCRIPTION:
@@ -442,7 +436,7 @@ public class SemanticChronologyImpl
     */
    @Override
    protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
-      return (V) createSemantic(this.semanticTypeToken, this, stampSequence, db);
+      return (V) createSemantic(this, stampSequence, db);
    }
 
    /**
@@ -452,7 +446,6 @@ public class SemanticChronologyImpl
     */
    @Override
    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
-      out.putByte(this.semanticTypeToken);
       out.putNid(this.referencedComponentNid);
    }
 
@@ -463,7 +456,6 @@ public class SemanticChronologyImpl
     */
    @Override
    protected void skipAdditionalChronicleFields(ByteArrayDataBuffer in) {
-      in.getByte();  // semanticTypeToken =
       in.getNid();   // referencedComponentNid =
    }
 
@@ -476,7 +468,6 @@ public class SemanticChronologyImpl
     */
    @Override
    protected void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in) {
-      this.semanticTypeToken      = in.getByte();
       this.referencedComponentNid = in.getNid();
    }
 
@@ -509,7 +500,10 @@ public class SemanticChronologyImpl
     */
    @Override
    public VersionType getVersionType() {
-      return VersionType.getFromToken(this.semanticTypeToken);
+      if (this.versionType == null) {
+          throw new IllegalStateException();
+      }
+      return this.versionType;
    }
 }
 

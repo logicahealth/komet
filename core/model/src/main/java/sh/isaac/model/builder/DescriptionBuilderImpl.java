@@ -184,9 +184,9 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                                    .getNidForUuids(this.conceptBuilder.getUuids());
       }
 
-      final SemanticBuilderService sememeBuilder = LookupService.getService(SemanticBuilderService.class);
+      final SemanticBuilderService semanticBuilder = LookupService.getService(SemanticBuilderService.class);
       final SemanticBuilder<? extends SemanticChronology> descBuilder =
-         sememeBuilder.getDescriptionBuilder(TermAux.caseSignificanceToConceptNid(false),
+         semanticBuilder.getDescriptionBuilder(TermAux.caseSignificanceToConceptNid(false),
                                                    this.languageForDescription.getNid(),
                                                    this.descriptionType.getNid(),
                                                    this.descriptionText,this.conceptNid);

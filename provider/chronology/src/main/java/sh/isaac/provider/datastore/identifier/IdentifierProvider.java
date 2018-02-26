@@ -181,7 +181,7 @@ public class IdentifierProvider
                this.store.getAssemblageVersionTypeMap().get(assemblageNid) + " " + versionType);
       }
       
-      return ((oldObjectType == null && oldVersionType == null) ? true : false);
+      return ((oldObjectType == null && oldVersionType == null));
    }
    
   private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {

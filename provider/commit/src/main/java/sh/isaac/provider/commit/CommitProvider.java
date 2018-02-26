@@ -114,7 +114,10 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
@@ -479,6 +482,7 @@ public class CommitProvider
     * @param editCoordinate the edit coordinate
     * @param commitComment the commit comment
     * @return the task
+    * @deprecated 
     */
    @Override
    public synchronized CommitTask commit(Chronology chronicle,
@@ -499,6 +503,26 @@ public class CommitProvider
             this);
       return task;
    }
+
+    @Override
+    public CommitTask commit(ObservableChronology chronicle,
+         EditCoordinate editCoordinate,
+         String commitComment,
+         ObservableVersion... versionsToCommit) {
+        
+        ChronologyImpl independentChronology = null;
+        for (ObservableVersion version: versionsToCommit) {
+            if (independentChronology == null) {
+                independentChronology = (ChronologyImpl) version.createIndependentChronicle();
+            } else {
+                independentChronology.addVersion(version);
+            }
+        }
+        
+        LOG.info("Commit independent chronology:\n" + independentChronology);
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
    /**
     * Import no checks.

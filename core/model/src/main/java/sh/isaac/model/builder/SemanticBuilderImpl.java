@@ -159,8 +159,8 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                                           .getNidForUuids(this.referencedComponentBuilder.getUuids());
       }
       
-      List<SemanticBuildListenerI> sememeBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-      for (SemanticBuildListenerI listener : sememeBuildListeners) {
+      List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
+      for (SemanticBuildListenerI listener : semanticBuildListeners) {
          if (listener != null) {
             if (listener.isEnabled()) {
                // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
@@ -259,7 +259,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       getSemanticBuilders().forEach((builder) -> builder.build(stampSequence, builtObjects));
       builtObjects.add(semanticChronicle);
-      for (SemanticBuildListenerI listener : sememeBuildListeners) {
+      for (SemanticBuildListenerI listener : semanticBuildListeners) {
          if (listener != null) {
             if (listener.isEnabled()) {
                // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");

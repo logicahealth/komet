@@ -85,17 +85,18 @@ public class ConceptChronologyImpl
    /**
     * Instantiates a new concept chronology impl.
     */
-   private ConceptChronologyImpl() {}
+   private ConceptChronologyImpl() {
+       this.versionType = VersionType.CONCEPT;
+   }
 
    /**
     * Instantiates a new concept chronology impl.
     *
     * @param primordialUuid the primordial uuid
-    * @param nid the nid
     * @param assemblageNid the container sequence
     */
    public ConceptChronologyImpl(UUID primordialUuid, int assemblageNid) {
-      super(primordialUuid, assemblageNid, IsaacObjectType.CONCEPT, VersionType.CONCEPT);
+      super(primordialUuid, assemblageNid, VersionType.CONCEPT);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -180,6 +181,10 @@ public class ConceptChronologyImpl
     * @return the concept chronology impl
     */
    public static ConceptChronologyImpl make(ByteArrayDataBuffer data) {
+      if (data.getUsed() == 0) {
+          throw new IllegalStateException();
+      }
+       
       if (IsaacObjectType.CONCEPT.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
          throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
       }

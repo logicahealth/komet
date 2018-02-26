@@ -27,6 +27,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
 
@@ -112,6 +113,11 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         return getObservableVersion().makeAutonomousAnalog(ec);
+    }
+
+    @Override
+    public Chronology createIndependentChronicle() {
+        return getObservableVersion().createIndependentChronicle();
     }
    
    
