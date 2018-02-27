@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +35,7 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -40,13 +43,16 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
@@ -264,8 +270,39 @@ public class ContentManagerController
 		databaseAdd.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				//TODO sort out my IBDF cache vs selected
 				readAvailableIBDFFiles();
+			}
+
+			ListView<IBDFFile> ibdfPicker = new ListView<>();
+			ibdfPicker.setItems(FXCollections.observableArrayList(ibdfFiles_));
+			ibdfPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			ibdfPicker.setCellFactory(param -> new ListCell<IBDFFile>()
+			{
+				@Override
+				protected void updateItem(IBDFFile item, boolean empty)
+				{
+					super.updateItem(item, empty);
+
+					if (empty || item == null)
+					{
+						setText(null);
+					}
+					else
+					{
+						setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					}
+				}
+			});
+			
+			Alert ibdfDialog = new Alert(AlertType.CONFIRMATION);
+			ibdfDialog.setTitle("Select Files");
+			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
+			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfPicker.setPrefWidth(1024);
+
+			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				databaseIbdfList.getItems().addAll(ibdfPicker.getSelectionModel().getSelectedItems());
 			}
 		});
 
@@ -283,6 +320,24 @@ public class ContentManagerController
 				return databaseIbdfList.getSelectionModel().getSelectedItems().size() > 0;
 			}
 		};
+		
+		databaseIbdfList.setCellFactory(param -> new ListCell<IBDFFile>()
+		{
+			@Override
+			protected void updateItem(IBDFFile item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty || item == null)
+				{
+					setText(null);
+				}
+				else
+				{
+					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+				}
+			}
+		});
 
 		databaseRemove.disableProperty().bind(ibdfItemSelected.not());
 		databaseRemove.setOnAction((actionEvent) -> {
@@ -344,27 +399,52 @@ public class ContentManagerController
 
 	private void createDatabase()
 	{
+		Task<Void> t = new Task<Void>()
+		{
+			@Override
+			protected Void call() throws Exception
+			{
+				DBConfigurationCreator.createDBConfiguration(databaseName.getText(), databaseVersion.getText(), databaseDescription.getText(),
+						databaseClassifier.getText(), databaseOpClassify.isSelected(),
+						databaseIbdfList.getItems().toArray(new IBDFFile[databaseIbdfList.getItems().size()]),
+						databaseMetadataVersion.getSelectionModel().getSelectedItem(), databaseOpTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
+						sp_.getGitPassword(), new File(workingFolder.getText()),
+						(databaseOpInstall.isSelected() || databaseOpDeploy.isSelected() ? false : workingFolderCleanup.isSelected()));
+
+				if (databaseOpInstall.isSelected() || databaseOpDeploy.isSelected())
+				{
+					// TODO run maven in place, with either an install or a deploy.
+				}
+				return null;
+			}
+		};
+
+		Get.workExecutors().getExecutor().execute(t);
+		ProgressDialog pd = new ProgressDialog(t);
+		pd.setTitle("Building Configuration");
+		pd.setHeaderText(null);
+		pd.setContentText("Building Configuration");
+		pd.showAndWait();
+
 		try
 		{
-			DBConfigurationCreator.createDBConfiguration(databaseName.getText(), databaseVersion.getText(), databaseDescription.getText(),
-				databaseClassifier.getText(), databaseOpClassify.isSelected(), ibdfFiles_.toArray(new IBDFFile[ibdfFiles_.size()]),
-				databaseMetadataVersion.getSelectionModel().getSelectedItem(), databaseOpTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
-				sp_.getGitPassword(), new File(workingFolder.getText()), 
-				(databaseOpInstall.isSelected() || databaseOpDeploy.isSelected() ? false : workingFolderCleanup.isSelected()));
-			
-			if (databaseOpInstall.isSelected() || databaseOpDeploy.isSelected())
-			{
-				//TODO run maven in place, with either an install or a deploy.
-			}
+			t.get();
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Complete");
+			alert.setHeaderText("Database creation job complete");
+			alert.showAndWait();
 		}
-		
+
 		catch (Exception e)
 		{
 			log.error("Unexpected problem creating DB Configuration", e);
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Error");
 			alert.setHeaderText("Error creating Database configuration");
-			alert.setContentText("Please see the log file and/or console for details on the error");
+			Text text = new Text("Please see the log file and/or console for details on the error");
+			text.wrappingWidthProperty().bind(alert.widthProperty().subtract(10.0));
+			alert.getDialogPane().setContent(text);
+			alert.getDialogPane().setPadding(new Insets(5.0));
 			alert.showAndWait();
 		}
 	}
@@ -376,12 +456,12 @@ public class ContentManagerController
 	{
 		cm_ = contentManager;
 		fileExit.setOnAction((action) -> cm_.shutdown());
-		
+
 		optionsGitConfig.setOnAction((action) -> gitConfigDialog());
 		optionsArtifacts.setOnAction((action) -> artifactsConfigDialog());
 		optionsMaven.setOnAction((action) -> mavenConfigDialog());
 	}
-	
+
 	private void mavenConfigDialog()
 	{
 		try
@@ -391,12 +471,12 @@ public class ContentManagerController
 			FXMLLoader loader = new FXMLLoader(resource);
 			GridPane mavenGridPane = loader.load();
 			MavenPathsPanel mavenPanelController = loader.getController();
-			
+
 			Alert mavenPathsDialog = new Alert(AlertType.CONFIRMATION);
 			mavenPathsDialog.setTitle("Maven Configuration");
 			mavenPathsDialog.setHeaderText("Please specify the Maven configuration");
 			mavenPathsDialog.getDialogPane().setContent(mavenGridPane);
-			
+
 			mavenPanelController.m2PathBrowse.setOnAction((actionEvent) -> {
 				DirectoryChooser fc = new DirectoryChooser();
 				fc.setTitle("Select Maven 'm2' folder");
@@ -406,7 +486,7 @@ public class ContentManagerController
 					mavenPanelController.mavenM2Path.setText(f.getAbsolutePath());
 				}
 			});
-			
+
 			mavenPanelController.settingsFileBrowse.setOnAction((actionEvent) -> {
 				FileChooser fc = new FileChooser();
 				fc.setTitle("Select Maven 'settings.xml' file");
@@ -416,11 +496,10 @@ public class ContentManagerController
 					mavenPanelController.mavenSettingsFile.setText(f.getAbsolutePath());
 				}
 			});
-			
+
 			mavenPanelController.mavenM2Path.setText(sp_.getLocalM2FolderPath());
 			mavenPanelController.mavenSettingsFile.setText(sp_.getMavenSettingsFile());
-			
-			
+
 			if (mavenPathsDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
 				sp_.setMavenSettingsFile(mavenPanelController.mavenSettingsFile.getText());
@@ -443,17 +522,16 @@ public class ContentManagerController
 			FXMLLoader loader = new FXMLLoader(resource);
 			GridPane artifactGridPane = loader.load();
 			ArtifactPanel artifactController = loader.getController();
-			
+
 			Alert artifactDialog = new Alert(AlertType.CONFIRMATION);
 			artifactDialog.setTitle("Artifact Repository Configuration");
 			artifactDialog.setHeaderText("Please specify the Artifact Repository configuration");
 			artifactDialog.getDialogPane().setContent(artifactGridPane);
-			
+
 			artifactController.artifactUrl.setText(sp_.getArtifactURL());
 			artifactController.artifactUsername.setText(sp_.getArtifactUsername());
 			artifactController.artifactPassword.setText(new String(sp_.getArtifactPassword()));
-			
-			
+
 			if (artifactDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
 				sp_.setArtifactURL(artifactController.artifactUrl.getText());
@@ -477,17 +555,16 @@ public class ContentManagerController
 			FXMLLoader loader = new FXMLLoader(resource);
 			GridPane gitGridPane = loader.load();
 			GitPanel gpController = loader.getController();
-			
+
 			Alert gitDialog = new Alert(AlertType.CONFIRMATION);
 			gitDialog.setTitle("Git Configuration");
 			gitDialog.setHeaderText("Please specify the GIT configuration");
 			gitDialog.getDialogPane().setContent(gitGridPane);
-			
+
 			gpController.gitUrl.setText(sp_.getGitURL());
 			gpController.gitUsername.setText(sp_.getGitUsername());
 			gpController.gitPassword.setText(new String(sp_.getGitPassword()));
-			
-			
+
 			if (gitDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
 				sp_.setGitURL(gpController.gitUrl.getText());
@@ -509,10 +586,10 @@ public class ContentManagerController
 		{
 			throw new RuntimeException("StoredPrefs were not passed");
 		}
-		
+
 		readAvailableMetadataVersions();
 	}
-	
+
 	private void readAvailableMetadataVersions()
 	{
 		Task<Void> t = new Task<Void>()
@@ -523,8 +600,7 @@ public class ContentManagerController
 				final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
 				metadataVersions.add(VersionFinder.findProjectVersion(true));
 				metadataVersions.add(VersionFinder.findProjectVersion(false));
-				
-				
+
 				File temp = new File(sp_.getLocalM2FolderPath());
 				if (temp.isDirectory())
 				{
@@ -550,6 +626,7 @@ public class ContentManagerController
 		pd.setTitle("Reading Metadata Versions");
 		pd.setHeaderText(null);
 		pd.setContentText("Reading available Metadata Versions");
+		pd.showAndWait();
 	}
 
 	private void readAvailableIBDFFiles()
@@ -560,19 +637,27 @@ public class ContentManagerController
 			protected Void call() throws Exception
 			{
 				File temp = new File(sp_.getLocalM2FolderPath());
+				HashSet<IBDFFile> foundFiles = new HashSet<>();
 				if (temp.isDirectory())
 				{
 					log.debug("Reading local m2 folder");
-					final IBDFFile[] local = DBConfigurationCreator.readLocalIBDFArtifacts(temp);
-					Platform.runLater(() -> 
+					updateMessage("Reading the local m2 folder");
+
+					for (IBDFFile i : DBConfigurationCreator.readLocalIBDFArtifacts(temp))
 					{
-						databaseIbdfList.getItems().addAll(local);	
-					});
+						if (i.getArtifactId().equals("metadata"))
+						{
+							continue;
+						}
+						foundFiles.add(i);
+					}
 				}
-				
-				//TODO read remote
-				
-				// TODO put up a proper picker dialog!
+
+				// TODO read remote
+
+				ibdfFiles_.clear();
+				ibdfFiles_.addAll(foundFiles);
+				Collections.sort(ibdfFiles_);
 				return null;
 			}
 		};
@@ -582,5 +667,6 @@ public class ContentManagerController
 		pd.setTitle("Reading IBDF Files");
 		pd.setHeaderText(null);
 		pd.setContentText("Reading available IBDF Files");
+		pd.showAndWait();
 	}
 }

@@ -51,7 +51,6 @@ public class StoredPrefs
 	
 	private transient char[] passwordEncryptionPassword;
 	
-	@SuppressWarnings("unused")
 	private StoredPrefs()
 	{
 		//For json deserialize
@@ -95,6 +94,7 @@ public class StoredPrefs
 		try (JsonReader jr = new JsonReader(new FileInputStream(jsonFileToRead)))
 		{
 			StoredPrefs sp = (StoredPrefs) jr.readObject();
+			sp.passwordEncryptionPassword = decryptionPassword;
 			try
 			{
 				PasswordHasher.decryptToString(decryptionPassword, sp.pwCheck);
@@ -211,7 +211,7 @@ public class StoredPrefs
 		}
 		catch (Exception e)
 		{
-			log.error("Error decrypting artifact password");
+			log.error("Error decrypting artifact password", e);
 			return new char[] {};
 		}
 	}
