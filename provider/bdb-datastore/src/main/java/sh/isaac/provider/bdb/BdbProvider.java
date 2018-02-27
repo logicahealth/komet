@@ -423,13 +423,10 @@ public class BdbProvider
                                             .getParent()
                                             .toFile();
             File solorDbFolder  = new File(dataFolderFile, "solor-db.data");
-            File metaDbFolder   = new File(dataFolderFile, "meta-db.data");
             File isaacDbFolder  = new File(dataFolderFile, "isaac.data");
 
             if (solorDbFolder.exists()) {
                solorDbFolder.renameTo(isaacDbFolder);
-            } else if (metaDbFolder.exists()) {
-               metaDbFolder.renameTo(isaacDbFolder);
             } else {
                this.databaseStartState = DataStoreStartState.NO_DATASTORE;
             }

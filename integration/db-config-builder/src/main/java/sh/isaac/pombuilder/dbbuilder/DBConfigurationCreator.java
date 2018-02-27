@@ -64,8 +64,8 @@ import org.apache.maven.pom._4_0.Scm;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
-import sh.isaac.pombuilder.VersionFinder;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -86,9 +86,6 @@ public class DBConfigurationCreator
 
 	/** The Constant parentArtifactId. */
 	private static final String parentArtifactId = "db-builder";
-
-	/** The Constant parentVersion. */
-	private static final String parentVersion = VersionFinder.findProjectVersion();
 
 	/** The Constant groupId. */
 	public static final String groupId = "sh.isaac.db";
@@ -134,7 +131,7 @@ public class DBConfigurationCreator
 
 			parent.setGroupId(parentGroupId);
 			parent.setArtifactId(parentArtifactId);
-			parent.setVersion(parentVersion);
+			parent.setVersion(metadataVersion);
 			model.setParent(parent);
 			model.setGroupId(groupId);
 			model.setArtifactId(name);
@@ -145,7 +142,7 @@ public class DBConfigurationCreator
 
 			final Scm scm = new Scm();
 
-			scm.setUrl(GitPublish.constructChangesetRepositoryURL(gitRepositoryURL));
+			scm.setUrl(StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
 			scm.setTag(groupId + "/" + name + "/" + version);
 			model.setScm(scm);
 
@@ -250,7 +247,7 @@ public class DBConfigurationCreator
 			Dependency pd = new Dependency();
 			pd.setGroupId("sh.isaac.core");
 			pd.setArtifactId("log-config");
-			pd.setVersion(parentVersion);
+			pd.setVersion(metadataVersion);
 			pd.setScope("compile");
 			
 			plugin.getDependencies().getDependency().add(pd);
@@ -303,9 +300,8 @@ public class DBConfigurationCreator
 
 			// index and shutdown
 			pe = new PluginExecution();
-			pe.setId("index-and-shutdown");
+			pe.setId("shutdown");
 			goals = new Goals();
-			goals.getGoal().add("index-termstore");
 			// goals.getGoal()
 			// .add("stop-heap-ticker");
 			// goals.getGoal()
@@ -335,8 +331,7 @@ public class DBConfigurationCreator
 			FileUtil.writeFile("dbProjectTemplate", "DOTgitignore", baseFolder);
 			FileUtil.writeFile("shared", "LICENSE.txt", baseFolder);
 			FileUtil.writeFile("shared", "NOTICE.txt", baseFolder);
-			FileUtil.writeFile("dbProjectTemplate", "src/assembly/cradle.xml", baseFolder);
-			FileUtil.writeFile("dbProjectTemplate", "src/assembly/lucene.xml", baseFolder);
+			FileUtil.writeFile("dbProjectTemplate", "src/assembly/isaac.xml", baseFolder);
 			FileUtil.writeFile("dbProjectTemplate", "src/assembly/MANIFEST.MF", baseFolder);
 			
 			if (StringUtils.isNotBlank(gitRepositoryURL)) 
@@ -406,7 +401,7 @@ public class DBConfigurationCreator
 							}
 							for (String classifier : ibdfClassifiers)
 							{
-								files.add(new IBDFFile("sh.isaac.terminiology.converted", artifactId.getName(), versionFolder.getName(), classifier));
+								files.add(new IBDFFile("sh.isaac.terminology.converted", artifactId.getName(), versionFolder.getName(), classifier));
 							}
 						}
 					}
