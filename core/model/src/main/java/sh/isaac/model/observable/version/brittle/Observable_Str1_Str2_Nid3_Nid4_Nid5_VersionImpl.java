@@ -22,6 +22,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
@@ -29,8 +31,11 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Nid3_Nid4_Nid5_Version;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
 
 /**
@@ -38,7 +43,7 @@ import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionI
  * @author kec
  */
 public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl 
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements Observable_Str1_Str2_Nid3_Nid4_Nid5_Version {
    StringProperty  str1Property;
    StringProperty  str2Property;
@@ -64,6 +69,7 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl analog = new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -312,6 +318,69 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       properties.add(nid4Property());
       properties.add(nid5Property());
       return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) {
+            Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl observableAnalog = (Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) analog;
+            observableAnalog.setStr1(this.getStr1());
+            observableAnalog.setStr2(this.getStr2());
+            observableAnalog.setNid3(this.getNid3());
+            observableAnalog.setNid4(this.getNid4());
+            observableAnalog.setNid5(this.getNid5());
+        } else if (analog instanceof Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) {
+             Str1_Str2_Nid3_Nid4_Nid5_VersionImpl simpleAnalog = (Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) analog;
+            simpleAnalog.setStr1(this.getStr1());
+            simpleAnalog.setStr2(this.getStr2());
+            simpleAnalog.setNid3(this.getNid3());
+            simpleAnalog.setNid4(this.getNid4());
+            simpleAnalog.setNid5(this.getNid5());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion = new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    protected void updateVersion() {
+      if (this.str1Property != null && 
+              !this.str1Property.get().equals(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getStr1())) {
+         this.str1Property.set(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getStr1());
+      }
+      if (this.str2Property != null && 
+              !this.str2Property.get().equals(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getStr2())) {
+         this.str2Property.set(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getStr2());
+      }
+      if (this.nid3Property != null && 
+              this.nid3Property.get() != ((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid3()) {
+         this.nid3Property.set(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid3());
+      }
+      if (this.nid4Property != null && 
+              this.nid4Property.get() != ((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid4()) {
+         this.nid4Property.set(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid4());
+      }
+      if (this.nid5Property != null && 
+              this.nid5Property.get() != ((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid5()) {
+         this.nid5Property.set(((Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get()).getNid5());
+      }
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newObservableVersion = 
+              new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
 

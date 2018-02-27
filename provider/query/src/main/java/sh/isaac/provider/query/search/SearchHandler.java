@@ -235,7 +235,7 @@ public class SearchHandler {
                                            // Get the description object.
                                            final Optional<? extends Chronology> io =
                                               Get.identifiedObjectService()
-                                                 .getIdentifiedObjectChronology(searchResult2.getNid());
+                                                 .getChronology(searchResult2.getNid());
 
                                            // normalize the scores between 0 and 1
                                            final float normScore = (searchResult2.getScore() / maxScore);
@@ -646,7 +646,7 @@ public class SearchHandler {
 
             // Get the match object.
             final Optional<? extends Chronology> io = Get.identifiedObjectService()
-                                                                                         .getIdentifiedObjectChronology(
+                                                                                         .getChronology(
                                                                                             searchResult.getNid());
 
             // normalize the scores between 0 and 1

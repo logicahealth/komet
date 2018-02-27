@@ -46,6 +46,8 @@ import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -53,8 +55,10 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Int3_Version;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -64,7 +68,7 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
  * @author kec
  */
 public class Observable_Nid1_Nid2_Int3_VersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements Observable_Nid1_Nid2_Int3_Version {
    IntegerProperty nid1Property;
    IntegerProperty nid2Property;
@@ -87,6 +91,7 @@ public class Observable_Nid1_Nid2_Int3_VersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Nid1_Nid2_Int3_VersionImpl analog = new Observable_Nid1_Nid2_Int3_VersionImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -248,6 +253,57 @@ public class Observable_Nid1_Nid2_Int3_VersionImpl
       properties.add(nid2Property());
       properties.add(int3Property());
       return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof Observable_Nid1_Nid2_Int3_VersionImpl) {
+            Observable_Nid1_Nid2_Int3_VersionImpl observableAnalog = (Observable_Nid1_Nid2_Int3_VersionImpl) analog;
+            observableAnalog.setNid1(this.getNid1());
+            observableAnalog.setNid2(this.getNid2());
+            observableAnalog.setInt3(this.getInt3());
+        } else if (analog instanceof Nid1_Nid2_Int3_VersionImpl) {
+             Nid1_Nid2_Int3_VersionImpl simpleAnalog = (Nid1_Nid2_Int3_VersionImpl) analog;
+            simpleAnalog.setNid1(this.getNid1());
+            simpleAnalog.setNid2(this.getNid2());
+            simpleAnalog.setInt3(this.getInt3());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        Nid1_Nid2_Int3_VersionImpl newVersion = new Nid1_Nid2_Int3_VersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    protected void updateVersion() {
+      if (this.nid1Property != null && 
+              this.nid1Property.get() != ((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getNid1()) {
+         this.nid1Property.set(((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getNid1());
+      }
+     if (this.nid2Property != null && 
+              this.nid2Property.get() != ((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getNid2()) {
+         this.nid2Property.set(((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getNid2());
+      }
+     if (this.int3Property != null && 
+              this.int3Property.get() != ((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getInt3()) {
+         this.int3Property.set(((Nid1_Nid2_Int3_VersionImpl) this.stampedVersionProperty.get()).getInt3());
+      }
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      Nid1_Nid2_Int3_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      Observable_Nid1_Nid2_Int3_VersionImpl newObservableVersion = 
+              new Observable_Nid1_Nid2_Int3_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
 

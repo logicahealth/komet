@@ -41,7 +41,6 @@ package sh.isaac.api.commit;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -61,7 +60,6 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
@@ -181,10 +179,9 @@ public interface CommitService
          String commitComment);
 
    
-   CommitTask commit(ObservableChronology chronicle,
+   CommitTask commit(ObservableVersion versionsToCommit,
          EditCoordinate editCoordinate,
-         String commitComment,
-         ObservableVersion... versionsToCommit);
+         String commitComment);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.

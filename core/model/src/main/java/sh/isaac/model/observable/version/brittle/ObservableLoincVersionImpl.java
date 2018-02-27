@@ -47,14 +47,18 @@ import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableLoincVersion;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -64,7 +68,7 @@ import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
  * @author kec
  */
 public class ObservableLoincVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableLoincVersion {
    StringProperty loincNumProperty;
    StringProperty componentProperty;
@@ -100,6 +104,7 @@ public class ObservableLoincVersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableLoincVersionImpl analog = new ObservableLoincVersionImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -543,6 +548,99 @@ public class ObservableLoincVersionImpl
       properties.add(systemProperty());
       properties.add(timeAspectProperty());
       return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableLoincVersionImpl) {
+            ObservableLoincVersionImpl observableAnalog = (ObservableLoincVersionImpl) analog;
+            observableAnalog.setComponent(this.getComponent());
+            observableAnalog.setLoincNum(this.getLoincNum());
+            observableAnalog.setLoincStatus(this.getLoincStatus());
+            observableAnalog.setLongCommonName(this.getLongCommonName());
+            observableAnalog.setMethodType(this.getMethodType());
+            observableAnalog.setProperty(this.getProperty());
+            observableAnalog.setScaleType(this.getScaleType());
+            observableAnalog.setShortName(this.getShortName());
+            observableAnalog.setSystem(this.getSystem());
+            observableAnalog.setTimeAspect(this.getTimeAspect());
+        } else if (analog instanceof LoincVersionImpl) {
+            LoincVersionImpl simpleAnalog = (LoincVersionImpl) analog;
+            simpleAnalog.setComponent(this.getComponent());
+            simpleAnalog.setLoincNum(this.getLoincNum());
+            simpleAnalog.setLoincStatus(this.getLoincStatus());
+            simpleAnalog.setLongCommonName(this.getLongCommonName());
+            simpleAnalog.setMethodType(this.getMethodType());
+            simpleAnalog.setProperty(this.getProperty());
+            simpleAnalog.setScaleType(this.getScaleType());
+            simpleAnalog.setShortName(this.getShortName());
+            simpleAnalog.setSystem(this.getSystem());
+            simpleAnalog.setTimeAspect(this.getTimeAspect());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        LoincVersionImpl newVersion = new LoincVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    protected void updateVersion() {
+      if (this.componentProperty != null && 
+              !this.componentProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getComponent())) {
+         this.componentProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getComponent());
+      }
+      if (this.loincNumProperty != null && 
+              !this.loincNumProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincNum())) {
+         this.loincNumProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincNum());
+      }
+      if (this.loincStatusProperty != null && 
+              !this.loincStatusProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincStatus())) {
+         this.loincStatusProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincStatus());
+      }
+      if (this.longCommonNameProperty != null && 
+              !this.longCommonNameProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLongCommonName())) {
+         this.longCommonNameProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLongCommonName());
+      }
+      if (this.methodTypeProperty != null && 
+              !this.methodTypeProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getMethodType())) {
+         this.methodTypeProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getMethodType());
+      }
+      if (this.propertyProperty != null && 
+              !this.propertyProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getProperty())) {
+         this.propertyProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getProperty());
+      }
+      if (this.scaleTypeProperty != null && 
+              !this.scaleTypeProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getScaleType())) {
+         this.scaleTypeProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getScaleType());
+      }
+      if (this.shortNameProperty != null && 
+              !this.shortNameProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getShortName())) {
+         this.shortNameProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getShortName());
+      }
+      if (this.systemProperty != null && 
+              !this.systemProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getSystem())) {
+         this.systemProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getSystem());
+      }
+      if (this.timeAspectProperty != null && 
+              !this.timeAspectProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getTimeAspect())) {
+         this.timeAspectProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getTimeAspect());
+      }
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      LoincVersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      ObservableLoincVersionImpl newObservableVersion = 
+              new ObservableLoincVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
 

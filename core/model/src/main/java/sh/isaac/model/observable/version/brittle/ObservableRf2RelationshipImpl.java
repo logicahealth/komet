@@ -49,6 +49,9 @@ import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -56,8 +59,10 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -67,7 +72,7 @@ import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
  * @author kec
  */
 public class ObservableRf2RelationshipImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableRf2Relationship {
    IntegerProperty typeNidProperty;
    IntegerProperty destinationNidProperty;
@@ -93,6 +98,7 @@ public class ObservableRf2RelationshipImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableRf2RelationshipImpl analog = new ObservableRf2RelationshipImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -213,7 +219,6 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
 
       if ((this.typeNidProperty != null) && (this.typeNidProperty.get() != getRf2RelationshipImpl().getTypeNid())) {
          this.typeNidProperty.set(getRf2RelationshipImpl().getTypeNid());
@@ -401,5 +406,44 @@ public class ObservableRf2RelationshipImpl
         getRf2RelationshipImpl().setTypeNid(nid);
       }
    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableRf2RelationshipImpl) {
+            ObservableRf2RelationshipImpl observableAnalog = (ObservableRf2RelationshipImpl) analog;
+            observableAnalog.setCharacteristicNid(this.getCharacteristicNid());
+            observableAnalog.setDestinationNid(this.getDestinationNid());
+            observableAnalog.setModifierNid(this.getModifierNid());
+            observableAnalog.setRelationshipGroup(this.getRelationshipGroup());
+            observableAnalog.setTypeNid(this.getTypeNid());
+        } else if (analog instanceof Rf2RelationshipImpl) {
+            Rf2RelationshipImpl simpleAnalog = (Rf2RelationshipImpl) analog;
+            simpleAnalog.setCharacteristicNid(this.getCharacteristicNid());
+            simpleAnalog.setDestinationNid(this.getDestinationNid());
+            simpleAnalog.setModifierNid(this.getModifierNid());
+            simpleAnalog.setRelationshipGroup(this.getRelationshipGroup());
+            simpleAnalog.setTypeNid(this.getTypeNid());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        Rf2RelationshipImpl newVersion = new Rf2RelationshipImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      ObservableRf2RelationshipImpl newObservableVersion = 
+              new ObservableRf2RelationshipImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+    }
 }
 

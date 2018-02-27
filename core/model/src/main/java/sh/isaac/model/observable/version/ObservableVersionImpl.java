@@ -429,7 +429,7 @@ public abstract class ObservableVersionImpl
     *
     * @param stampedVersion the stamped version
     */
-   public void updateVersion(Version stampedVersion) {
+   public final void updateVersion(Version stampedVersion) {
       if (!this.stampedVersionProperty.get().getClass()
               .equals(stampedVersion.getClass())) {
          throw new IllegalStateException(
@@ -471,6 +471,8 @@ public abstract class ObservableVersionImpl
               && (this.timeProperty.get() != stampedVersion.getTime())) {
          this.timeProperty.set(stampedVersion.getTime());
       }
+      
+      updateVersion();
    }
 
    protected abstract void updateVersion();

@@ -142,7 +142,7 @@ public class DescriptionLuceneMatch
                //The AmpRestriction only does module/path - not active / inactive.  So insert a predicate that does the active bit.
          final Optional<? extends Chronology> chronology =
                Get.identifiedObjectService()
-                  .getIdentifiedObjectChronology(nid);
+                  .getChronology(nid);
 
             if (chronology.isPresent()) {
                //TODO [KEC] pretty sure this is NOT what was intended - this will only return active items, rather than returning items that 

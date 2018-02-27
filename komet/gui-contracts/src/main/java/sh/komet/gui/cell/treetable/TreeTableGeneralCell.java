@@ -44,7 +44,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 
@@ -197,10 +196,9 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(this.mutableVersion.getChronology(), 
+        CommitTask commitTask = Get.commitService().commit(this.mutableVersion, 
                 this.manifold.getEditCoordinate(), 
-                "No comment", 
-                this.mutableVersion);
+                "No comment");
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();

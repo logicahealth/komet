@@ -116,7 +116,7 @@ public class DescriptionActiveLuceneMatch
       incomingComponents.stream().forEach((nid) -> {
                                     final Optional<? extends Chronology> chronology =
                                        Get.identifiedObjectService()
-                                          .getIdentifiedObjectChronology(nid);
+                                          .getChronology(nid);
 
                                     if (chronology.isPresent()) {
                                        if (!chronology.get()

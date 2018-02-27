@@ -22,8 +22,10 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
@@ -32,13 +34,14 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
  *
  * @author kec
  */
 public class ObservableComponentNidVersionImpl 
-        extends ObservableSemanticVersionImpl 
+        extends ObservableAbstractSemanticVersionImpl 
         implements ObservableComponentNidVersion {
    /** The component nid property. */
    IntegerProperty componentNidProperty;
@@ -66,12 +69,11 @@ public class ObservableComponentNidVersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableComponentNidVersionImpl analog = new ObservableComponentNidVersionImpl(this, getChronology());
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
+        copyLocalFields(analog);
         analog.setPathNid(ec.getPathNid());
         return (V) analog;
     }
-   
+
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
@@ -118,7 +120,6 @@ public class ObservableComponentNidVersionImpl
     */
    @Override
    public int getComponentNid() {
-      super.updateVersion();
       if (this.componentNidProperty != null) {
          return this.componentNidProperty.get();
       }
@@ -176,7 +177,27 @@ public class ObservableComponentNidVersionImpl
       properties.add(componentNidProperty());
       return properties;
     }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableComponentNidVersionImpl) {
+            ObservableComponentNidVersionImpl observableAnalog = (ObservableComponentNidVersionImpl) analog;
+            observableAnalog.setComponentNid(this.getComponentNid());
+        } else if (analog instanceof ComponentNidVersionImpl) {
+             ComponentNidVersionImpl simpleAnalog = (ComponentNidVersionImpl) analog;
+             simpleAnalog.setComponentNid(this.getComponentNid());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
    
-   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
 }
    

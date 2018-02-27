@@ -174,5 +174,7 @@ public interface ObservableVersion
     */
    Chronology createIndependentChronicle();
 
+   Chronology createChronologyForCommit(int stampSequence);
+
 }
 

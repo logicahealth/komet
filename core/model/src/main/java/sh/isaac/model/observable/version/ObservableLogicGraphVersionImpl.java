@@ -50,10 +50,12 @@ import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
@@ -63,7 +65,8 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.observable.CommitAwareStringProperty;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +75,7 @@ import sh.isaac.model.observable.CommitAwareStringProperty;
  * @author kec
  */
 public class ObservableLogicGraphVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableLogicGraphVersion {
    /** The graph property. */
    ObjectProperty<byte[][]> logicGraphProperty;
@@ -97,6 +100,7 @@ public class ObservableLogicGraphVersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableLogicGraphVersionImpl analog = new ObservableLogicGraphVersionImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -152,7 +156,6 @@ public class ObservableLogicGraphVersionImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
       if (this.logicGraphProperty != null && !Arrays.deepEquals(this.logicGraphProperty.get(), ((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData())) {
          this.logicGraphProperty.set(((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData());
       }
@@ -219,6 +222,28 @@ public class ObservableLogicGraphVersionImpl
       List<Property<?>> properties = new ArrayList<>();
       properties.add(logicGraphProperty());
       return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableLogicGraphVersionImpl) {
+            ObservableLogicGraphVersionImpl observableAnalog = (ObservableLogicGraphVersionImpl) analog;
+            observableAnalog.setGraphData(this.getGraphData());
+        } else if (analog instanceof ComponentNidVersionImpl) {
+             LogicGraphVersionImpl simpleAnalog = (LogicGraphVersionImpl) analog;
+             simpleAnalog.setGraphData(this.getGraphData());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
     }
 }
 

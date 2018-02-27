@@ -52,8 +52,10 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
@@ -63,6 +65,7 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +75,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableDescriptionVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableDescriptionVersion {
    /**
     * The case significance concept sequence property.
@@ -117,6 +120,7 @@ public class ObservableDescriptionVersionImpl
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableDescriptionVersionImpl analog = new ObservableDescriptionVersionImpl(this, getChronology());
+        copyLocalFields(analog);
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
@@ -289,7 +293,6 @@ public class ObservableDescriptionVersionImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
       if (this.textProperty != null && 
               !this.textProperty.get().equals(((DescriptionVersionImpl) this.stampedVersionProperty.get()).getText())) {
          this.textProperty.set(((DescriptionVersionImpl) this.stampedVersionProperty.get()).getText());
@@ -450,5 +453,33 @@ public class ObservableDescriptionVersionImpl
         ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setText(text);
       }
    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableDescriptionVersionImpl) {
+            ObservableDescriptionVersionImpl observableAnalog = (ObservableDescriptionVersionImpl) analog;
+            observableAnalog.setCaseSignificanceConceptNid(this.getCaseSignificanceConceptNid());
+            observableAnalog.setDescriptionTypeConceptNid(this.getDescriptionTypeConceptNid());
+            observableAnalog.setLanguageConceptNid(this.getLanguageConceptNid());
+            observableAnalog.setText(this.getText());
+        } else if (analog instanceof DescriptionVersionImpl) {
+            DescriptionVersionImpl simpleAnalog = (DescriptionVersionImpl) analog;
+            simpleAnalog.setCaseSignificanceConceptNid(this.getCaseSignificanceConceptNid());
+            simpleAnalog.setDescriptionTypeConceptNid(this.getDescriptionTypeConceptNid());
+            simpleAnalog.setLanguageConceptNid(this.getLanguageConceptNid());
+            simpleAnalog.setText(this.getText());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        DescriptionVersionImpl newVersion = new DescriptionVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
 }
 

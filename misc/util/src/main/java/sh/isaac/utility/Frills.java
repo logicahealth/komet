@@ -1840,7 +1840,7 @@ public class Frills
     */
    public static Optional<Integer> getNearestConcept(int nid)
    {
-      Optional<? extends Chronology> c = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+      Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
       
       if (c.isPresent())
       {
@@ -2276,7 +2276,7 @@ public class Frills
     * @return the version type
     */
    public static Class<? extends StampedVersion> getVersionType(int nid) {
-      final Optional<? extends Chronology> obj = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+      final Optional<? extends Chronology> obj = Get.identifiedObjectService().getChronology(nid);
 
       if (!obj.isPresent()) {
          throw new RuntimeException("No StampedVersion object exists with NID=" + nid);

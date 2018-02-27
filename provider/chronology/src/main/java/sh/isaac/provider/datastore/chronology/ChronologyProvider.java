@@ -173,6 +173,19 @@ public class ChronologyProvider
    }
 
     @Override
+    public void putChronologyData(Chronology chronology) {
+        if (chronology instanceof ConceptChronology) {
+            writeConcept((ConceptChronology) chronology);
+        } else if (chronology instanceof SemanticChronology) {
+            writeSemanticChronology((SemanticChronology) chronology);
+        } else {
+            throw new UnsupportedOperationException("Cant handle: " + chronology);
+        }
+            
+    }
+
+   
+    @Override
     public void writeConcept(ConceptChronology concept) {
         Get.conceptActiveService()
                 .updateStatus(concept);
@@ -412,7 +425,7 @@ public class ChronologyProvider
     }
 
     @Override
-    public Optional<? extends Chronology> getIdentifiedObjectChronology(int nid) {
+    public Optional<? extends Chronology> getChronology(int nid) {
         try {
             Optional<ByteArrayDataBuffer> optionalByteBuffer = getChronologyData(nid);
 
@@ -545,7 +558,7 @@ public class ChronologyProvider
             case UNKNOWN:
                 // perhaps not initialized...
                 final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getIdentifiedObjectChronology(nid))
+                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
         }
@@ -564,7 +577,7 @@ public class ChronologyProvider
             case UNKNOWN:
                 // perhaps not initialized...
                 final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getIdentifiedObjectChronology(nid))
+                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
 

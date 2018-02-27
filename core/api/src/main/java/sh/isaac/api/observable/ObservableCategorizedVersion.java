@@ -119,6 +119,9 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
     public Chronology createIndependentChronicle() {
         return getObservableVersion().createIndependentChronicle();
     }
-   
-   
+
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        return getObservableVersion().createIndependentChronicle();
+    }
 }
