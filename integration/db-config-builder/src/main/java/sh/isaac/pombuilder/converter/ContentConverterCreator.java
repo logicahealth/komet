@@ -59,6 +59,7 @@ import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.artifacts.Converter;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
 import sh.isaac.pombuilder.artifacts.SDOSourceContent;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -146,7 +147,7 @@ public class ContentConverterCreator
 			pomSwaps.put("#NAME#", conversionType.getNiceName() + " Artifact Converter");
 			pomSwaps.put("#SOURCE_DATA_VERSION#", sourceContent.getVersion());
 			pomSwaps.put("#LOADER_VERSION#", converterVersion);
-			pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitPublish.constructChangesetRepositoryURL(gitRepositoryURL) : "");
+			pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
 
 			String temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/fetchExecution.xml");
 

@@ -62,25 +62,6 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
  */
 public class ConverterOptionParamTest {
    /**
-    * Test changeset URL rewrite.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   @Test
-   public void testChangesetURLRewrite()
-            throws IOException {
-      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
-            GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/"));
-      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
-            GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git"));
-      Assert.assertEquals("http://git.isaac.sh:4848/git/r/contentConfigurations.git",
-            GitPublish.constructChangesetRepositoryURL("http://git.isaac.sh:4848/git/"));
-      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
-            GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/r/contentConfigurations.git"));
-      Assert.assertEquals("https://git.isaac.sh:4848/git/r/foo.git", GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/r/foo.git"));
-   }
-
-   /**
     * Test json.
     *
     * @throws Exception the exception

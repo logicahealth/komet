@@ -57,6 +57,7 @@ import sh.isaac.api.util.Zip;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -189,7 +190,7 @@ public class SrcUploadCreator
 					final HashMap<String, String> pomSwaps = new HashMap<>();
 
 					pomSwaps.put("#VERSION#", version);
-					pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitPublish.constructChangesetRepositoryURL(gitRepositoryURL) : "");
+					pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
 
 					if (uploadType.getArtifactId().contains("*") && StringUtils.isBlank(extensionName))
 					{
