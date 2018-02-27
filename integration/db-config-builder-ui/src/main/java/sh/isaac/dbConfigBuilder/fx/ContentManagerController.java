@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -30,7 +32,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
@@ -42,13 +48,16 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ValidBooleanBinding;
+import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.VersionFinder;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -57,6 +66,7 @@ import sh.isaac.pombuilder.artifacts.IBDFFile;
 
 public class ContentManagerController
 {
+	private static Logger log = LogManager.getLogger();
 
 	@FXML
 	private ResourceBundle resources;
@@ -179,12 +189,14 @@ public class ContentManagerController
 	private Button run;
 
 	private ContentManager cm_;
-	
+
 	private UpdateableBooleanBinding allRequiredReady_;
-	
-	private ArrayList<IBDFFile> ibdfFiles = new ArrayList<>();
-	
-	private ArrayList<ValidBooleanBinding> databaseTabValidityCheckers = new ArrayList<ValidBooleanBinding>();
+
+	private ArrayList<IBDFFile> ibdfFiles_ = new ArrayList<>();
+
+	private ArrayList<ValidBooleanBinding> databaseTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
+
+	private StoredPrefs sp_;
 
 	@FXML
 	void initialize() throws IOException
@@ -231,9 +243,12 @@ public class ContentManagerController
 
 		ErrorMarkerUtils.setupDisabledInfoMarker(databaseOpCreate, new SimpleStringProperty("Creation of the maven project (and POM file) is always required"),
 				true);
-		databaseTabValidityCheckers.add(ErrorMarkerUtils.setupErrorMarker(databaseName, (s) -> (StringUtils.isBlank(s) ? "The database name must be specified" : ""), true));
-		databaseTabValidityCheckers.add(ErrorMarkerUtils.setupErrorMarker(databaseVersion, (s) -> (StringUtils.isBlank(s) ? "The database version must be specified" : ""), true));
-		databaseTabValidityCheckers.add(ErrorMarkerUtils.setupErrorMarker(databaseDescription, (s) -> (StringUtils.isBlank(s) ? "The database description must be specified" : ""), true));
+		databaseTabValidityCheckers_
+				.add(ErrorMarkerUtils.setupErrorMarker(databaseName, (s) -> (StringUtils.isBlank(s) ? "The database name must be specified" : ""), true));
+		databaseTabValidityCheckers_
+				.add(ErrorMarkerUtils.setupErrorMarker(databaseVersion, (s) -> (StringUtils.isBlank(s) ? "The database version must be specified" : ""), true));
+		databaseTabValidityCheckers_.add(ErrorMarkerUtils.setupErrorMarker(databaseDescription,
+				(s) -> (StringUtils.isBlank(s) ? "The database description must be specified" : ""), true));
 
 		workingFolder.setText(Files.createTempDirectory("contentManager").toFile().getAbsolutePath());
 		workingFolderSelect.setOnAction((actionEvent) -> {
@@ -245,30 +260,30 @@ public class ContentManagerController
 				workingFolder.setText(f.getAbsolutePath());
 			}
 		});
-		
-		databaseAdd.setOnAction(action -> 
-		{
-			if (ibdfFiles.size() == 0)
+
+		databaseAdd.setOnAction(action -> {
+			if (ibdfFiles_.size() == 0)
 			{
+				//TODO sort out my IBDF cache vs selected
 				readAvailableIBDFFiles();
 			}
-			System.out.println("foo");
 		});
-		
+
 		databaseIbdfList.setItems(FXCollections.observableArrayList());
-		
+
 		BooleanBinding ibdfItemSelected = new BooleanBinding()
 		{
 			{
 				bind(databaseIbdfList.getSelectionModel().getSelectedIndices());
 			}
+
 			@Override
 			protected boolean computeValue()
 			{
 				return databaseIbdfList.getSelectionModel().getSelectedItems().size() > 0;
 			}
 		};
-		
+
 		databaseRemove.disableProperty().bind(ibdfItemSelected.not());
 		databaseRemove.setOnAction((actionEvent) -> {
 			for (IBDFFile f : databaseIbdfList.getSelectionModel().getSelectedItems())
@@ -276,17 +291,43 @@ public class ContentManagerController
 				databaseIbdfList.getItems().remove(f);
 			}
 		});
-		
-		
+
+		ValidBooleanBinding databaseIbdfListPopulated = new ValidBooleanBinding()
+		{
+			{
+				bind(databaseIbdfList.getItems());
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				if (databaseIbdfList.getItems().size() == 0)
+				{
+					this.setInvalidReason("At least one IBDF file must be selected");
+					return false;
+				}
+				else
+				{
+					this.clearInvalidReason();
+					return true;
+				}
+			}
+		};
+
+		ErrorMarkerUtils.setupErrorMarker(databaseIbdfList, databaseIbdfListPopulated, true);
+
+		databaseTabValidityCheckers_.add(databaseIbdfListPopulated);
+
 		allRequiredReady_ = new UpdateableBooleanBinding()
 		{
 			{
 				setComputeOnInvalidate(true);
-				for (ValidBooleanBinding vbb: ContentManagerController.this.databaseTabValidityCheckers)
+				for (ValidBooleanBinding vbb : ContentManagerController.this.databaseTabValidityCheckers_)
 				{
 					addBinding(vbb);
 				}
 			}
+
 			@Override
 			protected boolean computeValue()
 			{
@@ -294,8 +335,38 @@ public class ContentManagerController
 				return allBindingsValid();
 			}
 		};
-		
+
 		run.disableProperty().bind(allRequiredReady_.not());
+
+		run.setOnAction((action) -> createDatabase());
+
+	}
+
+	private void createDatabase()
+	{
+		try
+		{
+			DBConfigurationCreator.createDBConfiguration(databaseName.getText(), databaseVersion.getText(), databaseDescription.getText(),
+				databaseClassifier.getText(), databaseOpClassify.isSelected(), ibdfFiles_.toArray(new IBDFFile[ibdfFiles_.size()]),
+				databaseMetadataVersion.getSelectionModel().getSelectedItem(), databaseOpTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
+				sp_.getGitPassword(), new File(workingFolder.getText()), 
+				(databaseOpInstall.isSelected() || databaseOpDeploy.isSelected() ? false : workingFolderCleanup.isSelected()));
+			
+			if (databaseOpInstall.isSelected() || databaseOpDeploy.isSelected())
+			{
+				//TODO run maven in place, with either an install or a deploy.
+			}
+		}
+		
+		catch (Exception e)
+		{
+			log.error("Unexpected problem creating DB Configuration", e);
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText("Error creating Database configuration");
+			alert.setContentText("Please see the log file and/or console for details on the error");
+			alert.showAndWait();
+		}
 	}
 
 	/**
@@ -306,19 +377,181 @@ public class ContentManagerController
 		cm_ = contentManager;
 		fileExit.setOnAction((action) -> cm_.shutdown());
 		
-		final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
-		metadataVersions.add(VersionFinder.findProjectVersion(true));
-		metadataVersions.add(VersionFinder.findProjectVersion(false));
-		
-		
-		//TODO read local m2 / read remote
-		
-		Platform.runLater(() -> {
-			databaseMetadataVersion.getItems().addAll(metadataVersions);
-			databaseMetadataVersion.getSelectionModel().select(metadataVersions.size() - 1);
-		});
+		optionsGitConfig.setOnAction((action) -> gitConfigDialog());
+		optionsArtifacts.setOnAction((action) -> artifactsConfigDialog());
+		optionsMaven.setOnAction((action) -> mavenConfigDialog());
 	}
 	
+	private void mavenConfigDialog()
+	{
+		try
+		{
+			URL resource = ContentManager.class.getResource("MavenPathsPanel.fxml");
+			log.debug("FXML for " + MavenPathsPanel.class + ": " + resource);
+			FXMLLoader loader = new FXMLLoader(resource);
+			GridPane mavenGridPane = loader.load();
+			MavenPathsPanel mavenPanelController = loader.getController();
+			
+			Alert mavenPathsDialog = new Alert(AlertType.CONFIRMATION);
+			mavenPathsDialog.setTitle("Maven Configuration");
+			mavenPathsDialog.setHeaderText("Please specify the Maven configuration");
+			mavenPathsDialog.getDialogPane().setContent(mavenGridPane);
+			
+			mavenPanelController.m2PathBrowse.setOnAction((actionEvent) -> {
+				DirectoryChooser fc = new DirectoryChooser();
+				fc.setTitle("Select Maven 'm2' folder");
+				File f = fc.showDialog(mavenPathsDialog.getOwner());
+				if (f != null)
+				{
+					mavenPanelController.mavenM2Path.setText(f.getAbsolutePath());
+				}
+			});
+			
+			mavenPanelController.settingsFileBrowse.setOnAction((actionEvent) -> {
+				FileChooser fc = new FileChooser();
+				fc.setTitle("Select Maven 'settings.xml' file");
+				File f = fc.showOpenDialog(mavenPathsDialog.getOwner());
+				if (f != null)
+				{
+					mavenPanelController.mavenSettingsFile.setText(f.getAbsolutePath());
+				}
+			});
+			
+			mavenPanelController.mavenM2Path.setText(sp_.getLocalM2FolderPath());
+			mavenPanelController.mavenSettingsFile.setText(sp_.getMavenSettingsFile());
+			
+			
+			if (mavenPathsDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				sp_.setMavenSettingsFile(mavenPanelController.mavenSettingsFile.getText());
+				sp_.setLocalM2FolderPath(mavenPanelController.mavenM2Path.getText());
+				cm_.storePrefsFile();
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Unexpected error handling git prefs", e);
+		}
+	}
+
+	private void artifactsConfigDialog()
+	{
+		try
+		{
+			URL resource = ContentManager.class.getResource("ArtifactPanel.fxml");
+			log.debug("FXML for " + ArtifactPanel.class + ": " + resource);
+			FXMLLoader loader = new FXMLLoader(resource);
+			GridPane artifactGridPane = loader.load();
+			ArtifactPanel artifactController = loader.getController();
+			
+			Alert artifactDialog = new Alert(AlertType.CONFIRMATION);
+			artifactDialog.setTitle("Artifact Repository Configuration");
+			artifactDialog.setHeaderText("Please specify the Artifact Repository configuration");
+			artifactDialog.getDialogPane().setContent(artifactGridPane);
+			
+			artifactController.artifactUrl.setText(sp_.getArtifactURL());
+			artifactController.artifactUsername.setText(sp_.getArtifactUsername());
+			artifactController.artifactPassword.setText(new String(sp_.getArtifactPassword()));
+			
+			
+			if (artifactDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				sp_.setArtifactURL(artifactController.artifactUrl.getText());
+				sp_.setArtifactUsername(artifactController.artifactUsername.getText());
+				sp_.setArtifactPassword(artifactController.artifactPassword.textProperty().get().toCharArray());
+				cm_.storePrefsFile();
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Unexpected error handling git prefs", e);
+		}
+	}
+
+	private void gitConfigDialog()
+	{
+		try
+		{
+			URL resource = ContentManager.class.getResource("GitPanel.fxml");
+			log.debug("FXML for " + GitPanel.class + ": " + resource);
+			FXMLLoader loader = new FXMLLoader(resource);
+			GridPane gitGridPane = loader.load();
+			GitPanel gpController = loader.getController();
+			
+			Alert gitDialog = new Alert(AlertType.CONFIRMATION);
+			gitDialog.setTitle("Git Configuration");
+			gitDialog.setHeaderText("Please specify the GIT configuration");
+			gitDialog.getDialogPane().setContent(gitGridPane);
+			
+			gpController.gitUrl.setText(sp_.getGitURL());
+			gpController.gitUsername.setText(sp_.getGitUsername());
+			gpController.gitPassword.setText(new String(sp_.getGitPassword()));
+			
+			
+			if (gitDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				sp_.setGitURL(gpController.gitUrl.getText());
+				sp_.setGitUsername(gpController.gitUsername.getText());
+				sp_.setGitPassword(gpController.gitPassword.textProperty().get().toCharArray());
+				cm_.storePrefsFile();
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Unexpected error handling git prefs", e);
+		}
+	}
+
+	public void readData(StoredPrefs sp)
+	{
+		sp_ = sp;
+		if (sp_ == null)
+		{
+			throw new RuntimeException("StoredPrefs were not passed");
+		}
+		
+		readAvailableMetadataVersions();
+	}
+	
+	private void readAvailableMetadataVersions()
+	{
+		Task<Void> t = new Task<Void>()
+		{
+			@Override
+			protected Void call() throws Exception
+			{
+				final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
+				metadataVersions.add(VersionFinder.findProjectVersion(true));
+				metadataVersions.add(VersionFinder.findProjectVersion(false));
+				
+				
+				File temp = new File(sp_.getLocalM2FolderPath());
+				if (temp.isDirectory())
+				{
+					log.debug("Reading local m2 folder");
+					for (IBDFFile i : DBConfigurationCreator.readLocalMetadataArtifacts(temp))
+					{
+						metadataVersions.add(i.getVersion());
+					}
+				}
+				// TODO read remote
+
+				Platform.runLater(() -> {
+					databaseMetadataVersion.getItems().clear();
+					databaseMetadataVersion.getItems().addAll(metadataVersions);
+					databaseMetadataVersion.getSelectionModel().select(metadataVersions.size() - 1);
+				});
+				return null;
+			}
+		};
+
+		Get.workExecutors().getExecutor().execute(t);
+		ProgressDialog pd = new ProgressDialog(t);
+		pd.setTitle("Reading Metadata Versions");
+		pd.setHeaderText(null);
+		pd.setContentText("Reading available Metadata Versions");
+	}
+
 	private void readAvailableIBDFFiles()
 	{
 		Task<Void> t = new Task<Void>()
@@ -326,12 +559,24 @@ public class ContentManagerController
 			@Override
 			protected Void call() throws Exception
 			{
-				Thread.sleep(5000);
-				Platform.runLater(() -> databaseIbdfList.getItems().add(new IBDFFile("a", "b", "c")));;
-				//TODO actually read files... show new dialog
+				File temp = new File(sp_.getLocalM2FolderPath());
+				if (temp.isDirectory())
+				{
+					log.debug("Reading local m2 folder");
+					final IBDFFile[] local = DBConfigurationCreator.readLocalIBDFArtifacts(temp);
+					Platform.runLater(() -> 
+					{
+						databaseIbdfList.getItems().addAll(local);	
+					});
+				}
+				
+				//TODO read remote
+				
+				// TODO put up a proper picker dialog!
 				return null;
-			}};
-		
+			}
+		};
+
 		Get.workExecutors().getExecutor().execute(t);
 		ProgressDialog pd = new ProgressDialog(t);
 		pd.setTitle("Reading IBDF Files");
