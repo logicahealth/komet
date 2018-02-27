@@ -41,6 +41,7 @@ package sh.isaac.pombuilder.dbbuilder;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -363,5 +364,98 @@ public class DBConfigurationCreator
 			LOG.error("createDBConfiguration failed with ", e);
 			throw e;
 		}
+	}
+	
+	/**
+	 * A convenience method to read all available ibdf datasets from the local repository
+	 * @param mavenRepositoryFolder
+	 * @return the IBDF Files found that are metadata
+	 */
+	public static IBDFFile[] readLocalIBDFArtifacts(File mavenRepositoryFolder)
+	{
+		ArrayList<IBDFFile> files = new ArrayList<>();
+		if (mavenRepositoryFolder.isDirectory())
+		{
+			File browseFolder = new File(mavenRepositoryFolder, "sh/isaac/terminology/converted");
+			
+			for (File artifactId : browseFolder.listFiles())
+			{
+				if (artifactId.isDirectory())
+				{
+					for (File versionFolder : artifactId.listFiles())
+					{
+						if (versionFolder.isDirectory())
+						{
+							ArrayList<String> ibdfClassifiers = new ArrayList<>();
+							for (File content : versionFolder.listFiles())
+							{
+								if (content.getName().toLowerCase().endsWith("ibdf.zip"))
+								{
+									//cpt-ibdf-2017-loader-4.48-SNAPSHOT.ibdf.zip
+									String temp = content.getName().substring(artifactId.getName().length() + versionFolder.getName().length() + 1, content.getName().length());
+									//should now have .ibdf.zip (or maybe with a classifier like -all.ibdf.zip)
+									if (temp.startsWith("-"))
+									{
+										ibdfClassifiers.add(temp.substring(1, temp.indexOf(".")));
+									}
+									else
+									{
+										ibdfClassifiers.add("");  //no classifier
+									}
+								}
+							}
+							for (String classifier : ibdfClassifiers)
+							{
+								files.add(new IBDFFile("sh.isaac.terminiology.converted", artifactId.getName(), versionFolder.getName(), classifier));
+							}
+						}
+					}
+				}
+			}
+		}
+		return files.toArray(new IBDFFile[files.size()]);
+	}
+	
+	/**
+	 * A convenience method to read all available metadata versions in the local m2 repository
+	 * @param mavenRepositoryFolder
+	 * @return the IBDF Files found that are metadata
+	 */
+	public static IBDFFile[] readLocalMetadataArtifacts(File mavenRepositoryFolder)
+	{
+		ArrayList<IBDFFile> files = new ArrayList<>();
+		if (mavenRepositoryFolder.isDirectory())
+		{
+			File browseFolder = new File(mavenRepositoryFolder, "sh/isaac/core/metadata");
+			for (File versionFolder : browseFolder.listFiles())
+			{
+				if (versionFolder.isDirectory())
+				{
+					ArrayList<String> ibdfClassifiers = new ArrayList<>();
+					for (File content : versionFolder.listFiles())
+					{
+						if (content.getName().toLowerCase().endsWith("ibdf.zip"))
+						{
+							//metadata-4.48-SNAPSHOT-all.ibdf.zip
+							String temp = content.getName().substring("metadata".length() + versionFolder.getName().length() + 1, content.getName().length());
+							//should now have -all.ibdf.zip
+							if (temp.startsWith("-"))
+							{
+								ibdfClassifiers.add(temp.substring(1, temp.indexOf(".")));
+							}
+							else
+							{
+								ibdfClassifiers.add("");  //no classifier
+							}
+						}
+					}
+					for (String classifier : ibdfClassifiers)
+					{
+						files.add(new IBDFFile("sh.isaac.core", "metadata", versionFolder.getName(), classifier));
+					}
+				}
+			}
+		}
+		return files.toArray(new IBDFFile[files.size()]);
 	}
 }
