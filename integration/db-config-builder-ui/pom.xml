@@ -1,80 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <parent>
-      <groupId>sh.isaac</groupId>
-      <artifactId>integration</artifactId>
-      <version>4.48-SNAPSHOT</version>
-   </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>sh.isaac</groupId>
+		<artifactId>integration</artifactId>
+		<version>4.48-SNAPSHOT</version>
+	</parent>
 
-   <groupId>sh.isaac.integration</groupId>
-   <artifactId>db-config-builder-ui</artifactId>
-   <packaging>jar</packaging>
-   <name>ISAAC integration: DB configuration builder UI handles</name>
+	<groupId>sh.isaac.integration</groupId>
+	<artifactId>db-config-builder-ui</artifactId>
+	<packaging>jar</packaging>
+	<name>ISAAC integration: DB configuration builder UI handles</name>
 
-   <dependencies>
-      <dependency>
-         <groupId>sh.isaac.integration</groupId>
-         <artifactId>db-config-builder</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.integration</groupId>
-         <artifactId>import-utils</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      <!-- Need these to read converter options -->
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      
-      <dependency>
-          <groupId>org.controlsfx</groupId>
-          <artifactId>controlsfx</artifactId>
-      </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>sh.isaac.integration</groupId>
+			<artifactId>db-config-builder</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.integration</groupId>
+			<artifactId>import-utils</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<!-- Need this to read converter options -->
+		<dependency>
+			<groupId>sh.isaac.misc</groupId>
+			<artifactId>importers</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-embedder</artifactId>
+			<version>3.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+			<version>3.5.2</version>
+		</dependency>
+
+
 
       <!-- Putting logging here for running command line / console mains from this project -->
-      <dependency>
-         <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-core</artifactId>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-jul</artifactId>
-         <scope>compile</scope>
-      </dependency>
-   </dependencies>
-   
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.jvnet.jaxb2.maven2</groupId>
-            <artifactId>maven-jaxb2-plugin</artifactId>
-            <executions>
-               <execution>
-                  <goals>
-                     <goal>generate</goal>
-                  </goals>
-                  <configuration>
-                     <schemaIncludes>
-                        <!-- This is a tweaked version of the maven pom to make it easier to deal with the xs:any inside 
-                        of <xs:element name="configuration" -->
-                        <include>maven-4.0.0-tweaked.xsd</include>
-                        <include>assembly-1.1.2.xsd</include>
-                     </schemaIncludes>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-   </build>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-jul</artifactId>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<schemaIncludes>
+								<!-- This is a tweaked version of the maven pom to make it easier to deal with the xs:any inside 
+								of <xs:element name="configuration" -->
+								<include>maven-4.0.0-tweaked.xsd</include>
+								<include>assembly-1.1.2.xsd</include>
+							</schemaIncludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

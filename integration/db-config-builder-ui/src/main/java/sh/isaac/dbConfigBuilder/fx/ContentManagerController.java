@@ -17,6 +17,7 @@ package sh.isaac.dbConfigBuilder.fx;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.maven.cli.MavenCli;
 import org.controlsfx.dialog.ProgressDialog;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -58,6 +61,7 @@ import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
+import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ValidBooleanBinding;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
@@ -178,6 +182,9 @@ public class ContentManagerController
 
 	@FXML
 	private CheckBox databaseOpDeploy;
+	
+	@FXML
+	private CheckBox databaseOpDirectDeploy;
 
 	@FXML
 	private TextField workingFolder;
@@ -390,6 +397,22 @@ public class ContentManagerController
 				return allBindingsValid();
 			}
 		};
+		
+		databaseOpDirectDeploy.setOnAction((action) -> 
+		{
+			if (databaseOpDirectDeploy.isSelected())
+			{
+				databaseOpDeploy.setSelected(false);
+			}
+		});
+		
+		databaseOpDeploy.setOnAction((action) -> 
+		{
+			if (databaseOpDeploy.isSelected())
+			{
+				databaseOpDirectDeploy.setSelected(false);
+			}
+		});
 
 		run.disableProperty().bind(allRequiredReady_.not());
 
@@ -399,6 +422,8 @@ public class ContentManagerController
 
 	private void createDatabase()
 	{
+		AtomicReference<ProgressDialog> pdRef = new AtomicReference<ProgressDialog>(null); 
+		
 		Task<Void> t = new Task<Void>()
 		{
 			@Override
@@ -411,16 +436,61 @@ public class ContentManagerController
 						sp_.getGitPassword(), new File(workingFolder.getText()),
 						(databaseOpInstall.isSelected() || databaseOpDeploy.isSelected() ? false : workingFolderCleanup.isSelected()));
 
-				if (databaseOpInstall.isSelected() || databaseOpDeploy.isSelected())
+				if (databaseOpInstall.isSelected() || databaseOpDeploy.isSelected() || databaseOpDirectDeploy.isSelected())
 				{
-					// TODO run maven in place, with either an install or a deploy.
+					ArrayList<String> options = new ArrayList<>();
+					options.add("-s");
+					options.add(sp_.getMavenSettingsFile());
+					options.add("-e");
+					options.add("clean");
+					if (databaseOpInstall.isSelected() && !databaseOpDeploy.isSelected())
+					{
+						options.add("install");
+					}
+					else if (databaseOpDeploy.isSelected())
+					{
+						options.add("deploy");
+					}
+					else if (databaseOpDirectDeploy.isSelected() && !databaseOpInstall.isSelected())
+					{
+						options.add("package");
+					}
+					else
+					{
+						throw new Exception("Bad developer, no cookie");
+					}
+					
+					
+					TextArea ta = new TextArea();
+					ta.setWrapText(true);
+					ta.setPadding(new Insets(10.0));
+					updateMessage("Running Maven Job");
+					Platform.runLater(() -> 
+					{
+						pdRef.get().setWidth(1024);
+						pdRef.get().setHeight(768);
+						pdRef.get().getDialogPane().setContent(ta);
+					});
+					PrintStream ps = new PrintStream(new StreamRedirect(ta), true);
+					System.setProperty("maven.multiModuleProjectDirectory", workingFolder.getText() + "/db-builder");
+					MavenCli cli = new MavenCli();
+					int result = cli.doMain(options.toArray(new String[options.size()]), workingFolder.getText() + "/db-builder", ps, ps);
+					if (result != 0)
+					{
+						throw new Exception("Maven execution failed");
+					}
+					//TODO implement directDeploy
 				}
+				
+				//TODO working folder cleanup
+				
 				return null;
 			}
 		};
 
 		Get.workExecutors().getExecutor().execute(t);
 		ProgressDialog pd = new ProgressDialog(t);
+		pdRef.set(pd);
 		pd.setTitle("Building Configuration");
 		pd.setHeaderText(null);
 		pd.setContentText("Building Configuration");
@@ -429,7 +499,7 @@ public class ContentManagerController
 		try
 		{
 			t.get();
-			Alert alert = new Alert(AlertType.INFORMATION);
+			final Alert alert = new Alert(AlertType.INFORMATION);			
 			alert.setTitle("Complete");
 			alert.setHeaderText("Database creation job complete");
 			alert.showAndWait();
@@ -438,14 +508,14 @@ public class ContentManagerController
 		catch (Exception e)
 		{
 			log.error("Unexpected problem creating DB Configuration", e);
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Error");
-			alert.setHeaderText("Error creating Database configuration");
+			Alert errorAlert = new Alert(AlertType.ERROR);
+			errorAlert.setTitle("Error");
+			errorAlert.setHeaderText("Error creating Database configuration");
 			Text text = new Text("Please see the log file and/or console for details on the error");
-			text.wrappingWidthProperty().bind(alert.widthProperty().subtract(10.0));
-			alert.getDialogPane().setContent(text);
-			alert.getDialogPane().setPadding(new Insets(5.0));
-			alert.showAndWait();
+			text.wrappingWidthProperty().bind(errorAlert.widthProperty().subtract(10.0));
+			errorAlert.getDialogPane().setContent(text);
+			errorAlert.getDialogPane().setPadding(new Insets(5.0));
+			errorAlert.showAndWait();
 		}
 	}
 

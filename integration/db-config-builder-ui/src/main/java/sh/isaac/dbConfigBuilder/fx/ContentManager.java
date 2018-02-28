@@ -46,7 +46,6 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
  */
 public class ContentManager extends Application
 {
-
 	private static Logger log = LogManager.getLogger();
 	private Stage primaryStage_;
 	private ContentManagerController cmc_;

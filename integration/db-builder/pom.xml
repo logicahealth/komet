@@ -115,6 +115,18 @@
                             <artifactId>log-config</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
+                        <!-- This shouldn't be needed, but in the db builder GUI, we do depend on this, and the maven executor doesn't keep the classpaths clean
+                        which causes classpath confusion, and bizarre errors.  Easier to just include this on the mojo execution classpath as well. -->
+                        <dependency>
+                            <groupId>sh.isaac.provider</groupId>
+                            <artifactId>sync-git</artifactId>
+                            <version>${project.parent.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>sh.isaac.misc</groupId>
+                            <artifactId>vhat-util</artifactId>
+                            <version>${project.parent.version}</version>
+                        </dependency>
                     </dependencies>
                 </plugin>
             </plugins>

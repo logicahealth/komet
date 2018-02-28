@@ -75,7 +75,7 @@ public class StoredPrefsTest
 		
 		try
 		{
-			StoredPrefs read = StoredPrefs.readStoredPrefs(tempFile, "wrong password".toCharArray(), false);
+			StoredPrefs.readStoredPrefs(tempFile, "wrong password".toCharArray(), false);
 			Assert.fail();
 		}
 		catch (Exception e)

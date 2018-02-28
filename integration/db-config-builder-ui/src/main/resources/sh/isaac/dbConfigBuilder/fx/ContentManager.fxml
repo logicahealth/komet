@@ -209,7 +209,7 @@
                                     <Tooltip text="Create a Maven project, which, when executed, will create the specified database" />
                                  </tooltip>
                               </CheckBox>
-                              <CheckBox fx:id="databaseOpTag" mnemonicParsing="false" text="GIT TAG">
+                              <CheckBox fx:id="databaseOpTag" mnemonicParsing="false" text="GIT Tag">
                                  <tooltip>
                                     <Tooltip text="Place the created  maven project into GIT, and create a tag for this release" />
                                  </tooltip>
@@ -222,6 +222,11 @@
                               <CheckBox fx:id="databaseOpDeploy" mnemonicParsing="false" text="Maven Deploy">
                                  <tooltip>
                                     <Tooltip text="Create the maven project, and then 'mvn clean install' the project into your local repository, and deploy the project results to the remote repository" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpDirectDeploy" mnemonicParsing="false" text="Direct Deploy">
+                                 <tooltip>
+                                    <Tooltip text="Create the maven project, and then at a minimum 'mvn clean package' the project and deploy the project results to the remote repository directly using the artifact repository configuration" />
                                  </tooltip>
                               </CheckBox>
                               <CheckBox fx:id="databaseOpClassify" mnemonicParsing="false" text="Classify Concepts">
