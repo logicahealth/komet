@@ -19,6 +19,7 @@ package sh.komet.gui.control.measure;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.property.editor.PropertyEditor;
@@ -31,7 +32,11 @@ import sh.isaac.model.statement.MeasureImpl;
 public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     private MeasureImpl measure;
     
+    ;
+    
     private final GridPane measureNode = new GridPane();
+    
+    TitledPane measureEditorPane = new TitledPane("[a,b] ± d ISO 8601", measureNode);
 
     private final RangeSlider measureBoundsSlider = new RangeSlider(0, 100, 10, 90);
     private final Slider resolutionSlider = new Slider(0, 1, 0.5);
@@ -55,6 +60,8 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
         
         measureNode.add(resolutionSlider, 0, 2, 2, 1);
 
+        measureEditorPane.textProperty().set(measure.getNarrative());
+        measureEditorPane.textProperty().bind(measure.narrativeProperty());
     }
 
     public GridPane getMeasureNode() {
@@ -63,7 +70,7 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
 
     @Override
     public Node getEditor() {
-        return measureNode;
+        return measureEditorPane;
     }
 
     @Override

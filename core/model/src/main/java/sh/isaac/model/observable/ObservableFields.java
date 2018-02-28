@@ -258,8 +258,9 @@ public enum ObservableFields
    
    INTERVENTION_RESULT_STATUS("Status"),
    
+   MEASURE_NARRATIVE("Measure narritive"),
    MEASURE_RESOLUTION("Resolution"),
-   MEASURE_SEMANTIC("Measurement semantic"),
+   MEASURE_SEMANTIC("Measure semantic"),
    OBSERVATION_RESULT_HEALTH_RISK("Health risk"),
    MEASURE_NORMAL_RANGE("Normal range"),
    

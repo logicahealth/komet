@@ -23,7 +23,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import sh.isaac.api.statement.ClinicalStatement;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.manifold.Manifold;
 

@@ -225,7 +225,7 @@ public class MainApp
         // ScenicView.show(scene);
         Manifold statementManifold = Manifold.make(Manifold.CLINICAL_STATEMENT_GROUP_NAME);
         StatementViewController statementController = StatementView.show(statementManifold);
-        statementController.setClinicalStatement(new ClinicalStatementImpl());
+        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
         
     }

@@ -18,6 +18,7 @@ package sh.isaac.model.statement;
 
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.statement.InterventionResult;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -28,6 +29,10 @@ import sh.isaac.model.observable.ObservableFields;
 public class InterventionResultImpl extends ResultImpl implements InterventionResult {
     private final SimpleObjectProperty<ConceptChronology> status = 
             new SimpleObjectProperty<>(this, ObservableFields.INTERVENTION_RESULT_STATUS.toExternalString());
+
+    public InterventionResultImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+    }
 
     @Override
     public ConceptChronology getStatus() {

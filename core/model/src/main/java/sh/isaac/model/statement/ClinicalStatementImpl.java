@@ -65,9 +65,10 @@ public class ClinicalStatementImpl implements ClinicalStatement {
     private final SimpleObjectProperty<ManifoldCoordinate> manifold = 
             new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_STAMP_COORDINATE.toExternalString());
 
-    public ClinicalStatementImpl() {
+    public ClinicalStatementImpl(ManifoldCoordinate manifoldCoordinate) {
         statementId.set(UUID.randomUUID());
-        statementTime.set(new MeasureImpl());
+        this.manifold.set(manifoldCoordinate);
+        statementTime.set(new MeasureImpl(manifoldCoordinate));
     }
     
     @Override

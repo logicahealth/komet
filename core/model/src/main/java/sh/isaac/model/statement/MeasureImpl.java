@@ -21,8 +21,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.statement.Measure;
 
 import java.util.Optional;
+import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -30,6 +37,11 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class MeasureImpl implements Measure {
+    
+    private final ManifoldCoordinate manifold;
+
+    private final SimpleStringProperty narrative = 
+            new SimpleStringProperty(this, ObservableFields.MEASURE_NARRATIVE.toExternalString());
 
     private final SimpleFloatProperty resolution = 
             new SimpleFloatProperty(this, ObservableFields.MEASURE_RESOLUTION.toExternalString());
@@ -44,11 +56,34 @@ public class MeasureImpl implements Measure {
     private final SimpleBooleanProperty includeUpperBound =
             new SimpleBooleanProperty(this, ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND.toExternalString());
 
+    public MeasureImpl(ManifoldCoordinate manifold) {
+        this.manifold = manifold;
+        measureSemantic.set(Get.concept(TermAux.ISO_8601));
+        measureSemantic.addListener(this::measureChanged);
+        includeLowerBound.setValue(true);
+        includeLowerBound.addListener(this::measureChanged);
+        lowerBound.setValue(System.currentTimeMillis());
+        lowerBound.addListener(this::measureChanged);
+        upperBound.setValue(System.currentTimeMillis() + 1000 * 60 * 60);
+        upperBound.addListener(this::measureChanged);
+        includeUpperBound.setValue(true);
+        includeUpperBound.addListener(this::measureChanged);
+        resolution.setValue(1000 * 60);
+        resolution.addListener(this::measureChanged);
+        updateNarrative();
+        
+    }
+    
+    private void measureChanged(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
+        updateNarrative();
+    }
+
 
     /**
          *
          * @return the resolution of this measurement.
          */
+    @Override
     public Optional<Float> getResolution() {
         return Optional.ofNullable(resolution.get());
     }
@@ -60,11 +95,49 @@ public class MeasureImpl implements Measure {
     public void setResolution(Float resolution) {
         this.resolution.set(resolution);
     }
+    
+    public String getNarrative() {
+        return narrative.get();
+    }
+
+    public ReadOnlyStringProperty narrativeProperty() {
+        return narrative;
+    }
+    
+    private void updateNarrative() {
+        StringBuilder builder = new StringBuilder();
+        if (includeLowerBound()) {
+            builder.append("[");
+        } else {
+            builder.append("(");
+        }
+        
+        builder.append(getLowerBound());
+        builder.append(", ");
+        builder.append(getUpperBound());
+
+        if (includeUpperBound()) {
+            builder.append("]");
+        } else {
+            builder.append(")");
+        }
+
+        if (getResolution().isPresent()) {
+            builder.append(" ± ");
+            builder.append(getResolution().get());
+        }
+ 
+        builder.append(" ");
+        builder.append(manifold.getPreferredDescriptionText(getMeasureSemantic()));
+        narrative.setValue(builder.toString());
+
+    }
 
     /**
          * In most cases, the semantics of the measurement are the units of measure.
          * @return the semantics for this measurement.
          */
+    @Override
     public ConceptChronology getMeasureSemantic() {
         return measureSemantic.get();
     }
@@ -81,6 +154,7 @@ public class MeasureImpl implements Measure {
          *
          * @return the lower bound for this measurement
          */
+    @Override
     public float getLowerBound() {
         return lowerBound.get();
     }
@@ -97,6 +171,7 @@ public class MeasureImpl implements Measure {
          *
          * @return true if the lower bound is part of the interval.
          */
+    @Override
     public boolean includeLowerBound() {
         return includeLowerBound.get();
     }
@@ -113,6 +188,7 @@ public class MeasureImpl implements Measure {
          *
          * @return the upper bound for this measurement
          */
+    @Override
     public float getUpperBound() {
         return upperBound.get();
     }
@@ -129,6 +205,7 @@ public class MeasureImpl implements Measure {
          *
          * @return true if the upper bound is part of the interval.
          */
+    @Override
     public boolean includeUpperBound() {
         return includeUpperBound.get();
     }

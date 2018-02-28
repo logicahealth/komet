@@ -401,6 +401,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Converted IBDF Artifact Classifier");
                   popParent();
                popParent();
+               
+            createConcept("Measurement semantic");
+                pushParent(current());
+                createConcept(TermAux.ISO_8601);
+                popParent();
             
             createConcept("Axiom origin");
             pushParent(current());
@@ -681,6 +686,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                createConcept("Measure properties");
                pushParent(current());
+                   createConcept(ObservableFields.MEASURE_NARRATIVE);
                    createConcept(ObservableFields.MEASURE_RESOLUTION);
                    createConcept(ObservableFields.MEASURE_SEMANTIC);
                    createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);

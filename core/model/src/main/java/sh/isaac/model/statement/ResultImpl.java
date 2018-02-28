@@ -22,6 +22,7 @@ import sh.isaac.api.statement.Result;
 import sh.isaac.model.observable.ObservableFields;
 
 import java.util.Optional;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
@@ -32,6 +33,11 @@ public class ResultImpl extends MeasureImpl implements Result {
     private final SimpleObjectProperty<Measure> normalRange =
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
 
+    public ResultImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+    }
+
+    @Override
     public Optional<Measure> getNormalRange() {
         return Optional.ofNullable(normalRange.get());
     }
