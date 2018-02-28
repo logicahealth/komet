@@ -11,7 +11,7 @@
 	<groupId>sh.isaac.integration</groupId>
 	<artifactId>db-config-builder-ui</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC integration: DB configuration builder UI handles</name>
+	<name>ISAAC integration: DB config builder UI handles</name>
 
 	<dependencies>
 		<dependency>
@@ -47,7 +47,7 @@
 
 
 
-      <!-- Putting logging here for running command line / console mains from this project -->
+		<!-- Putting logging here for running command line / console mains from this project -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>

@@ -60,6 +60,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.AlphanumComparator;
+import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
@@ -482,7 +483,10 @@ public class ContentManagerController
 					//TODO implement directDeploy
 				}
 				
-				//TODO working folder cleanup
+				if (workingFolderCleanup.isSelected())
+				{
+					RecursiveDelete.delete(new File(workingFolder.getText()));
+				}
 				
 				return null;
 			}
