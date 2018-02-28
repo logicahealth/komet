@@ -80,7 +80,7 @@
       <gitflow-maven-plugin-version>1.8.0</gitflow-maven-plugin-version>
       <guava.version>24.0-jre</guava.version>
       <hk2.version>2.5.0-b60</hk2.version>
-      <HK2Utilities.version>1.5.1</HK2Utilities.version>
+      <HK2Utilities.version>1.5.2</HK2Utilities.version>
       <httpclient.version>4.5.4</httpclient.version>
       <javassist.version>3.22.0-GA</javassist.version>
       <javac.version>1.8</javac.version>
