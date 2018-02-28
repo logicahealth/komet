@@ -414,7 +414,7 @@ public class LookupService {
                   looker = temp;
                   LOG.info("HK2 initialized.  Identifed " + looker.getAllServiceHandles((criteria) -> {
                            return true;
-                        }).size() + " services");
+                        }).size() + " services.  Looker ID: " + looker.getLocatorId());
                } catch (IOException | ClassNotFoundException | MultiException e) {
                   throw new RuntimeException(e);
                }
