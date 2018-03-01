@@ -61,7 +61,6 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.CommitService;
@@ -88,6 +87,7 @@ import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
+import sh.isaac.api.util.DescriptionToToken;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
@@ -157,8 +157,9 @@ public class IsaacTaxonomy {
     * @param path the path
     * @param author the author
     * @param module the module
-    * @param isaType the isa type
     * @param semanticTag the semantic tag
+     * @param auxiliaryMetadataVersion
+     * @param namespaceForUUIDGeneration
     */
    public IsaacTaxonomy(ConceptSpecification path,
            ConceptSpecification author,
@@ -370,17 +371,7 @@ public class IsaacTaxonomy {
 
       for (final ConceptBuilder concept : sortedBuilders) {
          final String fqn = concept.getFullyQualifiedName();
-         String constantName = fqn.toUpperCase();
-         constantName = constantName.replace(".", "");
-         constantName = constantName.replace(",", "");
-         constantName = constantName.replace("®", "");
-         constantName = constantName.replace("©", "C");
-         constantName = constantName.replace("(", "___");
-         constantName = constantName.replace(")", "");
-         constantName = constantName.replace(" ", "_");
-         constantName = constantName.replace("-", "_");
-         constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND_OR_");
+         String constantName = DescriptionToToken.get(fqn.toUpperCase());
          out.append("\n\n   /** Java binding for the concept described as <strong><em>" + fqn
                  + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()

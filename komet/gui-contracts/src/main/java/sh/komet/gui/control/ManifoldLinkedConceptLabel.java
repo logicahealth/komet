@@ -56,6 +56,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -81,6 +83,7 @@ import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.docbook.DocBook;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -123,7 +126,7 @@ public class ManifoldLinkedConceptLabel
       this.setMinWidth(100);
 
       ContextMenu contextMenu = new ContextMenu();
-
+      
       for (String manifoldGroupName : Manifold.getGroupNames()) {
          MenuItem item = new MenuItem(manifoldGroupName + " history");
          contextMenu.getItems()
@@ -133,8 +136,28 @@ public class ManifoldLinkedConceptLabel
       this.setContextMenu(contextMenu);
       contextMenu.setOnShowing(this::handle);
    }
+   
+   
 
    //~--- methods -------------------------------------------------------------
+   private MenuItem makeCopyMenuItem() {
+       Menu copyMenu = new Menu("copy");
+       MenuItem copyMenuItem = new MenuItem("docbook glossary entry");
+       copyMenu.getItems().add(copyMenuItem);
+       copyMenuItem.setOnAction((event) -> {
+           ConceptSpecification concept = this.manifold.getFocusedConcept();
+           String docbookXml = DocBook.getGlossentry(concept, manifold);
+           Clipboard clipboard = Clipboard.getSystemClipboard();
+           final ClipboardContent content = new ClipboardContent();
+           content.putString(docbookXml);
+           clipboard.setContent(content);
+       });
+       
+       return copyMenu;
+       
+   }
+   
+   
    private void handle(WindowEvent event) {
       ContextMenu contextMenu = (ContextMenu) event.getSource();
       contextMenu.getItems().clear();
@@ -148,6 +171,11 @@ public class ManifoldLinkedConceptLabel
               contextMenu.getItems().add(new SeparatorMenuItem());
           }
       }
+      contextMenu.getItems()
+                 .add(makeCopyMenuItem());
+      contextMenu.getItems()
+                 .add(new SeparatorMenuItem());
+
       
       
       Menu manifoldHistoryMenu = new Menu("history");
