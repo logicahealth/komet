@@ -39,6 +39,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -61,6 +62,7 @@ import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.api.util.RecursiveDelete;
+import sh.isaac.dbConfigBuilder.deploy.DeployFile;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
@@ -466,11 +468,13 @@ public class ContentManagerController
 					ta.setWrapText(true);
 					ta.setPadding(new Insets(10.0));
 					updateMessage("Running Maven Job");
+					Node oldContent = pdRef.get().getDialogPane().getContent();
 					Platform.runLater(() -> 
 					{
 						pdRef.get().setWidth(1024);
 						pdRef.get().setHeight(768);
 						pdRef.get().getDialogPane().setContent(ta);
+						
 					});
 					PrintStream ps = new PrintStream(new StreamRedirect(ta), true);
 					System.setProperty("maven.multiModuleProjectDirectory", workingFolder.getText() + "/db-builder");
@@ -480,7 +484,39 @@ public class ContentManagerController
 					{
 						throw new Exception("Maven execution failed");
 					}
-					//TODO implement directDeploy
+					
+					Platform.runLater(() -> 
+					{
+						pdRef.get().getDialogPane().setContent(oldContent);
+						pdRef.get().setWidth(400);
+						pdRef.get().setHeight(300);
+					});
+
+					
+					if (databaseOpDirectDeploy.isSelected())
+					{
+						updateMessage("Deploying artifacts");
+						final DeployFile pomDeploy = new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(), "", 
+								"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.parentArtifactId + "/pom.xml"), 
+								sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword()));
+						pomDeploy.messageProperty().addListener((change) -> updateMessage(pomDeploy.getMessage()));
+						Get.workExecutors().getExecutor().execute(pomDeploy);
+						pomDeploy.get();
+						
+						final DeployFile dbDeploy = new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(), databaseClassifier.getText(), 
+								"isaac.zip", 
+								new File(new File(workingFolder.getText()), 
+										DBConfigurationCreator.parentArtifactId  + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-" 
+												+ databaseClassifier.getText() + ".isaac.zip"), 
+								sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword()));
+						dbDeploy.messageProperty().addListener((change) -> 
+						{
+							updateMessage(dbDeploy.getMessage());
+							Platform.runLater(() -> ta.appendText(dbDeploy.getMessage()));
+						});
+						Get.workExecutors().getExecutor().execute(dbDeploy);
+						dbDeploy.get();
+					}
 				}
 				
 				if (workingFolderCleanup.isSelected())
@@ -602,13 +638,15 @@ public class ContentManagerController
 			artifactDialog.setHeaderText("Please specify the Artifact Repository configuration");
 			artifactDialog.getDialogPane().setContent(artifactGridPane);
 
-			artifactController.artifactUrl.setText(sp_.getArtifactURL());
+			artifactController.artifactReadUrl.setText(sp_.getArtifactReadURL());
+			artifactController.artifactDeployUrl.setText(sp_.getArtifactDeployURL());
 			artifactController.artifactUsername.setText(sp_.getArtifactUsername());
 			artifactController.artifactPassword.setText(new String(sp_.getArtifactPassword()));
 
 			if (artifactDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
-				sp_.setArtifactURL(artifactController.artifactUrl.getText());
+				sp_.setArtifactReadURL(artifactController.artifactReadUrl.getText());
+				sp_.setArtifactDeployURL(artifactController.artifactDeployUrl.getText());
 				sp_.setArtifactUsername(artifactController.artifactUsername.getText());
 				sp_.setArtifactPassword(artifactController.artifactPassword.textProperty().get().toCharArray());
 				cm_.storePrefsFile();

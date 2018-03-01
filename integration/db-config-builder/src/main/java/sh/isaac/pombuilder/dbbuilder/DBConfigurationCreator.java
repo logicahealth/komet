@@ -85,7 +85,7 @@ public class DBConfigurationCreator
 	private static final String parentGroupId = "sh.isaac.integration";
 
 	/** The Constant parentArtifactId. */
-	private static final String parentArtifactId = "db-builder";
+	public static final String parentArtifactId = "db-builder";
 
 	/** The Constant groupId. */
 	public static final String groupId = "sh.isaac.db";
@@ -317,12 +317,12 @@ public class DBConfigurationCreator
 			File baseFolder;
 			if (workingFolder != null)
 			{
-				baseFolder = new File(workingFolder, "db-builder");
+				baseFolder = new File(workingFolder, parentArtifactId);
 				FileUtil.recursiveDelete(baseFolder);
 			}
 			else
 			{
-				baseFolder = Files.createTempDirectory("db-builder").toFile();
+				baseFolder = Files.createTempDirectory(parentArtifactId).toFile();
 			}
 			baseFolder.mkdirs();
 

@@ -35,7 +35,10 @@ public class ArtifactPanel
 	private URL location;
 
 	@FXML
-	protected TextField artifactUrl;
+	protected TextField artifactReadUrl;
+	
+	@FXML
+	protected TextField artifactDeployUrl;
 
 	@FXML
 	protected TextField artifactUsername;
@@ -46,7 +49,8 @@ public class ArtifactPanel
 	@FXML
 	void initialize()
 	{
-		assert artifactUrl != null : "fx:id=\"artifactUrl\" was not injected: check your FXML file 'ArtifactPanel.fxml'.";
+		assert artifactReadUrl != null : "fx:id=\"artifactReadUrl\" was not injected: check your FXML file 'ArtifactPanel.fxml'.";
+		assert artifactDeployUrl != null : "fx:id=\"artifactDeployUrl\" was not injected: check your FXML file 'ArtifactPanel.fxml'.";
 		assert artifactUsername != null : "fx:id=\"artifactUsername\" was not injected: check your FXML file 'ArtifactPanel.fxml'.";
 		assert artifactPassword != null : "fx:id=\"artifactPassword\" was not injected: check your FXML file 'ArtifactPanel.fxml'.";
 

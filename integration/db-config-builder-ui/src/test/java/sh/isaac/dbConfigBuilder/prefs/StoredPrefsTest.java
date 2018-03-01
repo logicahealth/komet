@@ -32,7 +32,8 @@ public class StoredPrefsTest
 		final StoredPrefs sp = new StoredPrefs("super secret".toCharArray());
 		
 		sp.setArtifactPassword(new char[] {'z', 'c'});
-		sp.setArtifactURL("1");
+		sp.setArtifactReadURL("1");
+		sp.setArtifactDeployURL("11");
 		sp.setArtifactUsername("2");
 		sp.setGitPassword(new char[] {});
 		sp.setGitURL("3");
@@ -47,7 +48,8 @@ public class StoredPrefsTest
 		
 		
 		Assert.assertEquals(new String(sp.getArtifactPassword()), new String(read.getArtifactPassword()));
-		Assert.assertEquals(sp.getArtifactURL(),  read.getArtifactURL());
+		Assert.assertEquals(sp.getArtifactReadURL(),  read.getArtifactReadURL());
+		Assert.assertEquals(sp.getArtifactDeployURL(),  read.getArtifactDeployURL());
 		Assert.assertEquals(sp.getArtifactUsername(),  read.getArtifactUsername());
 		Assert.assertEquals(new String(sp.getGitPassword()),  new String(read.getGitPassword()));
 		Assert.assertEquals(sp.getGitURL(),  read.getGitURL());
@@ -62,7 +64,8 @@ public class StoredPrefsTest
 		final StoredPrefs sp = new StoredPrefs("super secret".toCharArray());
 		
 		sp.setArtifactPassword(new char[] {'z', 'c'});
-		sp.setArtifactURL("1");
+		sp.setArtifactReadURL("1");
+		sp.setArtifactDeployURL("12");
 		sp.setArtifactUsername("2");
 		sp.setGitPassword(new char[] {});
 		sp.setGitURL("3");
@@ -87,7 +90,8 @@ public class StoredPrefsTest
 		
 		
 		Assert.assertEquals("", new String(read.getArtifactPassword()));
-		Assert.assertEquals(sp.getArtifactURL(),  read.getArtifactURL());
+		Assert.assertEquals(sp.getArtifactReadURL(),  read.getArtifactReadURL());
+		Assert.assertEquals(sp.getArtifactDeployURL(),  read.getArtifactDeployURL());
 		Assert.assertEquals(sp.getArtifactUsername(),  read.getArtifactUsername());
 		Assert.assertEquals("",  new String(read.getGitPassword()));
 		Assert.assertEquals(sp.getGitURL(),  read.getGitURL());
