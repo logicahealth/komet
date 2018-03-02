@@ -47,7 +47,7 @@ import sh.komet.gui.util.FxGet;
 public class ConceptLabelToolbar implements ChangeListener<String> {
 
    final MenuButton manifoldLinkMenu = new MenuButton();
-   final ConceptLabel conceptLabel;
+   final ManifoldLinkedConceptLabel conceptLabel;
    final Label rightInfoLabel = new Label("");
    final Manifold manifold;
    final Supplier<List<MenuItem>> menuSupplier;
@@ -92,7 +92,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier) {
       this.manifold = manifold;
       this.menuSupplier = menuSupplier;
-      this.conceptLabel = new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText, menuSupplier);
+      this.conceptLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
 
       // Manifold
       Manifold.getGroupNames().stream().filter((groupString) -> {

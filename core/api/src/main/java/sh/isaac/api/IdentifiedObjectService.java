@@ -64,6 +64,8 @@ public interface IdentifiedObjectService {
     * @param nid the nid
     * @return the identified object chronology
     */
-   Optional<? extends Chronology> getIdentifiedObjectChronology(int nid);
+   Optional<? extends Chronology> getChronology(int nid);
+   
+   void putChronologyData(Chronology chronology);
 }
 

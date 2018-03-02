@@ -19,8 +19,12 @@ package sh.isaac.komet.statement;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import sh.isaac.model.statement.ClinicalStatementImpl;
+import sh.komet.gui.manifold.Manifold;
 
 public class StatementViewController {
 
@@ -30,11 +34,42 @@ public class StatementViewController {
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
 
+    @FXML
+    private BorderPane borderPane;
+
     @FXML // fx:id="rootPane"
     private AnchorPane rootPane; // Value injected by FXMLLoader
+    
+    private Manifold manifold;
+    
+    SimpleObjectProperty<ClinicalStatementImpl> clinicalStatement = new SimpleObjectProperty<>();
+    
+    StatementPropertySheet statementPropertySheet;
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
+        assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'StatementView.fxml'.";
         assert rootPane != null : "fx:id=\"rootPane\" was not injected: check your FXML file 'StatementView.fxml'.";
+        clinicalStatement.addListener((observable, oldValue, newValue) -> {
+            statementPropertySheet.setClinicalStatement(newValue);
+        });
+    }
+
+    public void setManifold(Manifold manifold) {
+        this.manifold = manifold;
+        statementPropertySheet = new StatementPropertySheet(this.manifold);
+        borderPane.setCenter(statementPropertySheet.getPropertySheet());
+    }
+
+    public ClinicalStatementImpl getClinicalStatement() {
+        return clinicalStatement.get();
+    }
+
+    public SimpleObjectProperty<ClinicalStatementImpl> clinicalStatementProperty() {
+        return clinicalStatement;
+    }
+
+    public void setClinicalStatement(ClinicalStatementImpl clinicalStatement) {
+        this.clinicalStatement.set(clinicalStatement);
     }
 }

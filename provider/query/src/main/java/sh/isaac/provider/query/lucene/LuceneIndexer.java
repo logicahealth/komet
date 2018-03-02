@@ -345,7 +345,7 @@ public abstract class LuceneIndexer
     */
    public static int findConcept(int nid) {
       final Optional<? extends Chronology> c = Get.identifiedObjectService()
-                                                                            .getIdentifiedObjectChronology(nid);
+                                                                            .getChronology(nid);
 
       if (c.isPresent()) {
          if (null == c.get().getIsaacObjectType()) {

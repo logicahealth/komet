@@ -67,17 +67,16 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
  */
 public class CommitTaskChronology extends CommitTask {
 
-   private static final Logger LOG = LogManager.getLogger();
 
    private Chronology chronicle;
-   private EditCoordinate editCoordinate;
-   private String commitComment;
-   private NidSet uncommittedConceptNidsWithChecks;
-   private NidSet uncommittedConceptNidsNoChecks;
-   private NidSet uncommittedSemanticNidsWithChecks;
-   private NidSet uncommittedSemanticNidsNoChecksNidSet;
-   private ConcurrentSkipListSet<ChangeChecker> checkers;
-   private CommitProvider commitProvider;
+   private final EditCoordinate editCoordinate;
+   private final String commitComment;
+   private final NidSet uncommittedConceptNidsWithChecks;
+   private final NidSet uncommittedConceptNidsNoChecks;
+   private final NidSet uncommittedSemanticNidsWithChecks;
+   private final NidSet uncommittedSemanticNidsNoChecksNidSet;
+   private final ConcurrentSkipListSet<ChangeChecker> checkers;
+   private final CommitProvider commitProvider;
 
 
    /**

@@ -41,11 +41,20 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.Property;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -70,6 +79,20 @@ public class ObservableConceptVersionImpl
               chronology);
    }
 
+   public ObservableConceptVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+      super(chronology);
+      this.setStatus(versionToClone.getStatus());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
@@ -81,8 +104,14 @@ public class ObservableConceptVersionImpl
 
    @Override
    protected void updateVersion() {
+       
       // nothing to update. 
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties2() {
+        return new ArrayList<>();
+    }
 
 
    //~--- get methods ---------------------------------------------------------
@@ -96,5 +125,34 @@ public class ObservableConceptVersionImpl
    public ObservableConceptChronology getChronology() {
       return (ObservableConceptChronology) this.chronology;
    }   
+
+    @Override
+    public Chronology createIndependentChronicle() {
+        ConceptChronologyImpl independentChronology = 
+                new ConceptChronologyImpl(this.getPrimordialUuid(), this.getAssemblageNid());
+        boolean added = false;
+        for (Version v: this.getChronology().getVersionList()) {
+            if (v == this) {
+                added = true;
+            }
+            independentChronology.addVersion(v);
+        }
+        
+        if (!added) {
+            independentChronology.addVersion(this);
+        }
+        return independentChronology;
+    }   
+
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        ConceptChronologyImpl independentChronology = 
+                new ConceptChronologyImpl(this.getPrimordialUuid(), this.getAssemblageNid());
+        ConceptVersionImpl newVersion = new ConceptVersionImpl(independentChronology, stampSequence);
+        independentChronology.addVersion(newVersion);
+        return independentChronology;
+    }
+    
+    
 }
 

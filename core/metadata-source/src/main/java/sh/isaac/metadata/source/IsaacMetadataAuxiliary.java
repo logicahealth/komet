@@ -231,6 +231,31 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
                createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
                popParent();
+               
+            createConcept(TermAux.STATEMENT_TYPE);
+                pushParent(current());
+                createConcept(TermAux.REQUEST_STATEMENT);
+                createConcept(TermAux.PERFORMANCE_STATEMENT);
+                popParent();
+
+            createConcept(TermAux.SUBJECT_OF_INFORMATION);
+                pushParent(current());
+                createConcept(TermAux.SUBJECT_OF_RECORD);
+                createConcept(TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
+                    pushParent(current());
+                    createConcept(TermAux.MOTHER_OF_SUBJECT_OF_RECORD);
+                    popParent();
+                createConcept(TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
+                    pushParent(current());
+                    createConcept(TermAux.FATHER_OF_SUBJECT_OF_RECORD);
+                    popParent();
+                popParent();
+
+                createConcept(TermAux.MODE);
+                pushParent(current());
+                createConcept(TermAux.TEMPLATE);
+                createConcept(TermAux.INSTANCE);
+                popParent();
             createConcept("EL profile set operator");
             pushParent(current());
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
@@ -376,6 +401,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Converted IBDF Artifact Classifier");
                   popParent();
                popParent();
+               
+            createConcept("Measurement semantic");
+                pushParent(current());
+                createConcept(TermAux.ISO_8601);
+                popParent();
             
             createConcept("Axiom origin");
             pushParent(current());
@@ -474,7 +504,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("SnoRocket classifier").mergeFromSpec(TermAux.SNOROCKET_CLASSIFIER);
                createConcept("ConDOR classifier");
                popParent();
-            createConcept("role").setPrimordialUuid("6155818b-09ed-388e-82ce-caa143423e99");
+            createConcept("Role").setPrimordialUuid("6155818b-09ed-388e-82ce-caa143423e99");
             pushParent(current());
                createConcept("Has strength");
                createConcept("Intrinsic role");
@@ -585,6 +615,19 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                    createConcept(ObservableFields.INT5);
                    createConcept(ObservableFields.INT6);
                    createConcept(ObservableFields.INT7);
+                        pushParent(current());
+                        createConcept(ObservableFields.LOINC_NUMBER);
+                        createConcept(ObservableFields.LOINC_COMPONENT);
+                        createConcept(ObservableFields.LOINC_PROPERTY);
+                        createConcept(ObservableFields.LOINC_TIME_ASPECT);
+                        createConcept(ObservableFields.LOINC_SYSTEM);
+                        createConcept(ObservableFields.LOINC_SCALE_TYPE);
+                        createConcept(ObservableFields.LOINC_METHOD_TYPE);
+                        createConcept(ObservableFields.LOINC_STATUS);
+                        createConcept(ObservableFields.LOINC_SHORT_NAME);
+                        createConcept(ObservableFields.LOINC_LONG_COMMON_NAME);
+                        popParent();
+                   
                    popParent();
             createConcept("Clinical statement properties");
             pushParent(current());
@@ -616,6 +659,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     popParent();
                createConcept("Statement properties");
                pushParent(current());
+                   createConcept(ObservableFields.STATEMENT_STAMP_COORDINATE);
                    createConcept(ObservableFields.STATEMENT_NARRATIVE);
                    createConcept(ObservableFields.STATEMENT_TIME);
                    createConcept(ObservableFields.STATEMENT_ID);
@@ -623,6 +667,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                    createConcept(ObservableFields.STATEMENT_AUTHORS);
                    createConcept(ObservableFields.STATEMENT_SOI);
                    createConcept(ObservableFields.STATEMENT_TYPE);
+                   createConcept(ObservableFields.STATEMENT_MODE);
                    createConcept(ObservableFields.STATEMENT_TOPIC);
                    createConcept(ObservableFields.STATEMENT_CIRCUMSTANCE);
                    createConcept(ObservableFields.STATEMENT_ASSOCIATIONS);
@@ -641,6 +686,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                createConcept("Measure properties");
                pushParent(current());
+                   createConcept(ObservableFields.MEASURE_NARRATIVE);
                    createConcept(ObservableFields.MEASURE_RESOLUTION);
                    createConcept(ObservableFields.MEASURE_SEMANTIC);
                    createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);

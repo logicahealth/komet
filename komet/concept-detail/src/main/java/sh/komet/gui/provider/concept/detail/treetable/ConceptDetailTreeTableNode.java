@@ -58,7 +58,7 @@ import sh.isaac.api.Status;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.ConceptLabel;
+import sh.komet.gui.control.ManifoldLinkedConceptLabel;
 
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.DetailNode;
@@ -77,7 +77,7 @@ public class ConceptDetailTreeTableNode
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
    private final Manifold conceptDetailManifold;
-   private ConceptLabel titleLabel = null;
+   private ManifoldLinkedConceptLabel titleLabel = null;
    private final ConceptLabelToolbar conceptLabelToolbar;
 
    //~--- constructors --------------------------------------------------------
@@ -135,7 +135,7 @@ public class ConceptDetailTreeTableNode
    @Override
    public Optional<Node> getTitleNode() {
       if (titleLabel == null) {
-         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText, this);
+         this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
          this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
          this.titleProperty.set("");
       }

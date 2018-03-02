@@ -41,12 +41,24 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableLoincVersion;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -56,7 +68,7 @@ import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
  * @author kec
  */
 public class ObservableLoincVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableLoincVersion {
    StringProperty loincNumProperty;
    StringProperty componentProperty;
@@ -75,66 +87,160 @@ public class ObservableLoincVersionImpl
       super(stampedVersion, chronology);
    }
 
+   public ObservableLoincVersionImpl(ObservableLoincVersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setLoincNum(versionToClone.getLoincNum());
+      setComponent(versionToClone.getComponent());
+      setProperty(versionToClone.getProperty());
+      setTimeAspect(versionToClone.getTimeAspect());
+      setSystem(versionToClone.getSystem());
+      setScaleType(versionToClone.getScaleType());
+      setMethodType(versionToClone.getMethodType());
+      setLoincStatus(versionToClone.getLoincStatus());
+      setShortName(versionToClone.getShortName());
+      setLongCommonName(versionToClone.getLongCommonName());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableLoincVersionImpl analog = new ObservableLoincVersionImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    @Override
    public StringProperty componentProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.componentProperty == null) {
+          componentProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_COMPONENT.toExternalString(), "");
+      }
+      if (componentProperty == null) {
+          componentProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_COMPONENT.toExternalString(), getComponent());
+      }
+      return componentProperty;
    }
 
    @Override
    public StringProperty loincNumProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.loincNumProperty == null) {
+          loincNumProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_NUMBER.toExternalString(), "");
+      }
+      if (loincNumProperty == null) {
+          loincNumProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_NUMBER.toExternalString(), getComponent());
+      }
+      return loincNumProperty;
    }
 
    @Override
    public StringProperty loincStatusProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), "");
+      }
+      if (propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), getComponent());
+      }
+      return propertyProperty;
    }
 
    @Override
    public StringProperty longCommonNameProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.longCommonNameProperty == null) {
+          longCommonNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_LONG_COMMON_NAME.toExternalString(), "");
+      }
+      if (longCommonNameProperty == null) {
+          longCommonNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_LONG_COMMON_NAME.toExternalString(), getComponent());
+      }
+      return longCommonNameProperty;
    }
 
    @Override
    public StringProperty methodTypeProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.methodTypeProperty == null) {
+          methodTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_METHOD_TYPE.toExternalString(), "");
+      }
+      if (methodTypeProperty == null) {
+          methodTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_METHOD_TYPE.toExternalString(), getComponent());
+      }
+      return methodTypeProperty;
    }
 
    @Override
    public StringProperty propertyProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), "");
+      }
+      if (propertyProperty == null) {
+          propertyProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_PROPERTY.toExternalString(), getComponent());
+      }
+      return propertyProperty;
    }
 
    @Override
    public StringProperty scaleTypeProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.scaleTypeProperty == null) {
+          scaleTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SCALE_TYPE.toExternalString(), "");
+      }
+      if (scaleTypeProperty == null) {
+          scaleTypeProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SCALE_TYPE.toExternalString(), getComponent());
+      }
+      return scaleTypeProperty;
    }
 
    @Override
    public StringProperty shortNameProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.shortNameProperty == null) {
+          shortNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SHORT_NAME.toExternalString(), "");
+      }
+      if (shortNameProperty == null) {
+          shortNameProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SHORT_NAME.toExternalString(), getComponent());
+      }
+      return shortNameProperty;
    }
 
    @Override
    public StringProperty systemProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+      if (this.stampedVersionProperty == null  && this.systemProperty == null) {
+          systemProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SYSTEM.toExternalString(), "");
+      }
+     if (systemProperty == null) {
+          systemProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_SYSTEM.toExternalString(), getComponent());
+      }
+      return systemProperty;
+    }
 
    @Override
    public StringProperty timeAspectProperty() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (this.stampedVersionProperty == null  && this.timeAspectProperty == null) {
+          timeAspectProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_TIME_ASPECT.toExternalString(), "");
+      }
+     if (timeAspectProperty == null) {
+          timeAspectProperty = new SimpleStringProperty(this, 
+                  ObservableFields.LOINC_TIME_ASPECT.toExternalString(), getComponent());
+      }
+      return timeAspectProperty;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -151,12 +257,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setComponent(String value) {
+   public final void setComponent(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.componentProperty();
+       }
       if (this.componentProperty != null) {
          this.componentProperty.set(value);
       }
 
-      getLoincVersion().setComponent(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setComponent(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -173,12 +284,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setLoincNum(String value) {
+   public final void setLoincNum(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.loincNumProperty();
+       }
       if (this.loincNumProperty != null) {
          this.loincNumProperty.set(value);
       }
 
-      getLoincVersion().setLoincNum(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setLoincNum(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -195,12 +311,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setLoincStatus(String value) {
+   public final void setLoincStatus(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.loincStatusProperty();
+       }
       if (this.loincStatusProperty != null) {
          this.loincStatusProperty.set(value);
       }
 
-      getLoincVersion().setLoincStatus(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setLoincStatus(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -221,12 +342,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setLongCommonName(String value) {
+   public final void setLongCommonName(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.longCommonNameProperty();
+       }
       if (this.longCommonNameProperty != null) {
          this.longCommonNameProperty.set(value);
       }
 
-      getLoincVersion().setLongCommonName(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setLongCommonName(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -243,12 +369,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setMethodType(String value) {
+   public final void setMethodType(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.methodTypeProperty();
+       }
       if (this.methodTypeProperty != null) {
          this.methodTypeProperty.set(value);
       }
 
-      getLoincVersion().setMethodType(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setMethodType(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -265,12 +396,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setProperty(String value) {
+   public final void setProperty(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.propertyProperty();
+       }
       if (this.propertyProperty != null) {
          this.propertyProperty.set(value);
       }
 
-      getLoincVersion().setProperty(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setProperty(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -287,12 +423,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setScaleType(String value) {
+   public final void setScaleType(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.scaleTypeProperty();
+       }
       if (this.scaleTypeProperty != null) {
          this.scaleTypeProperty.set(value);
       }
 
-      getLoincVersion().setScaleType(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setScaleType(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -309,12 +450,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setShortName(String value) {
+   public final void setShortName(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.shortNameProperty();
+       }
       if (this.shortNameProperty != null) {
          this.shortNameProperty.set(value);
       }
 
-      getLoincVersion().setShortName(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setShortName(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -331,12 +477,17 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setSystem(String value) {
+   public final void setSystem(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.systemProperty();
+       }
       if (this.systemProperty != null) {
          this.systemProperty.set(value);
       }
 
-      getLoincVersion().setSystem(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setSystem(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -353,12 +504,143 @@ public class ObservableLoincVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setTimeAspect(String value) {
+   public final void setTimeAspect(String value) {
+       if (this.stampedVersionProperty == null) {
+           this.timeAspectProperty();
+       }
       if (this.timeAspectProperty != null) {
          this.timeAspectProperty.set(value);
       }
 
-      getLoincVersion().setTimeAspect(value);
+      if (this.stampedVersionProperty != null) {
+        getLoincVersion().setTimeAspect(value);
+      }
    }
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+
+      properties.add(componentProperty());
+      properties.add(loincNumProperty());
+      properties.add(loincStatusProperty());
+      properties.add(longCommonNameProperty());
+      properties.add(methodTypeProperty());
+      properties.add(propertyProperty());
+      properties.add(scaleTypeProperty());
+      properties.add(shortNameProperty());
+      properties.add(systemProperty());
+      properties.add(timeAspectProperty());
+      return properties;
+   }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(componentProperty());
+      properties.add(loincNumProperty());
+      properties.add(loincStatusProperty());
+      properties.add(longCommonNameProperty());
+      properties.add(methodTypeProperty());
+      properties.add(propertyProperty());
+      properties.add(scaleTypeProperty());
+      properties.add(shortNameProperty());
+      properties.add(systemProperty());
+      properties.add(timeAspectProperty());
+      return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableLoincVersionImpl) {
+            ObservableLoincVersionImpl observableAnalog = (ObservableLoincVersionImpl) analog;
+            observableAnalog.setComponent(this.getComponent());
+            observableAnalog.setLoincNum(this.getLoincNum());
+            observableAnalog.setLoincStatus(this.getLoincStatus());
+            observableAnalog.setLongCommonName(this.getLongCommonName());
+            observableAnalog.setMethodType(this.getMethodType());
+            observableAnalog.setProperty(this.getProperty());
+            observableAnalog.setScaleType(this.getScaleType());
+            observableAnalog.setShortName(this.getShortName());
+            observableAnalog.setSystem(this.getSystem());
+            observableAnalog.setTimeAspect(this.getTimeAspect());
+        } else if (analog instanceof LoincVersionImpl) {
+            LoincVersionImpl simpleAnalog = (LoincVersionImpl) analog;
+            simpleAnalog.setComponent(this.getComponent());
+            simpleAnalog.setLoincNum(this.getLoincNum());
+            simpleAnalog.setLoincStatus(this.getLoincStatus());
+            simpleAnalog.setLongCommonName(this.getLongCommonName());
+            simpleAnalog.setMethodType(this.getMethodType());
+            simpleAnalog.setProperty(this.getProperty());
+            simpleAnalog.setScaleType(this.getScaleType());
+            simpleAnalog.setShortName(this.getShortName());
+            simpleAnalog.setSystem(this.getSystem());
+            simpleAnalog.setTimeAspect(this.getTimeAspect());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        LoincVersionImpl newVersion = new LoincVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    protected void updateVersion() {
+      if (this.componentProperty != null && 
+              !this.componentProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getComponent())) {
+         this.componentProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getComponent());
+      }
+      if (this.loincNumProperty != null && 
+              !this.loincNumProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincNum())) {
+         this.loincNumProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincNum());
+      }
+      if (this.loincStatusProperty != null && 
+              !this.loincStatusProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincStatus())) {
+         this.loincStatusProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLoincStatus());
+      }
+      if (this.longCommonNameProperty != null && 
+              !this.longCommonNameProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getLongCommonName())) {
+         this.longCommonNameProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getLongCommonName());
+      }
+      if (this.methodTypeProperty != null && 
+              !this.methodTypeProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getMethodType())) {
+         this.methodTypeProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getMethodType());
+      }
+      if (this.propertyProperty != null && 
+              !this.propertyProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getProperty())) {
+         this.propertyProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getProperty());
+      }
+      if (this.scaleTypeProperty != null && 
+              !this.scaleTypeProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getScaleType())) {
+         this.scaleTypeProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getScaleType());
+      }
+      if (this.shortNameProperty != null && 
+              !this.shortNameProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getShortName())) {
+         this.shortNameProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getShortName());
+      }
+      if (this.systemProperty != null && 
+              !this.systemProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getSystem())) {
+         this.systemProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getSystem());
+      }
+      if (this.timeAspectProperty != null && 
+              !this.timeAspectProperty.get().equals(((LoincVersionImpl) this.stampedVersionProperty.get()).getTimeAspect())) {
+         this.timeAspectProperty.set(((LoincVersionImpl) this.stampedVersionProperty.get()).getTimeAspect());
+      }
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      LoincVersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      ObservableLoincVersionImpl newObservableVersion = 
+              new ObservableLoincVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+    }
 }
 

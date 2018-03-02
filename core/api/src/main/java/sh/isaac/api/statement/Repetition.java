@@ -46,14 +46,8 @@ public interface Repetition {
      * 
      * @return number of times the event may occur in a period. 
      */
-    Interval getEventFrequency();
-    
-    /**
-     * 
-     * @return the requested separation between events 
-     */
-    Measure getEventSeparation();
-    
+    Measure getEventFrequency();
+
     /**
      * 
      * @return The length of the event (e.g. exercise for 30 minutes)

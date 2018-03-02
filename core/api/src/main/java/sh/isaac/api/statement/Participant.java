@@ -18,7 +18,7 @@ package sh.isaac.api.statement;
 
 import java.util.Optional;
 import java.util.UUID;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
@@ -29,7 +29,7 @@ public interface Participant {
      *
      * @return the role this participant plays in the clinical statement
      */
-    LogicalExpression getParticipantRole();
+    ConceptChronology getParticipantRole();
     /**
      *
      * @return a unique identifier for the participant in the clinical statement.

@@ -30,7 +30,7 @@ public interface RequestCircumstance extends Circumstance {
      * Chest pain could be a conditional trigger. Headache. 
      * @return 
      */
-    List<ClinicalStatement> getConditionalTriggers();
+    List<StatementAssociation> getConditionalTriggers();
     
     /**
      *

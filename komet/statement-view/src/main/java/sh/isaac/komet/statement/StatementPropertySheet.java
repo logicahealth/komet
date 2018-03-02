@@ -16,25 +16,75 @@
  */
 package sh.isaac.komet.statement;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.ArrayList;
+import java.util.List;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.statement.ClinicalStatement;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.model.statement.ClinicalStatementImpl;
+import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertySheetItemMeasureWrapper;
+import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
 public class StatementPropertySheet {
-    private final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
-    private final PropertySheet propertySheet = new PropertySheet(this.items);
+    
+    private final Manifold manifold;
+    
+    
+    private final PropertySheet propertySheet = new PropertySheet();
     {
         this.propertySheet.setMode(PropertySheet.Mode.NAME);
         this.propertySheet.setSearchBoxVisible(true);
     }
+
+    public StatementPropertySheet(Manifold manifold) {
+        this.manifold = manifold;
+        this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+    }
     
-    public void setClinicalStatement(ClinicalStatement clinicalStatement) {
-        items.clear();
+    public void setClinicalStatement(ClinicalStatementImpl clinicalStatement) {
         
+        propertySheet.getItems().clear();
+        if (clinicalStatement != null) {
+            propertySheet.getItems().addAll(getProperties(clinicalStatement));
+        }
+    }
+    
+    public List<PropertySheet.Item> getProperties(ClinicalStatementImpl clinicalStatement) {
+        ArrayList<PropertySheet.Item> items = new ArrayList<>();
+        
+        items.add(new PropertySheetItemConceptWrapper(manifold, 
+                clinicalStatement.modeProperty(),
+        TermAux.TEMPLATE.getNid(), TermAux.INSTANCE.getNid()));
+        
+        
+        
+        items.add(new PropertySheetTextWrapper(manifold, clinicalStatement.narrativeProperty()));
+        items.add(new PropertySheetItemConceptWrapper(manifold, 
+                clinicalStatement.statementTypeProperty(),
+            TermAux.REQUEST_STATEMENT.getNid(), TermAux.PERFORMANCE_STATEMENT.getNid()));
+        items.add(new PropertySheetItemConceptWrapper(manifold, 
+                clinicalStatement.subjectOfInformationProperty(), 
+                TermAux.SUBJECT_OF_RECORD.getNid(),
+                TermAux.MOTHER_OF_SUBJECT_OF_RECORD.getNid(), 
+                TermAux.FATHER_OF_SUBJECT_OF_RECORD.getNid(),
+                TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid(),
+                TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid()
+                
+        ));
+        items.add(new PropertySheetItemConceptWrapper(manifold, 
+                clinicalStatement.topicProperty()));
+        items.add(new PropertySheetItemMeasureWrapper(manifold, clinicalStatement.statementTimeProperty()));
+        
+        return items;
+    }
+
+    public PropertySheet getPropertySheet() {
+        return propertySheet;
     }
 }

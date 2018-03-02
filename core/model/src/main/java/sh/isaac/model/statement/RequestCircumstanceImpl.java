@@ -30,7 +30,7 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class RequestCircumstanceImpl extends CircumstanceImpl implements RequestCircumstance {
-    private final SimpleListProperty<ClinicalStatement> conditionalTriggers = 
+    private final SimpleListProperty<StatementAssociation> conditionalTriggers = 
             new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS.toExternalString());
     private final SimpleListProperty<Participant> requestedParticipants = 
             new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS.toExternalString());
@@ -42,15 +42,15 @@ public class RequestCircumstanceImpl extends CircumstanceImpl implements Request
             new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT.toExternalString());
 
     @Override
-    public ObservableList<ClinicalStatement> getConditionalTriggers() {
+    public ObservableList<StatementAssociation> getConditionalTriggers() {
         return conditionalTriggers.get();
     }
 
-    public SimpleListProperty<ClinicalStatement> conditionalTriggersProperty() {
+    public SimpleListProperty<StatementAssociation> conditionalTriggersProperty() {
         return conditionalTriggers;
     }
 
-    public void setConditionalTriggers(List<ClinicalStatement> conditionalTriggers) {
+    public void setConditionalTriggers(List<StatementAssociation> conditionalTriggers) {
         this.conditionalTriggers.get().setAll(conditionalTriggers);
     }
 

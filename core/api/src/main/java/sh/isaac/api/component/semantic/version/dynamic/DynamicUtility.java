@@ -267,7 +267,7 @@ public interface DynamicUtility {
                                data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
                                " Validator Data: " + dsci.getValidatorData()[i].dataToString() + " Semantic: " + dsud.getDynamicName()
                                + " Referenced Component " 
-                               + Get.identifiedObjectService().getIdentifiedObjectChronology(referencedComponentNid).get().toUserString());
+                               + Get.identifiedObjectService().getChronology(referencedComponentNid).get().toUserString());
                         }
                      } catch (final IllegalArgumentException e) {
                         if (rethrow) {

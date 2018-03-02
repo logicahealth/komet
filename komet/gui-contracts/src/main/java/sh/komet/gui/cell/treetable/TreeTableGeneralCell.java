@@ -41,23 +41,42 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import javafx.application.Platform;
+import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeTableRow;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -84,6 +103,10 @@ import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.PropertyToPropertySheetItem;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -98,12 +121,43 @@ public class TreeTableGeneralCell
     //~--- fields --------------------------------------------------------------
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final Manifold manifold;
+    private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
+    private final GridPane textAndEditGrid = new GridPane();
+    private final BorderPane editPanel = new BorderPane();
+    private SemanticVersion semanticVersion;
+    private final FixedSizePane paneForText = new FixedSizePane();
+    private final ToolBar toolBar;
+    private ObservableVersion mutableVersion;
 
     //~--- constructors --------------------------------------------------------
     public TreeTableGeneralCell(Manifold manifold) {
         this.manifold = manifold;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
+        editButton.getStyleClass()
+                .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
+        editButton.setOnAction(this::toggleEdit);
+        textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
+        // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
+        GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
+        GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+        GridPane.setConstraints(editPanel, 0, 2, 3, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.ALWAYS);
+        final Pane leftSpacer = new Pane();
+        HBox.setHgrow(
+                leftSpacer,
+                Priority.SOMETIMES
+        );
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(this::toggleEdit);
+        Button commitButton = new Button("Commit");
+        commitButton.setOnAction(this::commitEdit);
+        toolBar = new ToolBar(
+                leftSpacer,
+                cancelButton,
+                new Separator(),
+                commitButton
+        );
+
     }
 
     //~--- methods -------------------------------------------------------------
@@ -115,15 +169,13 @@ public class TreeTableGeneralCell
         textFlow.setLayoutX(1);
         textFlow.setLayoutY(1);
 
-        FixedSizePane fixedSizePane = new FixedSizePane(textFlow);
-
         this.widthProperty()
                 .addListener(
                         new WeakChangeListener<>(
                                 (ObservableValue<? extends Number> observable,
                                         Number oldValue,
                                         Number newValue) -> {
-                                    double newTextFlowWidth = newValue.doubleValue() - 8;
+                                    double newTextFlowWidth = newValue.doubleValue() - 32;
                                     double newTextFlowHeight = textFlow.prefHeight(newTextFlowWidth);
 
                                     textFlow.setPrefWidth(newTextFlowWidth);
@@ -131,21 +183,72 @@ public class TreeTableGeneralCell
                                     textFlow.setPrefHeight(newTextFlowHeight);
                                     textFlow.setMaxHeight(newTextFlowHeight);
 
-                                    double newFixedSizeWidth = newTextFlowWidth + 4;
-                                    double newFixedSizeHeight = newTextFlowHeight + 4;
+                                    double newFixedSizeWidth = newTextFlowWidth + 28;
+                                    double newFixedSizeHeight = newTextFlowHeight + 28;
 
-                                    fixedSizePane.setWidth(newFixedSizeWidth);
-                                    fixedSizePane.setHeight(newFixedSizeHeight);
+                                    paneForText.setWidth(newFixedSizeWidth);
+                                    paneForText.setHeight(newFixedSizeHeight);
                                 }));
+        paneForText.getChildren().clear();
+        paneForText.getChildren().add(textFlow);
         this.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        this.setGraphic(fixedSizePane);
+        this.setGraphic(textAndEditGrid);
+    }
+
+    private void commitEdit(ActionEvent event) {
+        CommitTask commitTask = Get.commitService().commit(this.mutableVersion, 
+                this.manifold.getEditCoordinate(), 
+                "No comment");
+        Get.executor().execute(() -> {
+            try {
+                Optional<CommitRecord> commitRecord = commitTask.get();
+                if (commitRecord.isPresent()) {
+                    Platform.runLater(() -> {
+                        editPanel.getChildren().clear();
+                        editButton.setVisible(true);
+                    });
+                } else {
+                    // TODO show errors. 
+                    commitTask.getAlerts();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                LOG.error("Error committing change.", ex);
+            } finally {
+             }
+        });
+    }
+    private void toggleEdit(ActionEvent event) {
+
+        if (editPanel.getChildren().isEmpty()) {
+            if (this.semanticVersion != null) {
+                if (this.semanticVersion instanceof ObservableVersion) {
+                    ObservableVersion currentVersion = (ObservableVersion) this.semanticVersion;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
+                    
+                    List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
+                    PropertySheet propertySheet = new PropertySheet();
+                    propertySheet.setMode(PropertySheet.Mode.NAME);
+                    propertySheet.setSearchBoxVisible(false);
+                    propertySheet.setModeSwitcherVisible(false);
+                    propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+
+                    editPanel.setTop(toolBar);
+                    editPanel.setCenter(propertySheet);
+                    editButton.setVisible(false);
+                }
+            }
+        } else {
+            editPanel.getChildren().clear();
+            editButton.setVisible(true);
+        }
     }
 
     @Override
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
         setWrapText(true);
 
-        SemanticVersion semanticVersion = version.unwrap();
+        this.semanticVersion = version.unwrap();
         VersionType semanticType = semanticVersion.getChronology()
                 .getVersionType();
 
@@ -510,8 +613,8 @@ public class TreeTableGeneralCell
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);
             }
             break;
-            
-            case Str1_Nid2_Nid3_Nid4:{
+
+            case Str1_Nid2_Nid3_Nid4: {
                 Str1_Nid2_Nid3_Nid4_Version brittleVersion = version.unwrap();
 
                 StringBuilder buff = new StringBuilder();
@@ -528,7 +631,7 @@ public class TreeTableGeneralCell
                 addTextToCell(assemblageNameText, defaultText, referencedComponentText);
             }
             break;
-            case Str1_Str2_Nid3_Nid4_Nid5:{
+            case Str1_Str2_Nid3_Nid4_Nid5: {
                 Str1_Str2_Nid3_Nid4_Nid5_Version brittleVersion = version.unwrap();
 
                 StringBuilder buff = new StringBuilder();

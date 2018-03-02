@@ -51,7 +51,7 @@ import sh.isaac.api.alert.AlertType;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
@@ -73,20 +73,8 @@ public interface ChangeChecker
     * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
     * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
     */
-   AlertObject check(ConceptChronology cc, 
+   AlertObject check(Chronology cc, 
               CheckPhase checkPhase);
-
-   /**
-    * Check.
-    *
-    * @param sc the sc
-    * @param checkPhase the check phase
-    * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
-    * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
-    */
-   AlertObject check(SemanticChronology sc,
-              CheckPhase checkPhase);
-   
    
    /**
     * The description of the change checker (which should describe what it is checking for)

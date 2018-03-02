@@ -63,13 +63,14 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
@@ -351,4 +352,9 @@ public class ObservableSemanticChronologyImpl
    public String toString() {
       return "ObservableSemanticChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
+
+    @Override
+    public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

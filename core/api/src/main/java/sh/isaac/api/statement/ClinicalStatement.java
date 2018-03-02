@@ -19,13 +19,25 @@ package sh.isaac.api.statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 /**
  *
  * @author kec
  */
 public interface ClinicalStatement {
+    
+    /**
+     * 
+     * @return concept indicating if this is a template or an instance
+     */
+    ConceptChronology getMode();
+    /**
+     * 
+     * @return the stamp coordinate for this clinical statement. 
+     */
+    StampCoordinate getStampCoordinate();
     /**
      * 
      * @return An optional narrative of this clinical statement. 
@@ -60,20 +72,20 @@ public interface ClinicalStatement {
      *
      * @return an expression of the subject of information (subject of record, mother of subject of record, etc.).
      */
-    LogicalExpression getSubjectOfInformation();
+    ConceptChronology getSubjectOfInformation();
 
     /**
      * The statement type must be consistent with the circumstance class.
      * Statements are generally either "request" or "performance"
      * @return the type of statement.
      */
-    LogicalExpression getStatementType();
+    ConceptChronology getStatementType();
 
     /**
      *
      * @return the topic of this clinical statement.
      */
-    LogicalExpression getTopic();
+    ConceptChronology getTopic();
 
     /**
      *

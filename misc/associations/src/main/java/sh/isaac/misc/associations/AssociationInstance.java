@@ -96,7 +96,7 @@ public class AssociationInstance
     */
    public Chronology getSourceComponent()
    {
-      return Get.identifiedObjectService().getIdentifiedObjectChronology(this.semantic.getReferencedComponentNid()).get();
+      return Get.identifiedObjectService().getChronology(this.semantic.getReferencedComponentNid()).get();
    }
    
    /**
@@ -132,7 +132,7 @@ public class AssociationInstance
             }
             if (nid != 0)
             {   
-               return Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+               return Get.identifiedObjectService().getChronology(nid);
             }
          }
       }

@@ -17,19 +17,13 @@
 package sh.isaac.api.statement;
 
 import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
  * @author kec
  */
-public interface Measure extends Interval {
-
-    /**
-     * In most cases, the semantics of the measurement are the units of measure.
-     * @return the semantics for this measurement.
-     */
-    LogicalExpression getMeasureSemantic();
+public interface Measure {
 
     /**
      *
@@ -38,9 +32,32 @@ public interface Measure extends Interval {
     Optional<Float> getResolution();
 
     /**
-     * 
-     * @return the normal range for this measure. 
+     *
+     * @return the lower bound for this measurement
      */
-    Optional<Interval> getNormalRange();
-    
+    float getLowerBound();
+
+    /**
+     *
+     * @return the upper bound for this measurement
+     */
+    float getUpperBound();
+
+    /**
+     *
+     * @return true if the lower bound is part of the interval.
+     */
+    boolean includeLowerBound();
+
+    /**
+     *
+     * @return true if the upper bound is part of the interval.
+     */
+    boolean includeUpperBound();
+
+    /**
+     * In most cases, the semantics of the measurement are the units of measure.
+     * @return the semantics for this measurement.
+     */
+    ConceptChronology getMeasureSemantic();
 }

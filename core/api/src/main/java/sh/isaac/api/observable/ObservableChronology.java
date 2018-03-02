@@ -55,6 +55,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
@@ -144,5 +145,14 @@ public interface ObservableChronology
    LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
                                                             StampCoordinate coordinate);
 
+   /**
+    * This creates an observable version that is not added to the version list,
+    * and can be edited without creating a STAMP coordinate. This allows the version
+    * to be edited and committed independently of other content. 
+     * @param <T>
+    * @param ec
+    * @return an editable observable version
+    */
+   <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec);
 }
 

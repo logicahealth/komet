@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -30,16 +31,19 @@ import javafx.stage.Stage;
 public class StatementView {
 
     final Stage stage;
-    StatementViewController controller;
+    final Manifold manifold;
+    final StatementViewController controller;
     
-    private StatementView() {
+    private StatementView(Manifold manifold) {
         try {
+            this.manifold = manifold;
             this.stage = new Stage();
             //stage.initModality(Modality.NONE);
             //stage.setAlwaysOnTop(false);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/statement/StatementView.fxml"));
             Parent root = loader.load();
             this.controller = loader.getController();
+            this.controller.setManifold(manifold);
             
             //create scene with set width, height and color
             Scene scene = new Scene(root, 900, 600, Color.WHITESMOKE);
@@ -57,10 +61,12 @@ public class StatementView {
         }
     }
 
-    public static void show() {
-        StatementView statementView = new StatementView();
+    public static StatementViewController show(Manifold manifold) {
+        StatementView statementView = new StatementView(manifold);
         //show the stage
         //center stage on screen
         statementView.stage.centerOnScreen();
         statementView.stage.show();
-    }}
+        return statementView.controller;
+    }
+}

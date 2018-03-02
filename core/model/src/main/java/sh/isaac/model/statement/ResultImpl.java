@@ -16,12 +16,37 @@
  */
 package sh.isaac.model.statement;
 
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.statement.Measure;
 import sh.isaac.api.statement.Result;
+import sh.isaac.model.observable.ObservableFields;
+
+import java.util.Optional;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
  * @author kec
  */
 public class ResultImpl extends MeasureImpl implements Result {
-    
+
+    private final SimpleObjectProperty<Measure> normalRange =
+            new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
+
+    public ResultImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+    }
+
+    @Override
+    public Optional<Measure> getNormalRange() {
+        return Optional.ofNullable(normalRange.get());
+    }
+
+    public SimpleObjectProperty<Measure> normalRangeProperty() {
+        return normalRange;
+    }
+
+    public void setNormalRange(Measure normalRange) {
+        this.normalRange.set(normalRange);
+    }
 }

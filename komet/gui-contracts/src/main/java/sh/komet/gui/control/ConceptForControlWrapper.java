@@ -41,6 +41,7 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,26 +68,30 @@ public class ConceptForControlWrapper
 
    public ConceptForControlWrapper(Manifold manifold, int conceptNid) {
       if (conceptNid == Integer.MAX_VALUE) {
-         throw new IllegalStateException("Integer.MAX_VALUE for concept sequence.");
+         throw new IllegalStateException("Integer.MAX_VALUE for concept nid.");
       }
       this.manifold        = manifold;
       this.conceptNid = conceptNid;
 
       //TODO HACK for resolving issue with ListView items toString() not calling service to early
-      System.out.println("Created ConceptForControlWrapper: " + this.toString());
+      this.toString();
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public String toString() {
-      Optional<String> description = getRegularName();
+       if (conceptNid != 0) {
+        Optional<String> description = getRegularName();
 
-      if (description.isPresent()) {
-         return description.get();
-      }
+        if (description.isPresent()) {
+            return description.get();
+        }
+        
+        return "No description for: " + conceptNid;
+       }
 
-      return "No description for: " + conceptNid;
+      return "unspecified";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -98,18 +103,27 @@ public class ConceptForControlWrapper
 
    @Override
    public String getFullyQualifiedName() {
+       if (conceptNid != 0) {
       return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
+       }
+       return "unspecified";
    }
 
    @Override
    public Optional<String> getRegularName() {
+       if (conceptNid != 0) {
       return Optional.of(this.manifold.getPreferredDescriptionText(this.conceptNid));
+       }
+       return Optional.empty();
    }
 
    @Override
    public List<UUID> getUuidList() {
+       if (conceptNid != 0) {
       return Get.concept(conceptNid)
                 .getUuidList();
+       }
+       return new ArrayList<>();
    }
 
    @Override

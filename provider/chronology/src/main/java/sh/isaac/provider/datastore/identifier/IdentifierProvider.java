@@ -181,7 +181,7 @@ public class IdentifierProvider
                this.store.getAssemblageVersionTypeMap().get(assemblageNid) + " " + versionType);
       }
       
-      return ((oldObjectType == null && oldVersionType == null) ? true : false);
+      return ((oldObjectType == null && oldVersionType == null));
    }
    
   private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
@@ -193,7 +193,7 @@ public class IdentifierProvider
    public IsaacObjectType getObjectTypeForComponent(int componentNid) {
       IsaacObjectType temp = getObjectTypeForAssemblage(getAssemblageNid(componentNid).getAsInt());
       if (temp == IsaacObjectType.UNKNOWN) {
-         Optional<? extends Chronology> temp2 = Get.identifiedObjectService().getIdentifiedObjectChronology(componentNid);
+         Optional<? extends Chronology> temp2 = Get.identifiedObjectService().getChronology(componentNid);
          if (temp2.isPresent()) {
             LOG.error("Object {} in store, but not in object type map?", componentNid);
             return temp2.get().getIsaacObjectType();
@@ -352,7 +352,7 @@ public class IdentifierProvider
 
       //If the LRU cache doesn't have it, see if the identified object service knows about it (as that is a hashed lookup)
       final Optional<? extends Chronology> optionalObj = 
-           Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+           Get.identifiedObjectService().getChronology(nid);
 
       if (optionalObj.isPresent()) {
          return optionalObj.get().getUuidList();

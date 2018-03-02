@@ -72,6 +72,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
@@ -787,6 +788,11 @@ public abstract class ObservableChronologyImpl
    public NidSet getRecursiveSemanticNids() {
       return chronicledObjectLocal.getRecursiveSemanticNids();
    }
+
+    @Override
+    public VersionType getVersionType() {
+        return chronicledObjectLocal.getVersionType();
+    }
 
 }
 

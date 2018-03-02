@@ -16,10 +16,20 @@
  */
 package sh.isaac.api.statement;
 
+import sh.isaac.api.component.concept.ConceptChronology;
+
+import java.util.Optional;
+
 /**
  *
  * @author kec
  */
-public interface Result extends Measure {
-    
+public interface Result extends Measure{
+
+    /**
+     *
+     * @return the normal range for this measure.
+     */
+    Optional<Measure> getNormalRange();
+
 }

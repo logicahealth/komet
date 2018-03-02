@@ -255,7 +255,7 @@ public class CompositeSearchResult {
       if (this.matchingComponentNid != 0) {
          try {
             final Optional<? extends Chronology> cc = Get.identifiedObjectService()
-                                                                  .getIdentifiedObjectChronology(
+                                                                  .getChronology(
                                                                      this.matchingComponentNid);
 
             if (cc.isPresent()) {

@@ -21,13 +21,23 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
    private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
    private final IntegerProperty conceptNidProperty;
    private final NidSet allowedValues = new NidSet();
+   
+   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
+           IntegerProperty conceptNidProperty, int... allowedValues) {
+      this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName())), conceptNidProperty, allowedValues);
+   }
+
 
    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
-           IntegerProperty conceptSequenceProperty) {
+           IntegerProperty conceptNidProperty, int... allowedValues) {
       this.manifoldForDisplay = manifoldForDisplay;
       this.name = name;
-      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptSequenceProperty.get()));
-      this.conceptNidProperty = conceptSequenceProperty;
+      this.conceptNidProperty = conceptNidProperty;
+      if (allowedValues.length > 0) {
+          this.conceptNidProperty.set(allowedValues[0]);
+      }
+      this.allowedValues.addAll(allowedValues);
+      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptNidProperty.get()));
    }
 
    @Override

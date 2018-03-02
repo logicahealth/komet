@@ -98,7 +98,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 566;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 594;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -164,7 +164,7 @@ public class QueryProviderTest {
 	@Test
 	public void testReversePaging() {
 		
-		int expectedMaxHits = 8;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 4;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("RF2 AND nid", null, null, null, null, null).size(), expectedMaxHits);
 		
@@ -192,7 +192,7 @@ public class QueryProviderTest {
 		//Make sure the results came back in reverse score order
 		int i = 0;
 		int ii = 1;
-		while (ii < 6)
+		while (ii < expectedMaxHits)
 		{
 			Assert.assertTrue(paged.get(i++).getScore() <= paged.get(ii++).getScore());
 		}
@@ -247,10 +247,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 433);
+		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 460);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 433);
+		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 460);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("so*", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);

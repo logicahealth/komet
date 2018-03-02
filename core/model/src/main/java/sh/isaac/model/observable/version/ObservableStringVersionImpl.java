@@ -41,22 +41,29 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,7 +72,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableStringVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableStringVersion {
    /** The string property. */
    StringProperty stringProperty;
@@ -81,6 +88,22 @@ public class ObservableStringVersionImpl
    public ObservableStringVersionImpl(StringVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
+
+   public ObservableStringVersionImpl(ObservableStringVersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setString(versionToClone.getString());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableStringVersionImpl analog = new ObservableStringVersionImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
 
    //~--- methods -------------------------------------------------------------
 
@@ -103,6 +126,12 @@ public class ObservableStringVersionImpl
     */
    @Override
    public StringProperty stringProperty() {
+      if (this.stampedVersionProperty == null && this.stringProperty == null) {
+         this.stringProperty = new CommitAwareStringProperty(
+             this,
+             ObservableFields.STRING_VALUE_FOR_SEMANTIC.toExternalString(),
+                 "");
+      }
       if (this.stringProperty == null) {
          this.stringProperty = new CommitAwareStringProperty(
              this,
@@ -120,7 +149,6 @@ public class ObservableStringVersionImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
       if (this.stringProperty != null && !this.stringProperty.get().equals(((MutableStringVersion) this.stampedVersionProperty.get()).getString())) {
          this.stringProperty.set(((MutableStringVersion) this.stampedVersionProperty.get()).getString());
       }
@@ -135,6 +163,13 @@ public class ObservableStringVersionImpl
       properties.add(stringProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(stringProperty());
+      return properties;
+    }
 
    /**
     * Gets the string.
@@ -158,12 +193,39 @@ public class ObservableStringVersionImpl
     * @param string the new string
     */
    @Override
-   public void setString(String string) {
+   public final void setString(String string) {
+       if (this.stampedVersionProperty == null) {
+           this.stringProperty();
+       }
       if (this.stringProperty != null) {
          this.stringProperty.set(string);
       }
 
-      ((MutableStringVersion) this.stampedVersionProperty.get()).setString(string);
+      if (this.stampedVersionProperty != null) {
+        ((MutableStringVersion) this.stampedVersionProperty.get()).setString(string);
+      }
    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableStringVersionImpl) {
+            ObservableStringVersionImpl observableAnalog = (ObservableStringVersionImpl) analog;
+            observableAnalog.setString(this.getString());
+        } else if (analog instanceof StringVersionImpl) {
+             StringVersionImpl simpleAnalog = (StringVersionImpl) analog;
+             simpleAnalog.setString(this.getString());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        StringVersionImpl newVersion = new StringVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
 }
 

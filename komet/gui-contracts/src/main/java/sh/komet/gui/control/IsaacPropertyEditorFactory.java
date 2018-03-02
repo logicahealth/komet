@@ -18,11 +18,18 @@ package sh.komet.gui.control;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Status;
+import sh.isaac.model.statement.MeasureImpl;
+import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -42,15 +49,44 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
          return Editors.createChoiceEditor(propertySheetItem, Status.makeActiveAndInactiveSet());
       }  else if (propertySheetItem instanceof PropertySheetTextWrapper) {
          return Editors.createTextEditor(propertySheetItem);
+      } else if (propertySheetItem instanceof PropertySheetItemMeasureWrapper) {
+          PropertySheetItemMeasureWrapper measureWrapper = (PropertySheetItemMeasureWrapper) propertySheetItem;
+         return new MeasureEditor((MeasureImpl) measureWrapper.getValue());
       }
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
     private PropertyEditor<?> createCustomChoiceEditor(PropertySheetItemConceptWrapper propertySheetItem){
-        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-        propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(manifoldForDisplay, nid)));
+        if (!propertySheetItem.getAllowedValues().isEmpty()) {
+            Collection<ConceptForControlWrapper> collection = new ArrayList<>();
+            propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(manifoldForDisplay, nid)));
 
-        return Editors.createChoiceEditor(propertySheetItem, collection);
+            return Editors.createChoiceEditor(propertySheetItem, collection);
+        } else {
+            ConceptLabel conceptLabel = new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, (label) -> {
+                List<MenuItem> labelMenu = new ArrayList<>();
+                
+                for (String manifoldGroup: Manifold.getGroupNames()) {
+                    Menu manifoldHistory = new Menu(manifoldGroup);
+                    labelMenu.add(manifoldHistory);
+                    Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+                    for (HistoryRecord record: groupHistory) {
+                        MenuItem conceptItem = new MenuItem(
+                                manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
+                        );
+                        conceptItem.setOnAction((ActionEvent event) -> {
+                            label.setValue(record.getComponentId());
+                        });
+                        manifoldHistory.getItems().add(conceptItem);
+                    }
+                }
+                return labelMenu;
+            });
+            
+            
+            
+            return conceptLabel;
+        }
     }
    
    

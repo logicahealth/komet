@@ -96,7 +96,6 @@ public abstract class VersionImpl
       }
       int oldStampSequence = this.stampSequence;
       this.stampSequence = -1;
-      this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
    }
 
    /**
@@ -281,7 +280,6 @@ public abstract class VersionImpl
                          authorSequence,
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -328,7 +326,6 @@ public abstract class VersionImpl
                          getAuthorNid(),
                          moduleSequence,
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -348,7 +345,6 @@ public abstract class VersionImpl
                          getAuthorNid(),
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -391,7 +387,6 @@ public abstract class VersionImpl
                          getAuthorNid(),
                          getModuleNid(),
                          pathSequence);
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -455,7 +450,6 @@ public abstract class VersionImpl
                          getAuthorNid(),
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 

@@ -60,6 +60,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -165,7 +166,7 @@ public interface CommitService
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
-    * chose to block on the returned task if synchronous operation is desired.
+    * choose to block on the returned task if synchronous operation is desired.
     *
     * @param chronicle the chronicle
     * @param editCoordinate the edit coordinate to determine which changes to
@@ -174,6 +175,11 @@ public interface CommitService
     * @return task representing the cancel.
     */
    CommitTask commit(Chronology chronicle,
+         EditCoordinate editCoordinate,
+         String commitComment);
+
+   
+   CommitTask commit(ObservableVersion versionsToCommit,
          EditCoordinate editCoordinate,
          String commitComment);
 

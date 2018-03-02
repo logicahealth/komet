@@ -19,7 +19,7 @@ package sh.isaac.model.statement;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.statement.Participant;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -30,7 +30,7 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public class ParticipantImpl implements Participant {
 
-    private final SimpleObjectProperty<LogicalExpression> participantRole = 
+    private final SimpleObjectProperty<ConceptChronology> participantRole = 
             new SimpleObjectProperty<>(this, ObservableFields.PARTICIPANT_ROLE.toExternalString());
 
     private final SimpleObjectProperty<UUID> participantId = 
@@ -49,15 +49,15 @@ public class ParticipantImpl implements Participant {
         this.participantId.set(participantId);
     }
     @Override
-    public LogicalExpression getParticipantRole() {
+    public ConceptChronology getParticipantRole() {
         return participantRole.get();
     }
 
-    public SimpleObjectProperty<LogicalExpression> participantRoleProperty() {
+    public SimpleObjectProperty<ConceptChronology> participantRoleProperty() {
         return participantRole;
     }
 
-    public void setParticipantRole(LogicalExpression participantRole) {
+    public void setParticipantRole(ConceptChronology participantRole) {
         this.participantRole.set(participantRole);
     }
 }

@@ -17,7 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.UUID;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
@@ -29,7 +29,7 @@ public interface StatementAssociation {
      *
      * @return the description of the association with the identified statement.
      */
-    LogicalExpression getAssociationSemantic();
+    ConceptChronology getAssociationSemantic();
 
     /**
      *

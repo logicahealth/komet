@@ -40,7 +40,7 @@
 package sh.isaac.api.externalizable;
 
 /**
- * A interface that can write OCHRE objects in a UUID-based format for universal exchange without
+ * A interface that can write Isaac objects in a UUID-based format for universal exchange without
  * depending on centrally allocated identifiers. References to other objects are only allowed via UUID, and
  * so each object is atomic, and no read-resolve or other methods for resolving object identity is required.
  * @author kec

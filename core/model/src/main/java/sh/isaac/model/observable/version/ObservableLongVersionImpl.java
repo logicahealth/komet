@@ -41,23 +41,32 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.MutableLongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.model.observable.CommitAwareObjectProperty;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,7 +75,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableLongVersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableLongVersion {
    /** The long property. */
    LongProperty longProperty;
@@ -83,6 +92,21 @@ public class ObservableLongVersionImpl
       super(version, chronology);
    }
 
+   public ObservableLongVersionImpl(ObservableLongVersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setLongValue(versionToClone.getLongValue());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableLongVersionImpl analog = new ObservableLongVersionImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -92,6 +116,12 @@ public class ObservableLongVersionImpl
     */
    @Override
    public LongProperty longValueProperty() {
+      if (this.stampedVersionProperty == null && this.longProperty == null) {
+         this.longProperty = new CommitAwareLongProperty(
+             this,
+             ObservableFields.LONG_VALUE_FOR_SEMANTIC.toExternalString(),
+                 0);
+      }
       if (this.longProperty == null) {
          this.longProperty = new CommitAwareLongProperty(
              this,
@@ -125,7 +155,6 @@ public class ObservableLongVersionImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
       if (this.longProperty != null && this.longProperty.get() != ((LongVersion) this.stampedVersionProperty.get()).getLongValue()) {
          this.longProperty.set(((LongVersion) this.stampedVersionProperty.get()).getLongValue());
       }
@@ -155,12 +184,17 @@ public class ObservableLongVersionImpl
     * @param longValue the new long value
     */
    @Override
-   public void setLongValue(long longValue) {
+   public final void setLongValue(long longValue) {
+       if (this.stampedVersionProperty == null) {
+           this.longValueProperty();
+       }
       if (this.longProperty != null) {
          this.longProperty.set(longValue);
       }
 
-      ((MutableLongVersion) this.stampedVersionProperty.get()).setLongValue(longValue);
+      if (this.stampedVersionProperty != null) {
+         ((MutableLongVersion) this.stampedVersionProperty.get()).setLongValue(longValue);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -172,5 +206,34 @@ public class ObservableLongVersionImpl
       properties.add(longValueProperty());
       return properties;
    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(longValueProperty());
+      return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableLongVersionImpl) {
+            ObservableLongVersionImpl observableAnalog = (ObservableLongVersionImpl) analog;
+            observableAnalog.setLongValue(this.getLongValue());
+        } else if (analog instanceof LongVersionImpl) {
+             LongVersionImpl simpleAnalog = (LongVersionImpl) analog;
+             simpleAnalog.setLongValue(this.getLongValue());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        LongVersionImpl newVersion = new LongVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
 }
 

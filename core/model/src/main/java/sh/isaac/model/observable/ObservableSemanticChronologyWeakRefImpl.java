@@ -301,5 +301,10 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    public NidSet getRecursiveSemanticNids() {
       return getChronology().getRecursiveSemanticNids();
    }
+
+    @Override
+    public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
+        return getChronology().createAutonomousMutableVersion(ec);
+    }
    
 }

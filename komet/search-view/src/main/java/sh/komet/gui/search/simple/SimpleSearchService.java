@@ -124,7 +124,7 @@ public class SimpleSearchService extends Service<NidSet> {
                                     // with the identifier...
                                     // TODO LONG Term: display the object that matched in the result list...
                                     Optional<? extends Chronology> optionalChronology = 
-                                            Get.identifiedObjectService().getIdentifiedObjectChronology(semanticChronology.getReferencedComponentNid());
+                                            Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
                                     if (optionalChronology.isPresent()) {
                                         Chronology chronology = optionalChronology.get();
                                         switch (chronology.getVersionType()) {

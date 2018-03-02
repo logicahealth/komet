@@ -19,7 +19,7 @@ package sh.isaac.model.statement;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.statement.Circumstance;
 import sh.isaac.api.statement.Measure;
 import sh.isaac.model.observable.ObservableFields;
@@ -30,21 +30,21 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class CircumstanceImpl implements Circumstance {
-    private final SimpleListProperty<LogicalExpression> purposeList = 
+    private final SimpleListProperty<ConceptChronology> purposeList = 
             new SimpleListProperty(this, ObservableFields.CIRCUMSTANCE_PURPOSE_LIST.toExternalString());
     private final SimpleObjectProperty<Measure> timing = 
             new SimpleObjectProperty<>(this, ObservableFields.CIRCUMSTANCE_TIMING.toExternalString());
 
     @Override
-    public ObservableList<LogicalExpression> getPurposeList() {
+    public ObservableList<ConceptChronology> getPurposeList() {
         return purposeList.get();
     }
 
-    public SimpleListProperty<LogicalExpression> purposeListProperty() {
+    public SimpleListProperty<ConceptChronology> purposeListProperty() {
         return purposeList;
     }
 
-    public void setPurposeList(ObservableList<LogicalExpression> purposeList) {
+    public void setPurposeList(ObservableList<ConceptChronology> purposeList) {
         this.purposeList.set(purposeList);
     }
 

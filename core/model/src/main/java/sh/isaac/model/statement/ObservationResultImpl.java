@@ -17,11 +17,11 @@
 package sh.isaac.model.statement;
 
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.statement.Interval;
 import sh.isaac.api.statement.ObservationResult;
 
 import java.util.Optional;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -29,18 +29,23 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class ObservationResultImpl extends ResultImpl implements ObservationResult {
-    private final SimpleObjectProperty<LogicalExpression> healthRisk = 
+    private final SimpleObjectProperty<ConceptChronology> healthRisk = 
             new SimpleObjectProperty<>(this, ObservableFields.OBSERVATION_RESULT_HEALTH_RISK.toExternalString());
+
+    public ObservationResultImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+    }
+    
     @Override
-    public Optional<LogicalExpression> getHealthRisk() {
+    public Optional<ConceptChronology> getHealthRisk() {
         return Optional.ofNullable(healthRisk.get());
     }
 
-    public SimpleObjectProperty<LogicalExpression> healthRiskProperty() {
+    public SimpleObjectProperty<ConceptChronology> healthRiskProperty() {
         return healthRisk;
     }
 
-    public void setHealthRisk(LogicalExpression healthRisk) {
+    public void setHealthRisk(ConceptChronology healthRisk) {
         this.healthRisk.set(healthRisk);
     }
 

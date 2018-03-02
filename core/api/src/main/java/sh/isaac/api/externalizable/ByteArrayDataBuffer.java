@@ -167,6 +167,7 @@ public class ByteArrayDataBuffer {
       ensureSpace(this.position + length);
       System.arraycopy(db.data, position, this.data, this.position, length);
       this.position += length;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -241,6 +242,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += length;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -279,6 +281,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 1;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -347,6 +350,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 4;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -373,6 +377,7 @@ public class ByteArrayDataBuffer {
             this.sl.unlockRead(lockStamp);
          }
       }
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -412,6 +417,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 8;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -454,6 +460,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 2;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -535,6 +542,10 @@ public class ByteArrayDataBuffer {
       putLong(uuid.getLeastSignificantBits());
    }
 
+   public int getUsed() {
+       return this.used;
+   }
+   
    /**
     * Read UTF.
     *
@@ -750,6 +761,7 @@ public class ByteArrayDataBuffer {
          this.data[this.position + 3] = (byte) (anInt);
          this.position                += 4;
       }
+      this.used = Math.max(used, this.position);
    }
 
    //~--- get methods ---------------------------------------------------------

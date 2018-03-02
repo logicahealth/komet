@@ -5,30 +5,6 @@ ISAAC: Informatics Analytic Architecture
 
 A dynamic semantic architecture for the analysis of models, logic, and language.
 
-This software now depends on the Oracle Berkeley JE database. This database is licensed under Apache 2, 
-so the license of the database is not an issues. Unfortunately, Oracle does not choose to distribute this database
-via maven central, so developers may have to manually download and install the Berkeley DB JE artifacts themselves. 
-
-If this is the case, Berkeley DB JE can be downloaded from: 
-
-http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html
-
-Download the Berkeley DB Java Edition 7.5.11, and upload it to your repository using the following coordinate: 
-
-```
-   <groupId>com.sleepycat</groupId>
-   <artifactId>je</artifactId>
-   <version>7.5.11</version>
-
-```
-Help for manual install may be found here: 
-
-https://www.mkyong.com/maven/how-to-include-library-manully-into-maven-local-repository/
-
-If any developer or sponsor wants to take a lead on porting the database to Xodus (also Apache 2, but 
-distributed via maven central), please make yourselves known, and we will help you get started :-)
-
-
 
 ## FAQ
 

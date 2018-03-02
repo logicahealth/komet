@@ -17,7 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  * The Result measures the actual state of the 
@@ -31,6 +31,6 @@ public interface ObservationResult extends Result {
      * @return an indicator as to the possibility of an immediate 
      * health risk to the individual that may require immediate action. 
      */
-    Optional<LogicalExpression> getHealthRisk();
+    Optional<ConceptChronology> getHealthRisk();
 
 }

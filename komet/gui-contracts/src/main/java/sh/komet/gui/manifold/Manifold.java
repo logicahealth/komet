@@ -106,6 +106,7 @@ public class Manifold
    public static final String                                      SIMPLE_SEARCH_GROUP_NAME  = "search";
    public static final String                                      TAXONOMY_GROUP_NAME       = "taxonomy";
    public static final String                                      FLWOR_SEARCH_GROUP_NAME   = "flwor";
+   public static final String                                      CLINICAL_STATEMENT_GROUP_NAME   = "statement";
    private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap();
    private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap();
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
@@ -220,6 +221,7 @@ public class Manifold
              .getDefaultEditCoordinate());
    }
 
+   
    public static Manifold newManifold(String name,
                                       UUID manifoldUuid,
                                       ObservableManifoldCoordinate observableManifoldCoordinate,

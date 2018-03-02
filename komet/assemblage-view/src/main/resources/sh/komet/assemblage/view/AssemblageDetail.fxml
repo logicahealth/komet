@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="assemblageDetailRootPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.assemblage.view.AssemblageDetailController">
+<BorderPane fx:id="assemblageDetailRootPane" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.assemblage.view.AssemblageDetailController">
    <center>
       <GridPane prefWidth="598.0" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -25,6 +25,7 @@
          <children>
             <TreeTableView fx:id="assemblageExtensionTreeTable" showRoot="false" tableMenuButtonVisible="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
               <columns>
+                  <TreeTableColumn fx:id="rowExpanderColumn" prefWidth="75.0" text="Column X" />
                 <TreeTableColumn fx:id="assemblageWhatColumn" minWidth="50.0" prefWidth="-1.0" />
                 <TreeTableColumn fx:id="assemblageGeneralColumn" minWidth="300.0" prefWidth="-1.0" />
                   <TreeTableColumn fx:id="assemblageStatusColumn" editable="false" maxWidth="-Infinity" prefWidth="-1.0" text="status" visible="false" />

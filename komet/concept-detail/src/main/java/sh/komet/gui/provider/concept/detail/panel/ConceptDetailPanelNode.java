@@ -66,7 +66,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
@@ -102,7 +101,7 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.ComponentPanel;
-import sh.komet.gui.control.ConceptLabel;
+import sh.komet.gui.control.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.OnOffToggleSwitch;
@@ -117,7 +116,6 @@ import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.komet.gui.control.BadgedVersionPanel;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -146,7 +144,7 @@ public class ConceptDetailPanelNode
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
     private ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPanel> componentPanels = new ArrayList<>();
-    private ConceptLabel titleLabel = null;
+    private ManifoldLinkedConceptLabel titleLabel = null;
     private final Manifold conceptDetailManifold;
     private final ScrollPane scrollPane;
     private final ConceptLabelToolbar conceptLabelToolbar;
@@ -614,7 +612,7 @@ public class ConceptDetailPanelNode
     @Override
     public Optional<Node> getTitleNode() {
         if (titleLabel == null) {
-            this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText, this);
+            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
             this.titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
             this.titleProperty.set("");
         }

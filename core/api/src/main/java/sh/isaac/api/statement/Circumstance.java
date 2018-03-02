@@ -16,10 +16,8 @@
  */
 package sh.isaac.api.statement;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
  *
@@ -40,6 +38,6 @@ public interface Circumstance {
      * malady. 
      * @return A purpose associated with the clinical statement. 
      */
-    List<LogicalExpression> getPurposeList();
+    List<ConceptChronology> getPurposeList();
     
 }
