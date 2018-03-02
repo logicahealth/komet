@@ -89,6 +89,7 @@ public class NexusRead implements ArtifactSearch
 	@Override
 	public Set<IBDFFile> readIBDFFiles()
 	{
+		//TODO need to support paging
 		HashSet<IBDFFile> results = new HashSet<>();
 		try
 		{
