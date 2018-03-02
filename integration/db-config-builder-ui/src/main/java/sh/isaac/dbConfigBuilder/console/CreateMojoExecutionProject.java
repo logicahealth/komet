@@ -33,6 +33,7 @@ import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -103,7 +104,7 @@ public class CreateMojoExecutionProject
 			System.out.println("What version of the source content will be converted?");
 			String sourceVersion = bufferedReader.readLine();
 
-			SDOSourceContent ssc = new SDOSourceContent(selectedConverter.getSourceUploadGroupId(), artifactId, sourceVersion);
+			SDOSourceContent ssc = new SDOSourceContent(SrcUploadCreator.SRC_UPLOAD_GROUP, artifactId, sourceVersion);
 
 			System.out.println("Creating a content converter config for " + ssc);
 			System.out.println();
@@ -127,7 +128,7 @@ public class CreateMojoExecutionProject
 				System.out.println("The selected converter has additional source dependencies.");
 				for (int i = 0; i < additionalSourceDependencies.length; i++)
 				{
-					SupportedConverterTypes dependency = SupportedConverterTypes.find(selectedConverter.getArtifactDependencies().get(i));
+					SupportedConverterTypes dependency = SupportedConverterTypes.findBySrcArtifactId(selectedConverter.getArtifactDependencies().get(i));
 					System.out.println("What version of the dependency " + dependency.getNiceName() + " should be used?");
 					System.out.println(dependency.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
@@ -135,7 +136,7 @@ public class CreateMojoExecutionProject
 					System.out.println("Please specify the classifier of the additional source dependency (Delta, Snapshot, Full, etc) if any - just push enter for none.");
 					String classifier = bufferedReader.readLine();
 					
-					additionalSourceDependencies[i] = new SDOSourceContent(dependency.getSourceUploadGroupId(), dependency.getArtifactId(), dependencyVersion, 
+					additionalSourceDependencies[i] = new SDOSourceContent(SrcUploadCreator.SRC_UPLOAD_GROUP, dependency.getArtifactId(), dependencyVersion, 
 							StringUtils.isNotBlank(classifier.trim()) ? classifier.trim() : null);
 					System.out.println("Added the dependency " + additionalSourceDependencies[i]);
 					System.out.println();
@@ -151,7 +152,7 @@ public class CreateMojoExecutionProject
 					System.out.println("What version of the dependency " + selectedConverter.getIBDFDependencies().get(i) + " should be used?");
 					System.out.println("The version pattern for ibdf files is {sourceVersion}-loader-{converterVersion}");
 					System.out.println("The newest converterVersion would be " + VersionFinder.findProjectVersion(true));
-					System.out.println("For the sourceVersion parameter, " + SupportedConverterTypes.findSourceArtifactForIBDFArtifact(selectedConverter.getIBDFDependencies().get(i))
+					System.out.println("For the sourceVersion parameter, " + SupportedConverterTypes.findByIBDFArtifactId(selectedConverter.getIBDFDependencies().get(i))
 							.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();
 					
@@ -199,6 +200,8 @@ public class CreateMojoExecutionProject
 					converterOptionValues, null, null, null, new File("target"), false);
 
 			System.out.println("Configuration created in " + new File("target/converter-executor").getAbsolutePath());
+			System.out.println("Convert and publish your content with a command like ");
+			System.out.println("mvn clean deploy -DaltDeploymentRepository=mynexus::default::https://sagebits.net/nexus/repository/tmp-snapshots/");
 			LookupService.shutdownSystem();
 			Platform.exit();
 		}

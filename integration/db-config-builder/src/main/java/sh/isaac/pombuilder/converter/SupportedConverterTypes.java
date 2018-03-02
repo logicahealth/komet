@@ -79,7 +79,7 @@ public enum SupportedConverterTypes
          new UploadFileInfo("", "https://loinc.org/downloads/loinc",
                "LOINC_ReleaseNotes.txt",
                "The LOINC Release Notes file must be included for recent versions of LOINC.", ".*releasenotes\\.txt$", true)
-   }, "loinc-ibdf", "convert-loinc-to-ibdf", "sh.isaac.terminology.source.loinc", "LOINC", 
+   }, "loinc-ibdf", "convert-loinc-to-ibdf", "LOINC", 
          new String[] {"shared/licenses/loinc.xml"}, 
          new String[] {"shared/noticeAdditions/loinc-NOTICE-addition.txt"}),
    
@@ -91,7 +91,7 @@ public enum SupportedConverterTypes
                "SnomedCT_LOINC_AlphaPhase3_INT_20160401.zip",
                "  The expected file is the RF2 release (NOT the Human Readable release nor the OWL release). "
                + "The file must be a zip file, which ends with .zip", ".*\\.zip$", true)
-   }, "loinc-ibdf-tech-preview", "convert-loinc-tech-preview-to-ibdf", "sh.isaac.terminology.source.loinc", "LOINC Tech Preview", 
+   }, "loinc-ibdf-tech-preview", "convert-loinc-tech-preview-to-ibdf", "LOINC Tech Preview", 
          new String[] {"shared/licenses/loinc.xml", "shared/licenses/sct.xml"}, 
          new String[] {"shared/noticeAdditions/loinc-tech-preview-NOTICE-addition.txt", "shared/noticeAdditions/loinc-NOTICE-addition.txt", "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
@@ -104,7 +104,7 @@ public enum SupportedConverterTypes
                "The expected file is the RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard"
                + " naming convention (4 digit year, 2 digit month, 2 digit day).",
                ".*_\\d{8}.*\\.zip$", true)
-   }, "rf2-ibdf-sct", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2", "SnomedCT", 
+   }, "rf2-ibdf-sct", "convert-RF2-to-ibdf", "SnomedCT", 
          new String[] {"shared/licenses/sct.xml"},
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
@@ -121,7 +121,7 @@ public enum SupportedConverterTypes
                + " naming convention (4 digit year, 2 digit month, 2 digit day) - it also now also accepts the new naming convention with T and 2 digits each "
                + "of hour, minute and second.",
                ".*_\\d{8}.*\\.zip$", true)
-   }, "rf2-ibdf-", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2", "SnomedCT Extension", 
+   }, "rf2-ibdf-", "convert-RF2-to-ibdf", "SnomedCT Extension", 
          new String[] {"shared/licenses/sct.xml"},
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
@@ -134,7 +134,7 @@ public enum SupportedConverterTypes
                "VHAT.xml",
                "Any XML file that is valid per the VETs TerminologyData.xsd schema.  The file name is ignored", 
                ".*\\.xml$", true)
-   }, "vhat-ibdf", "convert-VHAT-to-ibdf", "sh.isaac.terminology.source.vhat", "VHAT", 
+   }, "vhat-ibdf", "convert-VHAT-to-ibdf", "VHAT", 
          new String[] {""}, 
          new String[] {""}),
    
@@ -145,14 +145,14 @@ public enum SupportedConverterTypes
          new UploadFileInfo("", "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html", 
                "RxNorm_full_06062016.zip",
                "The file must be a zip file, which starts with 'rxnorm_full' and ends with .zip", "rxnorm_full.*\\.zip$", true)
-   }, "rxnorm-ibdf", "convert-rxnorm-to-ibdf", "sh.isaac.terminology.source.rxnorm","RxNorm", 
+   }, "rxnorm-ibdf", "convert-rxnorm-to-ibdf", "RxNorm", 
          new String[] {"shared/licenses/rxnorm.xml"}, 
          new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
 //   RXNORM_SOLOR("rxnorm-src-data", new String[] {}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
 //         new UploadFileInfo("", "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html", 
 //               "RxNorm_full_06062016.zip",
 //               "The file must be a zip file, which starts with 'rxnorm_full' and ends with .zip", "rxnorm_full.*\\.zip$", true)
-//   }, "rxnorm-ibdf-solor", "convert-rxnorm-solor-to-ibdf", "sh.isaac.terminology.source.rxnorm", "RxNorm Solor", 
+//   }, "rxnorm-ibdf-solor", "convert-rxnorm-solor-to-ibdf", "RxNorm Solor", 
 //         new String[] {"shared/licenses/rxnorm.xml"}, 
 //         new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
    
@@ -164,7 +164,7 @@ public enum SupportedConverterTypes
             "hl7-rimRepos-2.47.7.zip",
             "The file must be a zip file, which should have 'rimRepos' in the file name and end with '.zip'.  This uploaded zip file" +
              " MUST contain a file that has 'DEFN=UV=VO' in the file name, and ends with .coremif", ".*rim.*\\.zip$", true)
-   }, "hl7v3-ibdf", "convert-hl7v3-to-ibdf", "sh.isaac.terminology.source.hl7v3", "HL7v3", 
+   }, "hl7v3-ibdf", "convert-hl7v3-to-ibdf", "HL7v3", 
          new String[] {"shared/licenses/hl7v3.xml"}, 
          new String[] {"shared/noticeAdditions/hl7v3-NOTICE-addition.txt"}),
    
@@ -176,7 +176,7 @@ public enum SupportedConverterTypes
                "nucc_taxonomy_170.csv",
                "The file name is ignored - it just needs to be a csv file which ends with .csv.", 
                ".*\\.csv$", true)
-   }, "nucc-ibdf", "convert-NUCC-to-ibdf", "sh.isaac.terminology.source.nucc", "National Uniform Claim Committee", 
+   }, "nucc-ibdf", "convert-NUCC-to-ibdf", "National Uniform Claim Committee", 
          new String[] {""}, // Cannot find explicit license statement at nucc.org (perhaps AMA?)
          new String[] {""}), // No explicit copyright notice text found to use
 
@@ -189,7 +189,7 @@ public enum SupportedConverterTypes
                "The file name is ignored - it just needs to be an xml file which ends with .xml.  Download the 'XML-new format' type, " + 
                "and store it into a file with the extension .xml.  The recommended version to use for the source upload is YYYY-MM-DD of the download.", 
                ".*\\.xml$", true)
-   }, "cvx-ibdf", "convert-CVX-to-ibdf", "sh.isaac.terminology.source.cvx", "Current Vaccines Administered", 
+   }, "cvx-ibdf", "convert-CVX-to-ibdf", "Current Vaccines Administered", 
          new String[] {""}, // No explicit license statement CDC, other than inter-governmental aggreements would be issued
          new String[] {""}), // No explicit copyright notice text found to use
    
@@ -202,7 +202,7 @@ public enum SupportedConverterTypes
                "The file name is ignored - it just needs to be an xml file which ends with .xml.  Download the 'XML-new format' type, " + 
                "and store it into a file with the extension .xml.  The recommended version to use for the source upload is YYYY-MM-DD of the download.", 
                ".*\\.xml$", true)
-   }, "mvx-ibdf", "convert-MVX-to-ibdf", "sh.isaac.terminology.source.mvx", "Manufacturers of Vaccines", 
+   }, "mvx-ibdf", "convert-MVX-to-ibdf", "Manufacturers of Vaccines", 
          new String[] {""}, // No explicit license statement CDC, other than inter-governmental aggreements would be issued
          new String[] {""}), // No explicit copyright notice text found to use
    
@@ -216,7 +216,7 @@ public enum SupportedConverterTypes
                "The file name is ignored - it just needs to be a zip file which ends in .zip.  The zip file must contain "
                + "LONGULT.txt, MEDU.txt and SHORTU.txt", 
                ".*\\.zip$", true)
-   }, "cpt-ibdf", "convert-CPT-to-ibdf", "sh.isaac.terminology.source.cpt", "Current Procedural Terminology", 
+   }, "cpt-ibdf", "convert-CPT-to-ibdf", "Current Procedural Terminology", 
          new String[] {"shared/licenses/cpt.xml"},
          new String[] {"shared/noticeAdditions/cpt-NOTICE-addition.txt"}),
    
@@ -229,7 +229,7 @@ public enum SupportedConverterTypes
                + " section, have 'Code-Descriptions' in the file name and end with '.zip'.  This uploaded zip file"
                + " MUST contain a file that has 'order_YYYY' in the file name, and ends with .txt", 
                ".*\\d{4}.*\\.zip$", true)
-   }, "icd10-ibdf-cm", "convert-ICD10-to-ibdf", "sh.isaac.terminology.source.icd10", "International Classification of Diseases, Tenth Revision, Clinical Modification ", 
+   }, "icd10-ibdf-cm", "convert-ICD10-to-ibdf", "International Classification of Diseases, Tenth Revision, Clinical Modification ", 
          new String[] {""},  // Cannot find license text from cms.gov or documentation
          new String[] {""}), // Cannot find copyright notice from cms.gov or documentation
       
@@ -242,7 +242,7 @@ public enum SupportedConverterTypes
                + " section, have 'Long-Abbrev-Titles' or 'Order-File' in the file name and end with '.zip'.  This uploaded zip file"
                + " MUST contain a file that has 'order_YYYY' in the file name, and ends with .txt", 
                ".*\\d{4}.*\\.zip$", true)
-   }, "icd10-ibdf-pcs", "convert-ICD10-to-ibdf", "sh.isaac.terminology.source.icd10", "International Classification of Diseases, Tenth Revision, Procedure Coding System", 
+   }, "icd10-ibdf-pcs", "convert-ICD10-to-ibdf", "International Classification of Diseases, Tenth Revision, Procedure Coding System", 
          new String[] {""}, // Cannot find license text from cms.gov or documentation
          new String[] {""}), // Cannot find copyright notice from cms.gov or documentation
    
@@ -257,7 +257,7 @@ public enum SupportedConverterTypes
                + " 'PHDSC' in the file name.  Also note that the versioning is very confusing, because while PHDSC is currently at version 7, the CDC "
                + "  releases it as version 4.  We recommend using the version naming pattern of 'cdc-v4-phdsc-v7' to help remove confusion.", 
                ".*PHDSC.*\\.zip$", true)
-   }, "sopt-ibdf", "convert-SOPT-to-ibdf", "sh.isaac.terminology.source.sopt", "Source of Payment Typology", 
+   }, "sopt-ibdf", "convert-SOPT-to-ibdf", "Source of Payment Typology", 
          new String[] {"shared/licenses/sopt.xml"},
          new String[] {"shared/noticeAdditions/sopt-NOTICE-addition.txt"})
    ;
@@ -277,7 +277,6 @@ public enum SupportedConverterTypes
    private String converterArtifactId = "importers";
    private String converterOutputArtifactId;
    private String converterMojoName;  //Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
-   private String sourceUploadGroupId;
    private String niceName;
    private String[] licenseInformation;
    private String[] noticeInformation;
@@ -299,7 +298,7 @@ public enum SupportedConverterTypes
     */
    private SupportedConverterTypes(String artifactId, String srcVersionRegExpValidator, String srcVersionDescription, String[] artifactSourceDependencies,
          String[] artifactIBDFDependencies, UploadFileInfo[] uploadFileInfo, String converterOutputArtifactId, String converterMojoName,
-         String sourceUploadGroupId, String niceName, String[] licenseFilePaths, String[] noticeFilePaths) {
+         String niceName, String[] licenseFilePaths, String[] noticeFilePaths) {
       this.srcArtifactId = artifactId;
       this.srcVersionRegExpValidator = srcVersionRegExpValidator;
       this.srcVersionDescription = srcVersionDescription;
@@ -308,7 +307,6 @@ public enum SupportedConverterTypes
       this.uploadFileInfo = Arrays.asList(uploadFileInfo);
       this.converterOutputArtifactId = converterOutputArtifactId;
       this.converterMojoName = converterMojoName;
-      this.sourceUploadGroupId = sourceUploadGroupId;
       this.niceName = niceName;
       this.licenseInformation = new String[licenseFilePaths.length];
       this.noticeInformation = new String[noticeFilePaths.length];
@@ -433,16 +431,6 @@ public enum SupportedConverterTypes
    }
 
    /**
-    * Not for PRISME.
-    *
-    * @return the source upload group id
-    */
-   public String getSourceUploadGroupId() {
-      return this.sourceUploadGroupId;
-   }
-   
-
-   /**
     * 
     * This is used during SOURCE UPLOAD
     * @return The descriptive text to provide to the end user to meet the regexp requirements given by {@link #getSourceVersionRegExpValidator()}  
@@ -477,18 +465,18 @@ public enum SupportedConverterTypes
       return this.uploadFileInfo;
    }
    
-   public static SupportedConverterTypes find(String artifactId) {
+   public static SupportedConverterTypes findBySrcArtifactId(String srcArtifactId) {
       for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
-         if (sct.getArtifactId().equals(artifactId)) {
+         if (sct.getArtifactId().equals(srcArtifactId)) {
             return sct;
          }
       }
       return null;
    }
    
-   public static SupportedConverterTypes findSourceArtifactForIBDFArtifact(String artifactId) {
+   public static SupportedConverterTypes findByIBDFArtifactId(String ibdfArtifactId) {
       for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
-         if (sct.getConverterOutputArtifactId().equals(artifactId)) {
+         if (sct.getConverterOutputArtifactId().equals(ibdfArtifactId)) {
             return sct;
          }
       }
