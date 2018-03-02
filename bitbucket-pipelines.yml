@@ -1,5 +1,8 @@
 image: flate/maven-openjfx:latest
 
+options:
+  size:2x
+
 pipelines:
   default:
     - step:
