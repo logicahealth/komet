@@ -460,6 +460,7 @@ public class ContentManagerController
 		});
 
 		run.disableProperty().bind(allRequiredReady_.not());
+		ErrorMarkerUtils.setupDisabledInfoMarker(run, allRequiredReady_.getReasonWhyInvalid(), true);
 
 		run.setOnAction((action) -> createDatabase());
 		
