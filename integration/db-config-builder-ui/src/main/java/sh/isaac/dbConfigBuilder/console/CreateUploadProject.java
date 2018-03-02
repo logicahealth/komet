@@ -158,6 +158,8 @@ public class CreateUploadProject
 				}
 			}
 			
+			System.out.println("And publish your content with a command like ");
+			System.out.println("mvn clean deploy -DaltDeploymentRepository=mynexus::default::https://sagebits.net/nexus/repository/tmp-snapshots/");
 			LookupService.shutdownSystem();
 			Platform.exit();
 		}

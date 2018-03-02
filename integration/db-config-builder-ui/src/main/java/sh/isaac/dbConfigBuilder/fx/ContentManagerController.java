@@ -68,8 +68,10 @@ import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ValidBooleanBinding;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
+import sh.isaac.dbConfigBuilder.rest.query.NexusRead;
 import sh.isaac.pombuilder.VersionFinder;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 /**
@@ -382,6 +384,46 @@ public class ContentManagerController
 		ErrorMarkerUtils.setupErrorMarker(databaseIbdfList, databaseIbdfListPopulated, true);
 
 		databaseTabValidityCheckers_.add(databaseIbdfListPopulated);
+		
+		ValidBooleanBinding databaseIbdfListDependenciesHappy = new ValidBooleanBinding()
+		{
+			{
+				bind(databaseIbdfList.getItems());
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				for (IBDFFile ibdfFile : databaseIbdfList.getItems())
+				{
+					//Find the matching SupportedContentType, and see if this conversion has any required IBDF files.  If so, 
+					//we need to have that IBDF File in our list.
+					SupportedConverterTypes sc = SupportedConverterTypes.findByIBDFArtifactId(ibdfFile.getArtifactId());
+					boolean found = false;
+					for (String requiredIbdfArtifactId : sc.getIBDFDependencies())
+					{
+						for (IBDFFile ibdfFileNested : databaseIbdfList.getItems())
+						{
+							if (ibdfFileNested.getArtifactId().equals(requiredIbdfArtifactId))
+							{
+								found = true;
+								break;
+							}
+						}
+						if (!found)
+						{
+							this.setInvalidReason("The IBDF file " + ibdfFile.getArtifactId() + " has a dependency on " + requiredIbdfArtifactId 
+									+ ".  You must add an IBDF file that matches that artifact type to build the database.");
+							return false;
+						}
+					}
+				}
+				this.clearInvalidReason();
+				return true;
+			}
+		};
+		
+		databaseTabValidityCheckers_.add(databaseIbdfListDependenciesHappy);
 
 		allRequiredReady_ = new UpdateableBooleanBinding()
 		{
@@ -420,7 +462,9 @@ public class ContentManagerController
 		run.disableProperty().bind(allRequiredReady_.not());
 
 		run.setOnAction((action) -> createDatabase());
-
+		
+		//TODO implement source upload tab
+		//TODO implement converter create tab
 	}
 
 	private void createDatabase()
@@ -722,7 +766,19 @@ public class ContentManagerController
 						metadataVersions.add(i.getVersion());
 					}
 				}
-				// TODO read remote
+				try
+				{
+					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
+					{
+						log.debug("Reading available nexus versions");
+						//TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
+						metadataVersions.addAll(new NexusRead(sp_).readMetadataVersions());
+					}
+				}
+				catch (Exception e)
+				{
+					log.error("Error reading nexus repository", e);
+				}
 
 				Platform.runLater(() -> {
 					databaseMetadataVersion.getItems().clear();
@@ -765,7 +821,19 @@ public class ContentManagerController
 					}
 				}
 
-				// TODO read remote
+				try
+				{
+					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
+					{
+						log.debug("Reading available nexus versions");
+						//TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
+						foundFiles.addAll(new NexusRead(sp_).readIBDFFiles());
+					}
+				}
+				catch (Exception e)
+				{
+					log.error("Error reading nexus repository", e);
+				}
 
 				ibdfFiles_.clear();
 				ibdfFiles_.addAll(foundFiles);
