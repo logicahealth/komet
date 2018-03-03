@@ -2447,5 +2447,30 @@ public class Frills
          throw new RuntimeException("Commit failure", e);
       }
    }
+   
+   /**
+    * @return a sorted list of SimpleDisplayConcept objects that represent all dynamic sememe assemblages in the system (active or inactive) 
+    */
+   public static List<SimpleDisplayConcept> getAllDynamicSememeAssemblageConcepts()
+   {
+      List<SimpleDisplayConcept> allDynamicSememeDefConcepts = new ArrayList<>();
+
+      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(sememeC ->
+      {
+         //This will be a nid of a description - need to get the referenced component of that description
+         int annotatedDescriptionNid = sememeC.getReferencedComponentNid();
+         try
+         {
+            allDynamicSememeDefConcepts.add(new SimpleDisplayConcept(Get.assemblageService().getSemanticChronology(annotatedDescriptionNid).getReferencedComponentNid()));
+         }
+         catch (Exception e)
+         {
+            LOG.error("Unexpeted error looking up dynamic sememes! with " + sememeC.toUserString(), e);
+         }
+      });
+
+      Collections.sort(allDynamicSememeDefConcepts);
+      return allDynamicSememeDefConcepts;
+   }
 }
 

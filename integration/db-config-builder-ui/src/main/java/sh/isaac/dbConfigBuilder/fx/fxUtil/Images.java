@@ -22,11 +22,29 @@ import javafx.scene.image.ImageView;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  * Constants for images in the GUI
  */
+
+//TODO if we end up keeping any of the views that use these, merge with Iconography
+
 public enum Images
 {
 	EXCLAMATION(setupImage("/images/fugue/16x16/icons-shadowless/exclamation-red.png")),
 	INFORMATION(setupImage("/images/fugue/16x16/icons-shadowless/information.png")),
-	PACKAGE(setupImage("/images/silk-icons/src/main/resources/silk/16x16/package_green.png"));
+	PACKAGE(setupImage("/images/silk/16x16/package_green.png")),
+	COPY(setupImage("/icons/fugue/16x16/icons-shadowless/document-copy.png")),
+	SEARCH(setupImage("/icons/fugue/16x16/icons-shadowless/application-search-result.png")),
+	FILTER_16(setupImage("/icons/misc/16x16/filter.png")),
+	HISTORICAL(setupImage("/icons/fugue/16x16/icons-shadowless/clock-history.png")),
+	BLACK_DOT(setupImage("/icons/diagona/16x16/158.png")),
+	GREY_DOT(setupImage("/icons/diagona/16x16/159.png")),
+	YELLOW_DOT(setupImage("/icons/diagona/16x16/154.png")),
+	MINUS(setupImage("/icons/fugue/16x16/icons-shadowless/minus.png")), 
+	PLUS(setupImage("/icons/fugue/16x16/icons-shadowless/plus.png")),
+	STAMP(setupImage("/icons/fugue/16x16/icons-shadowless/stamp-medium.png")),
+	EDIT(setupImage("/icons/silk/16x16/pencil.png")),
+	HISTORY(setupImage("/icons/fugue/16x16/icons-shadowless/clock.png")),
+	DISPLAY_FSN(setupImage("/icons/wb-icons/16x16/plain/truck_red.png")),
+	DISPLAY_PREFERRED(setupImage("/icons/wb-icons/16x16/plain/car_compact_green.png"));
+
 
 	private final Image image;
 

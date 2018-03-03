@@ -24,5 +24,6 @@
         <module>assemblage-view</module>
         <module>scripting</module>
         <module>statement-view</module>
+        <module>semantic-view</module>
     </modules>
 </project> 

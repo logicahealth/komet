@@ -1,0 +1,76 @@
+.boldLabel {
+	-fx-font-weight: bold;
+}
+
+.titleLabel {
+	-fx-font-weight: bold;
+	-fx-font-size: 16;
+}
+
+.itemBorder {
+	-fx-border-color: grey;
+	-fx-border-width: 2;
+	-fx-border-insets: 4;
+	-fx-border-radius: 5;
+	-fx-padding: 3;
+}
+
+.headerBackground {
+	-fx-background-color: radial-gradient(center 0% 50% , radius 110% , #98a8bd, #6d86b4);
+}
+
+.defaultBackgroundColor {
+	-fx-background-color: -fx-background;
+}
+
+.popupStyle {
+	-fx-background-color: -fx-background;
+	-fx-background-radius: 10;
+	-fx-border-color: grey;
+	-fx-border-width: 2;
+	-fx-border-radius: 10;
+}
+
+.evenGridRow {
+	-fx-background-color: rgba(120, 120, 120, .1);
+}
+
+.oddGridRow {
+	-fx-background-color: rgba(20, 20, 20, .1);
+}
+
+.historical {
+	-fx-opacity: .60;
+}
+
+/*
+For some reason - the treetableview doesn't look like the rest of the table views by default.  This bit of magic
+makes it look like a table view. 
+*/
+.tree-table-row-cell {
+	-fx-background-color: -fx-table-cell-border-color, -fx-control-inner-background;
+	-fx-background-insets: 0, 0 0 1 0;
+	-fx-padding: 0.0em;
+	-fx-text-fill: -fx-text-inner-color;
+}
+.tree-table-row-cell:selected {
+	-fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-focus-color;
+	-fx-background-insets: 0, 1, 2;
+}
+
+.tree-table-row-cell:odd {
+	-fx-background-color: -fx-table-cell-border-color, derive(-fx-control-inner-background,-5%);
+	-fx-background-insets: 0, 0 0 1 0;
+}
+
+.tree-table-row-cell:selected:odd {
+	-fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-focus-color;
+	-fx-background-insets: 0, 1, 2;
+}
+
+/*
+For some reason, JavaFX indents this
+*/
+.hyperlink {
+	-fx-padding: 0em;
+}

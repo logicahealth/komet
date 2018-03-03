@@ -1,0 +1,32 @@
+@CHARSET "ISO-8859-1";
+.lookAheadBoldLabel {
+	-fx-font-weight: bold;
+}
+
+.lookAheadHeaderBackground {
+	-fx-background-color: linear-gradient(#98a8bd 0%, #8195af 25%, #6d86a4 100%);
+}
+
+.lookAheadDialogBackground {
+	-fx-background-color: linear-gradient(lightGrey, darkGrey);
+}
+
+.lookAheadItemBorder {
+	-fx-border-color: grey;
+	-fx-border-width: 2;
+	-fx-border-insets: 4;
+	-fx-border-radius: 5;
+	-fx-padding: 3;
+}
+
+.lookAheadSearchResultsStyle-A {
+	-fx-background-color: white;
+}
+
+.lookAheadSearchResultsStyle-B {
+	-fx-background-color: lightgrey;
+}
+
+.lookAheadSearchResultsStyle-Selected {
+	-fx-background-color: -fx-focus-color;
+}

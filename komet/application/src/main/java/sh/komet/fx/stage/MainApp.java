@@ -131,7 +131,10 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
-
+        if (FxGet.showBetaFeatures()) {
+           System.out.println("Beta features enabled");
+        }
+        
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
 
