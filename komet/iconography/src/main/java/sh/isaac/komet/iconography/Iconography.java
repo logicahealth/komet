@@ -175,6 +175,8 @@ public enum Iconography {
   DASHBOARD(OCT_ICON, "dashboard"),
   
   JAVASCRIPT(FONT_AWSOME, "code"),
+  
+  LAMBDA(MATERIAL_DESIGNS_WEBFONT, "lambda");
 
    ;
 

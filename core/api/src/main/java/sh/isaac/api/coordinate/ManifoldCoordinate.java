@@ -44,10 +44,14 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.logic.LogicalExpression;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -223,6 +227,48 @@ public interface ManifoldCoordinate
       return getLogicCoordinate().getConceptAssemblageNid();
    }
    
+   default Optional<LogicalExpression> getStatedLogicalExpression(ConceptSpecification spec) {
+       return getStatedLogicalExpression(spec.getNid());
+   }
 
+   default Optional<LogicalExpression> getStatedLogicalExpression(int conceptNid) {
+       return getLogicalExpression(conceptNid, PremiseType.STATED);
+   }
+   default Optional<LogicalExpression> getInferredLogicalExpression(ConceptSpecification spec) {
+       return getInferredLogicalExpression(spec.getNid());
+   }
+
+   default Optional<LogicalExpression> getInferredLogicalExpression(int conceptNid) {
+       return getLogicalExpression(conceptNid, PremiseType.INFERRED);
+   }
+   
+   default Optional<LogicalExpression> getLogicalExpression(int conceptNid, PremiseType premiseType) {
+       ConceptChronology concept = Get.concept(conceptNid);
+       LatestVersion<LogicGraphVersion> logicalDef = concept.getLogicalDefinition(this, premiseType, this);
+       if (logicalDef.isPresent()) {
+           return Optional.of(logicalDef.get().getLogicalExpression());
+       }
+       return Optional.empty();
+   }
+   default LatestVersion<LogicGraphVersion> getStatedLogicGraphVersion(int conceptNid) {
+       return getLogicGraphVersion(conceptNid, PremiseType.STATED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getInferredLogicGraphVersion(ConceptSpecification conceptSpecification) {
+       return getLogicGraphVersion(conceptSpecification.getNid(), PremiseType.INFERRED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getStatedLogicGraphVersion(ConceptSpecification conceptSpecification) {
+       return getLogicGraphVersion(conceptSpecification.getNid(), PremiseType.STATED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getInferredLogicGraphVersion(int conceptNid) {
+       return getLogicGraphVersion(conceptNid, PremiseType.INFERRED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getLogicGraphVersion(int conceptNid, PremiseType premiseType) {
+       ConceptChronology concept = Get.concept(conceptNid);
+       return concept.getLogicalDefinition(this, premiseType, this);
+   }
 }
 

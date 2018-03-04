@@ -273,7 +273,7 @@ public class Manifold
 
    //~--- get methods ---------------------------------------------------------
 
-   public ConceptSpecification getConceptForGroup(String groupName) {
+   public Optional<ConceptSpecification> getConceptForGroup(String groupName) {
       Optional<Manifold> optionalManifold = MANIFOLD_CHANGE_LISTENERS.keySet()
                                                                      .stream()
                                                                      .filter(
@@ -286,7 +286,7 @@ public class Manifold
                                 .getFocusedConcept();
       }
 
-      return null;
+      return Optional.empty();
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
@@ -301,8 +301,8 @@ public class Manifold
       return observableEditCoordinate;
    }
 
-   public ConceptSpecification getFocusedConcept() {
-      return this.focusedConceptSpecificationProperty.get();
+   public Optional<ConceptSpecification> getFocusedConcept() {
+      return Optional.ofNullable(this.focusedConceptSpecificationProperty.get());
    }
 
    //~--- set methods ---------------------------------------------------------

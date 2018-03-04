@@ -409,7 +409,7 @@ public abstract class AbstractLogicNode
          break;
 
       case DEFINITION_ROOT:
-         sequenceForDescription = this.getSequenceForConceptBeingDefined();
+         sequenceForDescription = this.getNidForConceptBeingDefined();
          break;
 
       default:
@@ -424,7 +424,7 @@ public abstract class AbstractLogicNode
    }
 
    @Override
-   public int getSequenceForConceptBeingDefined() {
+   public int getNidForConceptBeingDefined() {
       return logicalExpression.getConceptNid();
    }
 }
