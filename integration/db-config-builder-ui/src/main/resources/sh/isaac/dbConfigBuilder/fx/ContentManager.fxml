@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="928.0" prefWidth="1016.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.dbConfigBuilder.fx.ContentManagerController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu fx:id="file" mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="fileExit" mnemonicParsing="false" text="Exit" />
+            </items>
+          </Menu>
+          <Menu fx:id="options" mnemonicParsing="false" text="Options">
+            <items>
+              <MenuItem fx:id="optionsGitConfig" mnemonicParsing="false" text="Git Config" />
+                  <MenuItem fx:id="optionsArtifacts" mnemonicParsing="false" text="Artifact Repository Config" />
+                  <MenuItem fx:id="optionsMaven" mnemonicParsing="false" text="Maven Local Repo Config" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab fx:id="tabSrcUpload" text="Source Upload">
+               <content>
+                  <GridPane hgap="5.0" vgap="5.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Select Upload Type" GridPane.rowIndex="1" />
+                        <Label text="Operation" />
+                        <ChoiceBox fx:id="sourceUploadOperation" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" />
+                        <ChoiceBox fx:id="sourceUploadType" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+                        <Label text="Version" GridPane.rowIndex="2" />
+                        <TextField fx:id="sourceUploadVersion" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label text="Extension Type" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <TextField fx:id="sourceUploadExtension" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <ScrollPane fitToHeight="true" fitToWidth="true" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                          <content>
+                              <GridPane fx:id="sourceUploadFilesGrid" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" percentWidth="60.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" maxWidth="50.0" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="File(s) to Upload" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" />
+                                    <Label text="File Details" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                                 </children>
+                              </GridPane>
+                          </content>
+                        </ScrollPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+            </Tab>
+          <Tab fx:id="tabSourceConversion" text="Source Conversion">
+               <content>
+                  <GridPane hgap="5.0" vgap="5.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints fillWidth="false" halignment="CENTER" hgrow="NEVER" minWidth="10.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints fillHeight="false" minHeight="10.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label text="Operation" />
+                        <ChoiceBox fx:id="sourceConversionOperation" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+                        <Label text="Converter Version" GridPane.rowIndex="2" />
+                        <TextField fx:id="sourceConversionConverterVersion" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                        <ScrollPane fitToHeight="true" fitToWidth="true" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                           <content>
+                              <GridPane fx:id="sourceConversionGrid" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                              </GridPane>
+                           </content>
+                        </ScrollPane>
+                        <TextArea fx:id="sourceConversionContent" editable="false" maxHeight="150.0" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="150.0" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES" />
+                        <Button fx:id="sourceConversionContentSelect" mnemonicParsing="false" text="..." GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Label text="Source Content" GridPane.rowIndex="1" />
+                        <Button fx:id="sourceConversionConverterSelect" mnemonicParsing="false" text="..." GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+            </Tab>
+            <Tab fx:id="tabDatabaseCreation" text="Database Creation">
+               <content>
+                  <GridPane fx:id="databaseGrid" hgap="5.0" vgap="5.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="170.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="170.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label text="Database Classifier" GridPane.rowIndex="3" />
+                        <Label text="Database Name" GridPane.rowIndex="1" />
+                        <Label text="Database Description" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <TextField fx:id="databaseName" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <tooltip>
+                              <Tooltip text="Specify the desired artifact name for the resulting database" />
+                           </tooltip>
+                        </TextField>
+                        <TextField fx:id="databaseVersion" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <tooltip>
+                              <Tooltip text="Specify the desired artifact version for the resulting database" />
+                           </tooltip>
+                        </TextField>
+                        <Label text="Database Version" GridPane.rowIndex="2" />
+                        <TextField fx:id="databaseClassifier" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <tooltip>
+                              <Tooltip text="Optionally specify the desired artifact classifier for the resulting database" />
+                           </tooltip>
+                        </TextField>
+                        <Label text="Metadata Version" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="databaseMetadataVersion" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="4">
+                           <tooltip>
+                              <Tooltip text="Specify the version number of the metadata to include in the database" />
+                           </tooltip>
+                        </ComboBox>
+                        <TextArea fx:id="databaseDescription" maxHeight="1.7976931348623157E308" prefHeight="20.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" GridPane.rowSpan="3" GridPane.vgrow="ALWAYS">
+                           <tooltip>
+                              <Tooltip text="A user-friendly description that details the general contents and purpose of the resulting database" />
+                           </tooltip>
+                        </TextArea>
+                        <Label text="Converted Source files to build into database" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" />
+                        <ListView fx:id="databaseIbdfList" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+                        <Button fx:id="databaseAdd" mnemonicParsing="false" text="Add" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+                           <GridPane.margin>
+                              <Insets right="5.0" />
+                           </GridPane.margin>
+                        </Button>
+                        <Button fx:id="databaseRemove" mnemonicParsing="false" text="Remove" GridPane.columnIndex="2" GridPane.rowIndex="8">
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Button>
+                        <Label text="Operations" />
+                        <Separator maxWidth="1.7976931348623157E308" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
+                           <children>
+                              <CheckBox fx:id="databaseOpCreate" disable="true" mnemonicParsing="false" selected="true" text="Create POM">
+                                 <tooltip>
+                                    <Tooltip text="Create a Maven project, which, when executed, will create the specified database" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpTag" mnemonicParsing="false" text="GIT Tag">
+                                 <tooltip>
+                                    <Tooltip text="Place the created  maven project into GIT, and create a tag for this release" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpInstall" mnemonicParsing="false" text="Maven Install">
+                                 <tooltip>
+                                    <Tooltip text="Create the maven project, and then 'mvn clean install' the project into your local repository" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpDeploy" mnemonicParsing="false" text="Maven Deploy">
+                                 <tooltip>
+                                    <Tooltip text="Create the maven project, and then 'mvn clean install' the project into your local repository, and deploy the project results to the remote repository" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpDirectDeploy" mnemonicParsing="false" text="Direct Deploy">
+                                 <tooltip>
+                                    <Tooltip text="Create the maven project, and then at a minimum 'mvn clean package' the project and deploy the project results to the remote repository directly using the artifact repository configuration" />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="databaseOpClassify" mnemonicParsing="false" text="Classify Concepts">
+                                 <tooltip>
+                                    <Tooltip text="When the database is assembled, should the Snorocket classifier be executed" />
+                                 </tooltip>
+                              </CheckBox>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+            </Tab>
+        </tabs>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+      </TabPane>
+   </center>
+   <bottom>
+      <HBox spacing="5.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label maxHeight="1.7976931348623157E308" text="Working Folder" />
+            <TextField fx:id="workingFolder" maxWidth="1.7976931348623157E308" prefHeight="26.0" prefWidth="400.0" HBox.hgrow="ALWAYS" />
+          <Button fx:id="workingFolderSelect" mnemonicParsing="false" text="...">
+               <tooltip>
+                  <Tooltip text="Select Working Folder" />
+               </tooltip>
+            </Button>
+            <CheckBox fx:id="workingFolderCleanup" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Clean up">
+               <tooltip>
+                  <Tooltip text="Clean the working folder after execution" />
+               </tooltip>
+            </CheckBox>
+            <Region maxWidth="1.7976931348623157E308" prefWidth="50.0" />
+            <Button fx:id="run" mnemonicParsing="false" text="Run" />
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+      </HBox>
+   </bottom>
+</BorderPane>

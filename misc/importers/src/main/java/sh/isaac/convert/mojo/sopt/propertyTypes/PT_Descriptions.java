@@ -37,6 +37,8 @@
 
 package sh.isaac.convert.mojo.sopt.propertyTypes;
 
+import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
+import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
 
 /**
@@ -48,31 +50,13 @@ import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
  */
 public class PT_Descriptions extends BPT_Descriptions
 {
-
-	public enum Descriptions
-	{
-		PreferredConceptName(SYNONYM), PreferredConceptCode(SYNONYM);
-
-		private final int descriptionType_;
-
-		private Descriptions(int descriptionType)
-		{
-			descriptionType_ = descriptionType;
-		}
-
-		public int getDescriptionType()
-		{
-			return descriptionType_;
-		}
-	}
-
 	public PT_Descriptions()
 	{
 		super("SOPT");
-
-		for (Descriptions description : Descriptions.values())
-		{
-			addProperty(description.name(), description.getDescriptionType());
-		}
+		addProperty(SOPTDataColumnsV1.ConceptName.name());
+		addProperty(SOPTDataColumnsV1.CodeSystemName.name());
+		addProperty(SOPTDataColumnsV1.PreferredConceptName.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetName.name());
+		addProperty(SOPTValueSetColumnsV1.ValueSetDefinition.name());
 	}
 }

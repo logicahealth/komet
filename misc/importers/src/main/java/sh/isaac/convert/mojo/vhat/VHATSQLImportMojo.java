@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +64,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -157,6 +155,8 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 	// The boolean flag in left is set to true if the source is the orphan, is set to false if the target is the orphan
 	private HashMap<UUID, Supplier<Long>> associationOrphanConceptsMapEntries = new HashMap<>();
+	
+	HashMap<Long, UUID> subsetVuidToConceptIdMap = new HashMap<>();
 
 	private SqlDataReader importer = new SqlDataReader();
 
@@ -324,39 +324,19 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			allVhatConceptsRefset = refsets_.getProperty(VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get()).getUUID();
 			loadedConcepts.put(allVhatConceptsRefset, VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get());
 
-			// TODO: Could get rid of this calculation now that things are structured better....
-
-			Map<Long, Set<String>> subsetMembershipMap = new HashMap<>();
-
+			//Put the vuids onto the subsets
 			if (importer.getSubsetsByVuid().isPresent())
 			{
-				Map<Long, String> _subsetsMap = importer.getSubsetsByVuid().get();
-				Map<Long, ArrayList<Long>> subsetMembershipsCodesByVuid = importer.getSubsetMembershipsCodesByVuid().orElse(null);
-
-				for (Map.Entry<Long, String> entry : _subsetsMap.entrySet())
-				{
-					Long subsetVuid = entry.getKey();
-					ArrayList<Long> subsetCodes = subsetMembershipsCodesByVuid.get(subsetVuid);
-					if (subsetCodes != null)
-					{
-						for (Long code : subsetCodes)
-						{
-							Set<String> codes = subsetMembershipMap.get(subsetVuid);
-							if (codes == null)
-							{
-								codes = new HashSet<>();
-								subsetMembershipMap.put(subsetVuid, codes);
-							}
-							codes.add(code.toString());
-						}
-					}
-				}
-
-				for (Map.Entry<Long, String> entry : _subsetsMap.entrySet())
+				for (Map.Entry<Long, String> entry : importer.getSubsetsByVuid().get().entrySet())
 				{
 					Long subsetVuid = entry.getKey();
 					String subsetName = entry.getValue();
-					loadRefset(subsetName, subsetVuid, subsetMembershipMap.get(subsetVuid));
+					
+					UUID concept = refsets_.getProperty(subsetName).getUUID();
+					loadedConcepts.put(concept, subsetName);
+					importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(concept), subsetVuid.toString(), attributes_.getProperty("VUID").getUUID(), 
+							Status.ACTIVE);
+					subsetVuidToConceptIdMap.put(subsetVuid, concept);
 				}
 			}
 
@@ -642,15 +622,26 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			// VHAT is kind of odd, in that the attributes are attached to the description,
 			// rather than the concept.
 			// TODO this won't load any properties for concepts being loaded from external code sets, because they don't have vuids....
-			if (vpp.getDesignationImportDTO().getVuid() != null && !isMapSet
-					&& importer.getPropertiesForVuid(vpp.getDesignationImportDTO().getVuid()).isPresent())
+			if (vpp.getDesignationImportDTO().getVuid() != null && !isMapSet)
 			{
-				for (PropertyImportDTO property : importer.getPropertiesForVuid(vpp.getDesignationImportDTO().getVuid()).get())
+				ArrayList<Long> subsetVuids = importer.getSubsetMembershipsCodesByVuid().get(vpp.getDesignationImportDTO().getVuid());
+				if (subsetVuids != null)
 				{
-					ConverterUUID.disableUUIDMap = true;
-					importUtil_.addStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), property.getValueNew(),
-							attributes_.getProperty(property.getTypeName()).getUUID(), property.isActive() ? Status.ACTIVE : Status.INACTIVE);
-					ConverterUUID.disableUUIDMap = false;
+					for (Long subsetVuid : subsetVuids)
+					{
+						UUID subsetConcept = subsetVuidToConceptIdMap.get(subsetVuid);
+						importUtil.addAssemblageMembership(ComponentReference.fromChronology(desc, () -> "Description"), subsetConcept, Status.ACTIVE, null);
+					}
+				}
+				if (importer.getPropertiesForVuid(vpp.getDesignationImportDTO().getVuid()).isPresent())
+				{
+					for (PropertyImportDTO property : importer.getPropertiesForVuid(vpp.getDesignationImportDTO().getVuid()).get())
+					{
+						ConverterUUID.disableUUIDMap = true;
+						importUtil_.addStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), property.getValueNew(),
+								attributes_.getProperty(property.getTypeName()).getUUID(), property.isActive() ? Status.ACTIVE : Status.INACTIVE);
+						ConverterUUID.disableUUIDMap = false;
+					}
 				}
 			}
 		}
@@ -707,9 +698,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 				if (!loadedGraphs.contains(concept.getPrimordialUuid()))
 				{
 					NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
-					importUtil_.addRelationshipGraph(concept, null, leb.build(), true, conceptOrMapSet.getTime(), null, isANativeType);  // TODO
-																																		  // handle
-																																		  // inactive
+					importUtil_.addRelationshipGraph(concept, null, leb.build(), true, conceptOrMapSet.getTime(), null, isANativeType);  // TODO handle inactive
 					loadedGraphs.add(concept.getPrimordialUuid());
 				}
 			}
@@ -961,29 +950,6 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
 		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
-	}
-
-	private void loadRefset(String typeName, Long vuid, Set<String> refsetMembership) throws Exception
-	{
-		Property p = refsets_.getProperty(typeName);
-		if (p != null)
-		{
-			UUID concept = refsets_.getProperty(typeName).getUUID();
-			loadedConcepts.put(concept, typeName);
-			if (vuid != null)
-			{
-				importUtil_.addStaticStringAnnotation(ComponentReference.fromConcept(concept), vuid.toString(), attributes_.getProperty("VUID").getUUID(),
-						Status.ACTIVE);
-			}
-
-			if (refsetMembership != null)
-			{
-				for (String memberCode : refsetMembership)
-				{
-					importUtil_.addAssemblageMembership(ComponentReference.fromSememe(getDescriptionUuid(memberCode)), concept, Status.ACTIVE, null);
-				}
-			}
-		}
 	}
 
 	private UUID getAssociationOrphanUuid(String code)

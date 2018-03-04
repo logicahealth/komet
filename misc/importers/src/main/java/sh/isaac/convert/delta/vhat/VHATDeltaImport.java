@@ -167,7 +167,6 @@ import sh.isaac.utility.Frills;
  */
 public class VHATDeltaImport extends ConverterBaseMojo
 {
-   private IBDFCreationUtility importUtil_;
    private Map<String, UUID> extendedDescriptionTypeNameMap = new HashMap<>();
    
    private sh.isaac.converters.sharedUtils.propertyTypes.PropertyType associations = new BPT_Associations("VHAT");
@@ -271,7 +270,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             // because the import generates all necessary components
             LookupService.getService(VHATIsAHasParentSynchronizingChronologyChangeListener.class).disable();
 
-            importUtil_ = new IBDFCreationUtility(author, module, path, debugOutputFolder);
+            importUtil = new IBDFCreationUtility(author, module, path, debugOutputFolder);
             LOG.info("Import Util configured");
             createNewProperties(terminology);
             createNewSubsets(terminology);
@@ -591,8 +590,8 @@ public class VHATDeltaImport extends ConverterBaseMojo
          }
       }
       
-      importUtil_.loadMetaDataItems(associations, null);
-      importUtil_.loadMetaDataItems(annotations, null);
+      importUtil.loadMetaDataItems(associations, null);
+      importUtil.loadMetaDataItems(annotations, null);
       ConverterUUID.disableUUIDMap = false;
    }
    
@@ -605,7 +604,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
          //create the new ones
          try
          {
-            importUtil_.loadMetaDataItems(this.subsets, null);
+            importUtil.loadMetaDataItems(this.subsets, null);
          }
          catch (Exception e)
          {
@@ -626,14 +625,14 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   if (vuid != null)
                   {
                      this.vuidToSubsetMap.put(vuid, this.subsets.getProperty(name).getUUID());
-                     importUtil_.addStaticStringAnnotation(ComponentReference.fromConcept(this.subsets.getProperty(name).getUUID()), vuid.toString(), 
+                     importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(this.subsets.getProperty(name).getUUID()), vuid.toString(), 
                            MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
                   break;
                case REMOVE:
                   // add it into the subset map
                   this.subsets.addProperty(name);
-                  importUtil_.createConcept(this.subsets.getProperty(name).getUUID(), null, Status.INACTIVE, null);
+                  importUtil.createConcept(this.subsets.getProperty(name).getUUID(), null, Status.INACTIVE, null);
                   break;
                case NONE:
                   // add it into the subset map
@@ -1258,33 +1257,33 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   {
                      throw new RuntimeException("No code supplied, and vuid generation is disabled!");
                   }
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(createNewConceptUuid(code), null, 
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(createNewConceptUuid(code), null, 
                               cc.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
                         
                   if (StringUtils.isNotBlank(vuid))
                   {
-                     importUtil_.addStaticStringAnnotation(concept, vuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                     importUtil.addStaticStringAnnotation(concept, vuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
                   
                   if (StringUtils.isNotBlank(code))
                   {
-                     importUtil_.addStaticStringAnnotation(concept, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                     importUtil.addStaticStringAnnotation(concept, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
                   break;
                case NONE:
                   //noop
                   break;
                case REMOVE:
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(findConcept(cc.getCode()).get(), null, Status.INACTIVE, null));
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(findConcept(cc.getCode()).get(), null, Status.INACTIVE, null));
                   for (Chronology o : recursiveRetireNested(concept.getPrimordialUuid()))
                   {
-                     importUtil_.storeManualUpdate(o);
+                     importUtil.storeManualUpdate(o);
                   }
                   break;
                case UPDATE:
                   //We could, potentially support updating vuid, but the current system doesnt.
                   //so we only process activate / inactivate changes here.
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(findConcept(cc.getCode()).get(), null, 
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(findConcept(cc.getCode()).get(), null, 
                      cc.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
                   break;
                default :
@@ -1354,7 +1353,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       switch (action)
       {
          case ADD:
-            importUtil_.addStringAnnotation(component, newValue, this.annotations.getProperty(propertyName).getUUID(), 
+            importUtil.addStringAnnotation(component, newValue, this.annotations.getProperty(propertyName).getUUID(), 
                isActive ? Status.ACTIVE : Status.INACTIVE);
             break;
          case NONE:
@@ -1398,7 +1397,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             {
                throw new RuntimeException("Unexpected sememe type!");
             }
-            importUtil_.storeManualUpdate(sc);
+            importUtil.storeManualUpdate(sc);
             break;
          default :
             throw new RuntimeException("Unexepected error");
@@ -1500,19 +1499,19 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   
             String code = StringUtils.isBlank(d.getCode()) ? vuid : d.getCode();
             
-            descRef = ComponentReference.fromChronology(importUtil_.addDescription(concept, createNewDescriptionUuid(concept.getPrimordialUuid(), code), 
+            descRef = ComponentReference.fromChronology(importUtil.addDescription(concept, createNewDescriptionUuid(concept.getPrimordialUuid(), code), 
                   newValue, DescriptionType.REGULAR_NAME, false, extendedDescriptionTypeNameMap.get(d.getTypeName().toLowerCase()), 
                d.isActive() ? Status.ACTIVE : Status.INACTIVE));
             
             
             if (StringUtils.isNotBlank(vuid))
             {
-               importUtil_.addStaticStringAnnotation(descRef, vuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+               importUtil.addStaticStringAnnotation(descRef, vuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
             }
             
             if (StringUtils.isNotBlank(code))
             {
-               importUtil_.addStaticStringAnnotation(descRef, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+               importUtil.addStaticStringAnnotation(descRef, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
             }
             
             break;
@@ -1547,7 +1546,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             {
                for (Chronology o : recursiveRetireNested(sememeChronology.getPrimordialUuid()))
                {
-                  importUtil_.storeManualUpdate(o);
+                  importUtil.storeManualUpdate(o);
                }
             }
             // No break, fall-through for update to the designation itself
@@ -1615,12 +1614,12 @@ public class VHATDeltaImport extends ConverterBaseMojo
                               DynamicImpl newDescriptionActiveExtendedTypeSememeVersion = 
                                     existingDescriptionActiveExtendedTypeSemanticChronology.createMutableVersion(Status.ACTIVE, this.editCoordinate);
                               newDescriptionActiveExtendedTypeSememeVersion.setData(new DynamicData[] { new DynamicUUIDImpl(extendedDescriptionTypeFromData) });
-                              importUtil_.storeManualUpdate(existingDescriptionActiveExtendedTypeSemanticChronology);
+                              importUtil.storeManualUpdate(existingDescriptionActiveExtendedTypeSemanticChronology);
                            }
                         } else {
                            // There is no existing description extended type on the description in the db so add it
                            // TODO this should never happen, as each VHAT description should be created with an extended type
-                           importUtil_.addAnnotation(
+                           importUtil.addAnnotation(
                                  descRef,
                                  /*uuidForCreatedAnnotation*/ null,
                                  new DynamicData[] { new DynamicUUIDImpl(extendedDescriptionTypeFromData) },
@@ -1652,7 +1651,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            DynamicImpl newDescriptionActiveExtendedTypeSememeVersion = existingDescriptionExtendedTypeSemanticChronology
                                  .createMutableVersion(Status.ACTIVE, this.editCoordinate);
                            newDescriptionActiveExtendedTypeSememeVersion.setData(latestInactiveVersion.getData());
-                           importUtil_.storeManualUpdate(existingDescriptionExtendedTypeSemanticChronology);
+                           importUtil.storeManualUpdate(existingDescriptionExtendedTypeSemanticChronology);
                         }
                      } else {
                         // Shouldn't happen
@@ -1675,7 +1674,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                {
                   throw new RuntimeException("Unexpected sememe type!");
                }
-               importUtil_.storeManualUpdate(sc);
+               importUtil.storeManualUpdate(sc);
             }
             else
             {
@@ -1696,7 +1695,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                
                //Make a new description with the provided and/or old values
                final SemanticChronology newDescription = 
-                     importUtil_.addDescription(concept, createNewDescriptionUuid(concept.getPrimordialUuid(), d.getCode()), 
+                     importUtil.addDescription(concept, createNewDescriptionUuid(concept.getPrimordialUuid(), d.getCode()), 
                      StringUtils.isBlank(newValue) ? 
                            (StringUtils.isBlank(d.getValueOld()) ? latest.get().getText() : d.getValueOld()) 
                            : newValue,
@@ -1734,7 +1733,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         switch (existingNestedSememe.getVersionType())
                         {
                         case DYNAMIC:
-                           copyOfExistingNestedSememe = importUtil_.addAnnotation(
+                           copyOfExistingNestedSememe = importUtil.addAnnotation(
                                  ComponentReference.fromSememe(newDescription.getPrimordialUuid()),
                                  null,
                                  ((DynamicVersion<?>)latestVersionOfExistingNestedSememe.get()).getData(),
@@ -1745,13 +1744,13 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            break;
                         case MEMBER:
                            SemanticVersion memberSememe = (SemanticVersion)latestVersionOfExistingNestedSememe.get();
-                           copyOfExistingNestedSememe = importUtil_.addAssemblageMembership(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
+                           copyOfExistingNestedSememe = importUtil.addAssemblageMembership(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
                                  Get.identifierService().getUuidPrimordialForNid(memberSememe.getAssemblageNid()), Status.ACTIVE, null);
                            break;
                         case STRING:
                            StringVersion stringSememe = (StringVersion)latestVersionOfExistingNestedSememe.get();
                            // TODO is Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()) == refsetUuid?
-                           copyOfExistingNestedSememe = importUtil_.addStringAnnotation(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
+                           copyOfExistingNestedSememe = importUtil.addStringAnnotation(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
                                  stringSememe.getString(), Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()), 
                                  Status.ACTIVE);
                            break;
@@ -1768,7 +1767,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         }
 
                         if (copyOfExistingNestedSememe != null) {
-                           copy(importUtil_, copyOfExistingNestedSememe, existingNestedSememe, this.readCoordinate, this.editCoordinate);
+                           copy(importUtil, copyOfExistingNestedSememe, existingNestedSememe, this.readCoordinate, this.editCoordinate);
                         }
                      }
                   }
@@ -1778,7 +1777,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                
                if (vuidToMigrate != null)
                {
-                  importUtil_.addStaticStringAnnotation(descRef, vuidToMigrate.toString(), MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                  importUtil.addStaticStringAnnotation(descRef, vuidToMigrate.toString(), MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                }
                
                String codeToMigrate = null;
@@ -1805,7 +1804,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                }
                if (StringUtils.isNotBlank(codeToMigrate))
                {
-                  importUtil_.addStaticStringAnnotation(descRef, codeToMigrate, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                  importUtil.addStaticStringAnnotation(descRef, codeToMigrate, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                }
                
                
@@ -1815,7 +1814,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, oldSc.getNid(), this.editCoordinate, this.readCoordinate);
                   if (oc.isPresent())
                   {
-                     importUtil_.storeManualUpdate(oc.get());
+                     importUtil.storeManualUpdate(oc.get());
                   }
                }
                catch (Exception e)
@@ -1826,7 +1825,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                //retire nested components
                for (Chronology o : recursiveRetireNested(oldSc.getPrimordialUuid()))
                {
-                  importUtil_.storeManualUpdate(o);
+                  importUtil.storeManualUpdate(o);
                }
             }
             
@@ -1999,7 +1998,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             {
                case ADD:
                   //subset lookups validated previously
-                  importUtil_.addAssemblageMembership(description, this.vuidToSubsetMap.get(sm.getVUID()), sm.isActive() ? Status.ACTIVE : Status.INACTIVE, null);
+                  importUtil.addAssemblageMembership(description, this.vuidToSubsetMap.get(sm.getVUID()), sm.isActive() ? Status.ACTIVE : Status.INACTIVE, null);
                   break;
                case NONE:
                   //noop
@@ -2016,7 +2015,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         if (ds.isPresent())
                         {
                            sc.createMutableVersion(sm.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
-                           importUtil_.storeManualUpdate(sc);
+                           importUtil.storeManualUpdate(sc);
                         }
                      });
                   break;
@@ -2056,7 +2055,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             switch(r.getAction())
             {
                case ADD:
-                  importUtil_.addAssociation(concept, null, newTarget.get(), this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
+                  importUtil.addAssociation(concept, null, newTarget.get(), this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
                      r.isActive() ? Status.ACTIVE : Status.INACTIVE, null, null);
                   if ("has_parent".equals(StringUtils.trim(r.getTypeName())) && r.isActive())
                   {
@@ -2082,7 +2081,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                      MutableDynamicVersion<?> mds = sc.createMutableVersion(
                            r.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
                      mds.setData(new DynamicData[] {new DynamicUUIDImpl(newTarget.isPresent() ? newTarget.get() : oldTarget.get())});
-                     importUtil_.storeManualUpdate(sc);
+                     importUtil.storeManualUpdate(sc);
                   }
                   else
                   {
@@ -2157,7 +2156,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   mlgs.setGraphData(Frills.getLogicGraphVersion(logicGraph.get(), this.readCoordinate).get().getGraphData());
             }
             
-            importUtil_.storeManualUpdate(logicGraph.get());
+            importUtil.storeManualUpdate(logicGraph.get());
          }
          else
          {
@@ -2172,7 +2171,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                
                NecessarySet(And(cas.toArray(new Assertion[gatheredisA.size()])));
                le = leb.build();
-               importUtil_.addRelationshipGraph(concept, null, le, true, null,  null, VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getPrimordialUuid());
+               importUtil.addRelationshipGraph(concept, null, le, true, null,  null, VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getPrimordialUuid());
             }
          }
       }   
@@ -2223,24 +2222,24 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   {
                      throw new RuntimeException("No code supplied, and vuid generation is disabled!");
                   }
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(createNewConceptUuid(code), null, 
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(createNewConceptUuid(code), null, 
                               ms.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
                         
                   if (StringUtils.isNotBlank(mapSetVuid))
                   {
-                     importUtil_.addStaticStringAnnotation(concept, mapSetVuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                     importUtil.addStaticStringAnnotation(concept, mapSetVuid, MetaData.VUID____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
                   
                   if (StringUtils.isNotBlank(code))
                   {
-                     importUtil_.addStaticStringAnnotation(concept, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
+                     importUtil.addStaticStringAnnotation(concept, code, MetaData.CODE____SOLOR.getPrimordialUuid(), Status.ACTIVE);
                   }
                   
-                  importUtil_.addAssociation(concept, null, this.subsets.getPropertyTypeUUID(), this.associations.getProperty("has_parent").getUUID(), 
+                  importUtil.addAssociation(concept, null, this.subsets.getPropertyTypeUUID(), this.associations.getProperty("has_parent").getUUID(), 
                         Status.ACTIVE, null, null);
-                  importUtil_.addAssociation(concept, null, this.subsets.getAltMetaDataParentUUID(), this.associations.getProperty("has_parent").getUUID(), 
+                  importUtil.addAssociation(concept, null, this.subsets.getAltMetaDataParentUUID(), this.associations.getProperty("has_parent").getUUID(), 
                         Status.ACTIVE, null, null);
-                  importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), 
+                  importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), 
                         this.associations.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
                   
                   LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -2253,7 +2252,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
                   LogicalExpression le = leb.build();
                   
-                  importUtil_.addRelationshipGraph(concept, null, le, true, null,  null);
+                  importUtil.addRelationshipGraph(concept, null, le, true, null,  null);
                   
                   DynamicColumnInfo[] columns = new DynamicColumnInfo[mapSetDefinitionHasGemFlag ? 6 : 5];
                   int col = 0;
@@ -2275,15 +2274,15 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            DynamicDataType.STRING, null, false, true);
                   }
                   
-                  importUtil_.configureConceptAsDynamicRefex(concept, ms.getName(), columns, IsaacObjectType.CONCEPT, null);
+                  importUtil.configureConceptAsDynamicRefex(concept, ms.getName(), columns, IsaacObjectType.CONCEPT, null);
                   
                   //Annotate this concept as a mapset definition concept.
-                  importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, null);
+                  importUtil.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, null);
                   
                   //Now that we have defined the map sememe, add the other annotations onto the map set definition.
                   if (StringUtils.isNotBlank(ms.getSourceCodeSystem()))
                   {
-                     importUtil_.addAnnotation(concept, null, 
+                     importUtil.addAnnotation(concept, null, 
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM.getNid()),
                               new DynamicStringImpl(ms.getSourceCodeSystem())},
@@ -2292,7 +2291,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   
                   if (StringUtils.isNotBlank(ms.getSourceVersionName()))
                   {
-                     importUtil_.addAnnotation(concept, null, 
+                     importUtil.addAnnotation(concept, null, 
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM_VERSION.getNid()),
                               new DynamicStringImpl(ms.getSourceVersionName())},
@@ -2301,7 +2300,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   
                   if (StringUtils.isNotBlank(ms.getTargetCodeSystem()))
                   {
-                     importUtil_.addAnnotation(concept, null, 
+                     importUtil.addAnnotation(concept, null, 
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM.getNid()),
                               new DynamicStringImpl(ms.getTargetCodeSystem())},
@@ -2310,7 +2309,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   
                   if (StringUtils.isNotBlank(ms.getTargetVersionName()))
                   {
-                     importUtil_.addAnnotation(concept, null, 
+                     importUtil.addAnnotation(concept, null, 
                         new DynamicData[] {
                               new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM_VERSION.getNid()),
                               new DynamicStringImpl(ms.getTargetVersionName())},
@@ -2321,11 +2320,11 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   //noop
                   break;
                case REMOVE:
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(findConcept(ms.getCode()).get(), null, Status.INACTIVE, null));
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(findConcept(ms.getCode()).get(), null, Status.INACTIVE, null));
                   for (Chronology o : recursiveRetireNested(concept.getPrimordialUuid()))
                   {
                      if (o != null) {
-                        importUtil_.storeManualUpdate(o);
+                        importUtil.storeManualUpdate(o);
                      }
                   }
                   break;
@@ -2333,7 +2332,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   //We could, potentially support updating vuid, but the current system doesn't.
                   //Also, source / target stuff, but leaving as unhandled, for now.
                   //so we only process activate / inactivate changes here.
-                  concept = ComponentReference.fromConcept(importUtil_.createConcept(findConcept(ms.getCode()).get(), null, 
+                  concept = ComponentReference.fromConcept(importUtil.createConcept(findConcept(ms.getCode()).get(), null, 
                      ms.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
                   break;
                default :
@@ -2380,11 +2379,11 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   {
                      String mapEntryVuid = me.getVUID() == null ? this.vuidSupplier.getAsLong() + "" : me.getVUID().toString();
                      
-                     SemanticChronology association = importUtil_.addAnnotation(ComponentReference.fromConcept(findConcept(me.getSourceCode()).get()), 
+                     SemanticChronology association = importUtil.addAnnotation(ComponentReference.fromConcept(findConcept(me.getSourceCode()).get()), 
                            createNewMapItemUUID(concept.getPrimordialUuid(),mapEntryVuid), columnData, concept.getPrimordialUuid(), 
                            me.isActive() ? Status.ACTIVE : Status.INACTIVE, null, null);
                      
-                     importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(association, () -> "Association"), 
+                     importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(association, () -> "Association"), 
                            mapEntryVuid, this.annotations.getProperty("VUID").getUUID(), Status.ACTIVE);
                   }
                   else
@@ -2394,7 +2393,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                      
                      MutableDynamicVersion<?> mds = sc.createMutableVersion(me.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
                      mds.setData(columnData);
-                     importUtil_.storeManualUpdate(sc);
+                     importUtil.storeManualUpdate(sc);
 
                   }
                }
@@ -2406,7 +2405,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            createNewMapItemUUID(concept.getPrimordialUuid(), me.getVUID().toString())), this.editCoordinate, this.readCoordinate);
                      if (oc.isPresent())
                      {
-                        importUtil_.storeManualUpdate(oc.get());
+                        importUtil.storeManualUpdate(oc.get());
                      }
                   }
                   catch (Exception e)

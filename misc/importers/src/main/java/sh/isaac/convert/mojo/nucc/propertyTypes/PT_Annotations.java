@@ -52,8 +52,8 @@ public class PT_Annotations extends BPT_Annotations
 	public enum Attribute
 	{
 		Code(MetaData.CODE____SOLOR, true),
-
-		Grouping(NUCCColumnsV1.Grouping, DynamicDataType.NID), Classification(NUCCColumnsV1.Classification, DynamicDataType.NID),
+		Grouping(NUCCColumnsV1.Grouping, DynamicDataType.NID), 
+		Classification(NUCCColumnsV1.Classification, DynamicDataType.NID),
 		Specialization(NUCCColumnsV1.Specialization, DynamicDataType.NID);
 
 		private Property property_;

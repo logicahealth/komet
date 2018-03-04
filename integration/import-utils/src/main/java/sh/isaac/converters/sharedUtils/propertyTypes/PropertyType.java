@@ -45,13 +45,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -69,6 +72,9 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author Daniel Armbrust
  */
 public abstract class PropertyType {
+	
+	private static final Logger LOG = LogManager.getLogger();
+	
    /** The src version. */
    protected static int srcVersion = 1;
 
@@ -156,6 +162,18 @@ public abstract class PropertyType {
       }
 
       return property;
+   }
+   
+   /**
+    * Add an additional alt name that can be used to look up a particular property.  Property needs to have already been added.
+    * @param property
+    * @param altName
+    */
+   public void addPropertyAltName(Property property, String altName) {
+      final String s = this.altNamePropertyMap.put(altName, property.getSourcePropertyNameFQN());
+      if (s != null) {
+         throw new RuntimeException("Alt Indexing Error - duplicate!");
+      }
    }
 
    /**
@@ -384,13 +402,28 @@ public abstract class PropertyType {
       return this.properties.values();
    }
 
+	/**
+	 * Gets the property.
+	 *
+	 * @param propertyName the property name
+	 * @return the property
+	 */
+	public Property getProperty(String propertyName) {
+		Optional<Property> p = getPropertyOptional(propertyName);
+		if (!p.isPresent()) {
+			LOG.warn("Failed to find property for {} in {}", propertyName, this.getPropertyTypeDescription());
+		}
+		return p.orElse(null);
+	}
+   
+   
    /**
     * Gets the property.
     *
     * @param propertyName the property name
     * @return the property
     */
-   public Property getProperty(String propertyName) {
+   public Optional<Property> getPropertyOptional(String propertyName) {
       Property p = this.properties.get(propertyName);
 
       if ((p == null) && (this.altNamePropertyMap != null)) {
@@ -400,8 +433,7 @@ public abstract class PropertyType {
             p = this.properties.get(altKey);
          }
       }
-
-      return p;
+      return Optional.ofNullable(p);
    }
 
    /**
@@ -430,8 +462,8 @@ public abstract class PropertyType {
    public UUID getPropertyTypeUUID() {
       if (this.propertyTypeUUID == null) {
          this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
+         Get.identifierService().assignNid(this.propertyTypeUUID);
       }
-
       return this.propertyTypeUUID;
    }
 

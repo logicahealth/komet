@@ -90,7 +90,7 @@ public class Property {
    private final String sourcePropertyNameFQN;
 
    /** The source property alt name. */
-   private final String sourcePropertyAltName;
+   private String sourcePropertyAltName;
 
    /** The source property definition. */
    private final String sourcePropertyDefinition;
@@ -362,6 +362,10 @@ public class Property {
    public void setSecondParent(UUID secondParent)
    {
       this.secondParent = secondParent;
+   }
+   
+   public void setSourcePropertyAltName(String altName) {
+      this.sourcePropertyAltName = altName;
    }
    
    //~--- set methods ---------------------------------------------------------

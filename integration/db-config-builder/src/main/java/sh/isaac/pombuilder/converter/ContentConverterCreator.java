@@ -56,10 +56,10 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
-import sh.isaac.pombuilder.VersionFinder;
 import sh.isaac.pombuilder.artifacts.Converter;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
 import sh.isaac.pombuilder.artifacts.SDOSourceContent;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -102,7 +102,7 @@ public class ContentConverterCreator
 	 * @param gitUsername - The username to utilize to publish this project
 	 * @param gitPassword - the password to utilize to publish this project
 	 * @param workingFolder - optional - if provided, the working files are created inside this folder. If not provided, uses a system temp folder.
-	 * @param deleteAfterPublish - true if any content created inside of workingFolder should be deleted after a successful publish.
+	 * @param deleteAfterPublish - true if the content created inside of workingFolder should be deleted after a successful publish.
 	 * @return the tag created in the repository that carries the created project
 	 * @throws Exception the exception
 	 */
@@ -147,7 +147,7 @@ public class ContentConverterCreator
 			pomSwaps.put("#NAME#", conversionType.getNiceName() + " Artifact Converter");
 			pomSwaps.put("#SOURCE_DATA_VERSION#", sourceContent.getVersion());
 			pomSwaps.put("#LOADER_VERSION#", converterVersion);
-			pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitPublish.constructChangesetRepositoryURL(gitRepositoryURL) : "");
+			pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
 
 			String temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/fetchExecution.xml");
 

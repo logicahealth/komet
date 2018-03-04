@@ -57,6 +57,7 @@ import sh.isaac.api.util.Zip;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,6 +71,8 @@ public class SrcUploadCreator
 {
 	/** The Constant LOG. */
 	private static final Logger LOG = LogManager.getLogger();
+	
+	public static final String SRC_UPLOAD_GROUP = "sh.isaac.terminology.source";
 
 	// ~--- methods -------------------------------------------------------------
 
@@ -189,14 +192,14 @@ public class SrcUploadCreator
 					final HashMap<String, String> pomSwaps = new HashMap<>();
 
 					pomSwaps.put("#VERSION#", version);
-					pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitPublish.constructChangesetRepositoryURL(gitRepositoryURL) : "");
+					pomSwaps.put("#SCM_URL#", StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
 
 					if (uploadType.getArtifactId().contains("*") && StringUtils.isBlank(extensionName))
 					{
 						throw new Exception("ExtensionName is required when the upload type artifact id contains a wildcard");
 					}
 
-					pomSwaps.put("#GROUPID#", uploadType.getSourceUploadGroupId());
+					pomSwaps.put("#GROUPID#", SRC_UPLOAD_GROUP);
 
 					String temp = uploadType.getArtifactId();
 

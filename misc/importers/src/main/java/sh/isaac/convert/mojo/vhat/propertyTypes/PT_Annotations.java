@@ -80,6 +80,7 @@ public class PT_Annotations extends BPT_Annotations
 	public PT_Annotations()
 	{
 		super(VHATConstants.VHAT_ROOT_CONCEPT.getRegularName().get());
+		indexByAltNames();
 		for (Attribute attr : Attribute.values())
 		{
 			addProperty(attr.getProperty());

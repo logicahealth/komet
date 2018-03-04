@@ -183,11 +183,20 @@ public abstract class ChronologyImpl
      * @param uuids the uuids
      */
     public void addAdditionalUuids(UUID... uuids) {
+        if (uuids == null || uuids.length == 0) {
+           return;
+        }
         final Set<UUID> temp = new HashSet<>(getUuidList());
+        int oldSize = temp.size();
 
         for (UUID uuid : uuids) {
             temp.add(uuid);
         }
+        if (temp.size() == oldSize) {
+           //didn't add anything, noop.
+           return;
+        }
+        
         //Make sure the primordial isn't in the additional
         temp.remove(getPrimordialUuid());
         setAdditionalUuids(temp);

@@ -16,26 +16,26 @@
  */
 package sh.komet.gui.provider.dialog;
 
-import sh.komet.gui.contract.DialogService;
 import java.io.IOException;
-import java.util.UUID;
-import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.stage.Window;
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.dialog.ExceptionDialog;
+import org.jvnet.hk2.annotations.Service;
+import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
-import org.controlsfx.dialog.ExceptionDialog;
+import javafx.stage.Window;
+import sh.komet.gui.contract.DialogService;
 
 /**
  * CommonDialogs
@@ -48,7 +48,7 @@ import org.controlsfx.dialog.ExceptionDialog;
 @Singleton
 public class DialogProvider implements DialogService {
 
-   private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+   private final Logger LOG = LogManager.getLogger(this.getClass());
 
    private DialogProvider() throws IOException {
       // hidden - constructed by HK2

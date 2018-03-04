@@ -37,12 +37,16 @@
 
 package sh.isaac.convert.mojo.sopt.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -50,79 +54,123 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 /**
  * {@link EnumValidatedXSLFileReader}
  *
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
- * @param <COLUMNS>
  */
-public class EnumValidatedXSLFileReader<COLUMNS extends Enum<COLUMNS>>
+public class EnumValidatedXSLFileReader
 {
-	int dataLinesRead = 0;
-
-	final Class<COLUMNS> columnsEnumClass;
-	private Workbook workbook;
-	private Sheet sheet;
-	private String[][] data;
-
-	public EnumValidatedXSLFileReader(InputStream excelFile, Class<COLUMNS> columnsEnumClass) throws IOException
+	LinkedHashMap<SOPTValueSetColumnsV1, String> valueSetMetaData = new LinkedHashMap<>();
+	SOPTDataColumnsV1[] dataHeaders;
+	List<String[]> valueSetData = new ArrayList<>();
+	
+	public static EnumValidatedXSLFileReader readZip(File inputFileOrDirectory) throws IOException
 	{
-		this(excelFile, columnsEnumClass, true, true);
+		File file = null;
+		if (inputFileOrDirectory.isDirectory())
+		{
+			ArrayList<File> files = new ArrayList<File>();
+			for (File f : inputFileOrDirectory.listFiles())
+			{
+				if (f.isFile() && (f.getName().toLowerCase().endsWith(".zip")))
+				{
+					files.add(f);
+				}
+			}
+
+			if (files.size() != 1)
+			{
+				throw new RuntimeException(files.size() + " zip files were found inside of " + inputFileOrDirectory.getAbsolutePath()
+						+ " but this implementation requires 1 and only 1 zip file to be present.");
+			}
+
+			file = files.get(0);
+		}
+		else
+		{
+			file = inputFileOrDirectory;
+		}
+
+		System.out.println("Prepared to process: " + file.getCanonicalPath());
+
+		try (ZipFile zf = new ZipFile(file);)
+		{
+			Enumeration<? extends ZipEntry> zipEntries = zf.entries();
+			InputStream is = null;
+			while (zipEntries.hasMoreElements())
+			{
+				ZipEntry ze = zipEntries.nextElement();
+				if (ze.getName().toLowerCase().endsWith(".xls") && ze.getName().toUpperCase().contains("PHDSC"))
+				{
+					if (is != null)
+					{
+						throw new RuntimeException("Found multiple xls files inside the zip file that contain 'PHDSC' in their file name.  Expected only 1.");
+					}
+					else
+					{
+						is = zf.getInputStream(ze);
+					}
+				}
+			}
+	
+			if (is == null)
+			{
+				throw new RuntimeException("Failed to find a xls file inside the zip file that contain 'PHDSC' in the file name.");
+			}
+	
+			return new EnumValidatedXSLFileReader(is);
+		}
 	}
 
-	public EnumValidatedXSLFileReader(InputStream excelFile, Class<COLUMNS> columnsEnumClass, boolean headerExists, boolean validateHeaderAgainstColumnEnum)
-			throws IOException
+	public EnumValidatedXSLFileReader(InputStream excelFile) throws IOException
 	{
-		this.columnsEnumClass = columnsEnumClass;
-
 		try
 		{
-
-			this.workbook = WorkbookFactory.create(excelFile);
-			// data is located in the second sheet named
+			Workbook workbook = WorkbookFactory.create(excelFile);
+			
+			readInfoSheet(workbook.getSheetAt(0));
+			
+			// data is located in the second dataSheet named
 			// PHVS_SourceOfPaymentTypology
-			this.sheet = workbook.getSheetAt(1);
-			// logSheet();
-			int rows = this.sheet.getLastRowNum();
-			int cells = sheet.getRow(0).getPhysicalNumberOfCells();
+			Sheet dataSheet = workbook.getSheetAt(1);
 
-			data = new String[rows][cells];
+			int cells = dataSheet.getRow(0).getPhysicalNumberOfCells();
+			dataHeaders = new SOPTDataColumnsV1[cells];
+			
+			for (int col = 0; col < dataHeaders.length; col++)
+			{
+				dataHeaders[col] = SOPTDataColumnsV1.parse(dataSheet.getRow(0).getCell(col).getStringCellValue());
+			}
+			
+			int rows = dataSheet.getLastRowNum() - 1;
+
 			Row row;
 			Cell cell;
 
-			for (int r = 0; r < rows; r++)
+			for (int r = 1; r < rows; r++)
 			{
-				row = sheet.getRow(r);
+				row = dataSheet.getRow(r);
 				if (row != null)
 				{
+					String[] columns = new String[dataHeaders.length];
 					for (int c = 0; c < cells; c++)
 					{
 						cell = row.getCell(c);
 						if (cell != null)
 						{
-							data[r][c] = cell.getStringCellValue();
+							columns[c] = cell.getStringCellValue().trim();
 						}
 					}
+					valueSetData.add(columns);
 				}
 			}
 
-			// sort data by first column which contains hierarchy ids of
-			// records
-			Arrays.sort(data, (a, b) -> (a[0].compareTo(b[0])));
-			// logArray();
-
+			// sort data by first column which contains hierarchy ids of records
+			Collections.sort(valueSetData, (a, b) -> (a[0].compareTo(b[0])));
 		}
-		catch (EncryptedDocumentException e)
-		{
-			throw new IOException(e);
-		}
-		catch (InvalidFormatException e)
-		{
-			throw new IOException(e);
-		}
-		catch (org.apache.poi.openxml4j.exceptions.InvalidFormatException e)
+		catch (EncryptedDocumentException | InvalidFormatException | org.apache.poi.openxml4j.exceptions.InvalidFormatException e)
 		{
 			throw new IOException(e);
 		}
@@ -133,149 +181,45 @@ public class EnumValidatedXSLFileReader<COLUMNS extends Enum<COLUMNS>>
 				excelFile.close();
 			}
 		}
-
-		if (headerExists)
-		{
-			dataLinesRead = 0;
-		}
-	}
-
-	int getDataLinesRead()
-	{
-		return dataLinesRead <= 0 ? 0 : dataLinesRead;
 	}
 
 	/**
-	 * Reads and returns a row of data from the source XSL file, validating
-	 * number of columns against columnsEnumClass.getEnumConstants().length,
-	 * trimming results and incrementing dataLinesRead
-	 * 
-	 * @return the row data
-	 * @throws IOException
+	 * @param sheet
 	 */
-	public String[] readRow() throws IOException
+	private void readInfoSheet(Sheet sheet)
 	{
-
-		ArrayList<String> untrimmed = new ArrayList<>();
-		String[] row;
-
-		if (dataLinesRead < data.length)
+		Row headerRow = sheet.getRow(0);
+		
+		for (int col = 0; col < headerRow.getPhysicalNumberOfCells(); col++)
 		{
-			row = data[dataLinesRead];
+			SOPTValueSetColumnsV1 column = SOPTValueSetColumnsV1.parse(headerRow.getCell(col).getStringCellValue());
+			valueSetMetaData.put(column, sheet.getRow(1).getCell(col).getStringCellValue());
 		}
-		else
-		{
-			return null;
-		}
-
-		if (row != null)
-		{
-			for (String s : row)
-			{
-				untrimmed.add(s);
-			}
-		}
-
-		String[] trimmed = null;
-		if (untrimmed != null)
-		{
-			++dataLinesRead;
-
-			// If row length is 0, there were no values in the row. We reached
-			// the end of the file.
-			if (untrimmed.size() == 0)
-			{
-				return null;
-			}
-			else if (untrimmed.size() < columnsEnumClass.getEnumConstants().length)
-			{
-				throw new RuntimeException("Data error - not enough fields (" + untrimmed.size() + " of " + columnsEnumClass.getEnumConstants().length
-						+ ") found on line " + dataLinesRead + ": " + String.join(", ", untrimmed));
-
-			}
-			else if (untrimmed.size() > columnsEnumClass.getEnumConstants().length)
-			{
-				throw new RuntimeException("Data error - too many fields (" + untrimmed.size() + " of " + columnsEnumClass.getEnumConstants().length
-						+ ") found on line " + dataLinesRead + ": " + String.join(", ", untrimmed));
-			}
-
-			trimmed = new String[untrimmed.size()];
-			for (int i = 0; i < untrimmed.size(); ++i)
-			{
-				trimmed[i] = untrimmed.get(i) != null ? untrimmed.get(i).trim() : null;
-			}
-		}
-
-		return trimmed;
 	}
 
 	/**
-	 * Reads and returns a row of data from the source XLS file as a Map of
-	 * value by header, validating number of columns against
-	 * columnsEnumClass.getEnumConstants().length, trimming results and
-	 * incrementing dataLinesRead
-	 * 
-	 * @return the data
-	 * @throws IOException
+	 * @return The metadata from the value sets header tab of the spreadsheet.
 	 */
-	public Map<COLUMNS, String> readRowAsMap() throws IOException
+	public LinkedHashMap<SOPTValueSetColumnsV1, String> getValueSetMetaData()
 	{
-		String[] rowAsArray = readRow();
-		if (rowAsArray != null)
-		{
-			Map<COLUMNS, String> rowAsMap = new HashMap<>();
-			for (int i = 0; i < columnsEnumClass.getEnumConstants().length; i++)
-			{
-				rowAsMap.put(columnsEnumClass.getEnumConstants()[i], rowAsArray[i]);
-			}
-			return rowAsMap;
-		}
-		else
-		{
-			return null;
-		}
-
+		return valueSetMetaData;
 	}
 
 	/**
-	 * close() the Workbook resource
-	 * 
-	 * @throws IOException
+	 * @return the columns headers of data present in this spreadsheet
 	 */
-	public void close() throws IOException
+	public SOPTDataColumnsV1[] getDataHeaders()
 	{
-		if (workbook != null)
-		{
-			workbook.close();
-		}
+		return dataHeaders;
 	}
 
-	// write the workbook sheet to console for debug if needed.
-	@SuppressWarnings("unused")
-	private void logSheet()
+	/**
+	 * All of the row of the spreadsheet, properly sorted via ascending concept code, with column order matching the spreadsheet 
+	 * and the values of {@link #getDataHeaders()}
+	 * @return the spreadsheet data
+	 */
+	public List<String[]> getValueSetData()
 	{
-		int rowIdx = 0;
-		ArrayList<String> colValues;
-		for (Row row : this.sheet)
-		{
-			colValues = new ArrayList<String>();
-			for (Cell cell : row)
-			{
-				colValues.add(cell.getStringCellValue());
-			}
-			ConsoleUtil.println("R:" + (++rowIdx) + "\t" + String.join("|", colValues));
-		}
+		return valueSetData;
 	}
-
-	// write the data to console for debug if needed.
-	@SuppressWarnings("unused")
-	private void logArray()
-	{
-		int rowIdx = 0;
-		for (String[] row : data)
-		{
-			ConsoleUtil.println("R:" + (++rowIdx) + "\t" + String.join("|", row));
-		}
-	}
-
 }

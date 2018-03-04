@@ -9,6 +9,14 @@
 						<groupId>#CONVERTER_GROUP_ID#</groupId>
 						<artifactId>#CONVERTER_ARTIFACT_ID#</artifactId>
 						<version>#CONVERTER_VERSION#</version>
+						<dependencies>
+							<dependency>
+								<groupId>sh.isaac.core</groupId>
+								<artifactId>log-config</artifactId>
+								<version>#CONVERTER_VERSION#</version>
+								<scope>compile</scope>
+							</dependency>
+						</dependencies>
 						<executions>
 							<execution>
 								<id>#GOAL#-#CLASSIFIER#</id>

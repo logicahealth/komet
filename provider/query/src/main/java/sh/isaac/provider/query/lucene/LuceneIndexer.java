@@ -712,7 +712,7 @@ public abstract class LuceneIndexer
          // Include the module and path selelctions
          q = this.addAmpRestriction(q, amp);
 
-         LOG.info("Running query: {}", q.toString());
+         LOG.debug("Running query: {}", q.toString());
 
          int internalPage = pageNum == null ? 1 : pageNum < 1 ? 1 : pageNum.intValue();
          int internalSize = sizeLimit == null ? 100 : sizeLimit < 1 ? 1 : sizeLimit.intValue();

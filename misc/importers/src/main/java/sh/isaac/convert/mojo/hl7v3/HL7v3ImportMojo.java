@@ -142,8 +142,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 @Mojo(name = "convert-hl7v3-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class HL7v3ImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private UUID rootConceptUUID;
 
 	private PropertyType attributes_, descriptions_, associations_;
@@ -205,20 +203,20 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				throw new MojoExecutionException("Untested schema version: " + schemaVersion);
 			}
 
-			importUtil_ = new IBDFCreationUtility(Optional.of(HL7v3Constants.TERMINOLOGY_NAME + " " + converterSourceArtifactVersion),
+			importUtil = new IBDFCreationUtility(Optional.of(HL7v3Constants.TERMINOLOGY_NAME + " " + converterSourceArtifactVersion),
 					Optional.of(MetaData.HL7_V3_MODULES____SOLOR), outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion,
 					converterOutputArtifactClassifier, false,
 					gvm.getHeader().getRenderingInformation().getRenderingTime().toGregorianCalendar().getTimeInMillis());
 
 			// TODO would be nice to automate this, could I use reflection to read the dynamic sememes from the class?
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getDynamicColumns());
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getDynamicColumns());
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getDynamicColumns());
 
-			attributes_ = new PT_Annotations(importUtil_);
+			attributes_ = new PT_Annotations(importUtil);
 			descriptions_ = new PT_Descriptions();
 			associations_ = new PT_Associations();
 //			relationships_ = new BPT_Relations(HL7v3Constants.TERMINOLOGY_NAME);
@@ -235,7 +233,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			ComponentReference hl7v3Metadata = ComponentReference.fromConcept(createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(),
 					HL7v3Constants.TERMINOLOGY_NAME + " Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			HashMap<String, UUID> enumConstants = new HashMap<>();
@@ -407,7 +405,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				refsets_.addProperty(new Property(null, vs.getName()));
 			}
 
-			importUtil_.loadMetaDataItems(Arrays.asList(descriptions_, attributes_, associations_, refsets_), hl7v3Metadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(descriptions_, attributes_, associations_, refsets_), hl7v3Metadata.getPrimordialUuid());
 
 			// add other attributes onto relationships
 			for (SupportedConceptRelationship scr : supportedConceptRelationshipsToSCR.values())
@@ -416,44 +414,44 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 				if (scr.getReflexivity() != null)
 				{
-					importUtil_.addAnnotation(relConcept, null,
+					importUtil.addAnnotation(relConcept, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(enumConstants.get(scr.getReflexivity().name()))),
 							PT_Annotations.Attribute.REFLEXIVITY.getUUID(), Status.ACTIVE, null);
 				}
 
 				if (scr.getSymmetry() != null)
 				{
-					importUtil_.addAnnotation(relConcept, null,
+					importUtil.addAnnotation(relConcept, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(enumConstants.get(scr.getSymmetry().name()))),
 							PT_Annotations.Attribute.SYMMETRY.getUUID(), Status.ACTIVE, null);
 				}
 
 				if (scr.getTransitivity() != null)
 				{
-					importUtil_.addAnnotation(relConcept, null,
+					importUtil.addAnnotation(relConcept, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(enumConstants.get(scr.getTransitivity().name()))),
 							PT_Annotations.Attribute.TRANSITIVITY.getUUID(), Status.ACTIVE, null);
 				}
 
 				if (scr.getRelationshipKind() != null)
 				{
-					importUtil_.addAnnotation(relConcept, null,
+					importUtil.addAnnotation(relConcept, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(enumConstants.get(scr.getRelationshipKind().name()))),
 							PT_Annotations.Attribute.RELATIONSHIP_KIND.getUUID(), Status.ACTIVE, null);
 				}
-				importUtil_.addAnnotation(relConcept, null, new DynamicBooleanImpl(scr.isIsNavigable()), PT_Annotations.Attribute.IS_NAVIGABLE.getUUID(),
+				importUtil.addAnnotation(relConcept, null, new DynamicBooleanImpl(scr.isIsNavigable()), PT_Annotations.Attribute.IS_NAVIGABLE.getUUID(),
 						Status.ACTIVE, null);
 			}
 
 			ConsoleUtil.println("Metadata load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
 
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
-			importUtil_.addAnnotation(importUtil_.getModule(), null,
+			importUtil.addAnnotation(importUtil.getModule(), null,
 					new DynamicData[] { new DynamicStringImpl(gvm.getName()), new DynamicStringImpl(gvm.getTitle()),
 							new DynamicStringImpl(gvm.getPackageKind().value()), new DynamicStringImpl(gvm.getDefinitionKind().value()),
 							new DynamicStringImpl(gvm.getSchemaVersion()) },
@@ -466,12 +464,12 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				realms[i] = new DynamicStringImpl(gvm.getPackageLocation().getRealmNamespace().get(i));
 			}
 
-			importUtil_.addAnnotation(importUtil_.getModule(), null, new DynamicData[] { new DynamicStringImpl(gvm.getPackageLocation().getCombinedId()),
+			importUtil.addAnnotation(importUtil.getModule(), null, new DynamicData[] { new DynamicStringImpl(gvm.getPackageLocation().getCombinedId()),
 					new DynamicStringImpl(gvm.getPackageLocation().getRoot().value()), new DynamicStringImpl(gvm.getPackageLocation().getArtifact().value()),
 					new DynamicArrayImpl<DynamicString>(realms), new DynamicStringImpl(gvm.getPackageLocation().getVersion()) },
 					PT_Annotations.Attribute.PACKAGE_LOCATION.getUUID(), null, null, null);
 
-			importUtil_.addAnnotation(importUtil_.getModule(), null,
+			importUtil.addAnnotation(importUtil.getModule(), null,
 					new DynamicData[] { new DynamicStringImpl(gvm.getHeader().getRenderingInformation().getRenderingTime().toString()),
 							new DynamicStringImpl(gvm.getHeader().getRenderingInformation().getApplication()) },
 					PT_Annotations.Attribute.RENDERING_INFORMATION.getUUID(), null, null, null);
@@ -484,7 +482,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				copyrightYears[i] = new DynamicStringImpl(gvm.getHeader().getLegalese().getCopyrightYears().get(i) + "");
 			}
 
-			importUtil_.addAnnotation(importUtil_.getModule(), null, new DynamicData[] {
+			importUtil.addAnnotation(importUtil.getModule(), null, new DynamicData[] {
 					new DynamicStringImpl(gvm.getHeader().getLegalese().getCopyrightOwner()), new DynamicArrayImpl<DynamicString>(copyrightYears) },
 					PT_Annotations.Attribute.LEGALESE.getUUID(), null, null, null);
 
@@ -552,18 +550,18 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				{
 					// TODO any other annotations
 					flatten(cd.getAnnotations().getDocumentation().getDefinition().getText(), s -> {
-						importUtil_.addDescription(cr, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("documentation").getUUID(), null);
+						importUtil.addDescription(cr, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("documentation").getUUID(), null);
 					});
 				}
 				for (ConceptDomainRef sd : cd.getSpecializesDomain())
 				{
-					importUtil_.addAssociation(cr, null, createConceptDomainUUID(sd.getName()), PT_Associations.Attribute.SPECIALIZES_DOMAIN.getUUID(), null,
+					importUtil.addAssociation(cr, null, createConceptDomainUUID(sd.getName()), PT_Associations.Attribute.SPECIALIZES_DOMAIN.getUUID(), null,
 							null, null);
 				}
 
 				for (ConceptDomainRef sbd : cd.getSpecializedByDomain())
 				{
-					importUtil_.addAssociation(cr, null, createConceptDomainUUID(sbd.getName()), PT_Associations.Attribute.SPECIALIZED_BY_DOMAIN.getUUID(),
+					importUtil.addAssociation(cr, null, createConceptDomainUUID(sbd.getName()), PT_Associations.Attribute.SPECIALIZED_BY_DOMAIN.getUUID(),
 							null, null, null);
 				}
 
@@ -583,7 +581,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 						throw new MojoExecutionException("Oops: " + p.getValue());
 					}
 
-					importUtil_.addAnnotation(cr, null,
+					importUtil.addAnnotation(cr, null,
 							new DynamicNidImpl(Get.identifierService().getNidForUuids(
 									createConceptCodeUUID(p.getValue().substring(0, split), p.getValue().substring((split + 1), p.getValue().length()), true))),
 							property.getUUID(), null, null);
@@ -651,11 +649,11 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				}
 
 				ComponentReference codeSystem = ComponentReference
-						.fromConcept(importUtil_.createConcept(createCodeSystemUUID(cs.getName()), null, Status.ACTIVE, null));
-				importUtil_.addParent(codeSystem, codeSystems);
-				importUtil_.addDescription(codeSystem, cs.getName(), DescriptionType.FULLY_QUALIFIED_NAME, true, descriptions_.getProperty("name").getUUID(),
+						.fromConcept(importUtil.createConcept(createCodeSystemUUID(cs.getName()), null, Status.ACTIVE, null));
+				importUtil.addParent(codeSystem, codeSystems);
+				importUtil.addDescription(codeSystem, cs.getName(), DescriptionType.FULLY_QUALIFIED_NAME, true, descriptions_.getProperty("name").getUUID(),
 						null);
-				importUtil_.addDescription(codeSystem, cs.getTitle(), DescriptionType.REGULAR_NAME, true, descriptions_.getProperty("title").getUUID(), null);
+				importUtil.addDescription(codeSystem, cs.getTitle(), DescriptionType.REGULAR_NAME, true, descriptions_.getProperty("title").getUUID(), null);
 
 				// TODO handle these
 //				cs.isHasHomonymy();
@@ -675,15 +673,15 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 						&& cs.getAnnotations().getDocumentation().getDescription() != null)
 				{
 					flatten(cs.getAnnotations().getDocumentation().getDescription().getText(), s -> {
-						importUtil_.addDescription(codeSystem, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("description").getUUID(), null);
+						importUtil.addDescription(codeSystem, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("description").getUUID(), null);
 					});
 				}
 
-				importUtil_.addStaticStringAnnotation(codeSystem, cs.getCodeSystemId(), PT_Annotations.Attribute.OID.getUUID(), Status.ACTIVE);
+				importUtil.addStaticStringAnnotation(codeSystem, cs.getCodeSystemId(), PT_Annotations.Attribute.OID.getUUID(), Status.ACTIVE);
 
 				for (CodeSystemVersion csv : cs.getReleasedVersion())
 				{
-					importUtil_.addAnnotation(codeSystem, null,
+					importUtil.addAnnotation(codeSystem, null,
 							new DynamicData[] { new DynamicStringImpl(csv.getReleaseDate().toString()),
 									csv.getPublisherVersionId() == null ? null : new DynamicStringImpl(csv.getPublisherVersionId()),
 									new DynamicBooleanImpl(csv.isHl7MaintainedIndicator()), new DynamicBooleanImpl(csv.isCompleteCodesIndicator()),
@@ -692,13 +690,13 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 					for (SupportedConceptRelationship scr : csv.getSupportedConceptRelationship())
 					{
-						importUtil_.addAnnotation(codeSystem, null,
+						importUtil.addAnnotation(codeSystem, null,
 								new DynamicNidImpl(Get.identifierService().getNidForUuids(associations_.getProperty(scr.getName()).getUUID())),
 								PT_Annotations.Attribute.SUPPORTED_CONCEPT_RELATIONSHIP.getUUID(), Status.ACTIVE, null);
 					}
 					for (SupportedConceptProperty scp : csv.getSupportedConceptProperty())
 					{
-						importUtil_.addAnnotation(codeSystem, null,
+						importUtil.addAnnotation(codeSystem, null,
 								new DynamicData[] {
 										new DynamicNidImpl(Get.identifierService().getNidForUuids(attributes_.getProperty(scp.getPropertyName()).getUUID())),
 										new DynamicNidImpl(Get.identifierService().getNidForUuids(enumConstants.get(scp.getType().name()))),
@@ -731,7 +729,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 							additionalUUIDs.add(createConceptCodeUUID(cs.getName(), c.getCode().get(i).getCode(), false));
 						}
 						
-						ComponentReference concept = ComponentReference.fromConcept(importUtil_
+						ComponentReference concept = ComponentReference.fromConcept(importUtil
 								.createConcept(conceptUUID, additionalUUIDs.toArray(new UUID[additionalUUIDs.size()])));
 
 						codeSystemCodePointers.add(conceptUUID);
@@ -739,7 +737,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 						try
 						{
-							importUtil_.addParent(concept, codeSystem.getPrimordialUuid());
+							importUtil.addParent(concept, codeSystem.getPrimordialUuid());
 						}
 						catch (RuntimeException e)
 						{
@@ -747,7 +745,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 							throw e;
 						}
 
-						importUtil_.addAnnotation(concept, null, new DynamicBooleanImpl(c.isIsSelectable()), PT_Annotations.Attribute.IS_SELECTABLE.getUUID(),
+						importUtil.addAnnotation(concept, null, new DynamicBooleanImpl(c.isIsSelectable()), PT_Annotations.Attribute.IS_SELECTABLE.getUUID(),
 								Status.ACTIVE, null);
 
 						// TODO the rest of the annotations nested annotation possibilities
@@ -755,7 +753,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 								&& c.getAnnotations().getDocumentation().getDefinition() != null)
 						{
 							flatten(c.getAnnotations().getDocumentation().getDefinition().getText(), s -> {
-								importUtil_.addDescription(concept, null, s, DescriptionType.DEFINITION, false,
+								importUtil.addDescription(concept, null, s, DescriptionType.DEFINITION, false,
 										descriptions_.getProperty("documentation").getUUID(), null);
 							});
 
@@ -767,7 +765,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 							{
 								throw new MojoExecutionException("unhandled language!");
 							}
-							importUtil_.addDescription(concept, null, d.getText(), DescriptionType.REGULAR_NAME, d.isPreferredForLanguage(), null, null, null,
+							importUtil.addDescription(concept, null, d.getText(), DescriptionType.REGULAR_NAME, d.isPreferredForLanguage(), null, null, null,
 									null, descriptions_.getProperty("print name").getUUID(), null, null);
 						}
 						for (ConceptCode cc : c.getCode())
@@ -780,9 +778,9 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 //								cc.getPropertyGroup();
 //								cc.getRetirementDate();
 //								cc.getStatus();
-							importUtil_.addDescription(concept, null, cc.getCode(), DescriptionType.FULLY_QUALIFIED_NAME, false,
+							importUtil.addDescription(concept, null, cc.getCode(), DescriptionType.FULLY_QUALIFIED_NAME, false,
 									descriptions_.getProperty("code").getUUID(), null);
-							importUtil_.addStaticStringAnnotation(concept, cc.getCode(), PT_Annotations.Attribute.Code.getUUID(), Status.ACTIVE);
+							importUtil.addStaticStringAnnotation(concept, cc.getCode(), PT_Annotations.Attribute.Code.getUUID(), Status.ACTIVE);
 						}
 
 						for (ConceptProperty cp : c.getConceptProperty())
@@ -803,11 +801,11 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 							// TODO status concept property needs special handling
 							if (p.getUUID().equals(PT_Annotations.Attribute.OID.getUUID()))
 							{
-								importUtil_.addStaticStringAnnotation(concept, cp.getValue(), p.getUUID(), null);
+								importUtil.addStaticStringAnnotation(concept, cp.getValue(), p.getUUID(), null);
 							}
 							else
 							{
-								importUtil_.addAnnotation(concept, null, new DynamicStringImpl(cp.getValue()), p.getUUID(), null, null);
+								importUtil.addAnnotation(concept, null, new DynamicStringImpl(cp.getValue()), p.getUUID(), null, null);
 							}
 						}
 
@@ -828,7 +826,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 					{
 						for (ConceptRelationship r : c.getConceptRelationship())
 						{
-							importUtil_.addAssociation(ComponentReference.fromConcept(createConceptCodeUUID(cs.getName(), c.getCode().get(0).getCode(), false)), null,
+							importUtil.addAssociation(ComponentReference.fromConcept(createConceptCodeUUID(cs.getName(), c.getCode().get(0).getCode(), false)), null,
 									createConceptCodeUUID(
 											StringUtils.isBlank(r.getTargetConcept().getCodeSystem()) ? cs.getName() : r.getTargetConcept().getCodeSystem(),
 											r.getTargetConcept().getCode(), true),
@@ -860,14 +858,14 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 					continue;
 				}
 
-				importUtil_.addStaticStringAnnotation(refset, vs.getId(), PT_Annotations.Attribute.OID.getUUID(), Status.ACTIVE);
+				importUtil.addStaticStringAnnotation(refset, vs.getId(), PT_Annotations.Attribute.OID.getUUID(), Status.ACTIVE);
 
 				if (vs.getAnnotations() != null && vs.getAnnotations().getDocumentation() != null
 						&& vs.getAnnotations().getDocumentation().getDescription() != null)
 				{
 					// TODO any other annotations
 					flatten(vs.getAnnotations().getDocumentation().getDescription().getText(), s -> {
-						importUtil_.addDescription(refset, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("description").getUUID(), null);
+						importUtil.addDescription(refset, s, DescriptionType.DEFINITION, false, descriptions_.getProperty("description").getUUID(), null);
 					});
 				}
 
@@ -945,7 +943,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			{
 				for (Integer refsetMember : refsetData.getValue())
 				{
-					importUtil_.addAssemblageMembership(ComponentReference.fromChronology(refsetMember), refsetData.getKey(), Status.ACTIVE, null);
+					importUtil.addAssemblageMembership(ComponentReference.fromChronology(refsetMember), refsetData.getKey(), Status.ACTIVE, null);
 					valueSetMemberCount++;
 				}
 			}
@@ -963,12 +961,12 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			ConverterUUID.dump(outputDirectory, "vhatUuid");
 
 			ConsoleUtil.println("Load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -1312,7 +1310,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			retiredMarker = true;
 		}
 
-		importUtil_.addAnnotation(ref, null,
+		importUtil.addAnnotation(ref, null,
 				new DynamicData[] { hi.getDateTime() == null ? null : new DynamicStringImpl(hi.getDateTime()),
 						hi.getResponsiblePersonName() == null ? null : new DynamicStringImpl(hi.getResponsiblePersonName()),
 						hi.getId() == null ? null : new DynamicStringImpl(hi.getId()),
@@ -1325,17 +1323,17 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, UUID primordial, String typeName, Status state) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(primordial, typeName, true, null, state);
+		ConceptVersion concept = importUtil.createConcept(primordial, typeName, true, null, state);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		// loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 

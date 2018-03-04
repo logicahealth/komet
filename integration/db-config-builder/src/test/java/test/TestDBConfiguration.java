@@ -76,7 +76,9 @@ public class TestDBConfiguration {
             "3.03-SNAPSHOT",
             testURL,
             username,
-            password));
+            password, 
+            null,
+            true));
 
       // VETS
       System.out.println(DBConfigurationCreator.createDBConfiguration("vets-test",
@@ -95,7 +97,9 @@ public class TestDBConfiguration {
             "3.03-SNAPSHOT",
             testURL,
             username,
-            password));
+            password,
+            null,
+            true));
    }
 }
 

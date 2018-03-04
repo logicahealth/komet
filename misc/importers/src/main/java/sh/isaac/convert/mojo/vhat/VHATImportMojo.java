@@ -50,19 +50,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -119,8 +117,6 @@ import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 @Mojo(name = "convert-VHAT-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class VHATImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	private HashMap<UUID, String> referencedConcepts = new HashMap<>();
 	private HashMap<UUID, String> loadedConcepts = new HashMap<>();
 	private UUID rootConceptUUID;
@@ -136,6 +132,8 @@ public class VHATImportMojo extends ConverterBaseMojo
 	private int conceptCount = 0;
 
 	private HashMap<UUID, String> associationOrphanConcepts = new HashMap<>();// ID to designation
+	
+	HashMap<Long, UUID> subsetVuidToConceptIdMap = new HashMap<>();
 
 	@Override
 	public void execute() throws MojoExecutionException
@@ -146,7 +144,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 			super.execute();
 
 			String temp = converterOutputArtifactVersion.substring(0, 10);
-			importUtil_ = new IBDFCreationUtility(Optional.of("VHAT " + converterSourceArtifactVersion), Optional.of(MetaData.VHAT_MODULES____SOLOR),
+			importUtil = new IBDFCreationUtility(Optional.of("VHAT " + converterSourceArtifactVersion), Optional.of(MetaData.VHAT_MODULES____SOLOR),
 					outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, false,
 					new SimpleDateFormat("yyyy.MM.dd").parse(temp).getTime());
 
@@ -165,15 +163,15 @@ public class VHATImportMojo extends ConverterBaseMojo
 			ComponentReference vhatMetadata = ComponentReference.fromConcept(
 					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "VHAT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// TODO would be nice to automate this
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getDynamicColumns());
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getDynamicColumns());
-			importUtil_.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(),
+			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getDynamicColumns());
 
 			// read in the dynamic types
@@ -232,48 +230,31 @@ public class VHATImportMojo extends ConverterBaseMojo
 				refsets_.addProperty(subset.getSubsetName());
 			}
 
-			importUtil_.loadMetaDataItems(Arrays.asList(descriptions_, attributes_, associations_, relationships_, refsets_), vhatMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(descriptions_, attributes_, associations_, relationships_, refsets_), vhatMetadata.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
 
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			allVhatConceptsRefset = refsets_.getProperty(VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get()).getUUID();
 			loadedConcepts.put(allVhatConceptsRefset, VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get());
 
-			// TODO Could get rid of this calculation now that things are structured better....
-
-			Map<Long, Set<String>> subsetMembershipMap = new HashMap<>();
-			// get the subset memberships to build the refset for each subset
-			for (ConceptImportDTO item : terminology.getCodeSystem().getVersion().getConcepts())
-			{
-				for (DesignationExtendedImportDTO designation : item.getDesignations())
-				{
-					for (SubsetMembershipImportDTO subsetMembership : designation.getSubsets())
-					{
-						Set<String> codes = subsetMembershipMap.get(subsetMembership.getVuid());
-						if (codes == null)
-						{
-							codes = new HashSet<>();
-							subsetMembershipMap.put(subsetMembership.getVuid(), codes);
-						}
-						codes.add(designation.getCode());
-					}
-				}
-			}
-
+			//Put the vuids onto the subsets
 			for (SubsetImportDTO subset : terminology.getSubsets())
 			{
-				loadRefset(subset.getSubsetName(), subset.getVuid(), subsetMembershipMap.get(subset.getVuid()));
+				UUID concept = refsets_.getProperty(subset.getSubsetName()).getUUID();
+				loadedConcepts.put(concept, subset.getSubsetName());
+				importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(concept), subset.getVuid().toString(), attributes_.getProperty("VUID").getUUID(), 
+						Status.ACTIVE);
+				subsetVuidToConceptIdMap.put(subset.getVuid(), concept);
 			}
 
 			// TODO use the codesystem version info?
 			// TODO use the Version info?
-			//
 
 			for (ConceptImportDTO item : terminology.getCodeSystem().getVersion().getConcepts())
 			{
@@ -322,26 +303,26 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			if (missingConcepts.size() > 0)
 			{
-				ConceptVersion missingParent = importUtil_.createConcept("Missing Concepts", true);
-				importUtil_.addParent(ComponentReference.fromConcept(missingParent), rootConceptUUID);
+				ConceptVersion missingParent = importUtil.createConcept("Missing Concepts", true);
+				importUtil.addParent(ComponentReference.fromConcept(missingParent), rootConceptUUID);
 				for (UUID refUUID : missingConcepts)
 				{
-					ComponentReference c = ComponentReference.fromConcept(importUtil_.createConcept(refUUID, "-MISSING-", true));
-					importUtil_.addParent(c, missingParent.getPrimordialUuid());
+					ComponentReference c = ComponentReference.fromConcept(importUtil.createConcept(refUUID, "-MISSING-", true));
+					importUtil.addParent(c, missingParent.getPrimordialUuid());
 				}
 			}
 			// Handle missing association sources and targets
 			ConsoleUtil.println("Creating placeholder concepts for " + associationOrphanConcepts.size() + " association orphans");
 			// We currently don't have these association targets, so need to invent placeholder concepts.
-			ComponentReference missingSDORefset = ComponentReference.fromConcept(importUtil_.createConcept(null,
+			ComponentReference missingSDORefset = ComponentReference.fromConcept(importUtil.createConcept(null,
 					VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getRegularName().get(), null, null, null, refsets_.getPropertyTypeUUID(), (UUID) null));
-			importUtil_.configureConceptAsDynamicRefex(missingSDORefset, "A simple refset to store the missing concepts we have to create during import because"
+			importUtil.configureConceptAsDynamicRefex(missingSDORefset, "A simple refset to store the missing concepts we have to create during import because"
 					+ " we don't yet have the SDO code systems in place", null, IsaacObjectType.CONCEPT, null);
 			for (Entry<UUID, String> item : associationOrphanConcepts.entrySet())
 			{
 				if (loadedConcepts.get(item.getKey()) == null)
 				{
-					importUtil_.addAssemblageMembership(ComponentReference.fromConcept(importUtil_.createConcept(item.getKey(), item.getValue(), true)),
+					importUtil.addAssemblageMembership(ComponentReference.fromConcept(importUtil.createConcept(item.getKey(), item.getValue(), true)),
 							missingSDORefset.getPrimordialUuid(), Status.ACTIVE, null);
 				}
 			}
@@ -364,7 +345,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			ConsoleUtil.println("Load Statistics");
 			// swap out vuids with names to make it more readable...
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				Enumeration<String> e = stringsToSwap.keys();
 				while (e.hasMoreElements())
@@ -391,7 +372,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 				}
 				fw.close();
 			}
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -411,10 +392,10 @@ public class VHATImportMojo extends ConverterBaseMojo
 		}
 
 		ComponentReference concept = ComponentReference.fromConcept(
-				importUtil_.createConcept(getConceptUuid(conceptOrMapSet.getCode()), null, conceptOrMapSet.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
+				importUtil.createConcept(getConceptUuid(conceptOrMapSet.getCode()), null, conceptOrMapSet.isActive() ? Status.ACTIVE : Status.INACTIVE, null));
 		loadedConcepts.put(concept.getPrimordialUuid(), conceptOrMapSet.getCode());
-		importUtil_.addStaticStringAnnotation(concept, conceptOrMapSet.getVuid().toString(), attributes_.getProperty("VUID").getUUID(), Status.ACTIVE);
-		importUtil_.addStaticStringAnnotation(concept, conceptOrMapSet.getCode(), attributes_.getProperty("Code").getUUID(), Status.ACTIVE);
+		importUtil.addStaticStringAnnotation(concept, conceptOrMapSet.getVuid().toString(), attributes_.getProperty("VUID").getUUID(), Status.ACTIVE);
+		importUtil.addStaticStringAnnotation(concept, conceptOrMapSet.getCode(), attributes_.getProperty("Code").getUUID(), Status.ACTIVE);
 
 		ArrayList<ValuePropertyPairExtended> descriptionHolder = new ArrayList<>();
 		if (isMapSet)
@@ -436,11 +417,11 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 		for (PropertyImportDTO property : conceptOrMapSet.getProperties())
 		{
-			importUtil_.addStringAnnotation(concept, property.getValueNew(), attributes_.getProperty(property.getTypeName()).getUUID(),
+			importUtil.addStringAnnotation(concept, property.getValueNew(), attributes_.getProperty(property.getTypeName()).getUUID(),
 					property.isActive() ? Status.ACTIVE : Status.INACTIVE);
 		}
 
-		List<SemanticChronology> wbDescriptions = importUtil_.addDescriptions(concept, descriptionHolder);
+		List<SemanticChronology> wbDescriptions = importUtil.addDescriptions(concept, descriptionHolder);
 
 		// Descriptions have now all been added to the concepts - now we need to process the rest of the ugly bits of vhat
 		// and place them on the descriptions.
@@ -452,17 +433,17 @@ public class VHATImportMojo extends ConverterBaseMojo
 			if (vpp.getValue().equals(VHATConstants.VHAT_ROOT_CONCEPT.getRegularName().get()))
 			{
 				// On the root node, we need to add some extra attributes
-				importUtil_.addDescription(concept, VHATConstants.VHAT_ROOT_CONCEPT.getRegularName().get(), DescriptionType.REGULAR_NAME, true,
+				importUtil.addDescription(concept, VHATConstants.VHAT_ROOT_CONCEPT.getRegularName().get(), DescriptionType.REGULAR_NAME, true,
 						descriptions_.getProperty("Synonym").getUUID(), Status.ACTIVE);
-				importUtil_.addDescription(concept, "VHA Terminology", DescriptionType.REGULAR_NAME, false, descriptions_.getProperty("Synonym").getUUID(),
+				importUtil.addDescription(concept, "VHA Terminology", DescriptionType.REGULAR_NAME, false, descriptions_.getProperty("Synonym").getUUID(),
 						Status.ACTIVE);
 				ConsoleUtil.println("Root concept FSN is 'VHAT' and the UUID is " + concept.getPrimordialUuid());
-				importUtil_.addParent(concept, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+				importUtil.addParent(concept, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 				rootConceptUUID = concept.getPrimordialUuid();
 			}
-			importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), vpp.getDesignationImportDTO().getVuid() + "",
+			importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), vpp.getDesignationImportDTO().getVuid() + "",
 					attributes_.getProperty("VUID").getUUID(), Status.ACTIVE);
-			importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), vpp.getDesignationImportDTO().getCode(),
+			importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), vpp.getDesignationImportDTO().getCode(),
 					attributes_.getProperty("Code").getUUID(), Status.ACTIVE);
 
 			// VHAT is kind of odd, in that the attributes are attached to the description, rather than the concept.
@@ -470,8 +451,17 @@ public class VHATImportMojo extends ConverterBaseMojo
 			{
 				for (PropertyImportDTO property : ((DesignationExtendedImportDTO) vpp.getDesignationImportDTO()).getProperties())
 				{
-					importUtil_.addStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), property.getValueNew(),
+					importUtil.addStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), property.getValueNew(),
 							attributes_.getProperty(property.getTypeName()).getUUID(), property.isActive() ? Status.ACTIVE : Status.INACTIVE);
+				}
+				
+				for (SubsetMembershipImportDTO subsetMembership : ((DesignationExtendedImportDTO) vpp.getDesignationImportDTO()).getSubsets())
+				{
+					if (subsetMembership.getVuid() != null)
+					{
+						UUID subsetConcept = subsetVuidToConceptIdMap.get(subsetMembership.getVuid());
+						importUtil.addAssemblageMembership(ComponentReference.fromChronology(desc, () -> "Description"), subsetConcept, Status.ACTIVE, null);
+					}
 				}
 			}
 		}
@@ -481,7 +471,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 			// Seems like a data error - but it is happening... no descriptions at all.....
 			conceptsWithNoDesignations.add(conceptOrMapSet.getCode());
 			// The workbench implodes if you don't have a fully specified name....
-			importUtil_.addDescription(concept, "-MISSING-", DescriptionType.FULLY_QUALIFIED_NAME, true, descriptions_.getProperty("Synonym").getUUID(),
+			importUtil.addDescription(concept, "-MISSING-", DescriptionType.FULLY_QUALIFIED_NAME, true, descriptions_.getProperty("Synonym").getUUID(),
 					Status.ACTIVE);
 		}
 
@@ -503,7 +493,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 					throw new MojoExecutionException("Design failure!");
 				}
 
-				importUtil_.addAssociation(concept, null, targetUuid, associations_.getProperty(relationshipImportDTO.getTypeName()).getUUID(),
+				importUtil.addAssociation(concept, null, targetUuid, associations_.getProperty(relationshipImportDTO.getTypeName()).getUUID(),
 						relationshipImportDTO.isActive() ? Status.ACTIVE : Status.INACTIVE, null, null);
 
 				// If it is an isA rel, also create it as a rel.
@@ -517,11 +507,11 @@ public class VHATImportMojo extends ConverterBaseMojo
 			if (assertions.size() > 0)
 			{
 				NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
-				importUtil_.addRelationshipGraph(concept, null, leb.build(), true, null, null, isANativeType);  // TODO handle inactive
+				importUtil.addRelationshipGraph(concept, null, leb.build(), true, null, null, isANativeType);  // TODO handle inactive
 			}
 		}
 
-		importUtil_.addAssemblageMembership(concept, allVhatConceptsRefset, Status.ACTIVE, null);
+		importUtil.addAssemblageMembership(concept, allVhatConceptsRefset, Status.ACTIVE, null);
 
 		if (isMapSet)
 		{
@@ -532,13 +522,13 @@ public class VHATImportMojo extends ConverterBaseMojo
 			}
 
 			// add it as an association too
-			importUtil_.addAssociation(concept, null, refsets_.getPropertyTypeUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null,
+			importUtil.addAssociation(concept, null, refsets_.getPropertyTypeUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null,
 					null);
 
-			importUtil_.addAssociation(concept, null, refsets_.getAltMetaDataParentUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
+			importUtil.addAssociation(concept, null, refsets_.getAltMetaDataParentUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
 					null, null);
 
-			importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
+			importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
 			// place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic sememe mapping sememe type.
@@ -547,7 +537,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 					ConceptAssertion(
 							Get.identifierService().getNidForUuids(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()),
 							leb) }));
-			importUtil_.addRelationshipGraph(concept, null, leb.build(), true, null, null);
+			importUtil.addRelationshipGraph(concept, null, leb.build(), true, null, null);
 
 			MapSetImportDTO mapSet = ((MapSetImportDTO) conceptOrMapSet);
 
@@ -591,16 +581,16 @@ public class VHATImportMojo extends ConverterBaseMojo
 						DynamicDataType.STRING, null, false, true);
 			}
 
-			importUtil_.configureConceptAsDynamicRefex(concept, mapSet.getName(), columns, IsaacObjectType.CONCEPT, null);
+			importUtil.configureConceptAsDynamicRefex(concept, mapSet.getName(), columns, IsaacObjectType.CONCEPT, null);
 
 			// Annotate this concept as a mapset definition concept.
-			importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
+			importUtil.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					Status.ACTIVE, null);
 
 			// Now that we have defined the map sememe, add the other annotations onto the map set definition.
 			if (StringUtils.isNotBlank(mapSet.getSourceCodeSystemName()))
 			{
-				importUtil_.addAnnotation(concept, null,
+				importUtil.addAnnotation(concept, null,
 						new DynamicData[] { new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM.getNid()),
 								new DynamicStringImpl(mapSet.getSourceCodeSystemName()) },
 						IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
@@ -608,7 +598,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			if (StringUtils.isNotBlank(mapSet.getSourceVersionName()))
 			{
-				importUtil_.addAnnotation(concept, null,
+				importUtil.addAnnotation(concept, null,
 						new DynamicData[] { new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_SOURCE_CODE_SYSTEM_VERSION.getNid()),
 								new DynamicStringImpl(mapSet.getSourceVersionName()) },
 						IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
@@ -616,7 +606,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			if (StringUtils.isNotBlank(mapSet.getTargetCodeSystemName()))
 			{
-				importUtil_.addAnnotation(concept, null,
+				importUtil.addAnnotation(concept, null,
 						new DynamicData[] { new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM.getNid()),
 								new DynamicStringImpl(mapSet.getTargetCodeSystemName()) },
 						IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
@@ -624,7 +614,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			if (StringUtils.isNotBlank(mapSet.getTargetVersionName()))
 			{
-				importUtil_.addAnnotation(concept, null,
+				importUtil.addAnnotation(concept, null,
 						new DynamicData[] { new DynamicNidImpl(IsaacMappingConstants.get().MAPPING_TARGET_CODE_SYSTEM_VERSION.getNid()),
 								new DynamicStringImpl(mapSet.getTargetVersionName()) },
 						IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
@@ -687,11 +677,11 @@ public class VHATImportMojo extends ConverterBaseMojo
 					columnData[col++] = gemFlag == null ? null : new DynamicStringImpl(gemFlag);
 				}
 
-				SemanticChronology association = importUtil_.addAnnotation(sourceConcept,
+				SemanticChronology association = importUtil.addAnnotation(sourceConcept,
 						getMapItemUUID(concept.getPrimordialUuid(), mapItem.getVuid().toString()), columnData, concept.getPrimordialUuid(),
 						mapItem.isActive() ? Status.ACTIVE : Status.INACTIVE, null, null);
 
-				importUtil_.addStaticStringAnnotation(ComponentReference.fromChronology(association, () -> "Association"), mapItem.getVuid().toString(),
+				importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(association, () -> "Association"), mapItem.getVuid().toString(),
 						attributes_.getProperty("VUID").getUUID(), Status.ACTIVE);
 
 				if (mapItem.getProperties() != null)
@@ -725,34 +715,17 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
 		loadedConcepts.put(concept.getPrimordialUuid(), typeName);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
-	}
-
-	private void loadRefset(String typeName, Long vuid, Set<String> refsetMembership) throws Exception
-	{
-		UUID concept = refsets_.getProperty(typeName).getUUID();
-		loadedConcepts.put(concept, typeName);
-		if (vuid != null)
-		{
-			importUtil_.addStaticStringAnnotation(ComponentReference.fromConcept(concept), vuid.toString(), attributes_.getProperty("VUID").getUUID(),
-					Status.ACTIVE);
-		}
-
-		if (refsetMembership != null)
-		{
-			for (String memberCode : refsetMembership)
-			{
-				importUtil_.addAssemblageMembership(ComponentReference.fromSememe(getDescriptionUuid(memberCode)), concept, Status.ACTIVE, null);
-			}
-		}
 	}
 
 	private UUID getAssociationOrphanUuid(String code)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("associationOrphan:" + code, true);
+		UUID temp = ConverterUUID.createNamespaceUUIDFromString("associationOrphan:" + code, true);
+		Get.identifierService().assignNid(temp);
+		return temp;
 	}
 
 	private UUID getMapItemUUID(UUID mapSetUUID, String mapItemVuid)
@@ -762,23 +735,26 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 	private UUID getConceptUuid(String codeId)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
+		UUID temp = ConverterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
+		Get.identifierService().assignNid(temp);
+		return temp;
 	}
 
 	private UUID getDescriptionUuid(String descriptionId)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("description:" + descriptionId, true);
+		return ConverterUUID.createNamespaceUUIDFromString("description:" + descriptionId, false);
 	}
 
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		VHATImportMojo i = new VHATImportMojo();
-		i.outputDirectory = new File("../vhat-ibdf/target");
-		i.inputFileLocation = new File("../vhat-ibdf/target/generated-resources/src/");
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocation = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "fre";
 		i.execute();
+		Platform.exit();
 	}
 
 	private class ValuePropertyPairExtended extends ValuePropertyPair

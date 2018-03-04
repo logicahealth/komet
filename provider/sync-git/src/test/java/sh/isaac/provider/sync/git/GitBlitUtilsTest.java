@@ -37,10 +37,9 @@
 
 package sh.isaac.provider.sync.git;
 
+import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
@@ -53,9 +52,6 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 public class GitBlitUtilsTest {
    /**
     * Test base URL parse.
-    *
-    * @throws Exception
-    *            the exception
     */
    @Test
    public void TestBaseURLParse() {
@@ -85,5 +81,24 @@ public class GitBlitUtilsTest {
       Assert.assertEquals("https://another.server.com:4848/git/", GitBlitUtils.parseBaseRemoteAddress("https://another.server.com:4848/git/r/db_test.GIT"));
       Assert.assertEquals("Https://another.se-ve_r.com:4848/git/", GitBlitUtils.parseBaseRemoteAddress("Https://another.se-ve_r.com:4848/git/r/db_-test.git"));
 
+   }
+   
+   /**
+    * Test changeset URL rewrite.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
+   @Test
+   public void testChangesetURLRewrite()
+            throws IOException {
+      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
+            GitBlitUtils.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/"));
+      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
+            GitBlitUtils.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git"));
+      Assert.assertEquals("http://git.isaac.sh:4848/git/r/contentConfigurations.git",
+            GitBlitUtils.constructChangesetRepositoryURL("http://git.isaac.sh:4848/git/"));
+      Assert.assertEquals("https://git.isaac.sh:4848/git/r/contentConfigurations.git",
+            GitBlitUtils.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/r/contentConfigurations.git"));
+      Assert.assertEquals("https://git.isaac.sh:4848/git/r/foo.git", GitBlitUtils.constructChangesetRepositoryURL("https://git.isaac.sh:4848/git/r/foo.git"));
    }
 }

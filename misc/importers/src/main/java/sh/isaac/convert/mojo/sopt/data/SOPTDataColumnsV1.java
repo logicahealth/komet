@@ -35,45 +35,50 @@
  *
  */
 
-package sh.isaac.convert.mojo.sopt;
+package sh.isaac.convert.mojo.sopt.data;
 
 /**
  * 
- * {@link SOPTColumnsV1}
+ * {@link SOPTDataColumnsV1}
  * 
  * Version 1 Column headers for SOPT import file
  *
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  *
  */
-public enum SOPTColumnsV1
+public enum SOPTDataColumnsV1
 {
-
-	ConceptCode("Concept Code"), // Concept Code
-	ConceptName("Concept Name"), // Concept Name
-	PreferredConceptName("Preferred Concept Name"), // Preferred Concept Name
-	PreferredAlternateCode("Preferred Alternate Code"), // Preferred Alternate Code
-	CodeSystemOID("Code System OID"), // Code System OID
-	CodeSystemName("Code System Name"), // Code System Name
-	CodeSystemCode("Code System Code"), // Code System Code
-	CodeSystemVersion("Code System Version"), // Code System Version
-	HL7Table0396Code("HL7 Table 0396 Code"); // HL7 Table 0396 Code
+	ConceptCode("Concept Code"), 
+	ConceptName("Concept Name"), 
+	PreferredConceptName("Preferred Concept Name"), 
+	PreferredAlternateCode("Preferred Alternate Code"), 
+	CodeSystemOID("Code System OID"), 
+	CodeSystemName("Code System Name"), 
+	CodeSystemCode("Code System Code"), 
+	CodeSystemVersion("Code System Version"),
+	HL7Table0396Code("HL7 Table 0396 Code"); 
 
 	final private String columnName;
 
-	private SOPTColumnsV1()
+	private SOPTDataColumnsV1(String name)
 	{
-		this(null);
-	}
-
-	private SOPTColumnsV1(String name)
-	{
-		this.columnName = name != null ? name : name();
+		this.columnName = name;
 	}
 
 	public String toString()
 	{
 		return columnName;
 	}
-
+	
+	public static SOPTDataColumnsV1 parse(String stringCellValue)
+	{
+		for (SOPTDataColumnsV1 col : SOPTDataColumnsV1.values())
+		{
+			if (col.columnName.equalsIgnoreCase(stringCellValue))
+			{
+				return col;
+			}
+		}
+		throw new RuntimeException("Can't locate known column for '" + stringCellValue + "'");
+	}
 }

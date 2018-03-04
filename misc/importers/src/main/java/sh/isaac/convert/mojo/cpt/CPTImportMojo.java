@@ -55,7 +55,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
 import sh.isaac.convert.mojo.cpt.propertyTypes.PT_Annotations;
@@ -80,8 +79,6 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 @Mojo(name = "convert-CPT-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class CPTImportMojo extends ConverterBaseMojo
 {
-	private IBDFCreationUtility importUtil_;
-
 	@Override
 	public void execute() throws MojoExecutionException
 	{
@@ -133,7 +130,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 			{
 				throw new RuntimeException("Didn't find the same number of codes in all 3 files!");
 			}
-			importUtil_ = new IBDFCreationUtility(Optional.of("CPT" + " " + converterSourceArtifactVersion), Optional.of(MetaData.CPT_MODULES____SOLOR),
+			importUtil = new IBDFCreationUtility(Optional.of("CPT" + " " + converterSourceArtifactVersion), Optional.of(MetaData.CPT_MODULES____SOLOR),
 					outputDirectory, converterOutputArtifactId, converterOutputArtifactVersion, converterOutputArtifactClassifier, false, date.getTime());
 
 			PropertyType attributes = new PT_Annotations();
@@ -153,21 +150,21 @@ public class CPTImportMojo extends ConverterBaseMojo
 					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "CPT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto nuccMetadata
-			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
+			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
 
 			// load metadata
-			importUtil_.loadMetaDataItems(Arrays.asList(attributes, refsets_, descriptions), cptMetadata.getPrimordialUuid());
+			importUtil.loadMetaDataItems(Arrays.asList(attributes, refsets_, descriptions), cptMetadata.getPrimordialUuid());
 
 			// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-			final ConceptVersion cptRootConcept = importUtil_.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
+			final ConceptVersion cptRootConcept = importUtil.createConcept("CPT", true, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
 
 			ConsoleUtil.println("Metadata load stats");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
-			importUtil_.clearLoadStats();
+			importUtil.clearLoadStats();
 
 			String firstThree = "";
 			ComponentReference parent = null;
@@ -193,17 +190,17 @@ public class CPTImportMojo extends ConverterBaseMojo
 				{
 					// Make a new grouping concept
 					firstThree = d.code.substring(0, 3);
-					parent = ComponentReference.fromConcept(importUtil_.createConcept(firstThree, true, cptRootConcept.getPrimordialUuid()));
+					parent = ComponentReference.fromConcept(importUtil.createConcept(firstThree, true, cptRootConcept.getPrimordialUuid()));
 					groupingConCount++;
 				}
 				cptConCount++;
-				ComponentReference concept = ComponentReference.fromConcept(importUtil_.createConcept(ConverterUUID.createNamespaceUUIDFromString(d.code)));
+				ComponentReference concept = ComponentReference.fromConcept(importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(d.code)));
 
-				importUtil_.addParent(concept, parent.getPrimordialUuid());
-				importUtil_.addDescription(concept, d.code, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
-				importUtil_.addStaticStringAnnotation(concept, d.code, attributes.getProperty(PT_Annotations.Attribute.Code.name()).getUUID(), Status.ACTIVE);
+				importUtil.addParent(concept, parent.getPrimordialUuid());
+				importUtil.addDescription(concept, d.code, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
+				importUtil.addStaticStringAnnotation(concept, d.code, attributes.getProperty(PT_Annotations.Attribute.Code.name()).getUUID(), Status.ACTIVE);
 
-				importUtil_.addAssemblageMembership(concept, allCPTConceptsRefset, Status.ACTIVE, null);
+				importUtil.addAssemblageMembership(concept, allCPTConceptsRefset, Status.ACTIVE, null);
 
 				if (StringUtils.isNotBlank(d.shortu))
 				{
@@ -221,7 +218,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 
 			ConsoleUtil.println("");
 			ConsoleUtil.println("Load Statistics");
-			for (String line : importUtil_.getLoadStats().getSummary())
+			for (String line : importUtil.getLoadStats().getSummary())
 			{
 				ConsoleUtil.println(line);
 			}
@@ -233,7 +230,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 			ConsoleUtil.println("Dumping UUID Debug File");
 			ConverterUUID.dump(outputDirectory, "cptUuid");
 
-			importUtil_.shutdown();
+			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
 		}
 		catch (Exception ex)
@@ -246,13 +243,13 @@ public class CPTImportMojo extends ConverterBaseMojo
 	{
 		UUID descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), text, extendedType.toString(),
 				descriptionType.name(), new Boolean(preferred).toString());
-		importUtil_.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
+		importUtil.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
 	}
 
 	private ConceptVersion createType(UUID parentUuid, String typeName) throws Exception
 	{
-		ConceptVersion concept = importUtil_.createConcept(typeName, true);
-		importUtil_.addParent(ComponentReference.fromConcept(concept), parentUuid);
+		ConceptVersion concept = importUtil.createConcept(typeName, true);
+		importUtil.addParent(ComponentReference.fromConcept(concept), parentUuid);
 		return concept;
 	}
 

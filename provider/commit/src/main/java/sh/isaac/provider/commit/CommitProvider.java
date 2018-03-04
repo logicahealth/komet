@@ -873,6 +873,8 @@ public class CommitProvider
             }
 
             Files.createDirectories(this.commitManagerFolder);
+            
+            LOG.debug("Commit provider starting in {}", this.commitManagerFolder.toFile().getCanonicalFile().toString());
 
             if (!this.dataStoreId.isPresent()) {
                 this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
