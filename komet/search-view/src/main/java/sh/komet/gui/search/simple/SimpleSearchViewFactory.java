@@ -63,5 +63,8 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
    public Node getMenuIcon() {
       return Iconography.SIMPLE_SEARCH.getIconographic();
    }
-   
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }

@@ -441,31 +441,15 @@ public class KometStageController
         Get.services(ExplorationNodeFactory.class)
                 .forEach(
                         (factory) -> {
-                            if (FxGet.showBetaFeatures()) {
-                                addTabFactory(factory, tabPane, menuItems);
-                            } else {
-                                if (factory instanceof AssemblageViewProviderFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                } else if (factory instanceof SimpleSearchViewFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                } else if (factory instanceof TaskProgressNodeFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                } else if (factory instanceof TreeViewExplorationNodeFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                }
+                            if (factory.isEnabled()) {
+                                 addTabFactory(factory, tabPane, menuItems);
                             }
                         });
         Get.services(DetailNodeFactory.class)
                 .forEach(
                         (factory) -> {
-                            if (FxGet.showBetaFeatures()) {
+                           if (factory.isEnabled()) {
                                 addTabFactory(factory, tabPane, menuItems);
-                            } else {
-                                if (factory instanceof ConceptDetailPanelProviderFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                } else if (factory instanceof ConceptDetailTreeTableProviderFactory) {
-                                    addTabFactory(factory, tabPane, menuItems);
-                                }
                             }
                         });
         menuItems.sort(

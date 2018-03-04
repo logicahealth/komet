@@ -90,5 +90,10 @@ public class TaskProgressNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
+   
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }
 

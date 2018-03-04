@@ -31,8 +31,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public interface ExplorationNode {
    /**
-    * Get the man
-    * @return 
+    * @return the manifold this node was constructed with 
     */
    Manifold getManifold();
    
@@ -43,7 +42,7 @@ public interface ExplorationNode {
    Node getNode();
    
    /**
-    * Tool tip text to explain this node in more detail that a title would. 
+    * Tool tip text to explain this node in more detail than a title would. 
     * @return the read-only property for the tool-tip text.
     */
    ReadOnlyProperty<String> getToolTip(); 
