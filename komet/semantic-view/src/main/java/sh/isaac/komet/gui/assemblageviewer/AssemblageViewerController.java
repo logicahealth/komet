@@ -75,6 +75,7 @@ import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
 import sh.isaac.komet.gui.util.ConceptNode;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -98,10 +99,13 @@ public class AssemblageViewerController
 	@FXML private Label selectedSemanticDescriptionLabel;
 	@FXML private ListView<DynamicColumnInfo> extensionFields;
 	@FXML private ToolBar executeOperationsToolbar;
-	@FXML private Label selectedRefexNameLabel;
+	@FXML private Label selectedSemanticNameLabel;
 	@FXML private VBox conceptNodeFilterPlaceholder;
 	@FXML private ProgressIndicator readingSemanticProgress;
 	@FXML private ProgressIndicator selectedSemanticProgressIndicator;
+	
+	//TODO use the manifold
+	private Manifold manifold_;
 
 	private enum PendingRead
 	{
@@ -121,13 +125,15 @@ public class AssemblageViewerController
 
 	private final Logger log = LogManager.getLogger(AssemblageViewerController.class);
 
-	protected static AssemblageViewerController construct() throws IOException
+	protected static AssemblageViewerController construct(Manifold manifold) throws IOException
 	{
 		// Load from FXML.
-		URL resource = AssemblageViewerController.class.getResource("AssemblageViewerController.fxml");
+		URL resource = AssemblageViewerController.class.getResource("AssemblageViewer.fxml");
 		FXMLLoader loader = new FXMLLoader(resource);
 		loader.load();
-		return loader.getController();
+		AssemblageViewerController controller = loader.getController();
+		controller.manifold_ = (manifold == null ? Manifold.make("") : manifold);
+		return controller;
 	}
 
 	@FXML
@@ -142,7 +148,7 @@ public class AssemblageViewerController
 		assert selectedSemanticDescriptionLabel != null : "fx:id=\"selectedSemanticDescriptionLabel\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
 		assert extensionFields != null : "fx:id=\"extensionFields\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
 		assert executeOperationsToolbar != null : "fx:id=\"executeOperationsToolbar\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
-		assert selectedRefexNameLabel != null : "fx:id=\"selectedRefexNameLabel\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
+		assert selectedSemanticNameLabel != null : "fx:id=\"selectedSemanticNameLabel\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
 		assert conceptNodeFilterPlaceholder != null : "fx:id=\"conceptNodeFilterPlaceholder\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
 		assert readingSemanticProgress != null : "fx:id=\"readingSemanticProgress\" was not injected: check your FXML file 'DynamicRefexListView.fxml'.";
 
@@ -150,7 +156,7 @@ public class AssemblageViewerController
 			rebuildList(false);
 		});
 
-		conceptNode = new ConceptNode(null, false);
+		conceptNode = new ConceptNode(null, false, () -> manifold_);
 		conceptNode.getConceptProperty().addListener((invalidation) -> {
 			ConceptSnapshot cv = conceptNode.getConceptProperty().get();  //Need to do a get after each invalidation, otherwise, we won't get the next invalidation
 			if (cv != null)
@@ -428,7 +434,7 @@ public class AssemblageViewerController
 		{
 			currentlyRenderedRefexNid = (sdn == null ? 0 : sdn.getNid());
 		}
-		selectedRefexNameLabel.setText("");
+		selectedSemanticNameLabel.setText("");
 		selectedSemanticDescriptionLabel.setText("");
 		referencedComponentTypeLabel.setText("");
 		referencedComponentSubTypeLabel.setText("");
@@ -444,7 +450,7 @@ public class AssemblageViewerController
 			viewUsage.setDisable(false);
 		}
 		selectedSemanticProgressIndicator.setVisible(true);
-		selectedRefexNameLabel.setText(sdn.getDescription());
+		selectedSemanticNameLabel.setText(sdn.getDescription());
 
 		Task<Void> t = new Task<Void>()
 		{
@@ -457,7 +463,7 @@ public class AssemblageViewerController
 				//fill in the header stuff
 				Platform.runLater(() -> 
 				{
-					selectedRefexNameLabel.setText(rdud.getDynamicName());
+					selectedSemanticNameLabel.setText(rdud.getDynamicName());
 					selectedSemanticDescriptionLabel.setText(rdud.getDynamicUsageDescription());
 					referencedComponentTypeLabel.setText(rdud.getReferencedComponentTypeRestriction() == null ? "No restriction" : 
 						"Must be " + rdud.getReferencedComponentTypeRestriction().toString());

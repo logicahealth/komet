@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -73,6 +74,7 @@ import sh.isaac.provider.query.search.CompositeSearchResult;
 import sh.isaac.provider.query.search.SearchHandle;
 import sh.isaac.provider.query.search.SearchHandler;
 import sh.isaac.utility.SimpleDisplayConcept;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * Popup code for typing in a text field and doing google-like searches based on the letters entered.
@@ -106,7 +108,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	private volatile int lastProcessedId = -1;
 	private HashMap<Integer, SearchHandle> runningSearches = new HashMap<>();
 	private boolean above = false;
-	private StampCoordinate sc;
+	private Supplier<Manifold> sc;
 
 	private class PopUpResult
 	{
@@ -124,11 +126,12 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	 * In the case where a TextField is passed in, the nid is placed in the UserData field of the text field upon a selection.
 	 * 
 	 * @param field
-	 * @param sc
+	 * @param manifoldProvider
 	 */
 	@SuppressWarnings("unchecked")
-	public LookAheadConceptPopup(Control field, StampCoordinate sc)
+	public LookAheadConceptPopup(Control field, Supplier<Manifold> manifoldProvider)
 	{
+		sc = manifoldProvider;
 		if (field instanceof ComboBox)
 		{
 			this.sourceTextField = ((ComboBox<?>) field).getEditor();
@@ -395,7 +398,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 		concept.getStyleClass().add("lookAheadBoldLabel");
 		box.getChildren().add(concept);
 
-		for (String s : result.getMatchingStrings(Optional.of(sc)))
+		for (String s : result.getMatchingStrings(Optional.of(sc.get().getStampCoordinate())))
 		{
 			if (s.equals(concept.getText()))
 			{

@@ -37,12 +37,17 @@
 package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Consumer;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -52,6 +57,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -61,10 +70,12 @@ import sh.komet.gui.util.FxGet;
  */
 @Service
 @Singleton
-public class AssemblageViewer
+public class AssemblageViewer implements ExplorationNodeFactory 
 {
-	AssemblageViewerController drlvc_;
 	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	
+	private AssemblageViewerController drlvc_;
+	private Manifold manifold_;
 	
 	private AssemblageViewer()
 	{
@@ -107,7 +118,7 @@ public class AssemblageViewer
 		{
 			try
 			{
-				drlvc_ = AssemblageViewerController.construct();
+				drlvc_ = AssemblageViewerController.construct(manifold_);
 			}
 			catch (IOException e)
 			{
@@ -118,5 +129,66 @@ public class AssemblageViewer
 
 		}
 		return drlvc_.getRoot();
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMenuText()
+	{
+		return "Dynamic Assemblage Definitions";
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node getMenuIcon()
+	{
+		return Iconography.PAPERCLIP.getIconographic();
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer)
+	{
+		manifold_ = manifold;
+		nodeConsumer.accept(getView());
+		
+		return new ExplorationNode()
+		{
+			@Override
+			public ReadOnlyProperty<String> getToolTip()
+			{
+				return new SimpleStringProperty("Shows all of the Dynamic Semantics in the system");
+			}
+			
+			@Override
+			public Optional<Node> getTitleNode()
+			{
+				return Optional.empty();
+			}
+			
+			@Override
+			public ReadOnlyProperty<String> getTitle()
+			{
+				return new SimpleStringProperty(getMenuText());
+			}
+			
+			@Override
+			public Node getNode()
+			{
+				return getView();
+			}
+			
+			@Override
+			public Manifold getManifold()
+			{
+				return manifold_;
+			}
+		};
 	}
 }

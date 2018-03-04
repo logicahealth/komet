@@ -253,7 +253,7 @@ public class SememeContentFilterPrompt
 	 */
 	public void showUserPrompt(Window window, String string)
 	{
-		// TODO Auto-generated method stub
+		System.err.println("Filter menu not yet implemented");
 		
 	}
 	

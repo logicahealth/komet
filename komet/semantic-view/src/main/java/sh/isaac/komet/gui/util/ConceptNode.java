@@ -77,6 +77,7 @@ import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.drag.drop.DragRegistry;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * {@link ConceptNode}
@@ -118,9 +119,9 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ObservableList<SimpleDisplayConcept> dropDownOptions_;
 	private ContextMenu cm_;
 	
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank)
+	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider)
 	{
-		this(initialConcept, flagAsInvalidWhenBlank, null, null);
+		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider);
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 */
 	@SuppressWarnings("deprecation")
 	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
-			Function<ConceptChronology, String> descriptionReader)
+			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider)
 	{
 		c_ = initialConcept;
 		//We can't simply use the ObservableList from the CommonlyUsedConcepts, because it infinite loops - there doesn't seem to be a way 
@@ -228,7 +229,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 
 		updateGUI();
 		
-		new LookAheadConceptPopup(cb_, initialConcept.getStampCoordinate());
+		new LookAheadConceptPopup(cb_, manifoldProvider);
 
 		if (cb_.getValue().getNid() == 0)
 		{
@@ -430,7 +431,14 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	
 	public void set(ConceptSnapshot newValue)
 	{
-		cb_.setValue(new SimpleDisplayConcept(newValue.getChronology(), descriptionReader_));
+		if (newValue == null)
+		{
+			clear();
+		}
+		else
+		{
+			cb_.setValue(new SimpleDisplayConcept(newValue.getChronology(), descriptionReader_));
+		}
 	}
 	
 	public void set(SimpleDisplayConcept newValue)

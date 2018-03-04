@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -50,6 +51,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,8 +65,10 @@ import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -72,6 +76,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -114,9 +119,14 @@ import sh.isaac.komet.gui.semanticViewer.cells.ComponentDataCell;
 import sh.isaac.komet.gui.semanticViewer.cells.StatusCell;
 import sh.isaac.komet.gui.semanticViewer.cells.StringCell;
 import sh.isaac.komet.gui.util.TableHeaderRowTooltipInstaller;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.komet.gui.contract.DetailNodeFactory;
+import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.DialogService;
-
+import sh.komet.gui.control.ManifoldLinkedConceptLabel;
+import sh.komet.gui.interfaces.DetailNode;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * 
@@ -128,7 +138,7 @@ import sh.komet.gui.contract.DialogService;
 @SuppressWarnings({ "unused", "restriction" })
 @Service
 @PerLookup
-public class SemanticViewer
+public class SemanticViewer implements DetailNodeFactory
 {
 	private VBox rootNode_ = null;
 	private TreeTableView<SemanticGUI> ttv_;
@@ -151,6 +161,10 @@ public class SemanticViewer
 
 	ViewFocus viewFocus_;
 	int viewFocusNid_;
+	private Manifold manifoldConcept_;
+	private ManifoldLinkedConceptLabel titleLabel = null;
+	private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
+	private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
 
 	IndexedGenerationCallable newComponentIndexGen_ = null; //Useful when adding from the assemblage perspective - if they are using an index, we need to wait till the new thing is indexed
 	private AtomicInteger noRefresh_ = new AtomicInteger(0);
@@ -160,8 +174,7 @@ public class SemanticViewer
 
 	private final ObservableMap<ColumnId, Filter<?>> filterCache_ = new ObservableMapWrapper<>(new WeakHashMap<>());
 	
-	//TODO find out where Keith has the user prefs for things like this
-	BooleanProperty displayFSN_ = new SimpleBooleanProperty(false);
+	BooleanProperty displayFSN_ =  new SimpleBooleanProperty(false);
 	
 	// Display refreshes on change of UserProfileBindings.getDisplayFSN().
 	// If UserProfileBindings.getDisplayFSN() at time of refresh has changed since last refresh
@@ -339,6 +352,7 @@ public class SemanticViewer
 			
 			addButton_ = new Button(null, Images.PLUS.createImageView());
 			addButton_.setTooltip(new Tooltip("Add a new Sememe Extension"));
+			addButton_.setDisable(true);
 			//TODO implement edit features?
 //			addButton_.setOnAction((action) ->
 //			{
@@ -495,12 +509,6 @@ public class SemanticViewer
 					return showFullHistory;
 				}
 			};
-			
-			//TODO where are the global coordinate bindings?
-//			ExtendedAppContext.getUserProfileBindings().getLanguageCoordinate().addListener(change ->
-//			{
-//				displayFSN_.set(ExtendedAppContext.getUserProfileBindings().getLanguageCoordinate().get().isFSNPreferred());
-//			});
 			
 			displayFSNButton_ = new Button("");
 			ImageView displayFsn = Images.DISPLAY_FSN.createImageView();
@@ -1154,6 +1162,7 @@ public class SemanticViewer
 
 				Platform.runLater(() ->
 				{
+					ttv_.getColumns().clear();
 					for (TreeTableColumn<SemanticGUI, ?> tc : treeColumns)
 					{
 						ttv_.getColumns().add(tc);
@@ -1616,5 +1625,92 @@ public class SemanticViewer
 	{
 		noRefresh_.incrementAndGet();
 		//refreshRequiredListenerHack.clearBindings();
+	}
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMenuText()
+	{
+		return "Semantic Tree Table View";
+	}
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node getMenuIcon()
+	{
+		return Iconography.PAPERCLIP.getIconographic();
+	}
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EnumSet<DetailType> getSupportedTypes()
+	{
+		return EnumSet.of(DetailType.Concept);
+	}
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type)
+	{
+		manifoldConcept_= manifold;
+
+		if (manifold.getFocusedConcept() != null)
+		{
+			setComponent(manifold.getFocusedConcept().getNid(), null, null, null, true);
+		}
+		
+		manifoldConcept_.focusedConceptProperty().addListener((change) ->
+		{
+			setComponent(manifold.getFocusedConcept().getNid(), null, null, null, true);
+			titleProperty.set(manifoldConcept_.getPreferredDescriptionText(manifold.getFocusedConcept()));
+			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept()));
+			displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
+		});
+		
+		nodeConsumer.accept(getView());
+		
+		return new DetailNode()
+		{
+			@Override
+			public boolean selectInTabOnChange()
+			{
+				return true;
+			}
+			
+			@Override
+			public ReadOnlyProperty<String> getToolTip()
+			{
+				return toolTipProperty;
+			}
+			
+			@Override
+			public Optional<Node> getTitleNode()
+			{
+				if (titleLabel == null)
+				{
+					titleLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+					titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
+					titleProperty.set("");
+				}
+
+				return Optional.of(titleLabel);
+			}
+			
+			@Override
+			public ReadOnlyProperty<String> getTitle()
+			{
+				return titleProperty;
+			}
+			
+			@Override
+			public Manifold getManifold()
+			{
+				return manifoldConcept_;
+			}
+		};
 	}
 }
