@@ -200,7 +200,7 @@ public class AssemblageViewerController
 			if (sdc != null)
 			{
 				SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-				driv.setAssemblage(sdc.getNid(), null, null, null, true);
+				driv.setAssemblage(sdc.getNid(), manifold_, null, null, null, true);
 				driv.showView(null);
 			}
 		});
@@ -249,7 +249,7 @@ public class AssemblageViewerController
 		viewUsage.setDisable(true);
 		viewUsage.setOnAction((event) -> {
 			SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), null, null, null, true);
+			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), manifold_, null, null, null, true);
 			driv.showView(null);
 		});
 		extensionFields.setCellFactory(new Callback<ListView<DynamicColumnInfo>, ListCell<DynamicColumnInfo>>()

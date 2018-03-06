@@ -57,6 +57,7 @@ import sh.isaac.api.Get;
 public class TableHeaderRowTooltipInstaller
 {
 	private static Logger logger_ = LogManager.getLogger(TableHeaderRowTooltipInstaller.class);
+	private static String TOOLTIP_PROP_KEY = "javafx.scene.control.Tooltip";  //from JavaFX Tooltip class
 
 	// TODO this mechanism won't work right if some of the columns are disabled by default. would need an alternate approach
 	// maybe while scanning here, register a listener on column visibility flags?
@@ -86,7 +87,7 @@ public class TableHeaderRowTooltipInstaller
 	private static void installTooltipsThreaded(Parent node, Map<String, List<String>> nameToTooltipMap)
 	{
 		int tries = 0;
-		while (tries++ < 5 && nameToTooltipMap.size() > 0)
+		while (tries++ < 2 && nameToTooltipMap.size() > 0)
 		{
 			logger_.debug(nameToTooltipMap.size() + " tooltips to install");
 			Platform.runLater(new Runnable()
@@ -111,7 +112,9 @@ public class TableHeaderRowTooltipInstaller
 		if (nameToTooltipMap.size() > 0)
 		{
 			// This happens for various reasons at the moment... don't log a warn
-			logger_.debug("Failed to install at least " + nameToTooltipMap.size() + " tooltips");
+			//TODO we need to track the tooltips for longer, and add them each time a column that was previously hidden is made visible again
+			//this whole thing needs a bit of a refactor.
+			logger_.debug("Failed to install at least " + nameToTooltipMap.size() + " tooltips - likely disabled columns");
 		}
 		else
 		{
@@ -150,8 +153,9 @@ public class TableHeaderRowTooltipInstaller
 
 	private static void installTooltip(Label l, Map<String, List<String>> nameToTooltipMap)
 	{
-		if (l.getText().length() == 0)
+		if ((Tooltip)l.getProperties().get(TOOLTIP_PROP_KEY) != null || l.getText().length() == 0)
 		{
+			//already has a tooltip, or empty label
 			return;
 		}
 		List<String> values = nameToTooltipMap.get(l.getText());
@@ -179,7 +183,7 @@ public class TableHeaderRowTooltipInstaller
 		}
 		else
 		{
-			logger_.info("No tooltip text available for column " + l.getText());
+			logger_.info("No tooltip text available for column '" + l.getText() + "'");
 			return;
 		}
 	}

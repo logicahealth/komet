@@ -39,6 +39,7 @@ package sh.isaac.komet.gui.semanticViewer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -48,6 +49,9 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -64,7 +68,6 @@ import sh.komet.gui.contract.DialogService;
 public class SememeContentFilterPrompt 
 {
 	public enum UserPromptResponse { APPROVE, CANCEL };
-	protected UserPromptResponse buttonSelected = UserPromptResponse.CANCEL;
 	final ListView<String> selectedValues = new ListView<>();
 	private String columnName;
 	private List<String> allValues = new ArrayList<String>();
@@ -91,8 +94,6 @@ public class SememeContentFilterPrompt
 			}
 		}
 	}
-	
-	//TODO need to redo this since it doesn't extend UserPrompt
 
 	protected Node createUserInterface()
 	{
@@ -193,7 +194,7 @@ public class SememeContentFilterPrompt
 							CheckBox checkBox = new CheckBox();
 							checkBox.selectedProperty().bindBidirectional(item.selectedProperty);
 							Label label = new Label(item.getText().replaceAll("\n", " "));
-							label.setMaxWidth(280);
+							label.maxWidthProperty().bind(listView.widthProperty().subtract(50));
 							label.setTooltip(new Tooltip(item.getText()));
 
 							HBox graphic = new HBox();
@@ -249,15 +250,27 @@ public class SememeContentFilterPrompt
 
 	/**
 	 * @param window
-	 * @param string
+	 * @param title
+	 * @return return true, if the user clicked ok
 	 */
-	public void showUserPrompt(Window window, String string)
+	public boolean showUserPrompt(Window window, String title)
 	{
-		System.err.println("Filter menu not yet implemented");
+		Alert alert = new Alert(AlertType.CONFIRMATION);
 		
-	}
-	
-	public UserPromptResponse getButtonSelected() {
-		return buttonSelected;
+		alert.setTitle(title);
+		alert.setHeaderText(title);
+		
+		alert.getDialogPane().setContent(createUserInterface());
+
+		alert.setResizable(true);
+		alert.getDialogPane().setPrefWidth(800);
+		
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.orElse(ButtonType.CANCEL) == ButtonType.OK)
+		{
+			return true;
+		}
+		return false;
+		
 	}
 }

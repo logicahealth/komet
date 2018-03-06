@@ -385,7 +385,7 @@ public class SemanticViewer implements DetailNodeFactory
 				try
 				{
 					SemanticViewer driv = Get.service(SemanticViewer.class);
-					driv.setAssemblage(viewFocusNid_, null, null, null, true);
+					driv.setAssemblage(viewFocusNid_, manifoldConcept_, null, null, null, true);
 					driv.showView(null);
 				}
 				catch (Exception e)
@@ -671,11 +671,12 @@ public class SemanticViewer implements DetailNodeFactory
 		stage.show();
 	}
 
-	public void setComponent(int componentNid, ReadOnlyBooleanProperty showStampColumns, ReadOnlyBooleanProperty showActiveOnly, 
+	public void setComponent(int componentNid, Manifold manifold, ReadOnlyBooleanProperty showStampColumns, ReadOnlyBooleanProperty showActiveOnly, 
 			ReadOnlyBooleanProperty showFullHistory, boolean displayFSNButton)
 	{
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
+		manifoldConcept_ = manifold;
 		initialInit();
 		viewFocus_ = ViewFocus.REFERENCED_COMPONENT;
 		viewFocusNid_ = componentNid;
@@ -685,11 +686,12 @@ public class SemanticViewer implements DetailNodeFactory
 		initColumnsLoadData();
 	}
 
-	public void setAssemblage(int assemblageConceptNid, ReadOnlyBooleanProperty showStampColumns, ReadOnlyBooleanProperty showActiveOnly, 
+	public void setAssemblage(int assemblageConceptNid, Manifold manifold, ReadOnlyBooleanProperty showStampColumns, ReadOnlyBooleanProperty showActiveOnly, 
 			ReadOnlyBooleanProperty showFullHistory, boolean displayFSNButton)
 	{
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
+		manifoldConcept_ = manifold;
 		initialInit();
 		viewFocus_ = ViewFocus.ASSEMBLAGE;
 		viewFocusNid_ = assemblageConceptNid;
@@ -819,15 +821,15 @@ public class SemanticViewer implements DetailNodeFactory
 						int depth = 0;
 						while (refComp != SemanticViewer.this.viewFocusNid_)
 						{
-							depth++;
-							temp.append("-");  //one dash per indent
 							if (Get.assemblageService().hasSemantic(refComp))
 							{
+								depth++;
+								temp.append("-");  //one dash per indent
 								refComp = Get.assemblageService().getSemanticChronology(refComp).getReferencedComponentNid();
 							}
 							else
 							{
-								logger_.warn("Assumption violation... ");
+								//component is a concept - we are focused on a semantic
 								break;
 							}
 						}
@@ -1165,12 +1167,12 @@ public class SemanticViewer implements DetailNodeFactory
 				ttStringCol.getColumns().add(nestedCol);
 				
 
-				nestedCol = new TreeTableColumn<>();
-				nestedCol.setText(SemanticGUIColumnType.TIME.toString());
-				storeTooltip(toolTipStore, nestedCol.getText(), "The time when the instance was created or edited");
+				TreeTableColumn<SemanticGUI, SemanticGUI> nestedStrCol = new TreeTableColumn<>();
+				nestedStrCol.setText(SemanticGUIColumnType.TIME.toString());
+				storeTooltip(toolTipStore, nestedStrCol.getText(), "The time when the instance was created or edited");
 				nestedColHeaderNode = new HeaderNode<>(
 						filterCache_,
-						nestedCol,
+						nestedStrCol,
 						ColumnId.getInstance(SemanticGUIColumnType.TIME),
 						rootNode_.getScene(),
 						new HeaderNode.DataProvider<String>() {
@@ -1179,14 +1181,19 @@ public class SemanticViewer implements DetailNodeFactory
 								return source.getDisplayStrings(SemanticGUIColumnType.TIME, null).getKey();
 							}
 						});
-				nestedCol.setGraphic(nestedColHeaderNode.getNode());
-				nestedCol.setSortable(true);
-				nestedCol.setResizable(true);
-				nestedCol.setCellValueFactory((callback) ->
+				nestedStrCol.setGraphic(nestedColHeaderNode.getNode());
+				nestedStrCol.setSortable(true);
+				nestedStrCol.setResizable(true);
+				nestedStrCol.setCellValueFactory((callback) ->
 				{
-					return new ReadOnlyStringWrapper(callback.getValue().getValue().getDisplayStrings(SemanticGUIColumnType.TIME, null).getKey());
+					return new ReadOnlyObjectWrapper<>(callback.getValue().getValue());
 				});
-				ttStringCol.getColumns().add(nestedCol);
+				
+				nestedStrCol.setCellFactory((colInfo) -> 
+				{
+					return new StringCell(data ->  {return data.getDisplayStrings(SemanticGUIColumnType.TIME, null).getKey();});
+				});
+				ttStringCol.getColumns().add(nestedStrCol);
 				
 				TreeTableColumn<SemanticGUI, SemanticGUI> nestedIntCol = buildComponentCellColumn(SemanticGUIColumnType.AUTHOR); 
 				storeTooltip(toolTipStore, nestedIntCol.getText(), "The author of the instance");
@@ -1221,6 +1228,10 @@ public class SemanticViewer implements DetailNodeFactory
 												: ((Label)((HBox)nCol.getGraphic()).getChildren().get(0)).getText()) 
 										: nCol.getText());
 							nCol.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
+							if (text.equalsIgnoreCase(SemanticGUIColumnType.TIME.toString()))
+							{
+								nCol.setPrefWidth(150);
+							}
 						}
 						
 						if (col.getColumns().size() > 0)
@@ -1715,12 +1726,12 @@ public class SemanticViewer implements DetailNodeFactory
 
 		if (manifold.getFocusedConcept() != null)
 		{
-			setComponent(manifold.getFocusedConcept().getNid(), null, null, null, true);
+			setComponent(manifold.getFocusedConcept().getNid(), manifold, null, null, null, true);
 		}
 		
 		manifoldConcept_.focusedConceptProperty().addListener((change) ->
 		{
-			setComponent(manifold.getFocusedConcept().getNid(), null, null, null, true);
+			setComponent(manifold.getFocusedConcept().getNid(), manifold, null, null, null, true);
 			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept()));
 			displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
 		});

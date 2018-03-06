@@ -40,6 +40,7 @@ import java.util.function.Function;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.text.Text;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
 import sh.isaac.komet.gui.util.CustomClipboard;
@@ -72,7 +73,11 @@ public class StringCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 		}
 		else if (item != null)
 		{
-			setText(stringFetcher_.apply(item));
+			//setText(stringFetcher_.apply(item));
+			setText(null);
+			Text textHolder = new Text(stringFetcher_.apply(item));
+			textHolder.wrappingWidthProperty().bind(widthProperty().subtract(10));
+			setGraphic(textHolder);
 			ContextMenu cm = new ContextMenu();
 			MenuItem mi = new MenuItem("Copy");
 			mi.setGraphic(Images.COPY.createImageView());
