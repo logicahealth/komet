@@ -59,7 +59,7 @@ import sh.isaac.utility.Frills;
 /**
  * {@link DynamicSemanticDataColumnListCell}
  *
- * Display code for a data column of a Dynamic Sememe, when shown within a list view (one cell per refex column)
+ * Display code for a data column of a Dynamic Semantic, when shown within a list view (one cell per refex column)
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */

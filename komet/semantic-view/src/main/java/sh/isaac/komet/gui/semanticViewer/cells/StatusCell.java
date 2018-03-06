@@ -75,7 +75,7 @@ public class StatusCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 
 			try
 			{
-				if (item.getSememe().getStatus() == Status.ACTIVE)
+				if (item.getSemantic().getStatus() == Status.ACTIVE)
 				{
 					sizeAndPosition(Images.BLACK_DOT, sp, Pos.TOP_LEFT);
 					tooltipText += "Active";
@@ -96,7 +96,7 @@ public class StatusCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 					tooltipText += " and Current";
 				}
 				
-				if (item.getSememe().getTime() == Long.MAX_VALUE)
+				if (item.getSemantic().getTime() == Long.MAX_VALUE)
 				{
 					sizeAndPosition(Images.YELLOW_DOT, sp, Pos.TOP_RIGHT);
 					tooltipText += " - Uncommitted";

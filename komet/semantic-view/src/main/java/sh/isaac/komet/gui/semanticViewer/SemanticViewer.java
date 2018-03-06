@@ -130,8 +130,6 @@ import sh.komet.gui.manifold.Manifold;
 
 /**
  * 
- * DynamicSememeView
- * 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 
@@ -152,7 +150,7 @@ public class SemanticViewer implements DetailNodeFactory
 	private TreeTableColumn<SemanticGUI, String> stampColumn_;
 	private BooleanProperty hasUncommitted_ = new SimpleBooleanProperty(false);
 
-	private Text placeholderText_ = new Text("No Dynamic Sememes were found associated with the component");
+	private Text placeholderText_ = new Text("No Dynamic Semantics were found associated with the component");
 	private ProgressBar progressBar_;
 	
 	private Button clearColumnHeaderNodesButton_ = new Button("Clear Filters");
@@ -292,7 +290,7 @@ public class SemanticViewer implements DetailNodeFactory
 					if (ttv_.getSelectionModel().getSelectedItems().size() > 0 && ttv_.getSelectionModel().getSelectedItem() != null 
 							&& ttv_.getSelectionModel().getSelectedItem().getValue() != null)
 					{
-						return ttv_.getSelectionModel().getSelectedItem().getValue().getSememe().getStatus() == Status.ACTIVE;
+						return ttv_.getSelectionModel().getSelectedItem().getValue().getSemantic().getStatus() == Status.ACTIVE;
 					}
 					else
 					{
@@ -302,7 +300,7 @@ public class SemanticViewer implements DetailNodeFactory
 			};
 			
 			retireButton_ = new Button(null, Images.MINUS.createImageView());
-			retireButton_.setTooltip(new Tooltip("Retire Selected Sememe Extension(s)"));
+			retireButton_.setTooltip(new Tooltip("Retire Selected Semantic Extension(s)"));
 			retireButton_.setDisable(true);
 //TODO implement edit features?
 //			retireButton_.disableProperty().bind(selectedRowIsActive_.and(currentRowSelected_).not());
@@ -311,7 +309,7 @@ public class SemanticViewer implements DetailNodeFactory
 //				try
 //				{
 //					YesNoDialog dialog = new YesNoDialog(rootNode_.getScene().getWindow());
-//					DialogResponse dr = dialog.showYesNoDialog("Retire?", "Do you want to retire the selected sememe entries?");
+//					DialogResponse dr = dialog.showYesNoDialog("Retire?", "Do you want to retire the selected semantic entries?");
 //					if (DialogResponse.YES == dr)
 //					{
 //						ObservableList<TreeItem<SemanticGUI>> selected = ttv_.getSelectionModel().getSelectedItems();
@@ -320,17 +318,17 @@ public class SemanticViewer implements DetailNodeFactory
 //							for (TreeItem<SemanticGUI> refexTreeItem : selected)
 //							{
 //								SemanticGUI refex = refexTreeItem.getValue();
-//								if (refex.getSememe().getStatus() == State.INACTIVE)
+//								if (refex.getSemantic().getStatus() == State.INACTIVE)
 //								{
 //									continue;
 //								}
-//								if (refex.getSememe().getChronology().getSememeType() == SememeType.DYNAMIC)
+//								if (refex.getSemantic().getChronology().getSemanticType() == SemanticType.DYNAMIC)
 //								{
-//									MutableDynamicSememe<?> mds = ((SememeChronology<DynamicSememe>)refex.getSememe().getChronology())
-//											.createMutableVersion(MutableDynamicSememe.class, State.INACTIVE, ExtendedAppContext.getUserProfileBindings().getEditCoordinate().get());
-//									mds.setData(((DynamicSememe<?>)refex.getSememe()).getData());
-//									Get.commitService().addUncommitted(refex.getSememe().getChronology());
-//									Get.commitService().commit("retire dynamic sememe").get();
+//									MutableDynamicSemantic<?> mds = ((SemanticChronology<DynamicSemantic>)refex.getSemantic().getChronology())
+//											.createMutableVersion(MutableDynamicSemantic.class, State.INACTIVE, ExtendedAppContext.getUserProfileBindings().getEditCoordinate().get());
+//									mds.setData(((DynamicSemantic<?>)refex.getSemantic()).getData());
+//									Get.commitService().addUncommitted(refex.getSemantic().getChronology());
+//									Get.commitService().commit("retire dynamic semantic").get();
 //								}
 //								else
 //								{
@@ -344,20 +342,20 @@ public class SemanticViewer implements DetailNodeFactory
 //				}
 //				catch (Exception e)
 //				{
-//					logger_.error("Unexpected error retiring sememe", e);
-//					AppContext.getCommonDialogs().showErrorDialog("Error", "There was an unexpected error retiring the sememe", e.getMessage(), rootNode_.getScene().getWindow());
+//					logger_.error("Unexpected error retiring semantic", e);
+//					AppContext.getCommonDialogs().showErrorDialog("Error", "There was an unexpected error retiring the semantic", e.getMessage(), rootNode_.getScene().getWindow());
 //				}
 //			});
 			
 			t.getItems().add(retireButton_);
 			
 			addButton_ = new Button(null, Images.PLUS.createImageView());
-			addButton_.setTooltip(new Tooltip("Add a new Sememe Extension"));
+			addButton_.setTooltip(new Tooltip("Add a new Semantic Extension"));
 			addButton_.setDisable(true);
 			//TODO implement edit features?
 //			addButton_.setOnAction((action) ->
 //			{
-//				AddSememePopup arp = AppContext.getService(AddSememePopup.class);
+//				AddSemanticPopup arp = AppContext.getService(AddSemanticPopup.class);
 //				arp.finishInit(viewFocus_, viewFocusNid_, this);
 //				arp.showView(rootNode_.getScene().getWindow());
 //			});
@@ -366,20 +364,20 @@ public class SemanticViewer implements DetailNodeFactory
 			t.getItems().add(addButton_);
 			
 			editButton_ = new Button(null, Images.EDIT.createImageView());
-			editButton_.setTooltip(new Tooltip("Edit a Sememe"));
+			editButton_.setTooltip(new Tooltip("Edit a Semantic"));
 			editButton_.setDisable(true);
 			//TODO implement edit features?
 //			editButton_.disableProperty().bind(currentRowSelected_.not());
 //			editButton_.setOnAction((action) ->
 //			{
-//				AddSememePopup arp = AppContext.getService(AddSememePopup.class);
+//				AddSemanticPopup arp = AppContext.getService(AddSemanticPopup.class);
 //				arp.finishInit(ttv_.getSelectionModel().getSelectedItem().getValue(), this);
 //				arp.showView(rootNode_.getScene().getWindow());
 //			});
 			t.getItems().add(editButton_);
 			
 			viewUsageButton_ = new Button(null, Images.SEARCH.createImageView());
-			viewUsageButton_.setTooltip(new Tooltip("The displayed concept also defines a dynamic sememe itself.  Click to see the usage of this sememe."));
+			viewUsageButton_.setTooltip(new Tooltip("The displayed concept also defines a dynamic semantic itself.  Click to see the usage of this semantic."));
 			viewUsageButton_.setOnAction((action) ->
 			{
 				try
@@ -390,8 +388,8 @@ public class SemanticViewer implements DetailNodeFactory
 				}
 				catch (Exception e)
 				{
-					logger_.error("Error launching sememe dynamic member viewer", e);
-					Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected launching the sememe member viewer", e.getMessage(), 
+					logger_.error("Error launching semantic dynamic member viewer", e);
+					Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected launching the semantic member viewer", e.getMessage(), 
 							(rootNode_.getScene() == null ? null : rootNode_.getScene().getWindow()));
 				}
 			});
@@ -406,7 +404,7 @@ public class SemanticViewer implements DetailNodeFactory
 					boolean show = false;
 					if (viewFocus_ != null && viewFocus_ == ViewFocus.REFERENCED_COMPONENT && Get.conceptService().getOptionalConcept(viewFocusNid_).isPresent())
 					{
-						//Need to find out if this component has a the dynamic sememe definition annotation on it.
+						//Need to find out if this component has a the dynamic semantic definition annotation on it.
 						try
 						{
 							LookupService.getService(DynamicUtility.class).readDynamicUsageDescription(viewFocusNid_);
@@ -414,7 +412,7 @@ public class SemanticViewer implements DetailNodeFactory
 						}
 						catch (Exception e)
 						{
-							//noop - this concept simply isn't configured as a dynamic sememe concept.
+							//noop - this concept simply isn't configured as a dynamic semantic concept.
 						}
 					}
 					return show;
@@ -592,7 +590,7 @@ public class SemanticViewer implements DetailNodeFactory
 //							ExtendedAppContext.getDataStore().commit();
 //						}
 //					}
-//					Get.commitService().commit("commit of dynamic sememe").get();
+//					Get.commitService().commit("commit of dynamic semantic").get();
 				}
 				catch (Exception e)
 				{
@@ -649,7 +647,7 @@ public class SemanticViewer implements DetailNodeFactory
 		
 		BorderPane root = new BorderPane();
 		
-		Label title = new Label("Sememe View");
+		Label title = new Label("Semantic View");
 		title.getStyleClass().add("titleLabel");
 		title.setAlignment(Pos.CENTER);
 		title.setMaxWidth(Double.MAX_VALUE);
@@ -659,7 +657,7 @@ public class SemanticViewer implements DetailNodeFactory
 		
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
-		stage.setTitle("Sememe View");
+		stage.setTitle("Semantic View");
 		stage.getScene().getStylesheets().add(SemanticViewer.class.getResource("/css/isaac-shared-styles.css").toString());
 		stage.setWidth(800);
 		stage.setHeight(600);
@@ -755,7 +753,7 @@ public class SemanticViewer implements DetailNodeFactory
 	{
 		if (noRefresh_.get() > 0)
 		{
-			logger_.info("Skip refresh of dynamic sememe due to wait count {}", noRefresh_.get());
+			logger_.info("Skip refresh of dynamic semantic due to wait count {}", noRefresh_.get());
 			return;
 		}
 		else
@@ -771,9 +769,9 @@ public class SemanticViewer implements DetailNodeFactory
 			}
 			catch (Exception e)
 			{
-				logger_.error("Unexpected error building the sememe display", e);
+				logger_.error("Unexpected error building the semantic display", e);
 				//null check, as the error may happen before the scene is visible
-				Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected error building the sememe display", e.getMessage(), 
+				Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected error building the semantic display", e.getMessage(), 
 						(rootNode_.getScene() == null ? null : rootNode_.getScene().getWindow()));
 			}
 			finally
@@ -817,7 +815,7 @@ public class SemanticViewer implements DetailNodeFactory
 					return new StringCell((item) -> 
 					{
 						StringBuilder temp = new StringBuilder();
-						int refComp = item.getSememe().getReferencedComponentNid();
+						int refComp = item.getSemantic().getReferencedComponentNid();
 						int depth = 0;
 						while (refComp != SemanticViewer.this.viewFocusNid_)
 						{
@@ -872,7 +870,7 @@ public class SemanticViewer implements DetailNodeFactory
 				TreeTableColumn<SemanticGUI, SemanticGUI> uuidCol = new TreeTableColumn<>();
 				uuidCol.setText(SemanticGUIColumnType.UUID.toString());
 				//TODO this doesn't work, because the column is disabled by default
-				storeTooltip(toolTipStore, uuidCol.getText(), "The status of the sememe instance");
+				storeTooltip(toolTipStore, uuidCol.getText(), "The status of the semantic instance");
 				uuidCol.setSortable(true);
 				uuidCol.setResizable(true);
 				uuidCol.setCellValueFactory((callback) ->
@@ -881,7 +879,7 @@ public class SemanticViewer implements DetailNodeFactory
 				});
 				uuidCol.setCellFactory((colInfo) -> 
 				{
-					return new StringCell(data ->  {return data.getSememe().getPrimordialUuid().toString();});
+					return new StringCell(data ->  {return data.getSemantic().getPrimordialUuid().toString();});
 				});
 				uuidCol.setVisible(false);
 				treeColumns.add(uuidCol);
@@ -891,7 +889,7 @@ public class SemanticViewer implements DetailNodeFactory
 				{
 					//the assemblage is always the same - don't show.
 					TreeTableColumn<SemanticGUI, SemanticGUI>  ttCol = buildComponentCellColumn(SemanticGUIColumnType.COMPONENT);
-					storeTooltip(toolTipStore, ttCol.getText(), "The Referenced component of this Sememe");
+					storeTooltip(toolTipStore, ttCol.getText(), "The Referenced component of this Semantic");
 					HeaderNode<String> headerNode = new HeaderNode<String>(
 							filterCache_,
 							ttCol,
@@ -911,7 +909,7 @@ public class SemanticViewer implements DetailNodeFactory
 				{
 					//the component is always the same - don't show.
 					TreeTableColumn<SemanticGUI, SemanticGUI>  ttCol = buildComponentCellColumn(SemanticGUIColumnType.ASSEMBLAGE);
-					storeTooltip(toolTipStore, ttCol.getText(), "The Assemblage concept that defines this Sememe");
+					storeTooltip(toolTipStore, ttCol.getText(), "The Assemblage concept that defines this Semantic");
 					HeaderNode<String> headerNode = new HeaderNode<>(
 							filterCache_,
 							ttCol,
@@ -931,7 +929,7 @@ public class SemanticViewer implements DetailNodeFactory
 				TreeTableColumn<SemanticGUI, String> ttStringCol = new TreeTableColumn<>();
 				ttStringCol = new TreeTableColumn<>();
 				ttStringCol.setText(SemanticGUIColumnType.ATTACHED_DATA.toString());
-				storeTooltip(toolTipStore, ttStringCol.getText(), "The various data fields attached to this Sememe instance");
+				storeTooltip(toolTipStore, ttStringCol.getText(), "The various data fields attached to this Semantic instance");
 				ttStringCol.setSortable(false);
 				ttStringCol.setResizable(true);
 				//don't add yet - we might not need this column.  throw away later, if we don't need it
@@ -964,9 +962,9 @@ public class SemanticViewer implements DetailNodeFactory
 					uniqueColumns = new Hashtable<>();
 					
 					DynamicUsageDescription rdud;
-					//Normally, we can read the info necessary from the assemblage - but in the case where we are displaying a non-dynamic sememe
-					//I need to read an instance of the sememe, to find out what type it is (and then assume, that it is only used as that type)
-					//yes, dangerous, bad code... the static sememes need work....
+					//Normally, we can read the info necessary from the assemblage - but in the case where we are displaying a non-dynamic semantic
+					//I need to read an instance of the semantic, to find out what type it is (and then assume, that it is only used as that type)
+					//yes, dangerous, bad code... the static semantics need work....
 					
 					try
 					{
@@ -974,7 +972,7 @@ public class SemanticViewer implements DetailNodeFactory
 					}
 					catch (Exception e)
 					{
-						//Its either a mis-configured dynamic sememe, or its a static sememe.  Check and see...
+						//Its either a mis-configured dynamic semantic, or its a static semantic.  Check and see...
 						Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(viewFocusNid_).findAny();
 						if (sc.isPresent())
 						{
@@ -1055,13 +1053,13 @@ public class SemanticViewer implements DetailNodeFactory
 									for (UUID uuid : col.keySet())
 									{
 										assert source != null;
-										assert source.getSememe() != null;
+										assert source.getSemantic() != null;
 										
-										if (Get.identifierService().getNidForUuids(uuid) == source.getSememe().getAssemblageNid())
+										if (Get.identifierService().getNidForUuids(uuid) == source.getSemantic().getAssemblageNid())
 										{
 											List<DynamicColumnInfo> colInfo =  col.get(uuid);
 											Integer refexColumnOrder = (colInfo.size() > listItem ? 
-													(SemanticGUI.getData(source.getSememe()).length <= colInfo.get(listItem).getColumnOrder() ? null 
+													(SemanticGUI.getData(source.getSemantic()).length <= colInfo.get(listItem).getColumnOrder() ? null 
 														: colInfo.get(listItem).getColumnOrder()): null);
 											
 											if (refexColumnOrder != null)
@@ -1092,13 +1090,13 @@ public class SemanticViewer implements DetailNodeFactory
 									for (UUID uuid : col.keySet())
 									{
 										assert o1 != null;
-										assert o1.getSememe() != null;
+										assert o1.getSemantic() != null;
 										
-										if (Get.identifierService().getNidForUuids(uuid) == o1.getSememe().getAssemblageNid())
+										if (Get.identifierService().getNidForUuids(uuid) == o1.getSemantic().getAssemblageNid())
 										{
 											List<DynamicColumnInfo> colInfo =  col.get(uuid);
 											Integer refexColumnOrder = (colInfo.size() > listItem ? 
-													(SemanticGUI.getData(o1.getSememe()).length <= colInfo.get(listItem).getColumnOrder() ? null 
+													(SemanticGUI.getData(o1.getSemantic()).length <= colInfo.get(listItem).getColumnOrder() ? null 
 														: colInfo.get(listItem).getColumnOrder()): null);
 											
 											if (refexColumnOrder != null)
@@ -1316,22 +1314,22 @@ public class SemanticViewer implements DetailNodeFactory
 			{
 				if (e.getMessage().equals("Keyword"))
 				{
-					logger_.info("The specified concept is not specified correctly as a dynamic sememe, and is not utilized as a static sememe", e);
+					logger_.info("The specified concept is not specified correctly as a dynamic semantic, and is not utilized as a static semantic", e);
 					Platform.runLater(() ->
 					{
 						addButton_.setDisable(true);
 						treeRoot_.getChildren().clear();
 						summary_.setText(0 + " entries");
-						placeholderText_.setText("The specified concept is not specified correctly as a dynamic sememe, and is not utilized as a static sememe");
+						placeholderText_.setText("The specified concept is not specified correctly as a dynamic semantic, and is not utilized as a static semantic");
 						ttv_.setPlaceholder(placeholderText_);
 						ttv_.getSelectionModel().clearSelection();
 					});
 				}
 				else
 				{
-					logger_.error("Unexpected error building the sememe display", e);
+					logger_.error("Unexpected error building the semantic display", e);
 					//null check, as the error may happen before the scene is visible
-					Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected error building the sememe display", e.getMessage(), 
+					Get.service(DialogService.class).showErrorDialog("Error", "There was an unexpected error building the semantic display", e.getMessage(), 
 							(rootNode_.getScene() == null ? null : rootNode_.getScene().getWindow()));
 				}
 			}
@@ -1364,7 +1362,7 @@ public class SemanticViewer implements DetailNodeFactory
 		//Now add the data
 		ArrayList<TreeItem<SemanticGUI>> rowData = getDataRows(viewFocusNid_);
 		
-		logger_.info("Found {} rows of data in a dynamic sememe", rowData.size());
+		logger_.info("Found {} rows of data in a dynamic semantic", rowData.size());
 		
 		Get.workExecutors().getExecutor().execute(() ->
 		{
@@ -1432,14 +1430,14 @@ public class SemanticViewer implements DetailNodeFactory
 		}
 	}
 	
-	private ArrayList<TreeItem<SemanticGUI>> createFilteredRowData(Stream<SemanticChronology> sememes) throws IOException
+	private ArrayList<TreeItem<SemanticGUI>> createFilteredRowData(Stream<SemanticChronology> semantics) throws IOException
 	{
 		ArrayList<TreeItem<SemanticGUI>> rowData = new ArrayList<>();
 		ArrayList<SemanticVersion> allVersions = new ArrayList<>();
 		
-		sememes.forEach(sememeC ->
+		semantics.forEach(semanticC ->
 		{
-			for (Version ds :  sememeC.getVersionList())
+			for (Version ds :  semanticC.getVersionList())
 			{
 				allVersions.add((SemanticVersion)ds);
 			}
@@ -1510,10 +1508,10 @@ public class SemanticViewer implements DetailNodeFactory
 	{
 		Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> columns = new Hashtable<>();
 		
-		Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach(sememeC ->
+		Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach(semanticC ->
 		{
 			boolean assemblageWasNull = false;
-			for (DynamicColumnInfo column :  DynamicUsageDescriptionImpl.mockOrRead(sememeC).getColumnInfo())
+			for (DynamicColumnInfo column :  DynamicUsageDescriptionImpl.mockOrRead(semanticC).getColumnInfo())
 			{
 				Hashtable<UUID, List<DynamicColumnInfo>> inner = columns.get(column.getColumnDescriptionConcept());
 				if (inner == null)
@@ -1535,7 +1533,7 @@ public class SemanticViewer implements DetailNodeFactory
 			}
 			
 			//recurse
-			Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nested = getUniqueColumns(sememeC.getNid());
+			Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nested = getUniqueColumns(semanticC.getNid());
 			for (Entry<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nestedItem : nested.entrySet())
 			{
 				if (columns.get(nestedItem.getKey()) == null)
@@ -1575,7 +1573,7 @@ public class SemanticViewer implements DetailNodeFactory
 		}
 		for (TreeItem<SemanticGUI> item : items)
 		{
-			if (item.getValue() != null && item.getValue().getSememe().isUncommitted())
+			if (item.getValue() != null && item.getValue().getSemantic().isUncommitted())
 			{
 				//TODO add some indication that this is either running / finished
 				Platform.runLater(() ->
@@ -1599,7 +1597,7 @@ public class SemanticViewer implements DetailNodeFactory
 		{
 			if (item.getValue() != null)
 			{
-				SemanticVersion refex = item.getValue().getSememe();
+				SemanticVersion refex = item.getValue().getSemantic();
 				results.add(refex.getAssemblageNid());
 			}
 			results.addAll(getAllAssemblageSequences(item.getChildren()));
@@ -1619,7 +1617,7 @@ public class SemanticViewer implements DetailNodeFactory
 			//TODO commit / cancel / forget?
 //			if (item.getValue() != null)
 //			{
-//				DynamicSememeVersionBI<? extends DynamicSememeVersionBI<?>> refex = item.getValue().getRefex();
+//				DynamicSemanticVersionBI<? extends DynamicSemanticVersionBI<?>> refex = item.getValue().getRefex();
 //				if (refex.isUncommitted())
 //				{
 //					ExtendedAppContext.getDataStore().forget(refex);
@@ -1647,7 +1645,7 @@ public class SemanticViewer implements DetailNodeFactory
 		{
 			if (item.getValue() != null)
 			{
-				SemanticVersion refex = item.getValue().getSememe();
+				SemanticVersion refex = item.getValue().getSemantic();
 				results.add(refex.getReferencedComponentNid());
 			}
 			results.addAll(getAllComponentNids(item.getChildren()));
@@ -1672,7 +1670,7 @@ public class SemanticViewer implements DetailNodeFactory
 
 		if (rowData.size() == 0)
 		{
-			placeholderText_.setText("No Dynamic Sememes were found using this Assemblage");
+			placeholderText_.setText("No Dynamic Semantics were found using this Assemblage");
 		}
 		return rowData;
 	}

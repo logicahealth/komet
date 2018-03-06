@@ -118,7 +118,7 @@ public class AssemblageViewerController
 	private volatile PendingRead readStatusTracker = PendingRead.IDLE;
 	private Object readStatusLock = new Object();
 	private int currentlyRenderedRefexNid = 0;
-	private ContextMenu sememeDefinitionsContextMenu_;
+	private ContextMenu semanticDefinitionsContextMenu_;
 
 	private HashSet<SimpleDisplayConcept> allRefexDefinitions;
 
@@ -160,14 +160,14 @@ public class AssemblageViewerController
 			ConceptSnapshot cv = conceptNode.getConceptProperty().get();  //Need to do a get after each invalidation, otherwise, we won't get the next invalidation
 			if (cv != null)
 			{
-				//see if it is a valid Dynamic Sememe Assemblage
+				//see if it is a valid Dynamic Semantic Assemblage
 				try
 				{
 					LookupService.getService(DynamicUtility.class).readDynamicUsageDescription(cv.getNid());
 				}
 				catch (Exception e)
 				{
-					conceptNode.isValid().setInvalid("The specified concept is not constructed as a Dynamic Sememe Assemblage concept");
+					conceptNode.isValid().setInvalid("The specified concept is not constructed as a Dynamic Semantic Assemblage concept");
 				}
 			}
 			rebuildList(false);
@@ -175,7 +175,7 @@ public class AssemblageViewerController
 
 		conceptNodeFilterPlaceholder.getChildren().add(conceptNode.getNode());
 
-		statusLabel.setText("Reading Sememes");
+		statusLabel.setText("Reading Semantics");
 
 		clearFilterButton.setOnAction((event) -> {
 			disableRead = true;
@@ -187,11 +187,11 @@ public class AssemblageViewerController
 
 		semanticList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		semanticList.getSelectionModel().selectedItemProperty().addListener((change) -> {
-			showSememeDetails(semanticList.getSelectionModel().getSelectedItem());
+			showSemanticDetails(semanticList.getSelectionModel().getSelectedItem());
 		});
 		
-		sememeDefinitionsContextMenu_ = new ContextMenu();
-		sememeDefinitionsContextMenu_.setAutoHide(true);
+		semanticDefinitionsContextMenu_ = new ContextMenu();
+		semanticDefinitionsContextMenu_.setAutoHide(true);
 		
 		MenuItem mi = new MenuItem("View Usage");
 		mi.setOnAction((action) ->
@@ -205,10 +205,10 @@ public class AssemblageViewerController
 			}
 		});
 		mi.setGraphic(Images.SEARCH.createImageView());
-		sememeDefinitionsContextMenu_.getItems().add(mi);
+		semanticDefinitionsContextMenu_.getItems().add(mi);
 
 		//TODO indexing config see if it makes sense to port this view as part of fixing customization of indexing
-//		mi = new MenuItem("Configure Sememe Indexing");
+//		mi = new MenuItem("Configure Semantic Indexing");
 //		mi.setOnAction((action) ->
 //		{
 //			SimpleDisplayConcept sdc = semanticList.getSelectionModel().getSelectedItem();
@@ -218,10 +218,10 @@ public class AssemblageViewerController
 //			}
 //		});
 //		mi.setGraphic(Images.CONFIGURE.createImageView());
-//		sememeDefinitionsContextMenu_.getItems().add(mi);
+//		semanticDefinitionsContextMenu_.getItems().add(mi);
 		
 		//TODO common menu support?
-//		CommonMenus.addCommonMenus(sememeDefinitionsContextMenu_, new CommonMenusNIdProvider()
+//		CommonMenus.addCommonMenus(semanticDefinitionsContextMenu_, new CommonMenusNIdProvider()
 //		{
 //			@Override
 //			public Collection<Integer> getNIds()
@@ -235,13 +235,13 @@ public class AssemblageViewerController
 		{
 			if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && semanticList.getSelectionModel().getSelectedItem() != null)
 			{
-				sememeDefinitionsContextMenu_.show(semanticList, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+				semanticDefinitionsContextMenu_.show(semanticList, mouseEvent.getScreenX(), mouseEvent.getScreenY());
 			}
 			if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
 			{
-				if (sememeDefinitionsContextMenu_.isShowing())
+				if (semanticDefinitionsContextMenu_.isShowing())
 				{
-					sememeDefinitionsContextMenu_.hide();
+					semanticDefinitionsContextMenu_.hide();
 				}
 			}
 		});
@@ -295,7 +295,7 @@ public class AssemblageViewerController
 			}
 		}
 
-		statusLabel.setText("Reading Sememes");
+		statusLabel.setText("Reading Semantics");
 		readingSemanticProgress.setVisible(true);
 		SimpleDisplayConcept selectedBefore = semanticList.getSelectionModel().getSelectedItem();
 		semanticList.getSelectionModel().clearSelection();
@@ -317,11 +317,11 @@ public class AssemblageViewerController
 				if (allRefexDefinitions == null)
 				{
 					allRefexDefinitions = new HashSet<>();
-					allRefexDefinitions.addAll(Frills.getAllDynamicSememeAssemblageConcepts());
+					allRefexDefinitions.addAll(Frills.getAllDynamicSemanticAssemblageConcepts());
 				}
 				
 				//This code for adding the concept from the concept filter panel can be removed, if we fix the above code to actually
-				//find all dynamic sememes in the system.
+				//find all dynamic semantics in the system.
 				boolean conceptFromOutsideTheList = true;
 				SimpleDisplayConcept enteredConcept = null;
 				if (conceptNode.getConcept() != null && conceptNode.isValid().get())
@@ -367,21 +367,21 @@ public class AssemblageViewerController
 			@Override
 			protected void failed()
 			{
-				log.error("Unexpected error building Sememe List", this.getException());
+				log.error("Unexpected error building Semantic List", this.getException());
 				FxGet.dialogs().showErrorDialog("Error reading Dynamic semantics", this.getException());
 				finished();
 			}
 
 			private void finished()
 			{
-				log.debug("Sememe Definition refresh complete");
+				log.debug("Semantic Definition refresh complete");
 				semanticList.getItems().addAll(filteredList);
 				if (selectedBefore != null && semanticList.getItems().contains(selectedBefore))
 				{
 					semanticList.getSelectionModel().select(selectedBefore);
 				}
-				showSememeDetails(semanticList.getSelectionModel().getSelectedItem());
-				statusLabel.setText("Showing " + filteredList.size() + " of " + allRefexDefinitions.size() + " Sememes");
+				showSemanticDetails(semanticList.getSelectionModel().getSelectedItem());
+				statusLabel.setText("Showing " + filteredList.size() + " of " + allRefexDefinitions.size() + " Semantics");
 				readingSemanticProgress.setVisible(false);
 				synchronized (readStatusLock)
 				{
@@ -423,7 +423,7 @@ public class AssemblageViewerController
 		return true;
 	}
 
-	private void showSememeDetails(SimpleDisplayConcept sdn)
+	private void showSemanticDetails(SimpleDisplayConcept sdn)
 	{
 		if (sdn != null && sdn.getNid() == currentlyRenderedRefexNid)
 		{
@@ -499,7 +499,7 @@ public class AssemblageViewerController
 			@Override
 			protected void failed()
 			{
-				log.error("Unexpected error building selected sememe", this.getException());
+				log.error("Unexpected error building selected semantic", this.getException());
 				FxGet.dialogs().showErrorDialog("Error reading Dynamic Semantic", this.getException());
 				finished();
 			}

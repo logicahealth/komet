@@ -65,7 +65,7 @@ import javafx.util.Callback;
 import sh.isaac.api.Get;
 import sh.komet.gui.contract.DialogService;
 
-public class SememeContentFilterPrompt 
+public class SemanticContentFilterPrompt 
 {
 	public enum UserPromptResponse { APPROVE, CANCEL };
 	final ListView<String> selectedValues = new ListView<>();
@@ -75,7 +75,7 @@ public class SememeContentFilterPrompt
 
 	final List<String> alreadySelectedValues = new ArrayList<>();
 
-	protected SememeContentFilterPrompt(String columnName, List<String> allValues, List<?> alreadySelectedValues)
+	protected SemanticContentFilterPrompt(String columnName, List<String> allValues, List<?> alreadySelectedValues)
 	{
 		this.columnName = columnName;
 		for (String s : allValues)

@@ -2451,7 +2451,7 @@ public class Frills
    /**
     * @return a sorted list of SimpleDisplayConcept objects that represent all dynamic sememe assemblages in the system (active or inactive) 
     */
-   public static List<SimpleDisplayConcept> getAllDynamicSememeAssemblageConcepts()
+   public static List<SimpleDisplayConcept> getAllDynamicSemanticAssemblageConcepts()
    {
       List<SimpleDisplayConcept> allDynamicSememeDefConcepts = new ArrayList<>();
 

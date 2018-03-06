@@ -82,7 +82,7 @@ import sh.komet.gui.manifold.Manifold;
 /**
  * {@link SemanticGUI}
  * 
- * A Wrapper for a DynamicSememeVersionBI - because the versioned refex provides no information
+ * A Wrapper for a SemanticVersion - because the versioned refex provides no information
  * about whether or not it is an old version, or if it is the latest version.  Add a flag for 
  * is latest.
  * 
@@ -125,14 +125,14 @@ public class SemanticGUI
 	 * Contains the refex reference when this object was constructed based on an existing refex
 	 * @return the semantic
 	 */
-	public SemanticVersion getSememe()
+	public SemanticVersion getSemantic()
 	{
 		return refex_;
 	}
 
 	/**
 	 * If this was constructed based off of an existing refex, is this the most current refex?  Or a historical one?
-	 * This is meaningless if {@link #getSememe()} return null.
+	 * This is meaningless if {@link #getSemantic()} return null.
 	 * @return true if current
 	 */
 	public boolean isCurrent()
@@ -172,11 +172,11 @@ public class SemanticGUI
 			case STATUS_CONDENSED:
 			{
 				//sort by uncommitted first, then current / historical, then active / inactive
-				if (this.getSememe().getTime() == Long.MAX_VALUE)
+				if (this.getSemantic().getTime() == Long.MAX_VALUE)
 				{
 					return -1;
 				}
-				else if (other.getSememe().getTime() == Long.MAX_VALUE)
+				else if (other.getSemantic().getTime() == Long.MAX_VALUE)
 				{
 					return 1;
 				}
@@ -190,11 +190,11 @@ public class SemanticGUI
 					return 1;
 				}
 				
-				if (this.getSememe().getStatus() == Status.ACTIVE && other.getSememe().getStatus() == Status.INACTIVE)
+				if (this.getSemantic().getStatus() == Status.ACTIVE && other.getSemantic().getStatus() == Status.INACTIVE)
 				{
 					return -1;
 				}
-				else if (this.getSememe().getStatus() == Status.INACTIVE && other.getSememe().getStatus() == Status.ACTIVE)
+				else if (this.getSemantic().getStatus() == Status.INACTIVE && other.getSemantic().getStatus() == Status.ACTIVE)
 				{
 					return 1;
 				}
@@ -202,11 +202,11 @@ public class SemanticGUI
 			}
 			case TIME:
 			{
-				if (this.getSememe().getTime() < other.getSememe().getTime())
+				if (this.getSemantic().getTime() < other.getSemantic().getTime())
 				{
 					return -1;
 				}
-				else if (this.getSememe().getTime() > other.getSememe().getTime())
+				else if (this.getSemantic().getTime() > other.getSemantic().getTime())
 				{
 					return -1;
 				}
@@ -488,7 +488,7 @@ public class SemanticGUI
 					case CONCEPT:
 						//Should be impossible
 					default :
-						logger_.warn("The sememe type " + sc.getVersionType() + " is not handled yet!");
+						logger_.warn("The semantic type " + sc.getVersionType() + " is not handled yet!");
 						text = oc.get().toUserString();
 						break;
 				}
@@ -497,7 +497,7 @@ public class SemanticGUI
 			{
 				//TODO I don't think this is necessary / in use?
 				DynamicVersion<?> nds = (DynamicVersion<?>) oc.get();
-				text = "Nested Sememe Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
+				text = "Nested Semantic Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
 			}
 			else
 			{
@@ -620,28 +620,28 @@ public class SemanticGUI
 	}
 	
 	/**
-	 * A method to read the data from a sememe of an arbitrary type, mocking up static sememes as dynamic sememems, if necessary
-	 * @param sememe
+	 * A method to read the data from a semantic of an arbitrary type, mocking up static semantics as dynamic semantics, if necessary
+	 * @param semantic
 	 * @return the data in a Dynamic Container
 	 */
-	public static DynamicData[] getData(SemanticVersion sememe)
+	public static DynamicData[] getData(SemanticVersion semantic)
 	{
-		switch (sememe.getChronology().getVersionType())
+		switch (semantic.getChronology().getVersionType())
 		{
 			case COMPONENT_NID:
-				return new DynamicData[] {new DynamicNidImpl(((ComponentNidVersion)sememe).getComponentNid())};
+				return new DynamicData[] {new DynamicNidImpl(((ComponentNidVersion)semantic).getComponentNid())};
 			case DESCRIPTION:
-				return new DynamicData[] {new DynamicStringImpl(((DescriptionVersion)sememe).getText())};
+				return new DynamicData[] {new DynamicStringImpl(((DescriptionVersion)semantic).getText())};
 			case DYNAMIC:
-				return ((DynamicVersion<?>)sememe).getData();
+				return ((DynamicVersion<?>)semantic).getData();
 			case LONG:
-				return new DynamicData[] {new DynamicLongImpl(((LongVersion)sememe).getLongValue())};
+				return new DynamicData[] {new DynamicLongImpl(((LongVersion)semantic).getLongValue())};
 			case MEMBER:
 				return new DynamicData[] {};
 			case STRING:
-				return new DynamicData[] {new DynamicStringImpl(((StringVersion)sememe).getString())};
+				return new DynamicData[] {new DynamicStringImpl(((StringVersion)semantic).getString())};
 			case LOGIC_GRAPH:
-				return new DynamicData[] {new DynamicStringImpl(((LogicGraphVersion)sememe).toString())};
+				return new DynamicData[] {new DynamicStringImpl(((LogicGraphVersion)semantic).toString())};
 			case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
 			case Nid1_Int2:
 			case Nid1_Int2_Str3_Str4_Nid5_Nid6:
@@ -658,9 +658,9 @@ public class SemanticGUI
 			case LOINC_RECORD:
 			case MEASURE_CONSTRAINTS:
 				//Handle all brittle types
-				if (sememe instanceof BrittleVersion)
+				if (semantic instanceof BrittleVersion)
 				{
-					BrittleVersion bv = (BrittleVersion)sememe;
+					BrittleVersion bv = (BrittleVersion)semantic;
 					Object[] data = bv.getDataFields();
 					int position = 0;
 					DynamicData[] dd = new DynamicData[data.length];

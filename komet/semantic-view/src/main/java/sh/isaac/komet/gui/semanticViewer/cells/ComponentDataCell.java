@@ -96,7 +96,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			boolean setStyle = false;
 			boolean configureDragAndDrop = false;
 			ContextMenu cm = new ContextMenu();
-			int nid = item.getNidFetcher(type_, null).applyAsInt(item.getSememe());
+			int nid = item.getNidFetcher(type_, null).applyAsInt(item.getSemantic());
 			
 			@Override
 			protected Void call() throws Exception
@@ -110,9 +110,9 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 						case CONCEPT:
 						{
 							//TODO indexing config
-//							if (SemanticGUIColumnType.ASSEMBLAGE == type_ && DynamicUsageDescriptionImpl.isDynamicSememe(nid))
+//							if (SemanticGUIColumnType.ASSEMBLAGE == type_ && DynamicUsageDescriptionImpl.isDynamicSemantic(nid))
 //							{
-//								MenuItem mi = new MenuItem("Configure Sememe Indexing");
+//								MenuItem mi = new MenuItem("Configure Semantic Indexing");
 //								mi.setOnAction((action) ->
 //								{
 //									new ConfigureDynamicRefexIndexingView(nid).showView(null);
@@ -129,7 +129,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 //								@Override
 //								public Collection<Integer> getNIds()
 //								{
-//									return Arrays.asList(new Integer[] {item.getNidFetcher(type_, null).applyAsInt(item.getSememe())});
+//									return Arrays.asList(new Integer[] {item.getNidFetcher(type_, null).applyAsInt(item.getSemantic())});
 //								}
 //							});
 							setStyle = true;
@@ -139,7 +139,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 						{
 							//TODO common menus
 //							@SuppressWarnings({ "unchecked", "rawtypes" })
-//							Optional<LatestVersion<SememeVersion<?>>> sv = Get.assemblageService().getSemanticChronology(nid)
+//							Optional<LatestVersion<SemanticVersion<?>>> sv = Get.assemblageService().getSemanticChronology(nid)
 //									.getLatestVersion(ExtendedAppContext.getUserProfileBindings().getStampCoordinate().get());
 //							if (sv.isPresent())
 //							{
@@ -152,7 +152,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 //									@Override
 //									public Collection<Integer> getNIds()
 //									{
-//										//TODO won't work for nested sememes!  need to recurse
+//										//TODO won't work for nested semantics!  need to recurse
 //										return Arrays.asList(new Integer[] {sv.get().value().getReferencedComponentNid()});
 //									}
 //								});

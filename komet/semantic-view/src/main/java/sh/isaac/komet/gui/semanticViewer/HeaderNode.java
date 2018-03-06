@@ -54,7 +54,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
-import sh.isaac.komet.gui.semanticViewer.SememeContentFilterPrompt.UserPromptResponse;
 
 /**
  * HeaderNode
@@ -232,7 +231,7 @@ public class HeaderNode<T>
 
 		Collections.sort(testList);
 
-		SememeContentFilterPrompt prompt = new SememeContentFilterPrompt(text, testList, filter.getFilterValues());
+		SemanticContentFilterPrompt prompt = new SemanticContentFilterPrompt(text, testList, filter.getFilterValues());
 
 		if (prompt.showUserPrompt(scene.getWindow(), "Select Filters"))
 		{

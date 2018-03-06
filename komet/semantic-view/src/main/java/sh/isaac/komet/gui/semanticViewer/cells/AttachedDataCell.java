@@ -97,13 +97,13 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			{
 				for (UUID uuid : columnInfo_.keySet())
 				{
-					if (Get.identifierService().getNidForUuids(uuid) == item.getSememe().getAssemblageNid())
+					if (Get.identifierService().getNidForUuids(uuid) == item.getSemantic().getAssemblageNid())
 					{
 						List<DynamicColumnInfo> colInfo =  columnInfo_.get(uuid);
 						Integer refexColumnOrder = (colInfo.size() > listItem_ ? 
-								(SemanticGUI.getData(item.getSememe()).length <= colInfo.get(listItem_).getColumnOrder() ? null 
+								(SemanticGUI.getData(item.getSemantic()).length <= colInfo.get(listItem_).getColumnOrder() ? null 
 									: colInfo.get(listItem_).getColumnOrder()): null);
-						DynamicData data = (refexColumnOrder == null ? null : SemanticGUI.getData(item.getSememe())[refexColumnOrder]); 
+						DynamicData data = (refexColumnOrder == null ? null : SemanticGUI.getData(item.getSemantic())[refexColumnOrder]); 
 						if (data != null)
 						{
 							if (data instanceof DynamicNid)
@@ -184,7 +184,7 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 //				@Override
 //				public Collection<Integer> getNIds()
 //				{
-//					int nid = item.getNidFetcher(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder).applyAsInt(item.getSememe());
+//					int nid = item.getNidFetcher(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder).applyAsInt(item.getSemantic());
 //
 //					ArrayList<Integer> nids = new ArrayList<>();
 //					if (nid != 0)
@@ -215,7 +215,7 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 				setGraphic(textHolder);
 				Get.service(DragRegistry.class).setupDragOnly(textHolder, () -> 
 				{
-					return item.getNidFetcher(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder).applyAsInt(item.getSememe());
+					return item.getNidFetcher(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder).applyAsInt(item.getSemantic());
 				});
 				setText(null);
 			});
