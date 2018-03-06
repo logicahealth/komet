@@ -17,12 +17,13 @@
 package sh.isaac.api.statement.constraints;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
 
 /**
  *
  * @author kec
  */
-public interface MeasureConstraints extends SemanticVersion {
+public interface MeasureConstraints extends SemanticVersion, BrittleVersion {
     
     String getConstraintDescription();
     
@@ -42,4 +43,51 @@ public interface MeasureConstraints extends SemanticVersion {
     boolean showIncludeBounds();
     
     int getMeasureSemanticConstraintAssemblageNid();
+    
+
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public default BrittleDataTypes[] getFieldTypes()
+    {
+        return new BrittleDataTypes[] {
+                BrittleDataTypes.STRING,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.BOOLEAN,
+                BrittleDataTypes.BOOLEAN,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.FLOAT,
+                BrittleDataTypes.BOOLEAN,
+                BrittleDataTypes.BOOLEAN,
+                BrittleDataTypes.BOOLEAN,
+                BrittleDataTypes.INTEGER};
+    }
+
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public default Object[] getDataFields()
+    {
+        return new Object[] {
+                getConstraintDescription(),
+                getInitialLowerBound(),
+                getInitialUpperBound(),
+                getInitialGranularity(),
+                getInitialIncludeUpperBound(),
+                getInitialIncludeLowerBound(),
+                getMinimumValue(),
+                getMaximumValue(),
+                getMinimumGranularity(),
+                getMaximumGranularity(),
+                showRange(),
+                showGranularity(),
+                showIncludeBounds(),
+                getMeasureSemanticConstraintAssemblageNid()};
+    }
 }
