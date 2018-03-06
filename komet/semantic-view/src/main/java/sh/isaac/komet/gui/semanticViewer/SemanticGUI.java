@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.function.ToIntFunction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.Arrays;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
@@ -56,6 +57,8 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicByteArray;
@@ -66,12 +69,15 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.util.AlphanumComparator;
-import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumberUtilities;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * {@link SemanticGUI}
@@ -97,19 +103,22 @@ public class SemanticGUI
 	//These variables are used when we are creating a new refex which doesn't yet exist.
 	private Integer buildFromReferenceNid_;
 	private boolean referenceIsAssemblyNid_;
+	private Manifold manifold_;
 	
-	protected SemanticGUI(SemanticVersion refex, boolean isCurrent)
+	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, Manifold manifold)
 	{
 		refex_ = refex;
 		isCurrent_ = isCurrent;
+		manifold_ = manifold;
 	}
 	
-	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid)
+	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, Manifold manifold)
 	{
 		refex_ = null;
 		isCurrent_ = false;
 		buildFromReferenceNid_ = buildFromReferenceNid;
 		referenceIsAssemblyNid_ = referenceIsAssemblyNid;
+		manifold_ = manifold;
 	}
 
 	/**
@@ -425,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), StampCoordinates.getDevelopmentLatest(), null);
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), null);
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -433,46 +442,66 @@ public class SemanticGUI
 				SemanticChronology sc = (SemanticChronology)oc.get();
 				switch (sc.getVersionType()) {
 					case COMPONENT_NID:
-						text = "Component NID Sememe using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
 						break;
 					case DESCRIPTION:
-						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(StampCoordinates.getDevelopmentLatest());
-						text = "Description Sememe: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
+						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampCoordinate());
+						text = "Description Semantic: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
 						break;
 					case DYNAMIC:
-						text = "Dynamic Sememe using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Dynamic Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
 						break;
 					case LOGIC_GRAPH:
-						text = "Logic Graph Sememe [NID]: " + oc.get().getNid();
+						text = "Logic Graph Semantic [NID]: " + oc.get().getNid();
 						break;
 					case LONG:
-						LatestVersion<LongVersion> sl = sc.getLatestVersion(StampCoordinates.getDevelopmentLatest());
-						text = "String Sememe: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
+						LatestVersion<LongVersion> sl = sc.getLatestVersion(manifold_.getStampCoordinate());
+						text = "String Semantic: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
 						break;
 					case MEMBER:
-						text = "Member Sememe using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
 						break;
 					case STRING:
-						LatestVersion<StringVersion> ss = sc.getLatestVersion(StampCoordinates.getDevelopmentLatest());
-						text = "String Sememe: " + (ss.isPresent() ? ss.get().getString() : "off path [NID]: " + sc.getNid());
+						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampCoordinate());
+						text = "String Semantic: " + (ss.isPresent() ? ss.get().getString() : "off path [NID]: " + sc.getNid());
+						break;
+
+					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+					case LOINC_RECORD:
+					case MEASURE_CONSTRAINTS:
+					case Nid1_Int2:
+					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+					case Nid1_Nid2:
+					case Nid1_Nid2_Int3:
+					case Nid1_Nid2_Str3:
+					case Nid1_Str2:
+					case RF2_RELATIONSHIP:
+					case Str1_Nid2_Nid3_Nid4:
+					case Str1_Str2:
+					case Str1_Str2_Nid3_Nid4:
+					case Str1_Str2_Nid3_Nid4_Nid5:
+					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(manifold_.getStampCoordinate());
+						text = "Brittle Semantic: " + (bv.isPresent() ? Arrays.toString(bv.get().getDataFields()) : "off path [NID]: " + sc.getNid());
 						break;
 					case UNKNOWN:
+					case CONCEPT:
+						//Should be impossible
 					default :
 						logger_.warn("The sememe type " + sc.getVersionType() + " is not handled yet!");
-						//TODO should handle other types of common sememes
 						text = oc.get().toUserString();
 						break;
 				}
 			}
 			else if (oc.get() instanceof DynamicVersion<?>)
 			{
+				//TODO I don't think this is necessary / in use?
 				DynamicVersion<?> nds = (DynamicVersion<?>) oc.get();
 				text = "Nested Sememe Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
 			}
 			else
 			{
 				logger_.warn("The component type " + oc.get().getClass() + " is not handled yet!");
-				//TODO should handle other types of common sememes
 				text = oc.get().toUserString();
 			}
 		}
@@ -613,24 +642,62 @@ public class SemanticGUI
 				return new DynamicData[] {new DynamicStringImpl(((StringVersion)sememe).getString())};
 			case LOGIC_GRAPH:
 				return new DynamicData[] {new DynamicStringImpl(((LogicGraphVersion)sememe).toString())};
-			case UNKNOWN:
-			case CONCEPT:
-			//TODO if these things stick around, we should map them to dynamics per above.... but I hope they go away....
 			case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-			case LOINC_RECORD:
-			case MEASURE_CONSTRAINTS:
 			case Nid1_Int2:
 			case Nid1_Int2_Str3_Str4_Nid5_Nid6:
 			case Nid1_Nid2:
 			case Nid1_Nid2_Int3:
 			case Nid1_Nid2_Str3:
 			case Nid1_Str2:
-			case RF2_RELATIONSHIP:
 			case Str1_Nid2_Nid3_Nid4:
 			case Str1_Str2:
 			case Str1_Str2_Nid3_Nid4:
 			case Str1_Str2_Nid3_Nid4_Nid5:
 			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+			case RF2_RELATIONSHIP:
+			case LOINC_RECORD:
+			case MEASURE_CONSTRAINTS:
+				//Handle all brittle types
+				if (sememe instanceof BrittleVersion)
+				{
+					BrittleVersion bv = (BrittleVersion)sememe;
+					Object[] data = bv.getDataFields();
+					int position = 0;
+					DynamicData[] dd = new DynamicData[data.length];
+					
+					for (BrittleDataTypes fv : bv.getFieldTypes())
+					{
+						switch (fv)
+						{
+							case INTEGER:
+								dd[position] = new DynamicIntegerImpl((Integer)data[position]);
+								break;
+							case NID:
+								dd[position] = new DynamicNidImpl((Integer)data[position]);
+								break;
+							case STRING:
+								dd[position] = new DynamicStringImpl((String)data[position]);
+								break;
+							case BOOLEAN:
+								dd[position] = new DynamicBooleanImpl((Boolean)data[position]);
+								break;
+							case FLOAT:
+								dd[position] = new DynamicFloatImpl((Float)data[position]);
+								break;
+							default :
+								throw new RuntimeException("programmer error");
+						}
+						position++;
+					}
+					return dd;
+				}
+				else
+				{
+					//Fall out to unsupported
+				}
+			case UNKNOWN:
+			case CONCEPT:
+				//concepts should be impossible to show up in this view
 			default :
 				throw new UnsupportedOperationException();
 
