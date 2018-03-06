@@ -338,6 +338,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 				searchRunning.invalidate();
 				synchronized (runningSearches)
 				{
+					//TODO add the ability to pass a filter here, to do things like restrict to concepts that define dynamic semantics
 					int id = searchCounter++;
 					SearchHandle ssh = SearchHandler.descriptionSearch(text, 5, true, true, ((searchHandle) -> {
 						this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
