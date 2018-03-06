@@ -87,6 +87,9 @@ public class ConceptLabel
         setupContextMenu(contextMenu);
         this.setContextMenu(contextMenu);
         contextMenu.setOnShowing(this::handle);
+        this.conceptInLabel.addListener((observable, oldValue, newValue) -> {
+            
+        });
     }
 
     //~--- methods -------------------------------------------------------------
@@ -130,6 +133,7 @@ public class ConceptLabel
     
     public void setConceptChronology(ConceptChronology conceptChronology) {
         this.conceptInLabel.set(conceptChronology);
+        descriptionTextUpdater.accept(this);
     }
     
     private void handleDragDropped(DragEvent event) {

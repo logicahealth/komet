@@ -174,6 +174,7 @@ public interface CommitService
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
+   @Deprecated
    CommitTask commit(Chronology chronicle,
          EditCoordinate editCoordinate,
          String commitComment);

@@ -39,6 +39,7 @@ package sh.komet.gui.control;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -46,7 +47,6 @@ import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-
 
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -91,270 +91,270 @@ import sh.isaac.api.docbook.DocBook;
  * @author kec
  */
 public class ManifoldLinkedConceptLabel
-        extends Label implements PropertyEditor<Object>{
-   private static final String EMPTY_TEXT = "empty";
-   TransferMode[] transferMode = null;
-   Manifold manifold;
-   Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater;
-   Background originalBackground;
-   final Supplier<List<MenuItem>> menuSupplier;
+        extends Label implements PropertyEditor<Object> {
 
-   //~--- constructors --------------------------------------------------------
-   public ManifoldLinkedConceptLabel(Manifold manifold,
-           Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater, 
-           Supplier<List<MenuItem>> menuSupplier) {
-      super(EMPTY_TEXT);
-      if (menuSupplier == null) {
-          throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
-      }
-      this.manifold = manifold;
-      this.descriptionTextUpdater = descriptionTextUpdater;
-      this.menuSupplier = menuSupplier;
-      this.manifold.focusedConceptProperty().addListener(
-              (ObservableValue<? extends ConceptSpecification> observable,
-                      ConceptSpecification oldValue,
-                      ConceptSpecification newValue) -> {
-                 this.descriptionTextUpdater.accept(this);
-              });
-      this.getStyleClass().add(CONCEPT_LABEL.toString());
-      this.setOnDragOver(this::handleDragOver);
-      this.setOnDragEntered(this::handleDragEntered);
-      this.setOnDragDetected(this::handleDragDetected);
-      this.setOnDragExited(this::handleDragExited);
-      this.setOnDragDropped(this::handleDragDropped);
-      this.setOnDragDone(this::handleDragDone);
-      this.setMinWidth(100);
+    private static final String EMPTY_TEXT = "empty";
+    TransferMode[] transferMode = null;
+    Manifold manifold;
+    Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater;
+    Background originalBackground;
+    final Supplier<List<MenuItem>> menuSupplier;
 
-      ContextMenu contextMenu = new ContextMenu();
-      
-      for (String manifoldGroupName : Manifold.getGroupNames()) {
-         MenuItem item = new MenuItem(manifoldGroupName + " history");
-         contextMenu.getItems()
-                 .add(item);
-      }
+    //~--- constructors --------------------------------------------------------
+    public ManifoldLinkedConceptLabel(Manifold manifold,
+            Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater,
+            Supplier<List<MenuItem>> menuSupplier) {
+        super(EMPTY_TEXT);
+        if (menuSupplier == null) {
+            throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
+        }
+        this.manifold = manifold;
+        this.descriptionTextUpdater = descriptionTextUpdater;
+        this.menuSupplier = menuSupplier;
+        this.manifold.focusedConceptProperty().addListener(
+                (ObservableValue<? extends ConceptSpecification> observable,
+                        ConceptSpecification oldValue,
+                        ConceptSpecification newValue) -> {
+                    this.descriptionTextUpdater.accept(this);
+                });
+        this.getStyleClass().add(CONCEPT_LABEL.toString());
+        this.setOnDragOver(this::handleDragOver);
+        this.setOnDragEntered(this::handleDragEntered);
+        this.setOnDragDetected(this::handleDragDetected);
+        this.setOnDragExited(this::handleDragExited);
+        this.setOnDragDropped(this::handleDragDropped);
+        this.setOnDragDone(this::handleDragDone);
+        this.setMinWidth(100);
 
-      this.setContextMenu(contextMenu);
-      contextMenu.setOnShowing(this::handle);
-   }
-   
-   
+        ContextMenu contextMenu = new ContextMenu();
 
-   //~--- methods -------------------------------------------------------------
-   private MenuItem makeCopyMenuItem() {
-       Menu copyMenu = new Menu("copy");
-       MenuItem copyMenuItem = new MenuItem("docbook glossary entry");
-       copyMenu.getItems().add(copyMenuItem);
-       copyMenuItem.setOnAction((event) -> {
-           ConceptSpecification concept = this.manifold.getFocusedConcept();
-           String docbookXml = DocBook.getGlossentry(concept, manifold);
-           Clipboard clipboard = Clipboard.getSystemClipboard();
-           final ClipboardContent content = new ClipboardContent();
-           content.putString(docbookXml);
-           clipboard.setContent(content);
-       });
-       
-       return copyMenu;
-       
-   }
-   
-   
-   private void handle(WindowEvent event) {
-      ContextMenu contextMenu = (ContextMenu) event.getSource();
-      contextMenu.getItems().clear();
-      
-      if (this.menuSupplier != null) {
-          List<MenuItem> menuItems = this.menuSupplier.get();
-          if (!menuItems.isEmpty()) {
-              for (MenuItem menu: menuItems) {
-                  contextMenu.getItems().add(menu);
-              }
-              contextMenu.getItems().add(new SeparatorMenuItem());
-          }
-      }
-      contextMenu.getItems()
-                 .add(makeCopyMenuItem());
-      contextMenu.getItems()
-                 .add(new SeparatorMenuItem());
+        for (String manifoldGroupName : Manifold.getGroupNames()) {
+            MenuItem item = new MenuItem(manifoldGroupName + " history");
+            contextMenu.getItems()
+                    .add(item);
+        }
 
-      
-      
-      Menu manifoldHistoryMenu = new Menu("history");
-      contextMenu.getItems().add(manifoldHistoryMenu);
-      Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
-      
-      setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
-      
-      
-      for (String manifoldGroupName : Manifold.getGroupNames()) {
-         Menu groupHistory = new Menu(manifoldGroupName + " history");
-         contextMenu.getItems().add(groupHistory);
-         setupHistoryMenuItem(Manifold.getGroupHistory(manifoldGroupName), groupHistory);
-      }
-   }
+        this.setContextMenu(contextMenu);
+        contextMenu.setOnShowing(this::handle);
+    }
 
-   private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
-      for (HistoryRecord historyRecord: historyCollection) {
-         MenuItem historyItem = new MenuItem(historyRecord.getComponentString());
-         historyItem.setUserData(historyRecord);
-         historyItem.setOnAction((ActionEvent actionEvent) -> {
-            unlink();
-            MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
-            HistoryRecord itemHistoryRecord = (HistoryRecord) historyItem.getUserData();
-            this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getComponentId()));
-         });
-         manifoldHistoryMenu.getItems().add(historyItem);
-      }
-   }
+    //~--- methods -------------------------------------------------------------
+    private MenuItem makeCopyMenuItem() {
+        Menu copyMenu = new Menu("copy");
+        MenuItem copyMenuItem = new MenuItem("docbook glossary entry");
+        copyMenu.getItems().add(copyMenuItem);
+        copyMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                String docbookXml = DocBook.getGlossentry(concept.get(), manifold);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(docbookXml);
+                clipboard.setContent(content);
+            }
+        });
 
-   private void unlink() {
-      if (!this.manifold
-              .getGroupName()
-              .equals(Manifold.UNLINKED_GROUP_NAME)) {
-         this.manifold
-                 .setGroupName(Manifold.UNLINKED_GROUP_NAME);
-      }
-   }
+        return copyMenu;
 
-   private void handleDragDetected(MouseEvent event) {
-      System.out.println("Drag detected: " + event);
+    }
 
-      DragImageMaker dragImageMaker = new DragImageMaker(this);
-      Dragboard db = this.startDragAndDrop(TransferMode.COPY);
+    private void handle(WindowEvent event) {
+        ContextMenu contextMenu = (ContextMenu) event.getSource();
+        contextMenu.getItems().clear();
 
-      db.setDragView(dragImageMaker.getDragImage());
+        if (this.menuSupplier != null) {
+            List<MenuItem> menuItems = this.menuSupplier.get();
+            if (!menuItems.isEmpty()) {
+                for (MenuItem menu : menuItems) {
+                    contextMenu.getItems().add(menu);
+                }
+                contextMenu.getItems().add(new SeparatorMenuItem());
+            }
+        }
+        contextMenu.getItems()
+                .add(makeCopyMenuItem());
+        contextMenu.getItems()
+                .add(new SeparatorMenuItem());
 
-      /* put a string on dragboard */
-      IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept()));
-      db.setContent(content);
-      event.consume();
-   }
+        Menu manifoldHistoryMenu = new Menu("history");
+        contextMenu.getItems().add(manifoldHistoryMenu);
+        Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
 
-   private void handleDragDone(DragEvent event) {
-      System.out.println("Dragging done: " + event);
-      this.setBackground(originalBackground);
-      this.transferMode = null;
-   }
-   
-   public void setConceptChronology(ConceptChronology conceptChronology) {
-       this.manifold
-                 .setFocusedConceptChronology(conceptChronology);
-   }
+        setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
 
-   private void handleDragDropped(DragEvent event) {
-      System.out.println("Dragging dropped: " + event);
+        for (String manifoldGroupName : Manifold.getGroupNames()) {
+            Menu groupHistory = new Menu(manifoldGroupName + " history");
+            contextMenu.getItems().add(groupHistory);
+            setupHistoryMenuItem(Manifold.getGroupHistory(manifoldGroupName), groupHistory);
+        }
+    }
 
-      unlink();
+    private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
+        for (HistoryRecord historyRecord : historyCollection) {
+            MenuItem historyItem = new MenuItem(historyRecord.getComponentString());
+            historyItem.setUserData(historyRecord);
+            historyItem.setOnAction((ActionEvent actionEvent) -> {
+                unlink();
+                MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
+                HistoryRecord itemHistoryRecord = (HistoryRecord) historyItem.getUserData();
+                this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getComponentId()));
+            });
+            manifoldHistoryMenu.getItems().add(historyItem);
+        }
+    }
 
-      Dragboard db = event.getDragboard();
+    private void unlink() {
+        if (!this.manifold
+                .getGroupName()
+                .equals(Manifold.UNLINKED_GROUP_NAME)) {
+            this.manifold
+                    .setGroupName(Manifold.UNLINKED_GROUP_NAME);
+        }
+    }
 
-      if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
-         ConceptChronology conceptChronology = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+    private void handleDragDetected(MouseEvent event) {
+        System.out.println("Drag detected: " + event);
 
-         this.manifold
-                 .setFocusedConceptChronology(conceptChronology);
-      } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
-         ConceptVersion conceptVersion = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
+        if (this.manifold.getFocusedConcept().isPresent()) {
+            DragImageMaker dragImageMaker = new DragImageMaker(this);
+            Dragboard db = this.startDragAndDrop(TransferMode.COPY);
 
-         this.manifold
-                 .setFocusedConceptChronology(conceptVersion.getChronology());
-      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
-         SemanticChronology semanticChronology = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
+            db.setDragView(dragImageMaker.getDragImage());
 
-         this.manifold
-                 .setFocusedConceptChronology(Get.conceptService()
-                                 .getConceptChronology(semanticChronology.getReferencedComponentNid()));
-      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
-         DescriptionVersion descriptionVersion = Get.serializer()
-                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
+            /* put a string on dragboard */
+            IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept().get()));
+            db.setContent(content);
+            event.consume();
+        }
+    }
 
-         this.manifold
-                 .setFocusedConceptChronology(
-                         Get.conceptService()
-                                 .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
-      }
+    private void handleDragDone(DragEvent event) {
+        System.out.println("Dragging done: " + event);
+        this.setBackground(originalBackground);
+        this.transferMode = null;
+    }
 
-      this.setBackground(originalBackground);
-   }
+    public void setConceptChronology(ConceptChronology conceptChronology) {
+        this.manifold
+                .setFocusedConceptChronology(conceptChronology);
+    }
 
-   private void handleDragEntered(DragEvent event) {
-      System.out.println("Dragging entered: " + event);
-      this.originalBackground = this.getBackground();
+    private void handleDragDropped(DragEvent event) {
+        System.out.println("Dragging dropped: " + event);
 
-      Color backgroundColor;
-      Set<DataFormat> contentTypes = event.getDragboard()
-              .getContentTypes();
+        unlink();
 
-      if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
-         backgroundColor = Color.AQUA;
-         this.transferMode = TransferMode.COPY_OR_MOVE;
-      } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
-         backgroundColor = Color.OLIVEDRAB;
-         this.transferMode = TransferMode.COPY_OR_MOVE;
-      } else {
-         backgroundColor = Color.RED;
-         this.transferMode = null;
-      }
+        Dragboard db = event.getDragboard();
 
-      BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+            ConceptChronology conceptChronology = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
 
-      this.setBackground(new Background(fill));
-   }
+            this.manifold
+                    .setFocusedConceptChronology(conceptChronology);
+        } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
+            ConceptVersion conceptVersion = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
 
-   private void handleDragExited(DragEvent event) {
-      System.out.println("Dragging exited: " + event);
-      this.setBackground(originalBackground);
-      this.transferMode = null;
-   }
+            this.manifold
+                    .setFocusedConceptChronology(conceptVersion.getChronology());
+        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
+            SemanticChronology semanticChronology = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
 
-   private void handleDragOver(DragEvent event) {
-      // System.out.println("Dragging over: " + event );
-      if (this.transferMode != null) {
-         event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-         event.consume();
-      }
-   }
+            this.manifold
+                    .setFocusedConceptChronology(Get.conceptService()
+                            .getConceptChronology(semanticChronology.getReferencedComponentNid()));
+        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
+            DescriptionVersion descriptionVersion = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
 
-   //~--- set methods ---------------------------------------------------------
-   private void setDescriptionText(DescriptionVersion latestDescriptionVersion) {
-      if (latestDescriptionVersion != null) {
-         this.setText(latestDescriptionVersion.getText());
-      }
-   }
+            this.manifold
+                    .setFocusedConceptChronology(
+                            Get.conceptService()
+                                    .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
+        }
 
-   private void setEmptyText() {
-      setEmptyText(this);
-   }
+        this.setBackground(originalBackground);
+    }
 
-   private static void setEmptyText(Label label) {
-      label.setText(EMPTY_TEXT);
-   }
+    private void handleDragEntered(DragEvent event) {
+        System.out.println("Dragging entered: " + event);
+        this.originalBackground = this.getBackground();
 
-   public static void setFullySpecifiedText(ManifoldLinkedConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
-      if (focusedConcept != null) {
-         focusedConcept
-                 .getFullySpecifiedDescription(label.manifold)
-                 .ifPresent(label::setDescriptionText)
-                 .ifAbsent(label::setEmptyText);
-      } else {
-         setEmptyText(label);
-      }
-   }
+        Color backgroundColor;
+        Set<DataFormat> contentTypes = event.getDragboard()
+                .getContentTypes();
 
-   public static void setPreferredText(ManifoldLinkedConceptLabel label) {
-      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
-      if (focusedConcept != null) {
-         focusedConcept
-                 .getPreferredDescription(label.manifold)
-                 .ifPresent(label::setDescriptionText)
-                 .ifAbsent(label::setEmptyText);
-      } else {
-         setEmptyText(label);
-      }
-   }
+        if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
+            backgroundColor = Color.AQUA;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
+            backgroundColor = Color.OLIVEDRAB;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else {
+            backgroundColor = Color.RED;
+            this.transferMode = null;
+        }
+
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+
+        this.setBackground(new Background(fill));
+    }
+
+    private void handleDragExited(DragEvent event) {
+        System.out.println("Dragging exited: " + event);
+        this.setBackground(originalBackground);
+        this.transferMode = null;
+    }
+
+    private void handleDragOver(DragEvent event) {
+        // System.out.println("Dragging over: " + event );
+        if (this.transferMode != null) {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
+        }
+    }
+
+    //~--- set methods ---------------------------------------------------------
+    private void setDescriptionText(DescriptionVersion latestDescriptionVersion) {
+        if (latestDescriptionVersion != null) {
+            this.setText(latestDescriptionVersion.getText());
+        }
+    }
+
+    private void setEmptyText() {
+        setEmptyText(this);
+    }
+
+    private static void setEmptyText(Label label) {
+        label.setText(EMPTY_TEXT);
+    }
+
+    public static void setFullySpecifiedText(ManifoldLinkedConceptLabel label) {
+        
+        if (label.manifold.getFocusedConcept().isPresent()) {
+            ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
+            focusedConcept
+                    .getFullySpecifiedDescription(label.manifold)
+                    .ifPresent(label::setDescriptionText)
+                    .ifAbsent(label::setEmptyText);
+        } else {
+            setEmptyText(label);
+        }
+    }
+
+    public static void setPreferredText(ManifoldLinkedConceptLabel label) {
+        if (label.manifold.getFocusedConcept().isPresent()) {
+            ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
+            focusedConcept
+                    .getPreferredDescription(label.manifold)
+                    .ifPresent(label::setDescriptionText)
+                    .ifAbsent(label::setEmptyText);
+        } else {
+            setEmptyText(label);
+        }
+    }
 
     @Override
     public Node getEditor() {
@@ -363,7 +363,10 @@ public class ManifoldLinkedConceptLabel
 
     @Override
     public Integer getValue() {
-        return this.manifold.getFocusedConcept().getNid();
+        if (manifold.getFocusedConcept().isPresent()) {
+            return this.manifold.getFocusedConcept().get().getNid();
+        }
+        return Integer.MAX_VALUE;
     }
 
     @Override
@@ -376,14 +379,13 @@ public class ManifoldLinkedConceptLabel
         } else if (value instanceof ConceptSpecification) {
             ConceptSpecification spec = (ConceptSpecification) value;
             if (spec.getNid() < 0) {
-               this.manifold.setFocusedConceptChronology(Get.concept((ConceptSpecification) value));
+                this.manifold.setFocusedConceptChronology(Get.concept((ConceptSpecification) value));
             }
-            
+
         } else {
             throw new UnsupportedOperationException("ConceptLabel can't handle: " + value);
         }
-        
+
     }
-   
-   
+
 }

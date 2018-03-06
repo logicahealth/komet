@@ -16,6 +16,7 @@
 package sh.komet.gui.control;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -57,9 +58,9 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    public void manifoldEventHandler(Event event) {
       MenuItem menuItem = (MenuItem) event.getSource();
       String manifoldGroup = (String) menuItem.getUserData();
-      ConceptSpecification spec = manifold.getConceptForGroup(manifoldGroup);
-      if (spec != null) {
-         ConceptChronology focusedConcept = Get.concept(spec);
+       Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
+      if (spec.isPresent()) {
+         ConceptChronology focusedConcept = Get.concept(spec.get());
          manifold.setFocusedConceptChronology(focusedConcept);
       } else {
          manifold.setFocusedConceptChronology(null);

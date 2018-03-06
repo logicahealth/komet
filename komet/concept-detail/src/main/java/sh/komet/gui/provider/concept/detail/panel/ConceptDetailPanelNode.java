@@ -205,12 +205,12 @@ public class ConceptDetailPanelNode
     @Override
     public void handleCommit(CommitRecord commitRecord) {
         if (conceptDetailManifold.getFocusedConcept() != null) {
-            ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept();
+            ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept().get();
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
 
             if (commitRecord.getConceptsInCommit()
-                    .contains(conceptDetailManifold.getFocusedConcept()
+                    .contains(conceptDetailManifold.getFocusedConcept().get()
                             .getNid())) {
                 Platform.runLater(
                         () -> {
@@ -299,9 +299,10 @@ public class ConceptDetailPanelNode
         componentPanelBox.getChildren()
                 .add(toolGrid);
 
-        ConceptChronology newValue = Get.concept(this.conceptDetailManifold.getFocusedConcept());
+        Optional<ConceptSpecification> focusedConceptSpec = this.conceptDetailManifold.getFocusedConcept();
 
-        if (newValue != null) {
+        if (focusedConceptSpec.isPresent()) {
+            ConceptChronology newValue = Get.concept(focusedConceptSpec.get());
             if (titleLabel == null) {
                 titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
             }

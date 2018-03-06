@@ -798,3 +798,9 @@ limitations under the License.
    -glyph-size: 18;
    
 }
+
+.lambda {
+   -glyph-name: "LAMBDA";
+   -glyph-size: 20;
+    
+}

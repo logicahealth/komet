@@ -187,7 +187,7 @@ public interface LogicNode
     * Get the concept sequence for the concept being defined by the logical expression for which this node is a part. 
     * @return the concept sequence. 
     */
-   int getSequenceForConceptBeingDefined();
+   int getNidForConceptBeingDefined();
 
    String toSimpleString();
 }

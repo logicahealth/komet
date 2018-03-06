@@ -160,13 +160,32 @@ public class KometStageController
      */
     @FXML
     public void handleRefreshUserCss(ActionEvent event) {
-        vanityBox.getScene()
-                .getStylesheets()
-                .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-        vanityBox.getScene()
-                .getStylesheets()
-                .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-        System.out.println("Updated css: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
+        // "Feature" to make css editing/testing easy in the dev environment. 
+        if (System.getProperty(USER_CSS_LOCATION_PROPERTY)
+                .endsWith("application/target/data/isaac.data/preferences/user.css")) {
+            vanityBox.getScene()
+                    .getStylesheets()
+                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+            String devLocation = System.getProperty(USER_CSS_LOCATION_PROPERTY);
+            devLocation = devLocation
+                    .replace("/komet/application/target/data/isaac.data/preferences/user.css", 
+                             "/komet/css/src/main/resources/user.css");
+            vanityBox.getScene()
+                    .getStylesheets()
+                    .remove(devLocation);
+            vanityBox.getScene()
+                    .getStylesheets()
+                    .add(devLocation);
+            System.out.println("Updated css: " + devLocation);
+        } else {
+            vanityBox.getScene()
+                    .getStylesheets()
+                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+            vanityBox.getScene()
+                    .getStylesheets()
+                    .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+            System.out.println("Updated css: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
+        }
     }
 
     @Override
@@ -230,7 +249,7 @@ public class KometStageController
                 ImportView.show(TAXONOMY_MANIFOLD);
             });
             items.add(selectiveImport);
-            
+
             MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
             importTransformFull.setOnAction((ActionEvent event) -> {
