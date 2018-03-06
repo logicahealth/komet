@@ -66,7 +66,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
@@ -158,13 +157,19 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 		field.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>()
 		{
 			KeyCode previous = null;
+			long lastEvent = 0;
 
 			@Override
 			public void handle(KeyEvent event)
 			{
+				long prevEvent = lastEvent;
+				lastEvent = System.currentTimeMillis();
 				if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.ENTER)
 				{
-					handleScroll(event);
+					if ((lastEvent - prevEvent) > 5)  //For some reason, when installed on a combo box, we get double key events.  Filter those that are too close.
+					{
+						handleScroll(event);
+					}
 					if (event.getCode() != KeyCode.ENTER)
 					{
 						event.consume();
@@ -501,6 +506,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 			}
 			else if (event.getCode() == KeyCode.DOWN)
 			{
+				System.out.println("down " + event);
 				if (currentSelection < displayedSearchResults.getChildren().size() - 1)
 				{
 					currentSelection++;
