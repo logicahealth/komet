@@ -104,7 +104,6 @@ public class AssemblageViewerController
 	@FXML private ProgressIndicator readingSemanticProgress;
 	@FXML private ProgressIndicator selectedSemanticProgressIndicator;
 	
-	//TODO use the manifold
 	private Manifold manifold_;
 
 	private enum PendingRead
@@ -112,7 +111,7 @@ public class AssemblageViewerController
 		IDLE, FILTER_UPDATE_PROGRESS, FULL_READ_IN_PROGRESS, DO_FILTER_READ, DO_FULL_READ
 	};
 
-	//TODO (artf231423) this needs some sort of hook to refresh the list when a new one is defined
+	//TODO this needs some sort of hook to refresh the list when a new one is defined
 	
 	private ConceptNode conceptNode;
 	private volatile boolean disableRead = true;
@@ -208,7 +207,7 @@ public class AssemblageViewerController
 		mi.setGraphic(Images.SEARCH.createImageView());
 		sememeDefinitionsContextMenu_.getItems().add(mi);
 
-		//TODO see if it makes sense to port this view as part of fixing customization of indexing
+		//TODO indexing config see if it makes sense to port this view as part of fixing customization of indexing
 //		mi = new MenuItem("Configure Sememe Indexing");
 //		mi.setOnAction((action) ->
 //		{
@@ -221,7 +220,7 @@ public class AssemblageViewerController
 //		mi.setGraphic(Images.CONFIGURE.createImageView());
 //		sememeDefinitionsContextMenu_.getItems().add(mi);
 		
-		//TODO bring back common menu support?
+		//TODO common menu support?
 //		CommonMenus.addCommonMenus(sememeDefinitionsContextMenu_, new CommonMenusNIdProvider()
 //		{
 //			@Override

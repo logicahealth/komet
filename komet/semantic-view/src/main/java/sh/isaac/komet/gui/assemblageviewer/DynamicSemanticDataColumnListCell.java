@@ -177,17 +177,7 @@ public class DynamicSemanticDataColumnListCell extends ListCell<DynamicColumnInf
 				}
 				else if (valUnwrap(item) == DynamicValidatorType.EXTERNAL)
 				{
-//TODO broken by ISAAC refactor / drools not yet implemented
-					//					SememeDroolsValidatorImplInfo rdvi = SememeDroolsValidator.readFromData(valDataUnwrap(item));
-//					if (rdvi == null)
-//					{
-//						//this should be impossible....
-//						validatorData = "!ERROR!";
-//					}
-//					else
-//					{
-//						validatorData = rdvi.getDisplayName();
-//					}
+					//noop at the moment
 				}
 						
 				else

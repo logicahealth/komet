@@ -224,7 +224,7 @@ public class HeaderNode<T>
 			}
 		}
 
-		// TODO (artf231431) allPotentialFilterValues should be populated on initial, unfiltered, load, not deferred until HeaderNode activation
+		// TODO allPotentialFilterValues should be populated on initial, unfiltered, load, not deferred until HeaderNode activation
 		for (T obj : filter.allPotentialFilterValues)
 		{
 			testList.add(obj.toString());

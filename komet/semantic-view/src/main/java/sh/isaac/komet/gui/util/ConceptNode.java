@@ -130,6 +130,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 * @param flagAsInvalidWhenBlank 
 	 * @param dropDownOptions 
 	 * @param descriptionReader 
+	 * @param manifoldProvider 
 	 */
 	@SuppressWarnings("deprecation")
 	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
@@ -158,7 +159,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 			return conceptVersion == null ? "" : conceptVersion.getRegularName().orElse(conceptVersion.getFullyQualifiedName());
 		} : descriptionReader);
 		
-		//TODO if there is the notion of a recently-used concept list, use this here instead of a blank list
+		//TODO recently used if there is the notion of a recently-used concept list, use this here instead of a blank list
 		dropDownOptions_ = dropDownOptions == null ? FXCollections.observableArrayList() : dropDownOptions;
 		dropDownOptions_.addListener(new WeakListChangeListener<SimpleDisplayConcept>(listChangeListener_));
 		conceptBinding_ = new ObjectBinding<ConceptSnapshot>()
@@ -210,7 +211,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		});
 		cm_.getItems().add(copyText);
 
-		//TODO restore necessary common menu builder functionality?
+		//TODO common menu builder functionality?
 //		CommonMenusNIdProvider nidProvider = new CommonMenusNIdProvider() {
 //			@Override
 //			public Set<Integer> getNIds() {
@@ -493,7 +494,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 				if (concept != null)
 				{
 					c_ = concept;
-					//TODO update recently used concept list
+					//TODO recently used list update recently used concept list
 					isValid.setValid();
 				}
 				else

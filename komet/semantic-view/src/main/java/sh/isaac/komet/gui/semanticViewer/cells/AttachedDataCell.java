@@ -177,7 +177,7 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 		{
 			AbstractMap.SimpleImmutableEntry<String, String> value = item.getDisplayStrings(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder);
 				
-			//TODO support common menus
+			//TODO common menus
 //			CommonMenus.addCommonMenus(cm, new CommonMenusNIdProvider()
 //			{
 //				

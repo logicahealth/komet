@@ -109,7 +109,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 					{
 						case CONCEPT:
 						{
-							//TODO support indexing config
+							//TODO indexing config
 //							if (SemanticGUIColumnType.ASSEMBLAGE == type_ && DynamicUsageDescriptionImpl.isDynamicSememe(nid))
 //							{
 //								MenuItem mi = new MenuItem("Configure Sememe Indexing");
@@ -137,7 +137,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 						}
 						case SEMANTIC:
 						{
-							//TODO support common menus
+							//TODO common menus
 //							@SuppressWarnings({ "unchecked", "rawtypes" })
 //							Optional<LatestVersion<SememeVersion<?>>> sv = Get.assemblageService().getSemanticChronology(nid)
 //									.getLatestVersion(ExtendedAppContext.getUserProfileBindings().getStampCoordinate().get());
