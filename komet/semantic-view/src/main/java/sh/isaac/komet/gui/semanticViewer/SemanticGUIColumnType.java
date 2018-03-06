@@ -52,7 +52,8 @@ public enum SemanticGUIColumnType
 	AUTHOR("Author"),
 	MODULE("Module"),
 	PATH("Path"),
-	ATTACHED_DATA("Attached Data");
+	ATTACHED_DATA("Attached Data"),
+	SPACER("");
 	
 	private String niceName_;
 	

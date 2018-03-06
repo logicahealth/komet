@@ -152,7 +152,7 @@ public class SemanticViewer implements DetailNodeFactory
 	private TreeTableColumn<SemanticGUI, String> stampColumn_;
 	private BooleanProperty hasUncommitted_ = new SimpleBooleanProperty(false);
 
-	private Text placeholderText = new Text("No Dynamic Sememes were found associated with the component");
+	private Text placeholderText_ = new Text("No Dynamic Sememes were found associated with the component");
 	private ProgressBar progressBar_;
 	
 	private Button clearColumnHeaderNodesButton_ = new Button("Clear Filters");
@@ -241,7 +241,8 @@ public class SemanticViewer implements DetailNodeFactory
 			progressBar_ = new ProgressBar(-1);
 			progressBar_.setPrefWidth(200);
 			progressBar_.setPadding(new Insets(15, 15, 15, 15));
-			ttv_.setPlaceholder(progressBar_);
+			placeholderText_.setText("No concept has been selected");
+			ttv_.setPlaceholder(placeholderText_);
 			
 			rootNode_ = new VBox();
 			rootNode_.setFillWidth(true);
@@ -333,7 +334,7 @@ public class SemanticViewer implements DetailNodeFactory
 //								}
 //								else
 //								{
-//									//TODO
+//									//TODO implement edit features?
 //									throw new RuntimeException("Not yet supported");
 //								}
 //							}
@@ -533,7 +534,6 @@ public class SemanticViewer implements DetailNodeFactory
 			
 			cancelButton_ = new Button("Cancel");
 			cancelButton_.setDisable(true);
-			//TODO figure out to handle cancel
 			//TODO implement edit features?
 			//cancelButton_.disableProperty().bind(hasUncommitted_.not());
 			t.getItems().add(cancelButton_);
@@ -572,7 +572,7 @@ public class SemanticViewer implements DetailNodeFactory
 			{
 				try
 				{
-					//TODO ochre commit issues
+					//TODO implement edit features?
 //					HashSet<Integer> componentNids = getAllComponentNids(treeRoot_.getChildren());
 //					for (Integer i : componentNids)
 //					{
@@ -802,6 +802,46 @@ public class SemanticViewer implements DetailNodeFactory
 				
 				final ArrayList<TreeTableColumn<SemanticGUI, ?>> treeColumns = new ArrayList<>();
 				Map<String, List<String>> toolTipStore = new HashMap<>();
+				
+				//Add a "blank" column at the beginning, simply because the JavaFX Tree Table sticks the disclosure node into the first cell 
+				//on each row of the table, and it messes up spacing / layout of our content.
+				TreeTableColumn<SemanticGUI, SemanticGUI> blankCol = new TreeTableColumn<>(SemanticGUIColumnType.SPACER.toString());
+				storeTooltip(toolTipStore, blankCol.getText(), "");
+
+				blankCol.setSortable(false);
+				blankCol.setResizable(true);
+				blankCol.setCellFactory((colInfo) -> 
+				{
+					return new StringCell((item) -> 
+					{
+						StringBuilder temp = new StringBuilder();
+						int refComp = item.getSememe().getReferencedComponentNid();
+						int depth = 0;
+						while (refComp != SemanticViewer.this.viewFocusNid_)
+						{
+							depth++;
+							temp.append("-");  //one dash per indent
+							if (Get.assemblageService().hasSemantic(refComp))
+							{
+								refComp = Get.assemblageService().getSemanticChronology(refComp).getReferencedComponentNid();
+							}
+							else
+							{
+								logger_.warn("Assumption violation... ");
+								break;
+							}
+						}
+						colInfo.setMinWidth(Math.max(colInfo.getMinWidth(), (20 + (depth > 0 ? 20 : 0) + (depth * 10))));
+						colInfo.setPrefWidth(colInfo.getMinWidth());
+						return temp.toString();
+					});
+				});
+				blankCol.setCellValueFactory((callback) ->
+				{
+					return new ReadOnlyObjectWrapper<SemanticGUI>(callback.getValue().getValue());
+				});
+				treeColumns.add(blankCol);
+				
 				
 				TreeTableColumn<SemanticGUI, SemanticGUI> ttStatusCol = new TreeTableColumn<>(SemanticGUIColumnType.STATUS_CONDENSED.toString());
 				storeTooltip(toolTipStore, ttStatusCol.getText(), "Status Markers - for active / inactive and current / historical and uncommitted");
@@ -1241,6 +1281,12 @@ public class SemanticViewer implements DetailNodeFactory
 								col.setPrefWidth(32);
 								col.setMinWidth(32);
 							}
+							else if (text.length() == 0)
+							{
+								//our blank column for the disclosure node
+								col.setPrefWidth(20);
+								col.setMinWidth(20);
+							}
 							else
 							{
 								col.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
@@ -1265,8 +1311,8 @@ public class SemanticViewer implements DetailNodeFactory
 						addButton_.setDisable(true);
 						treeRoot_.getChildren().clear();
 						summary_.setText(0 + " entries");
-						placeholderText.setText("The specified concept is not specified correctly as a dynamic sememe, and is not utilized as a static sememe");
-						ttv_.setPlaceholder(placeholderText);
+						placeholderText_.setText("The specified concept is not specified correctly as a dynamic sememe, and is not utilized as a static sememe");
+						ttv_.setPlaceholder(placeholderText_);
 						ttv_.getSelectionModel().clearSelection();
 					});
 				}
@@ -1319,7 +1365,7 @@ public class SemanticViewer implements DetailNodeFactory
 			addButton_.setDisable(false);
 			treeRoot_.getChildren().addAll(rowData);
 			summary_.setText(rowData.size() + " entries");
-			ttv_.setPlaceholder(placeholderText);
+			ttv_.setPlaceholder(placeholderText_);
 			ttv_.getSelectionModel().clearSelection();
 		});
 		
@@ -1415,7 +1461,7 @@ public class SemanticViewer implements DetailNodeFactory
 			}
 			if (showActiveOnly_.get() == false || r.getStatus() == Status.ACTIVE)
 			{
-				SemanticGUI newRefexDynamicGUI = new SemanticGUI(r, !r.getPrimordialUuid().equals(lastSeenRefex));  //first one we see with a new UUID is current, others are historical
+				SemanticGUI newRefexDynamicGUI = new SemanticGUI(r, !r.getPrimordialUuid().equals(lastSeenRefex), manifoldConcept_);  //first one we see with a new UUID is current, others are historical
 				
 				// HeaderNode FILTERING DONE HERE
 				boolean filterOut = false;
@@ -1568,7 +1614,6 @@ public class SemanticViewer implements DetailNodeFactory
 //					ExtendedAppContext.getDataStore().forget(refex);
 //					ConceptVersionBI cv = ExtendedAppContext.getDataStore().getConceptVersion(OTFUtility.getViewCoordinate(), refex.getReferencedComponentNid());
 //					//if assemblageNid != concept nid - this means it is an annotation style refex
-//                                        // TODO There are no more annotation refexes, they are all stored the same...
 //                                        cv.cancel();
 ////					if ((refex.getAssemblageNid() != refex.getConceptNid()) && cv.isUncommitted())
 ////					{
@@ -1616,7 +1661,7 @@ public class SemanticViewer implements DetailNodeFactory
 
 		if (rowData.size() == 0)
 		{
-			placeholderText.setText("No Dynamic Sememes were found using this Assemblage");
+			placeholderText_.setText("No Dynamic Sememes were found using this Assemblage");
 		}
 		return rowData;
 	}
@@ -1650,6 +1695,16 @@ public class SemanticViewer implements DetailNodeFactory
 	{
 		return EnumSet.of(DetailType.Concept);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isEnabled()
+	{
+		return Boolean.getBoolean("SHOW_SEMANTIC");
+	}
 	/** 
 	 * {@inheritDoc}
 	 */
@@ -1666,7 +1721,6 @@ public class SemanticViewer implements DetailNodeFactory
 		manifoldConcept_.focusedConceptProperty().addListener((change) ->
 		{
 			setComponent(manifold.getFocusedConcept().getNid(), null, null, null, true);
-			titleProperty.set(manifoldConcept_.getPreferredDescriptionText(manifold.getFocusedConcept()));
 			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept()));
 			displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
 		});
@@ -1678,7 +1732,7 @@ public class SemanticViewer implements DetailNodeFactory
 			@Override
 			public boolean selectInTabOnChange()
 			{
-				return true;
+				return false;
 			}
 			
 			@Override
@@ -1693,7 +1747,7 @@ public class SemanticViewer implements DetailNodeFactory
 				if (titleLabel == null)
 				{
 					titleLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
-					titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
+					titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
 					titleProperty.set("");
 				}
 

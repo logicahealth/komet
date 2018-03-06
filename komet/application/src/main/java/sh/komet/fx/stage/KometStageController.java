@@ -404,7 +404,7 @@ public class KometStageController
         tabFactoryMenuItem.setOnAction(
                 (event) -> {
                     Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
-
+                    tab.setGraphic(factory.getMenuIcon());
                     tab.setTooltip(new Tooltip(""));
 
                     BorderPane borderPaneForTab = new BorderPane();
