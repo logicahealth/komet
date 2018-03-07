@@ -46,7 +46,7 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
-
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
@@ -188,7 +188,7 @@ public abstract class ConverterBaseMojo
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService().setDBBuildMode();
+      Get.configurationService().setDBBuildMode(BuildMode.IBDF);
 
       ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
                                        (this.createDebugUUIDMap.length() == 0)) ? false

@@ -67,7 +67,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.LookupService;
@@ -115,7 +115,7 @@ public class ExportTaxonomy
             throws MojoExecutionException, MojoFailureException {
       try {
          Get.configurationService()
-            .setDBBuildMode();
+            .setDBBuildMode(BuildMode.IBDF);
 
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);

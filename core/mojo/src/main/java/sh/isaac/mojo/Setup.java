@@ -43,6 +43,7 @@ package sh.isaac.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -53,6 +54,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.util.DBLocator;
@@ -73,7 +75,7 @@ public class Setup
     * See {@link ConfigurationService#setDBBuildMode()} for details on this option.
     */
    @Parameter(required = false)
-   private final boolean dbBuildMode = false;
+   private final String dbBuildMode = "";
 
    /**
     * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
@@ -108,9 +110,18 @@ public class Setup
          // Make sure the service Locator comes up ok
          LookupService.get();
 
-         if (this.dbBuildMode) {
-            Get.configurationService()
-               .setDBBuildMode();
+         if (StringUtils.isNotBlank(this.dbBuildMode)) {
+            for (BuildMode bm : BuildMode.values()) {
+               boolean set = false;
+               if (bm.name().toLowerCase().equals(this.dbBuildMode.toLowerCase())) {
+                  Get.configurationService().setDBBuildMode(bm);
+                  set = true;
+                  break;
+               }
+               if (!set) {
+                   throw new MojoExecutionException("dbBuildMode must be set to a value the enum types in BuildMode");
+                }
+            }
          }
 
          this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);

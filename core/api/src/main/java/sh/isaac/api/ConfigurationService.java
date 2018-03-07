@@ -75,6 +75,9 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  */
 @Contract
 public interface ConfigurationService {
+
+	public enum BuildMode{DB, IBDF}
+	
    /**
     * Enable verbose debug.
     *
@@ -95,15 +98,31 @@ public interface ConfigurationService {
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
     * 
-    * There are some cases where validators and such cannot be properly executed if we are building a DB 
     * 
     * The default implementation of this returns false.
     *
-    * @return true, if successful
+    * @return true, if in ANY db build mode.  See also {@link #inDBBuildMode(BuildMode)}
     */
    public default boolean inDBBuildMode() {
+      return false;
+   }
+   
+   /**
+    * When building a DB, we don't want to index per commit, or write changeset files, among other things.
+    *
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
+    * 
+    * 
+    * The default implementation of this returns false.
+    * @param buildMode the build mode to query about.  If null is passed, behaves the same as {@link #inDBBuildMode()}  
+    *
+    * @return true, if in the specified db build mode.  See also {@link #inDBBuildMode()}
+    */
+   public default boolean inDBBuildMode(BuildMode buildMode) {
       return false;
    }
 
@@ -140,8 +159,9 @@ public interface ConfigurationService {
 
    /**
     * See {@link #inDBBuildMode()}.
+    * @param buildMode the build mode to enable.
     */
-   public default void setDBBuildMode() {
+   public default void setDBBuildMode(BuildMode buildMode) {
       throw new UnsupportedOperationException();
    }
 

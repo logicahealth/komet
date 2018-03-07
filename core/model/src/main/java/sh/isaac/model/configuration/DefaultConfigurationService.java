@@ -103,7 +103,7 @@ public class DefaultConfigurationService
    private volatile boolean initComplete = false;
 
    /** The db build mode. */
-   private boolean dbBuildMode = false;
+   private BuildMode dbBuildMode = null;
 
    /** The git config info. */
    private RemoteServiceInfo gitConfigInfo = null;
@@ -117,8 +117,6 @@ public class DefaultConfigurationService
       // only for HK2
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
     * In DB build mode.
     *
@@ -126,17 +124,23 @@ public class DefaultConfigurationService
     */
    @Override
    public boolean inDBBuildMode() {
-      return this.dbBuildMode;
+      return null != this.dbBuildMode;
    }
 
-   //~--- set methods ---------------------------------------------------------
+   @Override
+   public boolean inDBBuildMode(BuildMode buildMode) {
+      return buildMode == null ? inDBBuildMode() : this.dbBuildMode == buildMode;
+   }
 
    /**
     * Set DB build mode.
     */
    @Override
-   public void setDBBuildMode() {
-      this.dbBuildMode = true;
+   public void setDBBuildMode(BuildMode buildMode) {
+      if (this.dbBuildMode != null) {
+         throw new RuntimeException("No allowed to change DBBuild Mode more than once.  Shutdown and restart to change mode");
+      }
+      this.dbBuildMode = buildMode;
    }
 
    //~--- get methods ---------------------------------------------------------

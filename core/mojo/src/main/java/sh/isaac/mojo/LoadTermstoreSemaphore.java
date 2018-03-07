@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.VersionManagmentPathService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -118,12 +119,12 @@ public class LoadTermstoreSemaphore
      *
      * @throws MojoExecutionException the mojo execution exception
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Override
     public void execute()
             throws MojoExecutionException {
         Get.configurationService()
-                .setDBBuildMode();
+                .setDBBuildMode(BuildMode.DB);
 
         // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
         final AtomicBoolean hasMetadata = new AtomicBoolean(false);

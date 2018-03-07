@@ -81,6 +81,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -185,7 +186,7 @@ public class LoadTermstore
    public void execute()
             throws MojoExecutionException {
       Get.configurationService()
-         .setDBBuildMode();
+         .setDBBuildMode(BuildMode.DB);
 
       final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
 
@@ -270,7 +271,7 @@ public class LoadTermstore
             final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
             final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
 
-            while (!queue.isEmpty() ||!reader.isFinished()) {
+            while (!queue.isEmpty() || !reader.isFinished()) {
                final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
 
                if (object != null) {
