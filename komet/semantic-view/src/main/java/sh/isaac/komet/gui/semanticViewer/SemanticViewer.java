@@ -1722,7 +1722,7 @@ public class SemanticViewer implements DetailNodeFactory
 	{
 		manifoldConcept_= manifold;
 
-		if (manifold.getFocusedConcept() != null)
+		if (manifold.getFocusedConcept().isPresent())
 		{
 			setComponent(manifold.getFocusedConcept().get().getNid(), manifold, null, null, null, true);
 		}
