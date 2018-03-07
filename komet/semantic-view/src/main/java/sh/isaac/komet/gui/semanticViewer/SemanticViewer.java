@@ -1724,13 +1724,13 @@ public class SemanticViewer implements DetailNodeFactory
 
 		if (manifold.getFocusedConcept() != null)
 		{
-			setComponent(manifold.getFocusedConcept().getNid(), manifold, null, null, null, true);
+			setComponent(manifold.getFocusedConcept().get().getNid(), manifold, null, null, null, true);
 		}
 		
 		manifoldConcept_.focusedConceptProperty().addListener((change) ->
 		{
-			setComponent(manifold.getFocusedConcept().getNid(), manifold, null, null, null, true);
-			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept()));
+			setComponent(manifold.getFocusedConcept().get().getNid(), manifold, null, null, null, true);
+			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept().get()));
 			displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
 		});
 		
