@@ -51,7 +51,7 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
          return Editors.createTextEditor(propertySheetItem);
       } else if (propertySheetItem instanceof PropertySheetItemMeasureWrapper) {
           PropertySheetItemMeasureWrapper measureWrapper = (PropertySheetItemMeasureWrapper) propertySheetItem;
-         return new MeasureEditor((MeasureImpl) measureWrapper.getValue());
+         return new MeasureEditor((MeasureImpl) measureWrapper.getValue(), manifoldForDisplay);
       }
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }

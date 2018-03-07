@@ -83,4 +83,76 @@ public class DurationUtil {
                     .append(" ns")
                     .toString();
     }
+   
+   public static String msTo8601(long milliseconds) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("P");
+            
+            boolean addT = true;
+            
+            if (milliseconds >= DateTimeUtil.MS_IN_YEAR) { // years
+                builder.append(milliseconds/DateTimeUtil.MS_IN_YEAR);
+                builder.append("Y");
+                milliseconds = milliseconds % DateTimeUtil.MS_IN_YEAR;
+            } 
+            if (milliseconds >= DateTimeUtil.MS_IN_MONTH) { // months
+                builder.append(milliseconds/DateTimeUtil.MS_IN_MONTH);
+                builder.append("M");
+                milliseconds = milliseconds % DateTimeUtil.MS_IN_MONTH;
+            } 
+            if (milliseconds >= DateTimeUtil.MS_IN_DAY) { // days
+                builder.append(milliseconds/DateTimeUtil.MS_IN_DAY);
+                builder.append("D");
+                milliseconds = milliseconds % DateTimeUtil.MS_IN_DAY;
+            } 
+            if (milliseconds >= DateTimeUtil.MS_IN_HOUR) { // hours
+                addT = false;
+                builder.append("T");
+                builder.append(milliseconds/DateTimeUtil.MS_IN_HOUR);
+                builder.append("H");
+                milliseconds = milliseconds % DateTimeUtil.MS_IN_HOUR;
+            } 
+            if (milliseconds >= DateTimeUtil.MS_IN_MINUTE) { // minutes
+                if (addT) {
+                    builder.append("T");
+                    addT = false;
+                }
+                builder.append(milliseconds/DateTimeUtil.MS_IN_MINUTE);
+                builder.append("M");
+                milliseconds = milliseconds % DateTimeUtil.MS_IN_MINUTE;
+            } 
+            if (milliseconds >= DateTimeUtil.MS_IN_SEC) { // seconds
+                long microseconds = milliseconds % DateTimeUtil.MS_IN_SEC;
+                 if (addT) {
+                    builder.append("T");
+                    addT = false;
+                }
+               builder.append(milliseconds/DateTimeUtil.MS_IN_SEC);
+                if (microseconds >= 100) {
+                    builder.append(".").append(microseconds);
+                } else if (microseconds >= 10) {
+                    builder.append(".0").append(microseconds);
+                } else if (microseconds > 0) {
+                    builder.append("0.00").append(microseconds);
+                }
+                builder.append("S");
+            } else if (milliseconds > 0) {
+                 if (addT) {
+                    builder.append("T");
+                    addT = false;
+                }
+               if (milliseconds >= 100) {
+                    builder.append("0.").append(milliseconds);
+                } else if (milliseconds >= 10) {
+                    builder.append("0.0").append(milliseconds);
+                } else {
+                    builder.append("0.00").append(milliseconds);
+                }
+                
+                builder.append("S");
+            
+            }
+            
+            return builder.toString();
+   }
 }

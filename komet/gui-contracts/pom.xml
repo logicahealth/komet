@@ -23,7 +23,11 @@
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
         </dependency>       
-        <dependency>
+       <dependency>
+          <groupId>no.tornado</groupId>
+          <artifactId>tornadofx-controls</artifactId>
+      </dependency>
+       <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>api</artifactId>
             <version>${project.version}</version>

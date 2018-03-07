@@ -17,7 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.Optional;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  *
@@ -29,19 +29,19 @@ public interface Measure {
      *
      * @return the resolution of this measurement.
      */
-    Optional<Float> getResolution();
+    Optional<Double> getResolution();
 
     /**
      *
      * @return the lower bound for this measurement
      */
-    float getLowerBound();
+    double getLowerBound();
 
     /**
      *
      * @return the upper bound for this measurement
      */
-    float getUpperBound();
+    double getUpperBound();
 
     /**
      *
@@ -59,5 +59,5 @@ public interface Measure {
      * In most cases, the semantics of the measurement are the units of measure.
      * @return the semantics for this measurement.
      */
-    ConceptChronology getMeasureSemantic();
+    ConceptSpecification getMeasureSemantic();
 }

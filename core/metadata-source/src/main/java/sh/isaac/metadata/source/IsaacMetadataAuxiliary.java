@@ -405,6 +405,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Measurement semantic");
                 pushParent(current());
                 createConcept(TermAux.ISO_8601);
+                createConcept(TermAux.ISO_8601_AFTER);
+                createConcept(TermAux.ISO_8601_PRIOR);
                 popParent();
             
             createConcept("Axiom origin");

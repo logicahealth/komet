@@ -403,10 +403,10 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD = new ConceptProxy("Paternal ancestor of subject of record", "Paternal ancestor", UUID.fromString("e6ec4948-9167-5c16-9698-ab2747e5cdf3"));
 
     public static ConceptSpecification ISO_8601 = new ConceptProxy("ISO 8601 representation of dates and times", "ISO 8601", UUID.fromString("38baca53-e626-5196-91a5-76e05cb3e115"));
+    public static ConceptSpecification ISO_8601_AFTER = new ConceptProxy("ISO 8601 interval after to statement time", "ISO 8601 after statement", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
+    public static ConceptSpecification ISO_8601_PRIOR = new ConceptProxy("ISO 8601 interval prior to statement time", "ISO 8601 before statement", UUID.fromString("0b7d4e60-7ef5-57fa-ad0e-ee13433b7ee1"));
 
     /*
-    public static ConceptSpecification SPEC13 = new ConceptProxy("", "", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
-    public static ConceptSpecification SPEC14 = new ConceptProxy("", "", UUID.fromString("0b7d4e60-7ef5-57fa-ad0e-ee13433b7ee1"));
     public static ConceptSpecification SPEC15 = new ConceptProxy("", "", UUID.fromString("55f74246-0a25-57ac-9473-a788d08fb656"));
     public static ConceptSpecification SPEC16 = new ConceptProxy("", "", UUID.fromString("a95e5dbc-a179-57f9-9cdd-6de8c026396d"));
     public static ConceptSpecification SPEC17 = new ConceptProxy("", "", UUID.fromString("74bbdaff-f061-5807-b334-3c88ac3e9421"));
