@@ -53,7 +53,8 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jvnet.hk2.annotations.Contract;
-
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -124,6 +125,14 @@ public interface ConfigurationService {
     */
    public default boolean inDBBuildMode(BuildMode buildMode) {
       return false;
+   }
+   
+   /**
+    * An observable wrapper for dbBuildMode.  See also {@link #inDBBuildMode(BuildMode)}
+    * @return the object property that will notify if build mode is started
+    */
+   public default ReadOnlyObjectProperty<BuildMode> getDBBuildMode() {
+      return new SimpleObjectProperty<BuildMode>(null);
    }
 
    //~--- get methods ---------------------------------------------------------
