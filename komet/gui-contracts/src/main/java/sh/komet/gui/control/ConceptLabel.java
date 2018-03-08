@@ -93,6 +93,9 @@ public class ConceptLabel
     }
 
     //~--- methods -------------------------------------------------------------
+   public SimpleObjectProperty<ConceptSpecification> conceptInLabelProperty() {
+       return conceptInLabel;
+   }
     private void handle(WindowEvent event) {
         ContextMenu contextMenu = (ContextMenu) event.getSource();
         

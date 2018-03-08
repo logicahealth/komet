@@ -834,3 +834,12 @@ limitations under the License.
     -fx-background-color: ghostwhite;
     -fx-text-fill: orange;
 }
+.titled-pane > *.content {
+    -fx-background-color: whitesmoke;
+}
+.interval-bound {
+    -fx-background-color: whitesmoke;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size:22;
+ }
