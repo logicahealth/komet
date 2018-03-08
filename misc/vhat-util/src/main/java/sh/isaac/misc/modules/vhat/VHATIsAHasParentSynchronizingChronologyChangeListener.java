@@ -184,19 +184,30 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
    @PostConstruct
    private void startMe() {
-      Get.commitService().addChangeListener(this);
-      // Prevent a memory leak, by scheduling a thread to periodically empty the job list
-      sf = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate((() -> waitForJobsToComplete()), 5, 5, TimeUnit.MINUTES);
       if (Get.configurationService().inDBBuildMode())
       {
          disable();
       }
+      else
+      {
+          Get.commitService().addChangeListener(this);
+          // Prevent a memory leak, by scheduling a thread to periodically empty the job list
+          sf = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate((() -> waitForJobsToComplete()), 5, 5, TimeUnit.MINUTES);
+      }
+      Get.configurationService().getDBBuildMode().addListener((change) -> 
+      {
+         if (Get.configurationService().inDBBuildMode()) {
+             disable();
+          }
+      });
    }
 
    @PreDestroy
    private void stopMe() {
       Get.commitService().removeChangeListener(this);
-      sf.cancel(true);
+      if (sf != null) {
+         sf.cancel(true);
+      }
       sf = null;
       VHAT_MODULES = null;
       VHAT_STAMP_COORDINATE = null;
