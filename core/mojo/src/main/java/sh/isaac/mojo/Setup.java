@@ -75,7 +75,7 @@ public class Setup
     * See {@link ConfigurationService#setDBBuildMode()} for details on this option.
     */
    @Parameter(required = false)
-   private final String dbBuildMode = "";
+   private String dbBuildMode = "";
 
    /**
     * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
@@ -111,16 +111,17 @@ public class Setup
          LookupService.get();
 
          if (StringUtils.isNotBlank(this.dbBuildMode)) {
+            boolean set = false;
             for (BuildMode bm : BuildMode.values()) {
-               boolean set = false;
                if (bm.name().toLowerCase().equals(this.dbBuildMode.toLowerCase())) {
                   Get.configurationService().setDBBuildMode(bm);
                   set = true;
+                  getLog().info("DB Build Mode set to " + bm);
                   break;
                }
-               if (!set) {
-                   throw new MojoExecutionException("dbBuildMode must be set to a value the enum types in BuildMode");
-                }
+            }
+            if (!set) {
+                throw new MojoExecutionException("dbBuildMode must be set to a value the enum types in BuildMode - couldn't match '" + this.dbBuildMode + "'");
             }
          }
 

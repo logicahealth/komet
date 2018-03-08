@@ -127,7 +127,7 @@
                      <goal>shutdown-isaac</goal>
                   </goals>
                   <configuration>
-                     <dbBuildMode>true</dbBuildMode>
+                     <dbBuildMode>IBDF</dbBuildMode>
                      <bootstrapMode>true</bootstrapMode>
                      <dataStoreLocation>${project.build.directory}/datastore</dataStoreLocation>
                      <bindingPackage>sh.isaac</bindingPackage>
