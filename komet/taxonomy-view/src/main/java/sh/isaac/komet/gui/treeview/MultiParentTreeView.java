@@ -619,7 +619,8 @@ public class MultiParentTreeView
                 .set(newPremiseType);
         taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
         this.rootTreeItem.clearChildren();
-        this.rootTreeItem.resetChildrenCalculators();
+        Get.workExecutors().getExecutor().execute(() -> this.rootTreeItem.addChildren());
+        this.rootTreeItem.invalidate();
         this.alertList.clear();
         restoreExpanded();
     }

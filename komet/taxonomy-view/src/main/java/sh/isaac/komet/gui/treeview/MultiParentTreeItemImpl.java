@@ -92,7 +92,6 @@ public class MultiParentTreeItemImpl
    private final List<MultiParentTreeItemImpl> extraParents        = new ArrayList<>();
    private CountDownLatch                      childrenLoadedLatch = new CountDownLatch(1);
 
-   // -2 when not yet started, -1 for started indeterminate - between 0 and 1, if we can determine, 1 when complete.
    private volatile boolean     cancelLookup             = false;
    private boolean              defined                  = false;
    private boolean              multiParent              = false;
@@ -123,6 +122,10 @@ public class MultiParentTreeItemImpl
       childrenLoadedLatch.await();
    }
 
+   
+   /**
+    * clears the display nodes, and the nid lists, and resets the calculators
+    */
    public void clearChildren() {
       cancelLookup = true;
       childrenLoadedLatch.countDown();
@@ -131,6 +134,9 @@ public class MultiParentTreeItemImpl
              ((MultiParentTreeItemImpl) child).clearChildren();
           });
       getChildren().clear();
+      childNids = null;
+      resetChildrenCalculators();
+      
    }
 
    @Override
@@ -153,6 +159,9 @@ public class MultiParentTreeItemImpl
       }
    }
 
+   /**
+    * Removed the graphical display nodes from the tree, but does not clear the cached nid set of children
+    */
    public void removeChildren() {
       this.getChildren()
           .clear();
@@ -203,8 +212,13 @@ public class MultiParentTreeItemImpl
                // Gather the children
                ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
                TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
+               
+               if (childNids == null)
+               {
+                  childNids = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
+               }
 
-               for (int childNid: taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid())) {
+               for (int childNid: childNids) {
                   ConceptChronology childChronology = Get.concept(childNid);
                   MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
                   Manifold manifold = treeView.getManifold();
@@ -244,7 +258,7 @@ public class MultiParentTreeItemImpl
       }
    }
 
-   protected void resetChildrenCalculators() {
+   private void resetChildrenCalculators() {
       CountDownLatch cdl = new CountDownLatch(1);
       Runnable       r   = () -> {
                               cancelLookup = false;
