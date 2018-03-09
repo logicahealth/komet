@@ -1,5 +1,6 @@
-package sh.komet.gui.control;
+package sh.komet.gui.control.concept;
 
+import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
@@ -14,7 +15,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.collections.NidSet;
 import sh.komet.gui.util.FxGet;
 
-public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
+public class PropertySheetItemConceptNidWrapper implements ConceptSpecification, PropertySheet.Item {
 
    private final Manifold manifoldForDisplay;
    private final String name;
@@ -22,13 +23,13 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
    private final IntegerProperty conceptNidProperty;
    private final NidSet allowedValues = new NidSet();
    
-   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
+   public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay,
            IntegerProperty conceptNidProperty, int... allowedValues) {
       this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName())), conceptNidProperty, allowedValues);
    }
 
 
-   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+   public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay, String name,
            IntegerProperty conceptNidProperty, int... allowedValues) {
       this.manifoldForDisplay = manifoldForDisplay;
       this.name = name;

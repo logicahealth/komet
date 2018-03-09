@@ -23,6 +23,8 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.*;
 
 import java.util.List;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -34,12 +36,17 @@ public class RequestCircumstanceImpl extends CircumstanceImpl implements Request
             new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS.toExternalString());
     private final SimpleListProperty<Participant> requestedParticipants = 
             new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS.toExternalString());
-    private final SimpleObjectProperty<LogicalExpression> priority = 
+    private final SimpleObjectProperty<ConceptSpecification> priority = 
             new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_PRIORITY.toExternalString());
     private final SimpleListProperty<Repetition> repetitions = 
             new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS.toExternalString());
-    private final SimpleObjectProperty<Result> requestedResult = 
+    private final SimpleObjectProperty<MeasureImpl> requestedMeasure = 
             new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT.toExternalString());
+
+    public RequestCircumstanceImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+        requestedMeasure.set(new MeasureImpl(manifold));
+    }
 
     @Override
     public ObservableList<StatementAssociation> getConditionalTriggers() {
@@ -68,15 +75,15 @@ public class RequestCircumstanceImpl extends CircumstanceImpl implements Request
     }
 
     @Override
-    public LogicalExpression getPriority() {
+    public ConceptSpecification getPriority() {
         return priority.get();
     }
 
-    public SimpleObjectProperty<LogicalExpression> priorityProperty() {
+    public SimpleObjectProperty<ConceptSpecification> priorityProperty() {
         return priority;
     }
 
-    public void setPriority(LogicalExpression priority) {
+    public void setPriority(ConceptSpecification priority) {
         this.priority.set(priority);
     }
 
@@ -94,15 +101,15 @@ public class RequestCircumstanceImpl extends CircumstanceImpl implements Request
     }
 
     @Override
-    public Result getRequestedResult() {
-        return requestedResult.get();
+    public MeasureImpl getRequestedMeasure() {
+        return requestedMeasure.get();
     }
 
-    public SimpleObjectProperty<Result> requestedResultProperty() {
-        return requestedResult;
+    public SimpleObjectProperty<MeasureImpl> requestedMeasureProperty() {
+        return requestedMeasure;
     }
 
-    public void setRequestedResult(Result requestedResult) {
-        this.requestedResult.set(requestedResult);
+    public void setRequestedMeasure(Measure requestedResult) {
+        this.requestedMeasure.set((MeasureImpl) requestedResult);
     }
 }

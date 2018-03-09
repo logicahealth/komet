@@ -37,7 +37,7 @@
 
 
 
-package sh.komet.gui.control;
+package sh.komet.gui.control.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 

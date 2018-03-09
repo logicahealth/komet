@@ -176,7 +176,12 @@ public enum Iconography {
   
   JAVASCRIPT(FONT_AWSOME, "code"),
   
-  LAMBDA(MATERIAL_DESIGNS_WEBFONT, "lambda");
+  LAMBDA(MATERIAL_DESIGNS_WEBFONT, "lambda"),
+  
+  ROLE_GROUP(MATERIAL_DESIGNS_WEBFONT, "role-group"),
+  INFERRED(FONT_AWSOME, "inferred-form"),
+  STATED(ICONS_525, "stated-form"),
+  ;
 
    ;
 

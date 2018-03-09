@@ -23,16 +23,19 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.komet.gui.control.ConceptLabel;
+import sh.komet.gui.control.concept.ConceptLabel;
+import sh.komet.gui.control.titled.TitledToolbarPane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
@@ -41,28 +44,32 @@ import sh.komet.gui.style.StyleClasses;
  * @author kec
  */
 public class LogicDetailRolePanel extends LogicDetailPanel {
-
+    
+    //RoleGroup Icon: MaterialDesignIcon.FORMAT_LIST_BULLETED_TYPE
+    //Role icon: 
+    
     private final RoleNodeSomeWithNids someRoleNode;
-    private final Manifold manifold;
-    private final Node panel;
     private SimpleStringProperty restrictionText = new SimpleStringProperty();
+    private SimpleStringProperty labelText = new SimpleStringProperty();
 
     private SimpleStringProperty typeTextProperty = new SimpleStringProperty();
     private ArrayList<ReadOnlyStringProperty> labelPartPropertes = new ArrayList<>();
+    private ArrayList<LogicDetailRolePanel> rolesInGroup = new ArrayList<>();
 
     public LogicDetailRolePanel(RoleNodeSomeWithNids someRoleNode,
-                        PremiseType premiseType, Manifold manifold) {
-        super(premiseType);
+                        PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
+        super(premiseType, logicalExpression, manifold);
 
         this.someRoleNode = someRoleNode;
-        this.manifold = manifold;
+        
 
         if (someRoleNode.getTypeConceptNid() == TermAux.ROLE_GROUP.getNid()) {
             VBox setBox = new VBox();
-            typeTextProperty.set(manifold.getPreferredDescriptionText(someRoleNode.getTypeConceptNid()));
-            TitledPane groupPanel = new TitledPane(typeTextProperty.get(), setBox);
-            groupPanel.setExpanded(false);
-            panel = groupPanel;
+            setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
+            typeTextProperty.set("");
+            panel.setContent(setBox);
+            panel.setLeftGraphic2(Iconography.ROLE_GROUP.getIconographic());
+            panel.setExpanded(false);
             panel.getStyleClass()
                 .add(StyleClasses.DEF_ROLE_GROUP.toString());        
            // should be 1 child, an AND node. 
@@ -72,13 +79,14 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
                 for (LogicNode andNodeChild : andNode.getChildren()) {
                     switch (andNodeChild.getNodeSemantic()) {
                         case ROLE_SOME:
-                            LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), manifold);
+                            LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold);
                             VBox.setMargin(rolePanel.getPanelNode(), new Insets(0));
                             setBox.getChildren().add(rolePanel.getPanelNode());
                             labelPartPropertes.add(rolePanel.restrictionText);
+                            rolesInGroup.add(rolePanel);
                             break;
                         case CONCEPT:
-                            LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), manifold);
+                            LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold);
                             VBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                             setBox.getChildren().add(conceptPanel.getPanelNode());
                             break;
@@ -102,7 +110,10 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
 
         } else {
             HBox panelBox = new HBox();
-            panel = panelBox;
+            panelBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
+            panel.setContent(panelBox);
+            panel.setLeftGraphic2(new Text("∃"));
+            panel.setExpanded(false);
             ConceptLabel conceptLabel = new ConceptLabel(manifold,
                     ConceptLabel::setPreferredText, (label) -> new ArrayList<>());
             conceptLabel.setConceptChronology(Get.concept(someRoleNode.getTypeConceptNid()));
@@ -114,7 +125,7 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
                         // a post coordinated expression. 
                         throw new UnsupportedOperationException();
                     case CONCEPT:
-                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) childNode, getPremiseType(), manifold);
+                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) childNode, getPremiseType(), logicalExpression, manifold);
                         HBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                         panelBox.getChildren().add(conceptPanel.getPanelNode());
                         labelPartPropertes.add(conceptPanel.getConceptText());
@@ -127,9 +138,7 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
         for (ReadOnlyStringProperty property: labelPartPropertes) {
             property.addListener(this::updateDescription);
         }
-        if (panel instanceof TitledPane) {
-            ((TitledPane) panel).textProperty().bind(restrictionText);
-        }
+        panel.textProperty().bind(labelText);
         updateDescription();
          setPseudoClasses(panel);
        
@@ -144,25 +153,29 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
 
     private void updateDescription() {
         StringBuilder builder = new StringBuilder();
-        boolean roleGroup = false;
-        if (typeTextProperty.get() != null) {
-            roleGroup = true;
-            builder.append(typeTextProperty.get()).append(": ");
-        }
-        for (ReadOnlyStringProperty stringProperty: labelPartPropertes) {
-            if (roleGroup) {
+        if (someRoleNode.getTypeConceptNid() == TermAux.ROLE_GROUP.getNid()) {
+            for (LogicDetailRolePanel rolePanel: rolesInGroup) {
                 builder.append("[");
-            }
-            builder.append(stringProperty.get());
-            if (roleGroup) {
+                builder.append(rolePanel.restrictionText.get());
                 builder.append("] ");
             }
+        } else {
+            restrictionText.set(manifold.getPreferredDescriptionText(((ConceptNodeWithNids) someRoleNode.getChildren()[0]).getConceptNid()));
+            typeTextProperty.set(manifold.getPreferredDescriptionText(someRoleNode.getTypeConceptNid()));
+            builder.append("(");
+            builder.append(typeTextProperty.get());
+            builder.append(")➞[");
+            builder.append(restrictionText.get());
+            builder.append("]");
         }
-        restrictionText.set(builder.toString());
+        labelText.set(builder.toString());
     }
     
-    public ReadOnlyStringProperty getRestrictionText() {
+    public ReadOnlyStringProperty restrictionText() {
         return restrictionText;
+    }
+    public ReadOnlyStringProperty labelText() {
+        return labelText;
     }
 
     @Override
@@ -172,7 +185,7 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
 
     @Override
     String getLabelText() {
-        return restrictionText.get();
+        return labelText.get();
     }
 
 }

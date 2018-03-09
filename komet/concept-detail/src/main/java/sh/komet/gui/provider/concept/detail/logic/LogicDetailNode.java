@@ -31,9 +31,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import org.controlsfx.tools.Borders;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -43,8 +40,8 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.RootNode;
-import sh.komet.gui.control.ConceptLabelToolbar;
-import sh.komet.gui.control.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.concept.detail.logic.panels.LogicDetailRootNode;
@@ -108,19 +105,15 @@ public class LogicDetailNode
             conceptDetailPane.setCenter(splitPane);
             Optional<LogicalExpression> statedExpression = conceptDetailManifold.getStatedLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
             if (statedExpression.isPresent()) {
-                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, conceptDetailManifold);
-                Node rootNode = rootDetail.getPanelNode();
-                Node wrappedRoot = Borders.wrap(new ScrollPane(rootNode)).lineBorder().title("Stated").buildAll();
-                splitPane.getItems().add(wrappedRoot);
+                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold);
+                splitPane.getItems().add(new ScrollPane(rootDetail.getPanelNode()));
             } else {
                 conceptDetailPane.setCenter(new Label("No stated form"));
             }
             Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
             if (inferredExpression.isPresent()) {
-                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, conceptDetailManifold);
-                Node rootNode = rootDetail.getPanelNode();
-                Node wrappedRoot = Borders.wrap(new ScrollPane(rootNode)).lineBorder().title("Inferred").buildAll();
-                splitPane.getItems().add(wrappedRoot);
+                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold);
+                splitPane.getItems().add(rootDetail.getPanelNode());
             } else {
                 conceptDetailPane.setCenter(new Label("No inferred form"));
             }

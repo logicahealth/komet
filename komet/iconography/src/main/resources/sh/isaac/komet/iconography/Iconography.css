@@ -804,3 +804,21 @@ limitations under the License.
    -glyph-size: 20;
     
 }
+
+.role-group {
+   -glyph-name: "FORMAT_LIST_BULLETED_TYPE";
+   -glyph-size: 20;
+    
+}
+
+.inferred-form {
+   -glyph-name: "GEARS";
+   -glyph-size: 18;
+    
+}
+
+.stated-form {
+   -glyph-name: "CHAT";
+   -glyph-size: 18;
+    
+}

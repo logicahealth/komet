@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control;
 
+import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
@@ -41,7 +42,7 @@ public class PropertyToPropertySheetItem {
                 } else if (property instanceof IntegerProperty) {
                     String lowerCaseName = property.getName().toLowerCase();
                     if (lowerCaseName.contains("nid") || lowerCaseName.contains("component")) {
-                        items.add(new PropertySheetItemConceptWrapper(manifold,
+                        items.add(new PropertySheetItemConceptNidWrapper(manifold,
                                 (IntegerProperty) property));
                     }
                     

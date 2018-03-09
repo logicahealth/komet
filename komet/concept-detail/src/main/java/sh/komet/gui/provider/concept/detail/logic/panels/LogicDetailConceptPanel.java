@@ -21,15 +21,13 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.NecessarySetNode;
+import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.komet.gui.manifold.Manifold;
@@ -42,52 +40,49 @@ import sh.komet.gui.style.StyleClasses;
 public class LogicDetailConceptPanel extends LogicDetailPanel {
 
     private final ConceptNodeWithNids conceptNode;
-    private final Manifold manifold;
-    private final TitledPane panel = new TitledPane();
-    private final Optional<LogicalExpression> logicalExpression;
+    private final Optional<LogicalExpression> expressionForThisConcept;
 
     public LogicDetailConceptPanel(ConceptNodeWithNids conceptNode,
-            PremiseType premiseType, Manifold manifold) {
-        super(premiseType);
+            PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
+        super(premiseType, logicalExpression, manifold);
         this.conceptNode = conceptNode;
-        this.manifold = manifold;
+        expressionForThisConcept = manifold.getLogicalExpression(conceptNode.getConceptNid(), premiseType);
         this.panel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
         this.panel.setContent(new Label("empty"));
         panel.setExpanded(false);
         panel.expandedProperty().addListener((observable, oldValue, newValue) -> {
             handleOpenClose(newValue);
         });
-        logicalExpression = manifold.getLogicalExpression(conceptNode.getConceptNid(), getPremiseType());
-        panel.setGraphic(computeGraphic());
+        computeGraphicForThisConcept();        
+        panel.setRightGraphic(Iconography.EDIT_PENCIL.getIconographic());
         setPseudoClasses(panel);
         panel.getStyleClass()
-                .add(StyleClasses.DEF_CONCEPT.toString());        
+                .add(StyleClasses.DEF_CONCEPT.toString());
     }
 
     private void handleOpenClose(boolean open) {
         if (open) {
+
+
+            computeGraphicForThisConcept();
             
-            if (logicalExpression.isPresent()) {
-                final VBox setBox = new VBox();
-                panel.setGraphic(computeGraphic());
-                for (LogicNode childNode : logicalExpression.get().getRoot().getChildren()) {
-                    LogicDetailSetPanel setPanel;
-                    if (childNode instanceof NecessarySetNode) {
-                        setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), manifold);
-                    } else if (childNode instanceof SufficientSetNode) {
-                        setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), manifold);
-                    } else {
-                        throw new IllegalStateException("Can't handle node: " + childNode);
-                    }
-                    VBox.setMargin(setPanel.getPanelNode(), new Insets(0));
-                    setBox.getChildren().add(setPanel.getPanelNode());
-                }
-                panel.setContent(setBox);
-                
-            } 
+            if (expressionForThisConcept.isPresent()) {
+                panel.setContent(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), getPremiseType(), expressionForThisConcept.get(), manifold).getPanelNode());
+            } else {
+                panel.setContent(new Label("No logical definition available"));
+            }
+
         } else {
-            panel.setGraphic(computeGraphic());
+            computeGraphicForThisConcept();
             panel.setContent(new Label(""));
+        }
+    }
+
+    private void computeGraphicForThisConcept() {
+        if (expressionForThisConcept.isPresent()) {
+            panel.setLeftGraphic2(computeGraphic(expressionForThisConcept.get()));
+        } else {
+            panel.setLeftGraphic2(Iconography.ALERT_CONFIRM.getIconographic());
         }
     }
 
@@ -102,39 +97,8 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
 
     @Override
     public Node getPanelNode() {
-        
+
         return panel;
     }
-   public final Node computeGraphic() {
-      boolean sufficient = false;
-      int[] parents = Get.taxonomyService().getSnapshot(manifold)
-              .getTaxonomyTree().getParentNids(conceptNode.getConceptNid());
-      if (parents.length == 0) {
-          panel.setCollapsible(false);
-      }
-      boolean multiParent = parents.length > 1;
-        if (logicalExpression.isPresent()) {
-            sufficient = logicalExpression.get().contains(NodeSemantic.SUFFICIENT_SET);
-        }
-
-      if (parents.length == 0) {
-         return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
-      } else if (sufficient && multiParent) {
-         if (panel.isExpanded()) {
-            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_OPEN.getIconographic();
-         } else {
-            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_CLOSED.getIconographic();
-         }
-      } else if (!sufficient && multiParent) {
-         if (panel.isExpanded()) {
-            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN.getIconographic();
-         } else {
-            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED.getIconographic();
-         }
-      } else if (sufficient && !multiParent) {
-         return Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic();
-      }
-      return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
-   }
 
 }

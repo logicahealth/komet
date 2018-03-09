@@ -208,15 +208,15 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptSpecification DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Description assemblage", UUID.fromString("c9b9a4ac-3a1c-516c-bbef-3a13e30df27d"));
 
    /** ConceptProxy for: "preferred". SCT ID: 900000000000548007 */
-   public static ConceptSpecification PREFERRED = new ConceptProxy("preferred", UUID.fromString("266f1bc3-3361-39f3-bffe-69db9daea56e"));
+   public static ConceptSpecification PREFERRED = new ConceptProxy("Preferred", UUID.fromString("266f1bc3-3361-39f3-bffe-69db9daea56e"));
 
    /** ConceptProxy for: "acceptable". SCT ID: 900000000000549004 */
-   public static ConceptSpecification ACCEPTABLE = new ConceptProxy("acceptable", UUID.fromString("12b9e103-060e-3256-9982-18c1191af60e"));
+   public static ConceptSpecification ACCEPTABLE = new ConceptProxy("Acceptable", UUID.fromString("12b9e103-060e-3256-9982-18c1191af60e"));
 
    /** ConceptProxy for: "description case sensitive". */
 
    // SCT ID: 900000000000017005
-   public static ConceptSpecification DESCRIPTION_CASE_SENSITIVE = new ConceptProxy("description case sensitive",
+   public static ConceptSpecification DESCRIPTION_CASE_SENSITIVE = new ConceptProxy("Description case sensitive",
          UUID.fromString("0def37bc-7e1b-384b-a6a3-3e3ceee9c52e"));
 
    /** ConceptProxy for: "description not case sensitive". SCT ID: 900000000000448009 */
@@ -258,7 +258,7 @@ public class TermAux implements StaticIsaacCache {
    /** ConceptProxy for: "role group". */
    public static ConceptSpecification ROLE_GROUP = new ConceptProxy("Role group", UUID.fromString("a63f4bf2-a040-11e5-8994-feff819cdc9f"));
 
-   public static ConceptSpecification IDENTIFIER_SOURCE = new ConceptProxy("identifier source", UUID.fromString("5a87935c-d654-548f-82a2-0c06e3801162"));
+   public static ConceptSpecification IDENTIFIER_SOURCE = new ConceptProxy("Identifier source", UUID.fromString("5a87935c-d654-548f-82a2-0c06e3801162"));
 
    /** ConceptProxy for: "sufficient concept definition". SCTID: 900000000000073002 */
    public static ConceptSpecification SUFFICIENT_CONCEPT_DEFINITION = new ConceptProxy("Sufficient concept definition",

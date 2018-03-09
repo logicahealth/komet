@@ -22,21 +22,50 @@ import sh.isaac.api.statement.Result;
 import sh.isaac.model.observable.ObservableFields;
 
 import java.util.Optional;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
  * @author kec
  */
-public class ResultImpl extends MeasureImpl implements Result {
+public class ResultImpl implements Result {
+
+    private final ManifoldCoordinate manifold;
+
+    private final SimpleObjectProperty<Measure> measure =
+            new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
 
     private final SimpleObjectProperty<Measure> normalRange =
             new SimpleObjectProperty<>(this, ObservableFields.MEASURE_NORMAL_RANGE.toExternalString());
 
-    public ResultImpl(ManifoldCoordinate manifold) {
-        super(manifold);
+    public ResultImpl(ResultImpl result, ManifoldCoordinate manifold) {
+        this.manifold = manifold;
+        this.measure.set(result.getMeasure());
+        this.normalRange.set(result.getNormalRange().get());
     }
 
+    public ResultImpl(MeasureImpl measure, ManifoldCoordinate manifold) {
+        this.manifold = manifold;
+        this.measure.set(measure);
+    }
+
+    public ResultImpl(ManifoldCoordinate manifold) {
+        this.manifold = manifold;
+        this.measure.set(new MeasureImpl(manifold));
+    }
+
+    public Measure getMeasure() {
+        return measure.get();
+    }
+    
+    public void setMeasure(Measure measure) {
+        this.measure.set(measure);
+    }
+    public SimpleObjectProperty<Measure> measureProperty() {
+        return measure;
+    }
+    
     @Override
     public Optional<Measure> getNormalRange() {
         return Optional.ofNullable(normalRange.get());
@@ -48,5 +77,36 @@ public class ResultImpl extends MeasureImpl implements Result {
 
     public void setNormalRange(Measure normalRange) {
         this.normalRange.set(normalRange);
+    }
+
+    
+    @Override
+    public Optional<Double> getResolution() {
+        return measure.get().getResolution();
+    }
+
+    @Override
+    public double getLowerBound() {
+        return measure.get().getLowerBound();
+    }
+
+    @Override
+    public double getUpperBound() {
+        return measure.get().getUpperBound();
+    }
+
+    @Override
+    public boolean includeLowerBound() {
+        return measure.get().includeLowerBound();
+    }
+
+    @Override
+    public boolean includeUpperBound() {
+        return measure.get().includeUpperBound();
+    }
+
+    @Override
+    public ConceptSpecification getMeasureSemantic() {
+        return measure.get().getMeasureSemantic();
     }
 }

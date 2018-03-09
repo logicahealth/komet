@@ -27,13 +27,13 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class RepetitionImpl implements Repetition {
-    private final SimpleObjectProperty<Measure> periodStart = 
+    private final SimpleObjectProperty<MeasureImpl> periodStart = 
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_START.toExternalString());
-    private final SimpleObjectProperty<Measure> periodDuration = 
+    private final SimpleObjectProperty<MeasureImpl> periodDuration = 
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_PERIOD_DURATION.toExternalString());
-    private final SimpleObjectProperty<Measure> eventFrequency =
+    private final SimpleObjectProperty<MeasureImpl> eventFrequency =
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_FREQUENCY.toExternalString());
-    private final SimpleObjectProperty<Measure> eventDuration =
+    private final SimpleObjectProperty<MeasureImpl> eventDuration =
             new SimpleObjectProperty<>(this, ObservableFields.REPETITION_EVENT_DURATION.toExternalString());
 
     @Override
@@ -41,24 +41,24 @@ public class RepetitionImpl implements Repetition {
         return periodStart.get();
     }
 
-    public SimpleObjectProperty<Measure> periodStartProperty() {
+    public SimpleObjectProperty<MeasureImpl> periodStartProperty() {
         return periodStart;
     }
 
-    public void setPeriodStart(Measure periodStart) {
+    public void setPeriodStart(MeasureImpl periodStart) {
         this.periodStart.set(periodStart);
     }
 
     @Override
-    public Measure getPeriodDuration() {
+    public MeasureImpl getPeriodDuration() {
         return periodDuration.get();
     }
 
-    public SimpleObjectProperty<Measure> periodDurationProperty() {
+    public SimpleObjectProperty<MeasureImpl> periodDurationProperty() {
         return periodDuration;
     }
 
-    public void setPeriodDuration(Measure periodDuration) {
+    public void setPeriodDuration(MeasureImpl periodDuration) {
         this.periodDuration.set(periodDuration);
     }
 
@@ -67,11 +67,11 @@ public class RepetitionImpl implements Repetition {
         return eventFrequency.get();
     }
 
-    public SimpleObjectProperty<Measure> eventFrequencyProperty() {
+    public SimpleObjectProperty<MeasureImpl> eventFrequencyProperty() {
         return eventFrequency;
     }
 
-    public void setEventFrequency(Measure eventFrequency) {
+    public void setEventFrequency(MeasureImpl eventFrequency) {
         this.eventFrequency.set(eventFrequency);
     }
 
@@ -80,11 +80,11 @@ public class RepetitionImpl implements Repetition {
         return Optional.ofNullable(eventDuration.get());
     }
 
-    public SimpleObjectProperty<Measure> eventDurationProperty() {
+    public SimpleObjectProperty<MeasureImpl> eventDurationProperty() {
         return eventDuration;
     }
 
-    public void setEventDuration(Measure eventDuration) {
+    public void setEventDuration(MeasureImpl eventDuration) {
         this.eventDuration.set(eventDuration);
     }
 }

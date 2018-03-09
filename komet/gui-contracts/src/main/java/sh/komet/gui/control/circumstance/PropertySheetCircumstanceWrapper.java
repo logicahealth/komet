@@ -14,29 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.control;
+package sh.komet.gui.control.circumstance;
 
 import java.util.Optional;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.statement.Measure;
+import sh.isaac.api.statement.Circumstance;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class PropertySheetItemMeasureWrapper implements PropertySheet.Item {
-    private final SimpleObjectProperty<Measure> measureProperty;
+public class PropertySheetCircumstanceWrapper implements PropertySheet.Item {
+    private final SimpleObjectProperty<Circumstance> circumstanceProperty;
     private final String name;
 
-    public PropertySheetItemMeasureWrapper(Manifold manifold, SimpleObjectProperty<Measure> measureProperty) {
-        this.measureProperty = measureProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(measureProperty.getName()));
+    public PropertySheetCircumstanceWrapper(Manifold manifold, SimpleObjectProperty<Circumstance> circumstanceProperty) {
+        this.circumstanceProperty = circumstanceProperty;
+        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(circumstanceProperty.getName()));
     }
 
+    
     @Override
     public Class<?> getType() {
         return null;
@@ -58,19 +59,20 @@ public class PropertySheetItemMeasureWrapper implements PropertySheet.Item {
     }
 
     @Override
-    public Object getValue() {
-        return measureProperty.get();
+    public Circumstance getValue() {
+        return circumstanceProperty.get();
     }
 
     @Override
     public void setValue(Object value) {
-        if (measureProperty.get() != value) {
-            measureProperty.set((Measure) value);
+      if (circumstanceProperty.get() != value) {
+            circumstanceProperty.set((Circumstance) value);
         }
-     }
+      }
 
     @Override
     public Optional<ObservableValue<? extends Object>> getObservableValue() {
-        return Optional.of(measureProperty);
-    }    
+        return Optional.of(circumstanceProperty);
+    }
+    
 }

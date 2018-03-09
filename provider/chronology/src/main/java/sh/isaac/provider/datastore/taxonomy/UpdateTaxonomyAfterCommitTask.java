@@ -42,7 +42,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.semantic.SemanticChronology;

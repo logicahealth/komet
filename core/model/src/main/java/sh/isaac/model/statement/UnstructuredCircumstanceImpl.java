@@ -17,6 +17,7 @@
 package sh.isaac.model.statement;
 
 import javafx.beans.property.SimpleStringProperty;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.statement.UnstructuredCircumstance;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -27,6 +28,10 @@ import sh.isaac.model.observable.ObservableFields;
 public class UnstructuredCircumstanceImpl extends CircumstanceImpl implements UnstructuredCircumstance {
     private final SimpleStringProperty unstructuredText = 
             new SimpleStringProperty(this, ObservableFields.UNSTRUCTURED_CIRCUMSTANCE_TEXT.toExternalString());
+
+    public UnstructuredCircumstanceImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+    }
 
     @Override
     public String getUnstructuredText() {

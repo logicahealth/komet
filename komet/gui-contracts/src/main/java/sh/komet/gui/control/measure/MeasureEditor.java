@@ -42,7 +42,7 @@ import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.komet.gui.action.ConceptAction;
-import sh.komet.gui.control.ConceptLabel;
+import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import tornadofx.control.DateTimePicker;

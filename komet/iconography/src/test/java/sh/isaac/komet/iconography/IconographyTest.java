@@ -157,6 +157,9 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.DASHBOARD.getIconographic());    
       iconsPane.getChildren().add(Iconography.JAVASCRIPT.getIconographic());  
       iconsPane.getChildren().add(Iconography.LAMBDA.getIconographic());
+      iconsPane.getChildren().add(Iconography.ROLE_GROUP.getIconographic());
+      iconsPane.getChildren().add(Iconography.INFERRED.getIconographic());
+      iconsPane.getChildren().add(Iconography.STATED.getIconographic());
       
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

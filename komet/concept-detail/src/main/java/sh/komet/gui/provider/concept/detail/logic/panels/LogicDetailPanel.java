@@ -16,8 +16,15 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
+import java.util.Optional;
 import javafx.scene.Node;
+import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.titled.TitledToolbarPane;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 
 /**
@@ -26,10 +33,18 @@ import sh.komet.gui.style.PseudoClasses;
  */
 public abstract class LogicDetailPanel {
     
+    protected double leftInset = 25;
+    
     private final PremiseType premiseType;
 
-    public LogicDetailPanel(PremiseType premiseType) {
+    protected final TitledToolbarPane panel = new TitledToolbarPane();
+    protected final Manifold manifold;
+    protected final LogicalExpression logicalExpression;
+    
+    public LogicDetailPanel(PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
         this.premiseType = premiseType;
+        this.manifold = manifold;
+        this.logicalExpression = logicalExpression;
     }
     
     protected final void setPseudoClasses(Node node) {
@@ -52,4 +67,36 @@ public abstract class LogicDetailPanel {
     final PremiseType getPremiseType() {
         return this.premiseType;
     }
+   public final Node computeGraphic() {
+       return computeGraphic(logicalExpression);
+   }
+   
+   public final Node computeGraphic(LogicalExpression expression) {
+      int[] parents = Get.taxonomyService().getSnapshot(manifold)
+              .getTaxonomyTree().getParentNids(expression.getConceptNid());
+      if (parents.length == 0) {
+          panel.setCollapsible(false);
+      }
+      boolean multiParent = parents.length > 1;
+      boolean sufficient = expression.contains(NodeSemantic.SUFFICIENT_SET);
+ 
+      if (parents.length == 0) {
+         return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
+      } else if (sufficient && multiParent) {
+         if (panel.isExpanded()) {
+            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_OPEN.getIconographic();
+         } else {
+            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_CLOSED.getIconographic();
+         }
+      } else if (!sufficient && multiParent) {
+         if (panel.isExpanded()) {
+            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN.getIconographic();
+         } else {
+            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED.getIconographic();
+         }
+      } else if (sufficient && !multiParent) {
+         return Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic();
+      }
+      return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
+   }
 }

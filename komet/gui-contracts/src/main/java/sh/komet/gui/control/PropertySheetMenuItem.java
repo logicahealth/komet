@@ -37,6 +37,7 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -160,13 +161,13 @@ public class PropertySheetMenuItem
    }
 
    //~--- get methods ---------------------------------------------------------
-   private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
+   private PropertySheetItemConceptNidWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
       IntegerProperty conceptProperty = (IntegerProperty) getPropertyMap().get(propertyConceptSpecification);
       if (conceptProperty == null) {
          throw new IllegalStateException("No property for: " + propertyConceptSpecification);
       }
-      return new PropertySheetItemConceptWrapper(
+      return new PropertySheetItemConceptNidWrapper(
               manifold,
               nameForProperty,
               conceptProperty);
