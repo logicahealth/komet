@@ -61,6 +61,7 @@ import org.apache.maven.pom._4_0.PluginExecution;
 import org.apache.maven.pom._4_0.PluginExecution.Configuration;
 import org.apache.maven.pom._4_0.PluginExecution.Goals;
 import org.apache.maven.pom._4_0.Scm;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
@@ -262,6 +263,7 @@ public class DBConfigurationCreator
 			pe.setGoals(goals);
 			configuration = new Configuration();
 			configuration.setDataStoreLocation("${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/");
+			configuration.setDbBuildMode(BuildMode.DB.name());
 			pe.setConfiguration(configuration);
 			executions.getExecution().add(pe);
 

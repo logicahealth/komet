@@ -68,4 +68,8 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
       return Iconography.CONCEPT_TABLE.getIconographic();
    }
    
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }

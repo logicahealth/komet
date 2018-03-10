@@ -20,6 +20,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.statement.constraints.MeasureConstraints;
@@ -31,7 +32,7 @@ import sh.isaac.model.semantic.version.AbstractVersionImpl;
  * @author kec
  */
 public class MeasureConstraintImpl 
-        extends AbstractVersionImpl implements MeasureConstraints {
+        extends AbstractVersionImpl implements MeasureConstraints, BrittleVersion {
 
     String constraintDescription;
     float initialLowerBound;
@@ -308,6 +309,4 @@ public class MeasureConstraintImpl
     public VersionType getSemanticType() {
         return VersionType.MEASURE_CONSTRAINTS;
     }
-
-    
 }

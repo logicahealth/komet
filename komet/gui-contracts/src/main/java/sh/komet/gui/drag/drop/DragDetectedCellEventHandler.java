@@ -36,9 +36,11 @@
  */
 package sh.komet.gui.drag.drop;
 
+import java.util.function.IntSupplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.event.EventHandler;
-
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
@@ -47,9 +49,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-
+import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
-
 import sh.komet.gui.interfaces.DraggableWithImage;
 
 //~--- classes ----------------------------------------------------------------
@@ -60,8 +61,15 @@ import sh.komet.gui.interfaces.DraggableWithImage;
  */
 public class DragDetectedCellEventHandler
         implements EventHandler<MouseEvent> {
+   private static final Logger LOG = LogManager.getLogger();
+   
+   private IntSupplier nidSupplier;
 
    public DragDetectedCellEventHandler() {
+   }
+   
+   public DragDetectedCellEventHandler(IntSupplier nidSupplier) {
+      this.nidSupplier = nidSupplier;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -72,11 +80,21 @@ public class DragDetectedCellEventHandler
    @Override
    public void handle(MouseEvent event) {
       /* drag was detected, start a drag-and-drop gesture */
- /* allow any transfer mode */
+      /* allow any transfer mode */
       Node eventNode = null;
       IdentifiedObject identifiedObject = null;
 
-      if (event.getSource() instanceof TreeCell) {
+      if (nidSupplier != null) {
+         identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
+         if (event.getSource() instanceof Node) {
+            eventNode = (Node)event.getSource();
+         }
+         else {
+            LOG.warn("Non node source of drag? {}", event.getSource());
+         }
+      }
+
+      else if (event.getSource() instanceof TreeCell) {
          eventNode = (TreeCell<IdentifiedObject>) event.getSource();
          identifiedObject = ((TreeCell<IdentifiedObject>) event.getSource()).getItem();
       } else if (event.getSource() instanceof TableCell) {
@@ -93,7 +111,9 @@ public class DragDetectedCellEventHandler
          eventNode = event.getPickResult()
                  .getIntersectedNode();
          eventNode = eventNode.getParent();
-
+      }
+      else {
+        LOG.warn("unhandled event source {}" + event.getSource());
       }
 
       if (eventNode != null) {

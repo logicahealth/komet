@@ -17,6 +17,7 @@
 package sh.komet.gui.contract;
 
 import javafx.scene.Node;
+import sh.komet.gui.util.FxGet;
 
 /**
  * Common methods for node factories
@@ -34,4 +35,11 @@ public interface NodeFactory {
     * @return icon to display in a menu that invokes this factory
     */
    Node getMenuIcon();
+
+   /**
+    * @return true if this view should be shown, false otherwise.  Default ties it to the betaFeatures.
+    */
+   default boolean isEnabled() {
+      return FxGet.showBetaFeatures();
+   }
 }

@@ -50,6 +50,7 @@ import javax.naming.InvalidNameException;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -77,9 +78,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 public class DynamicImpl
         extends AbstractVersionImpl
          implements MutableDynamicVersion<DynamicImpl> {
-   /** The bootstrap mode. */
-   private static boolean dbBuildMode = Get.configurationService()
-                                             .inDBBuildMode();
 
    //~--- fields --------------------------------------------------------------
 
@@ -299,7 +297,7 @@ public class DynamicImpl
          checkUncommitted();
       }
 
-      if (!dbBuildMode) {  // We can't run the validators when we are building the initial system.
+      if (!Get.configurationService().inDBBuildMode(BuildMode.IBDF)) {  // We can't run the validators when we are building the initial system.
          final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
 
          LookupService.get()

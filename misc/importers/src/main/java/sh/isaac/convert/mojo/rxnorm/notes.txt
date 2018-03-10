@@ -1,0 +1,130 @@
+RxNorm info
+The RxNorm loader is a beast... and likely won't fit well with your direct-load model as it is currently written. It was initially written to handle U...
+Click or select anywhere in the note to add a comment
+​
+RxNorm info
+The RxNorm loader is a beast... and likely won't fit well with your direct-load model as it is currently written.
+
+It was initially written to handle UMLS, and then enhanced to handle RxNorm. While they are technically the same format, they are rather different in structure internally, so there was lots of ugliness for supporting both.
+
+UMLS isn't supported at this point (hasn't been for a while)
+
+This isn't a fast loader, it was definitely set up for being done in batch. My last run took 11 minutes on a fast computer, and needs a LOT of memory (though this can be reduced a lot
+if you disable some of my debug tooling, like the string -> UUID map)
+
+It starts by building an H2 database of the required RRF files, and adding various indexes. This alone takes a while, as the DB is 3.3 GB. (If you rerun the loader multiple times while debugging something, it won't rebuild this DB if it already exists)
+
+The converter has some runtime options - you can select which TTYs should be included (or all) - the console tool will prompt you about these when building the pom. You can also
+specify which SABs should be included - for the VA, we were usually only loading VANDF, NDDF, MMSL,ATC,DFRT,SNOMEDCT_US. But it should (in theory) work for all SABs.
+
+When SNOMEDCT_US is specifed, this triggers a bunch of special behavior - it doesn't create any IBDF content for the snomed concepts. However, it does need to look up things
+in our native snomed IBDF file (like mapping from SCTID to UUID) so that I can connect the relationships from RxNorm to the appropriate Snomed concepts, and add the CUIs, AUIs, etc.
+
+This also means that when running the converter, you must provide a SNOMEDCT IBDF file - so the converter actually loads up a DB with Snomed, just to support the queries needed
+(and then throws it away at the end)
+
+The converter tries to have as little hard-coded logic as possible - there is lots of metadata embedded in MRDOC which it goes through, and uses for constructing all of the required
+semantic types for properties, associations, description types, etc.
+
+I believe most of these are set up as dynamic semantics (except for things that are ID-like)
+
+The relationship processing is rather fun, as RxNorm has the relationships in 2 directions - with different names, while we only do 1. So I have a lot of code which finds all of the
+matching relationships (tradename of / hasTradename) and then more code to decide which relationship name should be the primary - and then lots of sanity checking code to make sure that when loading them, I find all of the pairs, and create one relationship for each pair of relationships. Both the forward and reverse names are part of the association semantic I create to carry them.
+
+On top of that, every relationship in RxNorm can have 1 or 2 relationship types, a primary name and a generic name... and the generic names also have forward and reverse. Those get loaded as well, IIRC, as nested semantics on the "association" I create.
+
+When I say association, its really just a specific type of semantic I create to represent the arbitrary relationships. The relationships that are mapped to isA get special handling, and get put in as a graph. But, they also get loaded as an association, because the graph can't store the rest of the metadata from the relationship.
+
+For processing the descriptions, there is a ranking mechanism for picking which description type gets used for the FQN, per concept. As there isn't much consistency in RxNorm, as far as what the FQN of something should be. And then it further ranks which description should be "preferred" vs "acceptable".
+
+The descriptions all get mapped onto the 3 core types we have, but each one is annotated with the description type from RxNorm.
+
+The loader does try to reduce some duplicate information - for example, when loading attributes on concepts or descriptions, if the attribute specifies that its SAB is the same as the SAB of the concept, then I don't create the SAB annotation on the attribute. (But if the SAB is different, then I do - for example, if the SAB RxNorm added an attribute to a Snomed description)
+
+In sorting through the duplicate relationships, it also has to make sure that it is only loading one copy of the attributes attached to relationships, as RxNorm duplicates these as well. But I maintain all of the AUI, SAUIs, RUIs, etc, associated with both things, when merging the duplicate information.
+
+And of course, there is no hierarchy, but I do create a refset of all RxNorm content. And the created metadata tree has all of the details on all of the created semantics.
+
+
+
+Here are the stats of what it produces if you run it with the default filters:
+
+Relationship 'Is-a (SOLOR)': 140765
+Relationships Total: 140765
+Association 'consists_of': 109920
+Association 'contains': 2169
+Association 'form_of': 2693
+Association 'has_dose_form': 89440
+Association 'has_doseformgroup': 37127
+Association 'has_ingredient': 156064
+Association 'has_ingredients': 11667
+Association 'has_part': 10909
+Association 'has_precise_ingredient': 10661
+Association 'quantified_form_of': 4957
+Association 'reformulated_to': 99
+Associations Total: 435706
+Description 'FULLY_QUALIFIED_NAME:Brand Name': 16005
+Description 'FULLY_QUALIFIED_NAME:Branded Drug Delivery Device': 581
+Description 'FULLY_QUALIFIED_NAME:Dose Form': 175
+Description 'FULLY_QUALIFIED_NAME:Dose Form Group': 45
+Description 'FULLY_QUALIFIED_NAME:Entry Term': 8
+Description 'FULLY_QUALIFIED_NAME:Generic Drug Delivery Device': 535
+Description 'FULLY_QUALIFIED_NAME:Name for a Multi-Ingredient': 3949
+Description 'FULLY_QUALIFIED_NAME:Name for an Ingredient': 11439
+Description 'FULLY_QUALIFIED_NAME:Name from a Precise Ingredient': 2693
+Description 'FULLY_QUALIFIED_NAME:Semantic Branded Drug': 22296
+Description 'FULLY_QUALIFIED_NAME:Semantic Branded Drug Component': 18826
+Description 'FULLY_QUALIFIED_NAME:Semantic Branded Drug Group': 20844
+Description 'FULLY_QUALIFIED_NAME:Semantic Branded Drug and Form': 14574
+Description 'FULLY_QUALIFIED_NAME:Semantic Clinical Drug': 36767
+Description 'FULLY_QUALIFIED_NAME:Semantic Clinical Drug Group': 16283
+Description 'FULLY_QUALIFIED_NAME:Semantic Clinical Drug and Form': 14687
+Description 'FULLY_QUALIFIED_NAME:Semantic Drug Component': 26932
+Description 'REGULAR_NAME:Designated Synonym': 57272
+Description 'REGULAR_NAME:Entry Term': 3
+Description 'REGULAR_NAME:Prescribable Name': 30051
+Description 'REGULAR_NAME:Tall Man synonym': 21884
+Descriptions Total: 315849
+Annotation 'Association:Generic rel type': 435706
+Annotation 'Association:RUI': 435706
+Annotation 'Association' Total: 871412
+Annotation 'Attribute:ATUI': 15614
+Annotation 'Attribute:STYPE': 807745
+Annotation 'Attribute:Suppress': 498245
+Annotation 'Attribute' Total: 1321604
+Annotation 'Concept:RXCUI': 206639
+Annotation 'Concept:Semantic Type': 234325
+Annotation 'Concept:UMLS concept unique identifier': 205012
+Annotation 'Concept' Total: 645976
+Annotation 'Description:Animal Drug': 1775
+Annotation 'Description:Code (SOLOR)': 315849
+Annotation 'Description:Extended description type (SOLOR)': 315849
+Annotation 'Description:Human Drug': 24808
+Annotation 'Description:National Drug Code': 224571
+Annotation 'Description:Normal Form quantity factor': 5096
+Annotation 'Description:Original Code': 136
+Annotation 'Description:Original Source': 136
+Annotation 'Description:RXAUI': 315849
+Annotation 'Description:RXN_QUALITATIVE_DISTINCTION': 191
+Annotation 'Description:RxNorm Activation Date': 11653
+Annotation 'Description:RxNorm Available Drug Strengths': 57067
+Annotation 'Description:RxNorm Brand Name Cardinality': 11984
+Annotation 'Description:RxNorm Obsolete Date': 83165
+Annotation 'Description:RxTerm Dose Form Name': 47215
+Annotation 'Description:Source Vocabulary': 315849
+Annotation 'Description:Source asserted atom identifier': 315849
+Annotation 'Description:Source asserted concept identifier': 315849
+Annotation 'Description:Strength Expressed As Precise Flag': 3516
+Annotation 'Description:Strength plus unit of SCDC': 26932
+Annotation 'Description:Suppress': 315849
+Annotation 'Description:UMLS atom unique identifier': 309500
+Annotation 'Description:US English dialect (SOLOR)': 315849
+Annotation 'Description' Total: 3334537
+Annotation 'Sememe Member:Content View Flag': 87788
+Annotations Total: 6261317
+Refset Members 'All RxNorm CUI Concepts': 206639
+Refset Members 'Current Prescribable Content': 741015
+Refset Members Total: 947654
+
+
+Note, I have yet to try to browse this content in your komet viewer - I'm not even sure I've built the resulting IBDF file into a DB. It may still have some bugs... - but the converter does run.

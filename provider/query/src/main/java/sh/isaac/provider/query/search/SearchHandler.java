@@ -121,6 +121,7 @@ public class SearchHandler {
       return descriptionSearch(query,
                                resultLimit,
                                false,
+                               false,
                                operationToRunWhenSearchComplete,
                                (Integer) null,
                                null,
@@ -313,6 +314,10 @@ public class SearchHandler {
     * @param resultLimit - limit to X results.  Use {@link Integer#MAX_VALUE} for no limit.
     * @param prefixSearch - true to use the "prefex search" algorithm.  False to use the standard lucene algorithm.
     *   See {@link DescriptionIndexer#query(String, boolean, ComponentProperty, int, Long)} for more details on this algorithm.
+    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#ISAAC_METADATA} tree when true,
+    *           otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
+    *           stamp, not necessarily the passed in AmpRestriction.  If you only want results that are metadata on your current coordinate, 
+    *           you will have to post-filter the result.  
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
     * @param taskId - An optional field that is simply handed back during the callback when results are complete.  Useful for matching
@@ -330,6 +335,7 @@ public class SearchHandler {
    public static SearchHandle descriptionSearch(String query,
          final int resultLimit,
          final boolean prefixSearch,
+         final boolean metadataOnly,
          Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
          final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -344,7 +350,7 @@ public class SearchHandler {
                                            null,
                                            null,
                                            null,
-                                           false,
+                                           metadataOnly,
                                            null,
                                            null,
                                            null,

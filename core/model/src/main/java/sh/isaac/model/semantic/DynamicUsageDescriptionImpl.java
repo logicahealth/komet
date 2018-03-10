@@ -42,6 +42,7 @@ package sh.isaac.model.semantic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -51,10 +52,8 @@ import java.util.logging.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -63,6 +62,8 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -412,11 +413,10 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Invent DynamicUsageDescription info for other sememe types (that
- aren't dynamic), otherwise, calls {@link #read(int)} if it is a dynamic
-    * sememe.
+    * Invent DynamicUsageDescription info for other semantic types (that aren't dynamic), otherwise, calls {@link #read(int)} 
+    * if it is a dynamic semantic.
     *
-    * @param sememe the sememe in question
+    * @param sememe the semantic in question
     * @return the dynamic element usage description
     */
    public static DynamicUsageDescription mockOrRead(SemanticChronology sememe) {
@@ -458,6 +458,48 @@ public class DynamicUsageDescriptionImpl
          break;
 
       case DESCRIPTION:
+          dsud.refexColumnInfo = new DynamicColumnInfo[] {
+                  new DynamicColumnInfo(
+                      Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
+                      0,
+                      DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(),
+                      DynamicDataType.STRING,
+                      null,
+                      true,
+                      null,
+                      null,
+                      false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
+                          1,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
+                          2,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()),
+                          3,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false)};
+               break;
       case STRING:
       case LOGIC_GRAPH:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
@@ -480,7 +522,68 @@ public class DynamicUsageDescriptionImpl
       case DYNAMIC:
          return read(sememe.getAssemblageNid());
 
-      case UNKNOWN:
+      case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+      case LOINC_RECORD:
+      case MEASURE_CONSTRAINTS:
+      case Nid1_Int2:
+      case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+      case Nid1_Nid2:
+      case Nid1_Nid2_Int3:
+      case Nid1_Nid2_Str3:
+      case Nid1_Str2:
+      case RF2_RELATIONSHIP:
+      case Str1_Nid2_Nid3_Nid4:
+      case Str1_Str2:
+      case Str1_Str2_Nid3_Nid4:
+      case Str1_Str2_Nid3_Nid4_Nid5:
+      case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+         LatestVersion<BrittleVersion> version = sememe.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            if (version.isPresent())
+            {
+               ArrayList<DynamicColumnInfo> dci = new ArrayList<>();
+               int col = 0;
+
+               for (BrittleDataTypes dt : version.get().getFieldTypes())
+               {
+                  switch (dt) {
+                     case BOOLEAN:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_BOOLEAN.getPrimordialUuid(), 
+                              DynamicDataType.BOOLEAN, 
+                              null, true, null, null, false));
+                        break;
+                     case FLOAT:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_FLOAT.getPrimordialUuid(), 
+                              DynamicDataType.FLOAT, 
+                              null, true, null, null, false));
+                        break;
+                     case INTEGER:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_INTEGER.getPrimordialUuid(), 
+                              DynamicDataType.INTEGER, 
+                              null, true, null, null, false));
+                        break;
+                     case NID:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(), 
+                              DynamicDataType.NID, 
+                              null, true, null, null, false));
+                        break;
+                     case STRING:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), 
+                              DynamicDataType.STRING, 
+                              null, true, null, null, false));
+                        break;
+                     default :
+                        throw new RuntimeException("Use case not yet supported");
+                  }
+               }
+            }
+         break;
+         case UNKNOWN:
+         case CONCEPT:
       default:
          throw new RuntimeException("Use case not yet supported");
       }

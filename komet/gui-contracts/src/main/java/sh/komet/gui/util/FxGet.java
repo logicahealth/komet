@@ -16,7 +16,10 @@
  */
 package sh.komet.gui.util;
 
+import javax.inject.Singleton;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 import sh.komet.gui.contract.DialogService;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.contract.StatusMessageService;
@@ -26,32 +29,48 @@ import sh.komet.gui.provider.StatusMessageProvider;
  *
  * @author kec
  */
-public class FxGet {
+@Service
+@Singleton
+public class FxGet implements StaticIsaacCache
+{
    public static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
+   
    private static DialogService DIALOG_SERVICE = null;
    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
-   private static final StatusMessageProvider STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
+   private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
+
    public static DialogService dialogs() {
       if (DIALOG_SERVICE == null) {
          DIALOG_SERVICE = Get.service(DialogService.class);
       }
       return DIALOG_SERVICE;
    }
-   
+
    public static StatusMessageService statusMessageService() {
+      if (STATUS_MESSAGE_PROVIDER == null) {
+         STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
+      }
       return STATUS_MESSAGE_PROVIDER;
    }
-   
+
    public static RulesDrivenKometService rulesDrivenKometService() {
       if (RULES_DRIVEN_KOMET_SERVICE == null) {
          RULES_DRIVEN_KOMET_SERVICE = Get.service(RulesDrivenKometService.class);
       }
       return RULES_DRIVEN_KOMET_SERVICE;
    }
-   
+
    public static boolean showBetaFeatures() {
-       
-       return Boolean.getBoolean(SHOW_BETA_PROPERTY);
+      return Boolean.getBoolean(SHOW_BETA_PROPERTY);
    }
-  
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      DIALOG_SERVICE = null;
+      RULES_DRIVEN_KOMET_SERVICE = null;
+      STATUS_MESSAGE_PROVIDER = null;
+   }
 }

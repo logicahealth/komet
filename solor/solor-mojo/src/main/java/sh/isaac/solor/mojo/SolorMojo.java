@@ -29,6 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.classifier.ClassifierResults;
 import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -79,7 +80,7 @@ public class SolorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Get.configurationService().setDBBuildMode();
+        Get.configurationService().setDBBuildMode(BuildMode.IBDF);
         try {
             System.setProperty(IMPORT_FOLDER_LOCATION, importFolderLocation);
             this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);

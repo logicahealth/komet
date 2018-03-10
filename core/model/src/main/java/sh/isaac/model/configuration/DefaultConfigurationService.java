@@ -42,13 +42,10 @@ package sh.isaac.model.configuration;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import java.util.Optional;
-
 import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -56,11 +53,10 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.api.Rank;
-
 import org.jvnet.hk2.annotations.Service;
-
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
@@ -68,8 +64,8 @@ import sh.isaac.api.constants.Constants;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -103,7 +99,7 @@ public class DefaultConfigurationService
    private volatile boolean initComplete = false;
 
    /** The db build mode. */
-   private boolean dbBuildMode = false;
+   private SimpleObjectProperty<BuildMode> dbBuildMode = new SimpleObjectProperty<>(null);
 
    /** The git config info. */
    private RemoteServiceInfo gitConfigInfo = null;
@@ -117,8 +113,6 @@ public class DefaultConfigurationService
       // only for HK2
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
     * In DB build mode.
     *
@@ -126,22 +120,35 @@ public class DefaultConfigurationService
     */
    @Override
    public boolean inDBBuildMode() {
-      return this.dbBuildMode;
+      return null != this.dbBuildMode.get();
    }
 
-   //~--- set methods ---------------------------------------------------------
+   @Override
+   public boolean inDBBuildMode(BuildMode buildMode) {
+      return buildMode == null ? inDBBuildMode() : this.dbBuildMode.get() == buildMode;
+   }
 
    /**
     * Set DB build mode.
     */
    @Override
-   public void setDBBuildMode() {
-      this.dbBuildMode = true;
+   public void setDBBuildMode(BuildMode buildMode) {
+      if (this.dbBuildMode.get() != null && buildMode != this.dbBuildMode.get()) {
+         throw new RuntimeException("Not allowed to change DBBuild Mode more than once.  Shutdown and restart to change mode");
+      }
+      this.dbBuildMode.set(buildMode);
    }
+   
+   
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
+   @Override
+   public ReadOnlyObjectProperty<BuildMode> getDBBuildMode() {
+      return dbBuildMode;
+   }
+
+/**
     * Gets the data store folder path.
     *
     * @return the data store folder path

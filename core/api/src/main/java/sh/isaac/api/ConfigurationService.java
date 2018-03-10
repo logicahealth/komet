@@ -53,7 +53,8 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jvnet.hk2.annotations.Contract;
-
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.constants.Constants;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -75,6 +76,9 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  */
 @Contract
 public interface ConfigurationService {
+
+	public enum BuildMode{DB, IBDF}
+	
    /**
     * Enable verbose debug.
     *
@@ -95,16 +99,40 @@ public interface ConfigurationService {
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
     * 
-    * There are some cases where validators and such cannot be properly executed if we are building a DB 
     * 
     * The default implementation of this returns false.
     *
-    * @return true, if successful
+    * @return true, if in ANY db build mode.  See also {@link #inDBBuildMode(BuildMode)}
     */
    public default boolean inDBBuildMode() {
       return false;
+   }
+   
+   /**
+    * When building a DB, we don't want to index per commit, or write changeset files, among other things.
+    *
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
+    * 
+    * 
+    * The default implementation of this returns false.
+    * @param buildMode the build mode to query about.  If null is passed, behaves the same as {@link #inDBBuildMode()}  
+    *
+    * @return true, if in the specified db build mode.  See also {@link #inDBBuildMode()}
+    */
+   public default boolean inDBBuildMode(BuildMode buildMode) {
+      return false;
+   }
+   
+   /**
+    * An observable wrapper for dbBuildMode.  See also {@link #inDBBuildMode(BuildMode)}
+    * @return the object property that will notify if build mode is started
+    */
+   public default ReadOnlyObjectProperty<BuildMode> getDBBuildMode() {
+      return new SimpleObjectProperty<BuildMode>(null);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -140,8 +168,9 @@ public interface ConfigurationService {
 
    /**
     * See {@link #inDBBuildMode()}.
+    * @param buildMode the build mode to enable.
     */
-   public default void setDBBuildMode() {
+   public default void setDBBuildMode(BuildMode buildMode) {
       throw new UnsupportedOperationException();
    }
 

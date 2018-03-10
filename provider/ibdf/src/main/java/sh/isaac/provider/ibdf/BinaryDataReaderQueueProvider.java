@@ -124,6 +124,8 @@ public class BinaryDataReaderQueueProvider
 
    /** The stream bytes. */
    int streamBytes;
+   
+   private boolean failed = false;
 
    /** The es. */
    ExecutorService es;
@@ -272,6 +274,10 @@ public class BinaryDataReaderQueueProvider
     */
    @Override
    public boolean isFinished() {
+      if (failed)
+      {
+         throw new RuntimeException("Error in reading threads!");
+      }
       return this.complete.getCount() == this.COMPLETE;
    }
 
@@ -320,6 +326,11 @@ public class BinaryDataReaderQueueProvider
                         } catch (final InterruptedException e) {
                            LOG.debug("es interrupted");
                         }
+                        catch (Exception e) {
+                           LOG.error("Parsing error", e);
+                           failed = true;
+                           throw e;  //this kills the thread....
+                        }
                      }
                      LOG.debug("Thread ends");
                   });
@@ -337,7 +348,8 @@ public class BinaryDataReaderQueueProvider
                         }
                      });
                   } catch (final Exception e) {
-                     LOG.debug("exception in read?", e);
+                     LOG.error("exception in read?", e);
+                     failed = true;
                      Get.workExecutors().getExecutor().execute(() -> {
                         shutdown();
                      });

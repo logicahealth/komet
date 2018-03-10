@@ -85,6 +85,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
@@ -693,9 +694,9 @@ public class FileSystemDataStore
             syncSemaphore.acquireUninterruptibly();
 
             try {
-                if (Get.configurationService().inDBBuildMode()) {
-                    //No reason to write out all the files below (some of which fail anyway) during DB Build mode, because the 
-                    //purpose oof DBBuildMode is to generate IBDF files, not a valid database.
+                if (Get.configurationService().inDBBuildMode(BuildMode.IBDF)) {
+                    //No reason to write out all the files below (some of which fail anyway) during IBDF Build mode, because the 
+                    //purpose of IBDF DBBuildMode is to generate IBDF files, not a valid database.
                     addToTotalWork(1);
                     updateMessage("Bypass writes on shutdown due to DB Build mode");
                     completedUnitOfWork();

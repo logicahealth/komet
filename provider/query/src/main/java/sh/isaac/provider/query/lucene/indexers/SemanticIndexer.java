@@ -47,7 +47,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-
 import javax.inject.Inject;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -72,7 +71,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -104,6 +102,8 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.index.SemanticIndexerConfiguration;
+import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
@@ -231,6 +231,12 @@ public class SemanticIndexer
                }
                else if (types[i] == BrittleDataTypes.INTEGER) {
                   handleType(doc, new DynamicIntegerImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+               }
+               else if (types[i] == BrittleDataTypes.FLOAT) {
+                   handleType(doc, new DynamicFloatImpl((Float)fieldData[i]), types.length > 1 ? i : -1);
+               }
+               else if (types[i] == BrittleDataTypes.BOOLEAN) {
+                   handleType(doc, new DynamicBooleanImpl((Boolean)fieldData[i]), types.length > 1 ? i : -1);
                }
                else {
                   LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + types[i]);

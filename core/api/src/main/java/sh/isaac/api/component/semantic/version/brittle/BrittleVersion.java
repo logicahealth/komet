@@ -4,7 +4,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 public interface BrittleVersion extends SemanticVersion {
 
-	public enum BrittleDataTypes {STRING, NID, INTEGER};
+	public enum BrittleDataTypes {STRING, NID, INTEGER, FLOAT, BOOLEAN};
 	
 	/**
 	 * Return the type and order of data fields that will be returned by {@link #getDataFields()}

@@ -177,8 +177,8 @@ public class IdentifierProvider
 
       VersionType oldVersionType = this.store.getAssemblageVersionTypeMap().computeIfAbsent(assemblageNid, (Integer t) -> versionType);
       if (oldVersionType != null && oldVersionType != versionType) {
-         throw new IllegalStateException("Version types don't match: " +
-               this.store.getAssemblageVersionTypeMap().get(assemblageNid) + " " + versionType);
+         throw new IllegalStateException("Version types don't match: '" +
+               this.store.getAssemblageVersionTypeMap().get(assemblageNid) + "' vs '" + versionType + "'");
       }
       
       return ((oldObjectType == null && oldVersionType == null));

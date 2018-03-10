@@ -23,9 +23,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-
-import javafx.concurrent.Task;
+import java.util.function.IntSupplier;
+import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Labeled;
@@ -36,12 +40,9 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.Get;
-import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.IsaacCache;
+import sh.isaac.api.LookupService;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
 
@@ -51,9 +52,10 @@ import sh.komet.gui.util.FxUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @author kec
  */
-public class DragRegistry {
+@Service
+@Singleton
+public class DragRegistry implements IsaacCache {
    private static final Logger LOG = LogManager.getLogger();
-   private static final DragRegistry REGISTRY = new DragRegistry();
 
    private final AtomicLong dragStartedAt = new AtomicLong();
    ScheduledFuture<?> timedDragCancel;
@@ -87,7 +89,7 @@ public class DragRegistry {
     * @deprecated 
     */
    @Deprecated
-   public void setupDragAndDrop(final ComboBox<?> n, IdentifiedObject idObject, boolean allowDrop) {
+   public void setupDragAndDrop(final ComboBox<?> n, boolean allowDrop) {
       LOG.trace("Configure drag and drop for node {} - allow Drop {}", n, allowDrop);
       if (allowDrop) {
          addConceptDropTargetInternal(((Node) n));
@@ -127,7 +129,7 @@ public class DragRegistry {
     * @deprecated 
     */
    @Deprecated
-   public void setupDragAndDrop(final TextField n, IdentifiedObject idObject, boolean allowDrop) {
+   public void setupDragAndDrop(final TextField n, boolean allowDrop) {
       LOG.trace("Configure drag and drop for node {} - allow Drop {}", n, allowDrop);
 
       if (allowDrop) {
@@ -165,8 +167,8 @@ public class DragRegistry {
     * @deprecated 
     */
    @Deprecated
-   public void setupDragAndDrop(final Labeled n, IdentifiedObject idObject, boolean allowDrop) {
-      setupDragAndDrop(n, idObject, allowDrop, null);
+   public void setupDragAndDrop(final Labeled n, boolean allowDrop) {
+      setupDragAndDrop(n, allowDrop, null);
    }
 
    /**
@@ -174,7 +176,7 @@ public class DragRegistry {
     * @deprecated 
     */
    @Deprecated
-   public void setupDragAndDrop(final Labeled n, IdentifiedObject idObject, boolean allowDrop, Function<String, String> passedDroppedStringHandler) {
+   public void setupDragAndDrop(final Labeled n, boolean allowDrop, Function<String, String> passedDroppedStringHandler) {
       LOG.trace("Configure drag and drop for node {} - allow Drop {}", n, allowDrop);
 
       Function<String, String> droppedStringHandler = passedDroppedStringHandler != null ? passedDroppedStringHandler : (str) -> str;
@@ -321,10 +323,31 @@ public class DragRegistry {
    
    
    public static void dragComplete() {
-      REGISTRY.conceptDragCompleted();
+      LookupService.getService(DragRegistry.class).conceptDragCompleted();
    }
    public static void dragStart() {
-      REGISTRY.conceptDragStarted();
+      LookupService.getService(DragRegistry.class).conceptDragStarted();
    }
    
+   public void setupDragOnly(final Node n, IntSupplier nidSupplier) {
+      LOG.trace("Configure drag support for node {}", n);
+      n.setOnDragDetected(new DragDetectedCellEventHandler(nidSupplier));
+      n.setOnDragDone(new DragDoneEventHandler());
+   }
+   
+   public void setupDragOnly(final Node n) {
+      LOG.trace("Configure drag support for node {}", n);
+      n.setOnDragDetected(new DragDetectedCellEventHandler());
+      n.setOnDragDone(new DragDoneEventHandler());
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      existingEffect.clear();
+      codeDropTargets.clear();
+   }
+
 }

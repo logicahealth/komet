@@ -50,5 +50,9 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
    public Node getMenuIcon() {
       return Iconography.PAPERCLIP.getIconographic();
    }
-   
+
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }

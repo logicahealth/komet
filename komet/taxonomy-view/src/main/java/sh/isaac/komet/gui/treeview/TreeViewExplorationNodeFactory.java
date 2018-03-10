@@ -55,4 +55,8 @@ public class TreeViewExplorationNodeFactory
       return Iconography.TAXONOMY_ICON.getIconographic();
    }
    
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }

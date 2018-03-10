@@ -53,6 +53,9 @@ public interface DetailNode {
     * @return true if the detail node should become the selected (frontmost)
     * tab within a TabPane or similar construct when the focused 
     * concept changes. 
+    * 
+    * [KEC] How can this possible work?  The nodes can't declare which one should be selected, as soon as you have more than one, 
+    * which one do you select?  
     */
    boolean selectInTabOnChange();
    

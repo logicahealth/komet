@@ -69,4 +69,8 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
       return Iconography.CONCEPT_DETAILS.getIconographic();
    }
    
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
 }
