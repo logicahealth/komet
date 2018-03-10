@@ -16,16 +16,23 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
-import java.util.Optional;
+import java.util.List;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.komet.gui.control.titled.TitledToolbarPane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -39,12 +46,57 @@ public abstract class LogicDetailPanel {
 
     protected final TitledToolbarPane panel = new TitledToolbarPane();
     protected final Manifold manifold;
+    protected final AbstractLogicNode logicNode;
     protected final LogicalExpression logicalExpression;
-    
-    public LogicDetailPanel(PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
+    private final Node editPencil = Iconography.EDIT_PENCIL.getIconographic();
+    public LogicDetailPanel(PremiseType premiseType, 
+            AbstractLogicNode logicNode,
+            LogicalExpression logicalExpression, 
+            Manifold manifold) {
         this.premiseType = premiseType;
         this.manifold = manifold;
+        this.logicNode = logicNode;
         this.logicalExpression = logicalExpression;
+        if (premiseType == PremiseType.STATED) {
+            
+            editPencil.setOnMouseClicked(this::handleConceptNodeClick);
+            panel.setRightGraphic(editPencil);
+        }
+        
+        panel.addEventFilter(EventType.ROOT, this::handleEvent);
+    }
+    
+    protected final void handleEvent(Event event) {
+        if (event instanceof MouseEvent) {
+            MouseEvent mouseEvent = (MouseEvent) event;
+            if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED
+                    ) {
+                if (event.getTarget() == editPencil) {
+                    event.consume();
+                }
+            }
+        }
+    }
+    
+    protected final void handleConceptNodeClick(MouseEvent mouseEvent) {
+       ContextMenu contextMenu = new ContextMenu(); 
+
+       List<MenuItem> menuItems = 
+           FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
+                   manifold, 
+                   logicNode, 
+                   logicalExpression, 
+                   (propertySheetMenuItem) -> {});
+       contextMenu.getItems().addAll(menuItems);
+   
+
+         
+
+
+       MenuItem doSomething = new MenuItem("Do something");
+       contextMenu.getItems().addAll(doSomething);
+       mouseEvent.consume();
+       contextMenu.show(panel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
     }
     
     protected final void setPseudoClasses(Node node) {

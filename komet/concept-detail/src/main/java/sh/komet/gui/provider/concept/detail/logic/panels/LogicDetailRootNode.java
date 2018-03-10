@@ -39,7 +39,7 @@ public class LogicDetailRootNode extends LogicDetailPanel {
 
     public LogicDetailRootNode(RootNode rootNode,
             PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, rootNode, logicalExpression, manifold);
         this.panel.setContent(setBox);
         panel.expandedProperty().addListener((observable, oldValue, newValue) -> {
             handleOpenClose(newValue);

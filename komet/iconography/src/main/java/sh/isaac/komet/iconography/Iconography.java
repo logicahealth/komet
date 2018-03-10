@@ -181,9 +181,8 @@ public enum Iconography {
   ROLE_GROUP(MATERIAL_DESIGNS_WEBFONT, "role-group"),
   INFERRED(FONT_AWSOME, "inferred-form"),
   STATED(ICONS_525, "stated-form"),
+  LINK_EXTERNAL(OCT_ICON, "link-external"),
   ;
-
-   ;
 
    String cssClass;
    IconSource source;

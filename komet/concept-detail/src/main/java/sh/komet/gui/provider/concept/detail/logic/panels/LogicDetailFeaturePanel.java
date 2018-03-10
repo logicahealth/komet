@@ -32,7 +32,7 @@ public class LogicDetailFeaturePanel extends LogicDetailPanel {
 
     public LogicDetailFeaturePanel(FeatureNodeWithNids featureNode, 
                         PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, featureNode, logicalExpression, manifold);
         this.featureNode = featureNode;
         this.panel.setText(manifold.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
         setPseudoClasses(panel);

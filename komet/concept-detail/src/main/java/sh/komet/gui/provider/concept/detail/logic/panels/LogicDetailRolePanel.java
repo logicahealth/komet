@@ -58,7 +58,7 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
 
     public LogicDetailRolePanel(RoleNodeSomeWithNids someRoleNode,
                         PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, someRoleNode, logicalExpression, manifold);
 
         this.someRoleNode = someRoleNode;
         

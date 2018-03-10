@@ -43,38 +43,45 @@ public class TitledToolbarPane extends AnchorPane {
     GridPane titleGrid = new GridPane();
     TitledPane titledPane = new TitledPane();
     final ColumnConstraints column1;
+    final ColumnConstraints column2;
 
     public TitledToolbarPane(String title,
-                  Node content) {
+            Node content) {
         this();
         setContent(content);
         setText(title);
     }
+
     public TitledToolbarPane() {
         super();
 
         GridPane.setConstraints(leftGraphic1, 0, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
-        GridPane.setConstraints(leftLabel,    1, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
-        
+        GridPane.setConstraints(leftLabel, 1, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
+
         //leftLabel.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
         //rightGraphic.setBackground(new Background(new BackgroundFill(Color.ORANGE, CornerRadii.EMPTY, Insets.EMPTY)));
         GridPane.setConstraints(rightGraphic, 2, 0, 1, 1, HPos.RIGHT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
         column1 = new ColumnConstraints(0, 0, 0);
-        ColumnConstraints column2 = new ColumnConstraints(30, 250, Double.MAX_VALUE);
+        column2 = new ColumnConstraints(30, 250, Double.MAX_VALUE);
+        if (!titledPane.isCollapsible()) {
+            column2.setMinWidth(30);
+            column2.setPrefWidth(275);
+            column2.setMaxWidth(Double.MAX_VALUE);
+        }
+
         column2.setHgrow(Priority.ALWAYS);
         ColumnConstraints column3 = new ColumnConstraints(25, 25, 25);
         titleGrid.getColumnConstraints().addAll(column1, column2, column3); // first column gets any extra width
         titleGrid.getChildren().addAll(leftGraphic1, leftLabel, rightGraphic);
         //titleGrid.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-        
+
         AnchorPane.setTopAnchor(titleGrid, 0.0);
         AnchorPane.setLeftAnchor(titleGrid, 0.0);
         AnchorPane.setBottomAnchor(titleGrid, 0.0);
         AnchorPane.setRightAnchor(titleGrid, 0.0);
-        
+
         titledPane.setGraphic(new AnchorPane(titleGrid));
-        
-        
+
         //titledPane.setBackground(new Background(new BackgroundFill(Color.GREENYELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
         titledPane.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         leftLabel.setWrapText(true);
@@ -86,19 +93,30 @@ public class TitledToolbarPane extends AnchorPane {
         titledPane.setText("");
         final ContextMenu contextMenu = new ContextMenu();
         MenuItem customSkin = new MenuItem("Do something");
-        
+
         customSkin.setOnAction((event) -> {
             //titledPane.setSkin(new TitledToolbarSkin(titledPane));
         });
-        
+
         contextMenu.getItems().addAll(customSkin);
         titledPane.setContextMenu(contextMenu);
-        
+
         this.widthProperty().addListener((observable, oldValue, newValue) -> {
             titleGrid.setPrefWidth(newValue.doubleValue() - 40);
         });
+        
+        titledPane.collapsibleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                column2.setMinWidth(30);
+                column2.setPrefWidth(250);
+                column2.setMaxWidth(Double.MAX_VALUE);
+            } else {
+                column2.setMinWidth(30);
+                column2.setPrefWidth(275);
+                column2.setMaxWidth(Double.MAX_VALUE);
+            }
+        });
     }
-    
 
     public final void setText(String value) {
         leftLabel.setText(value);
@@ -111,11 +129,11 @@ public class TitledToolbarPane extends AnchorPane {
     public final String getText() {
         return leftLabel.getText();
     }
-    public final void setLeftGraphic1(Node value) {
+    public final void setLeftGraphic1(Node value, double width) {
         if (value != null) {
-            column1.setMinWidth(25);
-            column1.setPrefWidth(25);
-            column1.setMaxWidth(25);
+            column1.setMinWidth(width);
+            column1.setPrefWidth(width);
+            column1.setMaxWidth(width);
         } else {
             column1.setMinWidth(0);
             column1.setPrefWidth(0);
@@ -128,6 +146,9 @@ public class TitledToolbarPane extends AnchorPane {
         leftGraphic1.getChildren().setAll(value);
     }
 
+    public final void setLeftGraphic1(Node value) {
+        setLeftGraphic1(value, 25);
+    }
 
     public final void setLeftGraphic2(Node value) {
         leftLabel.setGraphic(value);

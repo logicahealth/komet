@@ -267,7 +267,7 @@ public abstract class BadgedVersionPanel
    //~--- methods -------------------------------------------------------------
 
    public final List<MenuItem> getAttachmentMenuItems() {
-      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion,
+      return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(manifold, this.categorizedVersion,
               (propertySheetMenuItem, assemblageSpecification) -> {
                  addNewAttachmentPropertySheet(propertySheetMenuItem, assemblageSpecification);
               });
@@ -290,7 +290,7 @@ public abstract class BadgedVersionPanel
    }
 
    public final List<MenuItem> getEditMenuItems() {
-      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
+      return FxGet.rulesDrivenKometService().getEditVersionMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
          addEditingPropertySheet(propertySheetMenuItem);
       });
    }

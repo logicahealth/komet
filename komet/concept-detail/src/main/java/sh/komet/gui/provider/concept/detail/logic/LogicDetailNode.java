@@ -31,7 +31,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
-import org.controlsfx.tools.Borders;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -106,7 +105,7 @@ public class LogicDetailNode
             Optional<LogicalExpression> statedExpression = conceptDetailManifold.getStatedLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
             if (statedExpression.isPresent()) {
                 LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold);
-                splitPane.getItems().add(new ScrollPane(rootDetail.getPanelNode()));
+                splitPane.getItems().add(rootDetail.getPanelNode());
             } else {
                 conceptDetailPane.setCenter(new Label("No stated form"));
             }

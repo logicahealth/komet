@@ -113,7 +113,7 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
  *
  * @author kec
  */
-public class LogicalExpressionBuilderOchreImpl
+public class LogicalExpressionBuilderImpl
          implements LogicalExpressionBuilder {
    /** The built. */
    private boolean built = false;
@@ -135,7 +135,7 @@ public class LogicalExpressionBuilderOchreImpl
    /**
     * Instantiates a new logical expression builder ochre impl.
     */
-   public LogicalExpressionBuilderOchreImpl() {}
+   public LogicalExpressionBuilderImpl() {}
 
    //~--- methods -------------------------------------------------------------
 

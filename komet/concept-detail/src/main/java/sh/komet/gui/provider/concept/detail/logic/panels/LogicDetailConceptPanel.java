@@ -18,17 +18,15 @@ package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import org.controlsfx.control.PopOver;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.RootNode;
-import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
@@ -41,10 +39,11 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
 
     private final ConceptNodeWithNids conceptNode;
     private final Optional<LogicalExpression> expressionForThisConcept;
+    private final Node linkExternal;
 
     public LogicDetailConceptPanel(ConceptNodeWithNids conceptNode,
             PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, conceptNode, logicalExpression, manifold);
         this.conceptNode = conceptNode;
         expressionForThisConcept = manifold.getLogicalExpression(conceptNode.getConceptNid(), premiseType);
         this.panel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
@@ -54,12 +53,26 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
             handleOpenClose(newValue);
         });
         computeGraphicForThisConcept();        
-        panel.setRightGraphic(Iconography.EDIT_PENCIL.getIconographic());
         setPseudoClasses(panel);
         panel.getStyleClass()
                 .add(StyleClasses.DEF_CONCEPT.toString());
+        panel.setCollapsible(false);
+        linkExternal = Iconography.LINK_EXTERNAL.getIconographic();
+        linkExternal.setOnMouseClicked(this::handleShowConceptNodeClick);
+        panel.setLeftGraphic1(linkExternal, 15);        
     }
-
+    
+    private void handleShowConceptNodeClick(MouseEvent mouseEvent) {
+        if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+            PopOver popover = new PopOver(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), getPremiseType(), expressionForThisConcept.get(), manifold).getPanelNode());
+            popover.setCloseButtonEnabled(true);
+            popover.setHeaderAlwaysVisible(false);
+            popover.setTitle("");
+            popover.show(linkExternal, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+            mouseEvent.consume();
+        }
+    }
+    
     private void handleOpenClose(boolean open) {
         if (open) {
 

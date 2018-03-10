@@ -32,6 +32,8 @@ import org.kie.api.runtime.StatelessKieSession;
 import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.control.PropertySheetMenuItem;
@@ -75,8 +77,15 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
       this.kSession = null;
    }
 
+    @Override
+    public List<MenuItem> getEditLogicalExpressionNodeMenuItems(Manifold manifold, LogicNode nodeToEdit, LogicalExpression expressionContiningNode, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+        AddEditLogicalExpressionNodeMenuItems executionItem = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, expressionContiningNode, propertySheetConsumer);
+      this.kSession.execute(executionItem);
+      return executionItem.menuItems;        
+    }
+
    @Override
-   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+   public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
             Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
@@ -84,7 +93,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    }
 
    @Override
-   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+   public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
       this.kSession.execute(executionItem);

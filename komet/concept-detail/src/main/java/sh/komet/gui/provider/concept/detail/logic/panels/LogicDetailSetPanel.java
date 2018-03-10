@@ -44,7 +44,7 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
 
     public LogicDetailSetPanel(NecessarySetNode setNode, 
                         PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, setNode, logicalExpression, manifold);
         panel.setContent(setBox);
         setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
         setup(setNode);
@@ -58,7 +58,7 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
 
     public LogicDetailSetPanel(SufficientSetNode setNode,             
                         PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, logicalExpression, manifold);
+        super(premiseType, setNode, logicalExpression, manifold);
         panel.setContent(setBox);
         setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
         setup(setNode);

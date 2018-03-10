@@ -820,5 +820,10 @@ limitations under the License.
 .stated-form {
    -glyph-name: "CHAT";
    -glyph-size: 18;
-    
+}
+
+.link-external {
+   -glyph-name: "LINK_EXTERNAL";
+   -glyph-size: 12;   
+   -icons-color: #52646d;
 }

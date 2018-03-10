@@ -58,12 +58,12 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
  * @author kec
  */
 @Service
-public class LogicalExpressionBuilderOchreProvider
+public class LogicalExpressionBuilderProvider
          implements LogicalExpressionBuilderService {
    /**
     * Instantiates a new logical expression builder ochre provider.
     */
-   public LogicalExpressionBuilderOchreProvider() {}
+   public LogicalExpressionBuilderProvider() {}
 
    //~--- methods -------------------------------------------------------------
 
@@ -89,7 +89,7 @@ public class LogicalExpressionBuilderOchreProvider
     */
    @Override
    public LogicalExpressionBuilder getLogicalExpressionBuilder() {
-      return new LogicalExpressionBuilderOchreImpl();
+      return new LogicalExpressionBuilderImpl();
    }
 }
 
