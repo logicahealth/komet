@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 
 /**
  * Interface for reading metadata from an artifact server
@@ -33,9 +34,15 @@ public interface ArtifactSearch
 	public Set<String> readMetadataVersions();
 	
 	/**
-	 * @return all availble IBDFFiles on the artifact server.
+	 * @return all available IBDFFiles on the artifact server.
 	 */
 	public Set<IBDFFile> readIBDFFiles();
+	
+	/**
+	 * @param artifactIdFilter - optional - filter for only returning versions of a particular artifact id
+	 * @return all available SDOSourceContentFiles on the artifact server
+	 */
+	Set<SDOSourceContent> readSDOFiles(String artifactIdFilter);
 	
 	/**
 	 * If the file name has a classifier, returns just the classifier portion

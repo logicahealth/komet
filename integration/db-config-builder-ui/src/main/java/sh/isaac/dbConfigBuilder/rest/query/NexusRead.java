@@ -23,13 +23,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
+import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
  * An implementation that uses the Nexus Rest API to query nexus for available artifacts
@@ -72,6 +75,65 @@ public class NexusRead implements ArtifactSearch
 				{
 					JsonObject jo = (JsonObject)item;
 					results.add(convertSnapshotVersion((String)jo.get("version")));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("error querying nexus", e);
+		}
+		return results;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Set<SDOSourceContent> readSDOFiles(String artifactIdFilter)
+	{
+		//TODO need to support paging
+		HashSet<SDOSourceContent> results = new HashSet<>();
+		try
+		{
+			Map<String, Object> args = new HashMap<>();
+			args.put(JsonReader.USE_MAPS, true);
+
+			URLConnection service = new URL(getRestURL() + "beta/search?maven.groupId=" + SrcUploadCreator.SRC_UPLOAD_GROUP 
+					+ (StringUtils.isNotBlank(artifactIdFilter) ? "&maven.artifactId=" + artifactIdFilter : "")).openConnection();
+			String userpass = sp_.getArtifactUsername() + ":" + new String(sp_.getArtifactPassword());
+			String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+			service.setRequestProperty("Authorization", basicAuth);
+
+			JsonObject data = (JsonObject) JsonReader.jsonToJava(service.getInputStream(), args);
+
+			Object[] items = (Object[]) data.get("items");
+			if (items != null)
+			{
+				for (Object item : items)
+				{
+					JsonObject jo = (JsonObject)item;
+					String group = SrcUploadCreator.SRC_UPLOAD_GROUP;
+					String artifactId = (String)jo.get("name");
+					String version = convertSnapshotVersion((String)jo.get("version"));
+					//To get the classifier, if it has one, we have to look at the assets.
+					
+					
+					Object[] assets = (Object[])jo.get("assets");
+					if (assets != null)
+					{
+						for (Object asset : assets)
+						{
+							JsonObject castAsset = (JsonObject)asset;
+							String path = (String)castAsset.get("path");
+							if (path.endsWith(".zip"))
+							{
+								Optional<String> classifier = findClassifier(path);
+								results.add(new SDOSourceContent(group, artifactId, version, classifier.orElse("")));
+							}
+						}
+					}
+					
 				}
 			}
 		}
@@ -125,7 +187,6 @@ public class NexusRead implements ArtifactSearch
 							if (path.endsWith(".ibdf.zip"))
 							{
 								Optional<String> classifier = findClassifier(path);
-								System.out.println("path: " + path + " " + classifier);
 								results.add(new IBDFFile(group, artifactId, version, classifier.orElse("")));
 							}
 						}
