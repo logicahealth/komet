@@ -79,6 +79,7 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.dbConfigBuilder.rest.query.NexusRead;
 import sh.isaac.pombuilder.VersionFinder;
 import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
@@ -508,7 +509,9 @@ public class ContentManagerController
 			{
 				// side jobs - hack rather than adding another change listener
 				extensionErrorMarker.invalidate();
-				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription());
+				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() 
+						+ "\n" + "[Calculating existing versions ...]");
+				findCurrentVersions();
 				updateSourceUploadFiles();
 
 				boolean needsExtension = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().contains("*");
@@ -519,6 +522,8 @@ public class ContentManagerController
 				return !needsExtension;
 			}
 		});
+		
+		sourceUploadExtension.textProperty().addListener((change) -> findCurrentVersions());
 
 		sourceUploadTabValidityCheckers_.add(new ValidBooleanBinding()
 		{
@@ -641,6 +646,73 @@ public class ContentManagerController
 			}
 		});
 
+		
+	}
+
+	/**
+	 * @param selectedItem
+	 */
+	protected void findCurrentVersions()
+	{
+		if (sp_ == null)
+		{
+			//Happens during startup
+			return;
+		}
+		Get.workExecutors().getExecutor().execute(() ->
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("\nCurrent Versions:");
+			try
+			{
+				log.debug("Reading local source versions");
+				File temp = new File(sp_.getLocalM2FolderPath());
+				TreeSet<String> foundVersions = new TreeSet<>(AlphanumComparator.getCachedInstance(true));
+				String artifactId = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId();
+				artifactId.replace("*", sourceUploadExtension.getText());
+				if (temp.isDirectory())
+				{
+					for (SDOSourceContent i : SrcUploadCreator.readLocalSDOArtifacts(temp, artifactId))
+					{
+						foundVersions.add(i.getVersion());
+					}
+				}
+				
+				try
+				{
+					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
+					{
+						log.debug("Reading available nexus versions");
+						// TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
+						for (SDOSourceContent x : new NexusRead(sp_).readSDOFiles(artifactId))
+						{
+							foundVersions.add(x.getVersion());
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					log.error("Error reading nexus repository", e);
+				}
+				
+				
+				for (String s : foundVersions)
+				{
+					sb.append("\n");
+					sb.append(s);
+				}
+
+			}
+			catch (Exception e)
+			{
+				log.error("Unexpected error trying to calculate existing source versions", e);
+			}
+			Platform.runLater(() -> 
+			{
+				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() 
+						+ sb.toString());
+			});
+		});
 		
 	}
 
@@ -1211,6 +1283,7 @@ public class ContentManagerController
 		}
 
 		readAvailableMetadataVersions();
+		findCurrentVersions();
 	}
 
 	private void readAvailableMetadataVersions()
