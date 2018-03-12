@@ -204,7 +204,7 @@ public class ConceptDetailPanelNode
 
     @Override
     public void handleCommit(CommitRecord commitRecord) {
-        if (conceptDetailManifold.getFocusedConcept() != null) {
+        if (conceptDetailManifold.getFocusedConcept() != null && conceptDetailManifold.getFocusedConcept().isPresent()) {
             ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept().get();
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();

@@ -16,6 +16,8 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
@@ -23,6 +25,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
@@ -38,8 +41,9 @@ public class LogicDetailRootNode extends LogicDetailPanel {
     private final VBox setBox = new VBox();
 
     public LogicDetailRootNode(RootNode rootNode,
-            PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, rootNode, logicalExpression, manifold);
+            PremiseType premiseType, LogicalExpression logicalExpression, 
+            Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, rootNode, logicalExpression, manifold, updater);
         this.panel.setContent(setBox);
         panel.expandedProperty().addListener((observable, oldValue, newValue) -> {
             handleOpenClose(newValue);
@@ -59,9 +63,9 @@ public class LogicDetailRootNode extends LogicDetailPanel {
         for (LogicNode childNode : rootNode.getChildren()) {
             LogicDetailSetPanel setPanel;
             if (childNode instanceof NecessarySetNode) {
-                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), logicalExpression, manifold);
+                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
             } else if (childNode instanceof SufficientSetNode) {
-                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), logicalExpression, manifold);
+                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
             } else {
                 throw new IllegalStateException("Can't handle node: " + childNode);
             }

@@ -141,8 +141,6 @@ public class TitledToolbarPane extends AnchorPane {
         }
         AnchorPane.setTopAnchor(value, 0.0);
         AnchorPane.setLeftAnchor(value, 0.0);
-        AnchorPane.setBottomAnchor(value, 0.0);
-        AnchorPane.setRightAnchor(value, 0.0);
         leftGraphic1.getChildren().setAll(value);
     }
 

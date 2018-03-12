@@ -229,7 +229,7 @@ public class ObservableLogicGraphVersionImpl
         if (analog instanceof ObservableLogicGraphVersionImpl) {
             ObservableLogicGraphVersionImpl observableAnalog = (ObservableLogicGraphVersionImpl) analog;
             observableAnalog.setGraphData(this.getGraphData());
-        } else if (analog instanceof ComponentNidVersionImpl) {
+        } else if (analog instanceof LogicGraphVersionImpl) {
              LogicGraphVersionImpl simpleAnalog = (LogicGraphVersionImpl) analog;
              simpleAnalog.setGraphData(this.getGraphData());
         } else {
@@ -239,7 +239,10 @@ public class ObservableLogicGraphVersionImpl
    
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {
-        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, 
+                getPrimordialUuid(), 
+                getAssemblageNid(), 
+                this.getReferencedComponentNid());
         LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(sc, stampSequence);
         copyLocalFields(newVersion);
         sc.addVersion(newVersion);

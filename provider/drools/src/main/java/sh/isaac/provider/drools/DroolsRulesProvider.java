@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.action.Action;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import org.kie.api.KieServices;
@@ -78,10 +79,15 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    }
 
     @Override
-    public List<MenuItem> getEditLogicalExpressionNodeMenuItems(Manifold manifold, LogicNode nodeToEdit, LogicalExpression expressionContiningNode, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        AddEditLogicalExpressionNodeMenuItems executionItem = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, expressionContiningNode, propertySheetConsumer);
+    public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
+            LogicNode nodeToEdit, 
+            LogicalExpression expressionContiningNode,
+            Consumer<LogicalExpression> expressionUpdater) {
+        AddEditLogicalExpressionNodeMenuItems executionItem 
+                = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, 
+                        expressionContiningNode, expressionUpdater);
       this.kSession.execute(executionItem);
-      return executionItem.menuItems;        
+      return executionItem.actionItems;        
     }
 
    @Override

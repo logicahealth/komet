@@ -541,17 +541,17 @@ public class ContentManagerController
 					if (databaseOpDirectDeploy.isSelected())
 					{
 						updateMessage("Deploying artifacts");
-						final DeployFile pomDeploy = new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(), "", 
-								"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.parentArtifactId + "/pom.xml"), 
+						final DeployFile pomDeploy = new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), "", 
+								"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"), 
 								sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword()));
 						pomDeploy.messageProperty().addListener((change) -> updateMessage(pomDeploy.getMessage()));
 						Get.workExecutors().getExecutor().execute(pomDeploy);
 						pomDeploy.get();
 						
-						final DeployFile dbDeploy = new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(), databaseClassifier.getText(), 
+						final DeployFile dbDeploy = new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), databaseClassifier.getText(), 
 								"isaac.zip", 
 								new File(new File(workingFolder.getText()), 
-										DBConfigurationCreator.parentArtifactId  + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-" 
+										DBConfigurationCreator.PARENT_ARTIFIACT_ID  + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-" 
 												+ databaseClassifier.getText() + ".isaac.zip"), 
 								sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword()));
 						dbDeploy.messageProperty().addListener((change) -> 

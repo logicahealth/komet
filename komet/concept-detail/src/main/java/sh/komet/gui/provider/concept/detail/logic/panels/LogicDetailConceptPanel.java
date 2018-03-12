@@ -17,6 +17,7 @@
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -40,18 +41,17 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
     private final ConceptNodeWithNids conceptNode;
     private final Optional<LogicalExpression> expressionForThisConcept;
     private final Node linkExternal;
+    private PopOver popover; 
 
     public LogicDetailConceptPanel(ConceptNodeWithNids conceptNode,
-            PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, conceptNode, logicalExpression, manifold);
+            PremiseType premiseType, LogicalExpression logicalExpression, 
+            Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, conceptNode, logicalExpression, manifold, updater);
         this.conceptNode = conceptNode;
         expressionForThisConcept = manifold.getLogicalExpression(conceptNode.getConceptNid(), premiseType);
         this.panel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
         this.panel.setContent(new Label("empty"));
         panel.setExpanded(false);
-        panel.expandedProperty().addListener((observable, oldValue, newValue) -> {
-            handleOpenClose(newValue);
-        });
         computeGraphicForThisConcept();        
         setPseudoClasses(panel);
         panel.getStyleClass()
@@ -62,9 +62,22 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
         panel.setLeftGraphic1(linkExternal, 15);        
     }
     
+    private void updatePopup(LogicalExpression expression) {
+        popover.setContentNode(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), 
+                    getPremiseType(), 
+                    expressionForThisConcept.get(), 
+                    manifold,
+                    this::updatePopup).getPanelNode());
+    }
     private void handleShowConceptNodeClick(MouseEvent mouseEvent) {
         if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-            PopOver popover = new PopOver(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), getPremiseType(), expressionForThisConcept.get(), manifold).getPanelNode());
+            popover = new PopOver();
+            popover.setContentNode(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), 
+                    getPremiseType(), 
+                    expressionForThisConcept.get(), 
+                    manifold,
+                    this::updatePopup
+            ).getPanelNode());
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");
@@ -72,25 +85,7 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
             mouseEvent.consume();
         }
     }
-    
-    private void handleOpenClose(boolean open) {
-        if (open) {
-
-
-            computeGraphicForThisConcept();
-            
-            if (expressionForThisConcept.isPresent()) {
-                panel.setContent(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), getPremiseType(), expressionForThisConcept.get(), manifold).getPanelNode());
-            } else {
-                panel.setContent(new Label("No logical definition available"));
-            }
-
-        } else {
-            computeGraphicForThisConcept();
-            panel.setContent(new Label(""));
-        }
-    }
-
+ 
     private void computeGraphicForThisConcept() {
         if (expressionForThisConcept.isPresent()) {
             panel.setLeftGraphic2(computeGraphic(expressionForThisConcept.get()));

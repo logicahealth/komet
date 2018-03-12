@@ -24,21 +24,32 @@ import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.RootNode;
+import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
+import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
@@ -59,13 +70,14 @@ public class LogicDetailNode
     private final Manifold conceptDetailManifold;
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
+    private LogicalExpression editInFlight;
 
     //~--- constructors --------------------------------------------------------
     public LogicDetailNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
         this.conceptDetailManifold = conceptDetailManifold;
         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
         conceptDetailManifold.focusedConceptProperty()
-                .addListener(this::setConcept);
+                .addListener(this::setConceptListener);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this);
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
@@ -76,9 +88,14 @@ public class LogicDetailNode
 
     }
 
-    private void setConcept(ObservableValue<? extends ConceptSpecification> observable,
+    private void setConceptListener(ObservableValue<? extends ConceptSpecification> observable,
             ConceptSpecification oldSpec,
             ConceptSpecification newSpec) {
+        setConcept(newSpec);
+
+    }
+
+    private void setConcept(ConceptSpecification newSpec) {
         getLogicDetail();
         ConceptChronology newValue = Get.concept(newSpec);
         if (titleLabel == null) {
@@ -90,37 +107,81 @@ public class LogicDetailNode
                 titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
                 toolTipProperty.set(
                         "concept details for: "
-                        + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
-                                newValue));
+                                + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
+                                        newValue));
             }
         }
+    }
+    
+    private void cancelEdit(Event event) {
+        setConcept(conceptDetailManifold.getFocusedConcept().get());
+    }
+    
+    private void commitEdit(Event event) {
+        
+        LatestVersion<LogicGraphVersion> latestVersion = conceptDetailManifold.getStatedLogicGraphVersion(conceptDetailManifold.getFocusedConcept().get());
+        if (latestVersion.isPresent()) {
+            LogicGraphVersion version = latestVersion.get();
+            ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
+            ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
+            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(conceptDetailManifold.getEditCoordinate());
+            mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
+            Get.commitService().commit(mutableVersion, conceptDetailManifold.getEditCoordinate(), "Lambda graph edit");
+        }
+        setConcept(conceptDetailManifold.getFocusedConcept().get());
+    }
 
+    public void updateStatedExpression(LogicalExpression expression) {
+        getLogicDetail(Optional.of(expression));
     }
 
     private Node getLogicDetail() {
         if (conceptDetailManifold.getFocusedConcept().isPresent()) {
-            SplitPane splitPane = new SplitPane();
-            splitPane.setOrientation(Orientation.VERTICAL);
-            conceptDetailPane.setCenter(splitPane);
             Optional<LogicalExpression> statedExpression = conceptDetailManifold.getStatedLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
-            if (statedExpression.isPresent()) {
-                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold);
-                splitPane.getItems().add(rootDetail.getPanelNode());
-            } else {
-                conceptDetailPane.setCenter(new Label("No stated form"));
-            }
-            Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
-            if (inferredExpression.isPresent()) {
-                LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold);
-                splitPane.getItems().add(rootDetail.getPanelNode());
-            } else {
-                conceptDetailPane.setCenter(new Label("No inferred form"));
-            }
+            getLogicDetail(statedExpression);
         } else {
             conceptDetailPane.setCenter(new Label("Empty"));
         }
 
         return conceptDetailPane;
+    }
+
+    private void getLogicDetail(Optional<LogicalExpression> statedExpression) {
+        SplitPane splitPane = new SplitPane();
+        splitPane.setOrientation(Orientation.VERTICAL);
+        conceptDetailPane.setCenter(splitPane);
+        if (statedExpression.isPresent()) {
+            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold, this::updateStatedExpression);
+            if (statedExpression.get().isUncommitted()) {
+                editInFlight = statedExpression.get();
+                BorderPane expressionBorderPane = new BorderPane();
+                expressionBorderPane.setCenter(rootDetail.getPanelNode());
+
+                ToolBar commitToolbar = new ToolBar();
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                spacer.setMinWidth(Region.USE_PREF_SIZE);
+                Button cancel = new Button("Cancel");
+                cancel.setOnAction(this::cancelEdit);
+                Button commit = new Button("Commit");
+                commit.setOnAction(this::commitEdit);
+                commitToolbar.getItems().addAll(spacer, cancel, commit);
+                expressionBorderPane.setTop(commitToolbar);
+                splitPane.getItems().add(expressionBorderPane);
+            } else {
+                editInFlight = null;
+                splitPane.getItems().add(rootDetail.getPanelNode());
+            }
+        } else {
+            conceptDetailPane.setCenter(new Label("No stated form"));
+        }
+        Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
+        if (inferredExpression.isPresent()) {
+            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold, this::updateStatedExpression);
+            splitPane.getItems().add(rootDetail.getPanelNode());
+        } else {
+            conceptDetailPane.setCenter(new Label("No inferred form"));
+        }
     }
 
     /*

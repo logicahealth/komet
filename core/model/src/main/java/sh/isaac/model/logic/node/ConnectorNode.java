@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -77,6 +76,18 @@ public abstract class ConnectorNode
          this.childIndices.add(child.getNodeIndex());
       }
    }
+
+    @Override
+    public void removeChild(short childId) {
+        for (int i = 0; i < childIndices.size(); i++) {
+            if (childIndices.get(i) == childId) {
+                childIndices.remove(i);
+                return;
+            }
+        }
+    }
+   
+   
 
    /**
     * Instantiates a new connector node.

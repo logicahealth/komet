@@ -32,11 +32,21 @@ import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import javafx.beans.property.Property;
 import sh.isaac.MetaData;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionCategory;
 import sh.isaac.api.chronicle.VersionType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.isaac.api.logic.NodeSemantic;
+
+
+rule "Any logic node "
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems();
+then
+   $addEditLogicalNode.addDeleteNodeAction();
+end
 
 /**
 Convert to sufficient set
@@ -48,7 +58,8 @@ rule "NECESSARY_SET items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);
 then
-   System.out.println($addEditLogicalNode.getNodeSemantic());
+   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
 end
 
 /**
@@ -62,7 +73,8 @@ rule "SUFFICIENT_SET items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);
 then
-   System.out.println($addEditLogicalNode.getNodeSemantic());
+   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
 end
 
 rule "AND items"
@@ -106,6 +118,15 @@ when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.ROLE_ALL);
 then
    System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+rule "RoleGroup items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(
+        getNodeSemantic() == NodeSemantic.ROLE_SOME, 
+        getNodeToEditTypeConceptNid() == TermAux.ROLE_GROUP.getNid());
+then
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
 end
 
 rule "ROLE_SOME items"

@@ -17,12 +17,18 @@
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseEvent;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
@@ -49,24 +55,26 @@ public abstract class LogicDetailPanel {
     protected final AbstractLogicNode logicNode;
     protected final LogicalExpression logicalExpression;
     private final Node editPencil = Iconography.EDIT_PENCIL.getIconographic();
+    private final Consumer<LogicalExpression> updater;
     public LogicDetailPanel(PremiseType premiseType, 
             AbstractLogicNode logicNode,
             LogicalExpression logicalExpression, 
-            Manifold manifold) {
+            Manifold manifold, Consumer<LogicalExpression> updater) {
         this.premiseType = premiseType;
         this.manifold = manifold;
         this.logicNode = logicNode;
         this.logicalExpression = logicalExpression;
+        this.updater = updater;
         if (premiseType == PremiseType.STATED) {
             
             editPencil.setOnMouseClicked(this::handleConceptNodeClick);
             panel.setRightGraphic(editPencil);
         }
         
-        panel.addEventFilter(EventType.ROOT, this::handleEvent);
+        panel.addEventFilter(EventType.ROOT, this::filterOutUnwantedMouseReleased);
     }
     
-    protected final void handleEvent(Event event) {
+    protected final void filterOutUnwantedMouseReleased(Event event) {
         if (event instanceof MouseEvent) {
             MouseEvent mouseEvent = (MouseEvent) event;
             if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED
@@ -80,21 +88,22 @@ public abstract class LogicDetailPanel {
     
     protected final void handleConceptNodeClick(MouseEvent mouseEvent) {
        ContextMenu contextMenu = new ContextMenu(); 
+       MenuItem doNothing = new MenuItem("");
+       contextMenu.getItems().addAll(doNothing);
 
-       List<MenuItem> menuItems = 
+       List<Action> actionItems = 
            FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
                    manifold, 
                    logicNode, 
-                   logicalExpression, 
-                   (propertySheetMenuItem) -> {});
-       contextMenu.getItems().addAll(menuItems);
-   
+                   logicalExpression, updater);
+       
+       if (!actionItems.isEmpty()) {
+           contextMenu.getItems().add(new SeparatorMenuItem());
+           for (Action action: actionItems) {
+               contextMenu.getItems().add(ActionUtils.createMenuItem(action));
+           }
+       }
 
-         
-
-
-       MenuItem doSomething = new MenuItem("Do something");
-       contextMenu.getItems().addAll(doSomething);
        mouseEvent.consume();
        contextMenu.show(panel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
     }

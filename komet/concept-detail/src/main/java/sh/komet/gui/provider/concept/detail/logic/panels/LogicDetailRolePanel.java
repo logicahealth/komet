@@ -18,6 +18,7 @@ package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -35,7 +36,6 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.komet.gui.control.concept.ConceptLabel;
-import sh.komet.gui.control.titled.TitledToolbarPane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
@@ -57,8 +57,9 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
     private ArrayList<LogicDetailRolePanel> rolesInGroup = new ArrayList<>();
 
     public LogicDetailRolePanel(RoleNodeSomeWithNids someRoleNode,
-                        PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, someRoleNode, logicalExpression, manifold);
+                        PremiseType premiseType, LogicalExpression logicalExpression, 
+                        Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, someRoleNode, logicalExpression, manifold, updater);
 
         this.someRoleNode = someRoleNode;
         
@@ -79,14 +80,14 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
                 for (LogicNode andNodeChild : andNode.getChildren()) {
                     switch (andNodeChild.getNodeSemantic()) {
                         case ROLE_SOME:
-                            LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold);
+                            LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
                             VBox.setMargin(rolePanel.getPanelNode(), new Insets(0));
                             setBox.getChildren().add(rolePanel.getPanelNode());
                             labelPartPropertes.add(rolePanel.restrictionText);
                             rolesInGroup.add(rolePanel);
                             break;
                         case CONCEPT:
-                            LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold);
+                            LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
                             VBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                             setBox.getChildren().add(conceptPanel.getPanelNode());
                             break;
@@ -125,7 +126,7 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
                         // a post coordinated expression. 
                         throw new UnsupportedOperationException();
                     case CONCEPT:
-                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) childNode, getPremiseType(), logicalExpression, manifold);
+                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) childNode, getPremiseType(), logicalExpression, manifold, updater);
                         HBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                         panelBox.getChildren().add(conceptPanel.getPanelNode());
                         labelPartPropertes.add(conceptPanel.getConceptText());
@@ -148,7 +149,6 @@ public class LogicDetailRolePanel extends LogicDetailPanel {
             String oldSpec,
             String newSpec) {
         updateDescription();
-
     }
 
     private void updateDescription() {

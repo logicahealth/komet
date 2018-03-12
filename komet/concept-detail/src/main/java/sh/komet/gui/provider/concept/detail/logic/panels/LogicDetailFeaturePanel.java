@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
+import java.util.function.Consumer;
 import javafx.scene.Node;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
@@ -31,8 +32,9 @@ public class LogicDetailFeaturePanel extends LogicDetailPanel {
     private final FeatureNodeWithNids featureNode;
 
     public LogicDetailFeaturePanel(FeatureNodeWithNids featureNode, 
-                        PremiseType premiseType, LogicalExpression logicalExpression, Manifold manifold) {
-        super(premiseType, featureNode, logicalExpression, manifold);
+                        PremiseType premiseType, LogicalExpression logicalExpression, 
+                        Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, featureNode, logicalExpression, manifold, updater);
         this.featureNode = featureNode;
         this.panel.setText(manifold.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
         setPseudoClasses(panel);

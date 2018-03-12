@@ -137,5 +137,11 @@ public abstract class LiteralNode
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+
+    @Override
+    public final void removeChild(short childId) {
+        // nothing to do...
+    }
+   
 }
 
