@@ -731,14 +731,17 @@ public class ContentManagerController
 						for (File multiFile : f)
 						{
 							int index = 0;
+							boolean matched = false;
 							for (UploadFileInfo ufiLambda : type.getUploadFileInfo())
 							{
-								if (Pattern.matches(ufiLambda.getExpectedNamingPatternRegExpPattern(), multiFile.getName()) 
+								if (StringUtils.isNotBlank(ufiLambda.getExpectedNamingPatternRegExpPattern()) 
+										&& Pattern.matches(ufiLambda.getExpectedNamingPatternRegExpPattern(), multiFile.getName().toLowerCase()) 
 										&& sourceUploadFiles_.get(index).getText().isEmpty())
 								{
 									try
 									{
 										sourceUploadFiles_.get(index).setText(multiFile.getCanonicalPath());
+										matched = true;
 									}
 									catch (IOException e)
 									{
@@ -746,35 +749,36 @@ public class ContentManagerController
 									}
 									break;
 								}
-								else
-								{
-									HBox hboxLambda = new HBox();
-									hboxLambda.setSpacing(5.0);
-									hboxLambda.setPadding(new Insets(5.0));
-									TextField fileNameLambda = new TextField();
-									fileNameLambda.setMaxWidth(Double.MAX_VALUE);
-									fileNameLambda.focusedProperty().addListener((change) -> 
-									{
-										if (fileNameLambda.focusedProperty().get())
-										{
-											updateDescription(-1);
-										}
-									});
-									
-									hboxLambda.getChildren().add(fileNameLambda);
-									HBox.setHgrow(fileNameLambda, Priority.ALWAYS);
-									sourceUploadFilesVBox.getChildren().add(hboxLambda);
-									sourceUploadFiles_.add(fileNameLambda);
-									try
-									{
-										fileNameLambda.setText(multiFile.getCanonicalPath());
-									}
-									catch (IOException e)
-									{
-										log.error("improbable", e);
-									}
-								}
 								index++;
+							}
+							
+							if (!matched)
+							{
+								HBox hboxLambda = new HBox();
+								hboxLambda.setSpacing(5.0);
+								hboxLambda.setPadding(new Insets(5.0));
+								TextField fileNameLambda = new TextField();
+								fileNameLambda.setMaxWidth(Double.MAX_VALUE);
+								fileNameLambda.focusedProperty().addListener((change) -> 
+								{
+									if (fileNameLambda.focusedProperty().get())
+									{
+										updateDescription(-1);
+									}
+								});
+								
+								hboxLambda.getChildren().add(fileNameLambda);
+								HBox.setHgrow(fileNameLambda, Priority.ALWAYS);
+								sourceUploadFilesVBox.getChildren().add(hboxLambda);
+								sourceUploadFiles_.add(fileNameLambda);
+								try
+								{
+									fileNameLambda.setText(multiFile.getCanonicalPath());
+								}
+								catch (IOException e)
+								{
+									log.error("improbable", e);
+								}
 							}
 						}
 					}
@@ -853,10 +857,12 @@ public class ContentManagerController
 			
 			try
 			{
-				return SrcUploadCreator.createSrcUploadConfiguration(sourceUploadType.getSelectionModel().getSelectedItem(), sourceUploadVersion.getText(), 
+				Task<String> task = SrcUploadCreator.createSrcUploadConfiguration(sourceUploadType.getSelectionModel().getSelectedItem(), sourceUploadVersion.getText(), 
 						sourceUploadExtension.getText(), filesToUpload,  (opTag.isSelected() ? sp_.getGitURL() : null), sp_.getGitUsername(),
 								sp_.getGitPassword(), null, null, null,  //don't pass the artifact info, otherwise, it will try to zip and direct deploy
-										new File(workingFolder.getText()), false, (opInstall.isSelected() || opDeploy.isSelected() ? false : workingFolderCleanup.isSelected())).get();
+										new File(workingFolder.getText()), false, false);
+				Get.workExecutors().getExecutor().execute(task);
+				return task.get();
 			}
 			catch (Throwable e)
 			{
@@ -885,7 +891,8 @@ public class ContentManagerController
 				throw new RuntimeException(e);
 			}
 			
-		});
+		},
+		new File(workingFolder.getText() + "/" + SrcUploadCreator.WORKING_SUB_FOLDER_NAME));
 	}
 	
 	
@@ -900,7 +907,7 @@ public class ContentManagerController
 						databaseIbdfList.getItems().toArray(new IBDFFile[databaseIbdfList.getItems().size()]),
 						databaseMetadataVersion.getSelectionModel().getSelectedItem(), opTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
 						sp_.getGitPassword(), new File(workingFolder.getText()),
-						(opInstall.isSelected() || opDeploy.isSelected() ? false : workingFolderCleanup.isSelected()));
+						false);
 			}
 			catch (Exception e)
 			{
@@ -928,10 +935,11 @@ public class ContentManagerController
 			{
 				throw new RuntimeException(e);
 			}
-		});
+		}, 
+		new File(workingFolder.getText() + "/" + DBConfigurationCreator.parentArtifactId));
 	}
 	
-	private void doRun(Supplier<String> jobRunner, Supplier<List<DeployFile>> fileDepoyer)
+	private void doRun(Supplier<String> jobRunner, Supplier<List<DeployFile>> fileDepoyer, File mavenLaunchFolder)
 	{
 		AtomicReference<ProgressDialog> pdRef = new AtomicReference<ProgressDialog>(null);
 
@@ -982,9 +990,9 @@ public class ContentManagerController
 
 					});
 					PrintStream ps = new PrintStream(new StreamRedirect(ta), true);
-					System.setProperty("maven.multiModuleProjectDirectory", workingFolder.getText() + "/db-builder");
+					System.setProperty("maven.multiModuleProjectDirectory", mavenLaunchFolder.getAbsolutePath());
 					MavenCli cli = new MavenCli();
-					int result = cli.doMain(options.toArray(new String[options.size()]), workingFolder.getText() + "/db-builder", ps, ps);
+					int result = cli.doMain(options.toArray(new String[options.size()]), mavenLaunchFolder.getAbsolutePath(), ps, ps);
 					if (result != 0)
 					{
 						throw new Exception("Maven execution failed");
