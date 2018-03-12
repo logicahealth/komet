@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.dbConfigBuilder.deploy;
+package sh.isaac.api.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -165,7 +165,7 @@ public class DeployFile extends Task<Integer>
 			throw new Exception("The server reported an error during the publish operation:  " + sb.toString());
 		}
 		log.info("Upload Successful");
-		updateTitle("");
+		updateTitle("Upload Successful");
 		updateProgress(-1, 0);
 	}
 
@@ -175,21 +175,26 @@ public class DeployFile extends Task<Integer>
 	@Override
 	protected Integer call() throws Exception
 	{
-		updateProgress(-1, 0);
+		updateProgress(0, 5);
 
 		updateStatus("Creating Checksum Files");
 		writeChecksumFile(dataFile_, "MD5", dataFile_.getParentFile());
+		updateProgress(1, 5);
 		writeChecksumFile(dataFile_, "SHA1", dataFile_.getParentFile());
+		updateProgress(2, 5);
 
 		updateStatus("Uploading files");
 		putFile(new File(dataFile_.getParentFile(), dataFile_.getName() + ".md5"), 
-				artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".md5");
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".md5");
+		updateProgress(3, 5);
 		putFile(new File(dataFile_.getParentFile(), dataFile_.getName() + ".sha1"), 
-				artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".sha1");
-		putFile(dataFile_, artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_);
-
-		updateTitle("");
-		updateProgress(10, 10);
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".sha1");
+		updateProgress(4, 5);
+		putFile(dataFile_, 
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_);
+		updateProgress(5, 5);
+		
+		updateTitle("Deploy complete");
 		return 0;
 	}
 	
