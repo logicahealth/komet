@@ -606,6 +606,15 @@ public class ContentManagerController
 			if (opDeploy.isSelected())
 			{
 				opDirectDeploy.setSelected(false);
+				opInstall.setSelected(true);
+				opPackage.setSelected(true);
+			}
+		});
+		
+		opInstall.setOnAction((action) -> {
+			if (opInstall.isSelected())
+			{
+				opPackage.setSelected(true);
 			}
 		});
 
@@ -672,7 +681,7 @@ public class ContentManagerController
 				else if (StringUtils.isNotBlank(ufi.getExpectedNamingPatternRegExpPattern()))
 				{
 					File f = new File(fileName.getText());
-					boolean matches =  Pattern.matches(ufi.getExpectedNamingPatternRegExpPattern(), f.getName().toLowerCase());
+					boolean matches =  Pattern.compile(ufi.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE).matcher(f.getName()).matches();
 					
 					if (!matches)
 					{
@@ -735,7 +744,7 @@ public class ContentManagerController
 							for (UploadFileInfo ufiLambda : type.getUploadFileInfo())
 							{
 								if (StringUtils.isNotBlank(ufiLambda.getExpectedNamingPatternRegExpPattern()) 
-										&& Pattern.matches(ufiLambda.getExpectedNamingPatternRegExpPattern(), multiFile.getName().toLowerCase()) 
+										&& Pattern.compile(ufiLambda.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE).matcher(multiFile.getName()).matches()
 										&& sourceUploadFiles_.get(index).getText().isEmpty())
 								{
 									try
@@ -874,15 +883,16 @@ public class ContentManagerController
 			try
 			{
 				ArrayList<DeployFile> temp = new ArrayList<>();
-				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId(), sourceUploadVersion.getText(), 
+				String updatedArtifactName = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().replace("*", sourceUploadExtension.getText()); 
+				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), 
 						"", "pom", new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"),
 						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				
-				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId(), sourceUploadVersion.getText(),
+				
+				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(),
 						"", "zip",
 						new File(new File(workingFolder.getText()),
-								SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/target/" + sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId() 
-								+ "-" + sourceUploadVersion.getText() + ".zip"),
+								SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/target/" + updatedArtifactName + "-" + sourceUploadVersion.getText() + ".zip"),
 						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				return temp;
 			}
