@@ -16,12 +16,16 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
@@ -32,27 +36,36 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class LogicDetailRootNode extends LogicDetailPanel {
+
     private final RootNode rootNode;
-    private final Manifold manifold;
     private final VBox setBox = new VBox();
-    private final TitledPane panel = new TitledPane("Root", setBox);
 
-    public LogicDetailRootNode(RootNode rootNode,             
-            PremiseType premiseType, Manifold manifold) {
-        super(premiseType);
-
+    public LogicDetailRootNode(RootNode rootNode,
+            PremiseType premiseType, LogicalExpression logicalExpression, 
+            Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, rootNode, logicalExpression, manifold, updater);
+        this.panel.setContent(setBox);
+        panel.expandedProperty().addListener((observable, oldValue, newValue) -> {
+            handleOpenClose(newValue);
+        });
+        setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
         this.rootNode = rootNode;
-        this.manifold = manifold;
         this.panel.setText(this.manifold.getPreferredDescriptionText(this.rootNode.getNidForConceptBeingDefined()));
-        
+        if (premiseType == PremiseType.STATED) {
+            this.panel.setLeftGraphic2(Iconography.STATED.getIconographic());
+        } else {
+            this.panel.setLeftGraphic2(Iconography.INFERRED.getIconographic());
+        }
+
+        this.panel.setLeftGraphic1(computeGraphic());
+
         // find the set nodes.
-        
-       for (LogicNode childNode: rootNode.getChildren()) {
+        for (LogicNode childNode : rootNode.getChildren()) {
             LogicDetailSetPanel setPanel;
             if (childNode instanceof NecessarySetNode) {
-                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), manifold);
+                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
             } else if (childNode instanceof SufficientSetNode) {
-                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), manifold);
+                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
             } else {
                 throw new IllegalStateException("Can't handle node: " + childNode);
             }
@@ -61,13 +74,17 @@ public class LogicDetailRootNode extends LogicDetailPanel {
         }
     }
 
+    private void handleOpenClose(boolean open) {
+        this.panel.setLeftGraphic1(computeGraphic());
+    }
+
     @Override
     String getLabelText() {
         return "root";
     }
-    
+
     @Override
     public Node getPanelNode() {
-        return setBox;
+        return panel;
     }
 }

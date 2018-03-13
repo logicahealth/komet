@@ -41,12 +41,13 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.commit.CommittableObject;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,7 +57,7 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * all EL++ as well as full first order logic for future compatibility.
  * @author kec
  */
-public interface LogicalExpression {
+public interface LogicalExpression extends CommittableObject {
    /**
     * Contains.
     *
@@ -137,7 +138,25 @@ public interface LogicalExpression {
     * @return the node corresponding to the node index
     */
    LogicNode getNode(int nodeIndex);
+   
+   /**
+    * Remove the node, and all references to the node,
+    * and all the descendents of the node
+    * @param node the node to remove
+     * @return a new logical expression minus the node and all it's descendents. 
+    */
+   default LogicalExpression removeNode(LogicNode node) {
+       return removeNode(node.getNodeIndex());
+   }
 
+   
+   /**
+    * Remove the node, and all references to the node,
+    * and all the descendents of the node
+    * @param nodeIndex the index of the node to remove
+     * @return a new logical expression minus the node and all it's descendents. 
+    */
+   LogicalExpression removeNode(int nodeIndex);
    /**
     * Gets the node count.
     *
@@ -151,7 +170,7 @@ public interface LogicalExpression {
     * @param semantic the type of nodes to match
     * @return the nodes in the expression that match the NodeSemantic
     */
-   Stream<LogicNode> getNodesOfType(NodeSemantic semantic);
+   List<LogicNode> getNodesOfType(NodeSemantic semantic);
 
    /**
     * Gets the root.

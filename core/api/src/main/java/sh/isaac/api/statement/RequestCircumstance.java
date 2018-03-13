@@ -17,7 +17,7 @@
 package sh.isaac.api.statement;
 
 import java.util.List;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  *
@@ -42,7 +42,7 @@ public interface RequestCircumstance extends Circumstance {
      *
      * @return the priority of the request.
      */
-    LogicalExpression getPriority();
+    ConceptSpecification getPriority();
     
     /**
      * 
@@ -54,5 +54,5 @@ public interface RequestCircumstance extends Circumstance {
      *
      * @return the requested result. 
      */
-    Result getRequestedResult();
+    Measure getRequestedMeasure();
 }

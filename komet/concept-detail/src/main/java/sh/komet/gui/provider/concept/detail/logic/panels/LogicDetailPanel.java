@@ -16,9 +16,29 @@
  */
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.MouseEvent;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionUtils;
+import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.komet.gui.control.titled.TitledToolbarPane;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -26,10 +46,66 @@ import sh.komet.gui.style.PseudoClasses;
  */
 public abstract class LogicDetailPanel {
     
+    protected double leftInset = 25;
+    
     private final PremiseType premiseType;
 
-    public LogicDetailPanel(PremiseType premiseType) {
+    protected final TitledToolbarPane panel = new TitledToolbarPane();
+    protected final Manifold manifold;
+    protected final AbstractLogicNode logicNode;
+    protected final LogicalExpression logicalExpression;
+    private final Node editPencil = Iconography.EDIT_PENCIL.getIconographic();
+    private final Consumer<LogicalExpression> updater;
+    public LogicDetailPanel(PremiseType premiseType, 
+            AbstractLogicNode logicNode,
+            LogicalExpression logicalExpression, 
+            Manifold manifold, Consumer<LogicalExpression> updater) {
         this.premiseType = premiseType;
+        this.manifold = manifold;
+        this.logicNode = logicNode;
+        this.logicalExpression = logicalExpression;
+        this.updater = updater;
+        if (premiseType == PremiseType.STATED) {
+            
+            editPencil.setOnMouseClicked(this::handleConceptNodeClick);
+            panel.setRightGraphic(editPencil);
+        }
+        
+        panel.addEventFilter(EventType.ROOT, this::filterOutUnwantedMouseReleased);
+    }
+    
+    protected final void filterOutUnwantedMouseReleased(Event event) {
+        if (event instanceof MouseEvent) {
+            MouseEvent mouseEvent = (MouseEvent) event;
+            if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED
+                    ) {
+                if (event.getTarget() == editPencil) {
+                    event.consume();
+                }
+            }
+        }
+    }
+    
+    protected final void handleConceptNodeClick(MouseEvent mouseEvent) {
+       ContextMenu contextMenu = new ContextMenu(); 
+       MenuItem doNothing = new MenuItem("");
+       contextMenu.getItems().addAll(doNothing);
+
+       List<Action> actionItems = 
+           FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
+                   manifold, 
+                   logicNode, 
+                   logicalExpression, updater);
+       
+       if (!actionItems.isEmpty()) {
+           contextMenu.getItems().add(new SeparatorMenuItem());
+           for (Action action: actionItems) {
+               contextMenu.getItems().add(ActionUtils.createMenuItem(action));
+           }
+       }
+
+       mouseEvent.consume();
+       contextMenu.show(panel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
     }
     
     protected final void setPseudoClasses(Node node) {
@@ -52,4 +128,36 @@ public abstract class LogicDetailPanel {
     final PremiseType getPremiseType() {
         return this.premiseType;
     }
+   public final Node computeGraphic() {
+       return computeGraphic(logicalExpression);
+   }
+   
+   public final Node computeGraphic(LogicalExpression expression) {
+      int[] parents = Get.taxonomyService().getSnapshot(manifold)
+              .getTaxonomyTree().getParentNids(expression.getConceptNid());
+      if (parents.length == 0) {
+          panel.setCollapsible(false);
+      }
+      boolean multiParent = parents.length > 1;
+      boolean sufficient = expression.contains(NodeSemantic.SUFFICIENT_SET);
+ 
+      if (parents.length == 0) {
+         return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
+      } else if (sufficient && multiParent) {
+         if (panel.isExpanded()) {
+            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_OPEN.getIconographic();
+         } else {
+            return Iconography.TAXONOMY_DEFINED_MULTIPARENT_CLOSED.getIconographic();
+         }
+      } else if (!sufficient && multiParent) {
+         if (panel.isExpanded()) {
+            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN.getIconographic();
+         } else {
+            return Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED.getIconographic();
+         }
+      } else if (sufficient && !multiParent) {
+         return Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic();
+      }
+      return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
+   }
 }

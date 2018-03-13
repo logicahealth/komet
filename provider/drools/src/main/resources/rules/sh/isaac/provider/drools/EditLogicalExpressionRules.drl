@@ -1,0 +1,249 @@
+/*
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package sh.isaac.provider.drools;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import javafx.scene.control.MenuItem;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;
+import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.manifold.Manifold;
+import javafx.beans.property.Property;
+import sh.isaac.MetaData;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertyEditorType;
+import sh.isaac.api.logic.NodeSemantic;
+
+
+rule "Any logic node "
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems();
+then
+   $addEditLogicalNode.addDeleteNodeAction();
+end
+
+/**
+Convert to sufficient set
+Delete set
+Clone as sufficient set
+*/
+rule "NECESSARY_SET items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);
+then
+   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
+end
+
+/**
+Convert to necessary set
+Delete set
+Clone as sufficient set
+Clone as necessary set set
+*/
+rule "SUFFICIENT_SET items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);
+then
+   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
+end
+
+rule "AND items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.AND);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "OR items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.OR);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "DISJOINT_WITH items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.DISJOINT_WITH);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+/*
+Add necessary set
+Add sufficient set
+*/
+rule "DEFINITION_ROOT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.DEFINITION_ROOT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "ROLE_ALL items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.ROLE_ALL);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+rule "RoleGroup items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(
+        getNodeSemantic() == NodeSemantic.ROLE_SOME, 
+        getNodeToEditTypeConceptNid() == TermAux.ROLE_GROUP.getNid());
+then
+   $addEditLogicalNode.addRoleAction(MetaData.HAS_DOSE_FORM____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
+end
+
+rule "ROLE_SOME items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.ROLE_SOME);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+rule "CONCEPT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.CONCEPT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "FEATURE items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.FEATURE);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "LITERAL_BOOLEAN items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_BOOLEAN);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "LITERAL_FLOAT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_FLOAT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "LITERAL_INSTANT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_INSTANT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "LITERAL_INTEGER items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_INTEGER);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "LITERAL_STRING items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_STRING);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "TEMPLATE items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.TEMPLATE);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_CONCEPT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_CONCEPT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_BOOLEAN items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_BOOLEAN);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_FLOAT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_FLOAT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_INSTANT items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_INSTANT);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_INTEGER items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_INTEGER);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end
+
+rule "SUBSTITUTION_STRING items"
+   lock-on-active true
+when
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUBSTITUTION_STRING);
+then
+   System.out.println($addEditLogicalNode.getNodeSemantic());
+end

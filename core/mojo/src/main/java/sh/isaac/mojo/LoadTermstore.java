@@ -603,47 +603,50 @@ public class LoadTermstore
     */
    private Set<Integer> getParentConceptSequencesFromLogicExpression(LogicalExpression logicExpression) {
       Set<Integer> parentConceptSequences = new HashSet<>();
-      Stream<LogicNode> isAs = logicExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
+      List<LogicNode> necessaryNodes = logicExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
       int necessaryCount = 0;
       int allCount = 1;  //start at 1, for root.
-      for (Iterator<LogicNode> necessarySetsIterator = isAs.distinct().iterator(); necessarySetsIterator.hasNext();) {
+      for (LogicNode necessarySetNode: necessaryNodes) {
          necessaryCount++;
          allCount++;
-         NecessarySetNode necessarySetNode = (NecessarySetNode)necessarySetsIterator.next();
-         for (AbstractLogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
+         for (LogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
             allCount++;
-            if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.AND) {
-               AndNode andNode = (AndNode)childOfNecessarySetNode;
-               for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
-                  allCount++;
-                  if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
-                     if (childOfAndNode instanceof ConceptNodeWithNids) {
-                        ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfAndNode;
-                        parentConceptSequences.add(conceptNode.getConceptNid());
-                     } else if (childOfAndNode instanceof ConceptNodeWithUuids) {
-                        ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfAndNode;
-                        parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+            if (null == childOfNecessarySetNode.getNodeSemantic()) {
+                // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+                return new HashSet<>();
+            } else switch (childOfNecessarySetNode.getNodeSemantic()) {
+                 case AND:
+                     AndNode andNode = (AndNode)childOfNecessarySetNode;
+                     for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
+                         allCount++;
+                         if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                             if (childOfAndNode instanceof ConceptNodeWithNids) {
+                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfAndNode;
+                                 parentConceptSequences.add(conceptNode.getConceptNid());
+                             } else if (childOfAndNode instanceof ConceptNodeWithUuids) {
+                                 ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfAndNode;
+                                 parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                             } else {
+                                 // Should never happen - return an empty set to our call above doesn't use this mechanism
+                                 return new HashSet<>();
+                             }
+                         }
+                     }     break;
+                 case CONCEPT:
+                     if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
+                         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfNecessarySetNode;
+                         parentConceptSequences.add(conceptNode.getConceptNid());
+                     } else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
+                         ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfNecessarySetNode;
+                         parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
                      } else {
-                        // Should never happen - return an empty set to our call above doesn't use this mechanism
-                        return new HashSet<>();
-                     }
-                  }
-               }
-            } else if (childOfNecessarySetNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
-               if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
-                  ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfNecessarySetNode;
-                  parentConceptSequences.add(conceptNode.getConceptNid());
-               } else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
-                  ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfNecessarySetNode;
-                  parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
-               } else {
-                  // Should never happen - return an empty set to our call above doesn't use this mechanism
-                  return new HashSet<>();
-               }
-            } else {
-               // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
-               return new HashSet<>();
-            }
+                         // Should never happen - return an empty set to our call above doesn't use this mechanism
+                         return new HashSet<>();
+                     }     break;
+                 default:
+                     // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+                     return new HashSet<>();
+             }
          }
       }
       

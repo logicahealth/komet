@@ -23,6 +23,7 @@ import sh.isaac.api.statement.PerformanceCircumstance;
 import sh.isaac.api.statement.Result;
 
 import java.util.List;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.statement.Participant;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -31,22 +32,27 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class PerformanceCircumstanceImpl extends CircumstanceImpl implements PerformanceCircumstance {
-    private final SimpleObjectProperty<Result> result = 
+    private final SimpleObjectProperty<ResultImpl> result = 
             new SimpleObjectProperty<>(this, ObservableFields.PERFORMANCE_CIRCUMSTANCE_RESULT.toExternalString());
     private final SimpleListProperty<Participant> performanceParticipants = 
             new SimpleListProperty(this, ObservableFields.PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS.toExternalString());
+
+    public PerformanceCircumstanceImpl(ManifoldCoordinate manifold) {
+        super(manifold);
+        result.setValue(new ResultImpl(manifold));
+    }
 
     @Override
     public Result getResult() {
         return result.get();
     }
 
-    public SimpleObjectProperty<Result> resultProperty() {
+    public SimpleObjectProperty<ResultImpl> resultProperty() {
         return result;
     }
 
     public void setResult(Result result) {
-        this.result.set(result);
+        this.result.set((ResultImpl) result);
     }
 
     @Override

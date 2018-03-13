@@ -20,6 +20,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.statement.Circumstance;
 import sh.isaac.api.statement.Measure;
 import sh.isaac.model.observable.ObservableFields;
@@ -32,8 +33,12 @@ import sh.isaac.model.observable.ObservableFields;
 public class CircumstanceImpl implements Circumstance {
     private final SimpleListProperty<ConceptChronology> purposeList = 
             new SimpleListProperty(this, ObservableFields.CIRCUMSTANCE_PURPOSE_LIST.toExternalString());
-    private final SimpleObjectProperty<Measure> timing = 
+    private final SimpleObjectProperty<MeasureImpl> timing = 
             new SimpleObjectProperty<>(this, ObservableFields.CIRCUMSTANCE_TIMING.toExternalString());
+
+    public CircumstanceImpl(ManifoldCoordinate manifold) {
+        timing.setValue(new MeasureImpl(manifold));
+    }
 
     @Override
     public ObservableList<ConceptChronology> getPurposeList() {
@@ -53,11 +58,11 @@ public class CircumstanceImpl implements Circumstance {
         return timing.get();
     }
 
-    public SimpleObjectProperty<Measure> timingProperty() {
+    public SimpleObjectProperty<MeasureImpl> timingProperty() {
         return timing;
     }
 
-    public void setTiming(Measure timing) {
+    public void setTiming(MeasureImpl timing) {
         this.timing.set(timing);
     }
 }

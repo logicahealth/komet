@@ -257,9 +257,14 @@ public final class ConceptNodeWithNids
     * @return the children
     */
    @Override
-   public AbstractLogicNode[] getChildren() {
+   public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+    @Override
+    public final void removeChild(short childId) {
+        // nothing to do
+    }
+
 
    /**
     * Gets the concept sequence.

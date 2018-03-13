@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.control;
+package sh.komet.gui.control.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Collection;

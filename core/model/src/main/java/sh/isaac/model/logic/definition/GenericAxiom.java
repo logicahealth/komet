@@ -94,7 +94,7 @@ public class GenericAxiom
     * @param semantic the semantic
     * @param builder the builder
     */
-   public GenericAxiom(NodeSemantic semantic, LogicalExpressionBuilderOchreImpl builder) {
+   public GenericAxiom(NodeSemantic semantic, LogicalExpressionBuilderImpl builder) {
       this.builder  = builder;
       this.index    = builder.getNextAxiomIndex();
       this.semantic = semantic;

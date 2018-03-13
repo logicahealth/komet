@@ -193,7 +193,10 @@ public class ObservableComponentNidVersionImpl
    
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {
-        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, 
+                getPrimordialUuid(), 
+                getAssemblageNid(), 
+                this.getReferencedComponentNid());
         ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(sc, stampSequence);
         copyLocalFields(newVersion);
         sc.addVersion(newVersion);

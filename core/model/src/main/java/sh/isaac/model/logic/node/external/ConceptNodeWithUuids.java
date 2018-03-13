@@ -46,7 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.UUID;
@@ -193,7 +192,6 @@ public class ConceptNodeWithUuids
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
    public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
@@ -243,9 +241,14 @@ public class ConceptNodeWithUuids
     * @return the children
     */
    @Override
-   public AbstractLogicNode[] getChildren() {
+   public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+
+    @Override
+    public void removeChild(short childId) {
+        // nothing to do
+    }
 
    /**
     * Gets the concept uuid.

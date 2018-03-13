@@ -1001,14 +1001,14 @@ public class ContentManagerController
 			try
 			{
 				ArrayList<DeployFile> temp = new ArrayList<>();
-				temp.add(new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(), "",
-						"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.parentArtifactId + "/pom.xml"),
+				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), "",
+						"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"),
 						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				
-				temp.add(new DeployFile(DBConfigurationCreator.groupId, databaseName.getText(), databaseVersion.getText(),
+				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(),
 						databaseClassifier.getText(), "isaac.zip",
 						new File(new File(workingFolder.getText()),
-								DBConfigurationCreator.parentArtifactId + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-"
+								DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-"
 										+ databaseClassifier.getText() + ".isaac.zip"),
 						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				return temp;
@@ -1018,7 +1018,7 @@ public class ContentManagerController
 				throw new RuntimeException(e);
 			}
 		}, 
-		new File(workingFolder.getText() + "/" + DBConfigurationCreator.parentArtifactId));
+		new File(workingFolder.getText() + "/" + DBConfigurationCreator.PARENT_ARTIFIACT_ID));
 	}
 	
 	private void doRun(Supplier<String> jobRunner, Supplier<List<DeployFile>> fileDepoyer, File mavenLaunchFolder)

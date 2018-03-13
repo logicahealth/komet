@@ -282,6 +282,11 @@ public class TemplateNodeWithUuids
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+    @Override
+    public void removeChild(short childId) {
+        // nothing to do
+    }
+
 
    /**
     * Gets the node semantic.

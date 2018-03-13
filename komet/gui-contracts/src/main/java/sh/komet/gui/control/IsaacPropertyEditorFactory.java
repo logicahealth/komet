@@ -16,9 +16,14 @@
  */
 package sh.komet.gui.control;
 
+import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
+import sh.komet.gui.control.concept.ConceptLabel;
+import sh.komet.gui.control.concept.ConceptForControlWrapper;
+import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -28,7 +33,12 @@ import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Status;
 import sh.isaac.model.statement.MeasureImpl;
+import sh.isaac.model.statement.ResultImpl;
+import sh.komet.gui.control.circumstance.CircumstanceEditor;
+import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.control.result.PropertySheetResultWrapper;
+import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 
@@ -43,20 +53,26 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
    }
    @Override
    public PropertyEditor<?> call(PropertySheet.Item propertySheetItem) {
-      if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
-         return createCustomChoiceEditor((PropertySheetItemConceptWrapper) propertySheetItem);
+      if (propertySheetItem instanceof PropertySheetItemConceptNidWrapper) {
+         return createCustomChoiceEditor((PropertySheetItemConceptNidWrapper) propertySheetItem);
       } else if (propertySheetItem instanceof PropertySheetStatusWrapper) {
          return Editors.createChoiceEditor(propertySheetItem, Status.makeActiveAndInactiveSet());
       }  else if (propertySheetItem instanceof PropertySheetTextWrapper) {
          return Editors.createTextEditor(propertySheetItem);
-      } else if (propertySheetItem instanceof PropertySheetItemMeasureWrapper) {
-          PropertySheetItemMeasureWrapper measureWrapper = (PropertySheetItemMeasureWrapper) propertySheetItem;
+      } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
+          PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
          return new MeasureEditor((MeasureImpl) measureWrapper.getValue(), manifoldForDisplay);
+      } else if (propertySheetItem instanceof PropertySheetCircumstanceWrapper) {
+          PropertySheetCircumstanceWrapper circumstanceWrapper = (PropertySheetCircumstanceWrapper) propertySheetItem;
+         return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), manifoldForDisplay);
+      } else if (propertySheetItem instanceof PropertySheetResultWrapper) {
+          PropertySheetResultWrapper resultWrapper = (PropertySheetResultWrapper) propertySheetItem;
+         return new ResultEditor((ObservableValue<ResultImpl>) resultWrapper.getObservableValue().get(), manifoldForDisplay);
       }
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      throw new UnsupportedOperationException("Not supported yet: " + propertySheetItem.getClass().getName()); 
    }
 
-    private PropertyEditor<?> createCustomChoiceEditor(PropertySheetItemConceptWrapper propertySheetItem){
+    private PropertyEditor<?> createCustomChoiceEditor(PropertySheetItemConceptNidWrapper propertySheetItem){
         if (!propertySheetItem.getAllowedValues().isEmpty()) {
             Collection<ConceptForControlWrapper> collection = new ArrayList<>();
             propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(manifoldForDisplay, nid)));

@@ -124,7 +124,7 @@ import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.DialogService;
-import sh.komet.gui.control.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 

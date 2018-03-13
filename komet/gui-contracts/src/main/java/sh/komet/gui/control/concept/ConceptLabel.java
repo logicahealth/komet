@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.control;
+package sh.komet.gui.control.concept;
 
 import java.util.List;
 import java.util.Set;

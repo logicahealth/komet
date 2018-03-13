@@ -22,9 +22,10 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.control.IsaacPropertyEditorFactory;
-import sh.komet.gui.control.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.PropertySheetItemMeasureWrapper;
+import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
+import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -58,17 +59,17 @@ public class StatementPropertySheet {
     public List<PropertySheet.Item> getProperties(ClinicalStatementImpl clinicalStatement) {
         ArrayList<PropertySheet.Item> items = new ArrayList<>();
         
-        items.add(new PropertySheetItemConceptWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
                 clinicalStatement.modeProperty(),
         TermAux.TEMPLATE.getNid(), TermAux.INSTANCE.getNid()));
         
         
         
         items.add(new PropertySheetTextWrapper(manifold, clinicalStatement.narrativeProperty()));
-        items.add(new PropertySheetItemConceptWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
                 clinicalStatement.statementTypeProperty(),
             TermAux.REQUEST_STATEMENT.getNid(), TermAux.PERFORMANCE_STATEMENT.getNid()));
-        items.add(new PropertySheetItemConceptWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
                 clinicalStatement.subjectOfInformationProperty(), 
                 TermAux.SUBJECT_OF_RECORD.getNid(),
                 TermAux.MOTHER_OF_SUBJECT_OF_RECORD.getNid(), 
@@ -77,9 +78,12 @@ public class StatementPropertySheet {
                 TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid()
                 
         ));
-        items.add(new PropertySheetItemConceptWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
                 clinicalStatement.topicProperty()));
-        items.add(new PropertySheetItemMeasureWrapper(manifold, clinicalStatement.statementTimeProperty()));
+        items.add(new PropertySheetMeasureWrapper(manifold, clinicalStatement.statementTimeProperty()));
+        items.add(new PropertySheetCircumstanceWrapper(manifold, clinicalStatement.circumstanceProperty()));
+        
+        
         
         return items;
     }

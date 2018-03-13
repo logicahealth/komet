@@ -58,9 +58,9 @@ import sh.isaac.api.Status;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 
-import sh.komet.gui.control.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;

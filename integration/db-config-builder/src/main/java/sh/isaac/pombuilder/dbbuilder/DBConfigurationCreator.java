@@ -83,13 +83,13 @@ public class DBConfigurationCreator
 	private static final Logger LOG = LogManager.getLogger();
 
 	/** The Constant parentGroupId. */
-	private static final String parentGroupId = "sh.isaac.integration";
+	private static final String PARENT_GROUP_ID = "sh.isaac.integration";
 
 	/** The Constant parentArtifactId. */
-	public static final String parentArtifactId = "db-builder";
+	public static final String PARENT_ARTIFIACT_ID = "db-builder";
 
 	/** The Constant groupId. */
-	public static final String groupId = "sh.isaac.db";
+	public static final String GROUP_ID = "sh.isaac.db";
 
 	// ~--- methods -------------------------------------------------------------
 
@@ -130,21 +130,21 @@ public class DBConfigurationCreator
 
 			final Parent parent = new Parent();
 
-			parent.setGroupId(parentGroupId);
-			parent.setArtifactId(parentArtifactId);
+			parent.setGroupId(PARENT_GROUP_ID);
+			parent.setArtifactId(PARENT_ARTIFIACT_ID);
 			parent.setVersion(metadataVersion);
 			model.setParent(parent);
-			model.setGroupId(groupId);
+			model.setGroupId(GROUP_ID);
 			model.setArtifactId(name);
 			model.setVersion(version);
-			model.setName(parentArtifactId + ": " + name);
+			model.setName(PARENT_ARTIFIACT_ID + ": " + name);
 			model.setPackaging("pom");
 			model.setDescription(description);
 
 			final Scm scm = new Scm();
 
 			scm.setUrl(StringUtils.isNotBlank(gitRepositoryURL) ? GitBlitUtils.constructChangesetRepositoryURL(gitRepositoryURL) : "");
-			scm.setTag(groupId + "/" + name + "/" + version);
+			scm.setTag(GROUP_ID + "/" + name + "/" + version);
 			model.setScm(scm);
 
 			final Properties properties = new Properties();
@@ -319,12 +319,12 @@ public class DBConfigurationCreator
 			File baseFolder;
 			if (workingFolder != null)
 			{
-				baseFolder = new File(workingFolder, parentArtifactId);
+				baseFolder = new File(workingFolder, PARENT_ARTIFIACT_ID);
 				FileUtil.recursiveDelete(baseFolder);
 			}
 			else
 			{
-				baseFolder = Files.createTempDirectory(parentArtifactId).toFile();
+				baseFolder = Files.createTempDirectory(PARENT_ARTIFIACT_ID).toFile();
 			}
 			baseFolder.mkdirs();
 

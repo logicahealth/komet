@@ -1,5 +1,7 @@
 package sh.komet.gui.search.control;
 
+import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
+import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
@@ -185,11 +187,11 @@ public class LetPropertySheet{
                 this.manifoldForModification.getStampCoordinate().moduleNidProperty().get(),
                 MODULE,
                 this.manifoldForModification, buildListOfAllModules()));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
                 PATH,
                 this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathNidProperty()
         ));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
                 LANGUAGE,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptNidProperty()
         ));
@@ -203,11 +205,11 @@ public class LetPropertySheet{
                 DESCRIPTION_TYPE,
                 this.manifoldForDisplay,
                 this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().toArray(null)));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
                 CLASSIFIER,
                 this.manifoldForModification.getLogicCoordinate().classifierNidProperty()
         ));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
                 DESCRIPTION_LOGIC,
                 this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileNidProperty()
         ));

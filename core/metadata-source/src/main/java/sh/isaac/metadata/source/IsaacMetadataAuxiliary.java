@@ -238,6 +238,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept(TermAux.PERFORMANCE_STATEMENT);
                 popParent();
 
+            createConcept("Priority").setPrimordialUuid(UUID.fromString("61c1f346-2103-3032-8066-2add812a5b74"));
+                pushParent(current());
+                createConcept("Routine").setPrimordialUuid(UUID.fromString("90581618-c1c5-3e6e-ab21-80b18ded492c"));
+                createConcept("Immediate").setPrimordialUuid(UUID.fromString("bffcefca-d520-3d4a-ac37-ce8376376136"));
+                popParent();
+            
             createConcept(TermAux.SUBJECT_OF_INFORMATION);
                 pushParent(current());
                 createConcept(TermAux.SUBJECT_OF_RECORD);
@@ -271,7 +277,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);// UUID comes from the algorithm in the VHAT econ loader
                
                popParent();
-            createConcept("language");
+            createConcept("Language");
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
             //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
                createConcept(TermAux.ENGLISH_LANGUAGE, 

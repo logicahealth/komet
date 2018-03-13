@@ -41,7 +41,7 @@ public class ClinicalStatementImpl implements ClinicalStatement {
     private final SimpleStringProperty narrative =
             new SimpleStringProperty(this, ObservableFields.STATEMENT_NARRATIVE.toExternalString());
 
-    private final SimpleObjectProperty<Measure> statementTime = 
+    private final SimpleObjectProperty<MeasureImpl> statementTime = 
             new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_TIME.toExternalString());
     private final SimpleObjectProperty<UUID> statementId = 
             new SimpleObjectProperty<>(this, ObservableFields.STATEMENT_ID.toExternalString());
@@ -102,11 +102,11 @@ public class ClinicalStatementImpl implements ClinicalStatement {
         return statementTime.get();
     }
 
-    public SimpleObjectProperty<Measure> statementTimeProperty() {
+    public SimpleObjectProperty<MeasureImpl> statementTimeProperty() {
         return statementTime;
     }
 
-    public void setStatementTime(Measure statementTime) {
+    public void setStatementTime(MeasureImpl statementTime) {
         this.statementTime.set(statementTime);
     }
 

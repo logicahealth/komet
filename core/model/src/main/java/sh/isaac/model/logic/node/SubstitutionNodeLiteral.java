@@ -76,5 +76,6 @@ public abstract class SubstitutionNodeLiteral
                                   SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion, substitutionFieldSpecification);
    }
+
 }
 

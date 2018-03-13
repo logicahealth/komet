@@ -83,7 +83,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
-import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
+import sh.isaac.model.logic.definition.LogicalExpressionBuilderProvider;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
@@ -109,7 +109,7 @@ public class ImportExportTest {
    //~--- fields --------------------------------------------------------------
 
    /** The builder provider. */
-   LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
+   LogicalExpressionBuilderProvider builderProvider = new LogicalExpressionBuilderProvider();
 
    /** The import stats. */
    IsaacExternalizableStatsTestFilter importStats;

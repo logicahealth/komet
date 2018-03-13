@@ -101,8 +101,8 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.ComponentPanel;
-import sh.komet.gui.control.ManifoldLinkedConceptLabel;
-import sh.komet.gui.control.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.control.StampControl;
@@ -204,7 +204,7 @@ public class ConceptDetailPanelNode
 
     @Override
     public void handleCommit(CommitRecord commitRecord) {
-        if (conceptDetailManifold.getFocusedConcept() != null) {
+        if (conceptDetailManifold.getFocusedConcept() != null && conceptDetailManifold.getFocusedConcept().isPresent()) {
             ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept().get();
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();

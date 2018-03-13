@@ -18,12 +18,16 @@ package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
@@ -39,28 +43,30 @@ import sh.komet.gui.style.StyleClasses;
 public class LogicDetailSetPanel extends LogicDetailPanel {
 
     private ConnectorNode setNode;
-    private Manifold manifold;
-    private final VBox setBox = new VBox();
-    private final TitledPane panel = new TitledPane("Root", setBox);
+    private final VBox setBox = new VBox(0);
 
     public LogicDetailSetPanel(NecessarySetNode setNode, 
-                        PremiseType premiseType, Manifold manifold) {
-        super(premiseType);
-
-        setup(setNode, manifold);
+                        PremiseType premiseType, LogicalExpression logicalExpression, 
+                        Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, setNode, logicalExpression, manifold, updater);
+        panel.setContent(setBox);
+        setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
+        setup(setNode, updater);
         setPseudoClasses(panel);
         panel.getStyleClass()
                 .add(StyleClasses.DEF_NECESSARY_SET.toString());        
         setPseudoClasses(setBox);
         setBox.getStyleClass()
-                .add(StyleClasses.DEF_NECESSARY_SET.toString());        
+                .add(StyleClasses.DEF_NECESSARY_SET.toString()); 
     }
 
     public LogicDetailSetPanel(SufficientSetNode setNode,             
-                        PremiseType premiseType, Manifold manifold) {
-        super(premiseType);
-
-        setup(setNode, manifold);
+                        PremiseType premiseType, LogicalExpression logicalExpression, 
+                        Manifold manifold, Consumer<LogicalExpression> updater) {
+        super(premiseType, setNode, logicalExpression, manifold, updater);
+        panel.setContent(setBox);
+        setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
+        setup(setNode, updater);
         setPseudoClasses(panel);
         panel.getStyleClass()
                 .add(StyleClasses.DEF_SUFFICIENT_SET.toString());        
@@ -69,9 +75,13 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
                 .add(StyleClasses.DEF_SUFFICIENT_SET.toString());        
     }
 
-    private void setup(ConnectorNode setNode, Manifold manifold1) {
+    private void setup(ConnectorNode setNode, Consumer<LogicalExpression> updater) {
         this.setNode = setNode;
-        this.manifold = manifold1;
+        if (setNode instanceof SufficientSetNode) {
+            this.panel.setLeftGraphic2(Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic());
+        } else {
+            this.panel.setLeftGraphic2(Iconography.TAXONOMY_ROOT_ICON.getIconographic());
+        }
         this.panel.setText(manifold.getPreferredDescriptionText(setNode.getNodeSemantic().getConceptNid())
         + ": " 
         + manifold.getPreferredDescriptionText(setNode.getNidForConceptBeingDefined()));
@@ -84,12 +94,12 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
  
                 switch (andNodeChild.getNodeSemantic()) {
                     case ROLE_SOME:
-                        LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), manifold);
+                        LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
                         VBox.setMargin(rolePanel.getPanelNode(), new Insets(0));
                         childNodes.add(rolePanel);
                         break;
                     case CONCEPT:
-                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), manifold);
+                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
                         VBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                         childNodes.add(conceptPanel);
                         break;
