@@ -72,6 +72,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 import javafx.util.StringConverter;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.DeployFile;
@@ -313,6 +314,7 @@ public class ContentManagerController
 
 			Alert ibdfDialog = new Alert(AlertType.CONFIRMATION);
 			ibdfDialog.setTitle("Select Files");
+			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
 			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
 			ibdfPicker.setPrefWidth(1024);
@@ -613,6 +615,7 @@ public class ContentManagerController
 			sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
 			sdoDialog.getDialogPane().setContent(sdoPicker);
 			sdoPicker.setPrefWidth(1024);
+			sdoDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
@@ -680,6 +683,7 @@ public class ContentManagerController
 			ibdfDialog.setTitle("Select Files");
 			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
 			ibdfPicker.setPrefWidth(1024);
 
 			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
@@ -1407,7 +1411,10 @@ public class ContentManagerController
 			{
 				String outputVersion = sourceConversionContent.getItems().get(0).getVersion() + "-loader-" 
 						+ sourceConversionConverterVersion.getSelectionModel().getSelectedItem();
-				String outputArtifactId = SupportedConverterTypes.findBySrcArtifactId(sourceConversionContent.getItems().get(0).getArtifactId()).getConverterOutputArtifactId(); 
+				Pair <SupportedConverterTypes, String> converterType = SupportedConverterTypes
+						.findConverterTypeAndExtensionBySrcArtifactId(sourceConversionContent.getItems().get(0).getArtifactId()); 
+				
+				String outputArtifactId = converterType.getKey().getConverterOutputArtifactId() + converterType.getValue();
 				
 				ArrayList<DeployFile> temp = new ArrayList<>();
 				temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, "", "pom",
@@ -1576,6 +1583,7 @@ public class ContentManagerController
 					TextArea ta = new TextArea();
 					ta.setWrapText(true);
 					ta.setPadding(new Insets(10.0));
+					ta.appendText("Starting Maven Execution");
 					updateMessage("Running Maven Job");
 					Node oldContent = pdRef.get().getDialogPane().getContent();
 					Platform.runLater(() -> {
@@ -1625,6 +1633,7 @@ public class ContentManagerController
 
 		Get.workExecutors().getExecutor().execute(t);
 		ProgressDialog pd = new ProgressDialog(t);
+		pd.initOwner(cm_.getPrimaryStage().getOwner());
 		pdRef.set(pd);
 		pd.setTitle("Building Configuration");
 		pd.setHeaderText(null);
@@ -1637,6 +1646,7 @@ public class ContentManagerController
 			final Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Complete");
 			alert.setHeaderText("Job complete");
+			alert.initOwner(cm_.getPrimaryStage().getOwner());
 			alert.showAndWait();
 		}
 
@@ -1650,6 +1660,7 @@ public class ContentManagerController
 			text.wrappingWidthProperty().bind(errorAlert.widthProperty().subtract(10.0));
 			errorAlert.getDialogPane().setContent(text);
 			errorAlert.getDialogPane().setPadding(new Insets(5.0));
+			errorAlert.initOwner(cm_.getPrimaryStage().getOwner());
 			errorAlert.showAndWait();
 		}
 	}
@@ -1681,6 +1692,7 @@ public class ContentManagerController
 			mavenPathsDialog.setTitle("Maven Configuration");
 			mavenPathsDialog.setHeaderText("Please specify the Maven configuration");
 			mavenPathsDialog.getDialogPane().setContent(mavenGridPane);
+			mavenPathsDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			mavenPanelController.m2PathBrowse.setOnAction((actionEvent) -> {
 				DirectoryChooser fc = new DirectoryChooser();
@@ -1732,6 +1744,7 @@ public class ContentManagerController
 			artifactDialog.setTitle("Artifact Repository Configuration");
 			artifactDialog.setHeaderText("Please specify the Artifact Repository configuration");
 			artifactDialog.getDialogPane().setContent(artifactGridPane);
+			artifactDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			artifactController.artifactReadUrl.setText(sp_.getArtifactReadURL());
 			artifactController.artifactDeployUrl.setText(sp_.getArtifactDeployURL());
@@ -1767,6 +1780,7 @@ public class ContentManagerController
 			gitDialog.setTitle("Git Configuration");
 			gitDialog.setHeaderText("Please specify the GIT configuration");
 			gitDialog.getDialogPane().setContent(gitGridPane);
+			gitDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			gpController.gitUrl.setText(sp_.getGitURL());
 			gpController.gitUsername.setText(sp_.getGitUsername());
