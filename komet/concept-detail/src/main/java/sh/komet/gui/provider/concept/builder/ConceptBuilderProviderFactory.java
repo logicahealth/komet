@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.provider.concept.detail.logic;
+package sh.komet.gui.provider.concept.builder;
 
 import java.util.EnumSet;
 import java.util.function.Consumer;
@@ -34,28 +34,29 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Service(name = "Logic Detail Provider")
 @RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
-public class LogicDetailProviderFactory implements DetailNodeFactory {
+public class ConceptBuilderProviderFactory implements DetailNodeFactory {
 
-   @Override
-   public EnumSet<DetailType> getSupportedTypes() {
-      return EnumSet.of(DetailType.Concept);
-   }
+    @Override
+    public EnumSet<DetailType> getSupportedTypes() {
+        return EnumSet.of(DetailType.Builder);
+    }
 
-   @Override
-   public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
-      if (type != DetailType.Concept) {
+    @Override
+    public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
+      if (type != DetailType.Builder && type != DetailType.Concept) {
          throw new UnsupportedOperationException("ak Can't handle: " + type); 
       }
-      return new LogicDetailNode(manifold, nodeConsumer);
-   }
-   @Override
-   public String getMenuText() {
-      return "Logic Details"; 
-   }
+      return new ConceptBuilderNode(manifold, nodeConsumer);
+    }
 
-   @Override
-   public Node getMenuIcon() {
-      return Iconography.LAMBDA.getIconographic();
-   }
-   
+    @Override
+    public String getMenuText() {
+        return "Concept builder";
+    }
+
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.NEW_CONCEPT.getIconographic();
+    }
+    
 }

@@ -105,8 +105,8 @@ public class ConceptBuilderImpl
     */
    private transient DescriptionBuilder<?, ?> preferredDescriptionBuilder = null;
    
-   private transient HashMap<LogicalExpressionBuilder, SemanticBuilder<?>> builtLogicalExpressionBuilders = new HashMap<>();
-   private transient HashMap<LogicalExpression, SemanticBuilder<?>> builtLogicalExpressions = new HashMap<>();
+   private final transient HashMap<LogicalExpressionBuilder, SemanticBuilder<?>> builtLogicalExpressionBuilders = new HashMap<>();
+   private final transient HashMap<LogicalExpression, SemanticBuilder<?>> builtLogicalExpressions = new HashMap<>();
 
    /**
     * The concept name.

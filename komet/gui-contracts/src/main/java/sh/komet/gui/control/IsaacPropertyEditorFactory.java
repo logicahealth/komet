@@ -61,7 +61,9 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
          return Editors.createTextEditor(propertySheetItem);
       } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
           PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
-         return new MeasureEditor((MeasureImpl) measureWrapper.getValue(), manifoldForDisplay);
+          MeasureEditor measureEditor = new MeasureEditor(manifoldForDisplay);
+          measureEditor.setValue((MeasureImpl) measureWrapper.getValue());
+         return measureEditor;
       } else if (propertySheetItem instanceof PropertySheetCircumstanceWrapper) {
           PropertySheetCircumstanceWrapper circumstanceWrapper = (PropertySheetCircumstanceWrapper) propertySheetItem;
          return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), manifoldForDisplay);

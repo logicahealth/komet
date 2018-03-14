@@ -87,9 +87,6 @@ public class ConceptLabel
         setupContextMenu(contextMenu);
         this.setContextMenu(contextMenu);
         contextMenu.setOnShowing(this::handle);
-        this.conceptInLabel.addListener((observable, oldValue, newValue) -> {
-            
-        });
     }
 
     //~--- methods -------------------------------------------------------------

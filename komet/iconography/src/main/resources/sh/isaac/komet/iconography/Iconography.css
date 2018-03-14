@@ -827,3 +827,23 @@ limitations under the License.
    -glyph-size: 12;   
    -icons-color: #52646d;
 }
+
+.new-concept {
+   -glyph-name: "SHAPE_CIRCLE_PLUS";
+   -glyph-size: 18;
+}
+
+.cancel {
+   -glyph-name: "CIRCLEDELETE";
+   -glyph-size: 12;
+}
+
+.duplicate {
+   -glyph-name: "QUEUE";
+   -glyph-size: 14;
+}
+
+.add {
+   -glyph-name: "ADD_BOX";
+   -glyph-size: 18;
+}
