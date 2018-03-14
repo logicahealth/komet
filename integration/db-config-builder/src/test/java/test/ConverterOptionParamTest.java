@@ -42,14 +42,11 @@ package test;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.pombuilder.artifacts;
+package sh.isaac.dbConfigBuilder.artifacts;
 
 /**
  *

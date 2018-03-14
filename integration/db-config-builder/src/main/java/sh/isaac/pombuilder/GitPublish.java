@@ -69,7 +69,7 @@ public class GitPublish {
     * commit the changes to master, then tag it - then push the tag (but not the changes to master) so the upstream repo only
     * receives the tag.
     *
-    * Calls {@link #constructChangesetRepositoryURL(String)} to adjust the URL as necessary
+    * Calls {@link GitBlitUtils#constructChangesetRepositoryURL(String)} to adjust the URL as necessary
     *
     * @param folderWithProject the folder with project
     * @param gitRepository the git repository
@@ -156,7 +156,7 @@ public class GitPublish {
    }
 
    /**
-    * Calls {@link #constructChangesetRepositoryURL(String)} to adjust the URL as necessary.
+    * Calls {@link GitBlitUtils#constructChangesetRepositoryURL(String)} to adjust the URL as necessary.
     *
     * @param gitRepository the git repository
     * @param gitUserName the git user name

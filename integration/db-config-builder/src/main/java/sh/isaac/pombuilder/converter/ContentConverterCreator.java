@@ -48,17 +48,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+//~--- non-JDK imports --------------------------------------------------------
+import javafx.util.Pair;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.dbConfigBuilder.artifacts.Converter;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
-import sh.isaac.pombuilder.artifacts.Converter;
-import sh.isaac.pombuilder.artifacts.IBDFFile;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
@@ -78,6 +78,7 @@ public class ContentConverterCreator
 	/** The Constant LOG. */
 	private static final Logger LOG = LogManager.getLogger();
 	public static final String IBDF_OUTPUT_GROUP = "sh.isaac.terminology.converted";
+	public static final String WORKING_SUBFOLDER = "converter-executor";
 
 	// ~--- methods -------------------------------------------------------------
 
@@ -95,7 +96,7 @@ public class ContentConverterCreator
 	 * @param additionalIBDFDependencies - Some converters require additional data files to satisfy dependencies. See
 	 *            {@link #getSupportedConversions()}
 	 *            for accurate dependencies for any given conversion type.
-	 * @param converterOptionValues a map of converter options (fetched via {@link #getConverterOptions(Converter, String, String, String)} to a set
+	 * @param converterOptionValues a map of converter options (fetched via {@link #getConverterOptions(SupportedConverterTypes, String, String, String, String)} to a set
 	 *            of values. The values are the items that the user selected / entered. This may be blank, depending on the converter and/or the user
 	 *            choices.
 	 * @param gitRepositoryURL - optional - The URL to publish this built project to. If not provided, the project is not published.
@@ -115,12 +116,12 @@ public class ContentConverterCreator
 		File baseFolder;
 		if (workingFolder != null)
 		{
-			baseFolder = new File(workingFolder, "converter-executor");
+			baseFolder = new File(workingFolder, WORKING_SUBFOLDER);
 			FileUtil.recursiveDelete(baseFolder);
 		}
 		else
 		{
-			baseFolder = Files.createTempDirectory("converter-executor").toFile();
+			baseFolder = Files.createTempDirectory(WORKING_SUBFOLDER).toFile();
 		}
 		baseFolder.mkdirs();
 		boolean haveLock = false;
@@ -454,19 +455,20 @@ public class ContentConverterCreator
 	}
 
 	/**
-	 * Gets the converter options. Look at {@link ConverterOptionParam#fromArtifact(Converter, String, String, String)};
+	 * Gets the converter options. Look at {@link ConverterOptionParam#fromArtifact(File, SupportedConverterTypes, String, String, String, char[])}
 	 *
-	 * @param converter the converter
+	 * @param converter The converter you want the options for
+	 * @param converterVersion the version of the converter you want the options for
 	 * @param repositoryBaseURL the repository base URL
 	 * @param repositoryUsername the repository username
 	 * @param repositoryPassword the repository password
 	 * @return the converter options
 	 * @throws Exception the exception
 	 */
-	public static ConverterOptionParam[] getConverterOptions(Converter converter, String repositoryBaseURL, String repositoryUsername,
+	public static ConverterOptionParam[] getConverterOptions(SupportedConverterTypes converter, String converterVersion, String repositoryBaseURL, String repositoryUsername,
 			String repositoryPassword) throws Exception
 	{
-		return ConverterOptionParam.fromArtifact(converter, repositoryBaseURL, repositoryUsername, repositoryPassword);
+		return ConverterOptionParam.fromArtifact(null, converter, converterVersion, repositoryBaseURL, repositoryUsername, repositoryPassword.toCharArray());
 	}
 
 	/**

@@ -37,37 +37,25 @@
 
 
 
-package sh.isaac.pombuilder.artifacts;
+package sh.isaac.dbConfigBuilder.artifacts;
 
 /**
- * {@link IBDFFile}
- * An artifact that points to an file of type ibdf to pass into the conversion tool.
+ * {@link Converter}
+ * An artifact that points to a maven mojo converter project that knows how to turn terminology content into an  ibdf file.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class IBDFFile
+public class Converter
         extends Artifact {
    /**
-    * Instantiates a new IBDF file.
+    * Instantiates a new converter.
     *
     * @param groupId the group id
     * @param artifactId the artifact id
     * @param version the version
     */
-   public IBDFFile(String groupId, String artifactId, String version) {
-      this(groupId, artifactId, version, null);
-   }
-
-   /**
-    * Instantiates a new IBDF file.
-    *
-    * @param groupId the group id
-    * @param artifactId the artifact id
-    * @param version the version
-    * @param classifier the classifier
-    */
-   public IBDFFile(String groupId, String artifactId, String version, String classifier) {
-      super(groupId, artifactId, version, classifier);
+   public Converter(String groupId, String artifactId, String version) {
+      super(groupId, artifactId, version, null);
    }
 }
 

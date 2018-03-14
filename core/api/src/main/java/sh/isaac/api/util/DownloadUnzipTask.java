@@ -82,7 +82,8 @@ public class DownloadUnzipTask
 
    private boolean cancel = false;
 
-   String username, password;
+   String username;
+   char[] password;
 
    /** The url. */
    URL url;
@@ -112,7 +113,7 @@ public class DownloadUnzipTask
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public DownloadUnzipTask(String username,
-                            String password,
+                            char[] password,
                             URL url,
                             boolean unzip,
                             boolean failOnBadChecksum,
@@ -264,9 +265,9 @@ public class DownloadUnzipTask
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 
-      if (StringUtils.isNotBlank(this.username) || StringUtils.isNotBlank(this.password)) {
+      if (StringUtils.isNotBlank(this.username) || this.password != null) {
          final String encoded = Base64.getEncoder()
-                                      .encodeToString((this.username + ":" + this.password).getBytes());
+                                      .encodeToString((this.username + ":" + new String(this.password)).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }

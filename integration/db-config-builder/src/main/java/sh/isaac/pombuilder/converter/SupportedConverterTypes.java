@@ -273,8 +273,8 @@ public enum SupportedConverterTypes
     * version of the converter will execute against this uploaded content.  So, will hardcode them here for now, and developers will have to manually
     * update these if the patterns change in the future.
     */
-   private final String converterGroupId = "sh.isaac.misc";
-   private String converterArtifactId = "importers";
+   protected final String converterGroupId = "sh.isaac.misc";
+   protected final String converterArtifactId = "importers";
    private String converterOutputArtifactId;
    private String converterMojoName;  //Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
    private String niceName;
@@ -387,7 +387,7 @@ public enum SupportedConverterTypes
     *
     * @return the converter output artifact id
     */
-   protected String getConverterOutputArtifactId() {
+   public String getConverterOutputArtifactId() {
       return this.converterOutputArtifactId;
    }
 
@@ -470,6 +470,12 @@ public enum SupportedConverterTypes
          if (sct.getArtifactId().equals(srcArtifactId)) {
             return sct;
          }
+         else if (sct.getArtifactId().contains("*")) {
+            String[] parts = sct.getArtifactId().split("\\*");
+            if (srcArtifactId.startsWith(parts[0]) && srcArtifactId.endsWith(parts[1])) {
+               return sct;
+            }
+         }
       }
       return null;
    }
@@ -481,6 +487,20 @@ public enum SupportedConverterTypes
          }
       }
       return null;
+   }
+
+   /**
+    * @param mojoName
+    * @return the matching enum, or null
+    */
+   public static SupportedConverterTypes findByMojoName(String mojoName)
+   {
+      for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
+            if (sct.getConverterMojoName().equals(mojoName)) {
+               return sct;
+            }
+         }
+         return null;
    }
 }
 

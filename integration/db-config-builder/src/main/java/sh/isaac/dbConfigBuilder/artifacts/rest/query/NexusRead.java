@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.dbConfigBuilder.rest.query;
+package sh.isaac.dbConfigBuilder.artifacts.rest.query;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -28,9 +28,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
+import sh.isaac.dbConfigBuilder.artifacts.Converter;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
-import sh.isaac.pombuilder.artifacts.IBDFFile;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
@@ -47,6 +48,45 @@ public class NexusRead implements ArtifactSearch
 	public NexusRead(StoredPrefs sp)
 	{
 		sp_ = sp;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Set<Converter> readConverterVersions()
+	{
+		HashSet<Converter> results = new HashSet<>();
+		try
+		{
+			Map<String, Object> args = new HashMap<>();
+			args.put(JsonReader.USE_MAPS, true);
+
+			URLConnection service = new URL(getRestURL() + "beta/search?sh.isaac.misc&maven.artifactId=importers").openConnection();
+			String userpass = sp_.getArtifactUsername() + ":" + new String(sp_.getArtifactPassword());
+			String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+			service.setRequestProperty("Authorization", basicAuth);
+
+			JsonObject data = (JsonObject) JsonReader.jsonToJava(service.getInputStream(), args);
+			Object[] items = (Object[]) data.get("items");
+			if (items != null)
+			{
+				for (Object item : items)
+				{
+					JsonObject jo = (JsonObject)item;
+					String group = SrcUploadCreator.SRC_UPLOAD_GROUP;
+					String artifactId = (String)jo.get("name");
+					String version = convertSnapshotVersion((String)jo.get("version"));
+					results.add(new Converter(group, artifactId, version));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("error querying nexus", e);
+		}
+		return results;
 	}
 
 	/**
@@ -133,7 +173,6 @@ public class NexusRead implements ArtifactSearch
 							}
 						}
 					}
-					
 				}
 			}
 		}

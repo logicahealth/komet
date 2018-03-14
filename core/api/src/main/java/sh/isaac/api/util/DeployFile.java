@@ -73,6 +73,7 @@ public class DeployFile extends Task<Integer>
 
 	private void writeChecksumFile(File file, String type, File toFolder) throws NoSuchAlgorithmException, IOException
 	{
+		//TODO merge this with code in Checksum Generator?  Also, see which solution is faster / better for not losing leading 0's.
 		updateTitle("Calculating " + type + " Checksum for " + file.getName());
 		MessageDigest md = MessageDigest.getInstance(type);
 		try (InputStream is = Files.newInputStream(file.toPath()))

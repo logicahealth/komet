@@ -55,7 +55,6 @@ import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.util.Zip;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
@@ -359,62 +358,6 @@ public class SrcUploadCreator
 				}
 			}
 		};
-
 		return uploader;
-	}
-	
-	/**
-	 * A convenience method to read all available source versions from the local repository
-	 * @param mavenRepositoryFolder
-	 * @param artifactIdFilter  - optional - if provided, only return versions of the specified type
-	 * @return the IBDF Files found that are metadata
-	 */
-	public static SDOSourceContent[] readLocalSDOArtifacts(File mavenRepositoryFolder, String artifactIdFilter)
-	{
-		ArrayList<SDOSourceContent> files = new ArrayList<>();
-		if (mavenRepositoryFolder.isDirectory())
-		{
-			File browseFolder = new File(mavenRepositoryFolder, "sh/isaac/terminology/source");
-			
-			for (File artifactId : browseFolder.listFiles())
-			{
-				if (StringUtils.isNotBlank(artifactIdFilter) && !artifactId.getName().equals(artifactIdFilter))
-				{
-					continue;
-				}
-				if (artifactId.isDirectory())
-				{
-					for (File versionFolder : artifactId.listFiles())
-					{
-						if (versionFolder.isDirectory())
-						{
-							ArrayList<String> artifactClassifiers = new ArrayList<>();
-							for (File content : versionFolder.listFiles())
-							{
-								if (content.getName().toLowerCase().endsWith(".zip"))
-								{
-									//rf2-src-data-sct-20170731T150000Z.zip
-									String temp = content.getName().substring(artifactId.getName().length() + versionFolder.getName().length() + 1, content.getName().length());
-									//should now have .zip (or maybe with a classifier like -all.zip)
-									if (temp.startsWith("-"))
-									{
-										artifactClassifiers.add(temp.substring(1, temp.indexOf(".")));
-									}
-									else
-									{
-										artifactClassifiers.add("");  //no classifier
-									}
-								}
-							}
-							for (String classifier : artifactClassifiers)
-							{
-								files.add(new SDOSourceContent("sh.isaac.terminology.source", artifactId.getName(), versionFolder.getName(), classifier));
-							}
-						}
-					}
-				}
-			}
-		}
-		return files.toArray(new SDOSourceContent[files.size()]);
 	}
 }

@@ -21,11 +21,13 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
-import java.util.TreeSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -38,7 +40,10 @@ import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -50,6 +55,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
@@ -68,18 +74,19 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import sh.isaac.api.Get;
-import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.api.util.DeployFile;
 import sh.isaac.api.util.RecursiveDelete;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.ValidBooleanBinding;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
-import sh.isaac.dbConfigBuilder.rest.query.NexusRead;
-import sh.isaac.pombuilder.VersionFinder;
-import sh.isaac.pombuilder.artifacts.IBDFFile;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
+import sh.isaac.pombuilder.converter.ContentConverterCreator;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
@@ -125,17 +132,21 @@ public class ContentManagerController
 	@FXML
 	private Tab tabSourceConversion;
 	@FXML
-	private ChoiceBox<String> sourceConversionOperation;
-	@FXML
-	private TextField sourceConversionConverterVersion;
-	@FXML
-	private GridPane sourceConversionGrid;
-	@FXML
-	private TextArea sourceConversionContent;
-	@FXML
 	private Button sourceConversionContentSelect;
 	@FXML
-	private Button sourceConversionConverterSelect;
+	private ComboBox<String> sourceConversionConverterVersion;
+	@FXML
+	private Button sourceConversionIBDFSelect;
+	@FXML
+	private ListView<SDOSourceContent> sourceConversionContent;
+	@FXML
+	private ListView<IBDFFile> sourceConversionIBDF;
+	@FXML
+	private ListView<ConverterOptionParam> sourceConversionOptions;
+	@FXML
+	private TextArea sourceConversionOptionDescription;
+	@FXML
+	private TextArea sourceConversionOptionValues;
 	@FXML
 	private Tab tabDatabaseCreation;
 	@FXML
@@ -182,17 +193,20 @@ public class ContentManagerController
 	private TextArea sourceUploadFileDetails;
 	@FXML
 	private Button run;
-	@FXML 
+	@FXML
 	Tooltip sourceUploadVersionTooltip;
 
 	private ContentManager cm_;
 
 	private UpdateableBooleanBinding allRequiredReady_;
 	private ArrayList<IBDFFile> ibdfFiles_ = new ArrayList<>();
+	private ArrayList<SDOSourceContent> sdoSourceFiles_ = new ArrayList<>();
 	private ArrayList<ValidBooleanBinding> databaseTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
+	private ArrayList<ValidBooleanBinding> sourceConvertTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
 	private ArrayList<ValidBooleanBinding> sourceUploadTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
 	private UpdateableBooleanBinding allSourceUploadFilesPresent_;
 	private ArrayList<TextField> sourceUploadFiles_ = new ArrayList<>();
+	private HashMap<ConverterOptionParam, String> sourceConversionUserOptions = new HashMap<>();
 
 	private StoredPrefs sp_;
 
@@ -212,12 +226,14 @@ public class ContentManagerController
 		assert sourceUploadExtension != null : "fx:id=\"sourceUploadExtension\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert sourceUploadFilesGrid != null : "fx:id=\"sourceUploadFilesGrid\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert tabSourceConversion != null : "fx:id=\"tabSourceConversion\" was not injected: check your FXML file 'ContentManager.fxml'.";
-		assert sourceConversionOperation != null : "fx:id=\"sourceConversionOperation\" was not injected: check your FXML file 'ContentManager.fxml'.";
-		assert sourceConversionConverterVersion != null : "fx:id=\"sourceConversionConverterVersion\" was not injected: check your FXML file 'ContentManager.fxml'.";
-		assert sourceConversionGrid != null : "fx:id=\"sourceConversionGrid\" was not injected: check your FXML file 'ContentManager.fxml'.";
-		assert sourceConversionContent != null : "fx:id=\"sourceConversionContent\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert sourceConversionContentSelect != null : "fx:id=\"sourceConversionContentSelect\" was not injected: check your FXML file 'ContentManager.fxml'.";
-		assert sourceConversionConverterSelect != null : "fx:id=\"sourceConversionConverterSelect\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionConverterVersion != null : "fx:id=\"sourceConversionConverterVersion\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionIBDFSelect != null : "fx:id=\"sourceConversionIBDFSelect\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionContent != null : "fx:id=\"sourceConversionContent\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionIBDF != null : "fx:id=\"sourceConversionIBDF\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionOptions != null : "fx:id=\"sourceConversionOptions\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionOptionDescription != null : "fx:id=\"sourceConversionOptionDescription\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert sourceConversionOptionValues != null : "fx:id=\"sourceConversionOptionValues\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert tabDatabaseCreation != null : "fx:id=\"tabDatabaseCreation\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseName != null : "fx:id=\"databaseName\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseVersion != null : "fx:id=\"databaseVersion\" was not injected: check your FXML file 'ContentManager.fxml'.";
@@ -265,7 +281,11 @@ public class ContentManagerController
 		databaseAdd.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				readAvailableIBDFFiles();
+				waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				{
+					ibdfFiles_.clear();
+					ibdfFiles_.addAll(results);
+				}));
 			}
 
 			ListView<IBDFFile> ibdfPicker = new ListView<>();
@@ -445,12 +465,13 @@ public class ContentManagerController
 				return o1.getNiceName().compareTo(o2.getNiceName());
 			}
 		});
-		
+
 		ValidBooleanBinding versionValid = new ValidBooleanBinding()
 		{
 			{
 				bind(sourceUploadVersion.textProperty());
 			}
+
 			@Override
 			protected boolean computeValue()
 			{
@@ -461,9 +482,10 @@ public class ContentManagerController
 				}
 				else if (StringUtils.isNotBlank(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionRegExpValidator()))
 				{
-					if (!Pattern.matches(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionRegExpValidator(), sourceUploadVersion.getText()))
+					if (!Pattern.matches(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionRegExpValidator(),
+							sourceUploadVersion.getText()))
 					{
-						setInvalidReason("The version needs to match the regular expression " 
+						setInvalidReason("The version needs to match the regular expression "
 								+ sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionRegExpValidator());
 						return false;
 					}
@@ -480,6 +502,7 @@ public class ContentManagerController
 			{
 				setComputeOnInvalidate(true);
 			}
+
 			@Override
 			protected boolean computeValue()
 			{
@@ -487,9 +510,9 @@ public class ContentManagerController
 				return allBindingsValid();
 			}
 		};
-		
+
 		sourceUploadType.getSelectionModel().select(0);
-		
+
 		ValidBooleanBinding extensionErrorMarker = ErrorMarkerUtils.setupErrorMarker(sourceUploadExtension,
 				((input) -> StringUtils.isBlank(input) && sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().contains("*")
 						? "The extension type is required"
@@ -509,9 +532,9 @@ public class ContentManagerController
 			{
 				// side jobs - hack rather than adding another change listener
 				extensionErrorMarker.invalidate();
-				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() 
-						+ "\n" + "[Calculating existing versions ...]");
-				findCurrentVersions();
+				sourceUploadVersionTooltip.setText(
+						sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() + "\n" + "[Calculating existing versions ...]");
+				readSourceUploadExistingVersions();
 				updateSourceUploadFiles();
 
 				boolean needsExtension = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().contains("*");
@@ -522,8 +545,8 @@ public class ContentManagerController
 				return !needsExtension;
 			}
 		});
-		
-		sourceUploadExtension.textProperty().addListener((change) -> findCurrentVersions());
+
+		sourceUploadExtension.textProperty().addListener((change) -> readSourceUploadExistingVersions());
 
 		sourceUploadTabValidityCheckers_.add(new ValidBooleanBinding()
 		{
@@ -536,7 +559,8 @@ public class ContentManagerController
 			@Override
 			protected boolean computeValue()
 			{
-				if (!allSourceUploadFilesPresent_.get() && (opPackage.isSelected() || opInstall.isSelected() || opDeploy.isSelected() || opDirectDeploy.isSelected()))
+				if (!allSourceUploadFilesPresent_.get()
+						&& (opPackage.isSelected() || opInstall.isSelected() || opDeploy.isSelected() || opDirectDeploy.isSelected()))
 				{
 					setInvalidReason("All required source files must be specified prior to doing the selected operations");
 					return false;
@@ -548,11 +572,394 @@ public class ContentManagerController
 				}
 			}
 		});
-		
-
-		
 
 		// source conversion tab
+		
+		sourceConversionContentSelect.setOnAction(action -> {
+			if (sdoSourceFiles_.size() == 0)
+			{
+				waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", MavenArtifactUtils.readAvailableSourceFiles(sp_, items -> 
+				{
+					sdoSourceFiles_.clear();
+					sdoSourceFiles_.addAll(items);
+				}));
+			}
+
+			ListView<SDOSourceContent> sdoPicker = new ListView<>();
+			sdoPicker.setItems(FXCollections.observableArrayList(sdoSourceFiles_));
+			sdoPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			sdoPicker.setCellFactory(param -> new ListCell<SDOSourceContent>()
+			{
+				@Override
+				protected void updateItem(SDOSourceContent item, boolean empty)
+				{
+					super.updateItem(item, empty);
+
+					if (empty || item == null)
+					{
+						setText(null);
+					}
+					else
+					{
+						setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					}
+				}
+			});
+
+			Alert sdoDialog = new Alert(AlertType.CONFIRMATION);
+			sdoDialog.setTitle("Select Files");
+			sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
+			sdoDialog.getDialogPane().setContent(sdoPicker);
+			sdoPicker.setPrefWidth(1024);
+
+			if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				sourceConversionContent.getItems().addAll(sdoPicker.getSelectionModel().getSelectedItems());
+			}
+		});
+		
+		sourceConversionContent.setCellFactory(param -> new ListCell<SDOSourceContent>()
+		{
+			@Override
+			protected void updateItem(SDOSourceContent item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty || item == null)
+				{
+					setText(null);
+				}
+				else
+				{
+					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					MenuItem mi = new MenuItem("Remove");
+					mi.setOnAction(action -> 
+					{
+						sourceConversionContent.getItems().remove(item);
+					});
+					ContextMenu cm = new ContextMenu(mi);
+					setContextMenu(cm);
+				}
+			}
+		});
+		
+		sourceConversionIBDFSelect.setOnAction(action -> {
+			if (ibdfFiles_.size() == 0)
+			{
+				waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				{
+					ibdfFiles_.clear();
+					ibdfFiles_.addAll(results);
+				}));
+			}
+
+			ListView<IBDFFile> ibdfPicker = new ListView<>();
+			ibdfPicker.setItems(FXCollections.observableArrayList(ibdfFiles_));
+			ibdfPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			ibdfPicker.setCellFactory(param -> new ListCell<IBDFFile>()
+			{
+				@Override
+				protected void updateItem(IBDFFile item, boolean empty)
+				{
+					super.updateItem(item, empty);
+
+					if (empty || item == null)
+					{
+						setText(null);
+					}
+					else
+					{
+						setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					}
+				}
+			});
+
+			Alert ibdfDialog = new Alert(AlertType.CONFIRMATION);
+			ibdfDialog.setTitle("Select Files");
+			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
+			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfPicker.setPrefWidth(1024);
+
+			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				sourceConversionIBDF.getItems().addAll(ibdfPicker.getSelectionModel().getSelectedItems());
+			}
+		});
+		
+		StringBuilder sourceConversionContentInvalidReason = new StringBuilder();
+		
+		
+		final ValidBooleanBinding sourceConversionContentValid = new ValidBooleanBinding()
+		{
+			{
+				setComputeOnInvalidate(true);
+			}
+			@Override
+			protected boolean computeValue()
+			{
+				if (sourceConversionContentInvalidReason.length() == 0)
+				{
+					clearInvalidReason();
+					return true;
+				}
+				setInvalidReason(sourceConversionContentInvalidReason.toString());
+				return false;
+			}
+		};
+		
+		ErrorMarkerUtils.setupErrorMarker(sourceConversionContent, sourceConversionContentValid, true);
+		sourceConvertTabValidityCheckers_.add(sourceConversionContentValid);
+		
+		StringBuilder sourceConverterContentIBDFInvalidReason = new StringBuilder();
+		final ValidBooleanBinding sourceConverterContentIBDFValid = new ValidBooleanBinding()
+		{
+			{
+				setComputeOnInvalidate(true);
+			}
+			@Override
+			protected boolean computeValue()
+			{
+				if (sourceConverterContentIBDFInvalidReason.length() == 0)
+				{
+					clearInvalidReason();
+					return true;
+				}
+				setInvalidReason(sourceConverterContentIBDFInvalidReason.toString());
+				return false;
+			}
+		};
+		
+		ErrorMarkerUtils.setupErrorMarker(sourceConversionIBDF, sourceConverterContentIBDFValid, true);
+		sourceConvertTabValidityCheckers_.add(sourceConverterContentIBDFValid);
+		
+		sourceConversionContent.getItems().addListener(new ListChangeListener<SDOSourceContent>()
+		{
+			@Override
+			public void onChanged(Change<? extends SDOSourceContent> c)
+			{
+				//First item in the list will be the source to convert.  Anything further, will be treated as additional src dependencies.
+				if (sourceConversionContent.getItems().size() > 0)
+				{
+					SDOSourceContent convert = sourceConversionContent.getItems().get(0);
+					
+					SupportedConverterTypes converter = SupportedConverterTypes.findBySrcArtifactId(convert.getArtifactId());
+					
+					if (converter.getArtifactDependencies() != null && converter.getArtifactDependencies().size() > 0)
+					{
+						sourceConversionContentInvalidReason.setLength(0);
+						
+						//validate they have all required src dependencies
+						
+						for (String s : converter.getArtifactDependencies())
+						{
+							boolean found = false;
+							for (int i = 1; i < sourceConversionContent.getItems().size(); i++)
+							{
+								if (sourceConversionContent.getItems().get(i).getArtifactId().equals(s))
+								{
+									found = true;
+									break;
+								}
+							}
+							if (!found)
+							{
+								sourceConversionContentInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires a source dependency of " + s + "\n");
+							}
+						}
+						sourceConversionContentValid.invalidate();
+					}
+					
+					if (converter.getIBDFDependencies() != null && converter.getIBDFDependencies().size() > 0)
+					{
+						//validate they have all required ibdf dependencies
+						sourceConverterContentIBDFInvalidReason.setLength(0);
+						for (String s : converter.getIBDFDependencies())
+						{
+							boolean found = false;
+							for (int i = 0; i < sourceConversionIBDF.getItems().size(); i++)
+							{
+								if (sourceConversionIBDF.getItems().get(i).getArtifactId().equals(s))
+								{
+									found = true;
+									break;
+								}
+							}
+							if (!found)
+							{
+								sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an  ibdf dependency of " + s + "\n");
+							}
+						}
+						sourceConverterContentIBDFValid.invalidate();
+					}
+					else
+					{
+						sourceConverterContentIBDFInvalidReason.setLength(0);
+						sourceConverterContentIBDFValid.invalidate();
+					}
+					
+					//Set up converter options
+					setupSourceConversionOptions(converter);
+				}
+				else
+				{
+					setupSourceConversionOptions(null);
+					sourceConverterContentIBDFInvalidReason.setLength(0);
+					sourceConverterContentIBDFValid.invalidate();
+				}
+			}
+		});
+		
+		sourceConversionIBDF.setCellFactory(param -> new ListCell<IBDFFile>()
+		{
+			@Override
+			protected void updateItem(IBDFFile item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty || item == null)
+				{
+					setText(null);
+				}
+				else
+				{
+					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					MenuItem mi = new MenuItem("Remove");
+					mi.setOnAction(action -> 
+					{
+						sourceConversionIBDF.getItems().remove(item);
+					});
+					ContextMenu cm = new ContextMenu(mi);
+					setContextMenu(cm);
+				}
+			}
+		});
+		
+		sourceConversionConverterVersion.getSelectionModel().selectedItemProperty().addListener(change -> 
+		{
+			if (sourceConversionContent.getItems().size() > 0)
+			{
+				SDOSourceContent convert = sourceConversionContent.getItems().get(0);
+				
+				SupportedConverterTypes converter = SupportedConverterTypes.findBySrcArtifactId(convert.getArtifactId());
+				setupSourceConversionOptions(converter);
+			}
+		});
+		
+		sourceConversionOptions.setCellFactory(item -> new ListCell<ConverterOptionParam>()
+		{
+			@Override
+			protected void updateItem(ConverterOptionParam item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty || item == null)
+				{
+					setText(null);
+				}
+				else
+				{
+					setText(item.getDisplayName());
+				}
+			}
+		});
+		
+		final AtomicBoolean myChange = new AtomicBoolean();
+		
+		sourceConversionOptions.getSelectionModel().selectedItemProperty().addListener(change ->
+		{
+			sourceConversionOptionDescription.clear();
+			ConverterOptionParam cop = sourceConversionOptions.getSelectionModel().getSelectedItem();
+			String temp = sourceConversionUserOptions.get(cop);
+			myChange.set(true);
+			sourceConversionOptionValues.setText(temp == null ? "" : temp);
+			myChange.set(false);
+			
+			if (cop == null)
+			{
+				return;
+			}
+			sourceConversionOptionDescription.appendText(cop.getDisplayName());
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText(cop.getDescription());
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText("Is selection required: " + !cop.isAllowNoSelection());
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText("Is more than one selection allowed: " + cop.isAllowMultiSelect());
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText("\n");
+			sourceConversionOptionDescription.appendText("Suggested values:");
+			sourceConversionOptionDescription.appendText("\n");
+			if (cop.getSuggestedPickListValues() != null)
+			{
+				for (ConverterOptionParamSuggestedValue s : cop.getSuggestedPickListValues())
+				{
+					sourceConversionOptionDescription.appendText(s.getValue() + " - " + s.getDescription());
+					sourceConversionOptionDescription.appendText("\n");
+				}
+				sourceConversionOptionDescription.appendText("\n");
+				sourceConversionOptionDescription.appendText("Formatting example for suggested values:");
+				sourceConversionOptionDescription.appendText("\n");
+				for (ConverterOptionParamSuggestedValue s : cop.getSuggestedPickListValues())
+				{
+					sourceConversionOptionDescription.appendText(s.getValue());
+					sourceConversionOptionDescription.appendText("\n");
+				}
+				
+				sourceConversionOptionDescription.appendText("\n");
+				sourceConversionOptionDescription.appendText("\n");
+				sourceConversionOptionDescription.appendText("Enter your values to the right, one per line");
+			}
+			
+		});
+		
+		sourceConversionOptionValues.textProperty().addListener(change ->
+		{
+			if (myChange.get())
+			{
+				//ignore
+				return;
+			}
+			ConverterOptionParam cop = sourceConversionOptions.getSelectionModel().getSelectedItem();
+			if (cop != null)
+			{
+				sourceConversionUserOptions.put(cop, sourceConversionOptionValues.getText());
+			}
+		});
+		
+		ValidBooleanBinding sourceConversionOptionValuesValid = new ValidBooleanBinding()
+		{
+			{
+				setComputeOnInvalidate(true);
+				bind(sourceConversionOptionValues.textProperty(), sourceConversionOptions.getSelectionModel().selectedItemProperty());
+				sourceConversionOptions.getItems().addListener((ListChangeListener<ConverterOptionParam>) change -> invalidate());
+			}
+			
+			@Override
+			protected boolean computeValue()
+			{
+				for (ConverterOptionParam cop : sourceConversionOptions.getItems())
+				{
+					Set<String> values = parseUserOptions(sourceConversionUserOptions.get(cop));
+					if (!cop.isAllowNoSelection() && values.size() == 0)
+					{
+						setInvalidReason("The option " + cop.getDisplayName() + " must be specified");
+						return false;
+					}
+					if (!cop.isAllowMultiSelect() && values.size() > 1)
+					{
+						setInvalidReason("The option " + cop.getDisplayName() + " only allows one entry");
+						return false;
+					}
+				}
+				clearInvalidReason();
+				return true;
+			}
+		};
+		
+		ErrorMarkerUtils.setupErrorMarker(sourceConversionOptions, sourceConversionOptionValuesValid, true);
+		sourceConvertTabValidityCheckers_.add(sourceConversionOptionValuesValid);
+		
 
 		// Shared bottom section
 		allRequiredReady_ = new UpdateableBooleanBinding()
@@ -584,7 +991,7 @@ public class ContentManagerController
 			}
 			else if (tabDatabaseCreation.getTabPane().getSelectionModel().getSelectedItem() == tabSourceConversion)
 			{
-
+				temp = ContentManagerController.this.sourceConvertTabValidityCheckers_;
 			}
 			else if (tabDatabaseCreation.getTabPane().getSelectionModel().getSelectedItem() == tabSrcUpload)
 			{
@@ -615,7 +1022,7 @@ public class ContentManagerController
 				opPackage.setSelected(true);
 			}
 		});
-		
+
 		opInstall.setOnAction((action) -> {
 			if (opInstall.isSelected())
 			{
@@ -634,7 +1041,7 @@ public class ContentManagerController
 			}
 			else if (tabSourceConversion.isSelected())
 			{
-				// TODO implement converter create
+				createSourceConversion();
 			}
 			else if (tabSrcUpload.isSelected())
 			{
@@ -645,75 +1052,96 @@ public class ContentManagerController
 				log.error("unexpected tab selection");
 			}
 		});
-
-		
+	}
+	
+	private Set<String> parseUserOptions(String userEntry)
+	{
+		HashSet<String> entries = new HashSet<>();
+		if (userEntry == null)
+		{
+			return entries;
+		}
+		for (String s : userEntry.split("\\R"))
+		{
+			if (StringUtils.isNotBlank(s))
+			{
+				entries.add(s);
+			}
+		}
+		return entries;
 	}
 
-	/**
-	 * @param selectedItem
-	 */
-	protected void findCurrentVersions()
+	protected Task<Void> readSourceUploadExistingVersions()
 	{
 		if (sp_ == null)
 		{
-			//Happens during startup
-			return;
+			// Happens during startup
+			return null;
 		}
-		Get.workExecutors().getExecutor().execute(() ->
+		
+		String artifactId = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId();
+		artifactId.replace("*", sourceUploadExtension.getText());
+		
+		Task<Void> t = MavenArtifactUtils.readSourceUploadExistingVersions(sp_, artifactId, results ->
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.append("\nCurrent Versions:");
-			try
+			results.forEach(string -> 
 			{
-				log.debug("Reading local source versions");
-				File temp = new File(sp_.getLocalM2FolderPath());
-				TreeSet<String> foundVersions = new TreeSet<>(AlphanumComparator.getCachedInstance(true));
-				String artifactId = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId();
-				artifactId.replace("*", sourceUploadExtension.getText());
-				if (temp.isDirectory())
-				{
-					for (SDOSourceContent i : SrcUploadCreator.readLocalSDOArtifacts(temp, artifactId))
-					{
-						foundVersions.add(i.getVersion());
-					}
-				}
-				
+				sb.append("\n");
+				sb.append(string);
+			});
+			
+			Platform.runLater(() -> {
+				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() + sb.toString());
+			});
+		});
+		return t;
+	}
+	
+	private void setupSourceConversionOptions(SupportedConverterTypes converter)
+	{
+		Task<Void> t = new Task<Void>()
+		{
+			@Override
+			protected Void call() throws Exception
+			{
 				try
 				{
-					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
+					if (converter != null)
 					{
-						log.debug("Reading available nexus versions");
-						// TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
-						for (SDOSourceContent x : new NexusRead(sp_).readSDOFiles(artifactId))
+						ConverterOptionParam[] options = ConverterOptionParam.fromArtifact(new File(sp_.getLocalM2FolderPath()), converter,
+							sourceConversionConverterVersion.getSelectionModel().getSelectedItem(), sp_.getArtifactReadURL(), sp_.getArtifactUsername(),
+							sp_.getArtifactPassword());
+						
+						Platform.runLater(() ->
 						{
-							foundVersions.add(x.getVersion());
-						}
+							sourceConversionOptions.getItems().clear();
+							sourceConversionOptions.getSelectionModel().clearSelection();
+							sourceConversionUserOptions.clear();
+							sourceConversionOptions.getItems().addAll(options);
+						});
+					}
+					else
+					{
+						Platform.runLater(() ->
+						{
+							sourceConversionOptions.getItems().clear();
+							sourceConversionOptions.getSelectionModel().clearSelection();
+							sourceConversionUserOptions.clear();
+						});
 					}
 				}
 				catch (Exception e)
 				{
-					log.error("Error reading nexus repository", e);
+					log.error("Error reading converter options", e);
 				}
-				
-				
-				for (String s : foundVersions)
-				{
-					sb.append("\n");
-					sb.append(s);
-				}
+				return null;
+			}
+		};
 
-			}
-			catch (Exception e)
-			{
-				log.error("Unexpected error trying to calculate existing source versions", e);
-			}
-			Platform.runLater(() -> 
-			{
-				sourceUploadVersionTooltip.setText(sourceUploadType.getSelectionModel().getSelectedItem().getSourceVersionDescription() 
-						+ sb.toString());
-			});
-		});
-		
+		Get.workExecutors().getExecutor().execute(t);
+		waitWithProgress("Reading converter options", "Reading converter options", t);
 	}
 
 	private void updateSourceUploadFiles()
@@ -721,9 +1149,9 @@ public class ContentManagerController
 		sourceUploadFiles_.clear();
 		sourceUploadFilesVBox.getChildren().clear();
 		allSourceUploadFilesPresent_.clearBindings();
-		
+
 		final SupportedConverterTypes type = sourceUploadType.getSelectionModel().getSelectedItem();
-		
+
 		int row = 0;
 		for (UploadFileInfo ufi : type.getUploadFileInfo())
 		{
@@ -733,19 +1161,17 @@ public class ContentManagerController
 			hbox.setPadding(new Insets(5.0));
 			TextField fileName = new TextField();
 			fileName.setMaxWidth(Double.MAX_VALUE);
-			fileName.focusedProperty().addListener((change) -> 
-			{
+			fileName.focusedProperty().addListener((change) -> {
 				if (fileName.focusedProperty().get())
 				{
 					updateDescription(finalRow);
 				}
 			});
-			
+
 			hbox.getChildren().add(fileName);
 			HBox.setHgrow(fileName, Priority.ALWAYS);
 			sourceUploadFiles_.add(fileName);
-			ErrorMarkerUtils.setupErrorMarker(fileName, ((input) -> 
-			{
+			ErrorMarkerUtils.setupErrorMarker(fileName, ((input) -> {
 				if (StringUtils.isBlank(fileName.getText()))
 				{
 					return ufi.fileIsRequired() ? "This file is required" : "";
@@ -753,11 +1179,11 @@ public class ContentManagerController
 				else if (StringUtils.isNotBlank(ufi.getExpectedNamingPatternRegExpPattern()))
 				{
 					File f = new File(fileName.getText());
-					boolean matches =  Pattern.compile(ufi.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE).matcher(f.getName()).matches();
-					
+					boolean matches = Pattern.compile(ufi.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE).matcher(f.getName()).matches();
+
 					if (!matches)
 					{
-						return "The specified file does not match the expected pattern"; 
+						return "The specified file does not match the expected pattern";
 					}
 					if (!f.exists())
 					{
@@ -766,13 +1192,14 @@ public class ContentManagerController
 				}
 				return "";
 			}), true);
-			
+
 			allSourceUploadFilesPresent_.addBinding(new ValidBooleanBinding()
 			{
 				{
 					setComputeOnInvalidate(true);
 					bind(fileName.textProperty());
 				}
+
 				@Override
 				protected boolean computeValue()
 				{
@@ -785,9 +1212,9 @@ public class ContentManagerController
 					return false;
 				}
 			});
-			
+
 			Button fileButton = new Button("...");
-			
+
 			hbox.getChildren().add(fileButton);
 			fileButton.setOnAction((actionEvent) -> {
 				updateDescription(finalRow);
@@ -796,7 +1223,7 @@ public class ContentManagerController
 				List<File> f = fc.showOpenMultipleDialog(cm_.getPrimaryStage().getScene().getWindow());
 				if (f != null && f.size() > 0)
 				{
-					if (f.size() == 1) 
+					if (f.size() == 1)
 					{
 						try
 						{
@@ -815,8 +1242,9 @@ public class ContentManagerController
 							boolean matched = false;
 							for (UploadFileInfo ufiLambda : type.getUploadFileInfo())
 							{
-								if (StringUtils.isNotBlank(ufiLambda.getExpectedNamingPatternRegExpPattern()) 
-										&& Pattern.compile(ufiLambda.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE).matcher(multiFile.getName()).matches()
+								if (StringUtils.isNotBlank(ufiLambda.getExpectedNamingPatternRegExpPattern())
+										&& Pattern.compile(ufiLambda.getExpectedNamingPatternRegExpPattern(), Pattern.CASE_INSENSITIVE)
+												.matcher(multiFile.getName()).matches()
 										&& sourceUploadFiles_.get(index).getText().isEmpty())
 								{
 									try
@@ -832,7 +1260,7 @@ public class ContentManagerController
 								}
 								index++;
 							}
-							
+
 							if (!matched)
 							{
 								HBox hboxLambda = new HBox();
@@ -840,14 +1268,13 @@ public class ContentManagerController
 								hboxLambda.setPadding(new Insets(5.0));
 								TextField fileNameLambda = new TextField();
 								fileNameLambda.setMaxWidth(Double.MAX_VALUE);
-								fileNameLambda.focusedProperty().addListener((change) -> 
-								{
+								fileNameLambda.focusedProperty().addListener((change) -> {
 									if (fileNameLambda.focusedProperty().get())
 									{
 										updateDescription(-1);
 									}
 								});
-								
+
 								hboxLambda.getChildren().add(fileNameLambda);
 								HBox.setHgrow(fileNameLambda, Priority.ALWAYS);
 								sourceUploadFilesVBox.getChildren().add(hboxLambda);
@@ -865,7 +1292,7 @@ public class ContentManagerController
 					}
 				}
 			});
-			
+
 			row++;
 			sourceUploadFilesVBox.getChildren().add(hbox);
 		}
@@ -873,7 +1300,7 @@ public class ContentManagerController
 		{
 			sourceUploadFiles_.get(0).requestFocus();
 		}
-		
+
 	}
 
 	/**
@@ -889,7 +1316,7 @@ public class ContentManagerController
 		}
 		SupportedConverterTypes type = sourceUploadType.getSelectionModel().getSelectedItem();
 		UploadFileInfo ui = type.getUploadFileInfo().get(finalRow);
-		
+
 		if (StringUtils.isNotBlank(ui.getSampleName()))
 		{
 			sourceUploadFileDetails.appendText("Sample Name\n");
@@ -899,30 +1326,108 @@ public class ContentManagerController
 		{
 			sourceUploadFileDetails.appendText(ui.getExpectedNamingPatternDescription() + "\n\n");
 		}
-		
+
 		if (StringUtils.isNotBlank(ui.getExpectedNamingPatternRegExpPattern()))
 		{
 			sourceUploadFileDetails.appendText("Regular Expression for File Name\n");
 			sourceUploadFileDetails.appendText(ui.getExpectedNamingPatternRegExpPattern() + "\n\n");
 		}
-		
+
 		if (StringUtils.isNotBlank(ui.getSuggestedSourceLocation()))
 		{
 			sourceUploadFileDetails.appendText("Suggested Source Location\n");
 			sourceUploadFileDetails.appendText(ui.getSuggestedSourceLocation() + "\n\n");
 		}
-		
+
 		if (StringUtils.isNotBlank(ui.getSuggestedSourceURL()))
 		{
 			sourceUploadFileDetails.appendText("Suggested Source URL\n");
 			sourceUploadFileDetails.appendText(ui.getSuggestedSourceURL() + "\n\n");
 		}
 	}
+	
+	private void createSourceConversion()
+	{
+		doRun(() -> {
+
+			try
+			{
+				Task<String> task = new Task<String>()
+				{
+					@Override
+					protected String call() throws Exception
+					{
+						SDOSourceContent sourceContent = sourceConversionContent.getItems().get(0);
+						
+						SDOSourceContent[] additionalSourceDependencies = new SDOSourceContent[sourceConversionContent.getItems().size() - 1];
+						for (int i = 1; i < sourceConversionContent.getItems().size(); i++)
+						{
+							additionalSourceDependencies[i - 1] = sourceConversionContent.getItems().get(i);
+						}
+						
+						HashMap<ConverterOptionParam, Set<String>> converterOptionValues = new HashMap<>();
+						for (Entry<ConverterOptionParam, String> x : sourceConversionUserOptions.entrySet())
+						{
+							converterOptionValues.put(x.getKey(), parseUserOptions(x.getValue()));
+						}
+						
+						return ContentConverterCreator.createContentConverter(sourceContent, sourceConversionConverterVersion.getSelectionModel().getSelectedItem(), 
+								additionalSourceDependencies, sourceConversionIBDF.getItems().toArray(new IBDFFile[0]),
+								converterOptionValues, (opTag.isSelected() ? sp_.getGitURL() : null),
+								sp_.getGitUsername(), sp_.getGitPassword(), new File(workingFolder.getText()), false);
+					}
+					
+				};
+				Get.workExecutors().getExecutor().execute(task);
+				return task.get();
+			}
+			catch (Throwable e)
+			{
+				throw new RuntimeException(e);
+			}
+		}, () -> {
+			try
+			{
+				String outputVersion = sourceConversionContent.getItems().get(0).getVersion() + "-loader-" 
+						+ sourceConversionConverterVersion.getSelectionModel().getSelectedItem();
+				String outputArtifactId = SupportedConverterTypes.findBySrcArtifactId(sourceConversionContent.getItems().get(0).getArtifactId()).getConverterOutputArtifactId(); 
+				
+				ArrayList<DeployFile> temp = new ArrayList<>();
+				temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, "", "pom",
+						new File(new File(workingFolder.getText()), ContentConverterCreator.WORKING_SUBFOLDER + "/pom.xml"), sp_.getArtifactDeployURL(),
+						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+				
+				for (File f : new File(new File(workingFolder.getText()), ContentConverterCreator.WORKING_SUBFOLDER  + "/target/")
+						.listFiles(file -> file.getName().endsWith(".ibdf.zip")))
+				{
+					//could be rf2-ibdf-sct-20170731T150000Z-loader-4.48-SNAPSHOT-Delta.ibdf.zip 
+					//or cpt-ibdf-2017-loader-4.48-SNAPSHOT-.ibdf.zip
+					String classifier;
+					if (f.getName().endsWith("-.ibdf.zip"))
+					{
+						classifier = "";
+					}
+					else
+					{
+						classifier = f.getName().substring((f.getName().lastIndexOf(outputVersion) + outputVersion.length() + 1), 
+								(f.getName().length() - ".ibdf.zip".length()));
+					}
+					temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, classifier, "ibdf.zip",
+							f, sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+				}
+				return temp;
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+
+		}, new File(workingFolder.getText() + "/" + ContentConverterCreator.WORKING_SUBFOLDER));
+	}
 
 	private void createSourceUpload()
 	{
-		doRun(() -> 
-		{
+		doRun(() -> {
 			ArrayList<File> filesToUpload = new ArrayList<File>();
 			for (TextField tf : sourceUploadFiles_)
 			{
@@ -935,13 +1440,14 @@ public class ContentManagerController
 					}
 				}
 			}
-			
+
 			try
 			{
-				Task<String> task = SrcUploadCreator.createSrcUploadConfiguration(sourceUploadType.getSelectionModel().getSelectedItem(), sourceUploadVersion.getText(), 
-						sourceUploadExtension.getText(), filesToUpload,  (opTag.isSelected() ? sp_.getGitURL() : null), sp_.getGitUsername(),
-								sp_.getGitPassword(), null, null, null,  //don't pass the artifact info, otherwise, it will try to zip and direct deploy
-										new File(workingFolder.getText()), false, false);
+				Task<String> task = SrcUploadCreator.createSrcUploadConfiguration(sourceUploadType.getSelectionModel().getSelectedItem(),
+						sourceUploadVersion.getText(), sourceUploadExtension.getText(), filesToUpload, (opTag.isSelected() ? sp_.getGitURL() : null),
+						sp_.getGitUsername(), sp_.getGitPassword(), null, null, null,  // don't pass the artifact info, otherwise, it will try to zip
+																						  // and direct deploy
+						new File(workingFolder.getText()), false, false);
 				Get.workExecutors().getExecutor().execute(task);
 				return task.get();
 			}
@@ -949,20 +1455,17 @@ public class ContentManagerController
 			{
 				throw new RuntimeException(e);
 			}
-		}, 
-		() -> 
-		{
+		}, () -> {
 			try
 			{
 				ArrayList<DeployFile> temp = new ArrayList<>();
-				String updatedArtifactName = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().replace("*", sourceUploadExtension.getText()); 
-				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), 
-						"", "pom", new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"),
-						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
-				
-				
-				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(),
-						"", "zip",
+				String updatedArtifactName = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().replace("*",
+						sourceUploadExtension.getText());
+				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "pom",
+						new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"), sp_.getArtifactDeployURL(),
+						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+
+				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "zip",
 						new File(new File(workingFolder.getText()),
 								SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/target/" + updatedArtifactName + "-" + sourceUploadVersion.getText() + ".zip"),
 						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
@@ -972,41 +1475,35 @@ public class ContentManagerController
 			{
 				throw new RuntimeException(e);
 			}
-			
-		},
-		new File(workingFolder.getText() + "/" + SrcUploadCreator.WORKING_SUB_FOLDER_NAME));
+
+		}, new File(workingFolder.getText() + "/" + SrcUploadCreator.WORKING_SUB_FOLDER_NAME));
 	}
-	
-	
+
 	private void createDatabase()
 	{
-		doRun(() -> 
-		{
+		doRun(() -> {
 			try
 			{
 				return DBConfigurationCreator.createDBConfiguration(databaseName.getText(), databaseVersion.getText(), databaseDescription.getText(),
 						databaseClassifier.getText(), opClassify.isSelected(),
 						databaseIbdfList.getItems().toArray(new IBDFFile[databaseIbdfList.getItems().size()]),
 						databaseMetadataVersion.getSelectionModel().getSelectedItem(), opTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
-						sp_.getGitPassword(), new File(workingFolder.getText()),
-						false);
+						sp_.getGitPassword(), new File(workingFolder.getText()), false);
 			}
 			catch (Exception e)
 			{
 				throw new RuntimeException(e);
 			}
-		}, 
-		() -> 
-		{
+		}, () -> {
 			try
 			{
 				ArrayList<DeployFile> temp = new ArrayList<>();
-				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), "",
-						"pom", new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"),
-						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
-				
-				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(),
-						databaseClassifier.getText(), "isaac.zip",
+				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), "", "pom",
+						new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"), sp_.getArtifactDeployURL(),
+						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+
+				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), databaseClassifier.getText(),
+						"isaac.zip",
 						new File(new File(workingFolder.getText()),
 								DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-"
 										+ databaseClassifier.getText() + ".isaac.zip"),
@@ -1017,10 +1514,9 @@ public class ContentManagerController
 			{
 				throw new RuntimeException(e);
 			}
-		}, 
-		new File(workingFolder.getText() + "/" + DBConfigurationCreator.PARENT_ARTIFIACT_ID));
+		}, new File(workingFolder.getText() + "/" + DBConfigurationCreator.PARENT_ARTIFIACT_ID));
 	}
-	
+
 	private void doRun(Supplier<String> jobRunner, Supplier<List<DeployFile>> fileDepoyer, File mavenLaunchFolder)
 	{
 		AtomicReference<ProgressDialog> pdRef = new AtomicReference<ProgressDialog>(null);
@@ -1036,7 +1532,7 @@ public class ContentManagerController
 					log.info("The created tag was " + tag);
 				}
 
-				if (opInstall.isSelected() || opDeploy.isSelected() || opDirectDeploy.isSelected())
+				if (opInstall.isSelected() || opDeploy.isSelected() || opDirectDeploy.isSelected() || opPackage.isSelected())
 				{
 					ArrayList<String> options = new ArrayList<>();
 					options.add("-s");
@@ -1091,8 +1587,7 @@ public class ContentManagerController
 						updateMessage("Deploying artifacts");
 						for (final DeployFile deploy : fileDepoyer.get())
 						{
-							deploy.messageProperty().addListener((change) -> 
-							{
+							deploy.messageProperty().addListener((change) -> {
 								updateMessage(deploy.getMessage());
 								Platform.runLater(() -> ta.appendText(deploy.getMessage()));
 							});
@@ -1282,111 +1777,53 @@ public class ContentManagerController
 			throw new RuntimeException("StoredPrefs were not passed");
 		}
 
-		readAvailableMetadataVersions();
-		findCurrentVersions();
+		Task<Void> taskOne = MavenArtifactUtils.readAvailableMetadataVersions(sp_, results ->
+		{
+			Platform.runLater(() -> {
+				databaseMetadataVersion.getItems().clear();
+				results.forEach(value -> databaseMetadataVersion.getItems().add(value));
+				databaseMetadataVersion.getSelectionModel().select(databaseMetadataVersion.getItems().size() - 1);
+			});
+		});
+		Task<Void> taskTwo = readSourceUploadExistingVersions();
+		Task<Void> taskThree = MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+		{
+			ibdfFiles_.clear();
+			ibdfFiles_.addAll(results);
+		});
+		Task<Void> taskFour = MavenArtifactUtils.readAvailableSourceFiles(sp_, items -> 
+		{
+			sdoSourceFiles_.clear();
+			sdoSourceFiles_.addAll(items);
+		});
+		Task<Void> taskFive = MavenArtifactUtils.readAvailableConverterVersions(sp_, results -> 
+		{
+			Platform.runLater(() ->
+			{
+				sourceConversionConverterVersion.getItems().clear();
+				results.forEach(version -> sourceConversionConverterVersion.getItems().add(version));
+				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 2));
+			});
+		});
+		
+		//these will only appear for ones that aren't done yet
+		waitWithProgress("Reading Metadata Versions", "Reading available Metadata Versions", taskOne);
+		waitWithProgress("Reading Source Upload Existing Versions", "Reading available Source Upload Existing Versions", taskTwo);
+		waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", taskThree);
+		waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", taskFour);
+		waitWithProgress("Reading Available Converter Versions", "Reading Available Converter Versions", taskFive);
 	}
 
-	private void readAvailableMetadataVersions()
+	private void waitWithProgress(String title, String content, Worker<?> worker)
 	{
-		Task<Void> t = new Task<Void>()
+		if (worker.getState() == State.READY || worker.isRunning())
 		{
-			@Override
-			protected Void call() throws Exception
-			{
-				final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
-				metadataVersions.add(VersionFinder.findProjectVersion(true));
-				metadataVersions.add(VersionFinder.findProjectVersion(false));
-
-				File temp = new File(sp_.getLocalM2FolderPath());
-				if (temp.isDirectory())
-				{
-					log.debug("Reading local m2 folder");
-					for (IBDFFile i : DBConfigurationCreator.readLocalMetadataArtifacts(temp))
-					{
-						metadataVersions.add(i.getVersion());
-					}
-				}
-				try
-				{
-					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
-					{
-						log.debug("Reading available nexus versions");
-						// TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
-						metadataVersions.addAll(new NexusRead(sp_).readMetadataVersions());
-					}
-				}
-				catch (Exception e)
-				{
-					log.error("Error reading nexus repository", e);
-				}
-
-				Platform.runLater(() -> {
-					databaseMetadataVersion.getItems().clear();
-					databaseMetadataVersion.getItems().addAll(metadataVersions);
-					databaseMetadataVersion.getSelectionModel().select(metadataVersions.size() - 1);
-				});
-				return null;
-			}
-		};
-
-		Get.workExecutors().getExecutor().execute(t);
-		ProgressDialog pd = new ProgressDialog(t);
-		pd.setTitle("Reading Metadata Versions");
-		pd.setHeaderText(null);
-		pd.setContentText("Reading available Metadata Versions");
-		pd.showAndWait();
-	}
-
-	private void readAvailableIBDFFiles()
-	{
-		Task<Void> t = new Task<Void>()
-		{
-			@Override
-			protected Void call() throws Exception
-			{
-				File temp = new File(sp_.getLocalM2FolderPath());
-				HashSet<IBDFFile> foundFiles = new HashSet<>();
-				if (temp.isDirectory())
-				{
-					log.debug("Reading local m2 folder");
-					updateMessage("Reading the local m2 folder");
-
-					for (IBDFFile i : DBConfigurationCreator.readLocalIBDFArtifacts(temp))
-					{
-						if (i.getArtifactId().equals("metadata"))
-						{
-							continue;
-						}
-						foundFiles.add(i);
-					}
-				}
-
-				try
-				{
-					if (StringUtils.isNotBlank(sp_.getArtifactReadURL()))
-					{
-						log.debug("Reading available nexus versions");
-						// TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
-						foundFiles.addAll(new NexusRead(sp_).readIBDFFiles());
-					}
-				}
-				catch (Exception e)
-				{
-					log.error("Error reading nexus repository", e);
-				}
-
-				ibdfFiles_.clear();
-				ibdfFiles_.addAll(foundFiles);
-				Collections.sort(ibdfFiles_);
-				return null;
-			}
-		};
-
-		Get.workExecutors().getExecutor().execute(t);
-		ProgressDialog pd = new ProgressDialog(t);
-		pd.setTitle("Reading IBDF Files");
-		pd.setHeaderText(null);
-		pd.setContentText("Reading available IBDF Files");
-		pd.showAndWait();
+			ProgressDialog pd = new ProgressDialog(worker);
+			pd.setTitle(title);
+			pd.setHeaderText(null);
+			pd.setContentText(content);
+			pd.initOwner(cm_.getPrimaryStage().getScene().getWindow());
+			pd.showAndWait();
+		}
 	}
 }

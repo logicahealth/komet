@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.dbConfigBuilder.rest.query;
+package sh.isaac.dbConfigBuilder.artifacts.rest.query;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sh.isaac.pombuilder.artifacts.IBDFFile;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
+import sh.isaac.dbConfigBuilder.artifacts.Converter;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 
 /**
  * Interface for reading metadata from an artifact server
@@ -37,6 +38,12 @@ public interface ArtifactSearch
 	 * @return all available IBDFFiles on the artifact server.
 	 */
 	public Set<IBDFFile> readIBDFFiles();
+	
+
+	/**
+	 * @return the versions of the converter software available
+	 */
+	Set<Converter> readConverterVersions();
 	
 	/**
 	 * @param artifactIdFilter - optional - filter for only returning versions of a particular artifact id
