@@ -47,7 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
+import javafx.util.Pair;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -465,15 +465,31 @@ public enum SupportedConverterTypes
       return this.uploadFileInfo;
    }
    
+   /**
+    * Find the converter type that would be used to process the specified source artifact
+    * @param srcArtifactId that artifactId of a sdo source file
+    * @return the type, or null
+    */
    public static SupportedConverterTypes findBySrcArtifactId(String srcArtifactId) {
+      return findConverterTypeAndExtensionBySrcArtifactId(srcArtifactId).getKey();
+   }
+
+   /**
+    * @param srcArtifactId that artifactId of a sdo source file
+    * @return a pair, where the key, is the type of the converter that supports it, and the value 
+    * is the extension name that should be used to replace wildcard '*-extension' portion when building
+    * an IBDF file by processing this source artifact id. 
+    */
+   public static Pair<SupportedConverterTypes, String> findConverterTypeAndExtensionBySrcArtifactId(String srcArtifactId)
+   {
       for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
          if (sct.getArtifactId().equals(srcArtifactId)) {
-            return sct;
+            return new Pair<>(sct, "");
          }
          else if (sct.getArtifactId().contains("*")) {
             String[] parts = sct.getArtifactId().split("\\*");
             if (srcArtifactId.startsWith(parts[0]) && srcArtifactId.endsWith(parts[1])) {
-               return sct;
+               return new Pair<>(sct, srcArtifactId.substring(parts[0].length(), srcArtifactId.length()));
             }
          }
       }

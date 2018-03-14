@@ -133,7 +133,7 @@ public class ContentConverterCreator
 
 		try
 		{
-			final Pair<SupportedConverterTypes, String> artifactInfo = getConverterType(sourceContent.getArtifactId());
+			final Pair<SupportedConverterTypes, String> artifactInfo = SupportedConverterTypes.findConverterTypeAndExtensionBySrcArtifactId(sourceContent.getArtifactId());
 			final SupportedConverterTypes conversionType = artifactInfo.getKey();
 			final String extensionSuffix = artifactInfo.getValue();
 			final StringBuilder extraProperties = new StringBuilder();
@@ -449,7 +449,7 @@ public class ContentConverterCreator
 	 */
 	public static Converter getConverterForSourceArtifact(String artifactId)
 	{
-		final SupportedConverterTypes supportedConverterType = getConverterType(artifactId).getKey();
+		final SupportedConverterTypes supportedConverterType = SupportedConverterTypes.findBySrcArtifactId(artifactId);
 
 		return new Converter(supportedConverterType.getConverterGroupId(), supportedConverterType.getConverterArtifactId(), "");
 	}
@@ -469,47 +469,6 @@ public class ContentConverterCreator
 			String repositoryPassword) throws Exception
 	{
 		return ConverterOptionParam.fromArtifact(null, converter, converterVersion, repositoryBaseURL, repositoryUsername, repositoryPassword.toCharArray());
-	}
-
-	/**
-	 * Gets the converter type.
-	 *
-	 * @param artifactId the artifact id
-	 * @return the converter type
-	 */
-	private static Pair<SupportedConverterTypes, String> getConverterType(String artifactId)
-	{
-		SupportedConverterTypes conversionType = null;
-		String extensionSuffix = "";
-
-		for (final SupportedConverterTypes type : SupportedConverterTypes.values())
-		{
-			if (type.getArtifactId().equals(artifactId))
-			{
-				conversionType = type;
-				break;
-			}
-
-			if (type.getArtifactId().contains("*"))
-			{
-				final String[] temp = type.getArtifactId().split("\\*");
-
-				if (artifactId.startsWith(temp[0]) && artifactId.endsWith(temp[1]))
-				{
-					conversionType = type;
-					extensionSuffix = artifactId.substring(temp[0].length(), artifactId.length());
-					break;
-				}
-			}
-		}
-
-		if (conversionType == null)
-		{
-			LOG.info("Throwing Runtime exception back from getConverterType, as the artifact {} could not be matched to a content artifact type", artifactId);
-			throw new RuntimeException("Unuspported source content artifact type");
-		}
-
-		return new Pair<>(conversionType, extensionSuffix);
 	}
 
 	/**
