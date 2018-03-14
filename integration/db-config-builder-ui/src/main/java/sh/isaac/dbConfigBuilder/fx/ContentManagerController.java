@@ -207,6 +207,8 @@ public class ContentManagerController
 	private UpdateableBooleanBinding allSourceUploadFilesPresent_;
 	private ArrayList<TextField> sourceUploadFiles_ = new ArrayList<>();
 	private HashMap<ConverterOptionParam, String> sourceConversionUserOptions = new HashMap<>();
+	private final StringBuilder sourceConverterContentIBDFInvalidReason = new StringBuilder();
+	private ValidBooleanBinding sourceConverterContentIBDFValid; 
 
 	private StoredPrefs sp_;
 
@@ -710,8 +712,7 @@ public class ContentManagerController
 		ErrorMarkerUtils.setupErrorMarker(sourceConversionContent, sourceConversionContentValid, true);
 		sourceConvertTabValidityCheckers_.add(sourceConversionContentValid);
 		
-		StringBuilder sourceConverterContentIBDFInvalidReason = new StringBuilder();
-		final ValidBooleanBinding sourceConverterContentIBDFValid = new ValidBooleanBinding()
+		sourceConverterContentIBDFValid = new ValidBooleanBinding()
 		{
 			{
 				setComputeOnInvalidate(true);
@@ -769,33 +770,7 @@ public class ContentManagerController
 						sourceConversionContentValid.invalidate();
 					}
 					
-					if (converter.getIBDFDependencies() != null && converter.getIBDFDependencies().size() > 0)
-					{
-						//validate they have all required ibdf dependencies
-						sourceConverterContentIBDFInvalidReason.setLength(0);
-						for (String s : converter.getIBDFDependencies())
-						{
-							boolean found = false;
-							for (int i = 0; i < sourceConversionIBDF.getItems().size(); i++)
-							{
-								if (sourceConversionIBDF.getItems().get(i).getArtifactId().equals(s))
-								{
-									found = true;
-									break;
-								}
-							}
-							if (!found)
-							{
-								sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an  ibdf dependency of " + s + "\n");
-							}
-						}
-						sourceConverterContentIBDFValid.invalidate();
-					}
-					else
-					{
-						sourceConverterContentIBDFInvalidReason.setLength(0);
-						sourceConverterContentIBDFValid.invalidate();
-					}
+					checksourceConversionIBDFDependencies();
 					
 					//Set up converter options
 					setupSourceConversionOptions(converter);
@@ -833,6 +808,8 @@ public class ContentManagerController
 				}
 			}
 		});
+		
+		sourceConversionIBDF.getItems().addListener((ListChangeListener<IBDFFile>) listener -> checksourceConversionIBDFDependencies());
 		
 		sourceConversionConverterVersion.getSelectionModel().selectedItemProperty().addListener(change -> 
 		{
@@ -1069,6 +1046,46 @@ public class ContentManagerController
 			}
 		}
 		return entries;
+	}
+	
+	private void checksourceConversionIBDFDependencies()
+	{
+		if (sourceConversionContent.getItems().size() > 0)
+		{
+			SDOSourceContent convert = sourceConversionContent.getItems().get(0);
+			SupportedConverterTypes converter = SupportedConverterTypes.findBySrcArtifactId(convert.getArtifactId());
+			
+			if (converter.getIBDFDependencies() != null && converter.getIBDFDependencies().size() > 0)
+			{
+				//validate they have all required ibdf dependencies
+				sourceConverterContentIBDFInvalidReason.setLength(0);
+				for (String s : converter.getIBDFDependencies())
+				{
+					boolean found = false;
+					for (int i = 0; i < sourceConversionIBDF.getItems().size(); i++)
+					{
+						if (sourceConversionIBDF.getItems().get(i).getArtifactId().equals(s))
+						{
+							found = true;
+							break;
+						}
+					}
+					if (!found)
+					{
+						sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an  ibdf dependency of " + s + "\n");
+					}
+				}
+			}
+			else
+			{
+				sourceConverterContentIBDFInvalidReason.setLength(0);
+			}
+		}
+		else
+		{
+			sourceConverterContentIBDFInvalidReason.setLength(0);
+		}
+		sourceConverterContentIBDFValid.invalidate();
 	}
 
 	protected Task<Void> readSourceUploadExistingVersions()
