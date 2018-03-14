@@ -1583,7 +1583,7 @@ public class ContentManagerController
 					TextArea ta = new TextArea();
 					ta.setWrapText(true);
 					ta.setPadding(new Insets(10.0));
-					ta.appendText("Starting Maven Execution");
+					ta.appendText("Starting Maven Execution\n");
 					updateMessage("Running Maven Job");
 					Node oldContent = pdRef.get().getDialogPane().getContent();
 					Platform.runLater(() -> {
