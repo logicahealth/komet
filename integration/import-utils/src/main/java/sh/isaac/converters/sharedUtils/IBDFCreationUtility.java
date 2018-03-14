@@ -262,6 +262,7 @@ public class IBDFCreationUtility
       {
          ConsoleUtil.println("Loading ibdf files");
          LoadTermstore lt = new LoadTermstore();
+         lt.dontSetDBMode();
          lt.setLog(new SystemStreamLog());
          lt.setibdfFiles(ibdfPreLoadFiles);
          lt.setActiveOnly(preloadActiveOnly != null ? preloadActiveOnly : true);
