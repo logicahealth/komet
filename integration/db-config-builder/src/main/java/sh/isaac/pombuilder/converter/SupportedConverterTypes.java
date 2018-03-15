@@ -501,6 +501,12 @@ public enum SupportedConverterTypes
          if (sct.getConverterOutputArtifactId().equals(ibdfArtifactId)) {
             return sct;
          }
+         else if (sct.getArtifactId().contains("*")) {
+             String[] parts = sct.getArtifactId().split("\\*");
+             if (ibdfArtifactId.startsWith(sct.getConverterOutputArtifactId()) && ibdfArtifactId.endsWith(parts[1])) {
+                return sct;
+             }
+          }
       }
       return null;
    }

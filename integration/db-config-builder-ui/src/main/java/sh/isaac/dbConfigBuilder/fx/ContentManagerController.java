@@ -406,22 +406,25 @@ public class ContentManagerController
 					// Find the matching SupportedContentType, and see if this conversion has any required IBDF files. If so,
 					// we need to have that IBDF File in our list.
 					SupportedConverterTypes sc = SupportedConverterTypes.findByIBDFArtifactId(ibdfFile.getArtifactId());
-					boolean found = false;
-					for (String requiredIbdfArtifactId : sc.getIBDFDependencies())
+					if (sc.getIBDFDependencies() != null)
 					{
-						for (IBDFFile ibdfFileNested : databaseIbdfList.getItems())
+						for (String requiredIbdfArtifactId : sc.getIBDFDependencies())
 						{
-							if (ibdfFileNested.getArtifactId().equals(requiredIbdfArtifactId))
+							boolean found = false;
+							for (IBDFFile ibdfFileNested : databaseIbdfList.getItems())
 							{
-								found = true;
-								break;
+								if (ibdfFileNested.getArtifactId().equals(requiredIbdfArtifactId))
+								{
+									found = true;
+									break;
+								}
 							}
-						}
-						if (!found)
-						{
-							this.setInvalidReason("The IBDF file " + ibdfFile.getArtifactId() + " has a dependency on " + requiredIbdfArtifactId
-									+ ".  You must add an IBDF file that matches that artifact type to build the database.");
-							return false;
+							if (!found)
+							{
+								this.setInvalidReason("The IBDF file " + ibdfFile.getArtifactId() + " has a dependency on " + requiredIbdfArtifactId
+										+ ".  You must add an IBDF file that matches that artifact type to build the database.");
+								return false;
+							}
 						}
 					}
 				}
