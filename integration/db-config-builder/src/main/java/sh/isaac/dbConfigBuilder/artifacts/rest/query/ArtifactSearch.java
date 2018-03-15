@@ -65,7 +65,7 @@ public interface ArtifactSearch
 
 		// Now create matcher object.
 		Matcher m = r.matcher(value);
-		if (m.matches())
+		if (m.matches() && !m.group(1).equals("SNAPSHOT"))
 		{
 			return Optional.of(m.group(1));
 		}
