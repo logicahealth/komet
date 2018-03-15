@@ -127,8 +127,9 @@ public class DynamicImpl
                                                                                        0,
                                                                                        0)).getDataUUID();
 
+               int nid = Get.identifierService().hasUuid(temp) ? Get.identifierService().getNidForUuids(temp) : Get.identifierService().assignNid(temp);
                this.data[i] = DynamicTypeToClassUtility.typeToClass(dt,
-                     new DynamicNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
+                     new DynamicNidImpl(nid).getData(),
                      getAssemblageNid(),
                      i);
             } else {
