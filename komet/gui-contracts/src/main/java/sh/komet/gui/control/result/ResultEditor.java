@@ -48,7 +48,8 @@ public class ResultEditor implements PropertyEditor<ResultImpl> {
         this.normalRangeCheck.setOnAction(this::toggleNormalRange);
         this.editorToolbar = new ToolBar(normalRangeCheck);
         this.editorPane.setTop(editorToolbar);
-        this.resultEditor =  new MeasureEditor((MeasureImpl) editObservable.getValue().getMeasure(), manifold);
+        this.resultEditor =  new MeasureEditor(manifold);
+        this.resultEditor.setValue((MeasureImpl) editObservable.getValue().getMeasure());
     }
     
     
@@ -61,7 +62,8 @@ public class ResultEditor implements PropertyEditor<ResultImpl> {
             if (!editObservable.getValue().getNormalRange().isPresent()) {
                 editObservable.getValue().setNormalRange(new MeasureImpl(manifold));
             }
-            MeasureEditor normalRangeEditor = new MeasureEditor((MeasureImpl) editObservable.getValue().getNormalRange().get(), manifold);
+            MeasureEditor normalRangeEditor = new MeasureEditor(manifold);
+            normalRangeEditor.setValue((MeasureImpl) editObservable.getValue().getNormalRange().get());
             VBox vbox = new VBox(8); // spacing = 8
             vbox.getChildren().addAll(resultEditor.getEditor(), normalRangeEditor.getEditor());
 

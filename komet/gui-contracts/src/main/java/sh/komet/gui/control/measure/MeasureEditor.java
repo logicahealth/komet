@@ -47,7 +47,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import tornadofx.control.DateTimePicker;
 
-
 /**
  *
  * @author kec
@@ -55,7 +54,7 @@ import tornadofx.control.DateTimePicker;
 public class MeasureEditor implements PropertyEditor<MeasureImpl> {
 
     private MeasureImpl measure;
-    
+
     private final GridPane measureNode = new GridPane();
 
     TitledPane measureEditorPane = new TitledPane("[a,b] ± d ISO 8601", measureNode);
@@ -69,11 +68,10 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     private final ConceptLabel measureSemantic;
     private final Manifold manifold;
 
-    public MeasureEditor(MeasureImpl measure, Manifold manifold) {
-        this.measure = measure;
+    public MeasureEditor(Manifold manifold) {
         this.manifold = manifold;
-        measureEditorPane.getStyleClass().add(StyleClasses.MEASURE.toString());
-        measureSemantic = new ConceptLabel(manifold,
+        this.measureEditorPane.getStyleClass().add(StyleClasses.MEASURE.toString());
+        this.measureSemantic = new ConceptLabel(manifold,
                 ConceptLabel::setPreferredText, (label) -> {
                     ConceptAction iso8601 = new ConceptAction(TermAux.ISO_8601, this::handleMeasureSemanticChange);
                     ConceptAction iso8601After = new ConceptAction(TermAux.ISO_8601_AFTER, this::handleMeasureSemanticChange);
@@ -84,25 +82,13 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
                     menuItems.add(ActionUtils.createMenuItem(iso8601Prior));
                     return menuItems;
                 });
-        measure.measureSemanticProperty().bind(measureSemantic.conceptInLabelProperty());
-        measure.measureSemanticProperty().addListener(this::changePrecisionSlider);
-        measureSemantic.setValue(TermAux.ISO_8601);
-        measureBoundsSlider.setShowTickMarks(true);
-        measureBoundsSlider.setShowTickLabels(true);
-        measureBoundsSlider.setBlockIncrement(5);
-        measureBoundsSlider.highValueProperty().bindBidirectional(measure.upperBoundProperty());
-        upperBoundDateTimePicker.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
-            measure.setUpperBound(newValue.toInstant(ZoneOffset.UTC).toEpochMilli());
-        });
-        measureBoundsSlider.lowValueProperty().bindBidirectional(measure.lowerBoundProperty());
-        lowerBoundDateTimePicker.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
-            measure.setLowerBound(newValue.toInstant(ZoneOffset.UTC).toEpochMilli());
-        });
-        resolutionSlider.valueProperty().addListener(this::convertResolutionSliderToDuration);
-        includeUpperBound.selectedProperty().bindBidirectional(measure.includeUpperBoundProperty());
-        includeLowerBound.selectedProperty().bindBidirectional(measure.includeLowerBoundProperty());
+        this.measureSemantic.setValue(TermAux.ISO_8601);
+        this.measureBoundsSlider.setShowTickMarks(true);
+        this.measureBoundsSlider.setShowTickLabels(true);
+        this.measureBoundsSlider.setBlockIncrement(5);
+        this.resolutionSlider.valueProperty().addListener(this::convertResolutionSliderToDuration);
 
-        includeUpperBound.setGraphic(Iconography.ALERT_ERROR.getIconographic());
+        this.includeUpperBound.setGraphic(Iconography.ALERT_ERROR.getIconographic());
 
         addToGrid(includeLowerBound, 0, // columnIndex
                 0, // rowIndex
@@ -122,7 +108,7 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
                 Priority.ALWAYS, // hgrow
                 Priority.NEVER, // vgrow
                 new Insets(1));
-        
+
         addToGrid(lowerBoundDateTimePicker, 1, // columnIndex
                 0, // rowIndex
                 1, // columnspan
@@ -184,11 +170,19 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
                 Priority.NEVER, // vgrow
                 new Insets(1));
 
-        measureEditorPane.textProperty().set(measure.getNarrative());
-        measureEditorPane.textProperty().bind(measure.narrativeProperty());
-        measureBoundsSlider.highValueProperty().addListener(this::highValueChanged);
-        measureBoundsSlider.lowValueProperty().addListener(this::lowValueChanged);
-        resolutionSlider.valueProperty().addListener(this::resolutionValueChanged);
+        this.measureBoundsSlider.highValueProperty().addListener(this::highValueChanged);
+        this.measureBoundsSlider.lowValueProperty().addListener(this::lowValueChanged);
+        this.resolutionSlider.valueProperty().addListener(this::resolutionValueChanged);
+        this.upperBoundDateTimePicker.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
+            if (this.measure != null) {
+                this.measure.setUpperBound(newValue.toInstant(ZoneOffset.UTC).toEpochMilli());
+            }
+        });
+        this.lowerBoundDateTimePicker.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
+            if (this.measure != null) {
+                this.measure.setLowerBound(newValue.toInstant(ZoneOffset.UTC).toEpochMilli());
+            }
+        });
     }
 
     private void resolutionValueChanged(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -197,23 +191,27 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     }
 
     private void highValueChanged(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-        if (measureBoundsSlider.isHighValueChanging()) {
-            if (measureBoundsSlider.getMax() <= newValue.doubleValue()) {
-                measureBoundsSlider.setMax(measureBoundsSlider.getMax() + this.measure.getResolution().get());
+        if (this.measure != null) {
+            if (measureBoundsSlider.isHighValueChanging()) {
+                if (measureBoundsSlider.getMax() <= newValue.doubleValue()) {
+                    measureBoundsSlider.setMax(measureBoundsSlider.getMax() + this.measure.getResolution().get());
+                }
+                adjustTicks();
             }
-            adjustTicks();
         }
     }
 
     private void lowValueChanged(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-        if (measureBoundsSlider.isLowValueChanging()) {
-            if (measureBoundsSlider.getMin() > 0 && measureBoundsSlider.getMin() >= newValue.doubleValue()) {
-                double newMin = measureBoundsSlider.getMin() - this.measure.getResolution().get();
-                if (newMin < 0) {
-                    newMin = 0;
+        if (this.measure != null) {
+            if (measureBoundsSlider.isLowValueChanging()) {
+                if (measureBoundsSlider.getMin() > 0 && measureBoundsSlider.getMin() >= newValue.doubleValue()) {
+                    double newMin = measureBoundsSlider.getMin() - this.measure.getResolution().get();
+                    if (newMin < 0) {
+                        newMin = 0;
+                    }
+                    measureBoundsSlider.setMin(newMin);
+                    adjustTicks();
                 }
-                measureBoundsSlider.setMin(newMin);
-                adjustTicks();
             }
         }
     }
@@ -275,38 +273,45 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
             resolution = resolution * DateTimeUtil.MS_IN_YEAR;
         }
 
-        measure.resolutionProperty().set(resolution);
+        if (this.measure != null) {
+            measure.resolutionProperty().set(resolution);
+        }
     }
 
     private void adjustRange() {
-        double range = adjustTicks();
+        if (this.measure != null) {
+            double range = adjustTicks();
 
-        double margin = range / 4;
-        measureBoundsSlider.setMin(measure.getLowerBound() - margin);
-        measureBoundsSlider.setMax(measure.getUpperBound() + margin);
+            double margin = range / 4;
+            measureBoundsSlider.setMin(measure.getLowerBound() - margin);
+            measureBoundsSlider.setMax(measure.getUpperBound() + margin);
+        }
 
     }
 
     private double adjustTicks() {
-        double range = measure.getUpperBound() - measure.getLowerBound();
-        if (range == 0) {
-            if (measure.getUpperBound() == 0) {
-                range = 2;
-            } else {
-                range = measure.getUpperBound() / 4;
+        if (this.measure != null) {
+            double range = measure.getUpperBound() - measure.getLowerBound();
+            if (range == 0) {
+                if (measure.getUpperBound() == 0) {
+                    range = 2;
+                } else {
+                    range = measure.getUpperBound() / 4;
+                }
             }
+            if (measure.getMeasureSemantic().getNid() == TermAux.ISO_8601.getNid()
+                    || measure.getMeasureSemantic().getNid() == TermAux.ISO_8601_AFTER.getNid()
+                    || measure.getMeasureSemantic().getNid() == TermAux.ISO_8601_PRIOR.getNid()) {
+                measureBoundsSlider.setShowTickMarks(false);
+                measureBoundsSlider.setShowTickLabels(false);
+            } else {
+                measureBoundsSlider.setBlockIncrement(range / 100);
+                measureBoundsSlider.setMajorTickUnit(range / 10);
+                measureBoundsSlider.setMinorTickCount(0);
+            }
+            return range;
         }
-        if (measure.getMeasureSemantic().getNid() == TermAux.ISO_8601.getNid()
-                || measure.getMeasureSemantic().getNid() == TermAux.ISO_8601_AFTER.getNid()
-                || measure.getMeasureSemantic().getNid() == TermAux.ISO_8601_PRIOR.getNid()) {
-            measureBoundsSlider.setShowTickMarks(false);
-            measureBoundsSlider.setShowTickLabels(false);
-        } else {
-            measureBoundsSlider.setBlockIncrement(range / 100);
-            measureBoundsSlider.setMajorTickUnit(range / 10);
-            measureBoundsSlider.setMinorTickCount(0);
-        }
-        return range;
+        return Double.NaN;
     }
 
     private void changePrecisionSlider(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
@@ -363,17 +368,17 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     private void setMeasureSemantic(ConceptSpecification conceptSpecification) {
         measureSemantic.setValue(conceptSpecification);
         if (measure.getMeasureSemantic().getNid() == TermAux.ISO_8601.getNid()) {
-             lowerBoundDateTimePicker.setVisible(true);
-             lowerBoundDateTimePicker.setDateTimeValue(LocalDateTime.now());
-             upperBoundDateTimePicker.setVisible(true);
-             upperBoundDateTimePicker.setDateTimeValue(LocalDateTime.now().plusMinutes(45));
-             measureBoundsSlider.setVisible(false);
-             resolutionSlider.setValue(60);
-             
+            lowerBoundDateTimePicker.setVisible(true);
+            lowerBoundDateTimePicker.setDateTimeValue(LocalDateTime.now());
+            upperBoundDateTimePicker.setVisible(true);
+            upperBoundDateTimePicker.setDateTimeValue(LocalDateTime.now().plusMinutes(45));
+            measureBoundsSlider.setVisible(false);
+            resolutionSlider.setValue(60);
+
         } else {
-             lowerBoundDateTimePicker.setVisible(false);
-             upperBoundDateTimePicker.setVisible(false);
-             measureBoundsSlider.setVisible(true);
+            lowerBoundDateTimePicker.setVisible(false);
+            upperBoundDateTimePicker.setVisible(false);
+            measureBoundsSlider.setVisible(true);
         }
     }
 
@@ -411,8 +416,26 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     }
 
     @Override
-    public void setValue(MeasureImpl value) {
-        measure = value;
+    public void setValue(MeasureImpl measure) {
+        if (measure == null) {
+            this.measureEditorPane.textProperty().unbind();
+            if (this.measure != null) {
+                this.measureBoundsSlider.highValueProperty().unbindBidirectional(this.measure.upperBoundProperty());
+                this.measureBoundsSlider.lowValueProperty().unbindBidirectional(this.measure.lowerBoundProperty());
+                this.includeUpperBound.selectedProperty().unbindBidirectional(this.measure.includeUpperBoundProperty());
+                this.includeLowerBound.selectedProperty().unbindBidirectional(this.measure.includeLowerBoundProperty());
+            }
+
+        } else {
+            measure.measureSemanticProperty().bind(measureSemantic.conceptInLabelProperty());
+            measure.measureSemanticProperty().addListener(this::changePrecisionSlider);
+            this.measureEditorPane.textProperty().bind(measure.narrativeProperty());
+            this.measureBoundsSlider.highValueProperty().bindBidirectional(measure.upperBoundProperty());
+            this.measureBoundsSlider.lowValueProperty().bindBidirectional(measure.lowerBoundProperty());
+            this.includeUpperBound.selectedProperty().bindBidirectional(measure.includeUpperBoundProperty());
+            this.includeLowerBound.selectedProperty().bindBidirectional(measure.includeLowerBoundProperty());
+        }
+        this.measure = measure;
         adjustRange();
     }
 

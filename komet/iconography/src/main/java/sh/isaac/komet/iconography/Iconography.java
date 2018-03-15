@@ -182,6 +182,12 @@ public enum Iconography {
   INFERRED(FONT_AWSOME, "inferred-form"),
   STATED(ICONS_525, "stated-form"),
   LINK_EXTERNAL(OCT_ICON, "link-external"),
+  NEW_CONCEPT(MATERIAL_DESIGNS_WEBFONT, "new-concept"),
+  CANCEL(ICONS_525, "cancel"),
+  DUPLICATE(MATERIAL_DESIGNS_ICON, "duplicate"),
+  ADD(MATERIAL_DESIGNS_ICON, "add"),
+  // Icons525.CIRCLEDELETE
+  // MaterialIcon.QUEUE
   ;
 
    String cssClass;

@@ -21,5 +21,5 @@ package sh.komet.gui.contract;
  * @author kec
  */
 public enum DetailType {
-   Concept, Assemblage
+   Concept, Assemblage, Builder
 }

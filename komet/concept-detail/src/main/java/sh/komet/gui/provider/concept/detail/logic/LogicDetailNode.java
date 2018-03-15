@@ -45,7 +45,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
