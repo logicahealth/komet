@@ -165,7 +165,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 						case ValueSetName:
 							//Due to the order of the data in the metadata, this case will hit first as we iterate.
 							valueSetConcept = ComponentReference.fromConcept(importUtil.createConcept(
-									ConverterUUID.createNamespaceUUIDFromString("ValueSet|" + md.getValue()), md.getValue(), false, soptRootConcept.getPrimordialUuid()));
+									ConverterUUID.createNamespaceUUIDFromString("ValueSet|" + md.getValue()), md.getValue(), false, refsets_.getPropertyTypeUUID()));
 							importUtil.addDescription(valueSetConcept, md.getValue(), DescriptionType.REGULAR_NAME, true, 
 									descriptions_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
 							
