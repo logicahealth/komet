@@ -171,6 +171,7 @@ public class ContentManager extends Application
 		tid.getEditor().getStyleClass().add("password-field");
 		tid.getEditor().setAccessibleRole(AccessibleRole.PASSWORD_FIELD);
 		Tooltip.install(tid.getEditor(), new Tooltip("This password is used to encrypt and decrypt the git and artifact repository passwords."));
+		tid.initOwner(primaryStage_.getOwner());
 
 		return (tid.showAndWait().orElse("")).toCharArray();
 	}

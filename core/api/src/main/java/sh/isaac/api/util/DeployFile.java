@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.dbConfigBuilder.deploy;
+package sh.isaac.api.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,6 +73,7 @@ public class DeployFile extends Task<Integer>
 
 	private void writeChecksumFile(File file, String type, File toFolder) throws NoSuchAlgorithmException, IOException
 	{
+		//TODO merge this with code in Checksum Generator?  Also, see which solution is faster / better for not losing leading 0's.
 		updateTitle("Calculating " + type + " Checksum for " + file.getName());
 		MessageDigest md = MessageDigest.getInstance(type);
 		try (InputStream is = Files.newInputStream(file.toPath()))
@@ -94,7 +95,16 @@ public class DeployFile extends Task<Integer>
 			}
 		}
 		byte[] digest = md.digest();
-		String checkSum = new BigInteger(1, digest).toString(16);
+		int formatLength = 16;
+		if (type.toLowerCase().equals("md5"))
+		{
+			formatLength = 32;
+		}
+		else if (type.toLowerCase().equals("sha1"))
+		{
+			formatLength = 40;
+		}
+		String checkSum =  String.format("%0" + formatLength + "x", new BigInteger(1, digest));
 
 		Files.write(new File(toFolder, file.getName() + "." + type.toLowerCase()).toPath(), 
 				checkSum.getBytes(), StandardOpenOption.WRITE,
@@ -125,6 +135,29 @@ public class DeployFile extends Task<Integer>
 		httpCon.setRequestMethod("PUT");
 		httpCon.setConnectTimeout(30 * 1000);
 		httpCon.setReadTimeout(60 * 60 * 1000);
+		String temp = file.getName().toLowerCase();
+		if (temp.indexOf('.') >= 0)
+		{
+			temp = temp.substring(temp.lastIndexOf('.'), temp.length());
+			if (temp.equals(".jar") || temp.equals(".zip") || temp.equals(".war") || temp.equals(".ear"))
+			{
+				httpCon.setRequestProperty("Content-Type", "application/zip");
+			}
+			else if (temp.equals(".pom") || temp.equals(".xml"))
+			{
+				httpCon.setRequestProperty("Content-Type", "application/xml");
+			}
+			else if (temp.equals(".md5") || temp.equals(".sha1"))
+			{
+				httpCon.setRequestProperty("Content-Type", "text/plain");
+			}
+		}
+		
+		if (StringUtils.isNotBlank(httpCon.getRequestProperty("Content-Type")))
+		{
+			log.debug("sending Content-Type {}", httpCon.getRequestProperty("Content-Type"));
+		}
+
 		long fileLength = file.length();
 		httpCon.setFixedLengthStreamingMode(fileLength);
 		OutputStream out = httpCon.getOutputStream();
@@ -165,7 +198,7 @@ public class DeployFile extends Task<Integer>
 			throw new Exception("The server reported an error during the publish operation:  " + sb.toString());
 		}
 		log.info("Upload Successful");
-		updateTitle("");
+		updateTitle("Upload Successful");
 		updateProgress(-1, 0);
 	}
 
@@ -175,21 +208,26 @@ public class DeployFile extends Task<Integer>
 	@Override
 	protected Integer call() throws Exception
 	{
-		updateProgress(-1, 0);
+		updateProgress(0, 5);
 
 		updateStatus("Creating Checksum Files");
 		writeChecksumFile(dataFile_, "MD5", dataFile_.getParentFile());
+		updateProgress(1, 5);
 		writeChecksumFile(dataFile_, "SHA1", dataFile_.getParentFile());
+		updateProgress(2, 5);
 
 		updateStatus("Uploading files");
-		putFile(new File(dataFile_.getParentFile(), dataFile_.getName() + ".md5"), 
-				artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".md5");
+		putFile(dataFile_, 
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_);
+		updateProgress(3, 5);
 		putFile(new File(dataFile_.getParentFile(), dataFile_.getName() + ".sha1"), 
-				artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".sha1");
-		putFile(dataFile_, artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_);
-
-		updateTitle("");
-		updateProgress(10, 10);
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".sha1");
+		updateProgress(4, 5);
+		putFile(new File(dataFile_.getParentFile(), dataFile_.getName() + ".md5"), 
+				StringUtils.isBlank(dataType_) ? null : artifactId_ + "-" + version_ + (StringUtils.isNotBlank(classifier_) ? "-" + classifier_ : "") + "." + dataType_ + ".md5");
+		updateProgress(5, 5);
+		
+		updateTitle("Deploy complete");
 		return 0;
 	}
 	

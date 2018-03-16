@@ -958,7 +958,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "vhatUuid");
+			ConverterUUID.dump(outputDirectory, "hl7v3Uuid");
 
 			ConsoleUtil.println("Load stats");
 			for (String line : importUtil.getLoadStats().getSummary())

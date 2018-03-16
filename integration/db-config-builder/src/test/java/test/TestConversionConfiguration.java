@@ -45,17 +45,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import javafx.application.Platform;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.pombuilder.GitPublish;
-import sh.isaac.pombuilder.artifacts.Converter;
-import sh.isaac.pombuilder.artifacts.IBDFFile;
-import sh.isaac.pombuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -97,7 +96,7 @@ public class TestConversionConfiguration {
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-sct", "20150731"), 
 //            "3.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
       // sct-us-ext
-      ConverterOptionParam[] optionTypes = ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters", "rf2-mojo", "3.7-SNAPSHOT"), 
+      ConverterOptionParam[] optionTypes = ContentConverterCreator.getConverterOptions(SupportedConverterTypes.SCT, "3.7-SNAPSHOT", 
             nexusUrl, nexusUsername, nexusPassword);
       
       HashMap<ConverterOptionParam, Set<String>> options = new HashMap<>();

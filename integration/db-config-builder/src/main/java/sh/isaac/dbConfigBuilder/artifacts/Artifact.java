@@ -35,7 +35,7 @@
  *
  */
 
-package sh.isaac.pombuilder.artifacts;
+package sh.isaac.dbConfigBuilder.artifacts;
 
 import sh.isaac.api.util.AlphanumComparator;
 

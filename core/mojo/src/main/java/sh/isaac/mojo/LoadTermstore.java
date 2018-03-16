@@ -43,7 +43,6 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,7 +52,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,18 +62,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
-//~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
 import com.cedarsoftware.util.io.JsonWriter;
-
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -105,33 +99,14 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 
-//~--- classes ----------------------------------------------------------------
-
-/*
-* Copyright 2001-2005 The Apache Software Foundation.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
- */
 
 /**
- * Goal which loads a database from ibdf files.
-* @deprecated try {@link LoadTermstoreSemaphore}
-* We need to figure out if/how to integrate the merge logic into the LoadTermStoreSemaphor
-* in the meantime, the bug with missing random entries near the end of the file has been fixed.
+ * Goal which loads a database from ibdf files.  try {@link LoadTermstoreSemaphore} for a newer implementation, however
+ * TODO We need to figure out if/how to integrate the merge logic into the LoadTermstoreSemaphore
+ * in the meantime, the bug with missing random entries near the end of the file has been fixed.
  */
 @Mojo(
    name         = "load-termstore",
@@ -140,27 +115,42 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 public class LoadTermstore
         extends AbstractMojo {
    
+   
+   //Maven available parameters
+   
+   /**
+    * Only load concepts and semantics with a state of active
+    */
    @Parameter(required = false)
    private boolean activeOnly = false;
+   
+   /**
+    * Only load concepts and semantics with a state of active
+    * @param activeOnly set the flat
+    */
+   public void setActiveOnly(boolean activeOnly) {
+         this.activeOnly = activeOnly;
+      }
 
    @Parameter(required = false)
    private int duplicatesToPrint = 20;
-
-   /** The semantic types to skip. */
-   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
-
-   /** The skipped items. */
-   private final HashSet<Integer> skippedItems = new HashSet<>();
-
-   /** The skipped any. */
-   private boolean skippedAny = false;
-
+   
+   public void setDuplicatesToPrint(int duplicatesToPrint) {
+         this.duplicatesToPrint = duplicatesToPrint;
+      }
+   
    /**
     * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
     * folder will be processed.
     */
    @Parameter(required = false)
    private File ibdfFileFolder;
+   
+   /**
+    * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
+    * folder will be processed.
+    * @param folder the folder to look in for ibdf files
+    */
    public void setibdfFilesFolder(File folder)
    {
       ibdfFileFolder = folder;
@@ -171,6 +161,27 @@ public class LoadTermstore
     */
    @Parameter(required = false)
    private File[] ibdfFiles;
+
+   /**
+    * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
+    * @param files the individual ibdf files to process 
+    */
+   public void setibdfFiles(File[] files) {
+      this.ibdfFiles = files;
+   }
+   
+   //internal use / non-maven exposed parameters
+
+   /** The semantic types to skip. */
+   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
+
+   /** The skipped items. */
+   private final HashSet<Integer> skippedItems = new HashSet<>();
+
+   /** The skipped any. */
+   private boolean skippedAny = false;
+   
+   private boolean setDBBuildMode = true;
 
    private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure, mergeCount;
 
@@ -185,8 +196,10 @@ public class LoadTermstore
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService()
+      if (setDBBuildMode) {
+         Get.configurationService()
          .setDBBuildMode(BuildMode.DB);
+      }
 
       final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
 
@@ -509,23 +522,6 @@ public class LoadTermstore
    }
 
    /**
-    * Sets the ibdf files.
-    *
-    * @param files the new ibdf files
-    */
-   public void setibdfFiles(File[] files) {
-      this.ibdfFiles = files;
-   }
-   
-//   @Parameter(required = false) 
-//   private String dbId = "";
-//   
-//   public void setDbId(String dbId)
-//   {
-//      this.dbId = dbId;
-//   }
-
-   /**
     * Skip semantic types.
     *
     * @param types the types
@@ -533,8 +529,14 @@ public class LoadTermstore
    public void skipVersionTypes(Collection<VersionType> types) {
       this.semanticTypesToSkip.addAll(types);
    }
+   
+   /**
+    * Don't put us into DB Build mode on startup
+    */
+   public void dontSetDBMode() {
+      this.setDBBuildMode = false;
+   }
 
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Checks if active.
@@ -560,19 +562,6 @@ public class LoadTermstore
       } 
       return foundStatus.booleanValue();
    }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the active only.
-    *
-    * @param activeOnly the new active only
-    */
-   public void setActiveOnly(boolean activeOnly) {
-      this.activeOnly = activeOnly;
-   }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the latest logical expression.
@@ -658,4 +647,3 @@ public class LoadTermstore
       return parentConceptSequences;
    }
 }
-

@@ -47,7 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
+import javafx.util.Pair;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -273,8 +273,8 @@ public enum SupportedConverterTypes
     * version of the converter will execute against this uploaded content.  So, will hardcode them here for now, and developers will have to manually
     * update these if the patterns change in the future.
     */
-   private final String converterGroupId = "sh.isaac.misc";
-   private String converterArtifactId = "importers";
+   protected final String converterGroupId = "sh.isaac.misc";
+   protected final String converterArtifactId = "importers";
    private String converterOutputArtifactId;
    private String converterMojoName;  //Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
    private String niceName;
@@ -387,7 +387,7 @@ public enum SupportedConverterTypes
     *
     * @return the converter output artifact id
     */
-   protected String getConverterOutputArtifactId() {
+   public String getConverterOutputArtifactId() {
       return this.converterOutputArtifactId;
    }
 
@@ -465,10 +465,32 @@ public enum SupportedConverterTypes
       return this.uploadFileInfo;
    }
    
+   /**
+    * Find the converter type that would be used to process the specified source artifact
+    * @param srcArtifactId that artifactId of a sdo source file
+    * @return the type, or null
+    */
    public static SupportedConverterTypes findBySrcArtifactId(String srcArtifactId) {
+      return findConverterTypeAndExtensionBySrcArtifactId(srcArtifactId).getKey();
+   }
+
+   /**
+    * @param srcArtifactId that artifactId of a sdo source file
+    * @return a pair, where the key, is the type of the converter that supports it, and the value 
+    * is the extension name that should be used to replace wildcard '*-extension' portion when building
+    * an IBDF file by processing this source artifact id. 
+    */
+   public static Pair<SupportedConverterTypes, String> findConverterTypeAndExtensionBySrcArtifactId(String srcArtifactId)
+   {
       for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
          if (sct.getArtifactId().equals(srcArtifactId)) {
-            return sct;
+            return new Pair<>(sct, "");
+         }
+         else if (sct.getArtifactId().contains("*")) {
+            String[] parts = sct.getArtifactId().split("\\*");
+            if (srcArtifactId.startsWith(parts[0]) && srcArtifactId.endsWith(parts[1])) {
+               return new Pair<>(sct, srcArtifactId.substring(parts[0].length(), srcArtifactId.length()));
+            }
          }
       }
       return null;
@@ -479,8 +501,28 @@ public enum SupportedConverterTypes
          if (sct.getConverterOutputArtifactId().equals(ibdfArtifactId)) {
             return sct;
          }
+         else if (sct.getArtifactId().contains("*")) {
+             String[] parts = sct.getArtifactId().split("\\*");
+             if (ibdfArtifactId.startsWith(sct.getConverterOutputArtifactId()) && ibdfArtifactId.endsWith(parts[1])) {
+                return sct;
+             }
+          }
       }
       return null;
+   }
+
+   /**
+    * @param mojoName
+    * @return the matching enum, or null
+    */
+   public static SupportedConverterTypes findByMojoName(String mojoName)
+   {
+      for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
+            if (sct.getConverterMojoName().equals(mojoName)) {
+               return sct;
+            }
+         }
+         return null;
    }
 }
 

@@ -45,13 +45,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.value.ChangeListener;
-import javafx.concurrent.Task;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.util.MavenPublish;
+import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Task;
+import sh.isaac.api.util.DeployFile;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.util.Zip;
 import sh.isaac.pombuilder.FileUtil;
@@ -73,6 +72,7 @@ public class SrcUploadCreator
 	private static final Logger LOG = LogManager.getLogger();
 	
 	public static final String SRC_UPLOAD_GROUP = "sh.isaac.terminology.source";
+	public static final String WORKING_SUB_FOLDER_NAME = "src-upload";
 
 	// ~--- methods -------------------------------------------------------------
 
@@ -144,12 +144,12 @@ public class SrcUploadCreator
 				{
 					if (workingFolder != null)
 					{
-						baseFolder = new File(workingFolder, "src-upload");
+						baseFolder = new File(workingFolder, WORKING_SUB_FOLDER_NAME);
 						FileUtil.recursiveDelete(baseFolder);
 					}
 					else
 					{
-						baseFolder = Files.createTempDirectory("src-upload").toFile();
+						baseFolder = Files.createTempDirectory(WORKING_SUB_FOLDER_NAME).toFile();
 					}
 					baseFolder.mkdirs();
 
@@ -302,16 +302,23 @@ public class SrcUploadCreator
 							LOG.info("Zip complete, publishing to artifact repo {}", artifactRepositoryURL);
 							updateTitle("Publishing files to the Artifact Repository");
 
-							final MavenPublish pm = new MavenPublish(pomSwaps.get("#GROUPID#"), pomSwaps.get("#ARTIFACTID#"), pomSwaps.get("#VERSION#"),
-									new File(baseFolder, "pom.xml"), new File[] { zipFile }, artifactRepositoryURL, repositoryUsername, repositoryPassword);
+							final DeployFile pom = new DeployFile(pomSwaps.get("#GROUPID#"), pomSwaps.get("#ARTIFACTID#"), pomSwaps.get("#VERSION#"), null, "pom",
+									new File(baseFolder, "pom.xml"), artifactRepositoryURL, repositoryUsername, repositoryPassword);
 
-							pm.progressProperty().addListener(
-									(ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(pm.getWorkDone(), pm.getTotalWork()));
-							pm.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
-							WorkExecutors.get().getExecutor().execute(pm);
+							pom.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+							WorkExecutors.get().getExecutor().execute(pom);
 
-							// block till upload complete
-							pm.get();
+							final DeployFile data = new DeployFile(pomSwaps.get("#GROUPID#"), pomSwaps.get("#ARTIFACTID#"), pomSwaps.get("#VERSION#"), null, "zip",
+									zipFile, artifactRepositoryURL, repositoryUsername, repositoryPassword);
+
+							pom.progressProperty().addListener(
+									(ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(pom.getWorkDone(), pom.getTotalWork()));
+							pom.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+							WorkExecutors.get().getExecutor().execute(data);
+
+							// block till uploads complete
+							pom.get();
+							data.get();
 						}
 					}
 
@@ -351,7 +358,6 @@ public class SrcUploadCreator
 				}
 			}
 		};
-
 		return uploader;
 	}
 }

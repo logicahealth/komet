@@ -188,9 +188,9 @@ public class StoredPrefs
 		return artifactReadURL == null ? "" : artifactReadURL;
 	}
 
-	public void setArtifactReadURL(String artifactDeployURL)
+	public void setArtifactReadURL(String artifactReadURL)
 	{
-		this.artifactDeployURL = artifactDeployURL;
+		this.artifactReadURL = artifactReadURL;
 	}
 	
 	public String getArtifactDeployURL()
@@ -198,9 +198,9 @@ public class StoredPrefs
 		return artifactDeployURL == null ? "" : artifactDeployURL;
 	}
 
-	public void setArtifactDeployURL(String artifactReadURL)
+	public void setArtifactDeployURL(String artifactDeployURL)
 	{
-		this.artifactReadURL = artifactReadURL;
+		this.artifactDeployURL = artifactDeployURL;
 	}
 
 	public String getArtifactUsername()

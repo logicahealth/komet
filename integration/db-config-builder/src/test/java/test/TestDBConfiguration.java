@@ -39,9 +39,7 @@
 
 package test;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 //~--- classes ----------------------------------------------------------------
