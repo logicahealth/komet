@@ -530,6 +530,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Unmodeled role concept");
                createConcept("Unmodeled feature concept");
                createConcept("Unmodeled taxonomic concept");
+               createConcept(TermAux.UNINITIALIZED_COMPONENT_ID);
                popParent();
             createConcept("Object properties");
             pushParent(current());

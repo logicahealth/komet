@@ -120,7 +120,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
    }
 
    /**
-    * Instantiates a new description builder ochre impl.
+    * Instantiates a new description builder.
     *
     * @param descriptionText the description text
     * @param conceptNid the concept sequence

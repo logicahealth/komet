@@ -19,10 +19,10 @@ package sh.isaac.model.statement;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.statement.*;
 
 import java.util.List;
+import javafx.collections.FXCollections;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.ObservableFields;
@@ -33,13 +33,16 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public class RequestCircumstanceImpl extends CircumstanceImpl implements RequestCircumstance {
     private final SimpleListProperty<StatementAssociation> conditionalTriggers = 
-            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS.toExternalString());
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS.toExternalString(), 
+                    FXCollections.observableArrayList());
     private final SimpleListProperty<Participant> requestedParticipants = 
-            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS.toExternalString());
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS.toExternalString(), 
+                    FXCollections.observableArrayList());
     private final SimpleObjectProperty<ConceptSpecification> priority = 
             new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_PRIORITY.toExternalString());
     private final SimpleListProperty<Repetition> repetitions = 
-            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS.toExternalString());
+            new SimpleListProperty(this, ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS.toExternalString(), 
+                    FXCollections.observableArrayList());
     private final SimpleObjectProperty<MeasureImpl> requestedMeasure = 
             new SimpleObjectProperty<>(this, ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT.toExternalString());
 

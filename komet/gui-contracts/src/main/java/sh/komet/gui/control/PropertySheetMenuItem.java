@@ -37,6 +37,7 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +91,7 @@ public class PropertySheetMenuItem
       this.manifold = manifold;
       this.observableVersion = categorizedVersion;
       this.makeAnalogOnExecute = makeAnalogOnExecute;
-      this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(manifold));
+      this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
       this.propertySheet.setMode(PropertySheet.Mode.NAME);
       this.propertySheet.setSearchBoxVisible(false);
       this.propertySheet.setModeSwitcherVisible(false);

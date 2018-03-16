@@ -105,7 +105,7 @@ import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
 
 //~--- classes ----------------------------------------------------------------
@@ -230,7 +230,7 @@ public class TreeTableGeneralCell
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
                     propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
 
                     editPanel.setTop(toolBar);

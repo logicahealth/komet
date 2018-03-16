@@ -63,53 +63,49 @@ import sh.isaac.api.Get;
  */
 public class Alert {
    private static final Logger LOG = LogManager.getLogger();
-   private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> resolverFactories =
+   private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> RESOLVER_FACTORIES =
       new ConcurrentSkipListSet<>();
-   private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> alertListeners =
+   private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> ALERT_LISTENERS =
       new ConcurrentSkipListSet<>();
-   private static final RingBuffer<AlertEvent> ringBuffer;
+   private static final RingBuffer<AlertEvent> RING_BUFFER;
 
    //~--- static initializers -------------------------------------------------
 
    static {
       Disruptor<AlertEvent> disruptor = Get.alertDisruptor();
 
-      disruptor.handleEventsWith(
-          (event, sequence, endOfBatch) -> {
+      disruptor.handleEventsWith((event, sequence, endOfBatch) -> {
              System.out.println("adding resolvers for: " + sequence + " " + event);
-             resolverFactories.forEach(
-                 (handler) -> {
+             RESOLVER_FACTORIES.forEach((handler) -> {
                     try {
 
                        if (handler.wasGarbageCollected()) {
-                          resolverFactories.remove(handler);
+                          RESOLVER_FACTORIES.remove(handler);
                        } else {
                           handler.onEvent(event, sequence, endOfBatch);
                        }
                     } catch (Exception ex) {
-                       resolverFactories.remove(handler);
+                       RESOLVER_FACTORIES.remove(handler);
                        LOG.error(ex);
                     }
                  });
           })
-               .then(
-                   (event, sequence, endOfBatch) -> {
+               .then((event, sequence, endOfBatch) -> {
                       System.out.println("alerting listeners for: " + sequence + " " + event);
-                      alertListeners.forEach(
-                          (handler) -> {
+                      ALERT_LISTENERS.forEach((handler) -> {
                              try {
                                 if (handler.wasGarbageCollected()) {
-                                   alertListeners.remove(handler);
+                                   ALERT_LISTENERS.remove(handler);
                                 } else {
                                    handler.onEvent(event, sequence, endOfBatch);
                                 }
                              } catch (Exception ex) {
-                                alertListeners.remove(handler);
+                                ALERT_LISTENERS.remove(handler);
                                 LOG.error(ex);
                              }
                           });
                    });
-      ringBuffer = disruptor.start();
+      RING_BUFFER = disruptor.start();
       
       Get.services(ResolverService.class)
               .forEach((resolverService) -> addResolverFactory(resolverService));
@@ -119,10 +115,10 @@ public class Alert {
    //~--- methods -------------------------------------------------------------
 
    public static void addResolverFactory(EventHandler<AlertEvent> resolverFactory) {
-      resolverFactories.add(new WeakEventHandler<>(resolverFactory));
+      RESOLVER_FACTORIES.add(new WeakEventHandler<>(resolverFactory));
    }
    public static void addAlertListener(EventHandler<AlertEvent> alertListener) {
-      alertListeners.add(new WeakEventHandler<>(alertListener));
+      ALERT_LISTENERS.add(new WeakEventHandler<>(alertListener));
    }
 
    public static void publishAddition(AlertObject alertObject) {

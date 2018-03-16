@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.model.statement.CircumstanceImpl;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -43,7 +43,7 @@ public abstract class CircumstancePropertySheet {
 
     public CircumstancePropertySheet(Manifold manifold) {
         this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
     }
     
     public void setCircumstance(CircumstanceImpl circumstance) {

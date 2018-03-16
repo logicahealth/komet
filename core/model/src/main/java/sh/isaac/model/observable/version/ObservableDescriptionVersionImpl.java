@@ -54,6 +54,7 @@ import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -100,14 +101,23 @@ public class ObservableDescriptionVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new observable description impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
+    * No arg constructor, for making an observable uncoupled for underlying data, 
+    * for example when creating a new component prior to being committed for 
+    * the first time. 
     */
-   public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSemanticChronology chronology) {
-      super(stampedVersion, chronology);
+   public ObservableDescriptionVersionImpl() {
+       super(VersionType.DESCRIPTION);
    }
+
+    /**
+     * Instantiates a new observable description.
+     *
+     * @param stampedVersion the stamped version
+     * @param chronology the chronology
+     */
+    public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSemanticChronology chronology) {
+        super(stampedVersion, chronology);
+    }
 
    public ObservableDescriptionVersionImpl(ObservableDescriptionVersion versionToClone, ObservableSemanticChronology chronology) {
       super(versionToClone, chronology);

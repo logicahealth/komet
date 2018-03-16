@@ -14,16 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.builder.observable;
-
-import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+package sh.komet.gui.control.property;
 
 /**
  *
  * @author kec
  */
-public class ObservableDescriptionBuilder {
-    ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl();
-    
-
+public enum EditorType {
+    CONCEPT_SPEC_CHOICE_BOX, OBJECT_CHOICE_BOX, TEXT, UNSPECIFIED
 }

@@ -46,8 +46,10 @@ import java.util.List;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -71,6 +73,16 @@ public abstract class ObservableAbstractSemanticVersionImpl
 
    /** The referenced component nid property. */
    ReadOnlyIntegerProperty referencedComponentNidProperty;
+
+  /**
+    * Minimal arg constructor, for making an observable uncoupled for underlying data, 
+    * for example when creating a new component prior to being committed for 
+    * the first time. 
+     * @param versionType
+    */
+    public ObservableAbstractSemanticVersionImpl(VersionType versionType) {
+        super(versionType);
+    }
 
    /**
     * Instantiates a new observable sememe version impl.
@@ -162,7 +174,10 @@ public abstract class ObservableAbstractSemanticVersionImpl
        if (this.stampedVersionProperty != null) {
            return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
        }
-      return assemblageNidProperty().get();
+       if (this.assemblageNidProperty != null) {
+           return assemblageNidProperty().get();
+       }
+       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
    /**
@@ -183,9 +198,12 @@ public abstract class ObservableAbstractSemanticVersionImpl
    @Override
    public int getReferencedComponentNid() {
        if (this.stampedVersionProperty != null) {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
+        return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
        }
-       return referencedComponentNidProperty().get();
+       if (this.referencedComponentNidProperty != null) {
+           return referencedComponentNidProperty().get();
+       }
+       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
 

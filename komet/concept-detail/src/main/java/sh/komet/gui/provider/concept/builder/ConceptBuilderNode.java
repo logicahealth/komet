@@ -28,9 +28,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.komet.gui.control.list.ListEditor;
 import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.control.version.VersionEditor;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 
@@ -69,6 +71,9 @@ public class ConceptBuilderNode implements DetailNode {
                 () -> new MeasureImpl(manifold), 
                 (Manifold m) -> new MeasureEditor(m));
         builderBorderPane.setCenter(conceptEditor.getEditor());
+        ObservableDescriptionVersionImpl desc = new ObservableDescriptionVersionImpl();
+        VersionEditor descEditor = new VersionEditor(desc, manifold);
+        builderBorderPane.setBottom(descEditor.getEditor());
     }
     
     private void cancel(Event event) {

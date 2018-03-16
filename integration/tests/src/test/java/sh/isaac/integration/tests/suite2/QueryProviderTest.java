@@ -98,7 +98,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 601;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+		int expectedMaxHits = 602;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
 		
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -247,10 +247,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 465);
+		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 466);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 465);
+		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 466);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("so*", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);
