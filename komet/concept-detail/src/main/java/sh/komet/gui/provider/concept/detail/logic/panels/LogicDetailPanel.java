@@ -17,9 +17,7 @@
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.Node;
@@ -53,9 +51,9 @@ public abstract class LogicDetailPanel {
     protected final TitledToolbarPane panel = new TitledToolbarPane();
     protected final Manifold manifold;
     protected final AbstractLogicNode logicNode;
-    protected final LogicalExpression logicalExpression;
+    protected LogicalExpression logicalExpression;
     private final Node editPencil = Iconography.EDIT_PENCIL.getIconographic();
-    private final Consumer<LogicalExpression> updater;
+    protected final Consumer<LogicalExpression> updater;
     public LogicDetailPanel(PremiseType premiseType, 
             AbstractLogicNode logicNode,
             LogicalExpression logicalExpression, 
@@ -159,5 +157,9 @@ public abstract class LogicDetailPanel {
          return Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic();
       }
       return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
+   }
+   
+   protected void updateLogicalExpression(LogicalExpression expression) {
+       this.logicalExpression = expression;
    }
 }
