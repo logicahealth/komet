@@ -53,7 +53,7 @@ import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.provider.concept.detail.logic.panels.LogicDetailRootNode;
+import sh.komet.gui.control.logic.LogicDetailRootNode;
 import sh.komet.gui.style.StyleClasses;
 
 /**

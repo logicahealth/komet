@@ -94,16 +94,14 @@ import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.LoincDirectImporter;
 import sh.isaac.solor.rf2.direct.LoincExpressionToConcept;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
-import sh.komet.assemblage.view.AssemblageViewProviderFactory;
 import sh.komet.gui.importation.ImportView;
+import sh.komet.gui.provider.concept.builder.ConceptBuilderProviderFactory;
 import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory;
-import sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -576,21 +574,45 @@ public class KometStageController
         } else {
             if (tabPanelCount == 2) {
                 // add one set linked to taxonomy selection
-                for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
-                    tabCountInPanel = setupConceptTab(
-                            tabCountInPanel,
-                            factory,
+                
+                List<ConceptDetailPanelProviderFactory> conceptDetailsFactoryList 
+                        = Get.services(ConceptDetailPanelProviderFactory.class);
+                if (!conceptDetailsFactoryList.isEmpty()) {
+                    tabCountInPanel = setupConceptTab(tabCountInPanel,
+                            conceptDetailsFactoryList.get(0),
                             tabPane,
                             Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
-                }
-                // add one set linked to search selection
-                for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
-                    tabCountInPanel = setupConceptTab(
-                            tabCountInPanel,
-                            factory,
+                    tabCountInPanel = setupConceptTab(tabCountInPanel,
+                            conceptDetailsFactoryList.get(0),
                             tabPane,
                             Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME));
                 }
+                List<ConceptBuilderProviderFactory> conceptBuilderFactoryList 
+                        = Get.services(ConceptBuilderProviderFactory.class);
+                if (!conceptBuilderFactoryList.isEmpty()) {
+                    tabCountInPanel = setupConceptTab(tabCountInPanel,
+                            conceptBuilderFactoryList.get(0),
+                            tabPane,
+                            Manifold.make(Manifold.UNLINKED_GROUP_NAME));
+                    
+                }
+                
+//                for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
+//                    
+//                    tabCountInPanel = setupConceptTab(
+//                            tabCountInPanel,
+//                            factory,
+//                            tabPane,
+//                            Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
+//                }
+//                // add one set linked to search selection
+//                for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
+//                    tabCountInPanel = setupConceptTab(
+//                            tabCountInPanel,
+//                            factory,
+//                            tabPane,
+//                            Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME));
+//                }
             }
 
             if (tabPanelCount == 3) {

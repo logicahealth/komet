@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.provider.concept.detail.logic.panels;
+package sh.komet.gui.control.logic;
 
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyStringProperty;

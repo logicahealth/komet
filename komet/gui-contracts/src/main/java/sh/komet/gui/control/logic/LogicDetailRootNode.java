@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.provider.concept.detail.logic.panels;
+package sh.komet.gui.control.logic;
 
 import java.util.Optional;
 import javafx.event.Event;
@@ -129,6 +129,14 @@ public class LogicDetailRootNode extends LogicDetailPanel {
     public Node getPanelNode() {
         return rootBorderPane;
     }
+    
+    public Node getSetsPanelNode() {
+        
+        this.panel.setContent(null);
+        this.rootBorderPane.setCenter(setBox);
+        return this.rootBorderPane;
+    }
+    
 
     private void cancelEdit(Event event) {
         updateExpression();
