@@ -17,7 +17,6 @@
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -45,8 +44,8 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
 
     public LogicDetailConceptPanel(ConceptNodeWithNids conceptNode,
             PremiseType premiseType, LogicalExpression logicalExpression, 
-            Manifold manifold, Consumer<LogicalExpression> updater) {
-        super(premiseType, conceptNode, logicalExpression, manifold, updater);
+            Manifold manifold, LogicDetailRootNode rootNodePanel) {
+        super(premiseType, conceptNode, logicalExpression, manifold, rootNodePanel);
         this.conceptNode = conceptNode;
         expressionForThisConcept = manifold.getLogicalExpression(conceptNode.getConceptNid(), premiseType);
         this.panel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
@@ -66,8 +65,7 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
         popover.setContentNode(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), 
                     getPremiseType(), 
                     expressionForThisConcept.get(), 
-                    manifold,
-                    this::updatePopup).getPanelNode());
+                    manifold).getPanelNode());
     }
     private void handleShowConceptNodeClick(MouseEvent mouseEvent) {
         if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
@@ -75,8 +73,7 @@ public class LogicDetailConceptPanel extends LogicDetailPanel {
             popover.setContentNode(new LogicDetailRootNode((RootNode) expressionForThisConcept.get().getRoot(), 
                     getPremiseType(), 
                     expressionForThisConcept.get(), 
-                    manifold,
-                    this::updatePopup
+                    manifold
             ).getPanelNode());
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);

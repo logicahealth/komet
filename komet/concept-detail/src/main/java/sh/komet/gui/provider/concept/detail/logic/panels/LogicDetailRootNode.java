@@ -17,12 +17,10 @@
 package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -50,7 +48,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class LogicDetailRootNode extends LogicDetailPanel {
 
-    private final RootNode rootNode;
+    private RootNode rootNode;
 
     private final VBox setBox = new VBox();
 
@@ -58,8 +56,8 @@ public class LogicDetailRootNode extends LogicDetailPanel {
 
     public LogicDetailRootNode(RootNode rootNode,
             PremiseType premiseType, LogicalExpression logicalExpression,
-            Manifold manifold, Consumer<LogicalExpression> updater) {
-        super(premiseType, rootNode, logicalExpression, manifold, updater);
+            Manifold manifold) {
+        super(premiseType, rootNode, logicalExpression, manifold);
         this.panel.setContent(setBox);
 
         rootBorderPane.setCenter(panel);
@@ -77,10 +75,17 @@ public class LogicDetailRootNode extends LogicDetailPanel {
 
         this.panel.setLeftGraphic1(computeGraphic());
 
-        updateChildPanels(updater);
+        updateChildPanels();
     }
 
-    private void updateChildPanels(Consumer<LogicalExpression> updater) throws IllegalStateException {
+    public void updateStatedExpression(LogicalExpression expression) {
+       this.logicalExpression = expression;
+       this.rootNode = (RootNode) expression.getRoot();
+       updateChildPanels();
+    }
+    
+    
+    private void updateChildPanels() throws IllegalStateException {
         if (logicalExpression.isUncommitted()) {
             ToolBar commitToolbar = new ToolBar();
             Region spacer = new Region();
@@ -96,12 +101,13 @@ public class LogicDetailRootNode extends LogicDetailPanel {
             rootBorderPane.setTop(null);
         }
         // find the set nodes.
+        setBox.getChildren().clear();
         for (LogicNode childNode : rootNode.getChildren()) {
             LogicDetailSetPanel setPanel;
             if (childNode instanceof NecessarySetNode) {
-                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
+                setPanel = new LogicDetailSetPanel((NecessarySetNode) childNode, getPremiseType(), logicalExpression, manifold, this);
             } else if (childNode instanceof SufficientSetNode) {
-                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), logicalExpression, manifold, updater);
+                setPanel = new LogicDetailSetPanel((SufficientSetNode) childNode, getPremiseType(), logicalExpression, manifold, this);
             } else {
                 throw new IllegalStateException("Can't handle node: " + childNode);
             }
@@ -131,8 +137,9 @@ public class LogicDetailRootNode extends LogicDetailPanel {
     private void updateExpression() {
         Optional<LogicalExpression> expression = manifold.getStatedLogicalExpression(this.logicalExpression.getConceptNid());
         if (expression.isPresent()) {
+            this.rootNode = (RootNode) expression.get().getRoot();
             updateLogicalExpression(expression.get());
-            updateChildPanels(updater);
+            updateChildPanels();
         }
     }
 

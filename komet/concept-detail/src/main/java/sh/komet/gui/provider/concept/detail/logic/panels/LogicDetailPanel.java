@@ -53,16 +53,15 @@ public abstract class LogicDetailPanel {
     protected final AbstractLogicNode logicNode;
     protected LogicalExpression logicalExpression;
     private final Node editPencil = Iconography.EDIT_PENCIL.getIconographic();
-    protected final Consumer<LogicalExpression> updater;
+    protected final LogicDetailRootNode rootNodePanel;
     public LogicDetailPanel(PremiseType premiseType, 
             AbstractLogicNode logicNode,
             LogicalExpression logicalExpression, 
-            Manifold manifold, Consumer<LogicalExpression> updater) {
+            Manifold manifold, LogicDetailRootNode rootNodePanel) {
         this.premiseType = premiseType;
         this.manifold = manifold;
         this.logicNode = logicNode;
         this.logicalExpression = logicalExpression;
-        this.updater = updater;
         if (premiseType == PremiseType.STATED) {
             
             editPencil.setOnMouseClicked(this::handleConceptNodeClick);
@@ -70,6 +69,25 @@ public abstract class LogicDetailPanel {
         }
         
         panel.addEventFilter(EventType.ROOT, this::filterOutUnwantedMouseReleased);
+        this.rootNodePanel = rootNodePanel;
+    }
+
+    public LogicDetailPanel(PremiseType premiseType, 
+            AbstractLogicNode logicNode,
+            LogicalExpression logicalExpression, 
+            Manifold manifold) {
+        this.premiseType = premiseType;
+        this.manifold = manifold;
+        this.logicNode = logicNode;
+        this.logicalExpression = logicalExpression;
+        if (premiseType == PremiseType.STATED) {
+            
+            editPencil.setOnMouseClicked(this::handleConceptNodeClick);
+            panel.setRightGraphic(editPencil);
+        }
+        
+        panel.addEventFilter(EventType.ROOT, this::filterOutUnwantedMouseReleased);
+        this.rootNodePanel = (LogicDetailRootNode) this;
     }
     
     protected final void filterOutUnwantedMouseReleased(Event event) {
@@ -93,7 +111,7 @@ public abstract class LogicDetailPanel {
            FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
                    manifold, 
                    logicNode, 
-                   logicalExpression, updater);
+                   logicalExpression, this.rootNodePanel::updateStatedExpression);
        
        if (!actionItems.isEmpty()) {
            contextMenu.getItems().add(new SeparatorMenuItem());
@@ -105,6 +123,8 @@ public abstract class LogicDetailPanel {
        mouseEvent.consume();
        contextMenu.show(panel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
     }
+    
+    
     
     protected final void setPseudoClasses(Node node) {
         switch (premiseType) {

@@ -130,10 +130,6 @@ public class LogicDetailNode
         setConcept(conceptDetailManifold.getFocusedConcept().get());
     }
 
-    public void updateStatedExpression(LogicalExpression expression) {
-        getLogicDetail(Optional.of(expression));
-    }
-
     private Node getLogicDetail() {
         if (conceptDetailManifold.getFocusedConcept().isPresent()) {
             Optional<LogicalExpression> statedExpression = conceptDetailManifold.getStatedLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
@@ -150,7 +146,7 @@ public class LogicDetailNode
         splitPane.setOrientation(Orientation.VERTICAL);
         conceptDetailPane.setCenter(splitPane);
         if (statedExpression.isPresent()) {
-            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold, this::updateStatedExpression);
+            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold);
             if (statedExpression.get().isUncommitted()) {
                 editInFlight = statedExpression.get();
                 BorderPane expressionBorderPane = new BorderPane();
@@ -176,7 +172,7 @@ public class LogicDetailNode
         }
         Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
         if (inferredExpression.isPresent()) {
-            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold, this::updateStatedExpression);
+            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold);
             splitPane.getItems().add(rootDetail.getPanelNode());
         } else {
             conceptDetailPane.setCenter(new Label("No inferred form"));

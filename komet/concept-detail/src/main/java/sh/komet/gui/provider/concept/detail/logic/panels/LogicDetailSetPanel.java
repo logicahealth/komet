@@ -18,7 +18,6 @@ package sh.komet.gui.provider.concept.detail.logic.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,7 +26,6 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
@@ -47,11 +45,11 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
 
     public LogicDetailSetPanel(NecessarySetNode setNode, 
                         PremiseType premiseType, LogicalExpression logicalExpression, 
-                        Manifold manifold, Consumer<LogicalExpression> updater) {
-        super(premiseType, setNode, logicalExpression, manifold, updater);
+                        Manifold manifold, LogicDetailRootNode rootNodePanel) {
+        super(premiseType, setNode, logicalExpression, manifold, rootNodePanel);
         panel.setContent(setBox);
         setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
-        setup(setNode, updater);
+        setup(setNode);
         setPseudoClasses(panel);
         panel.getStyleClass()
                 .add(StyleClasses.DEF_NECESSARY_SET.toString());        
@@ -62,11 +60,11 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
 
     public LogicDetailSetPanel(SufficientSetNode setNode,             
                         PremiseType premiseType, LogicalExpression logicalExpression, 
-                        Manifold manifold, Consumer<LogicalExpression> updater) {
-        super(premiseType, setNode, logicalExpression, manifold, updater);
+                        Manifold manifold, LogicDetailRootNode rootNodePanel) {
+        super(premiseType, setNode, logicalExpression, manifold, rootNodePanel);
         panel.setContent(setBox);
         setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
-        setup(setNode, updater);
+        setup(setNode);
         setPseudoClasses(panel);
         panel.getStyleClass()
                 .add(StyleClasses.DEF_SUFFICIENT_SET.toString());        
@@ -75,7 +73,7 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
                 .add(StyleClasses.DEF_SUFFICIENT_SET.toString());        
     }
 
-    private void setup(ConnectorNode setNode, Consumer<LogicalExpression> updater) {
+    private void setup(ConnectorNode setNode) {
         this.setNode = setNode;
         if (setNode instanceof SufficientSetNode) {
             this.panel.setLeftGraphic2(Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic());
@@ -94,12 +92,12 @@ public class LogicDetailSetPanel extends LogicDetailPanel {
  
                 switch (andNodeChild.getNodeSemantic()) {
                     case ROLE_SOME:
-                        LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
+                        LogicDetailRolePanel rolePanel = new LogicDetailRolePanel((RoleNodeSomeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, rootNodePanel);
                         VBox.setMargin(rolePanel.getPanelNode(), new Insets(0));
                         childNodes.add(rolePanel);
                         break;
                     case CONCEPT:
-                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, updater);
+                        LogicDetailConceptPanel conceptPanel = new LogicDetailConceptPanel((ConceptNodeWithNids) andNodeChild, getPremiseType(), logicalExpression, manifold, rootNodePanel);
                         VBox.setMargin(conceptPanel.getPanelNode(), new Insets(0));
                         childNodes.add(conceptPanel);
                         break;
