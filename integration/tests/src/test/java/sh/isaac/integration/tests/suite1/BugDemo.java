@@ -80,7 +80,7 @@ public class BugDemo
 		// Add a description to an arbitrary concept (MetaData.ACTION_STATEMENT____SOLOR.getNid()) with an INVALID extended desription type.
 		SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
 		SemanticBuilder<? extends SemanticChronology> descriptionSemanticBuilder = semanticBuilderService.getDescriptionBuilder(
-				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME____SOLOR.getNid(),
+				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
 				"foo", MetaData.ACTION_PURPOSE____SOLOR.getNid());
 
 		// add an extended type (which is a nested semantic on the description which references the concept created above) - this is added in the same
@@ -138,7 +138,7 @@ public class BugDemo
 		// Add a description to an arbitrary concept (MetaData.ACTION_STATEMENT____SOLOR.getNid())
 		SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
 		SemanticBuilder<? extends SemanticChronology> descriptionSemanticBuilder = semanticBuilderService.getDescriptionBuilder(
-				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME____SOLOR.getNid(),
+				MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
 				"foo", MetaData.ACTION_PURPOSE____SOLOR.getNid());
 
 		// add an extended type (which is a nested semantic on the description which references the concept created above) - this is added in the same

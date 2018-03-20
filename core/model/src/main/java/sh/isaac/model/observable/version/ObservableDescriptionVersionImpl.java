@@ -43,6 +43,7 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -101,12 +102,13 @@ public class ObservableDescriptionVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * No arg constructor, for making an observable uncoupled for underlying data, 
-    * for example when creating a new component prior to being committed for 
+    * A constructor for de novo creation. For example when creating a new component prior to being committed for 
     * the first time. 
+     * @param primordialUuid
+     * @param referencedComponentUuid
     */
-   public ObservableDescriptionVersionImpl() {
-       super(VersionType.DESCRIPTION);
+   public ObservableDescriptionVersionImpl(UUID primordialUuid, UUID referencedComponentUuid) {
+       super(VersionType.DESCRIPTION, primordialUuid, referencedComponentUuid);
    }
 
     /**

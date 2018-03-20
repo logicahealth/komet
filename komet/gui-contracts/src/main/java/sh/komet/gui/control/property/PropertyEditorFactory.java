@@ -27,8 +27,10 @@ import java.util.NoSuchElementException;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
@@ -100,22 +102,42 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     collection.add(new ConceptForControlWrapper(manifoldForDisplay, allowedConcept.getNid()));
                 }
                 PropertyEditor editor = Editors.createChoiceEditor(item, collection);
+                ComboBox editorControl = (ComboBox) editor.getEditor();
+                editorControl.setMaxWidth(Double.MAX_VALUE);
                 ConceptSpecification defaultConcept = (ConceptSpecification) item.getDefaultValue();
-                editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
+                ConceptSpecification currentValue = (ConceptSpecification) item.getValue();
+                if (currentValue == null) {
+                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
+                } else {
+                    editor.setValue(currentValue);
+                }
                 return editor;
             }
             case OBJECT_CHOICE_BOX: {
                 PropertyEditor editor = Editors.createChoiceEditor(item, item.getAllowedValues());
-                editor.setValue(item.getDefaultValue());
+                ComboBox editorControl = (ComboBox) editor.getEditor();
+                editorControl.setMaxWidth(Double.MAX_VALUE);
+                if (item.getValue() == null) {
+                    editor.setValue(item.getDefaultValue());
+                } else {
+                     editor.setValue(item.getValue());
+                }
                 return editor;
             }
             
             case TEXT: {
-                return Editors.createTextEditor(item);
+                PropertyEditor editor = Editors.createTextEditor(item);
+                TextField editorControl = (TextField) editor.getEditor();
+                editorControl.setText((String) item.getValue());
+                editorControl.setMaxWidth(Double.MAX_VALUE);
+                return editor;
             }
             case UNSPECIFIED:
             default:
                PropertyEditor editor = Editors.createTextEditor(item);
+               TextField editorControl = (TextField) editor.getEditor();
+                editorControl.setText(item.getValue().toString());
+               editorControl.setMaxWidth(Double.MAX_VALUE);
                return editor;
         }
     }

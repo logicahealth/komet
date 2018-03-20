@@ -46,7 +46,9 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
         this.observableVersion = observableVersion;
         this.manifold = manifold;
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
-        setupProperties();
+        if (observableVersion != null) {
+            setupProperties();
+        }
     }
 
     public VersionEditor(Manifold manifold) {
@@ -79,8 +81,5 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
             propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, manifold));
         }
         FxGet.rulesDrivenKometService().populateWrappedProperties(propertySheet.getItems());
-        
     }
-    
-    
 }

@@ -40,6 +40,7 @@ import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.komet.gui.control.titled.TitledToolbarPane;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -66,25 +67,30 @@ public class LogicDetailRootNode extends LogicDetailPanel {
         });
         setBox.paddingProperty().set(new Insets(0, 0, 0, leftInset));
         this.rootNode = rootNode;
-        this.panel.setText(this.manifold.getPreferredDescriptionText(this.rootNode.getNidForConceptBeingDefined()));
+
         if (premiseType == PremiseType.STATED) {
             this.panel.setLeftGraphic2(Iconography.STATED.getIconographic());
         } else {
             this.panel.setLeftGraphic2(Iconography.INFERRED.getIconographic());
         }
-
-        this.panel.setLeftGraphic1(computeGraphic());
+        if (rootNode.getChildren().length == 0) {
+            this.panel.setText("Concept being created");
+            this.panel.setLeftGraphic1(Iconography.ALERT_CONFIRM2.getIconographic());
+            this.panel.setLeftGraphic2(null);
+        } else {
+            this.panel.setText(this.manifold.getPreferredDescriptionText(this.rootNode.getNidForConceptBeingDefined()));
+            this.panel.setLeftGraphic1(computeGraphic());
+        }
 
         updateChildPanels();
     }
 
     public void updateStatedExpression(LogicalExpression expression) {
-       this.logicalExpression = expression;
-       this.rootNode = (RootNode) expression.getRoot();
-       updateChildPanels();
+        this.logicalExpression = expression;
+        this.rootNode = (RootNode) expression.getRoot();
+        updateChildPanels();
     }
-    
-    
+
     private void updateChildPanels() throws IllegalStateException {
         if (logicalExpression.isUncommitted()) {
             ToolBar commitToolbar = new ToolBar();
@@ -117,7 +123,9 @@ public class LogicDetailRootNode extends LogicDetailPanel {
     }
 
     private void handleOpenClose(boolean open) {
-        this.panel.setLeftGraphic1(computeGraphic());
+        if (logicalExpression.getConceptNid() != -1) {
+            this.panel.setLeftGraphic1(computeGraphic());
+        }
     }
 
     @Override
@@ -129,25 +137,30 @@ public class LogicDetailRootNode extends LogicDetailPanel {
     public Node getPanelNode() {
         return rootBorderPane;
     }
-    
+
+    public TitledToolbarPane getTitledToolbar() {
+        this.rootBorderPane.setCenter(null);
+        return panel;
+    }
     public Node getSetsPanelNode() {
-        
+
         this.panel.setContent(null);
         this.rootBorderPane.setCenter(setBox);
         return this.rootBorderPane;
     }
-    
 
     private void cancelEdit(Event event) {
         updateExpression();
     }
 
     private void updateExpression() {
-        Optional<LogicalExpression> expression = manifold.getStatedLogicalExpression(this.logicalExpression.getConceptNid());
-        if (expression.isPresent()) {
-            this.rootNode = (RootNode) expression.get().getRoot();
-            updateLogicalExpression(expression.get());
-            updateChildPanels();
+        if (this.logicalExpression.getConceptNid() != -1) {
+            Optional<LogicalExpression> expression = manifold.getStatedLogicalExpression(this.logicalExpression.getConceptNid());
+            if (expression.isPresent()) {
+                this.rootNode = (RootNode) expression.get().getRoot();
+                updateLogicalExpression(expression.get());
+                updateChildPanels();
+            }
         }
     }
 

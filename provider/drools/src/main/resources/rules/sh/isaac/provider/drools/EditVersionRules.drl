@@ -111,9 +111,9 @@ rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 when
    $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.REGULAR_NAME____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DEFINITION____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
    
 end
 rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
@@ -123,7 +123,7 @@ when
 then
    $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid());
    $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getNid());
    
 end
 rule "if property specification is LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "

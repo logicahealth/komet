@@ -219,7 +219,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), conceptNid);
         DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
         descriptionVersion.setCaseSignificanceConceptNid(
-                MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getNid());
+                MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getNid());
         descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
         descriptionVersion.setLanguageConceptNid(TermAux.ENGLISH_LANGUAGE.getNid());
         descriptionVersion.setText(description);

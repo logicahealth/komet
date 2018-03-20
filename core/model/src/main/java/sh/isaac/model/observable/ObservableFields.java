@@ -170,29 +170,40 @@ public enum ObservableFields
    /** The version list for chronicle. */
    VERSION_LIST_FOR_CHRONICLE("Version list for chronicle", "Versions"),
 
+   CONCEPT_VERSION("Concept version", "Concept"),
+
    /** The native id for chronicle. */
-   NATIVE_ID_FOR_CHRONICLE("Native id for chronicle", "Nid"),
+   NATIVE_ID_FOR_COMPONENT("Native id for component", "Nid"),
 
    /** The entry sequence for chronicle. */
-   ENTRY_SEQUENCE_FOR_CHRONICLE("Entry sequence for chronicle", "Entry ID"),
+   ENTRY_SEQUENCE_FOR_COMPONENT("Entry sequence for component", "Entry ID"),
 
    /** The assemblage nid for chronicle. */
-   ASSEMBLAGE_NID_FOR_CHRONICLE("Assemblage nid for chronicle", "Assemblage"),
+   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage"),
 
    /** The referenced component nid for semantic chronicle. */
-   REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE("Referenced component nid for semantic chronicle", "Referenced component"),
+   REFERENCED_COMPONENT_NID_FOR_SEMANTIC("Referenced component nid for semantic", "Referenced component id"),
+
+   /** The referenced component nid for semantic chronicle. */
+   REFERENCED_COMPONENT_UUID_FOR_SEMANTIC("Referenced component UUID for semantic", "Referenced component UUID"),
 
    /** The primordial uuid for chronicle. */
-   PRIMORDIAL_UUID_FOR_CHRONICLE("Primordial UUID for chronicle", "UUID"),
+   PRIMORDIAL_UUID_FOR_COMPONENT("Primordial UUID for chronicle", "UUID"),
 
    /** The uuid list for chronicle. */
-   UUID_LIST_FOR_CHRONICLE("UUID list for chronicle", "UUIDs"),
+   UUID_LIST_FOR_COMPONENT("UUID list for component", "UUIDs"),
 
    /** The committed state for chronicle. */
    COMMITTED_STATE_FOR_CHRONICLE("Committed state for chronicle", "Committed state"),
 
    /** The semantic list for chronicle. */
    SEMANTIC_LIST_FOR_CHRONICLE("semantic list for chronicle"),
+   
+   DESCRIPTION_DIALECT("Description dialect pair"),
+   
+   DESCRIPTION_DIALECT_DESCRIPTION("Description for dialect/description pair"),
+   
+   DESCRIPTION_DIALECT_DIALECT("Dialect for dialect/description pair"),
 
    /** The description list for concept. */
    DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),

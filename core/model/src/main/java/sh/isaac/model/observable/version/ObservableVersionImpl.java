@@ -77,6 +77,12 @@ public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
 
    /**
+    * The primordial uuid property.
+    */
+   ObjectProperty<UUID> primordialUuidProperty;
+
+
+    /**
     * The state property.
     */
    ObjectProperty<Status> stateProperty;
@@ -137,11 +143,16 @@ public abstract class ObservableVersionImpl
     * for example when creating a new component prior to being committed for 
     * the first time. 
      * @param versionType
+     * @param primordialUuid
     */
-   public ObservableVersionImpl(VersionType versionType) {
+   public ObservableVersionImpl(VersionType versionType, UUID primordialUuid) {
        this.stampedVersionProperty = null;
        this.chronology = null;
        this.versionType = versionType;
+       this.primordialUuidProperty = new SimpleObjectProperty(
+                 this,
+                 ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
+                 primordialUuid);
        getProperties();
    }
 
@@ -656,14 +667,16 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public UUID getPrimordialUuid() {
-       
+       if (this.primordialUuidProperty != null) {
+          return this.primordialUuidProperty.get();
+       }
       return getChronology().getPrimordialUuid();
    }
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       return new ArrayList(
-              Arrays.asList(new Property[]{
+              Arrays.asList(new Property[]{ 
                          stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
                          commitStateProperty()}));
    }
@@ -788,6 +801,9 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public List<UUID> getUuidList() {
+       if (this.stampedVersionProperty == null || this.stampedVersionProperty.get() == null) {
+           return Arrays.asList(this.primordialUuidProperty.get());
+       }
       return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
    }
 

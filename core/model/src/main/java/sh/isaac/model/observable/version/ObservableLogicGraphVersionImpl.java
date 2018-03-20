@@ -44,15 +44,19 @@ package sh.isaac.model.observable.version;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.DataSource;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -65,8 +69,9 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,6 +86,14 @@ public class ObservableLogicGraphVersionImpl
    ObjectProperty<byte[][]> logicGraphProperty;
 
    //~--- constructors --------------------------------------------------------
+   public ObservableLogicGraphVersionImpl(UUID referencedComponentUuid) {
+      super(VersionType.LOGIC_GRAPH, UUID.randomUUID(), referencedComponentUuid);
+       LogicalExpressionBuilderImpl builder = new LogicalExpressionBuilderImpl();
+       LogicalExpression emptyExpression = builder.build();
+       setGraphData(emptyExpression.getData(DataTarget.INTERNAL));
+   }
+   
+
 
    /**
     * Instantiates a new observable component nid version impl.
@@ -206,6 +219,9 @@ public class ObservableLogicGraphVersionImpl
 
    @Override
    public LogicalExpression getLogicalExpression() {
+      if (this.logicGraphProperty != null) {
+         return new LogicalExpressionImpl(this.logicGraphProperty.get(), DataSource.INTERNAL);
+      }
       return ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getLogicalExpression();
    }
 

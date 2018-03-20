@@ -216,7 +216,7 @@ public abstract class BadgedVersionPanel
             setupConcept((ConceptVersion) observableVersion);
         } else if (observableVersion instanceof LogicGraphVersion) {
             isLogicalDefinition.set(true);
-            setupDef((LogicGraphVersion) observableVersion);
+            setupLogicDef((LogicGraphVersion) observableVersion);
         } else {
             setupOther(observableVersion);
         }
@@ -344,10 +344,10 @@ public abstract class BadgedVersionPanel
         }
     }
 
-    protected final void setupDef(LogicGraphVersion logicGraphVersion) {
+    protected final void setupLogicDef(LogicGraphVersion logicGraphVersion) {
         PremiseType premiseType = PremiseType.STATED;
         if (isLatestPanel()) {
-            componentType.setText("DEF");
+            componentType.setText("EL++");
       
             if (getManifold().getLogicCoordinate()
                     .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
@@ -376,7 +376,7 @@ public abstract class BadgedVersionPanel
             if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                 componentType.setText("FQN");
             } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText("SYN");
+                componentType.setText("NAME");
             } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                 componentType.setText("DEF");
             } else {

@@ -131,15 +131,15 @@ public class IBDFCreationUtility
       {
          if (DescriptionType.FULLY_QUALIFIED_NAME == this)
          {
-            return MetaData.FULLY_QUALIFIED_NAME____SOLOR;
+            return MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR;
          }
          else if (DescriptionType.REGULAR_NAME == this)
          {
-            return MetaData.REGULAR_NAME____SOLOR;
+            return MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR;
          }
          else if (DescriptionType.DEFINITION == this)
          {
-            return MetaData.DEFINITION____SOLOR;
+            return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR;
          }
          else
          {
@@ -149,15 +149,15 @@ public class IBDFCreationUtility
 
       public static DescriptionType parse(UUID typeId)
       {
-         if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getUuidList().contains(typeId))
+         if (MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getUuidList().contains(typeId))
          {
             return FULLY_QUALIFIED_NAME;
          }
-         else if (MetaData.REGULAR_NAME____SOLOR.getUuidList().contains(typeId))
+         else if (MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getUuidList().contains(typeId))
          {
             return REGULAR_NAME;
          }
-         if (MetaData.DEFINITION____SOLOR.getUuidList().contains(typeId))
+         if (MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getUuidList().contains(typeId))
          {
             return DEFINITION;
          }
@@ -166,15 +166,15 @@ public class IBDFCreationUtility
       
       public static DescriptionType parse(int typeId)
       {
-         if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid() == typeId)
+         if (MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid() == typeId)
          {
             return FULLY_QUALIFIED_NAME;
          }
-         else if ( MetaData.REGULAR_NAME____SOLOR.getNid() == typeId)
+         else if ( MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid() == typeId)
          {
             return REGULAR_NAME;
          }
-         if (MetaData.DEFINITION____SOLOR.getNid() == typeId)
+         if (MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid() == typeId)
          {
             return DEFINITION;
          }

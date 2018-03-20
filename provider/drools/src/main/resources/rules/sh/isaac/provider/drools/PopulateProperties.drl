@@ -23,6 +23,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.property.PropertySheetItem;
+import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.control.property.EditorType;
 import sh.isaac.api.logic.NodeSemantic;
 
@@ -73,12 +74,12 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.FULLY_QUALIFIED_NAME____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME____SOLOR);
+   $propertySheetItem.setDefaultValue(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    
    $propertySheetItem.getAllowedValues().add(MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.REGULAR_NAME____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.DEFINITION____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
 end
 
 rule "Setup case significance"
@@ -89,10 +90,9 @@ then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
    $propertySheetItem.setDefaultValue(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
-   
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
 end
 
 
@@ -127,4 +127,30 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.TEXT_FOR_DESCRIPTION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.TEXT);
+end
+
+rule "Setup dialect assemblage"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.ASSEMBLAGE_NID_FOR_COMPONENT____SOLOR.getNid(), 
+   getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.US_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.US_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.US_NURSING_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.GB_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.LATIN_AMERICAN_SPANISH_DIALECT_ASSEMBLAGE____SOLOR);
+end
+
+rule "Setup dialect acceptability"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR.getNid(), 
+   getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.PREFERRED____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.PREFERRED____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.ACCEPTABLE____SOLOR);
 end

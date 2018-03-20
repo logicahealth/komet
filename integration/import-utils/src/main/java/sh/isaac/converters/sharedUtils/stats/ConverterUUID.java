@@ -111,8 +111,8 @@ public class ConverterUUID {
       } catch (Exception e) {
          // This is just a fall back in case the initialization by reflection fails
          CONSTANTS = new ConceptSpecification[] { 
-               MetaData.IS_A____SOLOR, MetaData.REGULAR_NAME____SOLOR,
-               MetaData.FULLY_QUALIFIED_NAME____SOLOR, MetaData.DEFINITION____SOLOR,
+               MetaData.IS_A____SOLOR, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR,
+               MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
                MetaData.US_ENGLISH_DIALECT____SOLOR, MetaData.GB_ENGLISH_DIALECT____SOLOR,
                MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR,
                MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR, MetaData.CONVERTER_VERSION____SOLOR,

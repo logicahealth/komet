@@ -43,9 +43,13 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javafx.beans.property.Property;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
@@ -67,7 +71,16 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 public class ObservableConceptVersionImpl
         extends ObservableVersionImpl
          implements ObservableConceptVersion {
-   /**
+    
+   public ObservableConceptVersionImpl(UUID primordialUuid) {
+      super(VersionType.CONCEPT, primordialUuid);
+      this.setAuthorNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+      this.setModuleNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+      this.setPathNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+      this.setStatus(Status.ACTIVE);
+   }
+
+    /**
     * Instantiates a new observable concept version impl.
     *
     * @param stampedVersion the stamped version

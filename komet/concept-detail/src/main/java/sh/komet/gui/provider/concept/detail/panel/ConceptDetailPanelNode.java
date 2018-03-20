@@ -363,7 +363,7 @@ public class ConceptDetailPanelNode
                                             }
 
                                             if (dv1.getDescriptionTypeConceptNid()
-                                            == MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid()) {
+                                            == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
                                                 return -1;
                                             }
 

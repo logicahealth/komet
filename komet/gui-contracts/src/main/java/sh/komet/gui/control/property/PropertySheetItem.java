@@ -23,10 +23,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
+import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import sh.komet.gui.manifold.Manifold;
@@ -58,11 +60,18 @@ public class PropertySheetItem implements PropertySheet.Item {
     private final ConceptSpecification specificationForProperty;
 
     private EditorType editorType = EditorType.UNSPECIFIED;
-
+    
+    private PropertySheetPurpose propertySheetPurpose = PropertySheetPurpose.UNSPECIFIED;
+    
     public PropertySheetItem(Property theProperty, Manifold manifold) {
         this(null, theProperty, manifold);
     }
 
+    public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold, PropertySheetPurpose propertySheetPurpose) {
+        this(defaultValue, theProperty, manifold);
+        this.propertySheetPurpose = propertySheetPurpose;
+    }
+    
     public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold) {
         this.defaultValue = defaultValue;
         this.theProperty = theProperty;
@@ -82,8 +91,6 @@ public class PropertySheetItem implements PropertySheet.Item {
     public void setEditorType(EditorType editorType) {
         this.editorType = editorType;
     }
-   
-
 
     public ObservableList<Object> getAllowedValues() {
         return allowedValues;
@@ -141,6 +148,9 @@ public class PropertySheetItem implements PropertySheet.Item {
         }
         if (editorType == EditorType.CONCEPT_SPEC_CHOICE_BOX) {
             CommitAwareIntegerProperty intProperty = (CommitAwareIntegerProperty) theProperty;
+            if (intProperty.getValue() == 0 || intProperty.getValue() == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
+                return null;
+            }
             return Get.concept(intProperty.get());
         }
         
@@ -154,6 +164,8 @@ public class PropertySheetItem implements PropertySheet.Item {
         } else {
             if (value instanceof ConceptForControlWrapper) {
                 theProperty.setValue(((ConceptForControlWrapper) value).getNid());
+            } else if (value instanceof ConceptChronologyImpl) {
+                theProperty.setValue(((ConceptChronologyImpl) value).getNid());
             } else {
                 theProperty.setValue(value);
             }
@@ -181,5 +193,14 @@ public class PropertySheetItem implements PropertySheet.Item {
     public String toString() {
         return "PropertySheetItem{" + "name=" + name + ", editorType=" + editorType + '}';
     }
+    
+    public PropertySheetPurpose getPropertySheetPurpose() {
+        return propertySheetPurpose;
+    }
+
+    public void setPropertySheetPurpose(PropertySheetPurpose propertySheetPurpose) {
+        this.propertySheetPurpose = propertySheetPurpose;
+    }
+
     
 }
