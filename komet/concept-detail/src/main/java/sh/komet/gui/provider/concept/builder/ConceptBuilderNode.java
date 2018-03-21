@@ -147,7 +147,7 @@ public class ConceptBuilderNode implements DetailNode {
         
          
         AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
-        descriptionHeader.pseudoClassStateChanged(PseudoClasses.STATED_PSEUDO_CLASS, true);
+        definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                     .add(addNode(definitionHeader));  
         
@@ -194,13 +194,13 @@ public class ConceptBuilderNode implements DetailNode {
     private void cancel(Event event) {
         builderToolbar.getItems().clear();
         builderToolbar.getItems().addAll(newConceptButton);
-        builderBorderPane.setCenter(null);
+        componentPanelBox.getChildren().clear();
     }
     
     private void commit(Event event) {
         builderToolbar.getItems().clear();
         builderToolbar.getItems().addAll(newConceptButton);
-        builderBorderPane.setCenter(null);
+        componentPanelBox.getChildren().clear();
     }
     
     @Override

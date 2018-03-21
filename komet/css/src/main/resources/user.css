@@ -263,6 +263,15 @@ limitations under the License.
    -fx-font-size:18;
   /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
 }
+
+.komet-version-what-cell:description-version {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: -komet-description-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+
 .komet-version-what-cell:description-version:inactive {
    -fx-border-color: -komet-inactive-color;
    -fx-text-fill: -komet-inactive-color;
@@ -475,6 +484,11 @@ limitations under the License.
    -fx-border-insets: 0 0 0 0;   
 }
 
+.header-panel:logical-definition-version {
+   -fx-border-color: -komet-definition-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
 
 .header-panel:description-version * .text {
    -fx-fill: -komet-description-color;
@@ -483,8 +497,19 @@ limitations under the License.
    -fx-border-insets: 0 0 0 0;    
 }
 
+.header-panel:logical-definition-version * .text {
+   -fx-fill: -komet-definition-color;
+   -fx-text-fill: -komet-definition-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;    
+}
+
 .header-panel:description-version .header-text {
    -fx-fill: -komet-description-color;
+   -fx-text-origin: baseline;
+}
+.header-panel:logical-definition-version .header-text {
+   -fx-fill: -komet-definition-color;
    -fx-text-origin: baseline;
 }
 
