@@ -39,6 +39,7 @@ package sh.isaac.api;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -68,12 +69,12 @@ public interface ConfigurationService {
     * single user mode.
     * See {@link #setSingleUserMode(boolean)}
     */
-   public Optional<Integer> getCurrentUserNid();
+   public Optional<UUID> getCurrentUserId();
 
    /**
     * @param singleUserMode - if true, put the system in single user mode - read a user name from the hosting OS, find (or create) a concept as necessary 
-    * to represent that user in the DB, and from this point forward, return the nid of this concept for {@link #getCurrentUserNid()} 
-    * if false, remove the system from single user mode, and from this point forward, return an {@link Optional#empty()} for {@link #getCurrentUserNid()} 
+    * to represent that user in the DB, and from this point forward, return the nid of this concept for {@link #getCurrentUserId()} 
+    * if false, remove the system from single user mode, and from this point forward, return an {@link Optional#empty()} for {@link #getCurrentUserId()} 
     */
    public void setSingleUserMode(boolean singleUserMode);
    
@@ -209,15 +210,15 @@ public interface ConfigurationService {
     * 
     * Note that this default implementation doesn't cache the UserConfiguration objects, overriding implementations should 
     * 
-    * @param userNid - the nid of the concept that represents a user to fetch the configuration options for.
-    * If no nid is passed, the nid from {@link #getCurrentUserNid()} will be used (which only works, if we are in single user mode)
+    * @param userId - the nid of the concept that represents a user to fetch the configuration options for.
+    * If no uuid is passed, the uuid from {@link #getCurrentUserId()} will be used (which only works, if we are in single user mode)
     * If we are not in single user mode, then this will return all of the same options as if you had called 
     * {@link #getGlobalDatastoreConfiguration()}
     * @return the user-specific configuration options, if a userNid is available, otherwise, the global default options.
     */
-   public default UserConfiguration getUserConfiguration(Optional<Integer> userNid) {
+   public default UserConfiguration getUserConfiguration(Optional<UUID> userId) {
       UserConfiguration ucp = Get.service(UserConfiguration.class);
-      ucp.finishInit((userNid == null || !userNid.isPresent()) ? getCurrentUserNid() : userNid);
+      ucp.finishInit((userId == null || !userId.isPresent()) ? getCurrentUserId() : userId);
       return ucp;
    }
 }

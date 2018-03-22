@@ -38,6 +38,7 @@
 package sh.isaac.model.configuration;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -48,9 +49,9 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.RemoteServiceInfo;
-import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
@@ -396,7 +397,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setUser(int userNid)
+	public void setUser(UUID userNid)
 	{
 		// noop - this service doesn't care about the user.
 	}

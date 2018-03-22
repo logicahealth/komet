@@ -105,7 +105,7 @@ public class FxConfiguration
 			{
 				return new File(temp).toURI().toURL();
 			}
-			else
+			else if (StringUtils.isNotBlank(temp))
 			{
 				LOG.warn("Ignoring {} system property because it doesn't point to an existing file: {}", USER_CSS_LOCATION, temp);
 			}

@@ -116,10 +116,6 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
-        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-           System.out.println("Beta features enabled");
-        }
-        
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
         
@@ -129,6 +125,11 @@ public class MainApp
 
         
         LookupService.startupIsaac();
+        
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            System.out.println("Beta features enabled");
+        }
+        
         //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
         //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
         //be configured at the assemblage level.

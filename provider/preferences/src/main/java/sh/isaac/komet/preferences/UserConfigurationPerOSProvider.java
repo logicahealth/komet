@@ -163,14 +163,14 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setUser(int userNid)
+	public void setUser(UUID userId)
 	{
 		if (dataStore != null)
 		{
 			throw new RuntimeException("User has already been set!");
 		}
 		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
-		dataStore = mainDataStore.node(Get.identifierService().getUuidPrimordialForNid(userNid).toString());
+		dataStore = mainDataStore.node(userId.toString());
 	}
 
 	/** 

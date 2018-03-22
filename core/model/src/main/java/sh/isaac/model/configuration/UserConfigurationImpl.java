@@ -16,6 +16,7 @@
 package sh.isaac.model.configuration;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
@@ -81,7 +82,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	private ObservableStampCoordinate stampCoordinate;
 	private ObservableManifoldCoordinate manifoldCoordinate;
 	
-	private Optional<Integer> userNid;
+	private Optional<UUID> userConcept;
 	
 	private UserConfigurationImpl()
 	{
@@ -92,25 +93,25 @@ public class UserConfigurationImpl implements UserConfiguration
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void finishInit(Optional<Integer> userNid)
+	public void finishInit(Optional<UUID> userConcept)
 	{
-		LOG.debug("Init UserConfig for {}", userNid);
+		LOG.debug("Init UserConfig for {}", userConcept);
 		if (globalConfig != null)
 		{
 			throw new RuntimeException("finishInit should not be called more than once");
 		}
-		this.userNid = userNid;
-		if (userNid.isPresent())
+		this.userConcept = userConcept;
+		if (userConcept.isPresent())
 		{
 			dbConfig = Get.service(UserConfigurationPerDB.class);
 			if (dbConfig != null)
 			{
-				dbConfig.setUser(userNid.get());
+				dbConfig.setUser(userConcept.get());
 			}
 			osConfig = Get.service(UserConfigurationPerOSUser.class);
 			if (osConfig != null)
 			{
-				osConfig.setUser(userNid.get());
+				osConfig.setUser(userConcept.get());
 			}
 		}
 		//If they didn't pass a user, we can't have any user specific prefs. will let all calls fall through to the globalConfig
@@ -342,9 +343,9 @@ public class UserConfigurationImpl implements UserConfiguration
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Optional<Integer> getUserNid()
+	public Optional<UUID> getUserId()
 	{
-		return userNid;
+		return userConcept;
 	}
 	
 	/** 

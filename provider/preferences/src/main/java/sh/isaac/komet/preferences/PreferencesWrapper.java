@@ -43,9 +43,6 @@ public class PreferencesWrapper implements IsaacPreferences {
 
    @Override
    public String get(String key, String defaultValue) {
-      if (defaultValue == null) {
-         throw new NullPointerException("Default values cannot be null. Use equivalent Optional method instead.");
-      }
       return delegate.get(key, defaultValue);
    }
 

@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -64,6 +65,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.UserConfiguration;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.util.UuidT5Generator;
 
 
 /**
@@ -83,6 +85,9 @@ public class ConfigurationServiceProvider
          implements ConfigurationService, IsaacCache {
 
    private static final Logger LOG = LogManager.getLogger();
+   
+   //this is just used for a cache key
+   private final UUID UUID_FOR_NO_USER = UuidT5Generator.get("_no_user_present_");
 
    /** The value specified by a call to {@link #setDataStoreFolderPath(Path)}, if any. */
    private Path userDataStoreFolderPath = null;
@@ -101,9 +106,9 @@ public class ConfigurationServiceProvider
 
    private SimpleObjectProperty<BuildMode> dbBuildMode = new SimpleObjectProperty<>(null);
    
-   private Cache<Integer, UserConfiguration> userConfigCache;
+   private Cache<UUID, UserConfiguration> userConfigCache;
    
-   private Optional<Integer> currentUser = Optional.empty();
+   private Optional<UUID> currentUser = Optional.empty();
 
    /**
     * Instantiates a new default configuration service.
@@ -194,10 +199,12 @@ public class ConfigurationServiceProvider
    }
    
    private Path getDatabaseFolder(Path basePath) {
-      for (File f : basePath.toFile().listFiles()) {
-         if (f.getName().endsWith(".data") && f.isDirectory() && new File(f, DatastoreServices.DATASTORE_ID_FILE).isFile()) {
-            // Found an existing database that ends with .data
-            return f.toPath();
+      if (basePath.toFile().isDirectory()) {
+         for (File f : basePath.toFile().listFiles()) {
+            if (f.getName().endsWith(".data") && f.isDirectory() && new File(f, DatastoreServices.DATASTORE_ID_FILE).isFile()) {
+               // Found an existing database that ends with .data
+               return f.toPath();
+            }
          }
       }
       return basePath.resolve("isaac.data");
@@ -291,13 +298,13 @@ public class ConfigurationServiceProvider
     * {@inheritDoc}
     */
    @Override
-   public UserConfiguration getUserConfiguration(Optional<Integer> userNid)
+   public UserConfiguration getUserConfiguration(Optional<UUID> userId)
    {
-      UserConfiguration uc = userConfigCache.getIfPresent((userNid == null || !userNid.isPresent()) ? 0 : userNid.get());
+      UserConfiguration uc = userConfigCache.getIfPresent((userId == null || !userId.isPresent()) ? UUID_FOR_NO_USER : userId.get());
       if (uc == null)
       {
-         uc = ConfigurationService.super.getUserConfiguration(userNid);
-         userConfigCache.put(uc.getUserNid().orElse(0), uc);
+         uc = ConfigurationService.super.getUserConfiguration(userId);
+         userConfigCache.put(uc.getUserId().orElse(UUID_FOR_NO_USER), uc);
       }
       return uc;
    }
@@ -306,7 +313,7 @@ public class ConfigurationServiceProvider
     * {@inheritDoc}
     */
    @Override
-   public Optional<Integer> getCurrentUserNid()
+   public Optional<UUID> getCurrentUserId()
    {
       return currentUser;
    }
@@ -320,7 +327,7 @@ public class ConfigurationServiceProvider
       if (singleUserMode)
       {
          // TODO lookup the OS user name, create an appropriate concept, return the nid for that.
-         currentUser = Optional.of(TermAux.USER.getNid());
+         currentUser = Optional.of(TermAux.USER.getPrimordialUuid());
       }
       else {
          currentUser = Optional.empty();

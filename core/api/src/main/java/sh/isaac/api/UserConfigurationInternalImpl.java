@@ -15,6 +15,7 @@
  */
 package sh.isaac.api;
 
+import java.util.UUID;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 
 /**
@@ -71,9 +72,9 @@ public interface UserConfigurationInternalImpl
 	 * This method is not intended for external use, and will throw an exception if called.
 	 * Implementations of UserConfiguration should expect this method to be called once, immediately after construction.
 	 * Any subsequent calls should throw an exception.
-	 * @param userNid
+	 * @param userConcept
 	 */
-	public void setUser(int userNid);
+	public void setUser(UUID userConcept);
 	
 	public <T> T putOption(ConfigurationOption option, T objectValue);
 	

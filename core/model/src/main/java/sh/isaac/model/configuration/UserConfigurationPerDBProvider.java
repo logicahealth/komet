@@ -15,6 +15,7 @@
  */
 package sh.isaac.model.configuration;
 
+import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.Rank;
@@ -93,13 +94,13 @@ public class UserConfigurationPerDBProvider implements UserConfigurationPerDB
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setUser(int userNid)
+	public void setUser(UUID userConcept)
 	{
 		if (dataStore != null)
 		{
 			throw new RuntimeException("User has already been set!");
 		}
-		dataStore = Get.service(MetaContentService.class).<String,Object>openStore("UserConfigurationPerDBProvider-" + userNid);
+		dataStore = Get.service(MetaContentService.class).<String,Object>openStore("UserConfigurationPerDBProvider-" + userConcept);
 	}
 
 	/** 

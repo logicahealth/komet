@@ -16,6 +16,7 @@
 package sh.isaac.api;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.PremiseType;
@@ -56,9 +57,9 @@ public interface UserConfiguration
 	
 	/**
 	 * This method is for internal use, and will fail if called.
-	 * @param userNid
+	 * @param userConcept
 	 */
-	public void finishInit(Optional<Integer> userNid);
+	public void finishInit(Optional<UUID> userConcept);
 
 	/**
 	 * @return The edit coordinate as configured by the current user
@@ -124,9 +125,10 @@ public interface UserConfiguration
 	public <T> T getOption(ConfigurationOption option);
 	
 	/**
-	 * @return The nid of the user these options are for, or empty, if their is no user, and this is passing directly through to the default config options
+	 * @return The UUID of the concept representing the user these options are for, or empty, if their is no user, 
+	 * and this is passing directly through to the default config options
 	 */
-	public Optional<Integer> getUserNid();
+	public Optional<UUID> getUserId();
 
 	/**
 	 * A generic way to set configuration options, without having to create individual setters for each one.
