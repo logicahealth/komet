@@ -36,30 +36,20 @@
  */
 package sh.komet.fx.stage;
 
-//~--- JDK imports ------------------------------------------------------------
-import de.codecentric.centerdevice.MenuToolkit;
+import java.lang.management.ManagementFactory;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import de.codecentric.centerdevice.MenuToolkit;
+import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
-
 import javafx.concurrent.Task;
-
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-
-import static javafx.application.Application.launch;
-
-import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
-import java.lang.management.ManagementFactory;
-import javafx.event.ActionEvent;
-import javafx.scene.Group;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -68,31 +58,26 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javafx.stage.WindowEvent;
 import sh.isaac.api.ApplicationStates;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-
-import sh.komet.gui.util.FxGet;
-
-import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
-import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
@@ -131,17 +116,16 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
-        if (FxGet.showBetaFeatures()) {
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
            System.out.println("Beta features enabled");
         }
         
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
-
-        IsaacPreferences appPreferences = Get.applicationPreferences();
-        appPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-        appPreferences.putEnum(DatabaseInitialization.LOAD_METADATA);
-        appPreferences.sync();
+        
+        Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
+        Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+        Get.configurationService().getGlobalDatastoreConfiguration().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 
         
         LookupService.startupIsaac();
@@ -217,7 +201,7 @@ public class MainApp
 
         // GraphController.setSceneForControllers(scene);
         scene.getStylesheets()
-                .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
         scene.getStylesheets()
                 .add(Iconography.getStyleSheetStringUrl());
         FxGet.statusMessageService()

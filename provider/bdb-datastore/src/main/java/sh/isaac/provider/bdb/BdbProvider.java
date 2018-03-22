@@ -394,8 +394,8 @@ public class BdbProvider
    @PostConstruct
    private void startMe() {
       try {
-         MemoryConfiguration memoryConfiguration = Get.applicationPreferences()
-                                                      .getEnum(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+         MemoryConfiguration memoryConfiguration = Get.configurationService().getGlobalDatastoreConfiguration().getMemoryConfiguration()
+               .orElse(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
 
          LOG.info("Starting BDB provider. Memory configuration is: " + memoryConfiguration);
 
@@ -410,7 +410,8 @@ public class BdbProvider
 
          EnvironmentConfig envConfig = new EnvironmentConfig();
          final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                              .getChronicleFolderPath()
+                                              .getDataStoreFolderPath()
+                                              .resolve("object-chronicles")
                                               .resolve("bdb");
 
          envConfig.setAllowCreate(true);
@@ -654,7 +655,8 @@ public class BdbProvider
 
    File getComponentToSemanticMapDirectory() {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                           .getChronicleFolderPath()
+                                           .getDataStoreFolderPath()
+                                           .resolve("object-chronicles")
                                            .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), "ComponentToSemanticMap");
 
@@ -742,7 +744,8 @@ public class BdbProvider
 
    private File getSpinedIntIntArrayMapDirectory(String spinedMapName) {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                           .getChronicleFolderPath()
+                                           .getDataStoreFolderPath()
+                                           .resolve("object-chronicles")
                                            .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
 

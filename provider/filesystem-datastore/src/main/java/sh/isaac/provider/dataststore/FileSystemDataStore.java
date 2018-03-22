@@ -305,13 +305,7 @@ public class FileSystemDataStore
             LOG.info("Startings FileSystemDataStore");
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-            Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
-
-            if (!dataStorePath.isPresent()) {
-                throw new IllegalStateException("dataStorePath is not set");
-            }
-
-            Path folderPath = dataStorePath.get();
+            Path folderPath = configurationService.getDataStoreFolderPath();
 
             this.assemblageNid_SequenceGenerator_Map.clear();
             this.properties.clear();
@@ -694,7 +688,7 @@ public class FileSystemDataStore
             syncSemaphore.acquireUninterruptibly();
 
             try {
-                if (Get.configurationService().inDBBuildMode(BuildMode.IBDF)) {
+                if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF)) {
                     //No reason to write out all the files below (some of which fail anyway) during IBDF Build mode, because the 
                     //purpose of IBDF DBBuildMode is to generate IBDF files, not a valid database.
                     addToTotalWork(1);

@@ -60,7 +60,7 @@ import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
-import sh.isaac.api.constants.Constants;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.util.HeadlessToolkit;
 
@@ -379,14 +379,11 @@ public class LookupService {
 
                final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh",
                                                                                         "one",
-                                                                                        "org.ihtsdo",
                                                                                         "org.glassfish",
                                                                                         "com.informatics"));
-               final boolean readInhabitantFiles = Boolean.valueOf(System.getProperty(Constants.READ_INHABITANT_FILES,
-                                                                                      "false"));
 
-               if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
-                  final String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH)
+               if (System.getProperty(SystemPropertyConstants.EXTRA_PACKAGES_TO_SEARCH) != null) {
+                  final String[] extraPackagesToSearch = System.getProperty(SystemPropertyConstants.EXTRA_PACKAGES_TO_SEARCH)
                                                                .split(";");
 
                   packagesToSearch.addAll(Arrays.asList(extraPackagesToSearch));
@@ -395,11 +392,10 @@ public class LookupService {
                try {
                   final String[] packages = packagesToSearch.toArray(new String[] {});
 
-                  LOG.info("Looking for HK2 annotations " + (readInhabitantFiles ? "from inhabitant files"
-                        : "skipping inhabitant files") + "; and scanning in the packages: " +
+                  LOG.info("Looking for HK2 annotations skipping inhabitant files and scanning in the packages: " +
                         Arrays.toString(packages));
 
-                  final ServiceLocator temp = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
+                  final ServiceLocator temp = HK2RuntimeInitializer.init("ISAAC", false, packages);
 
                   if (looker != null) {
                      final RuntimeException e =

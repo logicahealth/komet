@@ -133,7 +133,7 @@ public class GraphCollector
       } else {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
          // For debugging.
-         if (Get.configurationService().enableVerboseDebug() && this.watchList.contains(originNid)) {
+         if (Get.configurationService().isVerboseDebugEnabled() && this.watchList.contains(originNid)) {
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();

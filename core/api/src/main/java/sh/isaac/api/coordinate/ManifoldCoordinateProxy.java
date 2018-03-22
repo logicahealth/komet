@@ -37,11 +37,6 @@ public interface ManifoldCoordinateProxy extends ManifoldCoordinate {
    }
 
    @Override
-   public default int getIsaConceptNid() {
-      return getManifoldCoordinate().getIsaConceptNid();
-   }
-
-   @Override
    public default PremiseType getTaxonomyPremiseType() {
       return getManifoldCoordinate().getTaxonomyPremiseType();
    }

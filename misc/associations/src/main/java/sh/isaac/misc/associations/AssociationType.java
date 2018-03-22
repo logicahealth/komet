@@ -37,11 +37,9 @@
 package sh.isaac.misc.associations;
 
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -51,7 +49,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -86,14 +83,14 @@ public class AssociationType
     * @param conceptNid The concept that represents the association assemblage
     * @param stamp optional - uses system default if not provided.
     * @param language optional - uses system default if not provided
-    * @return
+    * @return the AssociationType information
     */
    public static AssociationType read(int conceptNid, StampCoordinate stamp, LanguageCoordinate language)
    {
       AssociationType at = new AssociationType(conceptNid);
       
-      StampCoordinate localStamp = (stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
-      LanguageCoordinate localLanguage = (language == null ? Get.configurationService().getDefaultLanguageCoordinate() : language);
+      StampCoordinate localStamp = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+      LanguageCoordinate localLanguage = (language == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : language);
       
       at.associationName_ = Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(localStamp, localLanguage)).conceptDescriptionText(conceptNid);
       
@@ -200,7 +197,7 @@ public class AssociationType
    {
       try
       {
-         EditCoordinate localEditCoord = (editCoord == null ? Get.configurationService().getDefaultEditCoordinate() : editCoord);
+         EditCoordinate localEditCoord = (editCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate() : editCoord);
          
          //We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
          DynamicUsageDescription rdud = Frills.createNewDynamicSemanticUsageDescriptionConcept(

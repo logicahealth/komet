@@ -291,7 +291,7 @@ public class ImportExportTest {
    )
    public void testInferredTaxonomy() {
       LOG.info("Testing inferred taxonomy");
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
               .getDefaultManifoldCoordinate()
               .makeCoordinateAnalog(PremiseType.INFERRED);
       TaxonomySnapshotService taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
@@ -381,7 +381,7 @@ public class ImportExportTest {
    )
    public void testStatedTaxonomy() {
       LOG.info("Testing stated taxonomy");
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
               .getDefaultManifoldCoordinate()
               .makeCoordinateAnalog(PremiseType.STATED);
       LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());

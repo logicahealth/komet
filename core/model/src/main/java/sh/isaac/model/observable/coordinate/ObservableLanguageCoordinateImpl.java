@@ -189,11 +189,6 @@ public final class ObservableLanguageCoordinateImpl
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     /**
      * Language concept sequence property.
      *
@@ -249,15 +244,6 @@ public final class ObservableLanguageCoordinateImpl
         }
 
         return this.languageCoordinate.getDescriptionTypePreferenceList();
-    }
-
-    @Override
-    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-        if (this.descriptionTypePreferenceListProperty != null) {
-            this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
-        } else {
-            this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-        }
     }
 
     /**

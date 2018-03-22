@@ -298,7 +298,7 @@ public class DynamicImpl
          checkUncommitted();
       }
 
-      if (!Get.configurationService().inDBBuildMode(BuildMode.IBDF)) {  // We can't run the validators when we are building the initial system.
+      if (!Get.configurationService().isInDBBuildMode(BuildMode.IBDF)) {  // We can't run the validators when we are building the initial system.
          final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
 
          LookupService.get()

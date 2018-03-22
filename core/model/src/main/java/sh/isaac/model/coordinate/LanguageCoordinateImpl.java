@@ -203,7 +203,6 @@ public class LanguageCoordinateImpl
       return this.descriptionTypePreferenceList;
    }
 
-   @Override
    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
    }
@@ -342,7 +341,6 @@ public class LanguageCoordinateImpl
         return Optional.ofNullable(this.nextProrityLanguageCoordinate);
     }
 
-    @Override
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }

@@ -39,19 +39,15 @@
 
 package sh.isaac.provider.query.lucene;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -69,12 +65,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -107,10 +99,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -387,7 +377,7 @@ public abstract class LuceneIndexer
     *
     * @param chronicle the chronicle
     * @param doc the doc
-    * @param - a set of nids that represent the paths that this chonicle lives on.  Provided for convenience, 
+    * @param pathNids - a set of nids that represent the paths that this chonicle lives on.  Provided for convenience, 
     * may be ignored if not required by the implementation.
     */
    protected abstract void addFields(Chronology chronicle, Document doc, Set<Integer> pathNids);
@@ -910,8 +900,7 @@ public abstract class LuceneIndexer
             .getIOExecutor();
       try
       {
-         final Path searchFolder     = LookupService.getService(ConfigurationService.class)
-               .getSearchFolderPath();
+         final Path searchFolder     = LookupService.getService(ConfigurationService.class).getDataStoreFolderPath().resolve("search");
          final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
          
          this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
@@ -999,7 +988,7 @@ public abstract class LuceneIndexer
             @Override
             public void handleCommit(CommitRecord commitRecord) {
                if (LuceneIndexer.this.dbBuildMode == null) {
-                  LuceneIndexer.this.dbBuildMode = Get.configurationService().inDBBuildMode();
+                  LuceneIndexer.this.dbBuildMode = Get.configurationService().isInDBBuildMode();
                }
 
                if (LuceneIndexer.this.dbBuildMode) {

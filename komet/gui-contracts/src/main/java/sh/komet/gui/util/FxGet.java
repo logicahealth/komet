@@ -33,11 +33,10 @@ import sh.komet.gui.provider.StatusMessageProvider;
 @Singleton
 public class FxGet implements StaticIsaacCache
 {
-   public static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
-   
    private static DialogService DIALOG_SERVICE = null;
    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
    private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
+   private static FxConfiguration FX_CONFIGURATION = null;
 
    public static DialogService dialogs() {
       if (DIALOG_SERVICE == null) {
@@ -59,10 +58,13 @@ public class FxGet implements StaticIsaacCache
       }
       return RULES_DRIVEN_KOMET_SERVICE;
    }
-
-   public static boolean showBetaFeatures() {
-      return Boolean.getBoolean(SHOW_BETA_PROPERTY);
-   }
+   
+   public static FxConfiguration fxConfiguration() {
+	      if (FX_CONFIGURATION == null) {
+	    	  FX_CONFIGURATION = new FxConfiguration();
+	      }
+	      return FX_CONFIGURATION;
+	   }
 
    /**
     * {@inheritDoc}
@@ -72,5 +74,6 @@ public class FxGet implements StaticIsaacCache
       DIALOG_SERVICE = null;
       RULES_DRIVEN_KOMET_SERVICE = null;
       STATUS_MESSAGE_PROVIDER = null;
+      FX_CONFIGURATION = null;
    }
 }

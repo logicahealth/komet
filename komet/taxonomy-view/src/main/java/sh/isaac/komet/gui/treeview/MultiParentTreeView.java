@@ -600,7 +600,7 @@ public class MultiParentTreeView
                 descriptionTypes[descriptionIndex++] = spec.getNid();
             }
         }
-        this.manifold.setDescriptionTypePreferenceList(descriptionTypes);
+        this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().setAll(descriptionTypes);
         this.rootTreeItem.invalidate();
         this.treeView.refresh();
     }

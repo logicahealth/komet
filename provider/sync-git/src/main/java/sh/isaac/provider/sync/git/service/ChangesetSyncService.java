@@ -113,8 +113,7 @@ public class ChangesetSyncService {
     */
    @PostConstruct
    private void startMe() {
-      final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
-                                                       .getGitConfiguration();
+      final Optional<RemoteServiceInfo> gitConfig = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
 
       if (!gitConfig.isPresent() || org.apache.commons.lang3.StringUtils.isBlank(gitConfig.get().getURL())) {
          LOG.info("No git configuration is available - Changeset sync service will not be started.");
@@ -210,8 +209,7 @@ public class ChangesetSyncService {
    private void syncCheck() {
       LOG.info("Launching sync check in background thread");
       Get.workExecutors().getExecutor().execute(() -> {
-                     final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
-                                                                      .getGitConfiguration();
+                     final Optional<RemoteServiceInfo> gitConfig = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
 
                      if (!gitConfig.isPresent()) {
                         LOG.info("No git configuration is available - Changeset sync service cannot execute.");

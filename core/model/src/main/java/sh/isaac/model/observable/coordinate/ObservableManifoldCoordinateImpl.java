@@ -263,16 +263,6 @@ public class ObservableManifoldCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the isa concept sequence.
-    *
-    * @return the isa concept sequence
-    */
-   @Override
-   public int getIsaConceptNid() {
-      return this.manifoldCoordinate.getIsaConceptNid();
-   }
-
-   /**
     * Gets the language coordinate.
     *
     * @return the language coordinate
@@ -325,12 +315,6 @@ public class ObservableManifoldCoordinateImpl
    public UUID getCoordinateUuid() {
       return uuidProperty().get();
    }
-
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.languageCoordinateProperty().get().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
-   
    
    @Override
    public ObservableManifoldCoordinateImpl deepClone() {
@@ -341,15 +325,5 @@ public class ObservableManifoldCoordinateImpl
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return getLanguageCoordinate().getNextProrityLanguageCoordinate();
     }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        if (!(languageCoordinate instanceof ObservableLanguageCoordinate)) {
-            languageCoordinate = new ObservableLanguageCoordinateImpl(languageCoordinate);
-        }
-        getLanguageCoordinate().setNextProrityLanguageCoordinate(languageCoordinate);
-    }
-
-   
 }
 

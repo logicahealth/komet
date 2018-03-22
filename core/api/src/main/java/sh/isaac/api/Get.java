@@ -208,7 +208,6 @@ public class Get
    private static ObservableChronologyService observableChronologyService;
    private static SerializationService        serializationService;
    
-   private static PreferencesService preferencesService;
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -528,7 +527,7 @@ public class Get
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(
              ConceptService.class).getSnapshot(Get.configurationService()
-                   .getDefaultManifoldCoordinate());
+                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate());
       }
 
       return conceptSnapshot;
@@ -539,7 +538,7 @@ public class Get
     * @return the default manifold coordinate from the configuration service.
     */
    public static ManifoldCoordinate defaultCoordinate() {
-      return configurationService().getDefaultManifoldCoordinate();
+      return configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate();
    }
 
    public static ThreadPoolExecutor executor() {
@@ -585,7 +584,8 @@ public class Get
       }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           nid,
-          configurationService().getDefaultLogicCoordinate()
+          configurationService().getGlobalDatastoreConfiguration()
+                                .getDefaultLogicCoordinate()
                                 .getInferredAssemblageNid())
                                 .findAny();
    }
@@ -813,7 +813,8 @@ public class Get
       }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           nid,
-          configurationService().getDefaultLogicCoordinate()
+          configurationService().getGlobalDatastoreConfiguration()
+                                .getDefaultLogicCoordinate()
                                 .getStatedAssemblageNid())
                                 .findAny();
    }
@@ -830,26 +831,6 @@ public class Get
 
       return taxonomyService;
    }
-   
-   private static PreferencesService preferenceService() {
-      if (preferencesService == null) {
-         preferencesService = getService(PreferencesService.class);
-      }
-      return preferencesService;
-   }
-
-   public static IsaacPreferences applicationPreferences() {
-      return preferenceService().getApplicationPreferences();
-   }
-   
-   public static IsaacPreferences userPreferences() {
-      return preferenceService().getUserPreferences();
-   }
-   
-   public static IsaacPreferences systemPreferences() {
-      return preferenceService().getSystemPreferences();
-   }
-   
    /**
     * Work executors.
     *

@@ -39,37 +39,21 @@
 
 package sh.isaac.provider.metacontent;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
-
 import java.nio.file.Path;
-
-import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
-import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -84,19 +68,15 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 @RunLevel(value = LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class MVStoreMetaContentProvider
          implements MetaContentService {
-   /** The Constant USER_PREFS_STORE. */
-   private static final String USER_PREFS_STORE = "_userPrefs_";
 
    //~--- fields --------------------------------------------------------------
 
-   /** The log. */
    private final Logger LOG = LogManager.getLogger();
+   
+   public static final String STORE_FOLDER = "metacontent";
 
-   /** The store. */
-   MVStore store;
-
-   /** The user prefs map. */
-   MVMap<Integer, byte[]> userPrefsMap;
+   private MVStore store;
+   private static final String PROCESSED_CHANGESETS_STORE = "_processedChangesets_";
 
    //~--- constructors --------------------------------------------------------
 
@@ -129,8 +109,6 @@ public class MVStoreMetaContentProvider
       initialize(storageFolder, storePrefix, wipeExisting);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
     * Close.
     *
@@ -157,25 +135,10 @@ public class MVStoreMetaContentProvider
     */
    @Override
    public <K, V> ConcurrentMap<K, V> openStore(String storeName) {
-      if (storeName.equals(USER_PREFS_STORE)) {
+      if (storeName.equals(PROCESSED_CHANGESETS_STORE)) {
          throw new IllegalArgumentException("reserved store name");
       }
-
       return this.store.<K, V>openMap(storeName);
-   }
-
-   /**
-    * Put user prefs.
-    *
-    * @param userId the user id
-    * @param userPrefs the user prefs
-    * @return the byte[]
-    * @see sh.isaac.api.metacontent.MetaContentService#putUserPrefs(int,
-    *      sh.isaac.api.metacontent.userPrefs.StorableUserPreferences)
-    */
-   @Override
-   public byte[] putUserPrefs(int userId, StorableUserPreferences userPrefs) {
-      return this.userPrefsMap.put(userId, userPrefs.serialize());
    }
 
    /**
@@ -186,25 +149,23 @@ public class MVStoreMetaContentProvider
     */
    @Override
    public void removeStore(String storeName) {
-      if (storeName.equals(USER_PREFS_STORE)) {
+      if (storeName.equals(PROCESSED_CHANGESETS_STORE)) {
          throw new IllegalArgumentException("reserved store name");
       }
-
       this.store.removeMap(this.store.openMap(storeName));
    }
+   
+   
 
    /**
-    * Removes the user prefs.
-    *
-    * @param userId the user id
-    * @see sh.isaac.api.metacontent.MetaContentService#removeUserPrefs(int)
+    * {@inheritDoc}
     */
    @Override
-   public void removeUserPrefs(int userId) {
-      this.userPrefsMap.remove(userId);
+   public ConcurrentMap<String, Boolean> getChangesetStore() {
+      return this.store.<String, Boolean>openMap(PROCESSED_CHANGESETS_STORE);
    }
 
-   /**
+/**
     * Initialize.
     *
     * @param storageFolder the storage folder
@@ -227,7 +188,6 @@ public class MVStoreMetaContentProvider
                                         .open();
 
       // store.setVersionsToKeep(0); TODO check group answer
-      this.userPrefsMap = this.store.<Integer, byte[]>openMap(USER_PREFS_STORE);
       return this;
    }
 
@@ -238,17 +198,12 @@ public class MVStoreMetaContentProvider
    private void start() {
       this.LOG.info("Starting MVStoreMetaContent service");
 
-      final Optional<Path> path = Get.configurationService()
+      final Path path = Get.configurationService()
                                      .getDataStoreFolderPath();
 
-      if (!path.isPresent()) {
-         throw new RuntimeException(
-             "Unable to start MVStore - no folder path is available in the Configuration Service!");
-      }
+      final File temp = new File(path.toFile(), STORE_FOLDER);
 
-      final File temp = new File(path.get().toFile(), "metacontent");
-
-      temp.mkdir();
+      temp.mkdirs();
 
       if (!temp.isDirectory()) {
          throw new RuntimeException("Cannot initialize MetaContent Store - was unable to create " +
@@ -256,20 +211,6 @@ public class MVStoreMetaContentProvider
       }
 
       initialize(temp, "service_", false);
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the user prefs.
-    *
-    * @param userId the user id
-    * @return the user prefs
-    * @see sh.isaac.api.metacontent.MetaContentService#getUserPrefs(int)
-    */
-   @Override
-   public byte[] getUserPrefs(int userId) {
-      return this.userPrefsMap.get(userId);
    }
 }
 

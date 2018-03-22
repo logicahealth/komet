@@ -216,9 +216,9 @@ public class Manifold
           groupName,
           UUID.randomUUID(),
           Get.configurationService()
-             .getDefaultManifoldCoordinate(),
+             .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
           Get.configurationService()
-             .getDefaultEditCoordinate());
+             .getUserConfiguration(Optional.empty()).getEditCoordinate());
    }
 
    
@@ -374,18 +374,9 @@ public class Manifold
       return manifoldUuidProperty.get();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    public void setManifoldUuid(UUID manifoldUuid) {
       this.manifoldUuidProperty.set(manifoldUuid);
    }
-
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.observableManifoldCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
-   
-   //~--- get methods ---------------------------------------------------------
 
    public SimpleObjectProperty<UUID> getManifoldUuidProperty() {
       return manifoldUuidProperty;
@@ -407,12 +398,5 @@ public class Manifold
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return this.observableManifoldCoordinate.getNextProrityLanguageCoordinate();
     }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        this.observableManifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
-    }
-   
-   
 }
 

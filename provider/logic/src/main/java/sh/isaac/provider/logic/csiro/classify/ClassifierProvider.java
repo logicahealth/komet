@@ -36,6 +36,7 @@
  */
 package sh.isaac.provider.logic.csiro.classify;
 
+import java.util.Optional;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.stream.IntStream;
 
@@ -141,7 +142,7 @@ public class ClassifierProvider
       final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getInferredManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
-              Get.configurationService().getDefaultLanguageCoordinate());
+              Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate());
       final GraphCollector collector
               = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
                       manifoldCoordinate);
@@ -163,7 +164,7 @@ public class ClassifierProvider
       final IntStream conceptSequenceStream = Get.conceptService().getConceptNidStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()).parallel();
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
-              Get.configurationService().getDefaultLanguageCoordinate());
+              Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate());
       final GraphCollector collector
               = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
                       manifoldCoordinate);

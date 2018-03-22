@@ -35,11 +35,7 @@
  *
  */
 
-
-
 package sh.isaac.provider.commit;
-
-import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -98,7 +94,6 @@ public class ChangeSetLoadProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant CHANGESETS. */
    private static final String CHANGESETS = "changesets";
 
    /** The Constant CHANGESETS_ID. */
@@ -106,9 +101,6 @@ public class ChangeSetLoadProvider
 
    /** The Constant MAVEN_ARTIFACT_IDENTITY. */
    private static final String MAVEN_ARTIFACT_IDENTITY = "dbMavenArtifactIdentity.txt";
-
-   /** The database path. */
-   private static Optional<Path> databasePath;
 
    //~--- fields --------------------------------------------------------------
 
@@ -192,10 +184,9 @@ public class ChangeSetLoadProvider
    private void startMe() {
       try {
          LOG.info("Loading change set files.");
-         databasePath       = LookupService.getService(ConfigurationService.class)
+         Path databasePath       = LookupService.getService(ConfigurationService.class)
                                            .getDataStoreFolderPath();
-         this.changesetPath = databasePath.get()
-                                          .resolve(CHANGESETS);
+         this.changesetPath = databasePath.resolve(CHANGESETS);
          Files.createDirectories(this.changesetPath);
 
          if (!this.changesetPath.toFile()
@@ -252,21 +243,17 @@ public class ChangeSetLoadProvider
             Files.write(changesetsIdPath, changesetsDbId.toString().getBytes());
          }
 
-
-         // if the semanticDbId is null, lets wait and see if it appears after processing the changesets.
          // We store the list of files that we have already read / processed in the metacontent store, so we don't have to process them again.
          // files that "appear" in this folder via the git integration, for example, we will need to process - but files that we create
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
          // files as it writes them.
          final MetaContentService mcs = LookupService.get().getService(MetaContentService.class);
-
-         this.processedChangesets = (mcs == null) ? null : mcs.<String, Boolean>openStore("processedChangesets");
-
-         //TODO [DAN] need to find out why Keith added this.... processedChangesets store is serialized into the MetaContent service.
-         if (Get.applicationPreferences().getBoolean(LOAD_CHANGESETS_ON_STARTUP, true)) {
-             final int loaded = readChangesetFiles();
+         if (mcs == null) {
+            LOG.warn("No implemantation of a MetaContentService is available, this will lead to reprocessing of all changeset files on each startup");
          }
-         
+         this.processedChangesets = (mcs == null) ? null : mcs.getChangesetStore();
+
+         readChangesetFiles();
 
          if (semanticDbId == null) {
             semanticDbId = readSemanticDbId();

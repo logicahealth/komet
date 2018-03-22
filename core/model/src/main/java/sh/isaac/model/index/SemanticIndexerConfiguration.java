@@ -245,7 +245,7 @@ public class SemanticIndexerConfiguration {
       sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
               .get();
       Get.commitService()
-              .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
+              .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change")
               .get();
 
       if (!skipReindex) {
@@ -286,7 +286,7 @@ public class SemanticIndexerConfiguration {
          Get.commitService()
                  .addUncommitted(rdv.getChronology());
          Get.commitService()
-                 .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change");
+                 .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change");
          LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptSequence + "'");
          Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       } else {

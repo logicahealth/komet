@@ -69,11 +69,6 @@ public interface LanguageCoordinate extends Coordinate {
     */
    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
     
-    /**
-     * 
-     * @param languageCoordinate the next in priority language coordinate. 
-     */
-    void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate);
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *
@@ -102,13 +97,6 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the latestDescription type preference list
     */
    int[] getDescriptionTypePreferenceList();
-
-   /**
-    * Gets the latestDescription type preference list.
-    *
-    * @param descriptionTypePreferenceList
-    */
-   void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
 
    /**
     * Gets the dialect assemblage preference list.

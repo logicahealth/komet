@@ -41,10 +41,6 @@ package sh.isaac.integration.tests.suite1;
 
 import java.io.File;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.nio.file.Paths;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
@@ -61,9 +57,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.api.util.RecursiveDelete;
-import sh.isaac.komet.preferences.PreferencesProvider;
-
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,13 +102,11 @@ public class Suite1Management {
             throws Exception {
       LOG.info("Suite 1 setup");
       RecursiveDelete.delete(new File("target/suite1"));
-      PreferencesProvider.clearSetProperties();
-      System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/suite1/");
-      
+      LookupService.startupPreferenceProvider();
+      Get.configurationService().setDataStoreFolderPath(new File("target/testdb").toPath());
 
-      final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+      LOG.info("termstore folder path exists: " + Get.configurationService().getDataStoreFolderPath().toFile().exists());
 
-      LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
       LookupService.startupIsaac();
       ActiveTasksTicker.start(10);
       HeapUseTicker.start(10);

@@ -332,11 +332,6 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public int getIsaConceptNid() {
-      return this.manifoldCoordinate.getIsaConceptNid();
-   }
-
-   @Override
    public PremiseType getTaxonomyPremiseType() {
       return this.manifoldCoordinate.getTaxonomyPremiseType();
    }
@@ -362,11 +357,6 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-     getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
-
-   @Override
    public ConceptSnapshotImpl deepClone() {
       throw new UnsupportedOperationException();
    }
@@ -375,11 +365,5 @@ public class ConceptSnapshotImpl
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return this.manifoldCoordinate.getNextProrityLanguageCoordinate();
     }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        this.manifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
-    }
-   
 }
 

@@ -39,6 +39,8 @@
 
 package sh.isaac.komet.preferences;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
@@ -47,11 +49,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,12 +58,14 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
+import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
-
-import static sh.isaac.api.constants.Constants.PREFERENCES_FOLDER_LOCATION;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 //~--- classes ----------------------------------------------------------------
@@ -73,11 +74,12 @@ import sh.isaac.api.preferences.IsaacPreferences;
  *
  * @author kec
  */
+@Service
+@Singleton
 public class IsaacPreferencesImpl
         extends AbstractPreferences {
-   private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
-   private static IsaacPreferencesWrapper               applicationRoot;
-   private static File                                  applicationPreferencesFolder;
+   private final Logger LOG = LogManager.getLogger();
+   public static final String DB_PREFERENCES_FOLDER = "preferences";
 
    //~--- fields --------------------------------------------------------------
 
@@ -89,12 +91,16 @@ public class IsaacPreferencesImpl
    //~--- constructors --------------------------------------------------------
 
    private IsaacPreferencesImpl() {
+      //For HK2
       super(null, "");
-      this.directory       = applicationPreferencesFolder;
+      this.directory       = Get.configurationService().getDataStoreFolderPath().resolve("preferences").toFile();
       this.preferencesFile = new File(this.directory, "preferences.xml");
       this.temporaryFile   = new File(this.directory, "preferences-tmp.xml");
+      init();
    }
 
+   //We only enforce singleton for the root preferences.  Its up to the AbstractPreferences to keep track of 
+   //child references properly.
    private IsaacPreferencesImpl(IsaacPreferencesImpl parent, String name) {
       super(parent, name);
 
@@ -105,9 +111,33 @@ public class IsaacPreferencesImpl
       this.directory       = new File(parent.directory, name);
       this.preferencesFile = new File(this.directory, "preferences.xml");
       this.temporaryFile   = new File(this.directory, "preferences-tmp.xml");
+      init();
+   }
+   
+   /**
+    * The public mechanism to get a handle to a preferences store that stores its data inside the datastore folder.
+    * @return This class, wrapped by a {@link IsaacPreferencesWrapper}
+    */
+   public static IsaacPreferences getApplicationRootPreferences() {
+      //utilize HK2 here, so it can keep track of / enforce @Singleton
+      return new IsaacPreferencesWrapper(Get.service(IsaacPreferencesImpl.class));
    }
 
    //~--- methods -------------------------------------------------------------
+   
+   private void init()
+   {
+      if (preferencesTree == null) {
+          preferencesTree = new TreeMap<>();
+          if (preferencesFile.exists()) {
+             try (FileInputStream fis = new FileInputStream(preferencesFile)) {
+                importMap(fis, preferencesTree);
+             } catch (Exception ex) {
+                LOG.error(ex);
+             }
+          }
+       }
+   }
 
    void exportMap(OutputStream os, Map<String, String> map)
             throws Exception {
@@ -126,7 +156,7 @@ public class IsaacPreferencesImpl
 
    @Override
    public boolean isRemoved() {
-      return super.isRemoved(); //To change body of generated methods, choose Tools | Templates.
+      return super.isRemoved();
    }
    
    public Object getLock() {
@@ -222,35 +252,8 @@ public class IsaacPreferencesImpl
 
    //~--- get methods ---------------------------------------------------------
 
-   public static synchronized IsaacPreferences getApplicationRoot() {
-      if (applicationRoot == null) {
-         applicationPreferencesFolder = new File(System.getProperty(PREFERENCES_FOLDER_LOCATION));
-         applicationPreferencesFolder.mkdirs();
-
-         if (!applicationPreferencesFolder.canWrite()) {
-            throw new IllegalStateException(
-                "Application preferences folder is not writable: " + applicationPreferencesFolder.getAbsolutePath());
-         }
-
-         applicationRoot = new IsaacPreferencesWrapper(new IsaacPreferencesImpl());
-      }
-
-      return applicationRoot;
-   }
-
    @Override
    protected String getSpi(String key) {
-      if (preferencesTree == null) {
-         preferencesTree = new TreeMap<>();
-         if (preferencesFile.exists()) {
-            try (FileInputStream fis = new FileInputStream(preferencesFile)) {
-               importMap(fis, preferencesTree);
-            } catch (Exception ex) {
-               LOG.error(ex);
-            }
-         }
-      }
-
       return preferencesTree.get(key);
    }
 
@@ -264,4 +267,3 @@ public class IsaacPreferencesImpl
       return true;
    }
 }
-

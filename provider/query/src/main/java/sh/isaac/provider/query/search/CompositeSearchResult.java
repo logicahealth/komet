@@ -415,7 +415,7 @@ public class CompositeSearchResult {
                  ((SemanticChronology) iol).getVersionType() == VersionType.DESCRIPTION) {
             final LatestVersion<DescriptionVersion> ds =
                     ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
-                            .getDefaultStampCoordinate()));
+                            .getUserConfiguration(Optional.empty()).getStampCoordinate()));
             
             if (ds.isPresent()) {
                strings.add(ds.get()
@@ -427,7 +427,7 @@ public class CompositeSearchResult {
                  ((SemanticChronology) iol).getVersionType() == VersionType.STRING) {
             final LatestVersion<StringVersion> ds =
                     ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
-                            .getDefaultStampCoordinate()));
+                          .getUserConfiguration(Optional.empty()).getStampCoordinate()));
             
             if (ds.isPresent()) {
                strings.add(ds.get()
@@ -437,9 +437,9 @@ public class CompositeSearchResult {
             }
          } else if ((iol instanceof SemanticChronology) &&
                  ((SemanticChronology) iol).getVersionType() == VersionType.DYNAMIC) {
-            final LatestVersion<DynamicVersion> ds =
+            final LatestVersion<DynamicVersion<?>> ds =
                     ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
-                            .getDefaultStampCoordinate()));
+                          .getUserConfiguration(Optional.empty()).getStampCoordinate()));
             
             if (ds.isPresent()) {
                strings.add(ds.get()

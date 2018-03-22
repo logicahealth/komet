@@ -41,7 +41,6 @@
  */
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -52,7 +51,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,21 +69,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-
-//~--- JDK imports ------------------------------------------------------------
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -99,7 +90,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
@@ -119,7 +109,6 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.SequentialAggregateTask;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
@@ -849,14 +838,9 @@ public class CommitProvider
             LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-            Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
+            Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-            if (!dataStorePath.isPresent()) {
-                throw new IllegalStateException("dataStorePath is not set");
-            }
-
-            this.dbFolderPath = dataStorePath.get()
-                    .resolve("commit-provider");
+            this.dbFolderPath = dataStorePath.resolve("commit-provider");
 
             Files.createDirectories(this.dbFolderPath);
             this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);

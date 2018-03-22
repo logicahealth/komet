@@ -156,24 +156,20 @@ public class BinaryDataWriterProvider
 
       this.dataPath = path;
       this.dataPath.toFile().getParentFile().mkdirs();
-      this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(),
-            true)));
+      this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
       this.buffer.setExternalData(true);
-      LOG.info("ibdf changeset writer has been configured to write to " +
-                       this.dataPath.toAbsolutePath().toString());
+      LOG.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
 
-      if (!Get.configurationService()
-              .inDBBuildMode()) {
+      if (!Get.configurationService().isInDBBuildMode()) {
          // record this file as already being in the database if we are in 'normal' run mode.
-         final MetaContentService mcs = LookupService.get()
-                                                     .getService(MetaContentService.class);
+         final MetaContentService mcs = LookupService.get().getService(MetaContentService.class);
 
          if (mcs != null) {
-            final ConcurrentMap<String, Boolean> processedChangesets = mcs.<String,
-                                                                          Boolean>openStore("processedChangesets");
-
-            processedChangesets.put(path.getFileName()
-                                        .toString(), true);
+            final ConcurrentMap<String, Boolean> processedChangesets = mcs.getChangesetStore();
+            processedChangesets.put(path.getFileName().toString(), true);
+         }
+         else {
+            LOG.warn("No implemantation of a MetaContentService is available, this will lead to reprocessing of all changeset files on each startup");
          }
       }
    }

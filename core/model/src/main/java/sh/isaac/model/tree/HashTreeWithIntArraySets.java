@@ -748,7 +748,7 @@ public class HashTreeWithIntArraySets
     * @param child the child
     */
    public void add(int parent, int child) {
-      if (Get.configurationService().enableVerboseDebug() && (parent == TermAux.SOLOR_ROOT.getNid())) {
+      if (Get.configurationService().isVerboseDebugEnabled() && (parent == TermAux.SOLOR_ROOT.getNid())) {
          LOG.debug("SOLOR root nid added to tree: " + TermAux.SOLOR_ROOT.getNid());
       }
       conceptNids.add(parent);
@@ -795,7 +795,7 @@ public class HashTreeWithIntArraySets
    }
 
    protected void printWatch(int conceptNid, String prefix) {
-      if (!Get.configurationService().enableVerboseDebug()) {
+      if (!Get.configurationService().isVerboseDebugEnabled()) {
          return;
       }
       int nid = conceptNid;

@@ -39,20 +39,10 @@
 
 package sh.isaac.provider.metacontent;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
-
 import java.util.concurrent.ConcurrentMap;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.provider.metacontent.userPrefs.UserPreference;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link MVStoreMetaContentProviderTest}.
@@ -91,33 +81,6 @@ public class MVStoreMetaContentProviderTest {
       store.removeStore("fred");
       map = store.<String, Long>openStore("fred");
       Assert.assertNull(map.get("b"));
-   }
-
-   /**
-    * Test user prefs.
-    *
-    * @throws Exception the exception
-    */
-   @Test
-   public void testUserPrefs()
-            throws Exception {
-      MVStoreMetaContentProvider store = new MVStoreMetaContentProvider(new File("target"), "test", true);
-
-      store.putUserPrefs(5, new UserPreference("hi there"));
-
-      UserPreference b = new UserPreference(store.getUserPrefs(5));
-
-      Assert.assertTrue(b.toString()
-                         .equals("hi there"));
-      store.close();
-      store = new MVStoreMetaContentProvider(new File("target"), "test", false);
-      b     = new UserPreference(store.getUserPrefs(5));
-      Assert.assertTrue(b.toString()
-                         .equals("hi there"));
-      store.close();
-      store = new MVStoreMetaContentProvider(new File("target"), "test", true);
-      Assert.assertNull(store.getUserPrefs(5));
-      store.close();
    }
 }
 

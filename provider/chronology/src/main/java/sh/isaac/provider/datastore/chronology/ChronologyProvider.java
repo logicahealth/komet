@@ -140,14 +140,11 @@ public class ChronologyProvider
           synchronized (metadataLoaded) {
              
              if (store.getDataStoreStartState() == DataStoreStartState.NO_DATASTORE) {
-                Optional<DatabaseInitialization> initializationPreference = Get.applicationPreferences()
-                                                                               .getEnum(DatabaseInitialization.class);
+                DatabaseInitialization initializationPreference = Get.configurationService().getGlobalDatastoreConfiguration().getDatabaseInitializationMode();
        
-                if (initializationPreference.isPresent()) {
-                   if (initializationPreference.get() == DatabaseInitialization.LOAD_METADATA) {
-                      loadMetaData();
-                      metadataLoaded.set(1);
-                   }
+                if (initializationPreference == DatabaseInitialization.LOAD_METADATA) {
+                   loadMetaData();
+                   metadataLoaded.set(1);
                 }
              }
              //mark this method as called, but executed as a noop.

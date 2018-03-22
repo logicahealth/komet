@@ -92,18 +92,13 @@ import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
-import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.LoincDirectImporter;
 import sh.isaac.solor.rf2.direct.LoincExpressionToConcept;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
-import sh.komet.assemblage.view.AssemblageViewProviderFactory;
 import sh.komet.gui.importation.ImportView;
-import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory;
-import sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -161,31 +156,13 @@ public class KometStageController
     @FXML
     public void handleRefreshUserCss(ActionEvent event) {
         // "Feature" to make css editing/testing easy in the dev environment. 
-        if (System.getProperty(USER_CSS_LOCATION_PROPERTY)
-                .endsWith("application/target/data/isaac.data/preferences/user.css")) {
-            vanityBox.getScene()
-                    .getStylesheets()
-                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            String devLocation = System.getProperty(USER_CSS_LOCATION_PROPERTY);
-            devLocation = devLocation
-                    .replace("/komet/application/target/data/isaac.data/preferences/user.css", 
-                             "/komet/css/src/main/resources/user.css");
-            vanityBox.getScene()
-                    .getStylesheets()
-                    .remove(devLocation);
-            vanityBox.getScene()
-                    .getStylesheets()
-                    .add(devLocation);
-            System.out.println("Updated css: " + devLocation);
-        } else {
-            vanityBox.getScene()
-                    .getStylesheets()
-                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            vanityBox.getScene()
-                    .getStylesheets()
-                    .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            System.out.println("Updated css: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
-        }
+        vanityBox.getScene()
+                .getStylesheets()
+                .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
+        vanityBox.getScene()
+                .getStylesheets()
+                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        System.out.println("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
     }
 
     @Override
@@ -243,7 +220,7 @@ public class KometStageController
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
 
-        if (FxGet.showBetaFeatures()) {
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             MenuItem selectiveImport = new MenuItem("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
                 ImportView.show(TAXONOMY_MANIFOLD);
@@ -271,7 +248,7 @@ public class KometStageController
         });
         items.add(importTransformSNAPSHOT);
 
-        if (FxGet.showBetaFeatures()) {
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
             MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
             importSourcesFull.setOnAction((ActionEvent event) -> {
@@ -315,7 +292,7 @@ public class KometStageController
 //      });
 //      items.add(setHighMemConfigAndQuit);
 //      
-        if (FxGet.showBetaFeatures()) {
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
             MenuItem completeClassify = new MenuItem("Complete classify");
             completeClassify.setOnAction((ActionEvent event) -> {
@@ -519,7 +496,7 @@ public class KometStageController
             IdentifiedObject oldValue,
             IdentifiedObject newValue) {
         Get.executor().submit(() -> {
-            if (FxGet.showBetaFeatures()) {
+            if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 StringBuffer buff = new StringBuffer();
                 buff.append("selected (processed in background):\n");
                 if (newValue instanceof ConceptChronology) {

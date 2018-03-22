@@ -46,7 +46,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import javafx.application.Platform;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.constants.Constants;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.convert.delta.vhat.VHATDeltaImport;
 import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
@@ -65,7 +65,7 @@ public class SimpleTest
          File db = new File("target/db");
          FileUtils.deleteDirectory(db);
          db.mkdirs();
-         System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+         System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
          LookupService.startupIsaac();
          LoadTermstore lt = new LoadTermstore();
          lt.setLog(new SystemStreamLog());

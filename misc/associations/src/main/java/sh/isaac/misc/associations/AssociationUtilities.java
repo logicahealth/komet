@@ -86,7 +86,7 @@ public class AssociationUtilities
     */
    public static Optional<AssociationInstance> getAssociation(int associationNid, StampCoordinate stamp)
    {
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp;
+      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
       SemanticChronology sc = Get.assemblageService().getSemanticChronology(associationNid);
       LatestVersion<Version> latest = sc.getLatestVersion(localStamp);
       if (latest.isPresent())
@@ -100,11 +100,12 @@ public class AssociationUtilities
     * Get all associations that originate on the specified componentNid
     * @param componentNid
     * @param stamp - optional - if not provided, uses the default from the config service
+    * @return the associations
     */
    public static List<AssociationInstance> getSourceAssociations(int componentNid, StampCoordinate stamp)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp;
+      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, getAssociationConceptNids())
          .forEach(associationC -> 
             {
@@ -122,6 +123,7 @@ public class AssociationUtilities
     * Get all association instances that have a target of the specified componentNid
     * @param componentNid
     * @param stamp - optional - if not provided, uses the default from the config service
+    * @return  the association instances
     */
    //TODO [DAN 3] should probably have a method here that takes in a target UUID, since that seems to be how I stored them?
    public static List<AssociationInstance> getTargetAssociations(int componentNid, StampCoordinate stamp)
@@ -155,7 +157,7 @@ public class AssociationUtilities
          {
             @SuppressWarnings("rawtypes")
             LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class, 
-                  stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp).getLatestSemanticVersion(sr.getNid());
+                  stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp).getLatestSemanticVersion(sr.getNid());
             
             if (latest.isPresent())
             {
@@ -174,12 +176,12 @@ public class AssociationUtilities
     * 
     * @param associationTypeConceptNid
     * @param stamp - optional - if not provided, uses the default from the config service
-    * @return
+    * @return the associations of the specified type
     */
    public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampCoordinate stamp)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp;
+      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
       Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
          .forEach(associationC -> 
             {
@@ -194,8 +196,7 @@ public class AssociationUtilities
    }
 
    /**
-    * Get a list of all of the concepts that identify a type of association - returning their concept nid identifier.
-    * @return
+    * @return a list of all of the concepts that identify a type of association - returning their concept nid identifier.
     */
    public static Set<Integer> getAssociationConceptNids()
    {
