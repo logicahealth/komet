@@ -75,7 +75,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo
 {
 	private static final String necessarySctid = "900000000000074008";
 	private static final String sufficientSctid = "900000000000073002";
-	private static final String eol = System.getProperty("line.separator");
+	private static final String eol = System.lineSeparator();
 	
 	/**
 	 * we also read a native loinc input file - get that version too

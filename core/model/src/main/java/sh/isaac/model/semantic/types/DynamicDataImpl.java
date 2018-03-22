@@ -229,10 +229,7 @@ public abstract class DynamicDataImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data.
-    *
-    * @return the data
-    * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getData()
+    * {@inheritDoc}
     */
    @Override
    public byte[] getData() {
@@ -240,10 +237,7 @@ public abstract class DynamicDataImpl
    }
 
    /**
-    * Gets the dynamic data type.
-    *
-    * @return the dynamic data type
-    * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getDynamicSememeDataType()
+    * {@inheritDoc}
     */
    @Override
    public DynamicDataType getDynamicDataType() {

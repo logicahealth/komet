@@ -85,10 +85,7 @@ public class DynamicByteArrayImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data byte array.
-    *
-    * @return the data byte array
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArray()
+    * {@inheritDoc}
     */
    @Override
    public byte[] getDataByteArray() {
@@ -96,10 +93,7 @@ public class DynamicByteArrayImpl
    }
 
    /**
-    * Gets the data byte array property.
-    *
-    * @return the data byte array property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArrayProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() {
@@ -111,10 +105,7 @@ public class DynamicByteArrayImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -122,10 +113,7 @@ public class DynamicByteArrayImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

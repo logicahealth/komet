@@ -153,10 +153,6 @@ public class ConcurrentReferenceHashMap<K, V>
    private static final long serialVersionUID = 7249069246763182397L;
 
    /** The Constant DEFAULT_KEY_TYPE. */
-
-   /*
-    * ---------------- Constants --------------
-    */
    static final ReferenceType DEFAULT_KEY_TYPE = ReferenceType.WEAK;
 
    /** The Constant DEFAULT_VALUE_TYPE. */
@@ -196,10 +192,6 @@ public class ConcurrentReferenceHashMap<K, V>
    static final int RETRIES_BEFORE_LOCK = 2;
 
    //~--- fields --------------------------------------------------------------
-
-   /*
-    * ---------------- Fields --------------
-    */
 
    /**
     * Mask value for indexing into segments. The upper bits of a key's hash code are used to choose the
