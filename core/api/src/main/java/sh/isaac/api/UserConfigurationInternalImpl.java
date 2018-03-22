@@ -87,4 +87,9 @@ public interface UserConfigurationInternalImpl
 	public <T> T getOption(String custom);
 	
 	public boolean hasOption(String custom);
+	
+	/**
+	 * Remove all stored configuration for the current user.
+	 */
+	public void clearStoredConfiguration();
 }

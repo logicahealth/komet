@@ -41,4 +41,22 @@ public interface PreferencesService {
     * to any database a user opens on this computer.
     */
    IsaacPreferences getUserPreferences();
+   
+   /**
+    * Remove any and all application preferences stored data store folder
+    * The behavior of any handles to the system preferences that are still held after this operation is undefined.
+    */
+   void clearApplicationPreferences();
+   
+   /**
+    * Remove any and all preferences stored in the system store
+    * The behavior of any handles to the system preferences that are still held after this operation is undefined.
+    */
+   void clearSystemPreferences();
+   
+   /**
+    * Remove any and all preferences stored in the system user store
+    * The behavior of any handles to the user preferences that are still held after this operation is undefined.
+    */
+   void clearUserPreferences();
 }

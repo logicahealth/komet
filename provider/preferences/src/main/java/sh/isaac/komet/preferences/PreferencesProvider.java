@@ -39,6 +39,7 @@
 
 package sh.isaac.komet.preferences;
 
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -116,5 +117,47 @@ public class PreferencesProvider
    @Override
    public IsaacPreferences getUserPreferences() {
       return new PreferencesWrapper(Preferences.userRoot());
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearApplicationPreferences() {
+      try {
+         getApplicationPreferences().removeNode();
+         getApplicationPreferences().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearSystemPreferences() {
+      try {
+         Preferences.systemRoot().removeNode();
+         Preferences.systemRoot().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearUserPreferences() {
+      try {
+         Preferences.userRoot().removeNode();
+         Preferences.userRoot().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
    }
 }

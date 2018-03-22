@@ -177,4 +177,10 @@ public class UserConfigurationPerDBProvider implements UserConfigurationPerDB
 	{
 		return dataStore.containsKey("custom:" + custom);
 	}
+
+	@Override
+	public void clearStoredConfiguration()
+	{
+		dataStore.clear();
+	}
 }

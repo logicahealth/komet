@@ -615,4 +615,11 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	{
 		putOption(DatabaseInitialization.class.getName(), initMode.name());
 	}
+
+	@Override
+	public void clearStoredConfiguration()
+	{
+		dataStore.clear();
+		defaultCoordinateProvider = new DefaultCoordinateProvider();
+	}
 }

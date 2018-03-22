@@ -18,6 +18,7 @@ package sh.isaac.komet.preferences;
 import java.util.ArrayList;
 import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.prefs.BackingStoreException;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
@@ -52,6 +53,7 @@ import sh.isaac.api.preferences.PreferencesService;
 public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUser
 {
 	private IsaacPreferences dataStore = null;
+	private UUID userId = null;
 	
 	private UserConfigurationPerOSProvider()
 	{
@@ -170,7 +172,8 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 			throw new RuntimeException("User has already been set!");
 		}
 		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
-		dataStore = mainDataStore.node(userId.toString());
+		dataStore = mainDataStore.node("userConfiguration").node(userId.toString());
+		this.userId = userId;
 	}
 
 	/** 
@@ -275,5 +278,21 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 	public boolean hasOption(String custom)
 	{
 		return getOption(custom) != null;
+	}
+
+	@Override
+	public void clearStoredConfiguration()
+	{
+		IsaacPreferences temp = dataStore.parent();
+		try
+		{
+			dataStore.removeNode();
+			temp.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			throw new RuntimeException(e);
+		}
+		dataStore = temp.node("userConfiguration").node(userId.toString());
 	}
 }
