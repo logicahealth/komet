@@ -268,7 +268,7 @@ public class DBConfigurationCreator
 
 			// load termstore
 			pe = new PluginExecution();
-			pe.setId("load-termstore");  // TODO [DAN 1] Keith switched these to load-termstore-semaphore - need to see if that is something we need to make configurable
+			pe.setId("load-termstore");
 			goals = new Goals();
 			goals.getGoal().add("load-termstore");
 			pe.setGoals(goals);
