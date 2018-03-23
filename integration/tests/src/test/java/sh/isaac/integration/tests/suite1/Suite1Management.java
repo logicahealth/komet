@@ -102,8 +102,8 @@ public class Suite1Management {
             throws Exception {
       LOG.info("Suite 1 setup");
       RecursiveDelete.delete(new File("target/suite1"));
+      Get.configurationService().setDataStoreFolderPath(new File("target/suite1").toPath());
       LookupService.startupPreferenceProvider();
-      Get.configurationService().setDataStoreFolderPath(new File("target/testdb").toPath());
 
       LOG.info("termstore folder path exists: " + Get.configurationService().getDataStoreFolderPath().toFile().exists());
 
