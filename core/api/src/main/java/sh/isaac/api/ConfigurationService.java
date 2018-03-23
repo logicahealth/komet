@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 
 
@@ -221,4 +222,23 @@ public interface ConfigurationService {
       ucp.finishInit((userId == null || !userId.isPresent()) ? getCurrentUserId() : userId);
       return ucp;
    }
+   
+   /**
+    * @return The DatabaseInitialization instruction, when creating a new datastore.
+    * 
+    * This defaults to {@link DatabaseInitialization#NO_DATA_LOAD}.
+    * 
+    * Note that this value can be overridden by specifying a system property of 
+    * {@link SystemPropertyConstants#DATA_STORE_INIT} with a value from 
+    * {@link DatabaseInitialization}
+    * 
+    * If the system property is specified, it takes priority over any set or default value.
+    */
+   public DatabaseInitialization getDatabaseInitializationMode();
+   
+   /**
+    * Set the database init mode.  This must be set prior to starting ISAAC.
+    * @param initMode the new mode
+    */
+   public void setDatabaseInitializationMode(DatabaseInitialization initMode);
 }

@@ -140,7 +140,7 @@ public class ChronologyProvider
           synchronized (metadataLoaded) {
              
              if (store.getDataStoreStartState() == DataStoreStartState.NO_DATASTORE) {
-                DatabaseInitialization initializationPreference = Get.configurationService().getGlobalDatastoreConfiguration().getDatabaseInitializationMode();
+                DatabaseInitialization initializationPreference = Get.configurationService().getDatabaseInitializationMode();
        
                 if (initializationPreference == DatabaseInitialization.LOAD_METADATA) {
                    loadMetaData();

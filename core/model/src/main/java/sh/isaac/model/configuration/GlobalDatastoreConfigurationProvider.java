@@ -50,7 +50,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
-import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
@@ -566,55 +565,6 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	public void setMemoryConfiguration(MemoryConfiguration memoryConfiguration)
 	{
 		putOption(MemoryConfiguration.class.getName(), memoryConfiguration.name());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DatabaseInitialization getDatabaseInitializationMode()
-	{
-		String temp = System.getProperty(SystemPropertyConstants.DATA_STORE_INIT);
-		DatabaseInitialization diFromSystem = null;
-		if (StringUtils.isNotBlank(temp))
-		{
-			try
-			{
-				diFromSystem = DatabaseInitialization.valueOf(temp);
-				if (diFromSystem == null)
-				{
-					LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_INIT);
-				}
-			}
-			catch (Exception e)
-			{
-				LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_INIT);
-			}
-		}
-		
-		String enumName = getOption(DatabaseInitialization.class.getName());
-		DatabaseInitialization diFromProps = null;
-		if (StringUtils.isNotBlank(enumName))
-		{
-			diFromProps = DatabaseInitialization.valueOf(enumName);
-		}
-		
-		if (diFromSystem != null && diFromProps != null)
-		{
-			LOG.info("Overriding the DatabaseInitialization configuration of {} with the value {} from a system property", diFromProps, diFromSystem);
-			return diFromSystem;
-		}
-		
-		return diFromProps == null ? DatabaseInitialization.NO_DATA_LOAD : diFromProps;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setDatabaseInitializationMode(DatabaseInitialization initMode)
-	{
-		putOption(DatabaseInitialization.class.getName(), initMode.name());
 	}
 
 	@Override

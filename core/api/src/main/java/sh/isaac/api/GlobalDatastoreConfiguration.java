@@ -110,25 +110,6 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	public void setMemoryConfiguration(MemoryConfiguration memoryConfiguration);
 	
 	/**
-	 * @return The DatabaseInitialization instruction, when creating a new datastore.
-	 * 
-	 * This defaults to {@link DatabaseInitialization#NO_DATA_LOAD}.
-	 * 
-	 * Note that this value can be overridden by specifying a system property of 
-	 * {@link SystemPropertyConstants#DATA_STORE_INIT} with a value from 
-	 * {@link DatabaseInitialization}
-	 * 
-	 * If the system property is specified, it takes priority over any set or default value.
-	 */
-	public DatabaseInitialization getDatabaseInitializationMode();
-	
-	/**
-	 * Set the database init mode.  This must be set prior to starting ISAAC.
-	 * @param initMode the new mode
-	 */
-	public void setDatabaseInitializationMode(DatabaseInitialization initMode);
-	
-	/**
 	 * Sets the default classifier. When changed, other default objects that
 	 * reference this object will be updated accordingly. Default: The value to
 	 * use if another value is not provided.

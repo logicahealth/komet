@@ -64,6 +64,7 @@ import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserConfiguration;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -105,6 +106,8 @@ public class ConfigurationServiceProvider
    private Path systemPropertyIbdfImportPath = null;
 
    private SimpleObjectProperty<BuildMode> dbBuildMode = new SimpleObjectProperty<>(null);
+   
+   private DatabaseInitialization dbInitMode = DatabaseInitialization.NO_DATA_LOAD;
    
    private Cache<UUID, UserConfiguration> userConfigCache;
    
@@ -333,6 +336,42 @@ public class ConfigurationServiceProvider
          currentUser = Optional.empty();
       }
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public DatabaseInitialization getDatabaseInitializationMode() {
+      String temp = System.getProperty(SystemPropertyConstants.DATA_STORE_INIT);
+      DatabaseInitialization diFromSystem = null;
+      if (StringUtils.isNotBlank(temp)) {
+         try {
+            diFromSystem = DatabaseInitialization.valueOf(temp);
+            if (diFromSystem == null)
+            {
+               LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_INIT);
+            }
+         }
+         catch (Exception e) {
+            LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_INIT);
+         }
+      }
+      
+      if (diFromSystem != null) {
+         LOG.info("Overriding the DatabaseInitialization configuration of {} with the value {} from a system property", dbInitMode, diFromSystem);
+         return diFromSystem;
+      }
+      
+      return dbInitMode == null ? DatabaseInitialization.NO_DATA_LOAD : dbInitMode;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void setDatabaseInitializationMode(DatabaseInitialization initMode) {
+      dbInitMode = initMode;
+   }
 
    /**
     * {@inheritDoc}
@@ -344,6 +383,7 @@ public class ConfigurationServiceProvider
          this.calculatedDataStoreFolderPath = null;
          this.userDataStoreFolderPath = null;
          this.dbBuildMode.set(null);
+         this.dbInitMode = DatabaseInitialization.NO_DATA_LOAD;
          this.userConfigCache.invalidateAll();
          this.currentUser = Optional.empty();
          this.systemPropertyDataStoreFolderPath = null;

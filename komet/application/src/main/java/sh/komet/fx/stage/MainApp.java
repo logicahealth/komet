@@ -120,8 +120,9 @@ public class MainApp
         LookupService.startupPreferenceProvider();
         
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
-        Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-        Get.configurationService().getGlobalDatastoreConfiguration().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
+        Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);  //TODO may be a bug here
+        //not sure i fI can init the global datastore prior to isaac start
+        Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 
         
         LookupService.startupIsaac();
