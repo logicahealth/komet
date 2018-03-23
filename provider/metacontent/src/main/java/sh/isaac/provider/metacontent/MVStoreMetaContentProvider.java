@@ -121,6 +121,7 @@ public class MVStoreMetaContentProvider
 
       if (this.store != null) {
          this.store.close();
+         this.store = null;
       }
    }
 
@@ -186,8 +187,6 @@ public class MVStoreMetaContentProvider
       this.LOG.info("MVStoreMetaContent store path: " + dataFile.getAbsolutePath());
       this.store = new MVStore.Builder().fileName(dataFile.getAbsolutePath())
                                         .open();
-
-      // store.setVersionsToKeep(0); TODO check group answer
       return this;
    }
 
