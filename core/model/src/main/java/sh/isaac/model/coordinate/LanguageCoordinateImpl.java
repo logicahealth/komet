@@ -234,7 +234,7 @@ public class LanguageCoordinateImpl
                                                                     boolean sizeChanged,
                                                                     int from,
                                                                     int to) -> {
-               this.dialectAssemblagePreferenceList = observableArray.toArray(this.dialectAssemblagePreferenceList);
+               this.dialectAssemblagePreferenceList = observableArray.toArray(new int[observableArray.size()]);
             };
 
       dialectAssemblagePreferenceListProperty.getValue()

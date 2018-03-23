@@ -138,7 +138,7 @@ public final class ObservableLanguageCoordinateImpl
                     FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
 
             this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
-                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
+                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(new int[t1.size()]));
             });
         }
 
@@ -240,7 +240,7 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDescriptionTypePreferenceList() {
         if (this.descriptionTypePreferenceListProperty != null) {
             return this.descriptionTypePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
+                    .toArray(new int[] {this.descriptionTypePreferenceListProperty.get().size()});
         }
 
         return this.languageCoordinate.getDescriptionTypePreferenceList();
@@ -255,7 +255,7 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDialectAssemblagePreferenceList() {
         if (this.dialectAssemblagePreferenceListProperty != null) {
             return this.dialectAssemblagePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
+                    .toArray(new int[dialectAssemblagePreferenceListProperty.get().size()]);
         }
 
         return this.languageCoordinate.getDialectAssemblagePreferenceList();
