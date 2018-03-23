@@ -18,7 +18,6 @@ package sh.isaac.api;
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.constants.SystemPropertyConstants;
-import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
@@ -38,6 +37,9 @@ import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
  * The default implementation of all of the setter methods here, is to throw an unsupported operation exception, 
  * implementations of this class must override the setters, if they wish to provide the ability to set and persist
  * any of these values.
+ * 
+ * While some features of this store are available as soon as it is started, others, such as Observables, and anything
+ * that involves nids, cannot be accessed until after the rest of the data store is started.
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */

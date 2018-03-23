@@ -72,7 +72,7 @@ import sh.isaac.api.util.PasswordHasher;
 @RunLevel(value=LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConfiguration
 {
-	DefaultCoordinateProvider defaultCoordinateProvider;
+	DefaultCoordinateProvider defaultCoordinateProvider = null;
 	ConcurrentMap<String, Object> dataStore;
 	Logger LOG = LogManager.getLogger();
 	
@@ -82,12 +82,21 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	private GlobalDatastoreConfigurationProvider()
 	{
 		// only for HK2
-		defaultCoordinateProvider = new DefaultCoordinateProvider();
+		LOG.info("Setting up Configuration Service");
 		dataStore = Get.service(MetaContentService.class).<String,Object>openStore("GlobalDatastoreConfig");
-		
-		for (ConfigurationOption dt : ConfigurationOption.values())
+		//need to delay the init of the defaultCoordianteProvider till the identifier service is up (level 2) but
+		//want this service to be available for other config options before starting the DB....
+	}
+	
+	private void initCheckCoords()
+	{
+		if (defaultCoordinateProvider == null)
 		{
-			init(dt);
+			defaultCoordinateProvider = new DefaultCoordinateProvider();
+			for (ConfigurationOption dt : ConfigurationOption.values())
+			{
+				init(dt);
+			}
 		}
 	}
 
@@ -97,6 +106,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public ObservableEditCoordinate getDefaultEditCoordinate()
 	{
+		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultEditCoordinate();
 	}
 
@@ -106,6 +116,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public ObservableLanguageCoordinate getDefaultLanguageCoordinate()
 	{
+		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultLanguageCoordinate();
 	}
 
@@ -115,6 +126,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public ObservableLogicCoordinate getDefaultLogicCoordinate()
 	{
+		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultLogicCoordinate();
 	}
 
@@ -124,6 +136,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public ObservableManifoldCoordinate getDefaultManifoldCoordinate()
 	{
+		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultManifoldCoordinate();
 	}
 
@@ -133,6 +146,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public ObservableStampCoordinate getDefaultStampCoordinate()
 	{
+		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultStampCoordinate();
 	}
 
@@ -285,6 +299,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 
 	private <T> Object write(ConfigurationOption option, Object data)
 	{
+		initCheckCoords();
 		if (data == null)
 		{
 			throw new RuntimeException("Cannot clear default options");
@@ -419,6 +434,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public <T> T getOption(ConfigurationOption option)
 	{
+		initCheckCoords();
 		switch(option) {
 			case EDIT_COORDINATE:
 				return (T)defaultCoordinateProvider.getDefaultEditCoordinate();
