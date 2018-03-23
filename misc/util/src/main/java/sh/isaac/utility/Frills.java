@@ -70,6 +70,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshotService;
@@ -161,7 +162,7 @@ import sh.isaac.model.semantic.version.StringVersionImpl;
 @Service
 @Singleton
 public class Frills
-         implements DynamicColumnUtility {
+         implements DynamicColumnUtility, IsaacCache {
    private static final Logger LOG = LogManager.getLogger(Frills.class);
 
    private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
@@ -633,9 +634,9 @@ public class Frills
    public static Optional<String> getDescription(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
       return getDescription(conceptNid, 
           manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getStampCoordinate() 
-        		  : manifoldCoordinate.getStampCoordinate(), 
+                : manifoldCoordinate.getStampCoordinate(), 
           manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getLanguageCoordinate() 
-        		  : manifoldCoordinate.getLanguageCoordinate());
+                : manifoldCoordinate.getLanguageCoordinate());
    }
    
    /**
@@ -847,8 +848,8 @@ public class Frills
             }
 
             final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
-            		.getUserConfiguration(Optional.empty()).getStampCoordinate()
-            		.makeCoordinateAnalog(Status.ANY_STATUS_SET));
+                  .getUserConfiguration(Optional.empty()).getStampCoordinate()
+                  .makeCoordinateAnalog(Status.ANY_STATUS_SET));
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
@@ -1365,7 +1366,7 @@ public class Frills
       {
          ArrayList<String> codes = new ArrayList<>(1);
          Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? 
-        		 Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
+               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
                      MetaData.CODE____SOLOR.getNid()).forEach(latestSememe ->
                      {
@@ -1557,7 +1558,7 @@ public class Frills
          .forEach(descriptionC -> {
                 if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
                    final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stamp == null)? 
-                		   Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+                         Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
 
                    if (latest.isPresent()) {
                       final DescriptionVersion ds = latest.get();
@@ -2303,7 +2304,7 @@ public class Frills
          final ArrayList<Long> vuids = new ArrayList<>(1);
 
          Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? 
-        		 Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
+               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSememe -> {
                   // expected path
                   if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING) {
@@ -2466,6 +2467,17 @@ public class Frills
 
       Collections.sort(allDynamicSememeDefConcepts);
       return allDynamicSememeDefConcepts;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset()
+   {
+      IS_ASSOCIATION_CLASS.invalidateAll();
+      IS_MAPPING_CLASS.invalidateAll();
+      MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
    }
 }
 

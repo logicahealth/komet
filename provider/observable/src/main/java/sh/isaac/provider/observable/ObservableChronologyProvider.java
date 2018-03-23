@@ -280,7 +280,7 @@ public class ObservableChronologyProvider
 
       public ObservableSnapshotServiceProvider(ManifoldCoordinate manifoldCoordinate) {
          this.manifoldCoordinate = manifoldCoordinate;
-         this.relativePositionCalculator = new RelativePositionCalculator(manifoldCoordinate);
+         this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.manifoldCoordinate);
       }
 
       @Override

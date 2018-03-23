@@ -60,11 +60,11 @@ public class FxGet implements StaticIsaacCache
    }
    
    public static FxConfiguration fxConfiguration() {
-	      if (FX_CONFIGURATION == null) {
-	    	  FX_CONFIGURATION = new FxConfiguration();
-	      }
-	      return FX_CONFIGURATION;
-	   }
+         if (FX_CONFIGURATION == null) {
+            FX_CONFIGURATION = new FxConfiguration();
+         }
+         return FX_CONFIGURATION;
+      }
 
    /**
     * {@inheritDoc}

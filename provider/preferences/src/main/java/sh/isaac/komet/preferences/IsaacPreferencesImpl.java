@@ -58,14 +58,15 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
-import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 //~--- classes ----------------------------------------------------------------
@@ -75,7 +76,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
  * @author kec
  */
 @Service
-@Singleton
+@RunLevel(value=LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class IsaacPreferencesImpl
         extends AbstractPreferences {
    private final Logger LOG = LogManager.getLogger();
@@ -119,7 +120,7 @@ public class IsaacPreferencesImpl
     * @return This class, wrapped by a {@link IsaacPreferencesWrapper}
     */
    public static IsaacPreferences getApplicationRootPreferences() {
-      //utilize HK2 here, so it can keep track of / enforce @Singleton
+      //utilize HK2 here, so we essentially get a singleton for the root prefs
       return new IsaacPreferencesWrapper(Get.service(IsaacPreferencesImpl.class));
    }
 

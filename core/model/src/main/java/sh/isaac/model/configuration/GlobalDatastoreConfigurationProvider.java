@@ -40,14 +40,15 @@ package sh.isaac.model.configuration;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
-import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
@@ -69,7 +70,7 @@ import sh.isaac.api.util.PasswordHasher;
  */
 @Service(name = "Default Configuration Service")
 @Rank(value = 0)
-@Singleton
+@RunLevel(value=LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConfiguration
 {
 	DefaultCoordinateProvider defaultCoordinateProvider;
