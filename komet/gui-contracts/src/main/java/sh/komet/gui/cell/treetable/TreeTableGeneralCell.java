@@ -111,7 +111,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.RootNode;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
-import sh.komet.gui.control.logic.LogicDetailRootNode;
+import sh.komet.gui.control.axiom.AxiomView;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -168,10 +168,20 @@ public class TreeTableGeneralCell
     //~--- methods -------------------------------------------------------------
     public void addDefToCell(LogicGraphVersion logicGraphVersion) {
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        LogicDetailRootNode defNode = new LogicDetailRootNode((RootNode) expression.getRoot(),
-            PremiseType.STATED, expression,
-            manifold);       
-        BorderPane defNodePanel = (BorderPane) defNode.getPanelNode();
+        PremiseType premiseType = PremiseType.STATED;
+            if (manifold.getLogicCoordinate()
+                    .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+                premiseType = PremiseType.INFERRED;
+            } else if (manifold.getLogicCoordinate()
+                    .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+                premiseType = PremiseType.STATED;
+            }
+        addDefToCell(expression, premiseType);
+    }
+
+    private void addDefToCell(LogicalExpression expression, PremiseType premiseType) {
+
+        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
         defNodePanel.setMaxWidth(this.getWidth());
         this.widthProperty()
                 .addListener(

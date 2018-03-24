@@ -88,7 +88,8 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
                 = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, 
                         expressionContiningNode, expressionUpdater);
       this.kSession.execute(executionItem);
-      return executionItem.actionItems;        
+      executionItem.sortActionItems();
+      return executionItem.getActionItems();        
     }
 
    @Override
@@ -104,7 +105,8 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
       this.kSession.execute(executionItem);
-      return executionItem.menuItems;
+      executionItem.sortMenuItems();
+      return executionItem.getMenuItems();
    }
 
    @Override

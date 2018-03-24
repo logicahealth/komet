@@ -39,6 +39,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.DataTarget;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -151,12 +154,26 @@ public class ConceptBuilderNode implements DetailNode {
         parallelTransition.getChildren()
                     .add(addNode(definitionHeader));  
         
-        ObservableLogicGraphVersionImpl emptyDefinition = new ObservableLogicGraphVersionImpl(conceptUuid);
-        emptyDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
+        
+        ConceptProxy tetraProxy = new ConceptProxy("Tetralogy of Fallot (disorder)", UUID.fromString("224b97e0-b703-39f6-ba4b-aa27f5dc15aa"));
+        Optional<LogicalExpression> tetraExpression = manifold.getStatedLogicalExpression(tetraProxy);
+        
+        if (tetraExpression.isPresent()) {
+            ObservableLogicGraphVersionImpl emptyDefinition = new ObservableLogicGraphVersionImpl(conceptUuid);
+            emptyDefinition.setGraphData(tetraExpression.get().getData(DataTarget.INTERNAL));
+           
+            ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, emptyDefinition);  
+            parallelTransition.getChildren()
+                    .add(addComponent(logicPanel));  
+            
+        } else {
+          ObservableLogicGraphVersionImpl emptyDefinition = new ObservableLogicGraphVersionImpl(conceptUuid);
+          emptyDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
         ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, emptyDefinition);  
         parallelTransition.getChildren()
                     .add(addComponent(logicPanel));  
-        
+        }
+         
         parallelTransition.play();
     }
     private Animation addNode(AnchorPane header) {

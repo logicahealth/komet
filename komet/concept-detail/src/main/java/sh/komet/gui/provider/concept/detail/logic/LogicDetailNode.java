@@ -46,14 +46,13 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.control.logic.LogicDetailRootNode;
 import sh.komet.gui.style.StyleClasses;
 
 /**
@@ -146,11 +145,11 @@ public class LogicDetailNode
         splitPane.setOrientation(Orientation.VERTICAL);
         conceptDetailPane.setCenter(splitPane);
         if (statedExpression.isPresent()) {
-            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) statedExpression.get().getRoot(), PremiseType.STATED, statedExpression.get(), conceptDetailManifold);
+            
             if (statedExpression.get().isUncommitted()) {
                 editInFlight = statedExpression.get();
                 BorderPane expressionBorderPane = new BorderPane();
-                expressionBorderPane.setCenter(rootDetail.getPanelNode());
+                expressionBorderPane.setCenter(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, conceptDetailManifold));
 
                 ToolBar commitToolbar = new ToolBar();
                 Region spacer = new Region();
@@ -165,15 +164,14 @@ public class LogicDetailNode
                 splitPane.getItems().add(expressionBorderPane);
             } else {
                 editInFlight = null;
-                splitPane.getItems().add(rootDetail.getPanelNode());
+                splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, conceptDetailManifold));
             }
         } else {
             conceptDetailPane.setCenter(new Label("No stated form"));
         }
         Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
         if (inferredExpression.isPresent()) {
-            LogicDetailRootNode rootDetail = new LogicDetailRootNode((RootNode) inferredExpression.get().getRoot(), PremiseType.INFERRED, inferredExpression.get(), conceptDetailManifold);
-            splitPane.getItems().add(rootDetail.getPanelNode());
+            splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, conceptDetailManifold));
         } else {
             conceptDetailPane.setCenter(new Label("No inferred form"));
         }

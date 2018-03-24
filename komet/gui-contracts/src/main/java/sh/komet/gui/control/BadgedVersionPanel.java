@@ -98,7 +98,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.logic.node.RootNode;
-import sh.komet.gui.control.logic.LogicDetailRootNode;
+import sh.komet.gui.control.axiom.AxiomView;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -116,7 +116,6 @@ public abstract class BadgedVersionPanel
     protected final int badgeWidth = 25;
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected int columns = 10;
-    protected LogicDetailRootNode logicDetailRootNode = null;
     protected Node logicDetailPanel = null;
     protected final Text componentText = new Text();
     protected final Text componentType = new Text();
@@ -330,7 +329,7 @@ public abstract class BadgedVersionPanel
 
     protected final void setupConcept(ConceptVersion conceptVersion) {
         if (isLatestPanel()) {
-            componentType.setText("Concept");
+            componentType.setText("CON");
             componentText.setText(
                     "\n" + conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
                     conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
@@ -343,7 +342,7 @@ public abstract class BadgedVersionPanel
                     conceptVersion.getPathNid()));
         }
     }
-
+    
     protected final void setupLogicDef(LogicGraphVersion logicGraphVersion) {
         PremiseType premiseType = PremiseType.STATED;
         if (isLatestPanel()) {
@@ -363,8 +362,7 @@ public abstract class BadgedVersionPanel
         }
 
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        this.logicDetailRootNode = new LogicDetailRootNode((RootNode) expression.getRoot(), premiseType, expression, manifold);
-        this.logicDetailPanel = logicDetailRootNode.getSetsPanelNode();
+        this.logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
     }
 
     protected final void setupDescription(DescriptionVersion description) {
@@ -376,7 +374,7 @@ public abstract class BadgedVersionPanel
             if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                 componentType.setText("FQN");
             } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText("NAME");
+                componentType.setText("NĀM");
             } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                 componentType.setText("DEF");
             } else {

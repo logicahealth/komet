@@ -850,15 +850,6 @@ limitations under the License.
     -fx-background-color: -komet-blue-color;
    
 }
-
-.def-sufficient-set {
-    -fx-background-color: -komet-blue-color;
-}
-
-.def-necessary-set {
-    -fx-background-color: ghostwhite;
-    -fx-text-fill: orange;
-}
 .titled-pane > *.content {
     -fx-background-color: whitesmoke;
 }
@@ -867,4 +858,81 @@ limitations under the License.
     -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-font-size:22;
+ }
+
+ .def-concept {
+    -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:2 1 2 2;    
+    -fx-border-color:-komet-panel-background-color;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+.def-necessary-set  {
+     -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #FF4E08;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+.def-sufficient-set  {
+    -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-concept-color;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-background-insets:4 0 2 0;
+ }
+
+.def-role-group  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #009bff;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+.def-role  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-description-color;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+ .def-root .toggle-button {
+     -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+ 
+ .def-root  {
+     -fx-background-color: white;
+ }
+ 
+ .def-necessary-set .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+.def-necessary-set .toggle-button:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+ 
+ .def-concept:inferred {
+     
+ }
+ 
+ .def-concept:stated {
+     
+ }
+ 
+ .open-concept-button {
+    -fx-padding:-4 1 0 2;
  }
