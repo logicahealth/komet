@@ -280,15 +280,15 @@ public interface IsaacPreferences  {
      */
     boolean getBoolean(String key, boolean defaultValue);
     
-    default OptionalBoolean getBoolean(String key) {
+    default Optional<Boolean> getBoolean(String key) {
        Optional<String> optionalValue = get(key);
        if (optionalValue.isPresent()) {
           if (Boolean.parseBoolean(optionalValue.get())) {
-             return OptionalBoolean.TRUE;
+             return Optional.of(true);
           }
-          return OptionalBoolean.FALSE;
+          return Optional.of(false);
        }
-       return OptionalBoolean.ANY;
+       return Optional.empty();
     }
 
     /**
