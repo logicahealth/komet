@@ -16,6 +16,7 @@
 package sh.isaac.komet.preferences;
 
 import java.util.ArrayList;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
@@ -24,6 +25,7 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.UserConfigurationPerOSUser;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 
@@ -54,6 +56,12 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 {
 	private IsaacPreferences dataStore = null;
 	private UUID userId = null;
+	
+	/**
+	 * This controls where it stores the data in the user profile.  Normally, we do not change this, however, certain test cases need to change it, 
+	 * in order to not overwrite real stored prefs with garbage when running tests.
+	 */
+	public static String nodeName ="IsaacUserConfiguration";
 	
 	private UserConfigurationPerOSProvider()
 	{
@@ -90,6 +98,15 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 				{
 					return (T)dataStore.get(option.name()).orElse(null);
 				}
+				if (option.getType().isAssignableFrom(PremiseType.class))
+				{
+					String temp = dataStore.get(option.name()).orElse(null);
+					if (temp != null)
+					{
+						return (T)PremiseType.valueOf(temp); 
+					}
+					return (T)null;
+				}
 				else if (option.getType().isAssignableFrom(Integer.class))
 				{
 					//translate UUID to nid
@@ -109,7 +126,7 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 					OptionalLong temp = dataStore.getLong(option.name());
 					return (T) (temp.isPresent() ? temp.getAsLong() : null);
 				}
-				else if (option.getType().isAssignableFrom(Integer[].class))
+				else if (option.getType().isAssignableFrom(int[].class))
 				{
 					String temp = dataStore.get(option.name()).orElse(null);
 					return (T) stringToIntArray(temp);
@@ -172,14 +189,13 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 			throw new RuntimeException("User has already been set!");
 		}
 		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
-		dataStore = mainDataStore.node("userConfiguration").node(userId.toString());
+		dataStore = mainDataStore.node(nodeName).node(userId.toString());
 		this.userId = userId;
 	}
 
 	/** 
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T putOption(ConfigurationOption option, T objectValue)
 	{
@@ -202,40 +218,67 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 			case STATED_ASSEMBLAGE:
 			case PREMISE_TYPE:
 			case TIME:
+				T toReturn = getOption(option);
 				if (option.getType().isAssignableFrom(String.class))
 				{
-					T temp = (T)dataStore.get(option.name()).orElse(null);
-					dataStore.put(option.name(), (String)objectValue);
-					return temp;
+					if (objectValue == null)
+					{
+						dataStore.remove(option.name());
+					}
+					else
+					{
+						dataStore.put(option.name(), (String)objectValue);
+					}
+				}
+				else if (option.getType().isAssignableFrom(PremiseType.class))
+				{
+					if (objectValue == null)
+					{
+						dataStore.remove(option.name());
+					}
+					else
+					{
+						dataStore.put(option.name(), ((PremiseType)objectValue).name());
+					}					
 				}
 				else if (option.getType().isAssignableFrom(Integer.class))
 				{
-					String temp = dataStore.get(option.name()).orElse(null);
-					T toReturn = null;
-					if (temp != null)
+					if (objectValue == null)
 					{
-						toReturn = (T)new Integer(Get.identifierService().getNidForUuids(UUID.fromString(temp)));
+						dataStore.remove(option.name());
 					}
-					dataStore.put(option.name(), Get.identifierService().getUuidPrimordialForNid((Integer)objectValue).toString());
+					else
+					{
+						dataStore.put(option.name(), Get.identifierService().getUuidPrimordialForNid((Integer)objectValue).toString());
+					}
 					return toReturn;
 				}
 				else if (option.getType().isAssignableFrom(Long.class))
 				{
-					OptionalLong temp = dataStore.getLong(option.name());
-					T toReturn = (T) (temp.isPresent() ? temp.getAsLong() : null);
-					dataStore.putLong(option.name(), (Long)objectValue);
-					return toReturn;
+					if (objectValue == null)
+					{
+						dataStore.remove(option.name());
+					}
+					else
+					{
+						dataStore.putLong(option.name(), (Long)objectValue);
+					}
 				}
-				else if (option.getType().isAssignableFrom(Integer[].class))
+				else if (option.getType().isAssignableFrom(int[].class))
 				{
-					String temp = dataStore.get(option.name()).orElse(null);
-					T toReturn = (T) stringToIntArray(temp);
-					dataStore.put(option.name(), intArrayToString((int[])objectValue));
-					return toReturn;
+					if (objectValue == null)
+					{
+						dataStore.remove(option.name());
+					}
+					else
+					{
+						dataStore.put(option.name(), intArrayToString((int[])objectValue));
+					}
 				}
 				else {
 					throw new RuntimeException("Unsupported data type");
 				}
+				return toReturn;
 			default :
 				throw new RuntimeException("Option not yet supported by provider");
 			
@@ -251,27 +294,64 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 		return getOption(option) != null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T putOption(String custom, T objectValue)
 	{
-		if (objectValue instanceof String)
+		T toReturn = getOption(custom);
+		
+		if (objectValue == null)
 		{
-			T toReturn = (T) dataStore.get("custom:" + custom).orElse(null);
-			dataStore.put("custom:" + custom, (String)objectValue);
-			return toReturn;
+			dataStore.remove("customS:" + custom);
+			dataStore.remove("customB:" + custom);
+			dataStore.remove("customI:" + custom);
 		}
 		else
 		{
-			throw new RuntimeException("Unsupported data type");
+			if (objectValue instanceof String)
+			{
+				dataStore.put("customS:" + custom, (String)objectValue);
+			}
+			else if (objectValue instanceof Boolean)
+			{
+				dataStore.putBoolean("customB:" + custom, (Boolean)objectValue);
+			}
+			else if (objectValue instanceof Integer)
+			{
+				dataStore.putInt("customI:" + custom, (Integer)objectValue);
+			}
+			else
+			{
+				throw new RuntimeException("Unsupported data type");
+			}
 		}
+		return toReturn;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getOption(String custom)
 	{
-		return (T) dataStore.get("custom:" + custom).orElse(null);
+		if (dataStore.hasKey("customS:" + custom))
+		{
+			return (T) dataStore.get("customS:" + custom).orElse(null);
+		}
+		else if  (dataStore.hasKey("customB:" + custom))
+		{
+			return (T) dataStore.getBoolean("customB:" + custom).orElse(null);
+		}
+		else if  (dataStore.hasKey("customI:" + custom))
+		{
+			OptionalInt oi = dataStore.getInt("customI:" + custom);
+			if (oi.isPresent())
+			{
+				return (T) new Integer(oi.getAsInt());
+			}
+			else
+			{
+				return (T)null;
+			}
+		}
+		return (T)null;
 	}
 
 	@Override
@@ -293,6 +373,6 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 		{
 			throw new RuntimeException(e);
 		}
-		dataStore = temp.node("userConfiguration").node(userId.toString());
+		dataStore = temp.node(nodeName).node(userId.toString());
 	}
 }

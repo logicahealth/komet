@@ -287,7 +287,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public void setDefaultPremiseType(PremiseType premiseType)
 	{
-		write(ConfigurationOption.PREMISE_TYPE, premiseType.name());
+		write(ConfigurationOption.PREMISE_TYPE, premiseType);
 	}
 
 	@Override
@@ -302,56 +302,112 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 		initCheckCoords();
 		if (data == null)
 		{
-			throw new RuntimeException("Cannot clear default options");
+			DefaultCoordinateProvider dcp = new DefaultCoordinateProvider();
+			switch(option) {
+				case EDIT_COORDINATE:
+				case LANGUAGE_COORDINATE:
+				case LOGIC_COORDINATE:
+				case MANIFOLD_COORDINATE:
+				case STAMP_COORDINATE:
+					throw new RuntimeException("Write of full object supported by global, please write individual parts");
+				case CLASSIFIER:
+					defaultCoordinateProvider.setDefaultClassifier(dcp.getDefaultLogicCoordinate().getClassifierNid());
+					break;
+				case DESCRIPTION_LOGIC_PROFILE:
+					defaultCoordinateProvider.setDefaultDescriptionLogicProfile(dcp.getDefaultLogicCoordinate().getDescriptionLogicProfileNid());
+					break;
+				case DESCRIPTION_TYPE_PREFERENCE_LIST:
+					defaultCoordinateProvider.setDefaultDescriptionTypePreferenceList(dcp.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList());
+					break;
+				case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
+					defaultCoordinateProvider.setDefaultDialectAssemblagePreferenceList(dcp.getDefaultLanguageCoordinate().getDialectAssemblagePreferenceList());
+					break;
+				case INFERRED_ASSEMBLAGE:
+					defaultCoordinateProvider.setDefaultInferredAssemblage(dcp.getDefaultLogicCoordinate().getInferredAssemblageNid());
+					break;
+				case LANGUAGE:
+					defaultCoordinateProvider.setDefaultLanguage(dcp.getDefaultLanguageCoordinate().getLanguageConceptNid());
+					break;
+				case EDIT_MODULE:
+					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getModuleNid());
+					break;
+				case EDIT_PATH:
+					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultEditCoordinate().getPathNid());
+					break;
+				case STATED_ASSEMBLAGE:
+					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
+					break;
+				case TIME:
+					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampPosition().getTime());
+					break;
+				case PREMISE_TYPE:
+					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
+					break;
+				case USER:
+					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNid());
+					break;
+				default :
+					throw new RuntimeException("Oops");
+			}
 		}
-		switch(option) {
-			case EDIT_COORDINATE:
-			case LANGUAGE_COORDINATE:
-			case LOGIC_COORDINATE:
-			case MANIFOLD_COORDINATE:
-			case STAMP_COORDINATE:
-				throw new RuntimeException("Write of full object supported by global, please write individual parts");
-			case CLASSIFIER:
-				defaultCoordinateProvider.setDefaultClassifier((int)data);
-				break;
-			case DESCRIPTION_LOGIC_PROFILE:
-				defaultCoordinateProvider.setDefaultDescriptionLogicProfile((int)data);
-				break;
-			case DESCRIPTION_TYPE_PREFERENCE_LIST:
-				defaultCoordinateProvider.setDefaultDescriptionTypePreferenceList((int[])data);
-				break;
-			case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
-				defaultCoordinateProvider.setDefaultDialectAssemblagePreferenceList((int[])data);
-				break;
-			case INFERRED_ASSEMBLAGE:
-				defaultCoordinateProvider.setDefaultInferredAssemblage((int)data);
-				break;
-			case LANGUAGE:
-				defaultCoordinateProvider.setDefaultLanguage((int)data);
-				break;
-			case EDIT_MODULE:
-				defaultCoordinateProvider.setDefaultModule((int)data);
-				break;
-			case EDIT_PATH:
-				defaultCoordinateProvider.setDefaultPath((int)data);
-				break;
-			case STATED_ASSEMBLAGE:
-				defaultCoordinateProvider.setDefaultStatedAssemblage((int)data);
-				break;
-			case TIME:
-				defaultCoordinateProvider.setDefaultTime((long)data);
-				break;
-			case PREMISE_TYPE:
-				defaultCoordinateProvider.setDefaultPremiseType(PremiseType.valueOf((String)data));
-				break;
-			case USER:
-				defaultCoordinateProvider.setDefaultUser((int)data);
-				break;
-
-			default :
-				throw new RuntimeException("Oops");
+		else
+		{
+			switch(option) {
+				case EDIT_COORDINATE:
+				case LANGUAGE_COORDINATE:
+				case LOGIC_COORDINATE:
+				case MANIFOLD_COORDINATE:
+				case STAMP_COORDINATE:
+					throw new RuntimeException("Write of full object supported by global, please write individual parts");
+				case CLASSIFIER:
+					defaultCoordinateProvider.setDefaultClassifier((int)data);
+					break;
+				case DESCRIPTION_LOGIC_PROFILE:
+					defaultCoordinateProvider.setDefaultDescriptionLogicProfile((int)data);
+					break;
+				case DESCRIPTION_TYPE_PREFERENCE_LIST:
+					defaultCoordinateProvider.setDefaultDescriptionTypePreferenceList((int[])data);
+					break;
+				case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
+					defaultCoordinateProvider.setDefaultDialectAssemblagePreferenceList((int[])data);
+					break;
+				case INFERRED_ASSEMBLAGE:
+					defaultCoordinateProvider.setDefaultInferredAssemblage((int)data);
+					break;
+				case LANGUAGE:
+					defaultCoordinateProvider.setDefaultLanguage((int)data);
+					break;
+				case EDIT_MODULE:
+					defaultCoordinateProvider.setDefaultModule((int)data);
+					break;
+				case EDIT_PATH:
+					defaultCoordinateProvider.setDefaultPath((int)data);
+					break;
+				case STATED_ASSEMBLAGE:
+					defaultCoordinateProvider.setDefaultStatedAssemblage((int)data);
+					break;
+				case TIME:
+					defaultCoordinateProvider.setDefaultTime((long)data);
+					break;
+				case PREMISE_TYPE:
+					defaultCoordinateProvider.setDefaultPremiseType((PremiseType)data);
+					break;
+				case USER:
+					defaultCoordinateProvider.setDefaultUser((int)data);
+					break;
+	
+				default :
+					throw new RuntimeException("Oops");
+			}
 		}
-		return dataStore.put(option.name(), data);
+		if (data == null)
+		{
+			return dataStore.remove(option.name());
+		}
+		else
+		{
+			return dataStore.put(option.name(), data);
+		}
 	}
 		
 	private void init(ConfigurationOption option)
@@ -397,7 +453,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultTime((long)dataStore.get(option.name()));
 					break;
 				case PREMISE_TYPE:
-					defaultCoordinateProvider.setDefaultPremiseType(PremiseType.valueOf((String)dataStore.get(option.name())));
+					defaultCoordinateProvider.setDefaultPremiseType((PremiseType)dataStore.get(option.name()));
 					break;
 				case USER:
 					defaultCoordinateProvider.setDefaultUser((int)dataStore.get(option.name()));
@@ -512,7 +568,14 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	@Override
 	public <T> T putOption(String custom, T objectValue)
 	{
-		return (T)dataStore.put("custom" + custom, objectValue);
+		if (objectValue == null)
+		{
+			return (T)dataStore.remove("custom" + custom);
+		}
+		else
+		{
+			return (T)dataStore.put("custom" + custom, objectValue);
+		}
 	}
 
 	/** 

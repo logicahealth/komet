@@ -162,7 +162,14 @@ public class UserConfigurationPerDBProvider implements UserConfigurationPerDB
 	@Override
 	public <T> T putOption(String custom, T objectValue)
 	{
-		return (T) dataStore.put("custom:" + custom, objectValue);
+		if (objectValue == null)
+		{
+			return (T) dataStore.remove("custom:" + custom);
+		}
+		else
+		{
+			return (T) dataStore.put("custom:" + custom, objectValue);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -57,7 +57,7 @@ import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
  * 
  * If the service is requested without providing a userId:
  *  - If we are in {@link ConfigurationService#setSingleUserMode(boolean)}, the service provider will utilize 
- *    {@link ConfigurationService#getCurrentUserNid()}
+ *    {@link ConfigurationService#getCurrentUserId()}
  *  - If we are NOT in single user mode, and no nid was specified during the creation of the service, the service will
  *    only return default values, and calls to any setters will fail with a runtime exception.
  * 
@@ -122,11 +122,9 @@ public class UserConfigurationImpl implements UserConfiguration
 		}
 		
 		//Configure our cached objects
-		
 		editCoordinate = globalConfig.getDefaultEditCoordinate().deepClone();
-		//TODO need to get this from the user string....
-		int userId = globalConfig.getDefaultEditCoordinate().getAuthorNid();
-		editCoordinate.authorSequenceProperty().set(userId);
+		editCoordinate.authorSequenceProperty().set(userConcept.isPresent() ? Get.identifierService().getNidForUuids(userConcept.get()) 
+				: globalConfig.getDefaultEditCoordinate().getAuthorNid());
 		editCoordinate.moduleSequenceProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
 		editCoordinate.pathSequenceProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 		
@@ -320,6 +318,8 @@ public class UserConfigurationImpl implements UserConfiguration
 				throw new RuntimeException("Invalid data type for " + option.name()); 
 			}
 		}
+		T toReturn;
+		boolean shouldUpdateObject = false;
 		switch(store)
 		{
 			case DATABASE:
@@ -327,16 +327,126 @@ public class UserConfigurationImpl implements UserConfiguration
 				{
 					throw new RuntimeException("No database configuration store is available");
 				}
-				return dbConfig.putOption(option, objectValue);
+				toReturn =  dbConfig.putOption(option, objectValue);
+				shouldUpdateObject = true;  //the database pref overrides the user pref, so always update the object
+				break;
 			case PROFILE:
 				if (osConfig == null)
 				{
 					throw new RuntimeException("No profile configuration store is available");
 				}
-				return osConfig.putOption(option, objectValue);
+				toReturn = osConfig.putOption(option, objectValue);
+				if (dbConfig == null || !dbConfig.hasOption(option))
+				{
+					shouldUpdateObject = true;  //only set the object if the database config isn't overriding it
+				}
+				break;
 			default :
 				throw new RuntimeException("oops");
 		}
+		
+		if (shouldUpdateObject)
+		{
+			if (objectValue == null)
+			{
+				switch(option)
+				{
+					case CLASSIFIER:
+						logicCoordinate.classifierNidProperty().set(getOption(ConfigurationOption.CLASSIFIER));
+						break;
+					case DESCRIPTION_LOGIC_PROFILE:
+						logicCoordinate.descriptionLogicProfileNidProperty().set(getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE));
+						break;
+					case DESCRIPTION_TYPE_PREFERENCE_LIST:
+						languageCoordinate.descriptionTypePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
+						break;
+					case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
+						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
+						break;
+					case EDIT_MODULE:
+						editCoordinate.moduleSequenceProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
+						break;
+					case EDIT_PATH:
+						editCoordinate.pathSequenceProperty().set(getOption(ConfigurationOption.EDIT_PATH));
+						break;
+					case INFERRED_ASSEMBLAGE:
+						logicCoordinate.inferredAssemblageNidProperty().set(getOption(ConfigurationOption.INFERRED_ASSEMBLAGE));
+						break;
+					case LANGUAGE:
+						languageCoordinate.languageConceptNidProperty().set(getOption(ConfigurationOption.LANGUAGE));
+						break;
+					case PREMISE_TYPE:
+						manifoldCoordinate.taxonomyPremiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
+						break;
+					case STATED_ASSEMBLAGE:
+						logicCoordinate.statedAssemblageNidProperty().set(getOption(ConfigurationOption.STATED_ASSEMBLAGE));
+						break;
+					case TIME:
+						stampCoordinate.stampPositionProperty().get().timeProperty().set(getOption(ConfigurationOption.TIME));
+						break;
+					case STAMP_COORDINATE:
+					case EDIT_COORDINATE:
+					case LANGUAGE_COORDINATE:
+					case LOGIC_COORDINATE:
+					case MANIFOLD_COORDINATE:
+						throw new RuntimeException("sets of coordinate objects not supported, please call individual setters");
+					case USER:
+						throw new RuntimeException("User is for internal use only");
+					default :
+						throw new RuntimeException("oops");
+				}
+			}
+			else
+			{
+				switch(option)
+				{
+					case CLASSIFIER:
+						logicCoordinate.classifierNidProperty().set((Integer)objectValue);
+						break;
+					case DESCRIPTION_LOGIC_PROFILE:
+						logicCoordinate.descriptionLogicProfileNidProperty().set((Integer)objectValue);
+						break;
+					case DESCRIPTION_TYPE_PREFERENCE_LIST:
+						languageCoordinate.descriptionTypePreferenceListProperty().get().setAll((int[])objectValue);
+						break;
+					case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
+						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])objectValue);
+						break;
+					case EDIT_MODULE:
+						editCoordinate.moduleSequenceProperty().set((Integer)objectValue);
+						break;
+					case EDIT_PATH:
+						editCoordinate.pathSequenceProperty().set((Integer)objectValue);
+						break;
+					case INFERRED_ASSEMBLAGE:
+						logicCoordinate.inferredAssemblageNidProperty().set((Integer)objectValue);
+						break;
+					case LANGUAGE:
+						languageCoordinate.languageConceptNidProperty().set((Integer)objectValue);
+						break;
+					case PREMISE_TYPE:
+						manifoldCoordinate.taxonomyPremiseTypeProperty().set((PremiseType)objectValue);
+						break;
+					case STATED_ASSEMBLAGE:
+						logicCoordinate.statedAssemblageNidProperty().set((Integer)objectValue);
+						break;
+					case TIME:
+						stampCoordinate.stampPositionProperty().get().timeProperty().set((Long)objectValue);
+						break;
+					case STAMP_COORDINATE:
+					case EDIT_COORDINATE:
+					case LANGUAGE_COORDINATE:
+					case LOGIC_COORDINATE:
+					case MANIFOLD_COORDINATE:
+						throw new RuntimeException("sets of coordinate objects not supported, please call individual setters");
+					case USER:
+						throw new RuntimeException("User is for internal use only");
+					default :
+						throw new RuntimeException("oops");
+				}
+			}
+		}
+		return toReturn;
 	}
 	
 	/** 
@@ -355,7 +465,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setClassifier(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.CLASSIFIER, conceptId);
-		logicCoordinate.classifierNidProperty().set(conceptId);
 	}
 
 	/** 
@@ -365,7 +474,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setDescriptionLogicProfile(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.DESCRIPTION_LOGIC_PROFILE, conceptId);
-		logicCoordinate.descriptionLogicProfileNidProperty().set(conceptId);
 	}
 
 	/** 
@@ -375,7 +483,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setDescriptionTypePreferenceList(ConfigurationStore store, int[] descriptionTypePreferenceList)
 	{
 		setOption(store, ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST, descriptionTypePreferenceList);
-		languageCoordinate.descriptionTypePreferenceListProperty().get().setAll(descriptionTypePreferenceList);
 	}
 
 	/** 
@@ -385,7 +492,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setDialectAssemblagePreferenceList(ConfigurationStore store, int[] dialectAssemblagePreferenceList)
 	{
 		setOption(store, ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST, dialectAssemblagePreferenceList);
-		languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll(dialectAssemblagePreferenceList);
 	}
 
 	/** 
@@ -395,7 +501,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setInferredAssemblage(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.INFERRED_ASSEMBLAGE, conceptId);
-		logicCoordinate.inferredAssemblageNidProperty().set(conceptId);
 	}
 
 	/** 
@@ -405,7 +510,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setLanguage(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.LANGUAGE, conceptId);
-		languageCoordinate.languageConceptNidProperty().set(conceptId);
 	}
 	/** 
 	 * {@inheritDoc}
@@ -414,7 +518,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setEditModule(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.EDIT_MODULE, conceptId);
-		editCoordinate.moduleSequenceProperty().set(conceptId);
 	}
 
 	/** 
@@ -424,7 +527,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setEditPath(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.EDIT_PATH, conceptId);
-		editCoordinate.pathSequenceProperty().set(conceptId);
 	}
 
 	/** 
@@ -434,7 +536,6 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setStatedAssemblage(ConfigurationStore store, int conceptId)
 	{
 		setOption(store, ConfigurationOption.STATED_ASSEMBLAGE, conceptId);
-		logicCoordinate.statedAssemblageNidProperty().set(conceptId);
 	}
 	
 	/** 
@@ -443,8 +544,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	@Override
 	public void setPremiseType(ConfigurationStore store, PremiseType premiseType)
 	{
-		setOption(store, ConfigurationOption.PREMISE_TYPE, premiseType.name());
-		manifoldCoordinate.taxonomyPremiseTypeProperty().set(premiseType);
+		setOption(store, ConfigurationOption.PREMISE_TYPE, premiseType);
 	}
 
 	/** 
@@ -454,6 +554,38 @@ public class UserConfigurationImpl implements UserConfiguration
 	public void setTime(ConfigurationStore store, long timeInMs)
 	{
 		setOption(store, ConfigurationOption.TIME, timeInMs);
-		stampCoordinate.stampPositionProperty().get().timeProperty().set(timeInMs);
+	}
+
+	@Override
+	public void clearConfiguration(ConfigurationStore store)
+	{
+		switch(store)
+		{
+			case DATABASE:
+				if (dbConfig == null)
+				{
+					throw new RuntimeException("User not configured, can't clear");
+				}
+				dbConfig.clearStoredConfiguration();
+				break;
+			case PROFILE:
+				if (osConfig == null)
+				{
+					throw new RuntimeException("User not configured, can't clear");
+				}
+				osConfig.clearStoredConfiguration();
+				break;
+			default :
+				throw new RuntimeException("oops");			
+		}
+		for (ConfigurationOption co : ConfigurationOption.values())
+		{
+			if (co == ConfigurationOption.EDIT_COORDINATE || co == ConfigurationOption.LANGUAGE_COORDINATE || co == ConfigurationOption.LOGIC_COORDINATE ||
+					co == ConfigurationOption.MANIFOLD_COORDINATE || co == ConfigurationOption.STAMP_COORDINATE || co == ConfigurationOption.USER)
+			{
+				continue;
+			}
+			setOption(store, co, null);
+		}
 	}
 }

@@ -111,6 +111,9 @@ public class ConfigurationServiceProvider
    
    private Cache<UUID, UserConfiguration> userConfigCache;
    
+   /**
+    * This is only used for single-user mode.
+    */
    private Optional<UUID> currentUser = Optional.empty();
 
    /**
@@ -303,6 +306,10 @@ public class ConfigurationServiceProvider
    @Override
    public UserConfiguration getUserConfiguration(Optional<UUID> userId)
    {
+      if (userId == null || !userId.isPresent())
+      {
+         userId = getCurrentUserId();
+      }
       UserConfiguration uc = userConfigCache.getIfPresent((userId == null || !userId.isPresent()) ? UUID_FOR_NO_USER : userId.get());
       if (uc == null)
       {

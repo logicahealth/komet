@@ -112,7 +112,7 @@ public interface UserConfiguration
 	 * is the preferred approach, however.
 	 * @param store 
 	 * @param objectKey the key for the object to store
-	 * @param objectValue the value to store
+	 * @param objectValue the value to store, or null, to "unset" the option.
 	 * @return The previously stored object corresponding to the specified key, or null if no object was present.
 	 */
 	public <T> T setObject(ConfigurationStore store, String objectKey, T objectValue);
@@ -133,7 +133,7 @@ public interface UserConfiguration
 	/**
 	 * A generic way to set configuration options, without having to create individual setters for each one.
 	 * @param store Which store to store the value in
-	 * @param option the option being stored
+	 * @param option the option being stored, or null, to "unset" the option.
 	 * @param objectValue the value of the option to store 
 	 * @return the existing value, if any.
 	 */
@@ -223,4 +223,11 @@ public interface UserConfiguration
 	 * @param timeInMs Time in milliseconds since unix epoch. Long.MAX_VALUE is used to represent the latest versions.
 	 */
 	public void setTime(ConfigurationStore store, long timeInMs);
+	
+	/**
+	 * clear any stored prefs for the current user 
+	 *
+	 * @param store the data store to clear
+	 */
+	public void clearConfiguration(ConfigurationStore store);
 }

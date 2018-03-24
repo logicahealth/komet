@@ -17,6 +17,7 @@ package sh.isaac.api;
 
 import java.util.UUID;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 
 /**
  * The core, generic get/set methods that will be required of services like {@link UserConfigurationPerDB}
@@ -45,15 +46,15 @@ public interface UserConfigurationInternalImpl
 		STAMP_COORDINATE(ObservableEditCoordinate.class),
 		CLASSIFIER(Integer.class),
 		DESCRIPTION_LOGIC_PROFILE(Integer.class),
-		DESCRIPTION_TYPE_PREFERENCE_LIST(Integer[].class),
-		DIALECT_ASSEMBLAGE_PREFERENCE_LIST(Integer[].class),
+		DESCRIPTION_TYPE_PREFERENCE_LIST(int[].class),
+		DIALECT_ASSEMBLAGE_PREFERENCE_LIST(int[].class),
 		INFERRED_ASSEMBLAGE(Integer.class),
 		LANGUAGE(Integer.class),
 		EDIT_MODULE(Integer.class),
 		EDIT_PATH(Integer.class),
 		STATED_ASSEMBLAGE(Integer.class),
 		TIME(Long.class),
-		PREMISE_TYPE(String.class),
+		PREMISE_TYPE(PremiseType.class),
 		USER(String.class);  //for the global options only
 		
 		Class<?> dataType;
@@ -76,12 +77,24 @@ public interface UserConfigurationInternalImpl
 	 */
 	public void setUser(UUID userConcept);
 	
+	/**
+	 * Store the option as given
+	 * @param option
+	 * @param objectValue the value, or null, to "clear" the option - remove the key from the store.
+	 * @return the old value, if any
+	 */
 	public <T> T putOption(ConfigurationOption option, T objectValue);
 	
 	public <T> T getOption(ConfigurationOption option);
 	
 	public boolean hasOption(ConfigurationOption option);
 	
+	/**
+	 * Store the option as given.  Should support types of String, Integer, Boolean, at a minimum.
+	 * @param custom the key for the value
+	 * @param objectValue the value, or null, to "clear" the option - remove the key from the store.
+	 * @return the old value, if any
+	 */
 	public <T> T putOption(String custom, T objectValue);
 	
 	public <T> T getOption(String custom);
