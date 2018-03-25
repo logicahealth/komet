@@ -76,7 +76,7 @@ public class SystemPropertyConstants {
    
    /** 
     * Used to specify whether or not the data store will load metadata into itself when it starts.
-    * This will override {@link GlobalDatastoreConfiguration#getDatabaseInitializationMode()}
+    * This will override {@link ConfigurationService#getDatabaseInitializationMode()}
     */
    public static final String DATA_STORE_INIT = "DATA_STORE_INIT";
 
