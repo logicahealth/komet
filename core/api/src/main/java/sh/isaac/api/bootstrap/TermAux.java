@@ -130,14 +130,14 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptSpecification SOLOR_MODULE = new ConceptProxy("SOLOR module", UUID.fromString("f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 
    /** ConceptProxy for: "Synonym description type". SCT ID: 900000000000013009 */
-   public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name", UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
+   public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name description type", "Regular name", UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
    /** ConceptProxy for: "Fully qualified description type. */
-   public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE = new ConceptProxy("Fully qualified name",
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE = new ConceptProxy("Fully qualified name description type", "Fully qualified name",
          UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));
 
    /** ConceptProxy for: "Definition description type". IsaacMetadataAuxiliary has "definition description type", TermAux has "Definition" */
-   public static ConceptSpecification DEFINITION_DESCRIPTION_TYPE = new ConceptProxy("Definition", UUID.fromString("700546a3-09c7-3fc2-9eb9-53d318659a09"));
+   public static ConceptSpecification DEFINITION_DESCRIPTION_TYPE = new ConceptProxy("Definition description type", "Definition", UUID.fromString("700546a3-09c7-3fc2-9eb9-53d318659a09"));
 
    /**
     * ConceptProxy for: "Description type in source terminology". Needed within DynamicMetadata constants, which can't reference
@@ -158,20 +158,20 @@ public class TermAux implements StaticIsaacCache {
     * ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English
     * language reference set"
     */
-   public static ConceptSpecification US_DIALECT_ASSEMBLAGE = new ConceptProxy("United States of America English dialect assemblage",
+   public static ConceptSpecification US_DIALECT_ASSEMBLAGE = new ConceptProxy("United States of America English dialect assemblage", "US English",
          UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
 
    /**
     * ConceptProxy for: "Great Britain dialect assemblage". IsaacMetadataAuxiliary has "GB English dialect", TermAux has "Great Britain English
     * language reference set"
     */
-   public static ConceptSpecification GB_DIALECT_ASSEMBLAGE = new ConceptProxy("Great Britain English dialect assemblage",
+   public static ConceptSpecification GB_DIALECT_ASSEMBLAGE = new ConceptProxy("Great Britain English dialect assemblage", "GB English",
          UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
    
    public static ConceptSpecification SPANISH_DIALECT_ASSEMBLAGE = new ConceptProxy("Spanish dialect assemblage",
          UUID.fromString("03615ef2-aa56-336d-89c5-a1b5c4cee8f6"));
 
-   public static ConceptSpecification SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE = new ConceptProxy("Latin american spanish dialect assemblage",
+   public static ConceptSpecification SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE = new ConceptProxy("Latin american spanish dialect assemblage", "Latin American Spanish",
          UUID.fromString("835d3fe2-7bd7-3aa8-a52a-25e203b0afbe"));
 
    /** ConceptProxy for: "English language". */
@@ -216,15 +216,16 @@ public class TermAux implements StaticIsaacCache {
    /** ConceptProxy for: "description case sensitive". */
 
    // SCT ID: 900000000000017005
-   public static ConceptSpecification DESCRIPTION_CASE_SENSITIVE = new ConceptProxy("Description case sensitive",
+   public static ConceptSpecification DESCRIPTION_CASE_SENSITIVE = new ConceptProxy("Description case sensitive", "Case sensitive",
          UUID.fromString("0def37bc-7e1b-384b-a6a3-3e3ceee9c52e"));
 
    /** ConceptProxy for: "description not case sensitive". SCT ID: 900000000000448009 */
-   public static ConceptSpecification DESCRIPTION_NOT_CASE_SENSITIVE = new ConceptProxy("Description not case sensitive",
+   public static ConceptSpecification DESCRIPTION_NOT_CASE_SENSITIVE = new ConceptProxy("Description not case sensitive", "Not case sensitive", 
          UUID.fromString("ecea41a2-f596-3d98-99d1-771b667e55b8"));
 
    /** ConceptProxy for: "description initial character sensitive". SCT ID: 900000000000020002 */
-   public static ConceptSpecification DESCRIPTION_INITIAL_CHARACTER_SENSITIVE = new ConceptProxy("Description initial character sensitive",
+   public static ConceptSpecification DESCRIPTION_INITIAL_CHARACTER_SENSITIVE = new ConceptProxy("Description initial character case sensitive", 
+           "First char case sensitive",
          UUID.fromString("17915e0d-ed38-3488-a35c-cda966db306a"));
 
    /** ConceptProxy for: "development path". */
@@ -406,8 +407,9 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification ISO_8601_AFTER = new ConceptProxy("ISO 8601 interval after to statement time", "ISO 8601 after statement", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
     public static ConceptSpecification ISO_8601_PRIOR = new ConceptProxy("ISO 8601 interval prior to statement time", "ISO 8601 before statement", UUID.fromString("0b7d4e60-7ef5-57fa-ad0e-ee13433b7ee1"));
 
+    public static ConceptSpecification UNINITIALIZED_COMPONENT_ID = new ConceptProxy("Uninitialized component", "Uninitialized", UUID.fromString("55f74246-0a25-57ac-9473-a788d08fb656"));
+    
     /*
-    public static ConceptSpecification SPEC15 = new ConceptProxy("", "", UUID.fromString("55f74246-0a25-57ac-9473-a788d08fb656"));
     public static ConceptSpecification SPEC16 = new ConceptProxy("", "", UUID.fromString("a95e5dbc-a179-57f9-9cdd-6de8c026396d"));
     public static ConceptSpecification SPEC17 = new ConceptProxy("", "", UUID.fromString("74bbdaff-f061-5807-b334-3c88ac3e9421"));
     public static ConceptSpecification SPEC18 = new ConceptProxy("", "", UUID.fromString("977e682d-9611-5316-9791-f349b1d10fed"));

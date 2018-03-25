@@ -263,6 +263,15 @@ limitations under the License.
    -fx-font-size:18;
   /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
 }
+
+.komet-version-what-cell:description-version {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: -komet-description-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+
 .komet-version-what-cell:description-version:inactive {
    -fx-border-color: -komet-inactive-color;
    -fx-text-fill: -komet-inactive-color;
@@ -475,6 +484,11 @@ limitations under the License.
    -fx-border-insets: 0 0 0 0;   
 }
 
+.header-panel:logical-definition-version {
+   -fx-border-color: -komet-definition-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
 
 .header-panel:description-version * .text {
    -fx-fill: -komet-description-color;
@@ -483,8 +497,19 @@ limitations under the License.
    -fx-border-insets: 0 0 0 0;    
 }
 
+.header-panel:logical-definition-version * .text {
+   -fx-fill: -komet-definition-color;
+   -fx-text-fill: -komet-definition-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;    
+}
+
 .header-panel:description-version .header-text {
    -fx-fill: -komet-description-color;
+   -fx-text-origin: baseline;
+}
+.header-panel:logical-definition-version .header-text {
+   -fx-fill: -komet-definition-color;
    -fx-text-origin: baseline;
 }
 
@@ -825,15 +850,6 @@ limitations under the License.
     -fx-background-color: -komet-blue-color;
    
 }
-
-.def-sufficient-set {
-    -fx-background-color: -komet-blue-color;
-}
-
-.def-necessary-set {
-    -fx-background-color: ghostwhite;
-    -fx-text-fill: orange;
-}
 .titled-pane > *.content {
     -fx-background-color: whitesmoke;
 }
@@ -842,4 +858,81 @@ limitations under the License.
     -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-font-size:22;
+ }
+
+ .def-concept {
+    -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:2 1 2 2;    
+    -fx-border-color:-komet-panel-background-color;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+.def-necessary-set  {
+     -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #FF4E08;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+.def-sufficient-set  {
+    -fx-background-color: white;
+    -fx-padding:0;
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-concept-color;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-background-insets:4 0 2 0;
+ }
+
+.def-role-group  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #009bff;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+.def-role  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-description-color;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+ .def-root .toggle-button {
+     -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+ 
+ .def-root  {
+     -fx-background-color: white;
+ }
+ 
+ .def-necessary-set .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+.def-necessary-set .toggle-button:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
+ 
+ .def-concept:inferred {
+     
+ }
+ 
+ .def-concept:stated {
+     
+ }
+ 
+ .open-concept-button {
+    -fx-padding:-4 1 0 2;
  }

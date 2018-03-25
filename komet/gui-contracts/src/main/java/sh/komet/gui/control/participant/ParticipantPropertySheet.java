@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.model.statement.ParticipantImpl;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -43,7 +43,7 @@ public class ParticipantPropertySheet {
 
     public ParticipantPropertySheet(Manifold manifold) {
         this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
     }
     
     public PropertySheet getPropertySheet() {

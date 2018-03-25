@@ -1,0 +1,156 @@
+package sh.isaac.provider.drools;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import javafx.scene.control.MenuItem;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.Status;
+import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;
+import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.manifold.Manifold;
+import javafx.beans.property.Property;
+import sh.isaac.MetaData;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertyEditorType;
+import sh.komet.gui.control.property.PropertySheetItem;
+import sh.komet.gui.control.property.PropertySheetPurpose;
+import sh.komet.gui.control.property.EditorType;
+import sh.isaac.api.logic.NodeSemantic;
+
+
+rule "Setup modules"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.MODULE_NID_FOR_VERSION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.US_EXTENSION_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.VHAT_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.CVX_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.HL7_V3_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.ICD10_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.LOINC_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.MVX_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.NUCC_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.RXNORM_MODULES____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.SNOMED_CT_CORE_MODULES____SOLOR);
+end
+
+rule "Setup language"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.ENGLISH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR);
+   
+   $propertySheetItem.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR);
+end
+
+rule "Setup description type"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   
+   $propertySheetItem.getAllowedValues().add(MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
+end
+
+rule "Setup case significance"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
+end
+
+
+rule "Setup path"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.PATH_NID_FOR_VERSION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.DEVELOPMENT_PATH____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.DEVELOPMENT_PATH____SOLOR);
+   
+   $propertySheetItem.getAllowedValues().add(MetaData.MASTER_PATH____SOLOR);
+end
+
+
+rule "Setup status"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.STATUS_FOR_VERSION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.OBJECT_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(Status.ACTIVE);
+   $propertySheetItem.getAllowedValues().add(Status.ACTIVE);
+   $propertySheetItem.getAllowedValues().add(Status.INACTIVE);
+   $propertySheetItem.getAllowedValues().add(Status.WITHDRAWN);
+end
+
+rule "Setup text for description"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.TEXT_FOR_DESCRIPTION____SOLOR.getNid());
+then
+   $propertySheetItem.setEditorType(EditorType.TEXT);
+end
+
+rule "Setup dialect assemblage"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.ASSEMBLAGE_NID_FOR_COMPONENT____SOLOR.getNid(), 
+   getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.US_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.US_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.US_NURSING_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.GB_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.LATIN_AMERICAN_SPANISH_DIALECT_ASSEMBLAGE____SOLOR);
+end
+
+rule "Setup dialect acceptability"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR.getNid(), 
+   getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(MetaData.PREFERRED____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.PREFERRED____SOLOR);
+   $propertySheetItem.getAllowedValues().add(MetaData.ACCEPTABLE____SOLOR);
+end

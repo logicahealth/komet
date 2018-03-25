@@ -18,9 +18,14 @@ package sh.komet.gui.control.circumstance;
 
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.statement.Repetition;
 import sh.isaac.model.statement.CircumstanceImpl;
+import sh.isaac.model.statement.RepetitionImpl;
 import sh.isaac.model.statement.RequestCircumstanceImpl;
+import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
+import sh.komet.gui.control.repetition.RepetitionEditor;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -43,9 +48,18 @@ public class RequestPropertySheet extends CircumstancePropertySheet {
         
         // TODO SimpleObjectProperty<LogicalExpression> priorityProperty()
 
-        // TODO SimpleListProperty<Repetition> repetitionsProperty()
+        itemList.add(new PropertySheetListWrapper<>(manifold, request.repetitionsProperty(), 
+            this::newRepetition, 
+            this::newPropertyEditor));
 
         itemList.add(new PropertySheetMeasureWrapper(manifold, request.requestedMeasureProperty()));
     }
     
+    Repetition newRepetition() {
+        return new RepetitionImpl();
+    }
+    
+    PropertyEditor<Repetition> newPropertyEditor(Manifold manifold) {
+        return new RepetitionEditor(manifold);
+    }
 }

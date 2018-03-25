@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.control.list;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javafx.collections.ObservableList;

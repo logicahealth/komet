@@ -63,7 +63,6 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
@@ -145,7 +144,7 @@ public class ObservableSemanticChronologyImpl
    public IntegerProperty assemblageNidProperty() {
       if (this.assemblageNidProperty == null) {
          this.assemblageNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
+                 ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
                  getAssemblageNid());
       }
 
@@ -184,7 +183,7 @@ public class ObservableSemanticChronologyImpl
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
+                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                  getReferencedComponentNid());
       }
 

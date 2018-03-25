@@ -95,7 +95,7 @@ public class AssociationType
       at.associationName_ = Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(localStamp, localLanguage)).conceptDescriptionText(conceptNid);
       
       //Find the inverse name
-      for (DescriptionVersion desc : Frills.getDescriptionsOfType(conceptNid, MetaData.REGULAR_NAME____SOLOR, localStamp.makeCoordinateAnalog(Status.ACTIVE)))
+      for (DescriptionVersion desc : Frills.getDescriptionsOfType(conceptNid, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, localStamp.makeCoordinateAnalog(Status.ACTIVE)))
       {
          
          if (Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
@@ -114,7 +114,7 @@ public class AssociationType
       
       //find the description
       for (DescriptionVersion desc : Frills.getDescriptionsOfType(at.getAssociationType(),
-            MetaData.DEFINITION____SOLOR, localStamp.makeCoordinateAnalog(Status.ACTIVE)))
+            MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, localStamp.makeCoordinateAnalog(Status.ACTIVE)))
       {
          if (Frills.isDescriptionPreferred(desc.getNid(), localStamp) && 
                Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
@@ -225,7 +225,7 @@ public class AssociationType
          {
             Chronology builtDesc = LookupService.get().getService(DescriptionBuilderService.class)
                   .getDescriptionBuilder(associationInverseName, rdud.getDynamicUsageDescriptorNid(), 
-                        MetaData.REGULAR_NAME____SOLOR, MetaData.ENGLISH_LANGUAGE____SOLOR).build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
+                        MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.ENGLISH_LANGUAGE____SOLOR).build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
             
             Get.semanticBuilderService().getDynamicBuilder(builtDesc.getNid(), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getAssemblageNid())
                         .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();

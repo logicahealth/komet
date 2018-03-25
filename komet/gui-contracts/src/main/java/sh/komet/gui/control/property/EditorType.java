@@ -14,21 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.builder.observable;
-
-import sh.isaac.model.builder.DescriptionBuilderImpl;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+package sh.komet.gui.control.property;
 
 /**
  *
  * @author kec
  */
-public class ObservableDescriptionBuilder {
-    private final DescriptionBuilderImpl<SemanticChronologyImpl, DescriptionVersionImpl> wrappedDescriptionBuilder;
-
-    public ObservableDescriptionBuilder(DescriptionBuilderImpl<SemanticChronologyImpl, DescriptionVersionImpl> wrappedDescriptionBuilder) {
-        this.wrappedDescriptionBuilder = wrappedDescriptionBuilder;
-    }
-
+public enum EditorType {
+    CONCEPT_SPEC_CHOICE_BOX, OBJECT_CHOICE_BOX, TEXT, UNSPECIFIED
 }

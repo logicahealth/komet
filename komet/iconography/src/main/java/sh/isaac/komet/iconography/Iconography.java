@@ -188,6 +188,13 @@ public enum Iconography {
   ADD(MATERIAL_DESIGNS_ICON, "add"),
   // Icons525.CIRCLEDELETE
   // MaterialIcon.QUEUE
+  OPEN(MATERIAL_DESIGNS_WEBFONT, "open"),
+  CLOSE(MATERIAL_DESIGNS_WEBFONT, "close"),
+  
+  // MaterialDesignIcon.MENU_DOWN
+  // MaterialDesignIcon.MENU_RIGHT
+  // MaterialDesignIcon.PLAY_CIRCLE_OUTLINE
+  // MaterialDesignIcon.TOGGLE_SWITCH
   ;
 
    String cssClass;

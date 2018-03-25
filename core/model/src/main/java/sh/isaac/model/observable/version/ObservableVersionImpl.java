@@ -54,6 +54,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
@@ -76,6 +77,12 @@ public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
 
    /**
+    * The primordial uuid property.
+    */
+   ObjectProperty<UUID> primordialUuidProperty;
+
+
+    /**
     * The state property.
     */
    ObjectProperty<Status> stateProperty;
@@ -130,17 +137,36 @@ public abstract class ObservableVersionImpl
    protected final VersionType versionType;
 
    //~--- constructors --------------------------------------------------------
-   /**
-    * Instantiates a new observable version impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
+
+  /**
+    * limited arg constructor, for making an observable uncoupled for underlying data, 
+    * for example when creating a new component prior to being committed for 
+    * the first time. 
+     * @param versionType
+     * @param primordialUuid
     */
-   public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
-      this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
-      this.chronology = chronology;
-      this.versionType = stampedVersion.getSemanticType();
+   public ObservableVersionImpl(VersionType versionType, UUID primordialUuid) {
+       this.stampedVersionProperty = null;
+       this.chronology = null;
+       this.versionType = versionType;
+       this.primordialUuidProperty = new SimpleObjectProperty(
+                 this,
+                 ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
+                 primordialUuid);
+       getProperties();
    }
+
+    /**
+     * Instantiates a new observable version.
+     *
+     * @param stampedVersion the stamped version
+     * @param chronology the chronology
+     */
+    public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
+        this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        this.chronology = chronology;
+        this.versionType = stampedVersion.getSemanticType();
+    }
 
    protected ObservableVersionImpl(ObservableChronology chronology) {
       this.chronology = chronology;
@@ -564,7 +590,7 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty != null) {
         return this.stampedVersionProperty.get().getModuleNid();
       }
-      throw new IllegalStateException();
+      return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -611,7 +637,7 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty != null) {
         return stampedVersionProperty.get().getPathNid();
       }
-      throw new IllegalStateException();
+      return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -641,16 +667,18 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public UUID getPrimordialUuid() {
-       
+       if (this.primordialUuidProperty != null) {
+          return this.primordialUuidProperty.get();
+       }
       return getChronology().getPrimordialUuid();
    }
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       return new ArrayList(
-              Arrays.asList(new Property[]{
+              Arrays.asList(new Property[]{ 
                          stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
-                         commitStateProperty(), stampSequenceProperty(),}));
+                         commitStateProperty()}));
    }
 
     protected abstract List<Property<?>> getEditableProperties2();
@@ -695,8 +723,10 @@ public abstract class ObservableVersionImpl
       if (this.stateProperty != null) {
          return this.stateProperty.get();
       }
-
-      return this.stampedVersionProperty.get().getStatus();
+      if (this.stampedVersionProperty != null ) {
+        return this.stampedVersionProperty.get().getStatus();
+      }
+      return Status.PRIMORDIAL;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -725,8 +755,10 @@ public abstract class ObservableVersionImpl
       if (this.timeProperty != null) {
          return this.timeProperty.get();
       }
-
-      return this.stampedVersionProperty.get().getTime();
+      if (this.stampedVersionProperty != null) {
+        return this.stampedVersionProperty.get().getTime();
+      }
+      return Long.MAX_VALUE;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -769,6 +801,9 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public List<UUID> getUuidList() {
+       if (this.stampedVersionProperty == null || this.stampedVersionProperty.get() == null) {
+           return Arrays.asList(this.primordialUuidProperty.get());
+       }
       return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
    }
 

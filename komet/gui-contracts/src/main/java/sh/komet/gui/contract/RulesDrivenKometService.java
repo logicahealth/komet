@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
+import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -49,4 +50,6 @@ public interface RulesDrivenKometService {
            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
    
    void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem);
+   
+   void populateWrappedProperties(List<PropertySheet.Item> items);
 }

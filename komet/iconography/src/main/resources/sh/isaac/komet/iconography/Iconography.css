@@ -98,12 +98,12 @@ limitations under the License.
    -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE"; 
    -fx-rotate: 45;
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 .taxonomy-defined-multiparent-closed-icon {
    -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 .taxonomy-primitive-multiparent-open-icon {
    -glyph-name: "ARROW_UP_BOLD_HEXAGON_OUTLINE";
@@ -124,7 +124,7 @@ limitations under the License.
 .taxonomy-defined-singleparent-icon {
    -glyph-name: "CHECKBOX_BLANK_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 
 .taxonomy-closed-icon {
@@ -845,5 +845,15 @@ limitations under the License.
 
 .add {
    -glyph-name: "ADD_BOX";
+   -glyph-size: 18;
+}
+
+.open {
+   -glyph-name: "MENU_DOWN";
+   -glyph-size: 18;
+}
+
+.close {
+   -glyph-name: "MENU_RIGHT";
    -glyph-size: 18;
 }

@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
@@ -87,7 +88,8 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
                 = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, 
                         expressionContiningNode, expressionUpdater);
       this.kSession.execute(executionItem);
-      return executionItem.actionItems;        
+      executionItem.sortActionItems();
+      return executionItem.getActionItems();        
     }
 
    @Override
@@ -103,13 +105,21 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
       this.kSession.execute(executionItem);
-      return executionItem.menuItems;
+      executionItem.sortMenuItems();
+      return executionItem.getMenuItems();
    }
 
    @Override
    public void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem) {
       this.kSession.execute(propertySheetMenuItem);
    }
+   
+
+    @Override
+    public void populateWrappedProperties(List<PropertySheet.Item> items) {
+        this.kSession.execute(items);
+    }
+   
 
    /*
 A fluent API was created to allow programatic creation of rules as an alternative to the previously suggested method of template creation.

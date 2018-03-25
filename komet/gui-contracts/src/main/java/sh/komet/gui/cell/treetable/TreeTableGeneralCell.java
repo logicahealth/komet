@@ -53,6 +53,7 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 
 import javafx.scene.control.ContentDisplay;
@@ -103,10 +104,14 @@ import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.isaac.model.logic.node.RootNode;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
+import sh.komet.gui.control.axiom.AxiomView;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -161,6 +166,49 @@ public class TreeTableGeneralCell
     }
 
     //~--- methods -------------------------------------------------------------
+    public void addDefToCell(LogicGraphVersion logicGraphVersion) {
+        LogicalExpression expression = logicGraphVersion.getLogicalExpression();
+        PremiseType premiseType = PremiseType.STATED;
+            if (manifold.getLogicCoordinate()
+                    .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+                premiseType = PremiseType.INFERRED;
+            } else if (manifold.getLogicCoordinate()
+                    .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+                premiseType = PremiseType.STATED;
+            }
+        addDefToCell(expression, premiseType);
+    }
+
+    private void addDefToCell(LogicalExpression expression, PremiseType premiseType) {
+
+        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        defNodePanel.setMaxWidth(this.getWidth());
+        this.widthProperty()
+                .addListener(
+                        new WeakChangeListener<>(
+                                (ObservableValue<? extends Number> observable,
+                                        Number oldValue,
+                                        Number newValue) -> {
+                                    double newTextFlowWidth = newValue.doubleValue() - 32;
+                                    double newTextFlowHeight = defNodePanel.prefHeight(newTextFlowWidth);
+
+                                    defNodePanel.setPrefWidth(newTextFlowWidth);
+                                    defNodePanel.setMaxWidth(newTextFlowWidth);
+                                    defNodePanel.setPrefHeight(newTextFlowHeight);
+                                    defNodePanel.setMaxHeight(newTextFlowHeight);
+
+                                    double newFixedSizeWidth = newTextFlowWidth + 28;
+                                    double newFixedSizeHeight = newTextFlowHeight + 28;
+
+                                    paneForText.setWidth(newFixedSizeWidth);
+                                    paneForText.setHeight(newFixedSizeHeight);
+                                }));
+        paneForText.getChildren().clear();
+        paneForText.getChildren().add(defNodePanel);
+        this.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        this.setGraphic(textAndEditGrid);
+    }
+    
     public void addTextToCell(Text... text) {
         TextFlow textFlow = new TextFlow(text);
 
@@ -230,7 +278,7 @@ public class TreeTableGeneralCell
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
                     propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
 
                     editPanel.setTop(toolBar);
@@ -367,11 +415,7 @@ public class TreeTableGeneralCell
 
             case LOGIC_GRAPH:
                 LogicGraphVersion logicGraphVersion = version.unwrap();
-                Text definitionText = new Text("\n" + logicGraphVersion.getLogicalExpression().toSimpleString());
-
-                definitionText.getStyleClass()
-                        .add(StyleClasses.DEFINITION_TEXT.toString());
-                addTextToCell(assemblageNameText, referencedComponentTextNoNewLine, definitionText);
+                addDefToCell(logicGraphVersion);
                 break;
 
             case MEMBER:

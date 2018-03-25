@@ -19,9 +19,8 @@ package sh.komet.gui.control.repetition;
 import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.RepetitionImpl;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -44,7 +43,7 @@ public class RepetitionPropertySheet {
 
     public RepetitionPropertySheet(Manifold manifold) {
         this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
     }
     
     public PropertySheet getPropertySheet() {

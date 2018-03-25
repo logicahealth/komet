@@ -141,9 +141,9 @@ public class ManifoldLinkedConceptLabel
     //~--- methods -------------------------------------------------------------
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
-        MenuItem copyMenuItem = new MenuItem("docbook glossary entry");
-        copyMenu.getItems().add(copyMenuItem);
-        copyMenuItem.setOnAction((event) -> {
+        MenuItem copyDocBookMenuItem = new MenuItem("docbook glossary entry");
+        copyMenu.getItems().add(copyDocBookMenuItem);
+        copyDocBookMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
             if (concept.isPresent()) {
                 String docbookXml = DocBook.getGlossentry(concept.get(), manifold);
@@ -153,6 +153,41 @@ public class ManifoldLinkedConceptLabel
                 clipboard.setContent(content);
             }
         });
+        MenuItem copyJavaShortSpecMenuItem = new MenuItem("Java concept specification");
+        copyMenu.getItems().add(copyJavaShortSpecMenuItem);
+        copyJavaShortSpecMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                ConceptSpecification conceptSpec = (ConceptSpecification) concept.get();
+                StringBuilder builder = new StringBuilder();
+                builder.append("new ConceptProxy(\"");
+                builder.append(conceptSpec.toExternalString());
+                builder.append("\")");
+                
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(builder.toString());
+                clipboard.setContent(content);
+            }
+        });
+        MenuItem copyJavaSpecMenuItem = new MenuItem("Java qualified concept specification");
+        copyMenu.getItems().add(copyJavaSpecMenuItem);
+        copyJavaSpecMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                ConceptSpecification conceptSpec = (ConceptSpecification) concept.get();
+                StringBuilder builder = new StringBuilder();
+                builder.append("new sh.isaac.api.ConceptProxy(\"");
+                builder.append(conceptSpec.toExternalString());
+                builder.append("\")");
+                
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(builder.toString());
+                clipboard.setContent(content);
+            }
+        });
+        
 
         return copyMenu;
 

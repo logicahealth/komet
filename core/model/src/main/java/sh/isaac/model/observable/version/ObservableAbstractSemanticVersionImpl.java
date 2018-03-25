@@ -43,11 +43,17 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -65,12 +71,33 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 public abstract class ObservableAbstractSemanticVersionImpl
         extends ObservableVersionImpl
          implements ObservableSemanticVersion {
+   /**
+    * The referenced component uuid property.
+    */
+   ObjectProperty<UUID> referencedComponentUuidProperty;
+
 
    /** The assemblage nid property. */
-   ReadOnlyIntegerProperty assemblageNidProperty;
+   CommitAwareIntegerProperty assemblageNidProperty;
 
    /** The referenced component nid property. */
    ReadOnlyIntegerProperty referencedComponentNidProperty;
+
+  /**
+    * Minimal arg constructor, for making an observable uncoupled for underlying data, 
+    * for example when creating a new component prior to being committed for 
+    * the first time. 
+     * @param versionType
+     * @param primordialUuid
+     * @param referencedComponentUuid
+    */
+    public ObservableAbstractSemanticVersionImpl(VersionType versionType, UUID primordialUuid, UUID referencedComponentUuid) {
+        super(versionType, primordialUuid);
+        this.referencedComponentUuidProperty = new SimpleObjectProperty(
+                 this,
+                 ObservableFields.REFERENCED_COMPONENT_UUID_FOR_SEMANTIC.toExternalString(),
+                 primordialUuid);
+    }
 
    /**
     * Instantiates a new observable sememe version impl.
@@ -87,12 +114,12 @@ public abstract class ObservableAbstractSemanticVersionImpl
    public ObservableAbstractSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
       super(chronology);
       this.assemblageNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
-               versionToClone.getAssemblageNid()));
+            new CommitAwareIntegerProperty(this,
+               ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
+               versionToClone.getAssemblageNid());
          this.referencedComponentNidProperty = 
             ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                versionToClone.getReferencedComponentNid()));
          this.setStatus(versionToClone.getStatus());
    }
@@ -103,12 +130,12 @@ public abstract class ObservableAbstractSemanticVersionImpl
     * @return the integer property
     */
    @Override
-   public final ReadOnlyIntegerProperty assemblageNidProperty() {
+   public final IntegerProperty assemblageNidProperty() {
       if (this.assemblageNidProperty == null) {
          this.assemblageNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
-               getAssemblageNid()));
+            new CommitAwareIntegerProperty(this,
+               ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
+               getAssemblageNid());
       }
 
       return this.assemblageNidProperty;
@@ -124,7 +151,7 @@ public abstract class ObservableAbstractSemanticVersionImpl
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = 
             ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                getReferencedComponentNid()));
       }
       return this.referencedComponentNidProperty;
@@ -162,7 +189,10 @@ public abstract class ObservableAbstractSemanticVersionImpl
        if (this.stampedVersionProperty != null) {
            return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
        }
-      return assemblageNidProperty().get();
+       if (this.assemblageNidProperty != null) {
+           return assemblageNidProperty().get();
+       }
+       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
    /**
@@ -183,9 +213,12 @@ public abstract class ObservableAbstractSemanticVersionImpl
    @Override
    public int getReferencedComponentNid() {
        if (this.stampedVersionProperty != null) {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
+        return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
        }
-       return referencedComponentNidProperty().get();
+       if (this.referencedComponentNidProperty != null) {
+           return referencedComponentNidProperty().get();
+       }
+       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
    }
 
 

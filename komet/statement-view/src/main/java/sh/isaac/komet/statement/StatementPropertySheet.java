@@ -21,7 +21,7 @@ import java.util.List;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -45,7 +45,7 @@ public class StatementPropertySheet {
 
     public StatementPropertySheet(Manifold manifold) {
         this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(this.manifold));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
     }
     
     public void setClinicalStatement(ClinicalStatementImpl clinicalStatement) {

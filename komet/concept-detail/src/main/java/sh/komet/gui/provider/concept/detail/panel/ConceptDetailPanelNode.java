@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -293,6 +294,7 @@ public class ConceptDetailPanelNode
     }
 
     private void clearAnimationComplete(ActionEvent completeEvent) {
+        AtomicBoolean axiomHeaderAdded = new AtomicBoolean(false);
         populateVersionBranchGrid();
         componentPanelBox.getChildren()
                 .clear();
@@ -363,7 +365,7 @@ public class ConceptDetailPanelNode
                                             }
 
                                             if (dv1.getDescriptionTypeConceptNid()
-                                            == MetaData.FULLY_QUALIFIED_NAME____SOLOR.getNid()) {
+                                            == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
                                                 return -1;
                                             }
 
@@ -393,6 +395,13 @@ public class ConceptDetailPanelNode
                             })
                     .forEach(
                             (osc) -> {
+                                if (osc.getVersionType() == VersionType.LOGIC_GRAPH && !axiomHeaderAdded.get()) {
+                                    axiomHeaderAdded.set(true);
+                                    AnchorPane axiomHeader = setupHeaderPanel("AXIOMS", null);
+                                    axiomHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
+                                    parallelTransition.getChildren()
+                                            .add(addNode(axiomHeader));
+                                }
                                 addChronology(osc, parallelTransition);
                             });
             parallelTransition.play();

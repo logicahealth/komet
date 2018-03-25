@@ -43,6 +43,7 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -54,6 +55,7 @@ import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -100,14 +102,24 @@ public class ObservableDescriptionVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new observable description impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
+    * A constructor for de novo creation. For example when creating a new component prior to being committed for 
+    * the first time. 
+     * @param primordialUuid
+     * @param referencedComponentUuid
     */
-   public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSemanticChronology chronology) {
-      super(stampedVersion, chronology);
+   public ObservableDescriptionVersionImpl(UUID primordialUuid, UUID referencedComponentUuid) {
+       super(VersionType.DESCRIPTION, primordialUuid, referencedComponentUuid);
    }
+
+    /**
+     * Instantiates a new observable description.
+     *
+     * @param stampedVersion the stamped version
+     * @param chronology the chronology
+     */
+    public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSemanticChronology chronology) {
+        super(stampedVersion, chronology);
+    }
 
    public ObservableDescriptionVersionImpl(ObservableDescriptionVersion versionToClone, ObservableSemanticChronology chronology) {
       super(versionToClone, chronology);

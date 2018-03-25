@@ -253,7 +253,7 @@ public abstract class ObservableChronologyImpl
       if (this.nidProperty == null) {
          this.nidProperty = new CommitAwareIntegerProperty(
              this,
-             ObservableFields.NATIVE_ID_FOR_CHRONICLE.toExternalString(),
+             ObservableFields.NATIVE_ID_FOR_COMPONENT.toExternalString(),
              getNid());
       }
 
@@ -270,7 +270,7 @@ public abstract class ObservableChronologyImpl
       if (this.primordialUuidProperty == null) {
          this.primordialUuidProperty = new CommitAwareObjectProperty<>(
              this,
-             ObservableFields.PRIMORDIAL_UUID_FOR_CHRONICLE.toExternalString(),
+             ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
              getPrimordialUuid());
       }
 
@@ -325,7 +325,7 @@ public abstract class ObservableChronologyImpl
       if (this.uuidListProperty == null) {
          this.uuidListProperty = new SimpleListProperty<>(
              this,
-             ObservableFields.UUID_LIST_FOR_CHRONICLE.toExternalString(),
+             ObservableFields.UUID_LIST_FOR_COMPONENT.toExternalString(),
              FXCollections.observableList(getUuidList()));
       }
 
@@ -726,7 +726,7 @@ public abstract class ObservableChronologyImpl
     */
    public final IntegerProperty entrySequenceProperty() {
       if (this.entrySequenceProperty == null) {
-         this.entrySequenceProperty = new CommitAwareIntegerProperty(this, ObservableFields.ENTRY_SEQUENCE_FOR_CHRONICLE.toExternalString(), getEntrySequence());
+         this.entrySequenceProperty = new CommitAwareIntegerProperty(this, ObservableFields.ENTRY_SEQUENCE_FOR_COMPONENT.toExternalString(), getEntrySequence());
       }
       return this.entrySequenceProperty;
    }
