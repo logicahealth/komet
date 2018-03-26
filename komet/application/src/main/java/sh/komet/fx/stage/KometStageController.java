@@ -383,6 +383,11 @@ public class KometStageController
                         tabPane.getTabs()
                                 .add(tab);
                         tabPane.getSelectionModel().select(tab);
+                        detailNode.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+                            if (detailNode.selectInTabOnChange()) {
+                                tabPane.getSelectionModel().select(tab);
+                            }
+                        });
                     });
             return tabFactoryMenuItem;
         }).forEachOrdered((tabFactoryMenuItem) -> {
@@ -519,7 +524,7 @@ public class KometStageController
                             IdentifiedObject newValue) -> {
                         FxGet.statusMessageService()
                                 .reportSceneStatus(statusMessage.getScene(),
-                                        FLWOR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                                        FLWOR_MANIFOLD.getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
                     });
             SEARCH_MANIFOLD.focusedConceptProperty()
                     .addListener(this::printSelectionDetails);
@@ -531,7 +536,7 @@ public class KometStageController
                                 FxGet.statusMessageService()
                                         .reportSceneStatus(
                                                 statusMessage.getScene(),
-                                                SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                                                SEARCH_MANIFOLD.getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
                             });
             TAXONOMY_MANIFOLD.focusedConceptProperty()
                     .addListener(this::printSelectionDetails);
@@ -543,7 +548,7 @@ public class KometStageController
                                 FxGet.statusMessageService()
                                         .reportSceneStatus(
                                                 statusMessage.getScene(),
-                                                TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                                                TAXONOMY_MANIFOLD.getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
                             });
             addMultiParentTreeViewTab(tabPane);
         } else {

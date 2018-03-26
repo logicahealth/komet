@@ -63,7 +63,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       try {
          this.manifold = manifold;
          this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-         this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this);
+         this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this, Optional.empty());
          this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
          manifold.setGroupName(Manifold.UNLINKED_GROUP_NAME);
 

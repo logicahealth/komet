@@ -105,7 +105,7 @@ public class ConceptDetailTreeTableNode
                             }
 
                          });
-         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this);
+         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
          conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
          conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
          if (nodeConsumer != null) {
@@ -160,8 +160,6 @@ public class ConceptDetailTreeTableNode
 
     @Override
     public boolean selectInTabOnChange() {
-        return false;
+        return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
-    
-    
 }

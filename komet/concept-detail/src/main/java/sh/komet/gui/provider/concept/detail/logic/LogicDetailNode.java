@@ -76,7 +76,7 @@ public class LogicDetailNode
         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
         conceptDetailManifold.focusedConceptProperty()
                 .addListener(this::setConceptListener);
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this);
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(false));
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         getLogicDetail();
@@ -275,7 +275,7 @@ Root[0]➞[41]
 
     @Override
     public boolean selectInTabOnChange() {
-        return false;
+        return conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
 
 }
