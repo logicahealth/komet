@@ -52,7 +52,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class MetadataDynamicSememeConstant.
+ * The Class MetadataDynamicSemanticConstant.
  */
 public class MetadataDynamicConstant
         extends MetadataConceptConstant {
@@ -74,7 +74,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed  (may be empty)
     */
@@ -89,7 +89,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed (may be empty)
     * @param synonyms - optional - extra synonyms
@@ -106,7 +106,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param alternateName - optional - the non-preferred synonym to add to this concept
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
@@ -123,7 +123,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the Fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
@@ -146,13 +146,13 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
     * @param definitions - optional - extra definitions
     * @param referencedComponentRestriction - optional - used to limit the type of nid that can be used as the referenced component in an instance
-    * of this sememe.
+    * of this semantic.
     * @param refererenceComponentSubRestriction the reference component sub restriction
     */
    public MetadataDynamicConstant(String fqn,
@@ -188,7 +188,7 @@ public class MetadataDynamicConstant
    /**
     * Gets the dynamic columns.
     *
-    * @return the sememeColumns
+    * @return the semanticColumns
     */
    public DynamicColumnInfo[] getDynamicColumns() {
       return this.dynamicColumns;
@@ -215,7 +215,7 @@ public class MetadataDynamicConstant
    /**
     * Gets the dynamic assemblage description.
     *
-    * @return the dynamicSememeDescription_
+    * @return the dynamicSemanticDescription_
     */
    public String getAssemblageDescription() {
       return this.dynamicDescription;

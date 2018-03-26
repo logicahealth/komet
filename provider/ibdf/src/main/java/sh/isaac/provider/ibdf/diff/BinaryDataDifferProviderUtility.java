@@ -120,7 +120,7 @@ public class BinaryDataDifferProviderUtility {
 			// true
 			return true;
 		} else {
-			// Analyze Sememe
+			// Analyze Semantic
 			SemanticVersion os = (SemanticVersion) ov;
 			SemanticVersion ns = (SemanticVersion) nv;
 
@@ -190,13 +190,13 @@ public class BinaryDataDifferProviderUtility {
 				return newChron;
 			} else if (type == IsaacObjectType.SEMANTIC) {
 				List<Chronology> builtObjects = new ArrayList<>();
-				SemanticChronology sememe = null;
+				SemanticChronology semantic = null;
 				for (StampedVersion version : newChron.getVersionList()) {
 					SemanticBuilder<?> builder = getBuilder((SemanticVersion) version);
-					sememe = (SemanticChronology) builder.build(stampSeq, builtObjects);
+					semantic = (SemanticChronology) builder.build(stampSeq, builtObjects);
 				}
 
-				return sememe;
+				return semantic;
 			} else {
 				throw new Exception("Unsupported IsaacObjectType: " + type);
 			}
@@ -210,34 +210,34 @@ public class BinaryDataDifferProviderUtility {
 
 		switch (version.getChronology().getVersionType()) {
 			case COMPONENT_NID:
-				ComponentNidVersion compNidSememe = (ComponentNidVersion) version;
-				builder = SemanticBuilderService_.getComponentSemanticBuilder(compNidSememe.getComponentNid(), compNidSememe.getReferencedComponentNid(),
-						compNidSememe.getAssemblageNid());
+				ComponentNidVersion compNidSemantic = (ComponentNidVersion) version;
+				builder = SemanticBuilderService_.getComponentSemanticBuilder(compNidSemantic.getComponentNid(), compNidSemantic.getReferencedComponentNid(),
+						compNidSemantic.getAssemblageNid());
 				break;
 			case DESCRIPTION:
-				DescriptionVersion descSememe = (DescriptionVersion) version;
-				builder = SemanticBuilderService_.getDescriptionBuilder(descSememe.getCaseSignificanceConceptNid(), descSememe.getLanguageConceptNid(),
-						descSememe.getDescriptionTypeConceptNid(), descSememe.getText(), descSememe.getReferencedComponentNid());
+				DescriptionVersion descSemantic = (DescriptionVersion) version;
+				builder = SemanticBuilderService_.getDescriptionBuilder(descSemantic.getCaseSignificanceConceptNid(), descSemantic.getLanguageConceptNid(),
+						descSemantic.getDescriptionTypeConceptNid(), descSemantic.getText(), descSemantic.getReferencedComponentNid());
 				break;
 			case DYNAMIC:
-				DynamicVersion<?> dynSememe = (DynamicVersion<?>) version;
-				builder = SemanticBuilderService_.getDynamicBuilder(dynSememe.getReferencedComponentNid(), dynSememe.getAssemblageNid(), dynSememe.getData());
+				DynamicVersion<?> dynSemantic = (DynamicVersion<?>) version;
+				builder = SemanticBuilderService_.getDynamicBuilder(dynSemantic.getReferencedComponentNid(), dynSemantic.getAssemblageNid(), dynSemantic.getData());
 				break;
 			case LONG:
-				LongVersion longSememe = (LongVersion) version;
-				builder = SemanticBuilderService_.getLongSemanticBuilder(longSememe.getLongValue(), longSememe.getReferencedComponentNid(), longSememe.getAssemblageNid());
+				LongVersion longSemantic = (LongVersion) version;
+				builder = SemanticBuilderService_.getLongSemanticBuilder(longSemantic.getLongValue(), longSemantic.getReferencedComponentNid(), longSemantic.getAssemblageNid());
 				break;
 			case MEMBER:
 				builder = SemanticBuilderService_.getMembershipSemanticBuilder(version.getReferencedComponentNid(), version.getAssemblageNid());
 				break;
 			case STRING:
-				StringVersion stringSememe = (StringVersion) version;
-				builder = SemanticBuilderService_.getStringSemanticBuilder(stringSememe.getString(), stringSememe.getReferencedComponentNid(), stringSememe.getAssemblageNid());
+				StringVersion stringSemantic = (StringVersion) version;
+				builder = SemanticBuilderService_.getStringSemanticBuilder(stringSemantic.getString(), stringSemantic.getReferencedComponentNid(), stringSemantic.getAssemblageNid());
 				break;
 			case LOGIC_GRAPH:
-				LogicGraphVersion logicGraphSememe = (LogicGraphVersion) version;
-				builder = SemanticBuilderService_.getLogicalExpressionBuilder(logicGraphSememe.getLogicalExpression(), logicGraphSememe.getReferencedComponentNid(),
-						logicGraphSememe.getAssemblageNid());
+				LogicGraphVersion logicGraphSemantic = (LogicGraphVersion) version;
+				builder = SemanticBuilderService_.getLogicalExpressionBuilder(logicGraphSemantic.getLogicalExpression(), logicGraphSemantic.getReferencedComponentNid(),
+						logicGraphSemantic.getAssemblageNid());
 				break;
 			case UNKNOWN:
 			default:

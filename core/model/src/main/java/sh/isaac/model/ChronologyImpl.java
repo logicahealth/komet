@@ -307,10 +307,10 @@ public abstract class ChronologyImpl
         if (addAttachments) {
             builder.append("\n[[\n");
             AtomicInteger attachmentCount = new AtomicInteger(0);
-            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((sememe) -> {
+            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((semantic) -> {
                 builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                         .append(":\n  ");
-                ((SemanticChronologyImpl) sememe).toString(builder, false);
+                ((SemanticChronologyImpl) semantic).toString(builder, false);
             });
             builder.append("]]\n");
         }
@@ -744,9 +744,9 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Gets the sememe list.
+     * Gets the semantic list.
      *
-     * @return the sememe list
+     * @return the semantic list
      */
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
@@ -756,10 +756,10 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Gets the sememe list from assemblage.
+     * Gets the semantic list from assemblage.
      *
      * @param assemblageSequence the assemblage sequence
-     * @return the sememe list from assemblage
+     * @return the semantic list from assemblage
      */
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
@@ -1003,16 +1003,16 @@ public abstract class ChronologyImpl
     @Override
     public NidSet getRecursiveSemanticNids() {
         NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
-        sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
+        sequenceSet.stream().forEach((semanticSequence) -> addRecursiveSequences(sequenceSet, semanticSequence));
 
         return sequenceSet;
     }
 
-    private void addRecursiveSequences(IntSet sememeSequenceSet, int semanticNid) {
+    private void addRecursiveSequences(IntSet semanticSequenceSet, int semanticNid) {
         IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
         sequenceSet.stream().forEach((sequence) -> {
-            sememeSequenceSet.add(sequence);
-            addRecursiveSequences(sememeSequenceSet, sequence);
+            semanticSequenceSet.add(sequence);
+            addRecursiveSequences(semanticSequenceSet, sequence);
         });
 
     }

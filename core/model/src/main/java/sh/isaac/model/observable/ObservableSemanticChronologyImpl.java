@@ -109,11 +109,9 @@ public class ObservableSemanticChronologyImpl
         implements ObservableSemanticChronology {
 
    private static final Logger LOG = LogManager.getLogger();
-
-   /**
-    * The assemblage nid property.
-    */
-   private IntegerProperty assemblageNidProperty;
+    /**
+     * The assemblage nid property.
+     */
 
    /**
     * The referenced component nid property.
@@ -122,7 +120,7 @@ public class ObservableSemanticChronologyImpl
 
    //~--- constructors --------------------------------------------------------
    /**
-    * Instantiates a new observable sememe chronology impl.
+    * Instantiates a new observable semantic chronology impl.
     *
     * @param chronicledObjectLocal the chronicled object local
     */
@@ -133,23 +131,11 @@ public class ObservableSemanticChronologyImpl
    protected SemanticChronology getSemanticChronology() {
       return (SemanticChronology) this.chronicledObjectLocal;
    }
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Assemblage sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty assemblageNidProperty() {
-      if (this.assemblageNidProperty == null) {
-         this.assemblageNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
-                 getAssemblageNid());
-      }
-
-      return this.assemblageNidProperty;
-   }
+    /**
+     * Assemblage sequence property.
+     *
+     * @return the integer property
+     */   //~--- methods -------------------------------------------------------------
 
    /**
     * Creates the mutable version.
@@ -252,21 +238,12 @@ public class ObservableSemanticChronologyImpl
       }
 
    }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the assemblage nid.
-    *
-    * @return the assemblage nid
-    */
-   @Override
-   public int getAssemblageNid() {
-      if (this.assemblageNidProperty != null) {
-         return this.assemblageNidProperty.get();
-      }
-
-      return getSemanticChronology().getAssemblageNid();
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the assemblage nid.
+     *
+     * @return the assemblage nid
+     */
 
    /**
     * Gets the observable version list.
@@ -280,8 +257,8 @@ public class ObservableSemanticChronologyImpl
       }
       final ObservableList<ObservableVersion> observableList = FXCollections.observableArrayList();
 
-      this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
-         observableList.add(wrapInObservable((SemanticVersion) sememeVersion));
+      this.chronicledObjectLocal.getVersionList().stream().forEach((semanticVersion) -> {
+         observableList.add(wrapInObservable((SemanticVersion) semanticVersion));
       });
       return observableList;
    }
@@ -301,9 +278,9 @@ public class ObservableSemanticChronologyImpl
    }
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getVersionType() {

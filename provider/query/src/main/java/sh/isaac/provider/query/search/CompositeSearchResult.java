@@ -433,7 +433,7 @@ public class CompositeSearchResult {
                strings.add(ds.get()
                        .getString());
             } else {
-               strings.add("No sememe available on stamp coordinate!");
+               strings.add("No semantic available on stamp coordinate!");
             }
          } else if ((iol instanceof SemanticChronology) &&
                  ((SemanticChronology) iol).getVersionType() == VersionType.DYNAMIC) {
@@ -445,7 +445,7 @@ public class CompositeSearchResult {
                strings.add(ds.get()
                        .dataToString());
             } else {
-               strings.add("No sememe available on stamp coordinate!");
+               strings.add("No semantic available on stamp coordinate!");
             }
          } else {
             strings.add("ERROR: No string extractor available for " + iol.getClass().getName());

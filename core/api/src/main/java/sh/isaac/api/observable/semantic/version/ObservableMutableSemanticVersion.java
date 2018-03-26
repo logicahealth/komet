@@ -22,6 +22,6 @@ import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
  *
  * @author kec
  */
-public interface ObservableMutableSememeVersion extends MutableSemanticVersion {
+public interface ObservableMutableSemanticVersion extends MutableSemanticVersion {
    
 }

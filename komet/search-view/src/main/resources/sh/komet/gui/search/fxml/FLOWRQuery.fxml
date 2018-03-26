@@ -26,7 +26,7 @@
                                     </RadioButton>
                                     <RadioButton fx:id="allConcepts" mnemonicParsing="false" text="all concepts" toggleGroup="$forGroup" />
                                     <RadioButton fx:id="allDescriptions" mnemonicParsing="false" text="all descriptions" toggleGroup="$forGroup" />
-                                    <RadioButton fx:id="allSememes" mnemonicParsing="false" text="all sememes" toggleGroup="$forGroup" />
+                                    <RadioButton fx:id="allSemantics" mnemonicParsing="false" text="all semantics" toggleGroup="$forGroup" />
                                  </children>
                                  <padding>
                                     <Insets bottom="2.0" left="5.0" top="5.0" />

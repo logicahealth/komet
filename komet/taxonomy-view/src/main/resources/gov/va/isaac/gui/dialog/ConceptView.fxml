@@ -92,7 +92,7 @@
 										<VBox fx:id="annotationsRegion" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0"
 											spacing="5.0" styleClass="itemBorder" VBox.vgrow="ALWAYS">
 											<children>
-												<Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" styleClass="boldLabel" text="Sememe Extensions" />
+												<Label contentDisplay="CENTER" maxWidth="1.7976931348623157E308" styleClass="boldLabel" text="Semantic Extensions" />
 											</children>
 										</VBox>
 									</items>

@@ -91,18 +91,18 @@ import sh.isaac.api.util.NumericUtils;
  * {@link DynamicValidatorType#IS_KIND_OF}
  * The validatorDefinitionData should be either an {@link DynamicNid} or a {@link DynamicUUID}.
  *
- * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSememeString>}
+ * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSemanticString>}
  * where position 0 is a string constant parseable by {@link IsaacObjectType#parse(String, boolean)}.  Postion 1 is optional, and is only applicable when
  * position 0 is {@link IsaacObjectType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String, boolean)}
  *
- * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSememeString>}
+ * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSemanticString>}
  * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicExternalValidator}
  * the name that you provide should be the value of the '@Name' annotation within the class which implements the ExternalValidatorBI class.
  * This code will request that implementation (by name) and pass the validation call to it.
  *
  * Optionally, the validatorDefinitionData more that one {@link DynamicString} in the array - only the first position of the array
  * will be considered as the '@Name' to be used for the HK2 lookup.  All following data is ignored, and may be used by the external validator
- * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicArray <DynamicSememeString>}
+ * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicArray <DynamicSemanticString>}
  * contains an array of strings such as new String[]{"mySuperRefexValidator", "somespecialmappingdata", "some other mapping data"}
  * then the following HK2 call will be made to locate the validator implementation (and validate):
  * <pre>
@@ -218,7 +218,7 @@ public enum DynamicValidatorType {
 
       if (exceptionOnParseFail) {
          throw new InvalidParameterException("The value " + nameOrEnumId +
-               " could not be parsed as a DynamicSememeValidatorType");
+               " could not be parsed as a DynamicSemanticValidatorType");
       } else {
          return UNKNOWN;
       }
@@ -295,12 +295,12 @@ public enum DynamicValidatorType {
                                      .getService(DynamicExternalValidator.class, valName);
          } else {
             logger.severe(
-                "An external validator type was specified, but no DynamicSememeExternalValidatorBI 'name' was provided.  API misuse!");
+                "An external validator type was specified, but no DynamicSemanticExternalValidatorBI 'name' was provided.  API misuse!");
          }
 
          if (validator == null) {
             throw new RuntimeException(
-                "Could not locate an implementation of DynamicSememeExternalValidatorBI with the requested name of '" +
+                "Could not locate an implementation of DynamicSemanticExternalValidatorBI with the requested name of '" +
                 valName + "'");
          }
 
@@ -349,13 +349,13 @@ public enum DynamicValidatorType {
                
                return Get.taxonomyService().getStatedLatestSnapshot(
                      Get.stampService().getPathNidForStamp(stampSequence), 
-                     NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this sememe is being created on, 
+                     NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                      //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                      Status.ACTIVE_ONLY_SET).isChildOf(childId, parentId);
             } else {  //IS_KIND_OF
                return Get.taxonomyService().getStatedLatestSnapshot(
                       Get.stampService().getPathNidForStamp(stampSequence), 
-                      NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this sememe is being created on, 
+                      NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                       //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                       Status.ACTIVE_ONLY_SET).isKindOf(childId, parentId);
             }
@@ -386,7 +386,7 @@ public enum DynamicValidatorType {
                throw new RuntimeException("Userdata is invalid for a COMPONENT_TYPE comparison");
             }
 
-            // Position 0 tells us the IsaacObjectType.  When the type is Sememe, position 2 tells us the (optional) VersionType of the assemblage restriction
+            // Position 0 tells us the IsaacObjectType.  When the type is Semantic, position 2 tells us the (optional) VersionType of the assemblage restriction
             final DynamicString[] valData =
                ((DynamicArray<DynamicString>) validatorDefinitionData).getDataArray();
             final IsaacObjectType expectedCT = IsaacObjectType.parse(valData[0].getDataString(), false);

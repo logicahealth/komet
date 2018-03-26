@@ -64,7 +64,7 @@ public class StringVersionImpl
 
    //~--- constructors --------------------------------------------------------
    /**
-    * Instantiates a new string sememe impl.
+    * Instantiates a new string semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -74,7 +74,7 @@ public class StringVersionImpl
    }
 
    /**
-    * Instantiates a new string sememe impl.
+    * Instantiates a new string semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -138,9 +138,9 @@ public class StringVersionImpl
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {

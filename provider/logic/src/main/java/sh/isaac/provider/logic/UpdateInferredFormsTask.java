@@ -148,7 +148,7 @@ public class UpdateInferredFormsTask
    protected Integer call()
             throws Exception {
       try {
-         final SemanticSnapshotService<LogicGraphVersion> sememeSnapshot = Get.assemblageService()
+         final SemanticSnapshotService<LogicGraphVersion> semanticSnapshot = Get.assemblageService()
                                                                            .getSnapshot(LogicGraphVersion.class,
                                                                                  this.stampCoordinate);
 
@@ -161,10 +161,10 @@ public class UpdateInferredFormsTask
 
                                               updateMessage("Updating concept: " + concept.toUserString());
                                               updateValue(this.processedCount.get());
-                                              sememeSnapshot.getLatestSemanticVersionsForComponentFromAssemblage(
+                                              semanticSnapshot.getLatestSemanticVersionsForComponentFromAssemblage(
                                                   conceptSequence,
                                                   this.logicCoordinate.getInferredAssemblageNid()).forEach((LatestVersion<LogicGraphVersion> latestLogicGraph) -> {
-                        processLogicGraphSememe(latestLogicGraph);
+                        processLogicGraphSemantic(latestLogicGraph);
                      });
                                            }
                                         });
@@ -178,10 +178,10 @@ public class UpdateInferredFormsTask
    }
 
    /**
-    * Process logic graph sememe.
+    * Process logic graph semantic.
     *
     * @param latest the latest
     */
-   private void processLogicGraphSememe(LatestVersion<LogicGraphVersion> latest) {}
+   private void processLogicGraphSemantic(LatestVersion<LogicGraphVersion> latest) {}
 }
 

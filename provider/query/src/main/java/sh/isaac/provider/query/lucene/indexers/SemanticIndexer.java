@@ -114,7 +114,7 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * This class provides indexing for all String, Nid, Long and Logic Graph sememe types.
+ * This class provides indexing for all String, Nid, Long and Logic Graph semantic types.
  *
  * Additionally, this class provides flexible indexing of all DynamicVersion data types, 
  * including all columns within each type..
@@ -178,7 +178,7 @@ public class SemanticIndexer
                   final DynamicData dataCol = (col >= dataColCount) ? null
                         : dsv.getData(col);
 
-                  // Only pass in a column number if we were asked to index more than one column for this sememe
+                  // Only pass in a column number if we were asked to index more than one column for this semantic
                   handleType(doc, dataCol, (columns.length > 1) ? col
                         : -1);
                }
@@ -186,22 +186,22 @@ public class SemanticIndexer
          }
 
          // TODO [DAN 3] enhance the index configuration to allow us to configure Static semantics as indexed, or not indexed
-         // static sememe types are never more than 1 column, always pass -1
+         // static semantic types are never more than 1 column, always pass -1
          else if (sv instanceof StringVersion) {
             final StringVersion ssv = (StringVersion) sv;
 
             handleType(doc, new DynamicStringImpl(ssv.getString()), -1);
-            incrementIndexedItemCount("Sememe String");
+            incrementIndexedItemCount("Semantic String");
          } else if (sv instanceof LongVersion) {
             final LongVersion lsv = (LongVersion) sv;
 
             handleType(doc, new DynamicLongImpl(lsv.getLongValue()), -1);
-            incrementIndexedItemCount("Sememe Long");
+            incrementIndexedItemCount("Semantic Long");
          } else if (sv instanceof ComponentNidVersion) {
             final ComponentNidVersion csv = (ComponentNidVersion) sv;
 
             handleType(doc, new DynamicNidImpl(csv.getComponentNid()), -1);
-            incrementIndexedItemCount("Sememe Component Nid");
+            incrementIndexedItemCount("Semantic Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
             final OpenIntHashSet  css  = new OpenIntHashSet();
@@ -239,13 +239,13 @@ public class SemanticIndexer
                    handleType(doc, new DynamicBooleanImpl((Boolean)fieldData[i]), types.length > 1 ? i : -1);
                }
                else {
-                  LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + types[i]);
+                  LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
                }
             }
             incrementIndexedItemCount(sv.getSemanticType().name());
          }
          else {
-            LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + semanticChronology.toString());
+            LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + semanticChronology.toString());
          }
       }
 
@@ -388,11 +388,11 @@ public class SemanticIndexer
     */
    private void handleType(Document doc, DynamicData dataCol, int colNumber) {
       // Not the greatest design for diskspace / performance... but if we want to be able to support searching across
-      // all fields / all sememes - and also support searching per-field within a single sememe, we need to double index
+      // all fields / all semantics - and also support searching per-field within a single semantic, we need to double index
       // all of the data.  Once with a standard field name, and once with a field name that includes the column number.
       // at search time, restricting to certain field matches is only allowed if they are also restricting to an assemblage,
       // so we can compute the correct field number list at search time.
-      // Note, we optimize by only doing the double indexing in cases where the sememe has more than one column to begin with.
+      // Note, we optimize by only doing the double indexing in cases where the semantic has more than one column to begin with.
       // At query time, we construct the query appropriately to handle this optimization.
       // the cheaper option from a disk space perspective (maybe, depending on the data) would be to create a document per
       // column.  The queries would be trivial to write then, but we would be duplicating the component nid and assemblage nid
@@ -417,7 +417,7 @@ public class SemanticIndexer
 
          incrementIndexedItemCount("Dynamic Boolean");
       } else if (dataCol instanceof DynamicByteArray) {
-         LOG.warn("Sememe Indexer configured to index a field that isn''t indexable (byte array)");
+         LOG.warn("Semantic Indexer configured to index a field that isn''t indexable (byte array)");
       } else if (dataCol instanceof DynamicDouble) {
          doc.add(new DoublePoint(COLUMN_DOUBLE_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
 
@@ -529,7 +529,7 @@ public class SemanticIndexer
       /**
        * Builds the column handling query.
        *
-       * @param assemblageConceptNid the sememe concept sequence
+       * @param assemblageConceptNid the semantic concept sequence
        * @param searchColumns the search columns
        * @return the query
        */
@@ -546,7 +546,7 @@ public class SemanticIndexer
             }
          }
 
-         // If only 1 column was indexed from a sememe, we don't create field specific columns.
+         // If only 1 column was indexed from a semantic, we don't create field specific columns.
          if ((searchColumns == null) ||
                (searchColumns.length == 0) ||
                (assemblageIndexedColumns == null) ||
@@ -711,11 +711,11 @@ public class SemanticIndexer
                }
             }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
          } else if (queryData instanceof DynamicByteArray) {
-            throw new RuntimeException("DynamicSememeByteArray isn't indexed");
+            throw new RuntimeException("DynamicSemanticByteArray isn't indexed");
          } else if (queryData instanceof DynamicPolymorphic) {
             throw new RuntimeException("This should have been impossible (polymorphic?)");
          } else if (queryData instanceof DynamicArray) {
-            throw new RuntimeException("DynamicSememeArray isn't a searchable type");
+            throw new RuntimeException("DynamicSemanticArray isn't a searchable type");
          } else {
             LOG.error("This should have been impossible (no match on col type)");
             throw new RuntimeException("unexpected error, see logs");

@@ -304,7 +304,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
      * @param time the time
      * @param moduleNid the module
      * @param stampCoordinate for determining current version if a graph already exists. 
-     * @return the sememe chronology
+     * @return the semantic chronology
      */
     public SemanticChronology addLogicGraph(int conceptNid,
             LogicalExpression logicalExpression,

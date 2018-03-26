@@ -37,51 +37,65 @@
 
 
 
-package sh.isaac.provider.query.search;
+package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Comparator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import sh.isaac.model.semantic.types.DynamicByteArrayImpl;
+import java.beans.PropertyVetoException;
+
+import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.Get;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * A {@link Comparator} for {@link DescriptionVersion} objects that compares the descriptions by their type.
+ * {@link DynamicSemanticByteArrayTest}.
  *
- * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DescriptionSememeTypeComparator
-         implements Comparator<DescriptionVersion> {
+public class DynamicSemanticByteArrayTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
+   @Test
+   public void testSerialization()
+            throws PropertyVetoException, IOException {
+      final byte[][] testValues = new byte[][] {
+         "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
+      };
 
-   //~--- methods -------------------------------------------------------------
+      for (final byte[] i: testValues) {
+         test(i);
+      }
+   }
 
    /**
-    * Compare.
+    * Test.
     *
-    * @param o1 the o 1
-    * @param o2 the o 2
-    * @return the int
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
     */
-   @Override
-   public int compare(DescriptionVersion o1, DescriptionVersion o2) {
-      final String o1matchingComponentType = Get.conceptService()
-                                                .getOptionalConcept(o1.getDescriptionTypeConceptNid())
-                                                .get()
-                                                .getFullyQualifiedName();
-      final String o2matchingComponentType = Get.conceptService()
-                                                .getOptionalConcept(o2.getDescriptionTypeConceptNid())
-                                                .get()
-                                                .getFullyQualifiedName();
+   private void test(byte[] value)
+            throws PropertyVetoException, IOException {
+      final DynamicByteArrayImpl i = new DynamicByteArrayImpl(value);
 
-      return o1matchingComponentType.compareTo(o2matchingComponentType);
+      assertEquals(value, i.getDataByteArray());
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
+                           .get());
+      assertEquals(i.getDynamicDataType(), DynamicDataType.BYTEARRAY);
    }
 }
 

@@ -159,7 +159,7 @@ public class GenerateIndexes
          // We only need to index semantics now
          // In the future, there may be a need for indexing Concepts from the concept service - for instance, if we wanted to index the concepts
          // by user, or by some other attribute that is attached to the concept. But there simply isn't much on the concept at present, and I have
-         // no use case for indexing the concepts. The IndexBuilderService APIs would need enhancement if we allowed indexing things other than sememes.
+         // no use case for indexing the concepts. The IndexBuilderService APIs would need enhancement if we allowed indexing things other than semantics.
          final long semanticCount = (int) Get.assemblageService().getSemanticCount();
 
          LOG.info("Semantic elements to index: " + semanticCount);

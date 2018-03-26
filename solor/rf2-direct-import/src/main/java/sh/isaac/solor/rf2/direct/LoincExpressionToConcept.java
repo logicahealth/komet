@@ -170,7 +170,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
      *
      * @param loincCode the LOINC code
      * @param logicalExpression the logical expression
-     * @return the sememe chronology
+     * @return the semantic chronology
      */
     public SemanticChronology addLogicGraph(String loincCode,
             LogicalExpression logicalExpression) {

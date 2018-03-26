@@ -59,11 +59,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeArrayTest}.
+ * {@link DynamicSemanticArrayTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeArrayTest {
+public class DynamicSemanticArrayTest {
    /**
     * Test serialization one.
     *

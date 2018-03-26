@@ -124,7 +124,7 @@ public class LogicDetailNode
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(conceptDetailManifold.getEditCoordinate());
             mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(mutableVersion, conceptDetailManifold.getEditCoordinate(), "Lambda graph edit");
+            Get.commitService().commit(conceptDetailManifold.getEditCoordinate(), "Lambda graph edit", mutableVersion);
         }
         setConcept(conceptDetailManifold.getFocusedConcept().get());
     }

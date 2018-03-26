@@ -101,7 +101,7 @@ public class ObservableChronologyProvider
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
    /**
-    * The observable sememe map.
+    * The observable semantic map.
     */
    ConcurrentReferenceHashMap<Integer, ObservableSemanticChronology> observableSemanticMap
            = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -157,7 +157,7 @@ public class ObservableChronologyProvider
          }
 
          // handle referenced component
-         // Concept, description, or sememe
+         // Concept, description, or semantic
          final IsaacObjectType oct = Get.identifierService().getObjectTypeForComponent(sc.getReferencedComponentNid());
          ChronologyChangeListener referencedComponent = null;
 
@@ -243,7 +243,7 @@ public class ObservableChronologyProvider
     */
    @Override
    public ObservableConceptChronology getObservableConceptChronology(int id) {
-      //TODO consider implementing weak reference for concepts like done for observable sememe...
+      //TODO consider implementing weak reference for concepts like done for observable semantic...
 
       ObservableConceptChronology observableConceptChronology = this.observableConceptMap.get(id);
 
@@ -258,10 +258,10 @@ public class ObservableChronologyProvider
    }
 
    /**
-    * Gets the observable sememe chronology.
+    * Gets the observable semantic chronology.
     *
     * @param id the id
-    * @return the observable sememe chronology
+    * @return the observable semantic chronology
     */
    @Override
    public ObservableSemanticChronology getObservableSemanticChronology(int id) {

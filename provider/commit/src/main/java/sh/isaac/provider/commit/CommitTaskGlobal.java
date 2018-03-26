@@ -115,8 +115,8 @@ public class CommitTaskGlobal extends CommitTask{
     * @param commitComment the commit comment
     * @param uncommittedConceptsWithChecksNidSet the uncommitted concepts with checks sequence set
     * @param uncommittedConceptsNoChecksNidSet the uncommitted concepts no checks sequence set
-    * @param uncommittedSememesWithChecksNidSet the uncommitted sememes with checks sequence set
-    * @param uncommittedSememesNoChecksNidSet the uncommitted sememes no checks sequence set
+    * @param uncommittedSemanticsWithChecksNidSet the uncommitted semantics with checks sequence set
+    * @param uncommittedSemanticsNoChecksNidSet the uncommitted semantics no checks sequence set
     * @param lastCommit the last commit
     * @param checkers the checkers
     * @param alertCollection the alert collection
@@ -126,8 +126,8 @@ public class CommitTaskGlobal extends CommitTask{
    private CommitTaskGlobal(String commitComment,
                       NidSet uncommittedConceptsWithChecksNidSet,
                       NidSet uncommittedConceptsNoChecksNidSet,
-                      NidSet uncommittedSememesWithChecksNidSet,
-                      NidSet uncommittedSememesNoChecksNidSet,
+                      NidSet uncommittedSemanticsWithChecksNidSet,
+                      NidSet uncommittedSemanticsNoChecksNidSet,
                       long lastCommit,
                       ConcurrentSkipListSet<ChangeChecker> checkers,
                       Map<UncommittedStamp, Integer> pendingStampsForCommit,
@@ -136,13 +136,13 @@ public class CommitTaskGlobal extends CommitTask{
       this.conceptNidsToCommit.or(uncommittedConceptsNoChecksNidSet);
       this.conceptNidsToCommit.or(uncommittedConceptsWithChecksNidSet);
       this.conceptNidsToCheck.or(uncommittedConceptsWithChecksNidSet);
-      this.semanticNidsToCommit.or(uncommittedSememesNoChecksNidSet);
-      this.semanticNidsToCommit.or(uncommittedSememesWithChecksNidSet);
-      this.semanticNidsToCheck.or(uncommittedSememesWithChecksNidSet);
+      this.semanticNidsToCommit.or(uncommittedSemanticsNoChecksNidSet);
+      this.semanticNidsToCommit.or(uncommittedSemanticsWithChecksNidSet);
+      this.semanticNidsToCheck.or(uncommittedSemanticsWithChecksNidSet);
       uncommittedConceptsNoChecksNidSet.clear();
       uncommittedConceptsWithChecksNidSet.clear();
-      uncommittedSememesNoChecksNidSet.clear();
-      uncommittedSememesWithChecksNidSet.clear();
+      uncommittedSemanticsNoChecksNidSet.clear();
+      uncommittedSemanticsWithChecksNidSet.clear();
       this.lastCommit             = lastCommit;
       this.checkers               = checkers;
       this.pendingStampsForCommit = pendingStampsForCommit;
@@ -257,8 +257,8 @@ public class CommitTaskGlobal extends CommitTask{
     * @param commitComment the commit comment
     * @param uncommittedConceptsWithChecksNidSet the uncommitted concepts with checks sequence set
     * @param uncommittedConceptsNoChecksNidSet the uncommitted concepts no checks sequence set
-    * @param uncommittedSemanticsWithChecksNidSet the uncommitted sememes with checks sequence set
-    * @param uncommittedSemanticsNoChecksNidSet the uncommitted sememes no checks sequence set
+    * @param uncommittedSemanticsWithChecksNidSet the uncommitted semantics with checks sequence set
+    * @param uncommittedSemanticsNoChecksNidSet the uncommitted semantics no checks sequence set
     * @param lastCommit the last commit
     * @param checkers the checkers
     * @param pendingStampsForCommit the pending stamps for commit

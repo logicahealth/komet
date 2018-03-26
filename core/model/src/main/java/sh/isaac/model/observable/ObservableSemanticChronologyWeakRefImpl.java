@@ -49,12 +49,12 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  */
 public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemanticChronology {
 
-   private final int sememeId;
+   private final int semanticId;
    WeakReference<ObservableSemanticChronology> reference;
    ObservableChronologyService observableChronologyService;
 
-   public ObservableSemanticChronologyWeakRefImpl(int sememeId, ObservableChronologyService observableChronologyService) {
-      this.sememeId = sememeId;
+   public ObservableSemanticChronologyWeakRefImpl(int semanticId, ObservableChronologyService observableChronologyService) {
+      this.semanticId = semanticId;
       this.observableChronologyService = observableChronologyService;
    }
 
@@ -64,13 +64,13 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    private ObservableSemanticChronology getChronology() {
       ObservableSemanticChronology chronology;
       if (reference == null) {
-         chronology = observableChronologyService.getObservableSemanticChronology(sememeId);
+         chronology = observableChronologyService.getObservableSemanticChronology(semanticId);
          reference = new WeakReference(chronology);
          return chronology;
       }
       chronology = reference.get();
       if (chronology == null) {
-         chronology = observableChronologyService.getObservableSemanticChronology(sememeId);
+         chronology = observableChronologyService.getObservableSemanticChronology(semanticId);
          reference = new WeakReference(chronology);
       }
       return chronology;

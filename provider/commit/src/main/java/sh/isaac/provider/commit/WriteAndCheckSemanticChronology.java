@@ -87,14 +87,14 @@ public class WriteAndCheckSemanticChronology
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new write and check sememe chronicle.
+    * Instantiates a new write and check semantic chronicle.
     *
     * @param sc the sc
     * @param checkers the checkers
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
-    * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
- written to the AssemblageService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
+    * @param uncommittedTracking A handle to call back to the caller to notify it that the semantic has been
+ written to the AssemblageService.  Parameter 1 is the Semantic, Parameter two is true to indicate that the
  change checker is active for this implementation.
     */
    public WriteAndCheckSemanticChronology(SemanticChronology sc,
@@ -107,7 +107,7 @@ public class WriteAndCheckSemanticChronology
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
-      updateTitle("Write, check, and notify for sememe change");
+      updateTitle("Write, check, and notify for semantic change");
       updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)

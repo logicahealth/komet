@@ -41,10 +41,12 @@ package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
+
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,11 +59,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeIntegerTest}.
+ * {@link DynamicSemanticUUIDTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeIntegerTest {
+public class DynamicSemanticUUIDTest {
    /**
     * Test serialization.
     *
@@ -71,12 +73,10 @@ public class DynamicSememeIntegerTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final int[] testValues = new int[] {
-         Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532
-      };
+      final UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
-      for (final int i: testValues) {
-         test(i);
+      for (final UUID uuid: testValues) {
+         test(uuid);
       }
    }
 
@@ -87,15 +87,15 @@ public class DynamicSememeIntegerTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(int value)
+   private void test(UUID value)
             throws PropertyVetoException, IOException {
-      final DynamicIntegerImpl i = new DynamicIntegerImpl(value);
+      final DynamicUUIDImpl uuid = new DynamicUUIDImpl(value);
 
-      assertEquals(value, i.getDataInteger());
-      assertEquals(value, ((Integer) i.getDataObject()).intValue());
-      assertEquals(value, ((Integer) i.getDataObjectProperty()
-                                      .get()).intValue());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.INTEGER);
+      assertEquals(value, uuid.getDataUUID());
+      assertEquals(value, uuid.getDataObject());
+      assertEquals(value, uuid.getDataObjectProperty()
+                              .get());
+      assertEquals(uuid.getDynamicDataType(), DynamicDataType.UUID);
    }
 }
 

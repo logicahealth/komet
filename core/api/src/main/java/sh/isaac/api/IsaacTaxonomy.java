@@ -225,7 +225,7 @@ public class IsaacTaxonomy {
          }
 
          if (cc instanceof MetadataDynamicConstant) {
-            // See {@link DynamicSememeUsageDescription} class for more details on this format.
+            // See {@link DynamicSemanticUsageDescription} class for more details on this format.
             final MetadataDynamicConstant dsc = (MetadataDynamicConstant) cc;
             final DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> db
                     = addDescription(dsc.getAssemblageDescription(),
@@ -534,7 +534,7 @@ public class IsaacTaxonomy {
    }
    
    private final static <T extends CommittableComponent> IdentifiedComponentBuilder<T> addIdentifierAssemblageMembership(IdentifiedComponentBuilder<T> builder) {
-      // add static member sememe
+      // add static member semantic
       return builder.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(builder, TermAux.IDENTIFIER_SOURCE.getNid()));
    }
 
@@ -775,7 +775,7 @@ public class IsaacTaxonomy {
    }
    
    /**
-    * Review sememe builder and assign it and its sememes a Type5 UUID.
+    * Review semantic builder and assign it and its semantics a Type5 UUID.
     *
     * @param builder the builder
     */

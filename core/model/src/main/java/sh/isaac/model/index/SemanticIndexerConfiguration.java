@@ -178,7 +178,7 @@ public class SemanticIndexerConfiguration {
 //    
 //    if (!skipReindex)
 //    {
-//            Get.startIndexTask(new Class[] {SememeIndexer.class});
+//            Get.startIndexTask(new Class[] {SemanticIndexer.class});
 //    }
    }
 
@@ -337,11 +337,11 @@ public class SemanticIndexerConfiguration {
    /**
     * Find current index config refex.
     *
-    * @param indexedSememeId the indexed id
+    * @param indexedSemanticId the indexed id
     * @return the dynamic element<? extends dynamic element>
     * @throws RuntimeException the runtime exception
     */
-   private static DynamicVersion<? extends DynamicVersion> findCurrentIndexConfigRefex(int indexedSememeId)
+   private static DynamicVersion<? extends DynamicVersion> findCurrentIndexConfigRefex(int indexedSemanticId)
            throws RuntimeException {
       @SuppressWarnings("rawtypes")
       final SemanticSnapshotService<DynamicVersion> sss = Get.assemblageService()
@@ -349,7 +349,7 @@ public class SemanticIndexerConfiguration {
                       StampCoordinates.getDevelopmentLatest());
       @SuppressWarnings("rawtypes")
       final List<LatestVersion<DynamicVersion>> semantics
-              = sss.getLatestSemanticVersionsForComponentFromAssemblage(indexedSememeId,
+              = sss.getLatestSemanticVersionsForComponentFromAssemblage(indexedSemanticId,
                       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                               .getNid());
 
@@ -375,15 +375,15 @@ public class SemanticIndexerConfiguration {
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
-                  final Stream<SemanticChronology> sememeCs = Get.assemblageService()
+                  final Stream<SemanticChronology> semanticCs = Get.assemblageService()
                           .getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                   .getNid());
 
-                  sememeCs.forEach(sememeC -> {
-                     if (sememeC.getVersionType() == VersionType.DYNAMIC) {
+                  semanticCs.forEach(semanticC -> {
+                     if (semanticC.getVersionType() == VersionType.DYNAMIC) {
                         @SuppressWarnings({"unchecked", "rawtypes"})
                         final LatestVersion<DynamicVersion> dsv
-                                = ((SemanticChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+                                = ((SemanticChronology) semanticC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
                         if (dsv.isPresent() && (dsv.get().getStatus() == Status.ACTIVE)) {
                            final int assemblageToIndex = dsv.get()

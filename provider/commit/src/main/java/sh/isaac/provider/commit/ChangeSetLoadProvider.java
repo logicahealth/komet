@@ -274,7 +274,7 @@ public class ChangeSetLoadProvider
             if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
                StringBuilder msg = new StringBuilder();
                msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
-               msg.append(" SememeDbId: ").append(semanticDbId);
+               msg.append(" SemanticDbId: ").append(semanticDbId);
                msg.append(" Changsets DbId: ").append(changesetsDbId);
                throw new RuntimeException(msg.toString());
             }

@@ -531,7 +531,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 			importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
-			// place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic sememe mapping sememe type.
+			// place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic semantic mapping semantic type.
 			NecessarySet(And(new Assertion[] { ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getAltMetaDataParentUUID()), leb),
 					ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
 					ConceptAssertion(
@@ -587,7 +587,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 			importUtil.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					Status.ACTIVE, null);
 
-			// Now that we have defined the map sememe, add the other annotations onto the map set definition.
+			// Now that we have defined the map semantic, add the other annotations onto the map set definition.
 			if (StringUtils.isNotBlank(mapSet.getSourceCodeSystemName()))
 			{
 				importUtil.addAnnotation(concept, null,

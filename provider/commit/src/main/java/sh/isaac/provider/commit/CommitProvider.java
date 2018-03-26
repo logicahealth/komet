@@ -52,7 +52,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,7 +84,6 @@ import org.jvnet.hk2.annotations.Service;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -99,7 +97,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
@@ -119,7 +116,6 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.SequentialAggregateTask;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
@@ -507,14 +503,16 @@ public class CommitProvider
     }
 
     @Override
-    public CommitTask commit(ObservableVersion versionToCommit,
+    public CommitTask commit(
             EditCoordinate editCoordinate,
-            String commitComment) {
+            String commitComment, 
+            ObservableVersion... versionToCommit) {
 
-        SingleCommitTask commitTask = new SingleCommitTask(versionToCommit,
+        SingleCommitTask commitTask = new SingleCommitTask(
             editCoordinate,
             commitComment,
-            this);
+            this,
+            versionToCommit);
         Get.executor().execute(commitTask);
         return commitTask;
     }
@@ -736,9 +734,9 @@ public class CommitProvider
                     this.checkers,
                     writeSemaphore,
                     this.changeListeners,
-                    (sememeOrConceptChronicle,
+                    (semanticOrConceptChronicle,
                             changeCheckerActive) -> handleUncommittedNidSet(
-                            sememeOrConceptChronicle,
+                            semanticOrConceptChronicle,
                             changeCheckerActive));
 
             this.writeCompletionService.submit(task);
@@ -766,9 +764,9 @@ public class CommitProvider
                     this.checkers,
                     writeSemaphore,
                     this.changeListeners,
-                    (sememeOrConceptChronicle,
+                    (semanticOrConceptChronicle,
                             changeCheckerActive) -> handleUncommittedNidSet(
-                            sememeOrConceptChronicle,
+                            semanticOrConceptChronicle,
                             changeCheckerActive));
 
             this.writeCompletionService.submit(task);
@@ -793,7 +791,7 @@ public class CommitProvider
     /**
      * Handle uncommitted nid set.
      *
-     * @param chronicle the sememe or concept chronicle
+     * @param chronicle the semantic or concept chronicle
      * @param changeCheckerActive the change checker active
      */
     private void handleUncommittedNidSet(Chronology chronicle, boolean changeCheckerActive) {
@@ -833,7 +831,7 @@ public class CommitProvider
                 }
 
                 default:
-                    throw new RuntimeException("Only Concepts or Sememes should be passed");
+                    throw new RuntimeException("Only Concepts or Semantics should be passed");
             }
         } finally {
             this.uncommittedSequenceLock.unlock();
@@ -1048,9 +1046,9 @@ public class CommitProvider
             final WriteConceptChronicle task = new WriteConceptChronicle(cc,
                     writeSemaphore,
                     this.changeListeners,
-                    (sememeOrConceptChronicle,
+                    (semanticOrConceptChronicle,
                             changeCheckerActive) -> handleUncommittedNidSet(
-                            sememeOrConceptChronicle,
+                            semanticOrConceptChronicle,
                             changeCheckerActive));
 
             this.writeCompletionService.submit(task);
@@ -1081,9 +1079,9 @@ public class CommitProvider
             final WriteSemanticChronology task = new WriteSemanticChronology(sc,
                     writeSemaphore,
                     this.changeListeners,
-                    (sememeOrConceptChronicle,
+                    (semanticOrConceptChronicle,
                             changeCheckerActive) -> handleUncommittedNidSet(
-                            sememeOrConceptChronicle,
+                            semanticOrConceptChronicle,
                             changeCheckerActive));
 
             this.writeCompletionService.submit(task);

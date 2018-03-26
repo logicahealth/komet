@@ -1517,8 +1517,8 @@ public class RxNormMojo extends ConverterBaseMojo {
     * @throws SQLException the SQL exception
     */
    private void prepareSCTMaps() throws SQLException {
-      Get.assemblageService().getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid()).stream().forEach(sememe -> {
-         final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService().getSemanticChronology(sememe))
+      Get.assemblageService().getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid()).stream().forEach(semantic -> {
+         final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService().getSemanticChronology(semantic))
                .getLatestVersion(StampCoordinates.getDevelopmentLatest());
          final StringVersion ss = lv.get();
          final Long sctId = Long.parseLong(ss.getString());
@@ -1930,7 +1930,7 @@ public class RxNormMojo extends ConverterBaseMojo {
          // try
          // {
          final ComponentReference annotation = ComponentReference.fromChronology(
-               this.importUtil.addUUIDAnnotation(concept, this.semanticTypes.get(rs.getString("TUI")), this.ptUMLSAttributes.getProperty("STY").getUUID()), () -> "Sememe Member");
+               this.importUtil.addUUIDAnnotation(concept, this.semanticTypes.get(rs.getString("TUI")), this.ptUMLSAttributes.getProperty("STY").getUUID()), () -> "Semantic Member");
 
          if (rs.getString("ATUI") != null) {
             this.importUtil.addStringAnnotation(annotation, rs.getString("ATUI"), this.ptUMLSAttributes.getProperty("ATUI").getUUID(), Status.ACTIVE);

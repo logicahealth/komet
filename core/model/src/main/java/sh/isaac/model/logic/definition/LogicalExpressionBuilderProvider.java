@@ -68,16 +68,16 @@ public class LogicalExpressionBuilderProvider
    //~--- methods -------------------------------------------------------------
 
    /**
-    * From sememe.
+    * From semantic.
     *
-    * @param sememe the sememe
+    * @param semantic the semantic
     * @return the logical expression
     */
    @Override
-   public LogicalExpression fromSememe(LogicGraphVersion sememe) {
-      return new LogicalExpressionImpl(sememe.getGraphData(),
+   public LogicalExpression fromSemantic(LogicGraphVersion semantic) {
+      return new LogicalExpressionImpl(semantic.getGraphData(),
             DataSource.INTERNAL,
-            sememe.getReferencedComponentNid());
+            semantic.getReferencedComponentNid());
    }
 
    //~--- get methods ---------------------------------------------------------

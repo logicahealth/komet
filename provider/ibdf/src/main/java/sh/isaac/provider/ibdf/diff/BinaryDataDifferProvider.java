@@ -83,7 +83,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 	private BinaryDataDifferProviderUtility diffUtil;
 
 	// Stream hack
-	private int conceptCount, sememeCount, itemCount, aliasCount, commentCount;
+	private int conceptCount, semanticCount, itemCount, aliasCount, commentCount;
 
 	// Analysis File Readers/Writers
 	private String inputAnalysisDir;
@@ -260,7 +260,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 						if (c.getIsaacObjectType() == IsaacObjectType.CONCEPT) {
 							componentType = "Concept";
 						} else {
-							componentType = "Sememe";
+							componentType = "Semantic";
 						}
 
 						String componentToWrite = "---- " + key.toString() + " " + componentType + " #" + counter++
@@ -347,7 +347,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 
 		itemCount = 0;
 		conceptCount = 0;
-		sememeCount = 0;
+		semanticCount = 0;
 		aliasCount = 0;
 		commentCount = 0;
 
@@ -366,7 +366,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 							conceptCount++;
 							retMap.get(object.getIsaacObjectType()).add(object);
 						} else if (object.getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
-							sememeCount++;
+							semanticCount++;
 							retMap.get(object.getIsaacObjectType()).add(object);
 						} else if (object.getIsaacObjectType() == IsaacObjectType.STAMP_ALIAS) {
 							aliasCount++;
@@ -378,7 +378,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 							throw new UnsupportedOperationException("Unknown ochre object type: " + object);
 						}
 					} catch (Exception e) {
-						log.error("Failure at " + conceptCount + " concepts, " + sememeCount + " sememes, ", e);
+						log.error("Failure at " + conceptCount + " concepts, " + semanticCount + " semantics, ", e);
 						Map<String, Object> args = new HashMap<>();
 						args.put(JsonWriter.PRETTY_PRINT, true);
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -400,20 +400,20 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 
 					if (itemCount % 10000 == 0) {
 						log.info("Still processing ibdf file.  Status: " + itemCount + " entries, " + "Loaded "
-								+ conceptCount + " concepts, " + sememeCount + " sememes, " + aliasCount + " aliases, "
+								+ conceptCount + " concepts, " + semanticCount + " semantics, " + aliasCount + " aliases, "
 								+ commentCount + " comments");
 					}
 				}
 			});
 		} catch (Exception ex) {
-			log.info("Exception during load: Loaded " + conceptCount + " concepts, " + sememeCount + " sememes, "
+			log.info("Exception during load: Loaded " + conceptCount + " concepts, " + semanticCount + " semantics, "
 					+ aliasCount + " aliases, " + commentCount + " comments"
 					+ (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : ""));
 			throw new Exception(ex.getLocalizedMessage(), ex);
 		}
 
 		log.info("Finished processing ibdf file.  Results: " + itemCount + " entries, " + "Loaded " + conceptCount
-				+ " concepts, " + sememeCount + " sememes, " + aliasCount + " aliases, " + commentCount + " comments");
+				+ " concepts, " + semanticCount + " semantics, " + aliasCount + " aliases, " + commentCount + " comments");
 
 		return retMap;
 	}
@@ -447,7 +447,7 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 							throw new UnsupportedOperationException("Unknown ochre object type: " + object);
 						}
 					} catch (Exception e) {
-						log.error("Failure at " + ic + " items " + cc + " concepts, " + sc + " sememes, ", e);
+						log.error("Failure at " + ic + " items " + cc + " concepts, " + sc + " semantics, ", e);
 						args = new HashMap<>();
 						args.put(JsonWriter.PRETTY_PRINT, true);
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -468,17 +468,17 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 					}
 
 					if (ic % 10000 == 0) {
-						log.info("Read " + ic + " entries, " + "Loaded " + cc + " concepts, " + sc + " sememes, ");
+						log.info("Read " + ic + " entries, " + "Loaded " + cc + " concepts, " + sc + " semantics, ");
 					}
 				}
 			}
 
 		} catch (Exception ex) {
-			log.info("Loaded " + ic + " items, " + cc + " concepts, " + sc + " sememes, "
+			log.info("Loaded " + ic + " items, " + cc + " concepts, " + sc + " semantics, "
 					+ (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : ""));
 		}
 
-		log.info("Finished with " + ic + " items, " + cc + " concepts, " + sc + " sememes, "
+		log.info("Finished with " + ic + " items, " + cc + " concepts, " + sc + " semantics, "
 				+ (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : ""));
 
 	}
@@ -510,11 +510,11 @@ public class BinaryDataDifferProvider implements BinaryDataDifferService {
 			for (IsaacExternalizable component : contentMap.get(IsaacObjectType.SEMANTIC)) {
 				SemanticChronology se = (SemanticChronology) component;
 				inputAnalysisJsonWriter
-						.put("--- " + version + " Sememe #" + i + "   " + se.getPrimordialUuid() + " ----");
+						.put("--- " + version + " Semantic #" + i + "   " + se.getPrimordialUuid() + " ----");
 				inputAnalysisJsonWriter.put(se);
 
 				try {
-					inputAnalysisTextWriter.write("\n\n\n\t\t\t---- " + version + " Sememe #" + i + "   "
+					inputAnalysisTextWriter.write("\n\n\n\t\t\t---- " + version + " Semantic #" + i + "   "
 							+ se.getPrimordialUuid() + " ----\n");
 					inputAnalysisTextWriter.write(se.toString());
 				} catch (Exception e) {

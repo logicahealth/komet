@@ -173,7 +173,7 @@ public class FLWORQueryController
    @FXML
    private RadioButton allDescriptions;
    @FXML
-   private RadioButton allSememes;
+   private RadioButton allSemantics;
    @FXML
    private AnchorPane letAnchorPane;
    private TreeItem<QueryClause> root;
@@ -244,7 +244,7 @@ public class FLWORQueryController
          queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
-      if (allSememes.isSelected()) {
+      if (allSemantics.isSelected()) {
          queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
@@ -275,7 +275,7 @@ public class FLWORQueryController
       assert forGroup != null : "fx:id=\"forGroup\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert allConcepts != null : "fx:id=\"allConcepts\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert allDescriptions != null : "fx:id=\"allDescriptions\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-      assert allSememes != null : "fx:id=\"allSememes\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allSemantics != null : "fx:id=\"allSemantics\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";

@@ -76,7 +76,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    
    protected final int assemblageId;
 
-   /** The sememe builders. */
+   /** The semantic builders. */
    private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
@@ -89,9 +89,9 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Adds the sememe.
+    * Adds the semantic.
     *
-    * @param semanticBuilder the sememe builder
+    * @param semanticBuilder the semantic builder
     * @return the component builder
     */
    @Override

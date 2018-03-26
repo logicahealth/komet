@@ -41,7 +41,7 @@ package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicByteArrayImpl;
+import sh.isaac.model.semantic.types.DynamicNidImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -57,11 +57,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeByteArrayTest}.
+ * {@link DynamicSemanticNidTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeByteArrayTest {
+public class DynamicSemanticNidTest {
    /**
     * Test serialization.
     *
@@ -71,11 +71,11 @@ public class DynamicSememeByteArrayTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final byte[][] testValues = new byte[][] {
-         "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
+      final int[] testValues = new int[] {
+         Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532
       };
 
-      for (final byte[] i: testValues) {
+      for (final int i: testValues) {
          test(i);
       }
    }
@@ -87,15 +87,15 @@ public class DynamicSememeByteArrayTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(byte[] value)
+   private void test(int value)
             throws PropertyVetoException, IOException {
-      final DynamicByteArrayImpl i = new DynamicByteArrayImpl(value);
+      final DynamicNidImpl i = new DynamicNidImpl(value);
 
-      assertEquals(value, i.getDataByteArray());
-      assertEquals(value, i.getDataObject());
-      assertEquals(value, i.getDataObjectProperty()
-                           .get());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.BYTEARRAY);
+      assertEquals(value, i.getDataNid());
+      assertEquals(value, ((Integer) i.getDataObject()).intValue());
+      assertEquals(value, ((Integer) i.getDataObjectProperty()
+                                      .get()).intValue());
+      assertEquals(i.getDynamicDataType(), DynamicDataType.NID);
    }
 }
 

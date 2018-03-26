@@ -389,7 +389,7 @@ public class ConceptChronologyImpl
          final List<LogicGraphVersionImpl> versions =
             definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
 
-//       Collection<LogicGraphSememeImpl> versionsList = new ArrayList<>();
+//       Collection<LogicGraphSemanticImpl> versionsList = new ArrayList<>();
 //       for (LogicGraphVersionImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
 //           
 //       }

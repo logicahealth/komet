@@ -738,7 +738,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                               throw new IOException("New Target Code must be provided for new relationships.  Missing on " + 
                                  cc.getCode() + ":" + StringUtils.trim(r.getTypeName()));
                            }
-                           if (conceptUUID != null && findAssociationSememe(conceptUUID, this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
+                           if (conceptUUID != null && findAssociationSemantic(conceptUUID, this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
                                  targetConcept.get()).isPresent())
                            {
                               throw new IOException("Add was specified for the association." + 
@@ -756,7 +756,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                               throw new IOException("Old Target Code must be provided for existing relationships.  Missing on " + 
                                  cc.getCode() + ":" + StringUtils.trim(r.getTypeName()));
                            }
-                           if (!findAssociationSememe(conceptUUID, this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
+                           if (!findAssociationSemantic(conceptUUID, this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
                               oldTarget.get()).isPresent())
                            {
                               throw new IOException("Can't locate existing association to update for .  Missing on " + 
@@ -1113,7 +1113,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                      throw new IOException("The property '" + p.getTypeName() + "' doesn't have a ValueOld - from " + parentConcept.getCode()+ ":" 
                         + d.getCode());
                   }
-                  if (!findPropertySememe(descriptionUUID, this.annotations.getProperty(p.getTypeName()).getUUID(), p.getValueOld()).isPresent())
+                  if (!findPropertySemantic(descriptionUUID, this.annotations.getProperty(p.getTypeName()).getUUID(), p.getValueOld()).isPresent())
                   {
                      throw new IOException("The property '" + p.getTypeName() + "' with an old Value of ' " + p.getValueOld() 
                         + "' doesn't seem to exist on concept:" +  parentConcept.getCode()+ ":" 
@@ -1121,7 +1121,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   }
                }
                
-               if (p.getAction() == ActionType.ADD && findPropertySememe(descriptionUUID, this.annotations.getProperty(p.getTypeName()).getUUID(),
+               if (p.getAction() == ActionType.ADD && findPropertySemantic(descriptionUUID, this.annotations.getProperty(p.getTypeName()).getUUID(),
                      p.getValueNew()).isPresent())
                {
                   throw new IOException("Add was specified for the property '" + p.getTypeName() + "' with an new Value of ' " + p.getValueNew() 
@@ -1220,14 +1220,14 @@ public class VHATDeltaImport extends ConverterBaseMojo
          {
             throw new IOException("The property '" + p.getTypeName() + "' doesn't have a ValueOld - from " + parentConcept.getCode());
          }
-         if (!findPropertySememe(parentConceptUUID, this.annotations.getProperty(p.getTypeName()).getUUID(), p.getValueOld()).isPresent())
+         if (!findPropertySemantic(parentConceptUUID, this.annotations.getProperty(p.getTypeName()).getUUID(), p.getValueOld()).isPresent())
          {
             throw new IOException("The property '" + p.getTypeName() + "' with an old Value of ' " + p.getValueOld() 
                + "' doesn't seem to exist on concept:" +  parentConcept.getCode());
          }
       }
       
-      if (p.getAction() == ActionType.ADD && findPropertySememe(parentConceptUUID, this.annotations.getProperty(p.getTypeName()).getUUID(),
+      if (p.getAction() == ActionType.ADD && findPropertySemantic(parentConceptUUID, this.annotations.getProperty(p.getTypeName()).getUUID(),
             p.getValueNew()).isPresent())
       {
          throw new IOException("Add was specified for the property '" + p.getTypeName() + "' with an new Value of ' " + p.getValueNew() 
@@ -1363,10 +1363,10 @@ public class VHATDeltaImport extends ConverterBaseMojo
             // REMOVE directive takes precedence. Explicitely set active=false, and fall-through
             isActive = false;
          case UPDATE:
-            //These cases are a bit tricky, because the UUID calculated for the sememe was based on the value.  If the value
+            //These cases are a bit tricky, because the UUID calculated for the semantic was based on the value.  If the value
             //only changed once, you could use old value to find it, but, if it changes twice, you can no longer calculate back to the UUID.
             //So, we will have to match the oldvalue text string directly to the value, to find the right property.
-            Optional<UUID> oldProperty = findPropertySememe(component.getPrimordialUuid(), this.annotations.getProperty(propertyName).getUUID(), oldValue);
+            Optional<UUID> oldProperty = findPropertySemantic(component.getPrimordialUuid(), this.annotations.getProperty(propertyName).getUUID(), oldValue);
             //we tested this lookup in an earlier error checking pass above, it shouldn't come back null.
             if (!oldProperty.isPresent())
             {
@@ -1386,7 +1386,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                if (mds.getDynamicUsageDescription().getColumnInfo().length != 1 || 
                      mds.getDynamicUsageDescription().getColumnInfo()[0].getColumnDataType() != DynamicDataType.STRING)
                {
-                  throw new RuntimeException("Unexpected dynamic sememe data config!");
+                  throw new RuntimeException("Unexpected dynamic semantic data config!");
                }
                else
                {
@@ -1395,7 +1395,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             }
             else
             {
-               throw new RuntimeException("Unexpected sememe type!");
+               throw new RuntimeException("Unexpected semantic type!");
             }
             importUtil.storeManualUpdate(sc);
             break;
@@ -1404,7 +1404,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       }
    }
    
-   private Optional<UUID> findPropertySememe(UUID referencedComponent, UUID propertyType, String propertyValue)
+   private Optional<UUID> findPropertySemantic(UUID referencedComponent, UUID propertyType, String propertyValue)
    {
       if (referencedComponent == null)
       {
@@ -1431,20 +1431,20 @@ public class VHATDeltaImport extends ConverterBaseMojo
                }
             }
             return false;
-         }).findFirst().<UUID>map(sememe -> 
+         }).findFirst().<UUID>map(semantic -> 
          {
-            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid());
+            return Get.identifierService().getUuidPrimordialForNid(semantic.getNid());
          });
    }
    
-   private Optional<UUID> findAssociationSememe(UUID sourceConcept, UUID associationType, UUID targetConcept)
+   private Optional<UUID> findAssociationSemantic(UUID sourceConcept, UUID associationType, UUID targetConcept)
    {
       return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(sourceConcept), 
-         Get.identifierService().getNidForUuids(associationType)).filter(sememe ->
+         Get.identifierService().getNidForUuids(associationType)).filter(semantic ->
          {
-            if (sememe.getVersionType() == VersionType.DYNAMIC)
+            if (semantic.getVersionType() == VersionType.DYNAMIC)
             {
-               LatestVersion<DynamicImpl> sv = sememe.getLatestVersion(this.readCoordinate);
+               LatestVersion<DynamicImpl> sv = semantic.getLatestVersion(this.readCoordinate);
                if (sv.isPresent() && sv.get().getDynamicUsageDescription().getColumnInfo().length == 1 && 
                      sv.get().getDynamicUsageDescription().getColumnInfo()[0].getColumnDataType() == DynamicDataType.UUID)
                {
@@ -1452,9 +1452,9 @@ public class VHATDeltaImport extends ConverterBaseMojo
                }
             }
             return false;
-         }).findFirst().<UUID>map(sememe -> 
+         }).findFirst().<UUID>map(semantic -> 
          {
-            return Get.identifierService().getUuidPrimordialForNid(sememe.getNid());
+            return Get.identifierService().getUuidPrimordialForNid(semantic.getNid());
          });
    }
    
@@ -1519,32 +1519,32 @@ public class VHATDeltaImport extends ConverterBaseMojo
             //noop
             break;
          case REMOVE:
-            // Here, we will iterate through the nested sememes, setting all to have a status 
+            // Here, we will iterate through the nested semantics, setting all to have a status 
             // of 'false' and then fall-through to the UPDATE clause to handle setting the status
             // of the designation itself
             // REMOVE directive takes precedence over Active element 
             // Explicitely set active=false, and fall-through
             d.setActive(false);
-            // If the designation is inactivated/removed, set all nested sememes to inactive
+            // If the designation is inactivated/removed, set all nested semantics to inactive
             Optional<UUID> oldD = findDescription(concept.getPrimordialUuid(), d.getCode());
             //we tested this lookup in an earlier error checking pass above, it shouldn't come back null.
             if (!oldD.isPresent())
             {
-               throw new RuntimeException("Unexected failure to chronology for description sememe " + oldD.get());
+               throw new RuntimeException("Unexected failure to chronology for description semantic " + oldD.get());
             }
             
-            SemanticChronology sememeChronology = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(oldD.get()));
+            SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(oldD.get()));
             
-            LatestVersion<DescriptionVersion> latestVersion = sememeChronology.getLatestVersion(this.readCoordinate);
+            LatestVersion<DescriptionVersion> latestVersion = semanticChronology.getLatestVersion(this.readCoordinate);
             if (!latestVersion.isPresent())
             {
-               throw new RuntimeException("Unexected failure to load latest version of description sememe " + oldD.get());
+               throw new RuntimeException("Unexected failure to load latest version of description semantic " + oldD.get());
             }
             
-            descRef = ComponentReference.fromChronology(sememeChronology);
-            if (sememeChronology.getVersionType() == VersionType.DESCRIPTION)  //TODO dan asks, how could it possibly be anything else?  Why is this check here?
+            descRef = ComponentReference.fromChronology(semanticChronology);
+            if (semanticChronology.getVersionType() == VersionType.DESCRIPTION)  //TODO dan asks, how could it possibly be anything else?  Why is this check here?
             {
-               for (Chronology o : recursiveRetireNested(sememeChronology.getPrimordialUuid()))
+               for (Chronology o : recursiveRetireNested(semanticChronology.getPrimordialUuid()))
                {
                   importUtil.storeManualUpdate(o);
                }
@@ -1557,7 +1557,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                //we tested this lookup in an earlier error checking pass above, it shouldn't come back null.
                if (!oldDescription.isPresent())
                {
-                  throw new RuntimeException("Unexected failure to chronology for description sememe " + oldDescription.get());
+                  throw new RuntimeException("Unexected failure to chronology for description semantic " + oldDescription.get());
                }
                
                SemanticChronology sc = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(oldDescription.get()));
@@ -1565,7 +1565,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                LatestVersion<DescriptionVersion> latest = sc.getLatestVersion(this.readCoordinate);
                if (!latest.isPresent())
                {
-                  throw new RuntimeException("Unexected failure to load latest version of description sememe " + oldDescription.get());
+                  throw new RuntimeException("Unexected failure to load latest version of description semantic " + oldDescription.get());
                }
                
                descRef = ComponentReference.fromChronology(sc);
@@ -1583,17 +1583,17 @@ public class VHATDeltaImport extends ConverterBaseMojo
                               : Optional.empty());
 
                   // Each VHAT description should have an extended type
-                  Optional<SemanticChronology> existingDescriptionExtendedTypeAnnotationSememe =
+                  Optional<SemanticChronology> existingDescriptionExtendedTypeAnnotationSemantic =
                         Frills.getAnnotationSemantic(
                               descRef.getNid(), 
                               DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
-                  if (! existingDescriptionExtendedTypeAnnotationSememe.isPresent()) {
+                  if (! existingDescriptionExtendedTypeAnnotationSemantic.isPresent()) {
                      LOG.error("Existing description {} has no extended type", descRef.getPrimordialUuid());
                   }
 
-                  boolean checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSememe = false;
+                  boolean checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSemantic = false;
                   if (StringUtils.isBlank(d.getTypeName())) {
-                     checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSememe = true;
+                     checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSemantic = true;
                   } else if (d.getAction() != ActionType.REMOVE) { 
                      //No point in processing extended type info if they did a REMOVE, and may cause a duplicate edit with the recursive retire, above.
                      // Get extendedDescriptionTypeNameFromData from extendedDescriptionTypeNameMap
@@ -1606,14 +1606,14 @@ public class VHATDeltaImport extends ConverterBaseMojo
                            if (existingDescriptionExtendedTypeToUseUuidOptional.get().equals(extendedDescriptionTypeFromData)
                                  && existingDescriptionActiveExtendedTypeUuidOptional.isPresent()) {
                               // loaded data equals db so ignore
-                              checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSememe = true;
+                              checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSemantic = true;
                            } else {
-                              // description extended type from loaded data does not match existing active description extended type in db, so update existing sememe
+                              // description extended type from loaded data does not match existing active description extended type in db, so update existing semantic
                               SemanticChronology existingDescriptionActiveExtendedTypeSemanticChronology = 
-                                 existingDescriptionExtendedTypeAnnotationSememe.get();
-                              DynamicImpl newDescriptionActiveExtendedTypeSememeVersion = 
+                                 existingDescriptionExtendedTypeAnnotationSemantic.get();
+                              DynamicImpl newDescriptionActiveExtendedTypeSemanticVersion = 
                                     existingDescriptionActiveExtendedTypeSemanticChronology.createMutableVersion(Status.ACTIVE, this.editCoordinate);
-                              newDescriptionActiveExtendedTypeSememeVersion.setData(new DynamicData[] { new DynamicUUIDImpl(extendedDescriptionTypeFromData) });
+                              newDescriptionActiveExtendedTypeSemanticVersion.setData(new DynamicData[] { new DynamicUUIDImpl(extendedDescriptionTypeFromData) });
                               importUtil.storeManualUpdate(existingDescriptionActiveExtendedTypeSemanticChronology);
                            }
                         } else {
@@ -1637,20 +1637,20 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   }
                   
                   //Don't do this if we fell through from REMOVE, because that will have put in a retire edit.
-                  if (checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSememe && d.getAction() != ActionType.REMOVE) {
+                  if (checkForAndActivateRetiredDescriptionExtendedTypeAnnotationSemantic && d.getAction() != ActionType.REMOVE) {
                      // Just in case the description extended type has been inappropriately retired, unretire it
-                     if (existingDescriptionExtendedTypeAnnotationSememe.isPresent()) {
+                     if (existingDescriptionExtendedTypeAnnotationSemantic.isPresent()) {
                         SemanticChronology existingDescriptionExtendedTypeSemanticChronology = 
-                           existingDescriptionExtendedTypeAnnotationSememe.get();
-                        // IF latest version of this annotation sememe is inactive then reactivate it
+                           existingDescriptionExtendedTypeAnnotationSemantic.get();
+                        // IF latest version of this annotation semantic is inactive then reactivate it
                         if (! existingDescriptionExtendedTypeSemanticChronology.isLatestVersionActive(this.readCoordinate)) {
                            LatestVersion<DynamicVersion<?>> latestInactiveVersionOptional = 
                                  existingDescriptionExtendedTypeSemanticChronology.getLatestVersion(this.readCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET));
                            // TODO handle contradictions
                            DynamicVersion<?> latestInactiveVersion = latestInactiveVersionOptional.get();
-                           DynamicImpl newDescriptionActiveExtendedTypeSememeVersion = existingDescriptionExtendedTypeSemanticChronology
+                           DynamicImpl newDescriptionActiveExtendedTypeSemanticVersion = existingDescriptionExtendedTypeSemanticChronology
                                  .createMutableVersion(Status.ACTIVE, this.editCoordinate);
-                           newDescriptionActiveExtendedTypeSememeVersion.setData(latestInactiveVersion.getData());
+                           newDescriptionActiveExtendedTypeSemanticVersion.setData(latestInactiveVersion.getData());
                            importUtil.storeManualUpdate(existingDescriptionExtendedTypeSemanticChronology);
                         }
                      } else {
@@ -1672,7 +1672,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                }
                else
                {
-                  throw new RuntimeException("Unexpected sememe type!");
+                  throw new RuntimeException("Unexpected semantic type!");
                }
                importUtil.storeManualUpdate(sc);
             }
@@ -1708,50 +1708,50 @@ public class VHATDeltaImport extends ConverterBaseMojo
                descRef = ComponentReference.fromChronology(newDescription);
                
                //copy all other nested components
-               Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid()).forEach(existingNestedSememe ->
+               Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid()).forEach(existingNestedSemantic ->
                {
-                  if (existingNestedSememe.getAssemblageNid() == DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid() ||
-                        existingNestedSememe.getAssemblageNid() == MetaData.CODE____SOLOR.getNid() ||
-                        existingNestedSememe.getAssemblageNid() == MetaData.VUID____SOLOR.getNid() ||
-                        existingNestedSememe.getAssemblageNid() == MetaData.US_ENGLISH_DIALECT____SOLOR.getNid())
+                  if (existingNestedSemantic.getAssemblageNid() == DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid() ||
+                        existingNestedSemantic.getAssemblageNid() == MetaData.CODE____SOLOR.getNid() ||
+                        existingNestedSemantic.getAssemblageNid() == MetaData.VUID____SOLOR.getNid() ||
+                        existingNestedSemantic.getAssemblageNid() == MetaData.US_ENGLISH_DIALECT____SOLOR.getNid())
                   {
                      //ignore - these are handled with special case code above and below....
                   }
                   else
                   {
-                     LatestVersion<SemanticVersion> latestVersionOfExistingNestedSememe = 
-                        existingNestedSememe.getLatestVersion(this.readCoordinate);
+                     LatestVersion<SemanticVersion> latestVersionOfExistingNestedSemantic = 
+                        existingNestedSemantic.getLatestVersion(this.readCoordinate);
                      
-                     if (latestVersionOfExistingNestedSememe.isPresent() && latestVersionOfExistingNestedSememe.get().getStatus() == Status.ACTIVE)
+                     if (latestVersionOfExistingNestedSemantic.isPresent() && latestVersionOfExistingNestedSemantic.get().getStatus() == Status.ACTIVE)
                      {
-                        SemanticChronology copyOfExistingNestedSememe = null;
+                        SemanticChronology copyOfExistingNestedSemantic = null;
                         
-                        if (!latestVersionOfExistingNestedSememe.contradictions().isEmpty()) {
+                        if (!latestVersionOfExistingNestedSemantic.contradictions().isEmpty()) {
                            // TODO handle contradictions
                         }
-                        //expect these to be, primarily, dynamic sememes, refset entries or strings...
-                        switch (existingNestedSememe.getVersionType())
+                        //expect these to be, primarily, dynamic semantics, refset entries or strings...
+                        switch (existingNestedSemantic.getVersionType())
                         {
                         case DYNAMIC:
-                           copyOfExistingNestedSememe = importUtil.addAnnotation(
-                                 ComponentReference.fromSememe(newDescription.getPrimordialUuid()),
+                           copyOfExistingNestedSemantic = importUtil.addAnnotation(
+                                 ComponentReference.fromSemantic(newDescription.getPrimordialUuid()),
                                  null,
-                                 ((DynamicVersion<?>)latestVersionOfExistingNestedSememe.get()).getData(),
-                                 Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()),
+                                 ((DynamicVersion<?>)latestVersionOfExistingNestedSemantic.get()).getData(),
+                                 Get.identifierService().getUuidPrimordialForNid(existingNestedSemantic.getAssemblageNid()),
                                  Status.ACTIVE,
                                  null,
                                  null);
                            break;
                         case MEMBER:
-                           SemanticVersion memberSememe = (SemanticVersion)latestVersionOfExistingNestedSememe.get();
-                           copyOfExistingNestedSememe = importUtil.addAssemblageMembership(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
-                                 Get.identifierService().getUuidPrimordialForNid(memberSememe.getAssemblageNid()), Status.ACTIVE, null);
+                           SemanticVersion memberSemantic = (SemanticVersion)latestVersionOfExistingNestedSemantic.get();
+                           copyOfExistingNestedSemantic = importUtil.addAssemblageMembership(ComponentReference.fromSemantic(newDescription.getPrimordialUuid()), 
+                                 Get.identifierService().getUuidPrimordialForNid(memberSemantic.getAssemblageNid()), Status.ACTIVE, null);
                            break;
                         case STRING:
-                           StringVersion stringSememe = (StringVersion)latestVersionOfExistingNestedSememe.get();
-                           // TODO is Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()) == refsetUuid?
-                           copyOfExistingNestedSememe = importUtil.addStringAnnotation(ComponentReference.fromSememe(newDescription.getPrimordialUuid()), 
-                                 stringSememe.getString(), Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()), 
+                           StringVersion stringSemantic = (StringVersion)latestVersionOfExistingNestedSemantic.get();
+                           // TODO is Get.identifierService().getUuidPrimordialForNid(stringSemantic.getAssemblageNid()) == refsetUuid?
+                           copyOfExistingNestedSemantic = importUtil.addStringAnnotation(ComponentReference.fromSemantic(newDescription.getPrimordialUuid()), 
+                                 stringSemantic.getString(), Get.identifierService().getUuidPrimordialForNid(stringSemantic.getAssemblageNid()), 
                                  Status.ACTIVE);
                            break;
 
@@ -1762,12 +1762,12 @@ public class VHATDeltaImport extends ConverterBaseMojo
                         case COMPONENT_NID:
                         case UNKNOWN:
                         default:
-                           throw new RuntimeException("MoveFromConceptCode doesn't supported nested sememes of type " + existingNestedSememe.getVersionType() + 
+                           throw new RuntimeException("MoveFromConceptCode doesn't supported nested semantics of type " + existingNestedSemantic.getVersionType() + 
                                  " for designation " + d.getCode());
                         }
 
-                        if (copyOfExistingNestedSememe != null) {
-                           copy(importUtil, copyOfExistingNestedSememe, existingNestedSememe, this.readCoordinate, this.editCoordinate);
+                        if (copyOfExistingNestedSemantic != null) {
+                           copy(importUtil, copyOfExistingNestedSemantic, existingNestedSemantic, this.readCoordinate, this.editCoordinate);
                         }
                      }
                   }
@@ -1808,7 +1808,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                }
                
                
-               //retire the old sememe:
+               //retire the old semantic:
                try
                {
                   Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, oldSc.getNid(), this.editCoordinate, this.readCoordinate);
@@ -1837,7 +1837,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       
       if (descRef == null)
       {
-         descRef = ComponentReference.fromSememe(findDescription(concept.getPrimordialUuid(), d.getCode()).get());
+         descRef = ComponentReference.fromSemantic(findDescription(concept.getPrimordialUuid(), d.getCode()).get());
       }
       
       if (d instanceof Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations.Designation)
@@ -1854,43 +1854,43 @@ public class VHATDeltaImport extends ConverterBaseMojo
          SemanticChronology existingParentComponent,
          SemanticChronology copyOfParentComponent,
          StampCoordinate readCoordinate, EditCoordinate editCoordinate) {
-      Get.assemblageService().getSemanticChronologyStreamForComponent(existingParentComponent.getNid()).forEach(existingNestedSememe -> {
-         LatestVersion<Version> latestVersionOfExistingNestedSememe = 
-            existingNestedSememe.getLatestVersion(readCoordinate);
+      Get.assemblageService().getSemanticChronologyStreamForComponent(existingParentComponent.getNid()).forEach(existingNestedSemantic -> {
+         LatestVersion<Version> latestVersionOfExistingNestedSemantic = 
+            existingNestedSemantic.getLatestVersion(readCoordinate);
 
-         if (latestVersionOfExistingNestedSememe.isPresent() && latestVersionOfExistingNestedSememe.get().getStatus() == Status.ACTIVE)
+         if (latestVersionOfExistingNestedSemantic.isPresent() && latestVersionOfExistingNestedSemantic.get().getStatus() == Status.ACTIVE)
          {
-            if (!latestVersionOfExistingNestedSememe.contradictions().isEmpty()) {
+            if (!latestVersionOfExistingNestedSemantic.contradictions().isEmpty()) {
                // TODO handle contradictions
             }
             
-            SemanticChronology copyOfExistingNestedSememe = null;
+            SemanticChronology copyOfExistingNestedSemantic = null;
 
-            //expect these to be, primarily, dynamic sememes, refset entries or strings...
-            switch (latestVersionOfExistingNestedSememe.get().getChronology().getVersionType())
+            //expect these to be, primarily, dynamic semantics, refset entries or strings...
+            switch (latestVersionOfExistingNestedSemantic.get().getChronology().getVersionType())
             {
             case DYNAMIC:
-               DynamicVersion<?> dynamicSememe = (DynamicVersion<?>)latestVersionOfExistingNestedSememe.get();
-               copyOfExistingNestedSememe = importUtil.addAnnotation(
+               DynamicVersion<?> dynamicSemantic = (DynamicVersion<?>)latestVersionOfExistingNestedSemantic.get();
+               copyOfExistingNestedSemantic = importUtil.addAnnotation(
                      ComponentReference.fromChronology(copyOfParentComponent),
                      null,
-                     dynamicSememe.getData(),
-                     Get.identifierService().getUuidPrimordialForNid(existingNestedSememe.getAssemblageNid()),
+                     dynamicSemantic.getData(),
+                     Get.identifierService().getUuidPrimordialForNid(existingNestedSemantic.getAssemblageNid()),
                      Status.ACTIVE,
                      null,
                      null);
                break;
             case MEMBER:
-               SemanticVersion memberSememe = (SemanticVersion)latestVersionOfExistingNestedSememe.get();
-               copyOfExistingNestedSememe = importUtil.addAssemblageMembership(ComponentReference.fromChronology(copyOfParentComponent), Get.identifierService()
-                     .getUuidPrimordialForNid(memberSememe.getAssemblageNid()), Status.ACTIVE, null);
+               SemanticVersion memberSemantic = (SemanticVersion)latestVersionOfExistingNestedSemantic.get();
+               copyOfExistingNestedSemantic = importUtil.addAssemblageMembership(ComponentReference.fromChronology(copyOfParentComponent), Get.identifierService()
+                     .getUuidPrimordialForNid(memberSemantic.getAssemblageNid()), Status.ACTIVE, null);
                
                break;
             case STRING:
-               StringVersion stringSememe = (StringVersion)latestVersionOfExistingNestedSememe.get();
-               // TODO is Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()) == refsetUuid?
-               copyOfExistingNestedSememe = importUtil.addStringAnnotation(ComponentReference.fromChronology(copyOfParentComponent), stringSememe.getString(), 
-                     Get.identifierService().getUuidPrimordialForNid(stringSememe.getAssemblageNid()), Status.ACTIVE);
+               StringVersion stringSemantic = (StringVersion)latestVersionOfExistingNestedSemantic.get();
+               // TODO is Get.identifierService().getUuidPrimordialForNid(stringSemantic.getAssemblageNid()) == refsetUuid?
+               copyOfExistingNestedSemantic = importUtil.addStringAnnotation(ComponentReference.fromChronology(copyOfParentComponent), stringSemantic.getString(), 
+                     Get.identifierService().getUuidPrimordialForNid(stringSemantic.getAssemblageNid()), Status.ACTIVE);
                break;
 
                //None of these are expected in vhat data
@@ -1900,32 +1900,32 @@ public class VHATDeltaImport extends ConverterBaseMojo
             case COMPONENT_NID:
             case UNKNOWN:
             default:
-               throw new RuntimeException("MoveFromConceptCode doesn't supported nested sememes of type " + existingParentComponent.getVersionType());
+               throw new RuntimeException("MoveFromConceptCode doesn't supported nested semantics of type " + existingParentComponent.getVersionType());
             }
 
-            if (copyOfExistingNestedSememe != null) {
-               copy(importUtil, copyOfExistingNestedSememe, existingNestedSememe, readCoordinate, editCoordinate);
+            if (copyOfExistingNestedSemantic != null) {
+               copy(importUtil, copyOfExistingNestedSemantic, existingNestedSemantic, readCoordinate, editCoordinate);
             }
          }
       });
    }
    /**
-    * Retire any sememes attached to this component.  Do not change the component.
+    * Retire any semantics attached to this component.  Do not change the component.
     * @param component
     */
    private List <Chronology> recursiveRetireNested(UUID component) 
    {
       ArrayList<Chronology> updated = new ArrayList<>();
-      Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component)).forEach(sememe ->
+      Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component)).forEach(semantic ->
       {
          try 
          {
-            Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, sememe.getNid(), this.editCoordinate, this.readCoordinate);
+            Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, semantic.getNid(), this.editCoordinate, this.readCoordinate);
             if (oc.isPresent())
             {
                updated.add(oc.get());
             }
-            updated.addAll(recursiveRetireNested(sememe.getPrimordialUuid()));
+            updated.addAll(recursiveRetireNested(semantic.getPrimordialUuid()));
          } catch (Exception e) 
          {
             throw new RuntimeException(e);
@@ -1947,13 +1947,13 @@ public class VHATDeltaImport extends ConverterBaseMojo
       }
       return Get.assemblageService().getDescriptionsForComponent(Get.identifierService().getNidForUuids(concept)).stream().filter(desc ->
       {
-         return findPropertySememe(desc.getPrimordialUuid(),  MetaData.CODE____SOLOR.getPrimordialUuid(), descriptionCode).isPresent();
+         return findPropertySemantic(desc.getPrimordialUuid(),  MetaData.CODE____SOLOR.getPrimordialUuid(), descriptionCode).isPresent();
       }).findAny().<UUID>map(desc -> desc.getPrimordialUuid());
    }
    
    private Optional<UUID> findConcept(String conceptCode)
    {
-      IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
+      IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "semantic indexer");
       if (si != null) {
          //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          ArrayList<SemanticChronology> candidates = new ArrayList<>();
@@ -1980,7 +1980,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
             return Optional.of(Get.identifierService().getUuidPrimordialForNid(candidates.get(0).getReferencedComponentNid()));
          }
       } else {
-         LOG.warn("Sememe Index not available - can't lookup VUID");
+         LOG.warn("Semantic Index not available - can't lookup VUID");
       }
       return Optional.empty();
    }
@@ -2030,13 +2030,13 @@ public class VHATDeltaImport extends ConverterBaseMojo
    /**
     * @param properties
     */
-   private void loadDesignationProperties(ComponentReference designationSememe, Properties properties)
+   private void loadDesignationProperties(ComponentReference designationSemantic, Properties properties)
    {
       if (properties != null)
       {
          for (PropertyType p : properties.getProperty())
          {
-            handleProperty(designationSememe, p.getTypeName(),  p.getValueOld(),  p.getValueNew(),  p.isActive(),  p.getAction());
+            handleProperty(designationSemantic, p.getTypeName(),  p.getValueOld(),  p.getValueNew(),  p.isActive(),  p.getAction());
          }
       }
    }
@@ -2070,7 +2070,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   r.setActive(false);
                case UPDATE:
                   Optional<UUID> oldTarget = findConcept(r.getOldTargetCode());
-                  UUID existingAssociation = findAssociationSememe(concept.getPrimordialUuid(), this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
+                  UUID existingAssociation = findAssociationSemantic(concept.getPrimordialUuid(), this.associations.getProperty(StringUtils.trim(r.getTypeName())).getUUID(), 
                      oldTarget.get()).get();
                   
                   SemanticChronology sc = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(existingAssociation));
@@ -2279,7 +2279,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
                   //Annotate this concept as a mapset definition concept.
                   importUtil.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, null);
                   
-                  //Now that we have defined the map sememe, add the other annotations onto the map set definition.
+                  //Now that we have defined the map semantic, add the other annotations onto the map set definition.
                   if (StringUtils.isNotBlank(ms.getSourceCodeSystem()))
                   {
                      importUtil.addAnnotation(concept, null, 

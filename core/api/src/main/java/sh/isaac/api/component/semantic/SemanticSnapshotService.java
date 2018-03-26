@@ -56,7 +56,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  * The Interface SemanticSnapshotService.
  *
  * @author kec
- * @param <V> type of SememeVersions provided by this snapshot service.
+ * @param <V> type of SemanticVersions provided by this snapshot service.
  */
 public interface SemanticSnapshotService<V extends SemanticVersion> {
    /**
@@ -70,10 +70,10 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
    /**
     * Gets the latest semantic version.
     *
-    * @param sememeSequenceOrNid the semantic sequence or nid
+    * @param semanticNid the semantic sequence or nid
     * @return the latest semantic version
     */
-   LatestVersion<V> getLatestSemanticVersion(int sememeSequenceOrNid);
+   LatestVersion<V> getLatestSemanticVersion(int semanticNid);
 
    /**
     * Gets the latest semantic versions for component.

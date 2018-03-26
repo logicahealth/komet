@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.logic.LogicalExpression;
@@ -60,7 +59,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeBuilderProvider.
+ * The Class SemanticBuilderProvider.
  *
  * @author kec
  * @param <C> the generic type
@@ -69,12 +68,12 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 public class SemanticBuilderProvider<C extends SemanticChronology>
          implements SemanticBuilderService<C> {
    /**
-    * Gets the component sememe builder.
+    * Gets the component semantic builder.
     *
     * @param memeComponentNid the meme component nid
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the component sememe builder
+    * @return the component semantic builder
     */
    @Override
    public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
@@ -87,12 +86,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the component sememe builder.
+    * Gets the component semantic builder.
     *
     * @param memeComponentNid the meme component nid
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the component sememe builder
+    * @return the component semantic builder
     */
    @Override
    public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
@@ -211,12 +210,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the logical expression sememe builder.
+    * Gets the logical expression semantic builder.
     *
     * @param expression the expression
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the logical expression sememe builder
+    * @return the logical expression semantic builder
     */
    @Override
    public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
@@ -229,12 +228,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the logical expression sememe builder.
+    * Gets the logical expression semantic builder.
     *
     * @param expression the expression
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the logical expression sememe builder
+    * @return the logical expression semantic builder
     */
    @Override
    public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
@@ -247,12 +246,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the long sememe builder.
+    * Gets the long semantic builder.
     *
     * @param longValue the long value
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the long sememe builder
+    * @return the long semantic builder
     */
    @Override
    public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
@@ -265,12 +264,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the long sememe builder.
+    * Gets the long semantic builder.
     *
     * @param longValue the long value
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the long sememe builder
+    * @return the long semantic builder
     */
    @Override
    public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
@@ -283,11 +282,11 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the membership sememe builder.
+    * Gets the membership semantic builder.
     *
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the membership sememe builder
+    * @return the membership semantic builder
     */
    @Override
    public SemanticBuilder<C> getMembershipSemanticBuilder(
@@ -297,11 +296,11 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the membership sememe builder.
+    * Gets the membership semantic builder.
     *
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the membership sememe builder
+    * @return the membership semantic builder
     */
    @Override
    public SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptSequence) {
@@ -312,12 +311,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the string sememe builder.
+    * Gets the string semantic builder.
     *
     * @param memeString the meme string
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the string sememe builder
+    * @return the string semantic builder
     */
    @Override
    public SemanticBuilder<C> getStringSemanticBuilder(String memeString,
@@ -330,12 +329,12 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the string sememe builder.
+    * Gets the string semantic builder.
     *
     * @param memeString the meme string
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the string sememe builder
+    * @return the string semantic builder
     */
    @Override
    public SemanticBuilder<C> getStringSemanticBuilder(String memeString,

@@ -136,8 +136,8 @@ public class VersionManagmentPathProvider
          
          Get.assemblageService()
             .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
-            .forEach((pathSememe) -> {
-                        final int pathNid = pathSememe.getReferencedComponentNid();
+            .forEach((pathSemantic) -> {
+                        final int pathNid = pathSemantic.getReferencedComponentNid();
 
                         newMap.put(pathNid, new StampPathImpl(pathNid));
                      });
@@ -177,8 +177,8 @@ public class VersionManagmentPathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
-                        int pathId = sememeChronicle.getReferencedComponentNid();
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+                        int pathId = semanticChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
 
@@ -225,8 +225,8 @@ public class VersionManagmentPathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
-                        int pathId = sememeChronicle.getReferencedComponentNid();
+      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+                        int pathId = semanticChronicle.getReferencedComponentNid();
                        final StampPath stampPath = new StampPathImpl(pathId);
 
                         return stampPath;

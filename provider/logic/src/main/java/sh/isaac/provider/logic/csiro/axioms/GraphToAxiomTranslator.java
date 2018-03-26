@@ -126,7 +126,7 @@ public class GraphToAxiomTranslator {
     * Translates the logicGraphSemantic into a set of axioms, and adds those axioms
  to the internal set of axioms.
     *
-    * @param logicGraphSemantic the logic graph sememe
+    * @param logicGraphSemantic the logic graph semantic
     */
    public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSemantic) {
       if (logicGraphSemantic.getReferencedComponentNid() >= 0) {

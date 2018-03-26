@@ -838,7 +838,7 @@ public class IBDFCreationUtility
    
    /**
     * uses the concept time.
-    * Note - this convenience method automatically chooses between creating a static string sememe, and a dynamic string sememe, depending on if the passed in 
+    * Note - this convenience method automatically chooses between creating a static string semantic, and a dynamic string semantic, depending on if the passed in 
     * refsetUuid is marked as an identifier type.
 
     * @param referencedComponent the component to put the annotation on
@@ -986,7 +986,7 @@ public class IBDFCreationUtility
     * @param assemblageType
     * @return
     */
-   private boolean isConfiguredAsDynamicSememe(UUID assemblageType)
+   private boolean isConfiguredAsDynamicSemantic(UUID assemblageType)
    {
       if (this.refexAllowedColumnTypes == null)
       {
@@ -1040,7 +1040,7 @@ public class IBDFCreationUtility
       {
          if (!this.refexAllowedColumnTypes.containsKey(assemblageType))
          {
-            throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe: " + assemblageType + " values: " +
+            throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic semantic: " + assemblageType + " values: " +
                   (values == null ? "" : Arrays.toString(values)));
          }
          
@@ -1082,7 +1082,7 @@ public class IBDFCreationUtility
          }
          else if (values.length > 0)
          {
-            throw new RuntimeException("Column count mismatch - this dynamic sememe doesn't allow columns!");
+            throw new RuntimeException("Column count mismatch - this dynamic semantic doesn't allow columns!");
          }
       }
       else if (colInfo != null)
@@ -1176,7 +1176,7 @@ public class IBDFCreationUtility
    public SemanticChronology addAssociation(ComponentReference concept, UUID associationPrimordialUuid, UUID target, 
          UUID associationTypeAssemblage, Status status, Long time, UUID module)
    {
-      if (!isConfiguredAsDynamicSememe(associationTypeAssemblage))
+      if (!isConfiguredAsDynamicSemantic(associationTypeAssemblage))
       {
          ConsoleUtil.printErrorln("Asked to create an association with an unregistered association type.  This is deprecated, and should be fixed...");
          configureConceptAsAssociation(associationTypeAssemblage, null);
@@ -1601,7 +1601,7 @@ public class IBDFCreationUtility
                   configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), item.getSourcePropertyDefinition(),
                         item.getDataColumnsForDynamicRefex(), item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction());
                   
-                  //Add this concept to the association sememe
+                  //Add this concept to the association semantic
                   addAssemblageMembership(ComponentReference.fromConcept(concept), DynamicConstants.get().DYNAMIC_ASSOCIATION.getPrimordialUuid(), 
                         Status.ACTIVE, null);
                   
@@ -1745,7 +1745,7 @@ public class IBDFCreationUtility
       //Need a custom UUID, otherwise duplicates are likely
       UUID temp = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), semanticDescription, 
          DescriptionType.DEFINITION.name(),  MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid().toString(), MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid().toString(), 
-         new Boolean("true").toString(), "DynamicSememeMarker");
+         new Boolean("true").toString(), "DynamicSemanticMarker");
       
       SemanticChronology desc = addDescription(concept, temp, semanticDescription, DescriptionType.DEFINITION, true, null, Status.ACTIVE);
       
@@ -1786,11 +1786,11 @@ public class IBDFCreationUtility
     * each column being of type string, and optional.
     * @param semanticName 
     * @param columnNames - Create concepts to represent column names for each item here.  Supports a stupid hack, where if the 
-    * first two characters of a string in this array are '[]' - it will create a dynamic sememe array type for strings, rather than a single string.
+    * first two characters of a string in this array are '[]' - it will create a dynamic semantic array type for strings, rather than a single string.
     * @param columnTypes - optional - if not provided, makes all columns strings.  If provided, must match size of columnNames
     * @return
     */
-   public Property createMultiColumnDynamicStringSememe(String semanticName, String[] columnNames, DynamicDataType[] columnTypes)
+   public Property createMultiColumnDynamicStringSemantic(String semanticName, String[] columnNames, DynamicDataType[] columnTypes)
    {
       DynamicColumnInfo[] cols = new DynamicColumnInfo[columnNames.length];
       for (int i = 0; i < cols.length; i++)
@@ -1811,7 +1811,7 @@ public class IBDFCreationUtility
          cols[i] = new DynamicColumnInfo(i, descriptionConcept, type, null, false, true);
       }
       
-      //return new Property(null, sememeName, null, null, false, Integer.MAX_VALUE, cols);
+      //return new Property(null, semanticName, null, null, false, Integer.MAX_VALUE, cols);
       return new Property(semanticName, false, Integer.MAX_VALUE, cols);
    }
    

@@ -41,7 +41,7 @@ package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicNidImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -57,11 +57,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeNidTest}.
+ * {@link DynamicSemanticStringTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeNidTest {
+public class DynamicSemanticStringTest {
    /**
     * Test serialization.
     *
@@ -71,11 +71,9 @@ public class DynamicSememeNidTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final int[] testValues = new int[] {
-         Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532
-      };
+      final String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
 
-      for (final int i: testValues) {
+      for (final String i: testValues) {
          test(i);
       }
    }
@@ -87,15 +85,15 @@ public class DynamicSememeNidTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(int value)
+   private void test(String value)
             throws PropertyVetoException, IOException {
-      final DynamicNidImpl i = new DynamicNidImpl(value);
+      final DynamicStringImpl i = new DynamicStringImpl(value);
 
-      assertEquals(value, i.getDataNid());
-      assertEquals(value, ((Integer) i.getDataObject()).intValue());
-      assertEquals(value, ((Integer) i.getDataObjectProperty()
-                                      .get()).intValue());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.NID);
+      assertEquals(value, i.getDataString());
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
+                           .get());
+      assertEquals(i.getDynamicDataType(), DynamicDataType.STRING);
    }
 }
 

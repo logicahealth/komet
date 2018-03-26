@@ -528,9 +528,9 @@ public class ChronologyProvider
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
           Set<Integer> assemblageConceptNids) {
-       final NidSet sememeSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
+       final NidSet semanticSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
 
-       return sememeSequences.stream().mapToObj((int semanticNid) -> {
+       return semanticSequences.stream().mapToObj((int semanticNid) -> {
            try {
              return (C) getSemanticChronology(semanticNid);
           } catch (NoSuchElementException e) {

@@ -52,6 +52,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
@@ -135,6 +136,12 @@ public abstract class ObservableVersionImpl
    protected final ObservableChronology chronology;
    
    protected final VersionType versionType;
+   
+       /**
+     * The assemblage nid property.
+     */
+    protected IntegerProperty assemblageNidProperty;
+
 
    //~--- constructors --------------------------------------------------------
 
@@ -144,11 +151,13 @@ public abstract class ObservableVersionImpl
     * the first time. 
      * @param versionType
      * @param primordialUuid
+     * @param assemblageNid
     */
-   public ObservableVersionImpl(VersionType versionType, UUID primordialUuid) {
+   public ObservableVersionImpl(VersionType versionType, UUID primordialUuid, int assemblageNid) {
        this.stampedVersionProperty = null;
        this.chronology = null;
        this.versionType = versionType;
+       assemblageNidProperty(assemblageNid);
        this.primordialUuidProperty = new SimpleObjectProperty(
                  this,
                  ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
@@ -175,12 +184,37 @@ public abstract class ObservableVersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
+    /**
+     * Assemblage sequence property.
+     *
+     * @return the integer property
+     */
+    public final IntegerProperty assemblageNidProperty() {
+        return assemblageNidProperty(getAssemblageNid());
+    }
+   
+    public final IntegerProperty assemblageNidProperty(int assemblageNid) {
+        if (this.assemblageNidProperty == null) {
+            this.assemblageNidProperty = 
+                    new CommitAwareIntegerProperty(this, 
+                            ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), 
+                            assemblageNid);
+        }
+        return this.assemblageNidProperty;
+    }
    
    @Override
-   public void addAdditionalUuids(UUID... uuids)
-   {
-      ((VersionImpl) this.stampedVersionProperty.get()).addAdditionalUuids(uuids);
+   public final int getAssemblageNid() {
+       if (this.assemblageNidProperty != null) {
+           return this.assemblageNidProperty.get();
+       }
+       return this.chronology.getAssemblageNid(); 
    }
+
+    @Override
+    public void addAdditionalUuids(UUID... uuids) {
+        ((VersionImpl) this.stampedVersionProperty.get()).addAdditionalUuids(uuids);
+    }
    
    /**
     * Author nid property.
@@ -621,9 +655,15 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public int getNid() {
-      return getChronology().getNid();
+      if (this.chronology != null) {
+          return this.chronology.getNid();
+      }
+      UUID primordialUuid = getPrimordialUuid();
+      if (Get.identifierService().hasUuid(primordialUuid)) {
+          return Get.identifierService().getNidForUuids(primordialUuid);
+      }
+      return Get.identifierService().assignNid(primordialUuid);
    }
-
    /**
     * Gets the path sequence.
     *

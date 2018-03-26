@@ -93,7 +93,7 @@ public class UpdateTaxonomyAfterCommitTask
      *
      * @param taxonomyService the taxonomy service
      * @param commitRecord the commit record
-     * @param semanticNidsForUnhandledChanges the sememe sequences for unhandled
+     * @param semanticNidsForUnhandledChanges the semantic sequences for unhandled
      * changes
      * @param permit the lock
      */

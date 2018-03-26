@@ -96,7 +96,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
    /** The referenced component builder. */
    IdentifiedComponentBuilder<?> referencedComponentBuilder;
 
-   /** The sememe type. */
+   /** The semantic type. */
    VersionType semanticType;
 
    /** The parameters. */
@@ -105,11 +105,11 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
    private static final Logger LOG = LogManager.getLogger();
 
    /**
-    * Instantiates a new sememe builder impl.
+    * Instantiates a new semantic builder impl.
     *
     * @param referencedComponentBuilder the referenced component builder
     * @param assemblageConceptId the assemblage concept sequence
-    * @param semanticType the sememe type
+    * @param semanticType the semantic type
     * @param paramaters the paramaters
     */
    public SemanticBuilderImpl(IdentifiedComponentBuilder<?> referencedComponentBuilder,
@@ -123,11 +123,11 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
    }
 
    /**
-    * Instantiates a new sememe builder impl.
+    * Instantiates a new semantic builder impl.
     *
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptId the assemblage concept sequence
-    * @param semanticType the sememe type
+    * @param semanticType the semantic type
     * @param paramaters the paramaters
     */
    public SemanticBuilderImpl(int referencedComponentNid,
@@ -245,7 +245,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
          version = dsi;
          if ((this.parameters != null) && (this.parameters.length > 0)) {
-            // See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
+            // See notes in SemanticBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
             dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
 
@@ -291,8 +291,8 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                                     List<Chronology> builtObjects)
             throws IllegalStateException {
       
-        List<SemanticBuildListenerI> sememeBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-        for (SemanticBuildListenerI listener : sememeBuildListeners) {
+        List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
+        for (SemanticBuildListenerI listener : semanticBuildListeners) {
            if (listener != null) {
             if (listener.isEnabled()) {
                // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
@@ -323,7 +323,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                !semanticChronology.isIdentifiedBy(getPrimordialUuid()) ||
                (semanticChronology.getAssemblageNid() != this.assemblageId) ||
                (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
-            throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
+            throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
          }
       } else {
          semanticChronology = new SemanticChronologyImpl(this.semanticType,
@@ -387,7 +387,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                                                                                                 editCoordinate);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
-            // See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
+            // See notes in SemanticBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
             dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
          version = dsi;
@@ -414,7 +414,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             changeCheckerMode,
             builtObjects)));
       builtObjects.add(semanticChronology);
-      for (SemanticBuildListenerI listener : sememeBuildListeners) {
+      for (SemanticBuildListenerI listener : semanticBuildListeners) {
          if (listener != null) {
             if (listener.isEnabled()) {
                // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
@@ -444,24 +444,24 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
            }
    
            if (semanticType == VersionType.LOGIC_GRAPH) {
-              setPrimordialUuid(UuidFactory.getUuidForLogicGraphSememe(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
+              setPrimordialUuid(UuidFactory.getUuidForLogicGraphSemantic(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
            } else if (semanticType == VersionType.MEMBER) {
-              setPrimordialUuid(UuidFactory.getUuidForMemberSememe(namespace, assemblageUuid, refCompUuid, consumer));
+              setPrimordialUuid(UuidFactory.getUuidForMemberSemantic(namespace, assemblageUuid, refCompUuid, consumer));
            } else if (semanticType == VersionType.DYNAMIC) {
               setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid, 
                  (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>)parameters[0]).get() : null), consumer));
            } else if (semanticType == VersionType.COMPONENT_NID) {
                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer)parameters[0]);
-               setPrimordialUuid(UuidFactory.getUuidForComponentNidSememe(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
+               setPrimordialUuid(UuidFactory.getUuidForComponentNidSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
            } else if (semanticType == VersionType.DESCRIPTION) {
-              setPrimordialUuid(UuidFactory.getUuidForDescriptionSememe(namespace, refCompUuid, 
+              setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace, refCompUuid, 
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
                                         Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
                                         (String) parameters[3],
                                         consumer));
            } else if (semanticType == VersionType.STRING) {
-              setPrimordialUuid(UuidFactory.getUuidForStringSememe(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+              setPrimordialUuid(UuidFactory.getUuidForStringSemantic(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
            }
        }
       return this;

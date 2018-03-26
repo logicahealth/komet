@@ -8,13 +8,12 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 
 /**
- * {@link SememeBuildListenerI}
+ * {@link SemanticBuildListenerI}
  *
  * An interface that allows implementers to easily mark their listener as something that will register 
- * itself as a class that does things on build of a sememe.
+ * itself as a class that does things on build of a semantic.
  * 
  * The only intent of this interface is to provide a global handle to all modules which are registered to do 
  * things - so that then can be enabled or disabled individually, or across the board prior to performing 
@@ -35,6 +34,7 @@ public interface SemanticBuildListenerI
     * Returns the HK2 service name of this listener.  This should return the same string as the 
     * <code>@Named (value="the name")</code>	
     * annotation on the implementation of the class.
+     * @return 
     */
    public String getListenerName();
    
@@ -66,7 +66,6 @@ public interface SemanticBuildListenerI
     * @param builtObjects a list objects build as a result of call build. 
     * Includes top-level object being built. 
     * The caller is also responsible to write all build objects to the proper store. 
-    * @return 
     */
    default void applyBefore(int stampSequence, List<Chronology> builtObjects) {}
 
@@ -75,20 +74,18 @@ public interface SemanticBuildListenerI
     * The caller is responsible to write the component to the proper store when 
     * all updates to the component are complete. 
     * @param stampSequence
-    * @param builtSememe sememe built as a result of building this object
+    * @param builtSemantic semantic built as a result of building this object
     * @param builtObjects a list objects build as a result of call build. 
     * Includes top-level object being built. 
     * The caller is also responsible to write all build objects to the proper store. 
-    * @return 
     */
-   default void applyAfter(int stampSequence, SemanticVersion builtSememe, List<Chronology> builtObjects) {}
+   default void applyAfter(int stampSequence, SemanticVersion builtSemantic, List<Chronology> builtObjects) {}
 
    /**
-    * A listener method that applies to a SememeBuilder before building a component with a state of ACTIVE. 
+    * A listener method that applies to a SemanticBuilder before building a component with a state of ACTIVE. 
     * @param editCoordinate the edit coordinate that determines the author, module and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks. 
-    * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built. 
-    * @return
+    * @param changeCheckerMode determines if added to the commit manager with or without checks.
+     * @param builtObjects
     */
    default public void applyBefore(
          EditCoordinate editCoordinate, 
@@ -96,16 +93,15 @@ public interface SemanticBuildListenerI
          List<Chronology> builtObjects) {}
 
    /**
-    * A listener method that applies to a SememeBuilder after building a component with a state of ACTIVE. 
+    * A listener method that applies to a SemanticBuilder after building a component with a state of ACTIVE. 
     * @param editCoordinate the edit coordinate that determines the author, module and path for the change
     * @param changeCheckerMode determines if added to the commit manager with or without checks. 
-    * @param builtSememe sememe built as a result of building this object 
-    * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built. 
-    * @return
+     * @param builtSemanticVersion 
+     * @param builtObjects 
     */
    default public void applyAfter(
          EditCoordinate editCoordinate, 
          ChangeCheckerMode changeCheckerMode,
-         SemanticVersion builtSememeVersion,
+         SemanticVersion builtSemanticVersion,
          List<Chronology> builtObjects) {}
 }

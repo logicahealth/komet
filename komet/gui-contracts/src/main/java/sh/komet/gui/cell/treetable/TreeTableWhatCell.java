@@ -39,8 +39,8 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
-        SemanticVersion sememeVersion = cellValue.unwrap();
-        switch (sememeVersion.getChronology().getVersionType()) {
+        SemanticVersion semanticVersion = cellValue.unwrap();
+        switch (semanticVersion.getChronology().getVersionType()) {
            case DESCRIPTION:
               DescriptionVersion description = cellValue.unwrap();
               int descriptionType = description.getDescriptionTypeConceptNid();
@@ -56,10 +56,10 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               
               break;
            default: 
-              if (sememeVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
+              if (semanticVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
                  setText("PATH");
               } else {
-                 setText(sememeVersion.getChronology().getVersionType().getWhatName());
+                 setText(semanticVersion.getChronology().getVersionType().getWhatName());
               }
            
         }

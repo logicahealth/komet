@@ -70,7 +70,7 @@ public class ComponentNidVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new component nid sememe impl.
+    * Instantiates a new component nid semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -81,7 +81,7 @@ public class ComponentNidVersionImpl
    }
 
    /**
-    * Instantiates a new component nid sememe impl.
+    * Instantiates a new component nid semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -134,15 +134,15 @@ public class ComponentNidVersionImpl
          break;
 
       case SEMANTIC:
-         final Optional<? extends SemanticChronology> optionalSememe = Get.assemblageService()
+         final Optional<? extends SemanticChronology> optionalSemantic = Get.assemblageService()
                                                                                                     .getOptionalSemanticChronology(
                                                                                                        this.componentNid);
 
-         if (optionalSememe.isPresent()) {
-            sb.append(optionalSememe.get()
+         if (optionalSemantic.isPresent()) {
+            sb.append(optionalSemantic.get()
                                     .getVersionType());
          } else {
-            sb.append("no such sememe: ")
+            sb.append("no such semantic: ")
               .append(this.componentNid);
          }
 
@@ -203,9 +203,9 @@ public class ComponentNidVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {

@@ -140,7 +140,7 @@ public class DynamicArrayImpl<T extends DynamicData>
     * Gets the data array.
     *
     * @return the data array
-    * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getDataArray()
+    * @see org.ihtsdo.otf.tcc.api.DynamicSemantic.data.dataTypes.DynamicSemanticArrayBI#getDataArray()
     */
    @SuppressWarnings("unchecked")
    @Override
@@ -174,7 +174,7 @@ public class DynamicArrayImpl<T extends DynamicData>
     * Gets the data array property.
     *
     * @return the data array property
-    * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getDataArrayProperty()
+    * @see org.ihtsdo.otf.tcc.api.DynamicSemantic.data.dataTypes.DynamicSemanticArrayBI#getDataArrayProperty()
     */
    @Override
    public ReadOnlyObjectProperty<T[]> getDataArrayProperty() {
@@ -189,7 +189,7 @@ public class DynamicArrayImpl<T extends DynamicData>
     * Gets the data object.
     *
     * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.DynamicSememeDataBI#getDataObject()
+    * @see org.ihtsdo.otf.tcc.api.DynamicSemantic.data.DynamicSemanticDataBI#getDataObject()
     */
    @Override
    public Object getDataObject() {
@@ -200,7 +200,7 @@ public class DynamicArrayImpl<T extends DynamicData>
     * Gets the data object property.
     *
     * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.DynamicSememeDataBI#getDataObjectProperty()
+    * @see org.ihtsdo.otf.tcc.api.DynamicSemantic.data.DynamicSemanticDataBI#getDataObjectProperty()
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

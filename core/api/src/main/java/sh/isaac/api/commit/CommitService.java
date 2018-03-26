@@ -180,9 +180,10 @@ public interface CommitService
          String commitComment);
 
    
-   CommitTask commit(ObservableVersion versionsToCommit,
+   CommitTask commit(
          EditCoordinate editCoordinate,
-         String commitComment);
+         String commitComment, 
+         ObservableVersion... versionsToCommit);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.

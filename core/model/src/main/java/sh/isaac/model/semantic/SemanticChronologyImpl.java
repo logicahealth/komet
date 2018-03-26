@@ -98,14 +98,14 @@ public class SemanticChronologyImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new sememe chronology impl.
+    * Instantiates a new semantic chronology impl.
     */
    private SemanticChronologyImpl() {}
 
    /**
-    * Instantiates a new sememe chronology impl.
+    * Instantiates a new semantic chronology impl.
     *
-    * @param semanticType the sememe type
+    * @param semanticType the semantic type
     * @param primordialUuid the primordial uuid
     * @param assemblageNid the assemblage sequence
     * @param referencedComponentNid the referenced component nid
@@ -159,12 +159,12 @@ public class SemanticChronologyImpl
    }
 
    /**
-    * Creates the sememe.
+    * Creates the semantic.
     *
     * @param chronology the container
     * @param stampSequence the stamp sequence
     * @param bb the bb
-    * @return the sememe version impl
+    * @return the semantic version impl
     */
    public static AbstractVersionImpl createSemantic(
          SemanticChronologyImpl chronology,
@@ -244,7 +244,7 @@ public class SemanticChronologyImpl
     * Make.
     *
     * @param data the data
-    * @return the sememe chronology impl
+    * @return the semantic chronology impl
     */
    public static SemanticChronologyImpl make(ByteArrayDataBuffer data) {
       if (IsaacObjectType.SEMANTIC.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
@@ -494,9 +494,9 @@ public class SemanticChronologyImpl
    }
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getVersionType() {

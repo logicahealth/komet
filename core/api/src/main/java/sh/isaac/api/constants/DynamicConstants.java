@@ -235,12 +235,12 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    // the column represents the value, while the type of the attribute is represented by the refex type itself - so the column name isn't
    // really necessary)
    public final MetadataConceptConstant DYNAMIC_COLUMN_VALUE = new MetadataConceptConstant("Value", UUID.fromString("d94e271f-0e9b-5159-8691-6c29c7689ffb"),
-         "The attached value of the sememe") {
+         "The attached value of the semantic") {
    };
 
    /** The dynamic column editor comment. */
 
-   // 2 columns for a comments sememe
+   // 2 columns for a comments semantic
    public final MetadataConceptConstant DYNAMIC_COLUMN_EDITOR_COMMENT = new MetadataConceptConstant("Editor comment", UUID.fromString("2b38b1a9-ce6e-5be2-8885-65cd76f40929"),
          "Stores the comment created by the editor") {
    };
@@ -254,7 +254,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
 
    /** The dynamic column association target component. */
 
-   // A column to store the target of an association within a sememe
+   // A column to store the target of an association within a semantic
    public final MetadataConceptConstant DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT = new MetadataConceptConstant("target", UUID.fromString("e598e12f-3d39-56ac-be68-4e9fca98fb7a"),
          "Stores the (optional) target concept or component of an association or mapping") {
    };
@@ -288,7 +288,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    };
 
    // This is the assemblage type that is optionally attached to an assemblage itself, to declare type restrictions on the referenced component
-   // of the sememe
+   // of the semantic
    public final MetadataDynamicConstant DYNAMIC_REFERENCED_COMPONENT_RESTRICTION = new MetadataDynamicConstant("Dynamic referenced component restriction",
          UUID.fromString("0d94ceeb-e24f-5f1a-84b2-1ac35f671db5"),
          "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a "
@@ -329,7 +329,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    // no data to attach.
    public final MetadataDynamicConstant DYNAMIC_EXTENSION_DEFINITION = new MetadataDynamicConstant("Dynamic extension definition",
          UUID.fromString("406e872b-2e19-5f5e-a71d-e4e4b2c68fe5"),
-         "This concept is used as an assemblage for defining new extensions.  " + "The attached data columns describe what columns are required to define a new Sememe.",
+         "This concept is used as an assemblage for defining new extensions.  " + "The attached data columns describe what columns are required to define a new Semantic.",
          new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_ORDER.getPrimordialUuid(), DynamicDataType.INTEGER, null, true, true),
                new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.UUID, null, true, true),
                new DynamicColumnInfo(2, this.DYNAMIC_COLUMN_TYPE.getPrimordialUuid(), DynamicDataType.STRING, null, true, true),
@@ -369,7 +369,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
 
    /** The dynamic comment attribute. */
    public final MetadataDynamicConstant DYNAMIC_COMMENT_ATTRIBUTE = new MetadataDynamicConstant("Comment", UUID.fromString("147832d4-b9b8-5062-8891-19f9c4e4760a"),
-         "A component to store comments on arbitrary items (concepts, relationships, sememes, etc)",
+         "A component to store comments on arbitrary items (concepts, relationships, semantics, etc)",
          new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_EDITOR_COMMENT.getPrimordialUuid(), DynamicDataType.STRING, null, true, true),
                new DynamicColumnInfo(1, this.DYNAMIC_COLUMN_EDITOR_COMMENT_CONTEXT.getPrimordialUuid(), DynamicDataType.STRING, null, false, true) }) {
    }; // Index the comments, and the columns

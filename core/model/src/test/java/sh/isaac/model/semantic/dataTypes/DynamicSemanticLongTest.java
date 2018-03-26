@@ -41,7 +41,7 @@ package sh.isaac.model.semantic.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -52,16 +52,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeBooleanTest}.
+ * {@link DynamicSemanticLongTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeBooleanTest {
+public class DynamicSemanticLongTest {
    /**
     * Test serialization.
     *
@@ -71,10 +69,12 @@ public class DynamicSememeBooleanTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      final boolean[] testValues = new boolean[] { true, false };
+      final long[] testValues = new long[] {
+         Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l
+      };
 
-      for (final boolean i: testValues) {
-         test(i);
+      for (final long l: testValues) {
+         test(l);
       }
    }
 
@@ -85,15 +85,14 @@ public class DynamicSememeBooleanTest {
     * @throws PropertyVetoException the property veto exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void test(boolean value)
+   private void test(long value)
             throws PropertyVetoException, IOException {
-      final DynamicBooleanImpl i = new DynamicBooleanImpl(value);
+      final DynamicLongImpl l = new DynamicLongImpl(value);
 
-      assertEquals(value, i.getDataBoolean());
-      assertEquals(value, i.getDataObject());
-      assertEquals(value, i.getDataObjectProperty()
-                           .get());
-      assertEquals(i.getDynamicDataType(), DynamicDataType.BOOLEAN);
+      assertEquals(value, l.getDataLong());
+      assertEquals(value, ((Long) l.getDataObject()).longValue());
+      assertEquals(value, ((Long) l.getDataObjectProperty()
+                                   .get()).longValue());
    }
 }
 

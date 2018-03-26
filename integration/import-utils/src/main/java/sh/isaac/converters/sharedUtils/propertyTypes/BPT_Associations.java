@@ -55,7 +55,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
  *
  * @author Daniel Armbrust
  *
- * Associations get loaded using the new add-on association API (internally represented as sememes)
+ * Associations get loaded using the new add-on association API (internally represented as semantics)
  *
  * These get ignored by the classifier, for example.
  */

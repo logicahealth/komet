@@ -72,7 +72,7 @@ public class PT_Annotations extends BPT_Annotations
 		OID("OID", "HL7 Object Identifier", true), Code(MetaData.CODE____SOLOR, true),
 
 		VOCABULARY_MODEL("vocabulary model", "name", "title", "package kind", "definition kind", "schema version"),
-		// The [] is a stupid hack I put in, to allow me to specify array of strings, rather than array, when setting up the dynamic sememe.
+		// The [] is a stupid hack I put in, to allow me to specify array of strings, rather than array, when setting up the dynamic semantic.
 		PACKAGE_LOCATION("package location", "combined id", "root", "artifact", "[]realm namespace", "version"),
 		RENDERING_INFORMATION("rendering information", "rendering time", "appliation"), LEGALESE("legalese", "copyright owner", "[]copyright years"),
 		HISTORY_ITEM("history item", historyHackColNames, historyHackColTypes),
@@ -161,7 +161,7 @@ public class PT_Annotations extends BPT_Annotations
 			{
 				if (attr.orderedColumnNames_ != null)
 				{
-					attr.property_ = importUtil.createMultiColumnDynamicStringSememe(attr.niceName_, attr.orderedColumnNames_, attr.orderedColumnTypes_);
+					attr.property_ = importUtil.createMultiColumnDynamicStringSemantic(attr.niceName_, attr.orderedColumnNames_, attr.orderedColumnTypes_);
 				}
 				else if (attr.orderedColumnTypes_ != null && attr.orderedColumnTypes_.length == 1)
 				{

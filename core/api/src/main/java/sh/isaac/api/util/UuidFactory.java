@@ -72,7 +72,7 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForLogicGraphSememe(UUID namespace, UUID assemblage, UUID refComp, LogicalExpression le, BiConsumer<String, UUID> consumer) {
+   public static UUID getUuidForLogicGraphSemantic(UUID namespace, UUID assemblage, UUID refComp, LogicalExpression le, BiConsumer<String, UUID> consumer) {
       byte[][] leBytes = le.getData(DataTarget.EXTERNAL);
       return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), toString(leBytes)), consumer);
    }
@@ -97,7 +97,7 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForMemberSememe(UUID namespace, UUID assemblage, UUID refComp, BiConsumer<String, UUID> consumer) {
+   public static UUID getUuidForMemberSemantic(UUID namespace, UUID assemblage, UUID refComp, BiConsumer<String, UUID> consumer) {
 
       return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), MEMBER_SEED_STRING), consumer);
    }
@@ -150,7 +150,7 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForComponentNidSememe(UUID namespace, UUID assemblage, UUID refComp, UUID component, BiConsumer<String, UUID> consumer) {
+   public static UUID getUuidForComponentNidSemantic(UUID namespace, UUID assemblage, UUID refComp, UUID component, BiConsumer<String, UUID> consumer) {
       return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), component.toString()), consumer);
    }
 
@@ -163,7 +163,7 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForStringSememe(UUID namespace, UUID assemblage, UUID refComp, String value, BiConsumer<String, UUID> consumer) {
+   public static UUID getUuidForStringSemantic(UUID namespace, UUID assemblage, UUID refComp, String value, BiConsumer<String, UUID> consumer) {
       return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), value), consumer);
    }
 
@@ -178,7 +178,7 @@ public class UuidFactory {
     * @param consumer an optional parameter that will get a callback with the string used to calculate the UUID - no impact on generation
     * @return
     */
-   public static UUID getUuidForDescriptionSememe(UUID namespace, UUID concept, UUID caseSignificance,
+   public static UUID getUuidForDescriptionSemantic(UUID namespace, UUID concept, UUID caseSignificance,
          UUID descriptionType, UUID language, String descriptionText, BiConsumer<String, UUID> consumer) {
       return UuidT5Generator.get(namespace, createUuidTextSeed(concept.toString(), caseSignificance.toString(),
             descriptionType.toString(), language.toString(), descriptionText), consumer);

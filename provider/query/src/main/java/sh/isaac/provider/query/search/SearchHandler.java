@@ -95,8 +95,8 @@ public class SearchHandler {
     */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The description sememe assemblages cache. */
-   private static Integer[] descriptionSememeAssemblagesCache = null;
+   /** The description semantic assemblages cache. */
+   private static Integer[] descriptionSemanticAssemblagesCache = null;
 
    //~--- methods -------------------------------------------------------------
 
@@ -497,7 +497,7 @@ public class SearchHandler {
    }
 
    /**
-    * Execute a Query against the sememe indexes in a background thread, hand back a handle to the search object which will
+    * Execute a Query against the semantic indexes in a background thread, hand back a handle to the search object which will
     * allow you to get the results (when they are ready) and also cancel an in-progress query.
     *
     * If there is a problem with the internal indexes - an error will be logged, and the exception will be re-thrown when the
@@ -520,7 +520,7 @@ public class SearchHandler {
     *   out that are not on THE CURRENT COORDINATE configuration
     * @return A handle to the running search.
     */
-   public static SearchHandle sememeSearch(Function<SemanticIndexer, List<SearchResult>> searchFunction,
+   public static SearchHandle semanticSearch(Function<SemanticIndexer, List<SearchResult>> searchFunction,
          final Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
          final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -536,8 +536,8 @@ public class SearchHandler {
                                final SemanticIndexer         refexIndexer = LookupService.getService(SemanticIndexer.class);
 
                                if (refexIndexer == null) {
-                                  LOG.warn("No sememe indexer found, aborting.");
-                                  searchHandle.setError(new Exception("No sememe indexer available, cannot search"));
+                                  LOG.warn("No semantic indexer found, aborting.");
+                                  searchHandle.setError(new Exception("No semantic indexer available, cannot search"));
                                } else {
                                   final List<SearchResult> searchResults = searchFunction.apply(refexIndexer);
 
@@ -569,7 +569,7 @@ public class SearchHandler {
    }
 
    /**
-    * A convenience wrapper for {@link #sememeSearch(Function, TaskCompleteCallback, Integer, Function, Comparator, boolean)}
+    * A convenience wrapper for {@link #semanticSearch(Function, TaskCompleteCallback, Integer, Function, Comparator, boolean)}
     * which builds a function that handles basic string searches.
     *
     * @param searchString - The value to search for within the refex index
@@ -590,7 +590,7 @@ public class SearchHandler {
     *   out that are not on THE CURRENT COORDINATE configuration
     * @return A handle to the running search.
     */
-   public static SearchHandle sememeSearch(String searchString,
+   public static SearchHandle semanticSearch(String searchString,
          int resultLimit,
          boolean prefixSearch,
          Integer assemblageNid,
@@ -600,7 +600,7 @@ public class SearchHandler {
          Comparator<CompositeSearchResult> comparator,
          boolean mergeOnConcepts,
          boolean includeOffPathResults) {
-      return sememeSearch(index -> {
+      return SearchHandler.semanticSearch(index -> {
                              try {
                                 return index.query(searchString,
                                       prefixSearch,

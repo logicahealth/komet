@@ -58,7 +58,7 @@ import sh.isaac.api.coordinate.StampPosition;
  */
 public interface SemanticServiceTyped {
    /**
-    * Write sememe.
+    * Write semantic.
     *
     * @param semanticChronicle the semantic chronicle
     */
@@ -78,7 +78,7 @@ public interface SemanticServiceTyped {
     * Gets the semantic.
     *
     * @param semanticSequence the semantic sequence
-    * @return the sememe
+    * @return the semantic
     */
    SemanticChronology getSemanticChronology(int semanticSequence);
 

@@ -86,8 +86,8 @@ public class ObservableLogicGraphVersionImpl
    ObjectProperty<byte[][]> logicGraphProperty;
 
    //~--- constructors --------------------------------------------------------
-   public ObservableLogicGraphVersionImpl(UUID referencedComponentUuid) {
-      super(VersionType.LOGIC_GRAPH, UUID.randomUUID(), referencedComponentUuid);
+   public ObservableLogicGraphVersionImpl(UUID referencedComponentUuid, int assemblageNid) {
+      super(VersionType.LOGIC_GRAPH, UUID.randomUUID(), referencedComponentUuid, assemblageNid);
        LogicalExpressionBuilderImpl builder = new LogicalExpressionBuilderImpl();
        LogicalExpression emptyExpression = builder.build();
        setGraphData(emptyExpression.getData(DataTarget.INTERNAL));

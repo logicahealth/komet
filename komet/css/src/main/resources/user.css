@@ -704,7 +704,7 @@ limitations under the License.
    -fx-fill: -komet-blue-color;
    -fx-font-size:15;
 }
-.sememe-text {
+.semantic-text {
    -fx-fill: black;
    -fx-font-size:15;
 }
@@ -725,7 +725,7 @@ limitations under the License.
    -fx-font-size:12;
 }
 
-.sememe-component-reference {
+.semantic-component-reference {
    -fx-fill: black;
    -fx-font-size:12;
 }

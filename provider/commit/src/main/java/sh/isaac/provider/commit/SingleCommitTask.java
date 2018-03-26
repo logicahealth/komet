@@ -17,6 +17,7 @@
 package sh.isaac.provider.commit;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
@@ -39,15 +40,16 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 public class SingleCommitTask extends CommitTask {
 
-    final ObservableVersion versionsToCommit;
+    final ObservableVersion[] versionsToCommit;
     final EditCoordinate editCoordinate;
     final String commitComment;
     final CommitProvider commitService;
 
-    public SingleCommitTask(ObservableVersion versionsToCommit,
+    public SingleCommitTask(
             EditCoordinate editCoordinate,
             String commitComment,
-            CommitProvider commitService) {
+            CommitProvider commitService,
+            ObservableVersion... versionsToCommit) {
         this.versionsToCommit = versionsToCommit;
         this.editCoordinate = editCoordinate;
         this.commitComment = commitComment;
@@ -56,41 +58,44 @@ public class SingleCommitTask extends CommitTask {
 
     @Override
     protected Optional<CommitRecord> call() throws Exception {
-        Chronology independentChronology = (Chronology) versionsToCommit.createIndependentChronicle();
         NidSet conceptNidsInCommit = new NidSet();
         NidSet semanticNidsInCommit = new NidSet();
 
-        if (independentChronology instanceof ConceptChronology) {
-            conceptNidsInCommit.add(independentChronology.getNid());
-        } else if (independentChronology instanceof SemanticChronology) {
-            semanticNidsInCommit.add(independentChronology.getNid());
-        }
+        for (ObservableVersion observableVersion : versionsToCommit) {
+            Chronology independentChronology = (Chronology) observableVersion.createIndependentChronicle();
 
-        for (ChangeChecker checker : commitService.getCheckers()) {
-            AlertObject ao = checker.check(independentChronology, CheckPhase.COMMIT);
-            if (ao.getAlertType().preventsCheckerPass()) {
-                this.alertCollection.add(ao);
-                LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, checker.getDescription(), ao);
+            if (independentChronology instanceof ConceptChronology) {
+                conceptNidsInCommit.add(independentChronology.getNid());
+            } else if (independentChronology instanceof SemanticChronology) {
+                semanticNidsInCommit.add(independentChronology.getNid());
+            }
+
+            for (ChangeChecker checker : commitService.getCheckers()) {
+                AlertObject ao = checker.check(independentChronology, CheckPhase.COMMIT);
+                if (ao.getAlertType().preventsCheckerPass()) {
+                    this.alertCollection.add(ao);
+                    LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, checker.getDescription(), ao);
+                }
+            }
+            if (this.alertCollection.size() > 0) {
+                return Optional.empty();
             }
         }
-         if (this.alertCollection.size() > 0) {
-            return Optional.empty();
-         }
 
         // passed check, now get stamp...
         long commitTime = System.currentTimeMillis();
-        // Status status, long time, int authorNid, int moduleNid, int pathNid
-        int stampSequence = Get.stampService().getStampSequence(versionsToCommit.getStatus(),
-                commitTime, editCoordinate.getAuthorNid(),
-                editCoordinate.getModuleNid(), editCoordinate.getPathNid());
+         StampSequenceSet stampsInCommit = new StampSequenceSet();
+         OpenIntIntHashMap stampAliases = new OpenIntIntHashMap();
 
-        Chronology chronologyForCommit = versionsToCommit.createChronologyForCommit(stampSequence);
-
-        Get.identifiedObjectService().putChronologyData(chronologyForCommit);
-
-        StampSequenceSet stampsInCommit = StampSequenceSet.of(stampSequence);
-        OpenIntIntHashMap stampAliases = new OpenIntIntHashMap();
-
+        for (ObservableVersion observableVersion : versionsToCommit) {
+            // Status status, long time, int authorNid, int moduleNid, int pathNid
+            int stampSequence = Get.stampService().getStampSequence(observableVersion.getStatus(),
+                    commitTime, editCoordinate.getAuthorNid(),
+                    editCoordinate.getModuleNid(), editCoordinate.getPathNid());
+            stampsInCommit.add(stampSequence);
+            Chronology chronologyForCommit = observableVersion.createChronologyForCommit(stampSequence);
+            Get.identifiedObjectService().putChronologyData(chronologyForCommit);
+        }
         CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
                 stampsInCommit,
                 stampAliases,

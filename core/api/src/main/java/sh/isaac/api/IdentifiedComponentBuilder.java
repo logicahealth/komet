@@ -67,7 +67,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
         extends IdentifiedObject {
    
    /**
-    * Add a nested membership sememes that should be chained / built when build is
+    * Add a nested membership semantics that should be chained / built when build is
     * called on this component
     * 
     * @param assemblageConcepts
@@ -183,7 +183,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Gets the semantic builders stored by the builder.
     * This should include any 'special' builders, like logical expression builders
     * 
-    * @return the sememe builders
+    * @return the semantic builders
     */
    List<SemanticBuilder<?>> getSemanticBuilders();
 

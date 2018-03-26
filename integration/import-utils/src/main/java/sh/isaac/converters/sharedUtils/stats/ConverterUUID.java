@@ -100,7 +100,7 @@ public class ConverterUUID {
                constantsList.add((ConceptSpecification)field.get(MetaData.class));
             }
          }
-         // Add DynamicSememeConstants instance member concepts
+         // Add DynamicSemanticConstants instance member concepts
          for (Field field : DynamicConstants.class.getDeclaredFields()) {
             if (ConceptSpecification.class.isAssignableFrom(field.getType())) {
                constantsList.add((ConceptSpecification)field.get(DynamicConstants.get()));

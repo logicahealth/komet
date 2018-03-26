@@ -28,6 +28,7 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -54,17 +55,15 @@ public class ObservableDescriptionDialect implements ObservableVersion {
                  ObservableFields.DESCRIPTION_DIALECT_DIALECT.toExternalString(),
                  null);
     
-    ObservableDescriptionVersionImpl description;
-
     public ObservableDescriptionDialect(ObservableDescriptionVersionImpl description,
             ObservableComponentNidVersionImpl dialect) {
         this.descriptionProperty.set(description);
         this.dialectProperty.set(dialect);
     }
     
-    public ObservableDescriptionDialect(UUID conceptUuid) {
-        ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(UUID.randomUUID(), conceptUuid);
-        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), description.getPrimordialUuid());
+    public ObservableDescriptionDialect(UUID conceptUuid, int assemblageNid) {
+        ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(UUID.randomUUID(), conceptUuid, assemblageNid);
+        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), description.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getAssemblageNid());
         this.descriptionProperty.set(description);
         this.dialectProperty.set(dialect);
     }

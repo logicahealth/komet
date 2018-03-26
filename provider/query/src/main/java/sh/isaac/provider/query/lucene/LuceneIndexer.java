@@ -338,7 +338,7 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
+    * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     *
     * @param nid the nid
     * @return the nearest concept sequence, or -1, if no concept can be found.
@@ -1016,8 +1016,8 @@ public abstract class LuceneIndexer
                }
 
                ArrayList<Future<Long>> futures = new ArrayList<>();
-               commitRecord.getSemanticNidsInCommit().stream().forEach(sememeId -> {
-                  final SemanticChronology sc = Get.assemblageService().getSemanticChronology(sememeId);
+               commitRecord.getSemanticNidsInCommit().stream().forEach(semanticId -> {
+                  final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticId);
 
                   futures.add(index(sc));
                });

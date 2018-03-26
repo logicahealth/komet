@@ -66,7 +66,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeValidatorTypeImplTest {
+public class DynamicSemanticValidatorTypeImplTest {
    /**
     * Test four.
     *

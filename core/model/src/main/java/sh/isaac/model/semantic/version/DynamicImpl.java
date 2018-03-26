@@ -185,7 +185,7 @@ public class DynamicImpl
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("{DynamicSememeData≤");
+      sb.append("{DynamicSemanticData≤");
 
       final DynamicData[] dynamicData = getData();
 
@@ -244,7 +244,7 @@ public class DynamicImpl
     * Gets the dynamicData.
     *
     * @return the dynamicData
-    * @see sh.isaac.api.component.sememe.version.DynamicSememe#getData()
+    * @see sh.isaac.api.component.semantic.version.DynamicSemantic#getData()
     */
    @Override
    public DynamicData[] getData() {
@@ -323,9 +323,9 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {

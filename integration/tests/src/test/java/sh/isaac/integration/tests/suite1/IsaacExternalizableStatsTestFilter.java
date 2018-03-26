@@ -58,7 +58,7 @@ public class IsaacExternalizableStatsTestFilter
    /** The concept count. */
    AtomicInteger concepts = new AtomicInteger(0);
 
-   /** The sememe count. */
+   /** The semantic count. */
    AtomicInteger semantics = new AtomicInteger(0);
 
    /** The stamp aliases count. */

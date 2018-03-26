@@ -255,21 +255,21 @@ public class ChangeSetWriterHandler
    /**
     * Sequence set change.
     *
-    * @param sememeSequenceSet the sememe sequence set
+    * @param semanticSequenceSet the semantic sequence set
     */
 
    /*
     */
-   private void semanticNidSetChange(NidSet sememeSequenceSet) {
-      sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SemanticChronology sememe = Get.assemblageService()
+   private void semanticNidSetChange(NidSet semanticSequenceSet) {
+      semanticSequenceSet.stream().forEach((semanticSequence) -> {
+                                   final SemanticChronology semantic = Get.assemblageService()
                                                                                                   .getSemanticChronology(
-                                                                                                     sememeSequence);
+                                                                                                     semanticSequence);
 
                                    try {
-                                      writeToFile(sememe);
+                                      writeToFile(semantic);
                                    } catch (final Exception e) {
-                                      throw new RuntimeException("Error writing semantic " + sememeSequence, e);
+                                      throw new RuntimeException("Error writing semantic " + semanticSequence, e);
                                    }
                                 });
    }

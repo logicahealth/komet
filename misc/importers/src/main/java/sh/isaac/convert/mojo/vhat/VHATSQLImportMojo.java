@@ -735,7 +735,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 			ConverterUUID.disableUUIDMap = false;
 
-			// Place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic sememe mapping sememe type.
+			// Place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic semantic mapping semantic type.
 			NecessarySet(And(new Assertion[] { ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getAltMetaDataParentUUID()), leb),
 					ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
 					ConceptAssertion(
@@ -804,7 +804,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			importUtil_.addAnnotation(concept, null, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					Status.ACTIVE, conceptOrMapSet.getTime());
 
-			// Now that we have defined the map sememe, add the other annotations onto the map set definition.
+			// Now that we have defined the map semantic, add the other annotations onto the map set definition.
 			if (StringUtils.isNotBlank(mapSet.getSourceCodeSystemName()))
 			{
 				importUtil_.addAnnotation(concept, null,

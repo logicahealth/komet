@@ -244,9 +244,10 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(this.mutableVersion, 
+        CommitTask commitTask = Get.commitService().commit( 
                 this.manifold.getEditCoordinate(), 
-                "No comment");
+                "No comment",
+                this.mutableVersion);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();
@@ -327,9 +328,9 @@ public class TreeTableGeneralCell
 
             case SEMANTIC:
                 referencedComponentText.getStyleClass()
-                        .add(StyleClasses.SEMEME_COMPONENT_REFERENCE.toString());
+                        .add(StyleClasses.SEMANTIC_COMPONENT_REFERENCE.toString());
                 referencedComponentTextNoNewLine.getStyleClass()
-                        .add(StyleClasses.SEMEME_COMPONENT_REFERENCE.toString());
+                        .add(StyleClasses.SEMANTIC_COMPONENT_REFERENCE.toString());
                 break;
 
             case UNKNOWN:
@@ -371,22 +372,22 @@ public class TreeTableGeneralCell
                         break;
 
                     case SEMANTIC:
-                        SemanticChronology sememe = Get.assemblageService()
+                        SemanticChronology semantic = Get.assemblageService()
                                 .getSemanticChronology(componentNidVersion.getComponentNid());
-                        LatestVersion<SemanticVersion> latest = sememe.getLatestVersion(manifold);
+                        LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(manifold);
 
                         if (latest.isPresent()) {
-                            Text sememeText = new Text(latest.get().toUserString());
+                            Text semanticText = new Text(latest.get().toUserString());
 
-                            sememeText.getStyleClass()
-                                    .add(StyleClasses.SEMEME_TEXT.toString());
-                            addTextToCell(assemblageNameText, sememeText, referencedComponentText);
+                            semanticText.getStyleClass()
+                                    .add(StyleClasses.SEMANTIC_TEXT.toString());
+                            addTextToCell(assemblageNameText, semanticText, referencedComponentText);
                         } else {
-                            Text sememeText = new Text("No latest version for component");
+                            Text semanticText = new Text("No latest version for component");
 
-                            sememeText.getStyleClass()
-                                    .add(StyleClasses.SEMEME_TEXT.toString());
-                            addTextToCell(assemblageNameText, sememeText, referencedComponentText);
+                            semanticText.getStyleClass()
+                                    .add(StyleClasses.SEMANTIC_TEXT.toString());
+                            addTextToCell(assemblageNameText, semanticText, referencedComponentText);
                         }
 
                         break;
@@ -409,7 +410,7 @@ public class TreeTableGeneralCell
                 Text stringText = new Text(stringVersion.getString());
 
                 stringText.getStyleClass()
-                        .add(StyleClasses.SEMEME_TEXT.toString());
+                        .add(StyleClasses.SEMANTIC_TEXT.toString());
                 addTextToCell(assemblageNameText, stringText, referencedComponentText);
                 break;
 

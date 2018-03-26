@@ -31,15 +31,15 @@ public interface ObservableSnapshotService {
    /**
     * Gets the observable concept version.
     *
-    * @param id either a nid or a concept sequence
+    * @param id a nid 
     * @return the ObservableConceptChronology with the provided id
     */
    LatestVersion<ObservableConceptVersion> getObservableConceptVersion(int id);
 
    /**
-    * Gets the observable sememe version.
+    * Gets the observable semantic version.
     *
-    * @param id either a nid or a sememe sequence
+    * @param id a nid 
     * @return the ObservableSemanticVersion with the provided id
     */
    LatestVersion<? extends ObservableSemanticVersion> getObservableSemanticVersion(int id);

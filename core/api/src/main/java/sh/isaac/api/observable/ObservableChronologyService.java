@@ -67,7 +67,7 @@ public interface ObservableChronologyService {
    /**
     * Gets the observable semantic chronology.
     *
-    * @param id either a nid or a sememe sequence
+    * @param id a nid 
     * @return the ObservableSemanticChronology with the provided id
     */
    ObservableSemanticChronology getObservableSemanticChronology(int id);

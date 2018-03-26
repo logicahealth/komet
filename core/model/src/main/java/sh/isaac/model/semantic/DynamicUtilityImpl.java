@@ -90,7 +90,7 @@ import sh.isaac.model.semantic.types.DynamicUUIDImpl;
  *
  * {@link DynamicUtility}
  *
- * Convenience methods related to DynamicSememes.  Implemented as an interface and a singleton to provide
+ * Convenience methods related to DynamicSemantics.  Implemented as an interface and a singleton to provide
  * lower level code with access to these methods at runtime via HK2.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>

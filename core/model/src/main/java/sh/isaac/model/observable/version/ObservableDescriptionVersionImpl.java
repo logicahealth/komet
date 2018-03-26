@@ -106,9 +106,10 @@ public class ObservableDescriptionVersionImpl
     * the first time. 
      * @param primordialUuid
      * @param referencedComponentUuid
+     * @param assemblageNid
     */
-   public ObservableDescriptionVersionImpl(UUID primordialUuid, UUID referencedComponentUuid) {
-       super(VersionType.DESCRIPTION, primordialUuid, referencedComponentUuid);
+   public ObservableDescriptionVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+       super(VersionType.DESCRIPTION, primordialUuid, referencedComponentUuid, assemblageNid);
    }
 
     /**

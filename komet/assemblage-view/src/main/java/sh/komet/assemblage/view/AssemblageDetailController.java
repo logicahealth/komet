@@ -115,7 +115,7 @@ public class AssemblageDetailController {
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-           ObservableList<ObservableSemanticChronology> children, boolean addSememes) {
+           ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
@@ -143,8 +143,8 @@ public class AssemblageDetailController {
                parentToAddTo.getChildren()
                        .add(historicTreeItem);
             }
-            if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
+            if (addSemantics) {
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSemantics);
             }
          }
       }

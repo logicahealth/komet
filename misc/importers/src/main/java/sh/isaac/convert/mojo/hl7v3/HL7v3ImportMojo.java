@@ -208,7 +208,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 					converterOutputArtifactClassifier, false,
 					gvm.getHeader().getRenderingInformation().getRenderingTime().toGregorianCalendar().getTimeInMillis());
 
-			// TODO would be nice to automate this, could I use reflection to read the dynamic sememes from the class?
+			// TODO would be nice to automate this, could I use reflection to read the dynamic semantics from the class?
 			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getPrimordialUuid(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_NID_EXTENSION.getDynamicColumns());
 			importUtil.registerDynamicColumnInfo(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
@@ -333,7 +333,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 						SupportedConceptProperty known = supportedConceptPropertiesToSCP.get(scp.getPropertyName());
 						if (known != null)
 						{
-							// just need to check the attributes that are part of the attribute sememe definition
+							// just need to check the attributes that are part of the attribute semantic definition
 							// Make sure that everything we know about is what we stored.
 							if ((known.getDefaultValue() == null && scp.getDefaultValue() != null)
 									|| (known.getDefaultValue() != null && !known.getDefaultValue().equals(scp.getDefaultValue()))

@@ -55,12 +55,12 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 @Contract
 public interface LogicalExpressionBuilderService {
    /**
-    * From sememe.
+    * From semantic.
     *
-    * @param sememe the sememe
+    * @param semantic the semantic
     * @return the logical expression
     */
-   LogicalExpression fromSememe(LogicGraphVersion sememe);
+   LogicalExpression fromSemantic(LogicGraphVersion semantic);
 
    //~--- get methods ---------------------------------------------------------
 

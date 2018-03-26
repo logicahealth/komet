@@ -143,7 +143,7 @@ public class Writers {
          final SemanticChronology sc         = (SemanticChronology) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
-         output.write("\"sememeType\":\"");
+         output.write("\"semanticType\":\"");
          output.write(sc.getVersionType()
                         .name());
          output.write("\",");
@@ -283,7 +283,7 @@ public class Writers {
                output.write(ss.getString());
                output.write("\"");
             } else {
-               // Sememe Version - no extra fields
+               // Semantic Version - no extra fields
             }
 
             mainWriter.tabOut();

@@ -37,66 +37,49 @@
 
 
 
-package sh.isaac.model.semantic.dataTypes;
+package sh.isaac.provider.query.search;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.semantic.types.DynamicFloatImpl;
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
+import java.util.Comparator;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeFloatTest}.
+ * A {@link Comparator} for {@link DescriptionVersion} objects that compares the descriptions by their type.
  *
+ * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DynamicSememeFloatTest {
-   /**
-    * Test serialization.
-    *
-    * @throws PropertyVetoException the property veto exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   @Test
-   public void testSerialization()
-            throws PropertyVetoException, IOException {
-      final float[] testValues = new float[] {
-         Float.MIN_VALUE, Float.MAX_VALUE, 0, 4, 6, 4.56f, 4.292732f, 984, -234, -29837, 4532, 3289402830942309f,
-         -9128934721874891f
-      };
+public class DescriptionSemanticTypeComparator
+         implements Comparator<DescriptionVersion> {
 
-      for (final float l: testValues) {
-         test(l);
-      }
-   }
+   //~--- methods -------------------------------------------------------------
 
    /**
-    * Test.
+    * Compare.
     *
-    * @param value the value
-    * @throws PropertyVetoException the property veto exception
-    * @throws IOException Signals that an I/O exception has occurred.
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
     */
-   private void test(float value)
-            throws PropertyVetoException, IOException {
-      final DynamicFloatImpl l = new DynamicFloatImpl(value);
+   @Override
+   public int compare(DescriptionVersion o1, DescriptionVersion o2) {
+      final String o1matchingComponentType = Get.conceptService()
+                                                .getOptionalConcept(o1.getDescriptionTypeConceptNid())
+                                                .get()
+                                                .getFullyQualifiedName();
+      final String o2matchingComponentType = Get.conceptService()
+                                                .getOptionalConcept(o2.getDescriptionTypeConceptNid())
+                                                .get()
+                                                .getFullyQualifiedName();
 
-      assertEquals(value, l.getDataFloat(), 0);
-      assertEquals(value, (Float) l.getDataObject(), 0);
-      assertEquals(value, (Float) l.getDataObjectProperty()
-                                   .get(), 0);
-      assertEquals(l.getDynamicDataType(), DynamicDataType.FLOAT);
+      return o1matchingComponentType.compareTo(o2matchingComponentType);
    }
 }
 

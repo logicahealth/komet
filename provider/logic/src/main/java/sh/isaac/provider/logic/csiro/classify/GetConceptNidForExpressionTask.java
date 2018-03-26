@@ -150,13 +150,13 @@ public class GetConceptNidForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SemanticSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+         final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
                                                                                            this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSemanticVersionsFromAssemblage(
+         final LatestVersion<LogicGraphVersionImpl> match = semanticSnapshot.getLatestSemanticVersionsFromAssemblage(
                                                                this.logicCoordinate.getStatedAssemblageNid())
                                                                          .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
                   final LogicGraphVersionImpl lgs = t.get();

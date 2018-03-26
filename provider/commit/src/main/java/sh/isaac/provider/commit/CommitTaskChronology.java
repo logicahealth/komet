@@ -170,12 +170,12 @@ public class CommitTaskChronology extends CommitTask {
          } else {
             long commitTime = this.commitProvider.getTimeForCommit();
 
-            // TODO have it only commit the versions on the sememe consistent with the edit coordinate.
+            // TODO have it only commit the versions on the semantic consistent with the edit coordinate.
             // successful check, commit and remove uncommitted sequences...
             final StampSequenceSet stampsInCommit = new StampSequenceSet();
             final OpenIntIntHashMap stampAliases = new OpenIntIntHashMap();
             final NidSet conceptsInCommit = new NidSet();
-            final NidSet sememesInCommit = new NidSet();
+            final NidSet semanticsInCommit = new NidSet();
 
             this.chronicle.getVersionList().forEach((version) -> {
                if (version.isUncommitted() && version.getAuthorNid() == editCoordinate.getAuthorNid()) {
@@ -194,7 +194,7 @@ public class CommitTaskChronology extends CommitTask {
             } else {
                final SemanticChronology semanticChronology = (SemanticChronology) this.chronicle;
 
-               sememesInCommit.add(semanticChronology.getNid());
+               semanticsInCommit.add(semanticChronology.getNid());
                this.uncommittedSemanticNidsWithChecks.remove(semanticChronology.getNid());
                this.uncommittedSemanticNidsNoChecksNidSet.remove(semanticChronology.getNid());
                Get.assemblageService().writeSemanticChronology(semanticChronology);
@@ -204,7 +204,7 @@ public class CommitTaskChronology extends CommitTask {
                   stampsInCommit, 
                   stampAliases, 
                   conceptsInCommit, 
-                  sememesInCommit,
+                  semanticsInCommit,
                   commitComment);
             this.commitProvider.handleCommitNotification(commitRecord);
             return Optional.of(commitRecord);

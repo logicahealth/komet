@@ -321,7 +321,7 @@ public class VetsExporter {
          if (fullExportMode) 
          {
             Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage( concept.getNid(),
-                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()).forEach(mappingSememe -> 
+                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()).forEach(mappingSemantic -> 
             {
                Terminology.CodeSystem.Version.MapSets.MapSet xmlMapSet = new Terminology.CodeSystem.Version.MapSets.MapSet();
                xmlMapSet.setAction(determineAction(concept, startDate, endDate));
@@ -331,12 +331,12 @@ public class VetsExporter {
                xmlMapSet.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES).orElse(null));
 
                // Source and Target CodeSystem
-               LatestVersion<DynamicVersion<?>> mappingSememeVersion = mappingSememe.getLatestVersion(STAMP_COORDINATES);
+               LatestVersion<DynamicVersion<?>> mappingSemanticVersion = mappingSemantic.getLatestVersion(STAMP_COORDINATES);
 
-               if (mappingSememeVersion.isPresent()) 
+               if (mappingSemanticVersion.isPresent()) 
                {
                   // Get referenced component for the MapSet values
-                  ConceptChronology cc = Get.conceptService().getConceptChronology(mappingSememeVersion.get().getReferencedComponentNid());
+                  ConceptChronology cc = Get.conceptService().getConceptChronology(mappingSemanticVersion.get().getReferencedComponentNid());
 
                   LatestVersion<ConceptVersion> cv = cc.getLatestVersion(STAMP_COORDINATES);
 
@@ -537,13 +537,13 @@ public class VetsExporter {
    {
       ArrayList<PropertyType> pts = new ArrayList<>();
 
-      Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach((sememe) ->
+      Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach((semantic) ->
       {
          //skip code and vuid properties - they have special handling
-         if (sememe.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() && sememe.getAssemblageNid() != MetaData.CODE____SOLOR.getNid()
-               && tss.isKindOf(sememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
+         if (semantic.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() && semantic.getAssemblageNid() != MetaData.CODE____SOLOR.getNid()
+               && tss.isKindOf(semantic.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
          {
-            PropertyType property = buildProperty(sememe, startDate, endDate, constructor);
+            PropertyType property = buildProperty(semantic, startDate, endDate, constructor);
             if (property != null)
             {
                pts.add(property);
@@ -565,34 +565,34 @@ public class VetsExporter {
    {
       ArrayList<Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry> mes = new ArrayList<>();
       
-      Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(sememe ->
+      Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(semantic ->
       {
-         LatestVersion<DynamicVersion<?>> sememeVersion = sememe.getLatestVersion(STAMP_COORDINATES);
-         if (sememeVersion.isPresent() && sememeVersion.get().getData() != null && sememeVersion.get().getData().length > 0)
+         LatestVersion<DynamicVersion<?>> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
+         if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
             try {
                Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry me = new Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry();
                
                me.setAction(ActionType.ADD); // TODO: There is currently no requirement or ability to deploy MapSet deltas, this if for the full export only
-               me.setVUID(Frills.getVuId(sememe.getNid(), STAMP_COORDINATES).orElse(null));
-               String code = getCodeFromNid(sememeVersion.get().getReferencedComponentNid());
+               me.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES).orElse(null));
+               String code = getCodeFromNid(semanticVersion.get().getReferencedComponentNid());
                if (null == code)
                {
-                  code = Frills.getDescription(sememeVersion.get().getReferencedComponentNid(), null, null).orElse("");
+                  code = Frills.getDescription(semanticVersion.get().getReferencedComponentNid(), null, null).orElse("");
                }
                me.setSourceCode(code);
-               boolean isActive = sememeVersion.get().getStatus() == Status.ACTIVE;
+               boolean isActive = semanticVersion.get().getStatus() == Status.ACTIVE;
                me.setActive(isActive);
                
                DynamicUtility ls =  LookupService.get().getService(DynamicUtility.class);
                if (ls == null)
                {
-                  throw new RuntimeException("An implementation of DynamicSememeUtility is not available on the classpath");
+                  throw new RuntimeException("An implementation of DynamicSemanticUtility is not available on the classpath");
                }
                else
                {
-                  DynamicColumnInfo[] dsci = ls.readDynamicUsageDescription(sememeVersion.get().getAssemblageNid()).getColumnInfo();
-                  DynamicData dsd[] = sememeVersion.get().getData();
+                  DynamicColumnInfo[] dsci = ls.readDynamicUsageDescription(semanticVersion.get().getAssemblageNid()).getColumnInfo();
+                  DynamicData dsd[] = semanticVersion.get().getData();
                   
                   for (DynamicColumnInfo d : dsci)
                   {
@@ -685,10 +685,10 @@ public class VetsExporter {
       boolean isActive = false;
       if (semantic.getVersionType() == VersionType.DYNAMIC)
       {
-         LatestVersion<DynamicVersion<?>> sememeVersion = semantic.getLatestVersion(STAMP_COORDINATES);
-         if (sememeVersion.isPresent() && sememeVersion.get().getData() != null && sememeVersion.get().getData().length > 0)
+         LatestVersion<DynamicVersion<?>> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
+         if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
-            newValue = sememeVersion.get().getData()[0] == null ? null : sememeVersion.get().getData()[0].dataToString();
+            newValue = semanticVersion.get().getData()[0] == null ? null : semanticVersion.get().getData()[0].dataToString();
             List<DynamicVersion<?>> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES);
             Collections.reverse(coll);
             for(DynamicVersion<?> s : coll)
@@ -699,15 +699,15 @@ public class VetsExporter {
                   break;
                }
             }
-            isActive = sememeVersion.get().getStatus() == Status.ACTIVE;
+            isActive = semanticVersion.get().getStatus() == Status.ACTIVE;
          }
       }
       else if (semantic.getVersionType() == VersionType.STRING)
       {
-         LatestVersion<StringVersion> sememeVersion = semantic.getLatestVersion(STAMP_COORDINATES);
-         if (sememeVersion.isPresent())
+         LatestVersion<StringVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
+         if (semanticVersion.isPresent())
          {
-            newValue = sememeVersion.get().getString();
+            newValue = semanticVersion.get().getString();
             List<StringVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES);
             Collections.reverse(coll);
             for(StringVersion s : coll)
@@ -718,12 +718,12 @@ public class VetsExporter {
                   break;
                }
             }
-            isActive = sememeVersion.get().getStatus() == Status.ACTIVE;
+            isActive = semanticVersion.get().getStatus() == Status.ACTIVE;
          }
       }
       else
       {
-         log.warn("Unexpectedly passed sememe " + semantic + " when we only expected a dynamic or a string type");
+         log.warn("Unexpectedly passed semantic " + semantic + " when we only expected a dynamic or a string type");
          return null;
       }
 
@@ -778,21 +778,21 @@ public class VetsExporter {
 
       List<DesignationType> designations = new ArrayList<>();
 
-      Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).forEach(sememe ->
+      Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).forEach(semantic ->
       {
-         if (sememe.getVersionType() == VersionType.DESCRIPTION)
+         if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
             boolean hasChild = false;
-            LatestVersion<DescriptionVersion> descriptionVersion = sememe.getLatestVersion( STAMP_COORDINATES);
+            LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion( STAMP_COORDINATES);
             if (descriptionVersion.isPresent())
             {
                DesignationType d = constructor.get();
                
-               d.setAction(determineAction(sememe, startDate, endDate));
+               d.setAction(determineAction(semantic, startDate, endDate));
                
                if (d.getAction() != ActionType.ADD)
                {
-                  List<DescriptionVersion> coll = sememe.getVisibleOrderedVersionList(STAMP_COORDINATES);
+                  List<DescriptionVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES);
                   Collections.reverse(coll);
                   for(DescriptionVersion s : coll)
                   {
@@ -813,19 +813,19 @@ public class VetsExporter {
                   d.setValueNew(null);
                }
                
-               d.setCode(getCodeFromNid(sememe.getNid()));
-               d.setVUID(Frills.getVuId(sememe.getNid(), STAMP_COORDINATES).orElse(null));
+               d.setCode(getCodeFromNid(semantic.getNid()));
+               d.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES).orElse(null));
                d.setActive(descriptionVersion.get().getStatus() == Status.ACTIVE);
 
                //Get the extended type
-               Optional<UUID> descType = Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES, sememe.getNid(), true);
+               Optional<UUID> descType = Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES, semantic.getNid(), true);
                if (descType.isPresent())
                {
                   d.setTypeName(designationTypes.get(descType.get()));
                }
                else
                {
-                  log.warn("No extended description type present on description " + sememe.getPrimordialUuid() + " " + descriptionVersion.get().getText());
+                  log.warn("No extended description type present on description " + semantic.getPrimordialUuid() + " " + descriptionVersion.get().getText());
                }
 
                if (d instanceof Designation)
@@ -837,25 +837,25 @@ public class VetsExporter {
                         new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations.Designation.SubsetMemberships();
 
 
-                  Get.assemblageService().getSemanticChronologyStreamForComponent(sememe.getNid()).forEach((nestedSememe) -> {
+                  Get.assemblageService().getSemanticChronologyStreamForComponent(semantic.getNid()).forEach((nestedSemantic) -> {
                      //skip code and vuid properties - they are handled already
                      
-                     if (nestedSememe.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
-                           && nestedSememe.getAssemblageNid() != MetaData.CODE____SOLOR.getNid())
+                     if (nestedSemantic.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
+                           && nestedSemantic.getAssemblageNid() != MetaData.CODE____SOLOR.getNid())
                      {
-                        if (tss.isKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
+                        if (tss.isKindOf(nestedSemantic.getAssemblageNid(), VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
                         {
-                           PropertyType property = buildProperty(nestedSememe, startDate, endDate, null);
+                           PropertyType property = buildProperty(nestedSemantic, startDate, endDate, null);
                            if (property != null)
                            {
                               xmlDesignationProperties.getProperty().add(property);
                            }
                         }
                         //a refset that doesn't represent a mapset
-                        else if (tss.isKindOf(nestedSememe.getAssemblageNid(), VHATConstants.VHAT_REFSETS.getNid()) &&
-                              ! tss.isKindOf(nestedSememe.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()))
+                        else if (tss.isKindOf(nestedSemantic.getAssemblageNid(), VHATConstants.VHAT_REFSETS.getNid()) &&
+                              ! tss.isKindOf(nestedSemantic.getAssemblageNid(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()))
                         {
-                           SubsetMembership sm = buildSubsetMembership(nestedSememe, startDate, endDate);
+                           SubsetMembership sm = buildSubsetMembership(nestedSemantic, startDate, endDate);
                            if (sm != null)
                            {
                               xmlSubsetMemberships.getSubsetMembership().add(sm);
@@ -893,7 +893,7 @@ public class VetsExporter {
     * @param semantic the Chronicle object (concept) representing the Subset
     * @param startDate
     * @param endDate
-    * @return the SubsetMembership object built for the sememe, or null
+    * @return the SubsetMembership object built for the semantic, or null
     */
    private SubsetMembership buildSubsetMembership(SemanticChronology semantic, long startDate, long endDate)
    {
@@ -922,7 +922,7 @@ public class VetsExporter {
       }
       else
       {
-         log.error("Unexpected sememe type! " + semantic);
+         log.error("Unexpected semantic type! " + semantic);
          return null;
       }
    }
@@ -1025,12 +1025,12 @@ public class VetsExporter {
    {
       ArrayList<String> descriptions = new ArrayList<>(1);
       ArrayList<String> inActiveDescriptions = new ArrayList<>(1);
-      Get.assemblageService().getDescriptionsForComponent(conceptNid).forEach(sememeChronology ->
+      Get.assemblageService().getDescriptionsForComponent(conceptNid).forEach(semanticChronology ->
       {
-         LatestVersion<DescriptionVersion> latestVersion = sememeChronology.getLatestVersion(STAMP_COORDINATES);
+         LatestVersion<DescriptionVersion> latestVersion = semanticChronology.getLatestVersion(STAMP_COORDINATES);
          if (latestVersion.isPresent()
                && VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid()
-                  .equals(Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES, sememeChronology.getNid(), true).orElse(null)))
+                  .equals(Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES, semanticChronology.getNid(), true).orElse(null)))
          {
             if (latestVersion.get().getStatus() == Status.ACTIVE)
             {
@@ -1183,11 +1183,11 @@ public class VetsExporter {
     * 
     * @param nid
     * @param startDate
-    * @return true or false, if the sememe was modified in the date range
+    * @return true or false, if the semantic was modified in the date range
     */
    private boolean hasSemanticModifiedInDateRange(int nid, long startDate)
    {
-      //Check all the nested sememes
+      //Check all the nested semantics
       return Get.assemblageService().getSemanticChronologyStreamForComponent(nid).anyMatch(sc ->
       {
          LatestVersion<Version> sv = sc.getLatestVersion(STAMP_COORDINATES);
@@ -1219,8 +1219,8 @@ public class VetsExporter {
             MetaData.CODE____SOLOR.getNid()).findFirst();
       if (sc.isPresent())
       {
-         //There was a bug in the older terminology loaders which loaded 'Code' as a static sememe, but marked it as a dynamic sememe.
-         //So during edits, new entries would get saves as dynamic sememes, while old entries were static.  Handle either....
+         //There was a bug in the older terminology loaders which loaded 'Code' as a static semantic, but marked it as a dynamic semantic.
+         //So during edits, new entries would get saves as dynamic semantics, while old entries were static.  Handle either....
 
          if (sc.get().getVersionType() == VersionType.STRING)
          {
@@ -1243,7 +1243,7 @@ public class VetsExporter {
          }
          else
          {
-            log.error("Unexpected sememe type for 'Code' sememe on nid " + componentNid);
+            log.error("Unexpected semantic type for 'Code' semantic on nid " + componentNid);
          }
       }
       return null;

@@ -75,7 +75,7 @@ public class DescriptionVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new description sememe impl.
+    * Instantiates a new description semantic impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
@@ -86,7 +86,7 @@ public class DescriptionVersionImpl
    }
 
    /**
-    * Instantiates a new description sememe impl.
+    * Instantiates a new description semantic impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
@@ -248,9 +248,9 @@ public class DescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {

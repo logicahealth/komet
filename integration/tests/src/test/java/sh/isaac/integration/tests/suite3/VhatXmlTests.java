@@ -1105,8 +1105,8 @@ public class VhatXmlTests {
             boolean found602 = false;
             for (Object sc : Get.assemblageService().getSemanticChronologyStreamForComponent(nid.get()).toArray())
             {
-               SemanticChronology sememe = (SemanticChronology) sc;
-               long vuid = Frills.getVuId(sememe.getAssemblageNid(), 
+               SemanticChronology semantic = (SemanticChronology) sc;
+               long vuid = Frills.getVuId(semantic.getAssemblageNid(), 
                      activeStampCoord).orElse(0L).longValue();
                if (vuid == -601L)
                {
@@ -6343,8 +6343,8 @@ public class VhatXmlTests {
             MetaData.CODE____SOLOR.getNid()).findFirst();
       if (sc.isPresent())
       {
-         //There was a bug in the older terminology loaders which loaded 'Code' as a static sememe, but marked it as a dynamic sememe.
-         //So during edits, new entries would get saves as dynamic sememes, while old entries were static.  Handle either....
+         //There was a bug in the older terminology loaders which loaded 'Code' as a static semantic, but marked it as a dynamic semantic.
+         //So during edits, new entries would get saves as dynamic semantics, while old entries were static.  Handle either....
 
          if (sc.get().getVersionType() == VersionType.STRING)
          {
@@ -6378,12 +6378,12 @@ public class VhatXmlTests {
       
       ArrayList<String> descriptions = new ArrayList<>(1);
       ArrayList<String> inActiveDescriptions = new ArrayList<>(1);
-      Get.assemblageService().getDescriptionsForComponent(conceptNid).forEach(sememeChronology ->
+      Get.assemblageService().getDescriptionsForComponent(conceptNid).forEach(semanticChronology ->
       {
-         LatestVersion<DescriptionVersion> latestVersion = sememeChronology.getLatestVersion(defStamp);
+         LatestVersion<DescriptionVersion> latestVersion = semanticChronology.getLatestVersion(defStamp);
          if (latestVersion.isPresent()
                && VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid()
-                  .equals(Frills.getDescriptionExtendedTypeConcept(defStamp, sememeChronology.getNid(), true).orElse(null)))
+                  .equals(Frills.getDescriptionExtendedTypeConcept(defStamp, semanticChronology.getNid(), true).orElse(null)))
          {
             if (latestVersion.get().getStatus() == Status.ACTIVE)
             {
@@ -6417,15 +6417,15 @@ public class VhatXmlTests {
             ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate()
                   : stamp; 
 
-      for (Object sememeObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
+      for (Object semanticObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
       {
-         SemanticChronology sememe = (SemanticChronology) sememeObj;
-         if (sememe.getVersionType() == VersionType.DESCRIPTION)
+         SemanticChronology semantic = (SemanticChronology) semanticObj;
+         if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
-            LatestVersion<DescriptionVersion> descriptionVersion = sememe.getLatestVersion(defStamp);
+            LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion(defStamp);
             if (descriptionVersion.isPresent())
             {
-               List<DescriptionVersion> coll = sememe.getVisibleOrderedVersionList(defStamp);
+               List<DescriptionVersion> coll = semantic.getVisibleOrderedVersionList(defStamp);
                Collections.reverse(coll);
                for(DescriptionVersion s : coll)
                {
@@ -6447,10 +6447,10 @@ public class VhatXmlTests {
             ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate()
                   : stamp; 
    
-      for (Object sememeObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
+      for (Object semanticObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
       {
-         SemanticChronology sememe = (SemanticChronology) sememeObj;
-         String code = getCodeFromNid(sememe.getNid(), defStamp);
+         SemanticChronology semantic = (SemanticChronology) semanticObj;
+         String code = getCodeFromNid(semantic.getNid(), defStamp);
          
          if (code != null)
          {
@@ -6540,25 +6540,25 @@ public class VhatXmlTests {
       
       final Map<String, Boolean> propMap = new HashMap<>();
       
-      for (Object sememeObj : Get.assemblageService().getSememesForComponent(concept.getNid()).toArray())
+      for (Object semanticObj : Get.assemblageService().getSemanticsForComponent(concept.getNid()).toArray())
       {
-         SemanticChronology sememe = (SemanticChronology) sememeObj;
+         SemanticChronology semantic = (SemanticChronology) semanticObj;
          
-         if (!getPreferredNameDescriptionType(Get.identifierService().getConceptNid(sememe.getAssemblageNid()), defStamp).equals(propTypeName))
+         if (!getPreferredNameDescriptionType(Get.identifierService().getConceptNid(semantic.getAssemblageNid()), defStamp).equals(propTypeName))
          {
             continue;
          }
          
          String newValue = null;
          String oldValue = null;
-         if (sememe.getVersionType() == VersionType.DYNAMIC)
+         if (semantic.getVersionType() == VersionType.DYNAMIC)
          {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            Optional<LatestVersion<DynamicSememe<?>>> sememeVersion = ((SemanticChronology)sememe).getLatestVersion(DynamicSememe.class, defStamp);
-            if (sememeVersion.isPresent() && sememeVersion.get().value().getDynamicSememeUsageDescription().getColumnInfo().length == 1 && 
-                  sememeVersion.get().value().getDynamicSememeUsageDescription().getColumnInfo()[0].getColumnDataType() == DynamicSememeDataType.STRING)
+            Optional<LatestVersion<DynamicSemantic<?>>> semanticVersion = ((SemanticChronology)semantic).getLatestVersion(DynamicSemantic.class, defStamp);
+            if (semanticVersion.isPresent() && semanticVersion.get().value().getDynamicSemanticUsageDescription().getColumnInfo().length == 1 && 
+                  semanticVersion.get().value().getDynamicSemanticUsageDescription().getColumnInfo()[0].getColumnDataType() == DynamicSemanticDataType.STRING)
             {
-               newValue = sememeVersion.get().value().getData()[0] == null ? null : sememeVersion.get().value().getData()[0].dataToString();
+               newValue = semanticVersion.get().value().getData()[0] == null ? null : semanticVersion.get().value().getData()[0].dataToString();
                if (newValue != null && newValue.equals(valueNewToCheck))
                {
                   propMap.put("ValueNew", true);
@@ -6567,9 +6567,9 @@ public class VhatXmlTests {
                if (!valueOldToCheck.isEmpty())
                {
                   @SuppressWarnings({ "unchecked", "rawtypes" })
-                  List<DynamicSememe<?>> coll = ((SemanticChronology) sememe).getVisibleOrderedVersionList(defStamp);
+                  List<DynamicSemantic<?>> coll = ((SemanticChronology) semantic).getVisibleOrderedVersionList(defStamp);
                   Collections.reverse(coll);
-                  for(DynamicSememe<?> s : coll)
+                  for(DynamicSemantic<?> s : coll)
                   {
                      if (s.getData()[0] != null && s.getData()[0].dataToString().equals(valueOldToCheck))
                      {
@@ -6580,13 +6580,13 @@ public class VhatXmlTests {
                }
             }
          }
-         else if (sememe.getVersionType() == VersionType.STRING)
+         else if (semantic.getVersionType() == VersionType.STRING)
          {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            Optional<LatestVersion<? extends StringSememe>> sememeVersion = ((SemanticChronology) sememe).getLatestVersion(StringSememe.class, defStamp);
-            if (sememeVersion.isPresent())
+            Optional<LatestVersion<? extends StringSemantic>> semanticVersion = ((SemanticChronology) semantic).getLatestVersion(StringSemantic.class, defStamp);
+            if (semanticVersion.isPresent())
             {
-               newValue = sememeVersion.get().value().getString();
+               newValue = semanticVersion.get().value().getString();
                if (newValue != null && newValue.equals(valueNewToCheck))
                {
                   propMap.put("ValueNew", true);
@@ -6595,9 +6595,9 @@ public class VhatXmlTests {
                if (!valueOldToCheck.isEmpty())
                {
                   @SuppressWarnings({ "unchecked", "rawtypes" })
-                  List<StringSememe<?>> coll = ((SemanticChronology) sememe).getVisibleOrderedVersionList(defStamp);
+                  List<StringSemantic<?>> coll = ((SemanticChronology) semantic).getVisibleOrderedVersionList(defStamp);
                   Collections.reverse(coll);
-                  for(StringSememe<?> s : coll)
+                  for(StringSemantic<?> s : coll)
                   {
                      if (s.getString() != null && s.getString().equals(valueOldToCheck))
                      {
@@ -6706,14 +6706,14 @@ public class VhatXmlTests {
       boolean descTypeMatches = true; // TODO
       boolean stateMatches = false;
       
-      for (Object sc : Get.assemblageService().getSememesForComponent(concept.getNid()).toArray())
+      for (Object sc : Get.assemblageService().getSemanticsForComponent(concept.getNid()).toArray())
       {
-         SemanticChronology sememe = (SemanticChronology) sc;
-         if (sememe.getVersionType() == VersionType.DESCRIPTION)
+         SemanticChronology semantic = (SemanticChronology) sc;
+         if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            Optional<LatestVersion<DescriptionSememe>> descriptionVersion 
-                  = ((SemanticChronology) sememe).getLatestVersion(DescriptionSememe.class, defStamp);
+            Optional<LatestVersion<DescriptionSemantic>> descriptionVersion 
+                  = ((SemanticChronology) semantic).getLatestVersion(DescriptionSemantic.class, defStamp);
             if (descriptionVersion.isPresent())
             {
                // TODO
@@ -6745,21 +6745,21 @@ public class VhatXmlTests {
    {
       for (Object sc : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
       {
-         SemanticChronology sememe = (SemanticChronology) sc;
-         if (sememe.getVersionType() == VersionType.DESCRIPTION)
+         SemanticChronology semantic = (SemanticChronology) sc;
+         if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
-            LatestVersion<DescriptionVersion> descriptionVersion = sememe.getLatestVersion(stamp);
+            LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion(stamp);
             if (descriptionVersion.isPresent())
             {
-               for (Object nsc : Get.assemblageService().getSemanticChronologyStreamForComponent(sememe.getNid()).toArray())
+               for (Object nsc : Get.assemblageService().getSemanticChronologyStreamForComponent(semantic.getNid()).toArray())
                {
-                  SemanticChronology nestedSememe = (SemanticChronology) nsc;
-                  if (nestedSememe.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
-                        && nestedSememe.getAssemblageNid() != MetaData.CODE____SOLOR.getNid())
+                  SemanticChronology nestedSemantic = (SemanticChronology) nsc;
+                  if (nestedSemantic.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
+                        && nestedSemantic.getAssemblageNid() != MetaData.CODE____SOLOR.getNid())
                   {
-                        if (nestedSememe.getVersionType() == VersionType.DYNAMIC)
+                        if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
                         {
-                           long vuid = Frills.getVuId(nestedSememe.getAssemblageNid(), 
+                           long vuid = Frills.getVuId(nestedSemantic.getAssemblageNid(), 
                                  stamp).orElse(0L).longValue();
                            if (vuidToCheck.equals(vuid))
                            {

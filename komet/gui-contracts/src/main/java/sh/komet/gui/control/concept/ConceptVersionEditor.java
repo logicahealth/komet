@@ -30,6 +30,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.MetaData;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -89,7 +90,7 @@ public class ConceptVersionEditor implements PropertyEditor<ObservableConceptVer
     }
 
     private void setupWithConceptUuid() {
-        this.conceptVersionProperty.set(new ObservableConceptVersionImpl(conceptUuid));
+        this.conceptVersionProperty.set(new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT____SOLOR.getNid()));
         setupProperties();
     }
 

@@ -460,7 +460,7 @@ public class LoadTermstore
             }
 
             getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount + " stampAlias, " 
-                  + stampCommentCount + " stampComments, " + mergeCount + " merged sememes" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
+                  + stampCommentCount + " stampComments, " + mergeCount + " merged semantics" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
                           + ((duplicateCount > 0) ? " Duplicates " + duplicateCount : "") 
                           + ((this.itemFailure > 0) ? " Failures " + this.itemFailure : "") + " from file " + f.getName());
             getLog().info("running item count: "  + this.itemCount);

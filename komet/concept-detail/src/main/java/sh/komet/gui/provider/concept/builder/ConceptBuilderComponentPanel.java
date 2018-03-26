@@ -131,15 +131,8 @@ public class ConceptBuilderComponentPanel
         badges.add(Iconography.STATED.getIconographic());
         componentType.setText(" EL++");
       
-        LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        this.logicDetailTree = AxiomView.create(expression, premiseType, manifold);
+        this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, manifold);
         this.editorPane = this.logicDetailTree;
-    }
-    
-    private void updateStatedExpression(LogicalExpression expression) {
-        this.logicDetailTree = AxiomView.create(expression, PremiseType.STATED, manifold);
-        this.editorPane = this.logicDetailTree;
-        this.redoLayout();
     }
 
     protected final void setupDescription(ObservableDescriptionDialect descriptionDialect) {

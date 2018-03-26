@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
@@ -68,8 +68,8 @@ public class ObservableComponentNidVersionImpl
       setComponentNid(versionToClone.getComponentNid());
    }
 
-    public ObservableComponentNidVersionImpl(UUID primordialUuid, UUID referencedComponentUuid) {
-        super(VersionType.COMPONENT_NID, primordialUuid, referencedComponentUuid);
+    public ObservableComponentNidVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+        super(VersionType.COMPONENT_NID, primordialUuid, referencedComponentUuid, assemblageNid);
     }
    
    

@@ -59,7 +59,6 @@ import org.glassfish.hk2.api.Rank;
 
 import org.jvnet.hk2.annotations.Service;
 
-import javafx.beans.value.ObservableObjectValue;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
@@ -79,33 +78,33 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 @Rank(value = -50)
 public class MockSemanticService
          implements AssemblageService {
-   /** The component sememe map. */
-   ConcurrentHashMap<Integer, NidSet> componentSememeMap = new ConcurrentHashMap<>();
+   /** The component semantic map. */
+   ConcurrentHashMap<Integer, NidSet> componentSemanticMap = new ConcurrentHashMap<>();
 
-   /** The sememe map. */
+   /** The semantic map. */
    ConcurrentHashMap<Integer, SemanticChronology> semanticMap = new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
 
    /**
-    * Write sememe.
+    * Write semantic.
     *
-    * @param sememeChronicle the sememe chronicle
+    * @param semanticChronicle the semantic chronicle
     */
    @Override
-   public void writeSemanticChronology(SemanticChronology sememeChronicle) {
-      if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
-         this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
-                                .add(sememeChronicle.getNid());
+   public void writeSemanticChronology(SemanticChronology semanticChronicle) {
+      if (this.componentSemanticMap.containsKey(semanticChronicle.getReferencedComponentNid())) {
+         this.componentSemanticMap.get(semanticChronicle.getReferencedComponentNid())
+                                .add(semanticChronicle.getNid());
       } else {
-         final NidSet set = NidSet.of(sememeChronicle.getNid());
+         final NidSet set = NidSet.of(semanticChronicle.getNid());
 
-         this.componentSememeMap.put(sememeChronicle.getReferencedComponentNid(), set);
+         this.componentSemanticMap.put(semanticChronicle.getReferencedComponentNid(), set);
       }
 
-      this.semanticMap.put(sememeChronicle.getNid(),
-                         (SemanticChronology) sememeChronicle);
+      this.semanticMap.put(semanticChronicle.getNid(),
+                         (SemanticChronology) semanticChronicle);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -138,10 +137,10 @@ public class MockSemanticService
     */
    @Override
    public List<SemanticChronology> getDescriptionsForComponent(int componentNid) {
-      final NidSet set = this.componentSememeMap.get(componentNid);
+      final NidSet set = this.componentSemanticMap.get(componentNid);
       List<SemanticChronology> results = new ArrayList<>();
-        set.stream().forEach((sememeSequence) -> {
-                        final SemanticChronology semanticChronology = this.semanticMap.get(sememeSequence);
+        set.stream().forEach((semanticSequence) -> {
+                        final SemanticChronology semanticChronology = this.semanticMap.get(semanticSequence);
 
                         if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
                            results.add(semanticChronology);
@@ -151,31 +150,31 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the optional sememe.
+    * Gets the optional semantic.
     *
-    * @param sememeId the sememe id
-    * @return the optional sememe
+    * @param semanticId the semantic id
+    * @return the optional semantic
     */
    @Override
-   public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int sememeId) {
-      return Optional.ofNullable(getSemanticChronology(sememeId));
+   public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticId) {
+      return Optional.ofNullable(getSemanticChronology(semanticId));
    }
 
    /**
-    * Gets the sememe.
+    * Gets the semantic.
     *
-    * @param sememeId the sememe id
-    * @return the sememe
+    * @param semanticId the semantic id
+    * @return the semantic
     */
    @Override
-   public SemanticChronology getSemanticChronology(int sememeId) {
-      return this.semanticMap.get(sememeId);
+   public SemanticChronology getSemanticChronology(int semanticId) {
+      return this.semanticMap.get(semanticId);
    }
 
    /**
-    * Gets the sememe chronology stream.
+    * Gets the semantic chronology stream.
     *
-    * @return the sememe chronology stream
+    * @return the semantic chronology stream
     */
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStream() {
@@ -184,9 +183,9 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememe key stream.
+    * Gets the semantic key stream.
     *
-    * @return the sememe key stream
+    * @return the semantic key stream
     */
    @Override
    public IntStream getSemanticNidStream() {
@@ -196,10 +195,10 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememe sequences for component.
+    * Gets the semantic sequences for component.
     *
     * @param componentNid the component nid
-    * @return the sememe sequences for component
+    * @return the semantic sequences for component
     */
    @Override
    public NidSet getSemanticNidsForComponent(int componentNid) {
@@ -207,11 +206,11 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememe sequences for component from assemblage.
+    * Gets the semantic sequences for component from assemblage.
     *
     * @param componentNid the component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences for component from assemblage
+    * @return the semantic sequences for component from assemblage
     */
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid,
@@ -221,10 +220,10 @@ public class MockSemanticService
 
 
    /**
-    * Gets the sememe sequences from assemblage.
+    * Gets the semantic sequences from assemblage.
     *
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences from assemblage
+    * @return the semantic sequences from assemblage
     */
    @Override
    public NidSet getSemanticNidsFromAssemblage(int assemblageConceptSequence) {
@@ -232,10 +231,10 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememes for component.
+    * Gets the semantics for component.
     *
     * @param componentNid the component nid
-    * @return the sememes for component
+    * @return the semantics for component
     */
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid) {
@@ -243,11 +242,11 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememes for component from assemblage.
+    * Gets the semantics for component from assemblage.
     *
     * @param componentNid the component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes for component from assemblage
+    * @return the semantics for component from assemblage
     */
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
@@ -256,10 +255,10 @@ public class MockSemanticService
    }
 
    /**
-    * Gets the sememes from assemblage.
+    * Gets the semantics from assemblage.
     *
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes from assemblage
+    * @return the semantics from assemblage
     */
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptSequence) {

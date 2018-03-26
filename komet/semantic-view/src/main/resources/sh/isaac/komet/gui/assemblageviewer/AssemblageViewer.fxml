@@ -81,7 +81,7 @@
 					<bottom>
 						<ToolBar prefWidth="200.0" BorderPane.alignment="CENTER">
 							<items>
-								<Label fx:id="statusLabel" text="Showing X of Y Sememes" />
+								<Label fx:id="statusLabel" text="Showing X of Y Semantics" />
 								<Region maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 								<Button fx:id="clearFilterButton" mnemonicParsing="false" text="Clear Filter" />
 							</items>

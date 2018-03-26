@@ -34,17 +34,12 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -62,7 +57,6 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableSemanticVersionImpl.
  *
@@ -70,180 +64,150 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  */
 public abstract class ObservableAbstractSemanticVersionImpl
         extends ObservableVersionImpl
-         implements ObservableSemanticVersion {
-   /**
-    * The referenced component uuid property.
-    */
-   ObjectProperty<UUID> referencedComponentUuidProperty;
+        implements ObservableSemanticVersion {
 
+    /**
+     * The referenced component uuid property.
+     */
+    ObjectProperty<UUID> referencedComponentUuidProperty;
 
-   /** The assemblage nid property. */
-   CommitAwareIntegerProperty assemblageNidProperty;
+    /**
+     * The referenced component nid property.
+     */
+    ReadOnlyIntegerProperty referencedComponentNidProperty;
 
-   /** The referenced component nid property. */
-   ReadOnlyIntegerProperty referencedComponentNidProperty;
-
-  /**
-    * Minimal arg constructor, for making an observable uncoupled for underlying data, 
-    * for example when creating a new component prior to being committed for 
-    * the first time. 
+    /**
+     * Minimal arg constructor, for making an observable uncoupled for
+     * underlying data, for example when creating a new component prior to being
+     * committed for the first time.
+     *
      * @param versionType
      * @param primordialUuid
      * @param referencedComponentUuid
-    */
-    public ObservableAbstractSemanticVersionImpl(VersionType versionType, UUID primordialUuid, UUID referencedComponentUuid) {
-        super(versionType, primordialUuid);
+     * @param assemblageNid
+     */
+    public ObservableAbstractSemanticVersionImpl(VersionType versionType,
+            UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+        super(versionType, primordialUuid, assemblageNid);
         this.referencedComponentUuidProperty = new SimpleObjectProperty(
-                 this,
-                 ObservableFields.REFERENCED_COMPONENT_UUID_FOR_SEMANTIC.toExternalString(),
-                 primordialUuid);
+                this,
+                ObservableFields.REFERENCED_COMPONENT_UUID_FOR_SEMANTIC.toExternalString(),
+                primordialUuid);
     }
 
-   /**
-    * Instantiates a new observable sememe version impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
-    */
-   public ObservableAbstractSemanticVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
-      super(stampedVersion, 
-              chronology);
-   }
+    /**
+     * Instantiates a new observable semantic version impl.
+     *
+     * @param stampedVersion the stamped version
+     * @param chronology the chronology
+     */
+    public ObservableAbstractSemanticVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
+        super(stampedVersion,
+                chronology);
+    }
 
+    public ObservableAbstractSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+        super(chronology);
+        this.assemblageNidProperty
+                = new CommitAwareIntegerProperty(this,
+                        ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
+                        versionToClone.getAssemblageNid());
+        this.referencedComponentNidProperty
+                = ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+                        ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                        versionToClone.getReferencedComponentNid()));
+        this.setStatus(versionToClone.getStatus());
+    }
 
-   public ObservableAbstractSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
-      super(chronology);
-      this.assemblageNidProperty = 
-            new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
-               versionToClone.getAssemblageNid());
-         this.referencedComponentNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
-               versionToClone.getReferencedComponentNid()));
-         this.setStatus(versionToClone.getStatus());
-   }
+    /**
+     * referenced component nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
+        if (this.referencedComponentNidProperty == null) {
+            this.referencedComponentNidProperty
+                    = ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+                            ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                            getReferencedComponentNid()));
+        }
+        return this.referencedComponentNidProperty;
+    }
 
-   /**
-    * assemblage nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final IntegerProperty assemblageNidProperty() {
-      if (this.assemblageNidProperty == null) {
-         this.assemblageNidProperty = 
-            new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
-               getAssemblageNid());
-      }
+    @Override
+    public List<ReadOnlyProperty<?>> getProperties() {
+        List<ReadOnlyProperty<?>> properties = super.getProperties();
+        properties.add(assemblageNidProperty());
+        properties.add(referencedComponentNidProperty());
+        return properties;
+    }
 
-      return this.assemblageNidProperty;
-   }
+    @Override
+    protected List<Property<?>> getEditableProperties2() {
+        return getEditableProperties3();
+    }
 
-   /**
-    * referenced component nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
-      if (this.referencedComponentNidProperty == null) {
-         this.referencedComponentNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
-               getReferencedComponentNid()));
-      }
-      return this.referencedComponentNidProperty;
-   }
-   @Override
-   public List<ReadOnlyProperty<?>> getProperties() {
-      List<ReadOnlyProperty<?>> properties = super.getProperties();
-      properties.add(assemblageNidProperty());
-      properties.add(referencedComponentNidProperty());
-      return properties;
-   }
+    /**
+     * Wish we had a MUST_OVERRIDE annotation...
+     *
+     * @return
+     */
+    protected List<Property<?>> getEditableProperties3() {
+        return new ArrayList<>();
+    }
 
-   @Override
-   protected List<Property<?>> getEditableProperties2() {
-         return getEditableProperties3();
-   }
-   
-   /**
-    * Wish we had a MUST_OVERRIDE annotation... 
-    * @return 
-    */
-   protected List<Property<?>> getEditableProperties3() {
-       return new ArrayList<>();
-   }
-  
-   //~--- get methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the assemblage sequence.
-    *
-    * @return the assemblage sequence
-    */
-   @Override
-   public int getAssemblageNid() {
-       if (this.stampedVersionProperty != null) {
-           return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
-       }
-       if (this.assemblageNidProperty != null) {
-           return assemblageNidProperty().get();
-       }
-       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-   }
+    /**
+     * Gets the chronology.
+     *
+     * @return the chronology
+     */
+    @Override
+    public ObservableSemanticChronology getChronology() {
+        return (ObservableSemanticChronology) this.chronology;
+    }
 
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public ObservableSemanticChronology getChronology() {
-      return (ObservableSemanticChronology) this.chronology;
-   }
-
-   /**
-    * Gets the referenced component nid.
-    *
-    * @return the referenced component nid
-    */
-   @Override
-   public int getReferencedComponentNid() {
-       if (this.stampedVersionProperty != null) {
-        return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
-       }
-       if (this.referencedComponentNidProperty != null) {
-           return referencedComponentNidProperty().get();
-       }
-       return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-   }
-
+    /**
+     * Gets the referenced component nid.
+     *
+     * @return the referenced component nid
+     */
+    @Override
+    public int getReferencedComponentNid() {
+        if (this.stampedVersionProperty != null) {
+            return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
+        }
+        if (this.referencedComponentNidProperty != null) {
+            return referencedComponentNidProperty().get();
+        }
+        return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+    }
 
     @Override
     public Chronology createIndependentChronicle() {
-        SemanticChronologyImpl independentChronology = 
-                new SemanticChronologyImpl(
+        SemanticChronologyImpl independentChronology
+                = new SemanticChronologyImpl(
                         this.getSemanticType(),
                         this.getPrimordialUuid(), this.getAssemblageNid(),
                         this.getReferencedComponentNid());
         boolean added = false;
-        for (Version v: this.getChronology().getVersionList()) {
-            if (v == this) {
-                added = true;
+        if (this.getChronology() != null) {
+            for (Version v : this.getChronology().getVersionList()) {
+                if (v == this) {
+                    added = true;
+                }
+                independentChronology.addVersion(v);
             }
-            independentChronology.addVersion(v);
         }
-        
+
         if (!added) {
             independentChronology.addVersion(this);
         }
         return independentChronology;
     }
-    
-    protected abstract void copyLocalFields(SemanticVersion analog);
-    
-}
 
+    protected abstract void copyLocalFields(SemanticVersion analog);
+
+}

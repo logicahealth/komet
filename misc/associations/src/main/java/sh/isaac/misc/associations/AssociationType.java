@@ -102,11 +102,11 @@ public class AssociationType
       {
          
          if (Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
-               DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(nestedSememe ->
+               DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(nestedSemantic ->
          {
-            if (nestedSememe.getVersionType() == VersionType.DYNAMIC)
+            if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
             {
-               return nestedSememe.getLatestVersion(localStamp).isPresent();
+               return nestedSemantic.getLatestVersion(localStamp).isPresent();
             }
             return false;
          }))
@@ -121,11 +121,11 @@ public class AssociationType
       {
          if (Frills.isDescriptionPreferred(desc.getNid(), localStamp) && 
                Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
-                     DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).anyMatch(nestedSememe ->
+                     DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).anyMatch(nestedSemantic ->
          {
-            if (nestedSememe.getVersionType() == VersionType.DYNAMIC)
+            if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
             {
-               return nestedSememe.getLatestVersion(localStamp).isPresent();
+               return nestedSemantic.getLatestVersion(localStamp).isPresent();
             }
             return false;
          }))
@@ -188,7 +188,7 @@ public class AssociationType
     * @param associationInverseName - (optional) inverse name of the association (if it makes sense for the association)
     * @param description - (optional) description that describes the purpose of the association
     * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or 
-    * UUID that is set for the referenced component in an instance of this sememe.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
+    * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
     * if it were null.
     * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
     * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate, LanguageCoordinate)}
@@ -202,7 +202,7 @@ public class AssociationType
       {
          EditCoordinate localEditCoord = (editCoord == null ? Get.configurationService().getDefaultEditCoordinate() : editCoord);
          
-         //We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
+         //We need to create a new concept - which itself is defining a dynamic semantic - so set that up here.
          DynamicUsageDescription rdud = Frills.createNewDynamicSemanticUsageDescriptionConcept(
                associationName, associationName, StringUtils.isBlank(description) ? "Defines the association type " + associationInverseName : description, 
                new DynamicColumnInfo[] {
@@ -234,7 +234,7 @@ public class AssociationType
                         .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
          }
          
-         //Add the association marker sememe
+         //Add the association marker semantic
          Get.semanticBuilderService().getDynamicBuilder(rdud.getDynamicUsageDescriptorNid(),
                   DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid())
                      .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow(); 

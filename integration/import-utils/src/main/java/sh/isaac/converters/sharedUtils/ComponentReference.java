@@ -238,16 +238,16 @@ public class ComponentReference {
    }
 
    /**
-    * From sememe.
+    * From semantic.
     *
     * @param uuid the uuid
     * @return the component reference
     */
-   public static ComponentReference fromSememe(UUID uuid) {
+   public static ComponentReference fromSemantic(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
                                           .getNidForUuids(uuid),
-                                    () -> "Sememe");
+                                    () -> "Semantic");
    }
 
    //~--- get methods ---------------------------------------------------------

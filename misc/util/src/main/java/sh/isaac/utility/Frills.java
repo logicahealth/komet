@@ -181,7 +181,7 @@ public class Frills
     * 
     * see {@link DynamicUsageDescription}
     * 
-    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_SEMEME_COLUMNS}
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_SEMANTIC_COLUMNS}
     * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
@@ -189,14 +189,14 @@ public class Frills
     * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
     *    "The name of the Semantic", 
     *    "The description of the Semantic",
-    *    new DynamicSememeColumnInfo[]{new DynamicColumnInfo(
+    *    new DynamicSemanticColumnInfo[]{new DynamicColumnInfo(
     *       0,
     *       DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
     *          "column name",
     *          "column description"
     *          )
-    *       DynamicSememeDataType.STRING,
-    *       new DynamicSememeStringImpl("default value")
+    *       DynamicSemanticDataType.STRING,
+    *       new DynamicSemanticStringImpl("default value")
     *       )}
     *    )
     * 
@@ -257,7 +257,7 @@ public class Frills
          newCon = builder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE, new ArrayList<>())
                          .get();
       } catch (InterruptedException | ExecutionException e) {
-         final String msg = "Failed building new DynamicSememeColumnInfo concept columnName=\"" + columnName +
+         final String msg = "Failed building new DynamicSemanticColumnInfo concept columnName=\"" + columnName +
                             "\", columnDescription=\"" + columnDescription + "\"";
 
          LOG.error(msg, e);
@@ -280,8 +280,8 @@ public class Frills
     * @param parentConceptNid - optional - the parent concept nid - if not specified, the concept will be created as a child 
     *    of {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} 
     * @param referencedComponentRestriction - optional - if specified, this semantic may only be applied to the specified type of referenced components.
-    * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type sememe, then this can further restrice
-    * the type of sememe this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(IsaacObjectType, VersionType)}
+    * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type semantic, then this can further restrice
+    * the type of semantic this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(IsaacObjectType, VersionType)}
     * @param editCoord the edit coord
     * @return the concept chronology that represents the new dynamic semantic type.
     */
@@ -340,13 +340,13 @@ public class Frills
                 MetaData.ENGLISH_LANGUAGE____SOLOR);
             definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
 
-            final SemanticChronology definitionSememe = definitionBuilder.build(
+            final SemanticChronology definitionSemantic = definitionBuilder.build(
                                                              localEditCoord,
                                                                    ChangeCheckerMode.ACTIVE)
                                                                           .getNoThrow();
 
             Get.semanticBuilderService()
-               .getDynamicBuilder(definitionSememe.getNid(),
+               .getDynamicBuilder(definitionSemantic.getNid(),
                    DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                          .getNid(),
                    null)
@@ -395,9 +395,9 @@ public class Frills
 
    /**
     * Create a new concept using the provided columnName and columnDescription values which is suitable 
-    * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
+    * for use as a column descriptor within {@link DynamicSemanticUsageDescription}.
     * 
-    * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
+    * The new concept will be created under the concept {@link DynamicSemanticConstants#DYNAMIC_SEMANTIC_COLUMNS}
     * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
@@ -411,7 +411,7 @@ public class Frills
     *          "column name",
     *          "column description"
     *          )
-    *       DynamicSememeDataType.STRING,
+    *       DynamicSemanticDataType.STRING,
     *       new DynamicStringImpl("default value")
     *       )}
     *    )
@@ -433,7 +433,7 @@ public class Frills
             .get();
          return newCon;
       } catch (InterruptedException | ExecutionException e) {
-         final String msg = "Failed committing new DynamicSememeColumnInfo concept columnName=\"" + columnName +
+         final String msg = "Failed committing new DynamicSemanticColumnInfo concept columnName=\"" + columnName +
                             "\", columnDescription=\"" + columnDescription + "\"";
 
          LOG.error(msg, e);
@@ -450,30 +450,30 @@ public class Frills
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
-    * @param sememeFQN the sememe FQN
-    * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
-    * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
+    * @param semanticFQN the semantic FQN
+    * @param semanticPreferredTerm - The preferred term for this refex concept that will be created.
+    * @param semanticDescription - A user friendly string the explains the overall intended purpose of this semantic (what it means, what it stores)
     * @param columns - The column information for this new refex.  May be an empty list or null.
     * @param parentConceptNid  - optional - if null, uses {@link DynamicConstants#DYNAMIC_ASSEMBLAGES}
     * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or
-    * UUID that is set for the referenced component in an instance of this sememe.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as
+    * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as
     * if it were null.
     * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
-    * @param editCoord - optional - the coordinate to use during create of the sememe concept (and related descriptions) - if not provided, uses system default.
-    * @return a reference to the newly created sememe item
+    * @param editCoord - optional - the coordinate to use during create of the semantic concept (and related descriptions) - if not provided, uses system default.
+    * @return a reference to the newly created semantic item
     */
-   public static DynamicUsageDescription createNewDynamicSemanticUsageDescriptionConcept(String sememeFQN,
-         String sememePreferredTerm,
-         String sememeDescription,
+   public static DynamicUsageDescription createNewDynamicSemanticUsageDescriptionConcept(String semanticFQN,
+         String semanticPreferredTerm,
+         String semanticDescription,
          DynamicColumnInfo[] columns,
          Integer parentConceptNid,
          IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
-      final ConceptChronology newDynamicSememeUsageDescriptionConcept =
-         buildUncommittedNewDynamicSemanticUsageDescription(sememeFQN,
-             sememePreferredTerm,
-             sememeDescription,
+      final ConceptChronology newDynamicSemanticUsageDescriptionConcept =
+         buildUncommittedNewDynamicSemanticUsageDescription(semanticFQN,
+             semanticPreferredTerm,
+             semanticDescription,
              columns,
              parentConceptNid,
              referencedComponentRestriction,
@@ -483,15 +483,15 @@ public class Frills
       try {
          Get.commitService()
             .commit(Get.configurationService().getDefaultEditCoordinate(), 
-                  "creating new dynamic assemblage (DynamicSememeUsageDescription): NID=" +
-                newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
-                sememePreferredTerm + ", DESC=" + sememeDescription)
+                  "creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
+                newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
+                semanticPreferredTerm + ", DESC=" + semanticDescription)
             .get();
       } catch (InterruptedException | ExecutionException e) {
          throw new RuntimeException("Commit of dynamic Failed!", e);
       }
 
-      return new DynamicUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
+      return new DynamicUsageDescriptionImpl(newDynamicSemanticUsageDescriptionConcept.getNid());
    }
    
    /**
@@ -547,9 +547,9 @@ public class Frills
    {
       if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
       {
-         Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+         Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
                assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
-      if (sememe.isPresent())
+      if (semantic.isPresent())
          {
             return true;
          }
@@ -664,37 +664,37 @@ public class Frills
    /**
     * If this description is flagged as an extended description type, return the type concept of the extension.
     * @param stampCoordinate - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
-    * @param descriptionId - the nid or sequence of the description sememe to check for an extended type. 
+    * @param descriptionId - the nid or sequence of the description semantic to check for an extended type. 
     * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .  
     * false to only return the extended description type if it is present and active (returns EMPTY if the extended type is missing or inactive)
     * @return the concept identifer of the extended type
     */
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
    {
-      Optional<SemanticChronology> descriptionExtendedTypeAnnotationSememe =
+      Optional<SemanticChronology> descriptionExtendedTypeAnnotationSemantic =
             getAnnotationSemantic(descriptionId, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
       
-      if (descriptionExtendedTypeAnnotationSememe.isPresent()) 
+      if (descriptionExtendedTypeAnnotationSemantic.isPresent()) 
       {
          final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
                Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATUS_SET) : 
                   stampCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET);
          
-         LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSememe.get().getLatestVersion(effectiveStampCoordinate);
+         LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSemantic.get().getLatestVersion(effectiveStampCoordinate);
          if (! lsv.isPresent()) {
-            LOG.info("No latest version present for descriptionExtendedTypeAnnotationSememe chronology " 
-                  + descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+            LOG.info("No latest version present for descriptionExtendedTypeAnnotationSemantic chronology " 
+                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
                   + " stamp coordinate analog " + effectiveStampCoordinate);
             return Optional.empty();
          }
          if (!lsv.contradictions().isEmpty()) {
             //TODO handle contradictions
-            LOG.warn("Component " + descriptionId + " " + " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " + 
+            LOG.warn("Component " + descriptionId + " " + " has DYNAMIC_SEMANTIC_EXTENDED_DESCRIPTION_TYPE annotation with " + 
             lsv.contradictions().size() + " contradictions");
          }
          if (!returnInactiveExtendedType && lsv.get().getStatus() != Status.ACTIVE) {
-            LOG.info("Latest version present is NOT ACTIVE for descriptionExtendedTypeAnnotationSememe chronology " 
-                  + descriptionExtendedTypeAnnotationSememe.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+            LOG.info("Latest version present is NOT ACTIVE for descriptionExtendedTypeAnnotationSemantic chronology " 
+                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
                   + " stamp coordinate analog " + effectiveStampCoordinate);
             return Optional.empty();   
          }
@@ -702,7 +702,7 @@ public class Frills
          DynamicData[] dataColumns = ((DynamicVersion<?>)lsv.get()).getData();
          if (dataColumns.length != 1)
          {
-            throw new RuntimeException("Invalidly specified DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
+            throw new RuntimeException("Invalidly specified DYNAMIC_SEMANTIC_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
          }
          
          if (dataColumns[0].getDynamicDataType() == DynamicDataType.UUID) 
@@ -716,7 +716,7 @@ public class Frills
             return Optional.of(UUID.fromString(((DynamicStringImpl)dataColumns[0]).getDataString()));
          }
          
-         throw new RuntimeException("Failed to find UUID DynamicSememeData type in DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation dynamic sememe");
+         throw new RuntimeException("Failed to find UUID DynamicSemanticData type in DYNAMIC_SEMANTIC_EXTENDED_DESCRIPTION_TYPE annotation dynamic semantic");
       }
       return Optional.empty();
    }
@@ -828,7 +828,7 @@ public class Frills
    }
 
    /**
-    * Read dynamic column name description from a concept that represents a dynamic sememe column
+    * Read dynamic column name description from a concept that represents a dynamic semantic column
     *
     * @param columnDescriptionConcept the column description concept
     * @return the string[] - position 0 being the "name" of the column, and position 1 being the description.
@@ -879,7 +879,7 @@ public class Frills
             }
          }
       } catch (final RuntimeException e) {
-         LOG.warn("Failure reading DynamicSememeColumnInfo '" + columnDescriptionConcept + "'", e);
+         LOG.warn("Failure reading DynamicSemanticColumnInfo '" + columnDescriptionConcept + "'", e);
       }
 
       if (columnName == null) {
@@ -1028,74 +1028,74 @@ public class Frills
             nid = semantic.getNid();
             switch (semantic.getVersionType()) {
                case DESCRIPTION: {
-                  VersionUpdatePair<DescriptionVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setCaseSignificanceConceptNid(sememeUpdatePair.latest.getCaseSignificanceConceptNid());
-                     sememeUpdatePair.mutable.setDescriptionTypeConceptNid(sememeUpdatePair.latest.getDescriptionTypeConceptNid());
-                     sememeUpdatePair.mutable.setLanguageConceptNid(sememeUpdatePair.latest.getLanguageConceptNid());
-                     sememeUpdatePair.mutable.setText(sememeUpdatePair.latest.getText());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setCaseSignificanceConceptNid(semanticUpdatePair.latest.getCaseSignificanceConceptNid());
+                     semanticUpdatePair.mutable.setDescriptionTypeConceptNid(semanticUpdatePair.latest.getDescriptionTypeConceptNid());
+                     semanticUpdatePair.mutable.setLanguageConceptNid(semanticUpdatePair.latest.getLanguageConceptNid());
+                     semanticUpdatePair.mutable.setText(semanticUpdatePair.latest.getText());
                      objectToCommit = semantic;
                   }
                   break;
                }
                case STRING: {
-                  VersionUpdatePair<StringVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setString(sememeUpdatePair.latest.getString());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setString(semanticUpdatePair.latest.getString());
                      objectToCommit = semantic;
                   }
 
                   break;
                }
                case DYNAMIC: {
-                  VersionUpdatePair<DynamicImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setData(sememeUpdatePair.latest.getData());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setData(semanticUpdatePair.latest.getData());
                      objectToCommit = semantic;
                   }
                   break;
                }
                case COMPONENT_NID: {
-                  VersionUpdatePair<ComponentNidVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setComponentNid(sememeUpdatePair.latest.getComponentNid());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setComponentNid(semanticUpdatePair.latest.getComponentNid());
                      objectToCommit = semantic;
                   }
                   break;
                }
                case LOGIC_GRAPH: {
-                  VersionUpdatePair<LogicGraphVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setGraphData(sememeUpdatePair.latest.getGraphData());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setGraphData(semanticUpdatePair.latest.getGraphData());
                      objectToCommit = semantic;
                   }
                   break;
                }
                case LONG: {
-                  VersionUpdatePair<LongVersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
-                     sememeUpdatePair.mutable.setLongValue(sememeUpdatePair.latest.getLongValue());
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
+                     semanticUpdatePair.mutable.setLongValue(semanticUpdatePair.latest.getLongValue());
                      objectToCommit = semantic;
                   }
                   break;
                }
                case MEMBER:
-                  VersionUpdatePair<VersionImpl> sememeUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
 
-                  if (sememeUpdatePair != null) {
-                     priorState = sememeUpdatePair.latest.getStatus();
+                  if (semanticUpdatePair != null) {
+                     priorState = semanticUpdatePair.latest.getStatus();
                      objectToCommit = semantic;
                   }
                   break;
@@ -1230,18 +1230,18 @@ public class Frills
     */
    public static Optional<SemanticChronology> getAnnotationSemantic(int componentNid, int assemblageConceptId) 
    {
-      Set<SemanticChronology> sememeSet= Get.assemblageService()
+      Set<SemanticChronology> semanticSet= Get.assemblageService()
             .getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId).collect(Collectors.toSet());
-      switch(sememeSet.size()) 
+      switch(semanticSet.size()) 
       {
          case 0:
             return Optional.empty();
          case 1:
-            return Optional.of(sememeSet.iterator().next());
+            return Optional.of(semanticSet.iterator().next());
             default:
-               LOG.fatal("Component " + componentNid + " has " + sememeSet.size() + " annotations of type " + 
+               LOG.fatal("Component " + componentNid + " has " + semanticSet.size() + " annotations of type " + 
                      Get.conceptDescriptionText(assemblageConceptId) + " (should only have zero or 1) - returning arbitrary result!");
-               return Optional.of(sememeSet.iterator().next());
+               return Optional.of(semanticSet.iterator().next());
       }
    }
 
@@ -1271,28 +1271,28 @@ public class Frills
                                      .getDefaultStampCoordinate()
                                 : stamp)
             .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
-            .forEach(latestSememe -> {
-                   if (latestSememe.get()
+            .forEach(latestSemantic -> {
+                   if (latestSemantic.get()
                                    .getChronology()
                                    .getVersionType() == VersionType.STRING) {
-                      values.add(((StringVersionImpl) latestSememe.get()).getString());
-                   } else if (latestSememe.get()
+                      values.add(((StringVersionImpl) latestSemantic.get()).getString());
+                   } else if (latestSemantic.get()
                                           .getChronology()
                                           .getVersionType() == VersionType.COMPONENT_NID) {
-                      values.add(((ComponentNidVersionImpl) latestSememe.get()).getComponentNid() + "");
-                   } else if (latestSememe.get()
+                      values.add(((ComponentNidVersionImpl) latestSemantic.get()).getComponentNid() + "");
+                   } else if (latestSemantic.get()
                                           .getChronology()
                                           .getVersionType() == VersionType.LONG) {
-                      values.add(((LongVersionImpl) latestSememe.get()).getLongValue() + "");
-                   } else if (latestSememe.get()
+                      values.add(((LongVersionImpl) latestSemantic.get()).getLongValue() + "");
+                   } else if (latestSemantic.get()
                                           .getChronology()
                                           .getVersionType() == VersionType.DYNAMIC) {
-                      final DynamicData[] data = ((DynamicImpl) latestSememe.get()).getData();
+                      final DynamicData[] data = ((DynamicImpl) latestSemantic.get()).getData();
 
                       if (data.length > 0) {
                          LOG.warn(
-                             "Found multiple (" + data.length + ") dynamic data fields in sememe " +
-                             latestSememe.get().getNid() + " of assemblage type " + assemblageConceptUuid +
+                             "Found multiple (" + data.length + ") dynamic data fields in semantic " +
+                             latestSemantic.get().getNid() + " of assemblage type " + assemblageConceptUuid +
                              " on component " + Get.identifierService().getUuidPrimordialForNid(
                                  componentNid));
                       }
@@ -1304,7 +1304,7 @@ public class Frills
          if (values.size() > 1) {
             LOG.warn(
                 "Found multiple (" + values.size() + ") " + assemblageConceptUuid +
-                " annotation sememes on component " + Get.identifierService().getUuidPrimordialForNid(
+                " annotation semantics on component " + Get.identifierService().getUuidPrimordialForNid(
                     componentNid) + ". Using first value \"" + values.get(0) + "\".");
          }
 
@@ -1313,7 +1313,7 @@ public class Frills
          }
       } catch (final Exception e) {
          LOG.error(
-             "Unexpected error trying to find " + assemblageConceptId + " annotation sememe on component " +
+             "Unexpected error trying to find " + assemblageConceptId + " annotation semantic on component " +
              componentId,
              e);
       }
@@ -1343,12 +1343,12 @@ public class Frills
     * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-      final Optional<SemanticChronology> sememe = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
+      final Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
             (stated ? LogicCoordinates.getStandardElProfile().getStatedAssemblageNid() : LogicCoordinates.getStandardElProfile().getInferredAssemblageNid())
                ).findAny();
 
-      if (sememe.isPresent()) {
-         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+      if (semantic.isPresent()) {
+         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) semantic.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (sv.isPresent()) {
             return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.get()));
@@ -1373,17 +1373,17 @@ public class Frills
          ArrayList<String> codes = new ArrayList<>(1);
          Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
-                     MetaData.CODE____SOLOR.getNid()).forEach(latestSememe ->
+                     MetaData.CODE____SOLOR.getNid()).forEach(latestSemantic ->
                      {
                         //expected path
-                        if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING)
+                        if (latestSemantic.get().getChronology().getVersionType() == VersionType.STRING)
                         {
-                           codes.add(((StringVersion)latestSememe.get()).getString());
+                           codes.add(((StringVersion)latestSemantic.get()).getString());
                         }
                         //Data model bug path (can go away, after bug is fixed)
-                        else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC)
+                        else if (latestSemantic.get().getChronology().getVersionType() == VersionType.DYNAMIC)
                         {
-                           codes.add(((DynamicVersion)latestSememe.get()).getData()[0].dataToString());
+                           codes.add(((DynamicVersion)latestSemantic.get()).getData()[0].dataToString());
                         }
                      });
          return codes;
@@ -1488,25 +1488,25 @@ public class Frills
 
 
    /**
-    * Determine if a particular description sememe is flagged as preferred IN
-    * ANY LANGUAGE. Returns false if there is no acceptability sememe.
+    * Determine if a particular description semantic is flagged as preferred IN
+    * ANY LANGUAGE. Returns false if there is no acceptability semantic.
     *
-    * @param descriptionSememeNid the description sememe nid
+    * @param descriptionSemanticNid the description semantic nid
     * @param stamp - optional - if not provided, uses default from config service
     * @return true, if description is preferred in some language
-    * @throws RuntimeException If there is unexpected data (incorrectly) attached to the sememe
+    * @throws RuntimeException If there is unexpected data (incorrectly) attached to the semantic
     */
-   public static boolean isDescriptionPreferred(int descriptionSememeNid,
+   public static boolean isDescriptionPreferred(int descriptionSemanticNid,
          StampCoordinate stamp)
             throws RuntimeException {
       final AtomicReference<Boolean> answer = new AtomicReference<>();
 
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
       Get.assemblageService()
-         .getSemanticChronologyStreamForComponent(descriptionSememeNid)
-         .forEach(nestedSememe -> {
-                if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
-                  final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe)
+         .getSemanticChronologyStreamForComponent(descriptionSemanticNid)
+         .forEach(nestedSemantic -> {
+                if (nestedSemantic.getVersionType() == VersionType.COMPONENT_NID) {
+                  final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSemantic)
                         .getLatestVersion(
                               (stamp == null) ? Get.configurationService().getDefaultStampCoordinate(): stamp);
 
@@ -1533,7 +1533,7 @@ public class Frills
              });
 
       if (answer.get() == null) {
-         LOG.warn("Description nid {} does not have an acceptability sememe!", descriptionSememeNid);
+         LOG.warn("Description nid {} does not have an acceptability semantic!", descriptionSemanticNid);
          return false;
       }
 
@@ -1680,7 +1680,7 @@ public class Frills
             Optional<UUID> uuidId = UUIDUtil.getUUID(id);
             if (uuidId.isPresent())
             {
-               // id interpreted as the id of either a sememe or a concept
+               // id interpreted as the id of either a semantic or a concept
                nid = Get.identifierService().getNidForUuids(uuidId.get());
                typeOfPassedId = Get.identifierService().getObjectTypeForComponent(nid);
             }
@@ -1803,17 +1803,17 @@ public class Frills
    public static LatestVersion<LogicGraphVersion> getLogicGraphVersion(
          SemanticChronology logicGraphSemanticChronology,
          StampCoordinate stampCoordinate) {
-      LOG.debug("Getting logic graph sememe for {}",
+      LOG.debug("Getting logic graph semantic for {}",
           Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
 
       final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSemanticChronology).getLatestVersion(
                                                                 stampCoordinate);
 
       if (latest.isPresent()) {
-         LOG.debug("Got logic graph sememe for {}",
+         LOG.debug("Got logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       } else {
-         LOG.warn("NO logic graph sememe for {}",
+         LOG.warn("NO logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       }
 
@@ -1821,10 +1821,10 @@ public class Frills
    }
 
    /**
-    * Determine if Chronology has nested sememes.
+    * Determine if Chronology has nested semantics.
     *
     * @param chronology the chronology
-    * @return true if there is a nested sememe, false otherwise
+    * @return true if there is a nested semantic, false otherwise
     */
    public static boolean hasNestedSemantic(Chronology chronology) {
       return !chronology.getSemanticChronologyList()
@@ -1832,7 +1832,7 @@ public class Frills
    }
    
    /**
-    * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
+    * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     * @param nid 
     * @return the nearest concept sequence, or -1, if no concept can be found.
     */
@@ -1894,7 +1894,7 @@ public class Frills
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
-      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "sememe indexer");
+      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "semantic indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
@@ -1913,7 +1913,7 @@ public class Frills
                                   .getReferencedComponentNid());
          }
       } else {
-         LOG.warn("Sememe Index not available - can't lookup VUID");
+         LOG.warn("Semantic Index not available - can't lookup VUID");
       }
 
       return Optional.empty();
@@ -1991,12 +1991,12 @@ public class Frills
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
-         final List<LatestVersion<StringVersionImpl>> sememe = Get.assemblageService()
+         final List<LatestVersion<StringVersionImpl>> semantic = Get.assemblageService()
                .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid());
 
-         if (sememe.size() > 0 && sememe.get(0).isPresent()) {
-            return Optional.of(Long.parseLong(sememe.get(0).get().getString()));
+         if (semantic.size() > 0 && semantic.get(0).isPresent()) {
+            return Optional.of(Long.parseLong(semantic.get(0).get().getString()));
          }
       } catch (final Exception e) {
          LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
@@ -2010,21 +2010,21 @@ public class Frills
     * Get all semantics for a specified component of specified assemblages restricted by VersionType
     * 
     * @param componentNid
-    *           - referenced component nid of requested sememes
+    *           - referenced component nid of requested semantics
     * @param allowedAssemblageNids
     *           - set of concept sequences of allowed assemblages
     * @param typesToExclude
     *           - set of VersionType restrictions
     * @return
     */
-   public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySememeType(int componentNid,
+   public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySemanticType(int componentNid,
          Set<Integer> allowedAssemblageNids, Set<VersionType> typesToExclude) {
-      NidSet sememeSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
-      if (typesToExclude == null || typesToExclude.size() == 0) {
-         return sememeSequences.stream().mapToObj((int sememeSequence) -> Get.assemblageService().getSemanticChronology(sememeSequence));
+      NidSet semanticSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
+      if (typesToExclude == null || typesToExclude.isEmpty()) {
+         return semanticSequences.stream().mapToObj((int semanticSequence) -> Get.assemblageService().getSemanticChronology(semanticSequence));
       } else {
          final ArrayList<SemanticChronology> filteredList = new ArrayList<>();
-         for (PrimitiveIterator.OfInt it = sememeSequences.getIntIterator(); it.hasNext();) {
+         for (PrimitiveIterator.OfInt it = semanticSequences.getIntIterator(); it.hasNext();) {
             SemanticChronology chronology = Get.assemblageService().getSemanticChronology(it.nextInt());
             boolean exclude = false;
             for (VersionType type : typesToExclude) {
@@ -2254,7 +2254,7 @@ public class Frills
                   return VersionImpl.class;
                case UNKNOWN:
                default:
-                  throw new RuntimeException("Semantic with NID=" + obj.getNid() + " is of unsupported SememeType " + semanticChronology.getVersionType());
+                  throw new RuntimeException("Semantic with NID=" + obj.getNid() + " is of unsupported SemanticType " + semanticChronology.getVersionType());
             }
          }
 
@@ -2312,15 +2312,15 @@ public class Frills
          final ArrayList<Long> vuids = new ArrayList<>(1);
 
          Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSememe -> {
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSemantic -> {
                   // expected path
-                  if (latestSememe.get().getChronology().getVersionType() == VersionType.STRING) {
-                     vuids.add(Long.parseLong(((StringVersion) latestSememe.get()).getString()));
+                  if (latestSemantic.get().getChronology().getVersionType() == VersionType.STRING) {
+                     vuids.add(Long.parseLong(((StringVersion) latestSemantic.get()).getString()));
                   }
 
                   // Data model bug path (can go away, after bug is fixed)
-                  else if (latestSememe.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
-                     vuids.add(Long.parseLong(((DynamicVersion<?>) latestSememe.get()).getData()[0].dataToString()));
+                  else if (latestSemantic.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
+                     vuids.add(Long.parseLong(((DynamicVersion<?>) latestSemantic.get()).getData()[0].dataToString()));
                   }
                });
 
@@ -2339,7 +2339,7 @@ public class Frills
    }
    
    /**
-    * Returns the nids of all matching vuid sememes (if any found on view coordinate).
+    * Returns the nids of all matching vuid semantics (if any found on view coordinate).
     * 
     * @param vuID the vuID to lookup
     * @return
@@ -2357,7 +2357,7 @@ public class Frills
       final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, null);
       final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
 
-      final Set<Integer> matchingVuidSememeNids = new HashSet<>();
+      final Set<Integer> matchingVuidSemanticNids = new HashSet<>();
 
       final Predicate<Integer> filter = new Predicate<Integer>() {
          @Override
@@ -2366,13 +2366,13 @@ public class Frills
                   (Optional<? extends SemanticChronology>) Get.assemblageService().getOptionalSemanticChronology(t);
             // This check should be redundant
             if (SemanticChronologyToCheck.isPresent() && SemanticChronologyToCheck.get().getAssemblageNid() == MetaData.VUID____SOLOR.getNid()) {
-               final SemanticChronology existingVuidSememe = ((SemanticChronology) SemanticChronologyToCheck.get());
-               LatestVersion<Version> latestVersionOptional = existingVuidSememe.getLatestVersion(stampCoordinate);
+               final SemanticChronology existingVuidSemantic = ((SemanticChronology) SemanticChronologyToCheck.get());
+               LatestVersion<Version> latestVersionOptional = existingVuidSemantic.getLatestVersion(stampCoordinate);
 
                if (latestVersionOptional.isPresent()) {
                   // TODO do we care about contradictions?
-                  StringVersion sememeVersion = ((StringVersion)latestVersionOptional.get());
-                  if ((vuID + "").equals(sememeVersion.getString())) {
+                  StringVersion semanticVersion = ((StringVersion)latestVersionOptional.get());
+                  if ((vuID + "").equals(semanticVersion.getString())) {
                      return true;
                   }
                }
@@ -2384,11 +2384,11 @@ public class Frills
       List<SearchResult> results = si.query(vuID + " ", true, new int[] { MetaData.VUID____SOLOR.getNid() }, filter, null, null, 1000, Long.MAX_VALUE);
       if (results.size() > 0) {
          for (SearchResult result : results) {
-            matchingVuidSememeNids.add(result.getNid());
+            matchingVuidSemanticNids.add(result.getNid());
          }
       }
 
-      return Collections.unmodifiableSet(matchingVuidSememeNids);
+      return Collections.unmodifiableSet(matchingVuidSemanticNids);
    }
 
    /**
@@ -2452,28 +2452,28 @@ public class Frills
    }
    
    /**
-    * @return a sorted list of SimpleDisplayConcept objects that represent all dynamic sememe assemblages in the system (active or inactive) 
+    * @return a sorted list of SimpleDisplayConcept objects that represent all dynamic semantic assemblages in the system (active or inactive) 
     */
    public static List<SimpleDisplayConcept> getAllDynamicSemanticAssemblageConcepts()
    {
-      List<SimpleDisplayConcept> allDynamicSememeDefConcepts = new ArrayList<>();
+      List<SimpleDisplayConcept> allDynamicSemanticDefConcepts = new ArrayList<>();
 
-      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(sememeC ->
+      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(semanticC ->
       {
          //This will be a nid of a description - need to get the referenced component of that description
-         int annotatedDescriptionNid = sememeC.getReferencedComponentNid();
+         int annotatedDescriptionNid = semanticC.getReferencedComponentNid();
          try
          {
-            allDynamicSememeDefConcepts.add(new SimpleDisplayConcept(Get.assemblageService().getSemanticChronology(annotatedDescriptionNid).getReferencedComponentNid()));
+            allDynamicSemanticDefConcepts.add(new SimpleDisplayConcept(Get.assemblageService().getSemanticChronology(annotatedDescriptionNid).getReferencedComponentNid()));
          }
          catch (Exception e)
          {
-            LOG.error("Unexpeted error looking up dynamic sememes! with " + sememeC.toUserString(), e);
+            LOG.error("Unexpected error looking up dynamic semantics! with " + semanticC.toUserString(), e);
          }
       });
 
-      Collections.sort(allDynamicSememeDefConcepts);
-      return allDynamicSememeDefConcepts;
+      Collections.sort(allDynamicSemanticDefConcepts);
+      return allDynamicSemanticDefConcepts;
    }
 }
 

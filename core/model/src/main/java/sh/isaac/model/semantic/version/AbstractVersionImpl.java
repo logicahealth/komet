@@ -29,7 +29,7 @@ public abstract class AbstractVersionImpl
         extends VersionImpl
          implements MutableSemanticVersion {
    /**
-    * Instantiates a new sememe version impl.
+    * Instantiates a new semantic version impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence

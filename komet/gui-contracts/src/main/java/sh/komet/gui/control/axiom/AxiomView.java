@@ -95,6 +95,8 @@ public class AxiomView {
     private static final Border INNER_ROOT_BORDER = new Border(
             new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0, 1, 1))
     );
+
+   private ObservableLogicGraphVersionImpl logicGraphVersion;
     private LogicalExpression expression;
     private final Manifold manifold;
     private final PremiseType premiseType;
@@ -187,11 +189,38 @@ public class AxiomView {
         GridPane.setConstraints(node, column, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.ALWAYS, Priority.NEVER);
         rootToolBar.getChildren().add(node);
     }
-
+    
+    public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+        axiomView.logicGraphVersion = logicGraphVersion;
+        BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
+        AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setRightAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setTopAnchor(axiomBorderPane, 0.0);
+        axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
+        return axiomView.anchorPane;
+    }
+ 
+    public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+        axiomView.logicGraphVersion = logicGraphVersion;
+        BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
+        AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setRightAnchor(axiomBorderPane, 0.0);
+        AnchorPane.setTopAnchor(axiomBorderPane, 0.0);
+        axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
+        axiomView.borderPane = new BorderPane(axiomView.anchorPane);
+        return axiomView.borderPane;
+   }
+ 
     private BorderPane create(AbstractLogicNode logicNode) {
         ClauseView clauseView = new ClauseView(logicNode);
         return clauseView.rootPane;
     }
+    
+    
 
     public static AnchorPane create(LogicalExpression expression,
             PremiseType premiseType, Manifold manifold) {
@@ -220,6 +249,10 @@ public class AxiomView {
 
     private void updateExpressionForAxiomView(LogicalExpression expression) {
         this.expression = expression;
+        if (logicGraphVersion != null) {
+            logicGraphVersion.setGraphData(expression.getData(DataTarget.INTERNAL));
+            
+        }
         BorderPane axiomBorderPane = create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
         AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
@@ -268,7 +301,7 @@ public class AxiomView {
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(manifold.getEditCoordinate());
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(mutableVersion, manifold.getEditCoordinate(), "Axiom view graph edit");
+            Get.commitService().commit(manifold.getEditCoordinate(), "Axiom view edit", mutableVersion);
         }
         updateExpression();
     }

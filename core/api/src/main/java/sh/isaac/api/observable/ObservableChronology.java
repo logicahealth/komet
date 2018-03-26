@@ -98,9 +98,9 @@ public interface ObservableChronology
    ObjectProperty<UUID> primordialUuidProperty();
 
    /**
-    * Sememe list property.
+    * Semantic list property.
     *
-    * @return the list property<? extends observable sememe chronology<? extends observable sememe version<?>>>
+    * @return the list property<? extends observable semantic chronology<? extends observable semantic version<?>>>
     */
    ListProperty<? extends ObservableSemanticChronology> semanticListProperty();
 
@@ -121,17 +121,17 @@ public interface ObservableChronology
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe list.
+    * Gets the semantic list.
     *
     * @return a list of SemanticChronology objects, where this object is the referenced component.
     */
    ObservableList<ObservableSemanticChronology> getObservableSemanticList();
 
    /**
-    * Gets the sememe list from assemblage.
+    * Gets the semantic list from assemblage.
     *
     * @param assemblageSequence the assemblage sequence
-    * @return the sememe list from assemblage
+    * @return the semantic list from assemblage
     */
    ObservableList<ObservableSemanticChronology> getObservableSemanticListFromAssemblage(int assemblageSequence);
 

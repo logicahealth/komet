@@ -14,7 +14,7 @@ public abstract class SemanticBuildListener implements SemanticBuildListenerI {
    }
    
    /* (non-Javadoc)
-    * @see gov.vha.isaac.ochre.api.component.sememe.SememeBuildListenerI#getListenerName()
+    * @see gov.vha.isaac.ochre.api.component.semantic.SemanticBuildListenerI#getListenerName()
     */
    @Override
    public String getListenerName() {
@@ -22,7 +22,7 @@ public abstract class SemanticBuildListener implements SemanticBuildListenerI {
    }
 
    /* (non-Javadoc)
-    * @see gov.vha.isaac.ochre.api.component.sememe.SememeBuildListenerI#enable()
+    * @see gov.vha.isaac.ochre.api.component.semantic.SemanticBuildListenerI#enable()
     */
    @Override
    public void enable() {
@@ -30,7 +30,7 @@ public abstract class SemanticBuildListener implements SemanticBuildListenerI {
    }
 
    /* (non-Javadoc)
-    * @see gov.vha.isaac.ochre.api.component.sememe.SememeBuildListenerI#disable()
+    * @see gov.vha.isaac.ochre.api.component.semantic.SemanticBuildListenerI#disable()
     */
    @Override
    public void disable() {
@@ -38,7 +38,7 @@ public abstract class SemanticBuildListener implements SemanticBuildListenerI {
    }
 
    /* (non-Javadoc)
-    * @see gov.vha.isaac.ochre.api.component.sememe.SememeBuildListenerI#isEnabled()
+    * @see gov.vha.isaac.ochre.api.component.semantic.SemanticBuildListenerI#isEnabled()
     */
    @Override
    public boolean isEnabled() {
