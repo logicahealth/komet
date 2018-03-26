@@ -113,10 +113,7 @@ public class DynamicIntegerImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data integer.
-    *
-    * @return the data integer
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI#getDataInteger()
+    * {@inheritDoc}
     */
    @Override
    public int getDataInteger() {
@@ -124,10 +121,7 @@ public class DynamicIntegerImpl
    }
 
    /**
-    * Gets the data integer property.
-    *
-    * @return the data integer property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI#getDataIntegerProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() {
@@ -139,10 +133,7 @@ public class DynamicIntegerImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -150,10 +141,7 @@ public class DynamicIntegerImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

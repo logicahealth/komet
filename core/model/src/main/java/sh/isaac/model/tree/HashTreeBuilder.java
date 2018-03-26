@@ -168,7 +168,7 @@ public class HashTreeBuilder
     */
    public HashTreeWithIntArraySets getSimpleDirectedGraph(ProgressTracker tracker) {
 
-      if (Get.configurationService().enableVerboseDebug()) {
+      if (Get.configurationService().isVerboseDebugEnabled()) {
          LOG.debug("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
          LOG.debug("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
          LOG.debug(

@@ -119,7 +119,6 @@ public class RelativePositionCalculator
    /**
     * Instantiates a new relative position calculator.
     */
-   @SuppressWarnings("unused")
    private RelativePositionCalculator() {
       // No arg constructor for HK2 managed instance
    }
@@ -129,7 +128,8 @@ public class RelativePositionCalculator
     *
     * @param coordinate the coordinate
     */
-   public RelativePositionCalculator(StampCoordinate coordinate) {
+   private RelativePositionCalculator(StampCoordinate coordinate) {
+      //For the internal callback to populate the cache
       this.coordinate             = coordinate;
       this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
       this.allowedStates          = coordinate.getAllowedStates();

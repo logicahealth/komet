@@ -43,6 +43,7 @@ package sh.isaac.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import org.apache.commons.lang3.StringUtils;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -57,7 +58,6 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.util.DBLocator;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -78,15 +78,12 @@ public class Setup
    private String dbBuildMode = "";
 
    /**
-    * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
-    * be in the passed in folder location.
-    *
-    * Note that the value passed in here is also passed through {@link DBLocator#findDBFolder(File)}
+    * This value, if present, is passed in to {@link ConfigurationService#setDataStoreFolderPath(Path)}
     *
     * @parameter
-    * @required
+    * @optional
     */
-   @Parameter(required = true)
+   @Parameter(required = false)
    private File dataStoreLocation;
 
    /** Location of the folder that contains the user profiles. */
@@ -125,21 +122,12 @@ public class Setup
             }
          }
 
-         this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);
-
-         if (!this.dataStoreLocation.exists()) {
-            throw new MojoExecutionException("Couldn't find a data store from the input of '" +
-                                             this.dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
+         if (this.dataStoreLocation != null)
+         {
+            Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
          }
 
-         if (!this.dataStoreLocation.isDirectory()) {
-            throw new IOException("The specified data store: '" + this.dataStoreLocation.getAbsolutePath() +
-                                  "' is not a folder");
-         }
-
-         LookupService.getService(ConfigurationService.class)
-                      .setDataStoreFolderPath(this.dataStoreLocation.toPath());
-         getLog().info("  Setup AppContext, data store location = " + this.dataStoreLocation.getCanonicalPath());
+         getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
          LookupService.startupIsaac();
          getLog().info("Done setting up ISAAC");
       } catch (IllegalStateException | IllegalArgumentException | IOException e) {
@@ -150,12 +138,10 @@ public class Setup
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set see {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should be in the passed in folder location.  Note that the value passed in here is also passed through {@link DBLocator#findDBFolder(File)}.
-    *
-    * @param inputBdbFolderlocation the new see {@link ConfigurationService#setDataStoreFolderPath(java
+    * @param dataStoreLocation This value, if present, is passed in to {@link ConfigurationService#setDataStoreFolderPath(Path)}
     */
-   public void setDataStoreLocation(File inputBdbFolderlocation) {
-      this.dataStoreLocation = inputBdbFolderlocation;
+   public void setDataStoreLocation(File dataStoreLocation) {
+      this.dataStoreLocation = dataStoreLocation;
    }
 
    /**

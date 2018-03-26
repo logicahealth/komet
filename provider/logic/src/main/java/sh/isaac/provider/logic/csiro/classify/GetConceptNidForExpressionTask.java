@@ -39,6 +39,8 @@
 
 package sh.isaac.provider.logic.csiro.classify;
 
+import java.util.Optional;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
@@ -47,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.concurrent.Task;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
@@ -57,6 +58,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -65,7 +67,6 @@ import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -194,7 +195,7 @@ public class GetConceptNidForExpressionTask
 
          try {
             Get.commitService()
-               .commit(Get.configurationService().getDefaultEditCoordinate(), "Expression commit.")
+               .commit(Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate(), "Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()

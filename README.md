@@ -1,7 +1,7 @@
 ISAAC: Informatics Analytic Architecture
 ======================
 
-[![Build Status](https://travis-ci.org/OSEHRA/ISAAC.svg?branch=develop)](https://travis-ci.org/OSEHRA/ISAAC)[![Dependency Status](https://www.versioneye.com/user/projects/5a83a90c0fb24f704a7142d0/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5a83a90c0fb24f704a7142d0)
+[![Build Status](https://travis-ci.org/OSEHRA/ISAAC.svg?branch=develop)](https://travis-ci.org/OSEHRA/ISAAC)
 
 A dynamic semantic architecture for the analysis of models, logic, and language.
 

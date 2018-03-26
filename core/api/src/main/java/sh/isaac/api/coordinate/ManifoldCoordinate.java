@@ -73,12 +73,6 @@ public interface ManifoldCoordinate
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Convenience method, buffers concept sequence in a cache-sensitive manner.
-    * @return the concept sequence that defines the is-a relationship type.
-    */
-   int getIsaConceptNid();
-
-   /**
     * Gets the taxonomy type.
     *
     * @return PremiseType.STATED if taxonomy operations should be based on stated definitions, or

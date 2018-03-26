@@ -40,6 +40,6 @@ public interface NodeFactory {
     * @return true if this view should be shown, false otherwise.  Default ties it to the betaFeatures.
     */
    default boolean isEnabled() {
-      return FxGet.showBetaFeatures();
+      return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
    }
 }

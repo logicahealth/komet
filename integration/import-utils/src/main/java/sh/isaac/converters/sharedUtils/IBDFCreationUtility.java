@@ -76,7 +76,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
-import sh.isaac.api.constants.Constants;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -254,7 +253,7 @@ public class IBDFCreationUtility
       //make sure this is empty
       FileUtils.deleteDirectory(file);
       
-      System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, file.getCanonicalPath());
+      Get.configurationService().setDataStoreFolderPath(file.toPath());
 
       LookupService.startupIsaac();
       

@@ -39,49 +39,21 @@
 
 package sh.isaac.komet.preferences;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-
-import org.apache.commons.lang3.StringUtils;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.LookupService;
-import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 
-import static sh.isaac.api.constants.Constants.AFTER_IMPORT_FOLDER_LOCATION;
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
-import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
-import static sh.isaac.api.constants.Constants.LOAD_CHANGESETS_ON_STARTUP;
-import static sh.isaac.api.constants.Constants.PREFERENCES_FOLDER_LOCATION;
-import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -93,126 +65,20 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 @RunLevel(value = LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class PreferencesProvider
          implements PreferencesService {
-   /**
-    * The Constant LOG.
-    */
+
    private static final Logger LOG = LogManager.getLogger();
-
-   //~--- fields --------------------------------------------------------------
-
-   private LaunchEnvironment launchEnvironment;
-   private IsaacPreferences  applicationPreferences;
 
    //~--- methods -------------------------------------------------------------
 
-   //TODO [KEC] Dan says we shouldn't be setting all these things as system properties, system properties should exist to tell us where to look.
-   //Not to allow us to communicate from one bit of code to another.  We should never call System.setProperty.... things that need to know where 
-   //to look for files should be looking for them via new methods in the ConfigurationService, allowing us to properly keep track of the defaults.
-   //I'm not even sure why we have system properties for some of these... with the exception of (maybe) the prefs folder location, they all seem 
-   //unnecessary and/or should be handled with proper APIs.  Whether or not we need a settable location for the prefs property, sort of depends 
-   //on whether the prefs are database specific, or generic....
    
    /**
     * Start me.
     */
    @PostConstruct
    protected void startMe() {
-      try {
-         if (Files.exists(Paths.get("target"))) {
-            launchEnvironment = LaunchEnvironment.MAVEN;
-         } else {
-            launchEnvironment = LaunchEnvironment.FX_LAUNCHER;
-         }
-         
-         checkOrSetFileProperty("DATA_STORE_ROOT_LOCATION_PROPERTY", DATA_STORE_ROOT_LOCATION_PROPERTY, () -> {
-            return launchEnvironment == LaunchEnvironment.MAVEN ? 
-                  Paths.get("target", "data", "isaac.data").toFile() : 
-                     Paths.get("data", "isaac.data").toFile();
-         }, true, false);
-         
-         
-         checkOrSetFileProperty("PREFERENCES_FOLDER_LOCATION", PREFERENCES_FOLDER_LOCATION, () -> {
-            //Create it as a sibling folder of wherever the data store is specified
-            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("preferences").toFile();
-         }, true, false);
-         
-         checkOrSetFileProperty("IMPORT_FOLDER_LOCATION", IMPORT_FOLDER_LOCATION, () -> {
-            //Always look under a JVM relative path of data, rather than looking in the target folder.
-            return Paths.get("data", "to-import").toFile();
-         }, true, false);
-         
-         checkOrSetFileProperty("AFTER_IMPORT_FOLDER_LOCATION", AFTER_IMPORT_FOLDER_LOCATION, () -> {
-            //Create it as a sibling folder of wherever the data store is specified, this way, it gets
-            //removed with a maven clean, along with the rest of the DB.
-            return Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("completed-import").toFile();
-         }, true, false);
-         
-         checkOrSetFileProperty("USER_CSS_LOCATION_PROPERTY", USER_CSS_LOCATION_PROPERTY, () -> {
-            //db relative paths, followed by jvm relative paths, followed by writing out the default from the classpath.
-            try {
-               Path[] checkPaths = new Path[] {
-                     Paths.get(System.getProperty(PREFERENCES_FOLDER_LOCATION)).resolve("user.css"),
-                     Paths.get("data", "user.css"), 
-                     Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY)).resolve("user.css"),
-                     Paths.get("user.css")};
-               
-               Path p = null;
-               for (int i = 0; i < checkPaths.length; i++) {
-                  if (Files.isRegularFile(checkPaths[i])) {
-                     p = checkPaths[i];
-                     break;
-                  }
-               }
-               if (p == null) {
-                  // Can't find one, write out the defaults as a sibling of the datastore
-                  // When running the build under maven, various tests wants to grab this file, from a project
-                  // that hasn't yet been built, so it isn't on the classpath.  Hack the actual path in place here.
-                  Path inputSource = Paths.get("komet", "css", "src", "main", "resources", "user.css");
-
-                  p = Paths.get(System.getProperty(PREFERENCES_FOLDER_LOCATION)).resolve("user.css");
-                  p.getParent().toFile().mkdirs();
-                  try (InputStream is = (Files.isRegularFile(inputSource) ? 
-                        new FileInputStream(inputSource.toFile()) : 
-                           PreferencesProvider.class.getResourceAsStream("/user.css"));
-                        BufferedReader reader = (is == null ? null : new BufferedReader(new InputStreamReader(is)));
-                        BufferedWriter writer = (reader == null ? null : new BufferedWriter(Files.newBufferedWriter(p, CREATE_NEW)))) {
-                     
-                     if (is != null) {
-                        String line = null;
-   
-                        while ((line = reader.readLine()) != null) {
-                           writer.write(line);
-                           writer.newLine();
-                        }
-                     } else {
-                        LOG.info("Unable to locate a user.css file");
-                     }
-                  }
-               }
-               return p.toFile();
-            } catch (IOException e) {
-               LOG.error("Unexpected error trying to locate or write out the user.css file", e);
-               throw new RuntimeException(e);
-            } 
-         }, false, true);
-
-         this.applicationPreferences = IsaacPreferencesImpl.getApplicationRoot();
-
-         if (!this.applicationPreferences.hasKey(MemoryConfiguration.class)) {
-            this.applicationPreferences.putEnum(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-         }
-
-         this.applicationPreferences.put(
-             DATA_STORE_ROOT_LOCATION_PROPERTY,
-             System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
-         this.applicationPreferences.putBoolean(LOAD_CHANGESETS_ON_STARTUP, false);  //TODO [DAN] need to find out why Keith is doing this
-         this.applicationPreferences.sync();
-      } catch (Throwable ex) {
-         LOG.error("Unexpected error stating preferences provider", ex);
-         throw new RuntimeException(ex);
-      }
+      //Just doing this to make sure it starts without errors
+      getApplicationPreferences();
    }
-
    /**
     * Stop me.
     */
@@ -220,65 +86,78 @@ public class PreferencesProvider
    protected void stopMe() {
       try {
          LOG.info("Stopping Preferences Provider.");
-         this.applicationPreferences.sync();
+         getApplicationPreferences().sync();
       } catch (Throwable ex) {
          LOG.error("Unexpected error stopping prefs provider", ex);
          throw new RuntimeException(ex);
       }
    }
-   
-   private void checkOrSetFileProperty(String propertyName, String propertyKey, Supplier<File> defaultProvider, boolean makeDir, boolean asURL) throws IOException {
-      File f;
-      if (StringUtils.isBlank(System.getProperty(propertyKey))) {
-         f = defaultProvider.get();
-         LOG.info("{}:{} is not set, using default of {}", propertyName, propertyKey, (asURL ? f.toURI().toURL().toString() : f.getCanonicalPath()));
-         System.setProperty(propertyKey, (asURL ? f.toURI().toURL().toString() : f.getCanonicalPath()));
-      }
-      else {
-         if (asURL) {
-            URL url = new URL(System.getProperty(propertyKey));
-            f = new File(url.getFile()).getCanonicalFile();
-            LOG.info("{}:{} was already set to {}", propertyName, propertyKey, url.toString());
-         }
-         else {
-            f = new File(System.getProperty(propertyKey)).getCanonicalFile();
-            LOG.info("{}:{} was already set to {}", propertyName, propertyKey, f.getCanonicalPath());
-         }
-      }
-      if (makeDir) {
-         f.mkdirs();
-      }
-   }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public IsaacPreferences getApplicationPreferences() {
-      // MemoryConfiguration memoryConfiguration = MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY;
-      return IsaacPreferencesImpl.getApplicationRoot();
+      return IsaacPreferencesImpl.getApplicationRootPreferences();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public IsaacPreferences getSystemPreferences() {
       return new PreferencesWrapper(Preferences.systemRoot());
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public IsaacPreferences getUserPreferences() {
       return new PreferencesWrapper(Preferences.userRoot());
    }
    
    /**
-    * Clears all the system properties that this class set so that we can actually restart the system in a new location, for example, 
-    * when writing tests...
-    * TODO remove this method, when dan's comments at the top of this class are resolved, and most of these properties go away...
+    * {@inheritDoc}
     */
-   public static void clearSetProperties() {
-      System.clearProperty(DATA_STORE_ROOT_LOCATION_PROPERTY);
-      System.clearProperty(PREFERENCES_FOLDER_LOCATION);
-      System.clearProperty(IMPORT_FOLDER_LOCATION);
-      System.clearProperty(AFTER_IMPORT_FOLDER_LOCATION);
-      System.clearProperty(USER_CSS_LOCATION_PROPERTY);
+   @Override
+   public void clearApplicationPreferences() {
+      try {
+         getApplicationPreferences().removeNode();
+         getApplicationPreferences().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearSystemPreferences() {
+      try {
+         Preferences.systemRoot().removeNode();
+         Preferences.systemRoot().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearUserPreferences() {
+      try {
+         Preferences.userRoot().removeNode();
+         Preferences.userRoot().flush();
+      }
+      catch (BackingStoreException e) {
+         throw new RuntimeException(e);
+      }
    }
 }
-

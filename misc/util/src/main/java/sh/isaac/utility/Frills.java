@@ -35,10 +35,11 @@
  *
  */
 
-
-
 package sh.isaac.utility;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,19 +61,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jvnet.hk2.annotations.Service;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshotService;
@@ -80,6 +78,8 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
@@ -87,19 +87,26 @@ import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnUtility;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -146,18 +153,6 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnUtility;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-
 
 /**
  * The Class Frills.
@@ -167,7 +162,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 @Service
 @Singleton
 public class Frills
-         implements DynamicColumnUtility {
+         implements DynamicColumnUtility, IsaacCache {
    private static final Logger LOG = LogManager.getLogger(Frills.class);
 
    private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
@@ -181,22 +176,22 @@ public class Frills
     * 
     * see {@link DynamicUsageDescription}
     * 
-    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_SEMANTIC_COLUMNS}
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_COLUMNS}
     * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
     * 
-    * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
+    * Frills.createNewDynamicSemanticUsageDescriptionConcept(
     *    "The name of the Semantic", 
     *    "The description of the Semantic",
-    *    new DynamicSemanticColumnInfo[]{new DynamicColumnInfo(
+    *    new DynamicColumnInfo[]{new DynamicColumnInfo(
     *       0,
-    *       DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
+    *       Frills.createNewDynamicSemanticColumnInfoConcept(
     *          "column name",
     *          "column description"
     *          )
-    *       DynamicSemanticDataType.STRING,
-    *       new DynamicSemanticStringImpl("default value")
+    *       DynamicDataType.STRING,
+    *       new DynamicStringImpl("default value")
     *       )}
     *    )
     * 
@@ -294,9 +289,8 @@ public class Frills
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       try {
-         final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
-                                                                         .getDefaultEditCoordinate()
-               : editCoord);
+         final EditCoordinate localEditCoord = ((editCoord == null) ? 
+               Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate() : editCoord);
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
@@ -395,14 +389,14 @@ public class Frills
 
    /**
     * Create a new concept using the provided columnName and columnDescription values which is suitable 
-    * for use as a column descriptor within {@link DynamicSemanticUsageDescription}.
+    * for use as a column descriptor within {@link DynamicUsageDescription}.
     * 
-    * The new concept will be created under the concept {@link DynamicSemanticConstants#DYNAMIC_SEMANTIC_COLUMNS}
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_COLUMNS}
     * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
     * 
-    * DynamicUtility.createNewDynamicSemanticUsageDescriptionConcept(
+    * Frills.createNewDynamicSemanticUsageDescriptionConcept(
     *    "The name of the Semantic", 
     *    "The description of the Semantic",
     *    new DynamicColumnInfo[]{new DynamicColumnInfo(
@@ -411,7 +405,7 @@ public class Frills
     *          "column name",
     *          "column description"
     *          )
-    *       DynamicSemanticDataType.STRING,
+    *       DynamicDataType.STRING,
     *       new DynamicStringImpl("default value")
     *       )}
     *    )
@@ -429,7 +423,7 @@ public class Frills
 
       try {  //TODO [DAN 3] figure out what edit coords we should use for this sort of work.
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic column: " + columnName)
+            .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "creating new dynamic column: " + columnName)
             .get();
          return newCon;
       } catch (InterruptedException | ExecutionException e) {
@@ -482,7 +476,7 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), 
+            .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), 
                   "creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
                 newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
                 semanticPreferredTerm + ", DESC=" + semanticDescription)
@@ -496,9 +490,10 @@ public class Frills
    
    /**
     * Create a logical expression suitable for populating a concept's logic graph sequence
+    * with the specified parents
     * 
     * @param parentConceptSequences
-    * @return
+    * @return the logical expression
     */
    public static LogicalExpression createConceptParentLogicalExpression(int... parentConceptSequences) {
       // build logic graph
@@ -560,11 +555,11 @@ public class Frills
    /**
     * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSemantic(int)}
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return true, if successful
     */
-   public static boolean definesDynamicSemantic(int conceptSequence) {
-      return DynamicUsageDescriptionImpl.isDynamicSemantic(conceptSequence);
+   public static boolean definesDynamicSemantic(int conceptNid) {
+      return DynamicUsageDescriptionImpl.isDynamicSemantic(conceptNid);
    }
 
    /**
@@ -583,7 +578,7 @@ public class Frills
    }
    
    /**
-    * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR - return it if found, otherwise, return null.
+    * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp)
    {
@@ -617,12 +612,12 @@ public class Frills
    
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options, 
-    * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values 
+    * or the user preferences.  Calls {@link #getDescription(int, StampCoordinate, LanguageCoordinate)} with values 
     * extracted from the taxonomyCoordinate, or null. 
-    * @param conceptId - UUID for a concept
+    * @param conceptUUID - UUID for a concept
     * @param languageCoordinate - optional - if not provided, defaults to system preferences values
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) 
    {
@@ -634,12 +629,14 @@ public class Frills
     * or the user preferences. 
     * @param conceptNid - The nid of the concept
     * @param manifoldCoordinate - optional - if not provided, defaults to system preferences values
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
       return getDescription(conceptNid, 
-          manifoldCoordinate == null ? Get.configurationService().getDefaultManifoldCoordinate().getStampCoordinate() : manifoldCoordinate.getStampCoordinate(), 
-          manifoldCoordinate == null ? Get.configurationService().getDefaultManifoldCoordinate().getLanguageCoordinate() : manifoldCoordinate.getLanguageCoordinate());
+          manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getStampCoordinate() 
+                : manifoldCoordinate.getStampCoordinate(), 
+          manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getLanguageCoordinate() 
+                : manifoldCoordinate.getLanguageCoordinate());
    }
    
    /**
@@ -648,12 +645,12 @@ public class Frills
     * @param conceptNid - The nid of the concept
     * @param languageCoordinate - optional - if not provided, defaults to system preferences values
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @return the description, if available
     */
    public static Optional<String> getDescription(int conceptNid, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
-      LanguageCoordinate lc = languageCoordinate == null ? Get.configurationService().getDefaultLanguageCoordinate() : languageCoordinate;
+      LanguageCoordinate lc = languageCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : languageCoordinate;
       LatestVersion<DescriptionVersion> d = lc.getDescription(conceptNid, 
-            stampCoordinate == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoordinate);
+            stampCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoordinate);
 
       if (d.isPresent()) {
          return Optional.of(d.get().getText());
@@ -677,7 +674,7 @@ public class Frills
       if (descriptionExtendedTypeAnnotationSemantic.isPresent()) 
       {
          final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
-               Get.configurationService().getDefaultStampCoordinate().makeCoordinateAnalog(Status.ANY_STATUS_SET) : 
+               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate().makeCoordinateAnalog(Status.ANY_STATUS_SET) : 
                   stampCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET);
          
          LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSemantic.get().getLatestVersion(effectiveStampCoordinate);
@@ -768,12 +765,11 @@ public class Frills
     * 
     * All done in a background thread, method returns immediately
     * 
-    * @param identifier - The NID to search for
+    * @param nid - The NID to search for
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
-    * @return a handle to the lookup
     */
    public static void lookupConceptSnapshot(final int nid, final TaskCompleteCallback<ConceptSnapshot> callback, final Integer callId, 
          final StampCoordinate stampCoord, final LanguageCoordinate langCoord) {
@@ -852,8 +848,8 @@ public class Frills
             }
 
             final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
-                                                                                         .getDefaultStampCoordinate()
-                                                                                         .makeCoordinateAnalog(Status.ANY_STATUS_SET));
+                  .getUserConfiguration(Optional.empty()).getStampCoordinate()
+                  .makeCoordinateAnalog(Status.ANY_STATUS_SET));
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
@@ -923,7 +919,7 @@ public class Frills
    }
    
    /**
-    * calls {@link Frills#resetStatus(State, Chronology, EditCoordinate, StampCoordinate...) but has types specified for concepts
+    * calls {@link Frills#resetStatus(Status, Chronology, EditCoordinate, StampCoordinate...)} but has types specified for concepts
     */
    private static VersionUpdatePair<ConceptVersion> resetConceptState(Status status, ConceptChronology chronology, 
          EditCoordinate editCoordinate, StampCoordinate ... readCoordinates) throws Exception {   
@@ -954,7 +950,7 @@ public class Frills
       LatestVersion<Version> latestVersion = null;
 
       if (readCoordinates == null || readCoordinates.length == 0) {
-         latestVersion = chronology.getLatestVersion(Get.configurationService().getDefaultStampCoordinate());
+         latestVersion = chronology.getLatestVersion(Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate());
       } else {
          for (StampCoordinate rc : readCoordinates) {
             latestVersion = chronology.getLatestVersion(rc);
@@ -1148,7 +1144,7 @@ public class Frills
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
       TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(
-            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp),
+            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
                   LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
@@ -1267,9 +1263,7 @@ public class Frills
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
-                (stamp == null) ? Get.configurationService()
-                                     .getDefaultStampCoordinate()
-                                : stamp)
+                (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
             .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
             .forEach(latestSemantic -> {
                    if (latestSemantic.get()
@@ -1359,7 +1353,7 @@ public class Frills
    }
    
    /**
-    * Find the CODE(s) for a component (if it has one) {@link MetaData#CODE}
+    * Find the CODE(s) for a component (if it has one) {@link MetaData#CODE____SOLOR}
     *
     * @param componentNid
     * @param stamp - optional - if not provided uses default from config
@@ -1371,7 +1365,8 @@ public class Frills
       try 
       {
          ArrayList<String> codes = new ArrayList<>(1);
-         Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+         Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? 
+               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
                      MetaData.CODE____SOLOR.getNid()).forEach(latestSemantic ->
                      {
@@ -1459,8 +1454,8 @@ public class Frills
       if (c.isPresent()) {
          try {
                return Optional.of(Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(
-                     stampCoord == null ? Get.configurationService().getDefaultStampCoordinate() : stampCoord,
-                     langCoord == null ? Get.configurationService().getDefaultLanguageCoordinate() : langCoord))
+                     stampCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoord,
+                     langCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : langCoord))
                         .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
             // TODO DAN defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
@@ -1475,10 +1470,11 @@ public class Frills
    }
 
    /**
-    * Gets the concept snapshot.
+    * Gets the concept snapshot.  Call {@link #getConceptSnapshot(int, StampCoordinate, LanguageCoordinate)}
     *
     * @param conceptUUID the concept UUID
-    * @param manifoldCoordinate
+    * @param stampCoord the stamp to utilize
+    * @param langCoord  the language to utilize
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
     *   have a version available on the specified stampCoord
     */
@@ -1508,7 +1504,7 @@ public class Frills
                 if (nestedSemantic.getVersionType() == VersionType.COMPONENT_NID) {
                   final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSemantic)
                         .getLatestVersion(
-                              (stamp == null) ? Get.configurationService().getDefaultStampCoordinate(): stamp);
+                              (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate(): stamp);
 
                    if (latest.isPresent()) {
                       if (latest.get()
@@ -1546,9 +1542,9 @@ public class Frills
     *
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
-    * {@link MetaData#SYNONYM} or
-    * {@link MetaData#FULLY_QUALIFIED_NAME} or
-    * {@link MetaData#DEFINITION_DESCRIPTION_TYPE}
+    * {@link MetaData#REGULAR_NAME____SOLOR} or
+    * {@link MetaData#FULLY_QUALIFIED_NAME____SOLOR} or
+    * {@link MetaData#DEFINITION____SOLOR}
     * @param stamp - optional - if not provided gets the default from the config service
     * @return the descriptions - may be empty, will not be null
     */
@@ -1561,11 +1557,8 @@ public class Frills
          .getSemanticChronologyStreamForComponent(conceptNid)
          .forEach(descriptionC -> {
                 if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
-                   final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion(
-                                                                              (stamp == null)
-                                                                              ? Get.configurationService()
-                                                                                    .getDefaultStampCoordinate()
-                  : stamp);
+                   final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stamp == null)? 
+                         Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
 
                    if (latest.isPresent()) {
                       final DescriptionVersion ds = latest.get();
@@ -1582,7 +1575,7 @@ public class Frills
    /**
     * Get a list of all "extended" description types - the children of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}
     * @param stamp - optional - defaults to system default if not provided
-    * @return
+    * @return the list of extended description types
     * @throws IOException
     */
    public static List<SimpleDisplayConcept> getExtendedDescriptionTypes(StampCoordinate stamp) throws IOException {
@@ -1626,7 +1619,7 @@ public class Frills
     * @param id int identifier
     * @param sc
     * @param lc
-    * calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)
+    * calls {@link #getIdInfo(int, StampCoordinate, LanguageCoordinate)}
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -1923,7 +1916,7 @@ public class Frills
     * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
     * 
     * @param logicGraph
-    * @return
+    * @return the parents
     */
    public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicGraphVersion logicGraph) {
       Set<Integer> parentConceptSequences = new HashSet<>();
@@ -1992,7 +1985,7 @@ public class Frills
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
          final List<LatestVersion<StringVersionImpl>> semantic = Get.assemblageService()
-               .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+               .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid());
 
          if (semantic.size() > 0 && semantic.get(0).isPresent()) {
@@ -2015,7 +2008,7 @@ public class Frills
     *           - set of concept sequences of allowed assemblages
     * @param typesToExclude
     *           - set of VersionType restrictions
-    * @return
+    * @return the filtered stream of semantics
     */
    public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySemanticType(int componentNid,
          Set<Integer> allowedAssemblageNids, Set<VersionType> typesToExclude) {
@@ -2055,8 +2048,7 @@ public class Frills
    public static StampCoordinate getStampCoordinateFromEditCoordinate(StampCoordinate stampCoordinate,
          EditCoordinate editCoordinate) {
       if (stampCoordinate == null) {
-         stampCoordinate = Get.configurationService()
-                              .getDefaultStampCoordinate();
+         stampCoordinate = Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate();
       }
 
       final StampPosition stampPosition = new StampPositionImpl(
@@ -2311,7 +2303,8 @@ public class Frills
       try {
          final ArrayList<Long> vuids = new ArrayList<>(1);
 
-         Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+         Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? 
+               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSemantic -> {
                   // expected path
                   if (latestSemantic.get().getChronology().getVersionType() == VersionType.STRING) {
@@ -2342,7 +2335,7 @@ public class Frills
     * Returns the nids of all matching vuid semantics (if any found on view coordinate).
     * 
     * @param vuID the vuID to lookup
-    * @return
+    * @return the nids of semantics that contain vuids
     */
    public static Set<Integer> getVuidSemanticNidsForVUID(long vuID) {
       final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
@@ -2468,12 +2461,23 @@ public class Frills
          }
          catch (Exception e)
          {
-            LOG.error("Unexpected error looking up dynamic semantics! with " + semanticC.toUserString(), e);
+            LOG.error("Unexpeted error looking up dynamic semantics! with " + semanticC.toUserString(), e);
          }
       });
 
       Collections.sort(allDynamicSemanticDefConcepts);
       return allDynamicSemanticDefConcepts;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset()
+   {
+      IS_ASSOCIATION_CLASS.invalidateAll();
+      IS_MAPPING_CLASS.invalidateAll();
+      MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
    }
 }
 

@@ -75,8 +75,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ManifoldCoordinateImpl
          implements ManifoldCoordinate {
-   /** The isa concept nid. */
-   transient int isaConceptNid = TermAux.IS_A.getNid();
 
    /** The taxonomy type. */
    PremiseType taxonomyPremiseType;
@@ -133,8 +131,9 @@ public class ManifoldCoordinateImpl
     */
    public ManifoldCoordinateImpl(StampCoordinate stampCoordinate,
                                  LanguageCoordinate languageCoordinate) {
-      this(PremiseType.STATED, stampCoordinate, languageCoordinate == null ? Get.configurationService().getDefaultLanguageCoordinate() : languageCoordinate,
-          Get.configurationService().getDefaultLogicCoordinate());
+      this(PremiseType.STATED, stampCoordinate, 
+          languageCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : languageCoordinate,
+          Get.configurationService().getUserConfiguration(Optional.empty()).getLogicCoordinate());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -243,16 +242,6 @@ public class ManifoldCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the isa concept sequence.
-    *
-    * @return the isa concept sequence
-    */
-   @Override
-   public int getIsaConceptNid() {
-      return this.isaConceptNid;
-   }
-
-   /**
     * Gets the language coordinate.
     *
     * @return the language coordinate
@@ -336,11 +325,6 @@ public class ManifoldCoordinateImpl
          return v;
       }
    }
-
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
    
    @Override
    public ManifoldCoordinateImpl deepClone() {
@@ -354,11 +338,6 @@ public class ManifoldCoordinateImpl
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return languageCoordinate.getNextProrityLanguageCoordinate();
-    }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        languageCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
     }
 }
 

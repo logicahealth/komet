@@ -95,10 +95,7 @@ public class DynamicFloatImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data float.
-    *
-    * @return the data float
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloat()
+    * {@inheritDoc}
     */
    @Override
    public float getDataFloat() {
@@ -106,10 +103,7 @@ public class DynamicFloatImpl
    }
 
    /**
-    * Gets the data float property.
-    *
-    * @return the data float property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Float> getDataFloatProperty() {
@@ -121,10 +115,7 @@ public class DynamicFloatImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -132,10 +123,7 @@ public class DynamicFloatImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

@@ -85,7 +85,10 @@ public class DragRegistry implements IsaacCache {
    }
 
    /**
-    * TODO: update and ensure no memory leaks. 
+    * TODO: update and ensure no memory leaks.  Dan notes, this was a very nice feature, when it was previously working - 
+    * it essentially allowed the entire GUI to show where the valid drop targets were, for whatever thing happened to be 
+    * being dragged - which lets people discover features they didn't know existed.  It would be good to fix this up / 
+    * reintegrate it into the GUI.  IIRC, this feature worked fairly well, all the 'hard' bits are already here.
     * @deprecated 
     */
    @Deprecated

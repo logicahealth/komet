@@ -92,7 +92,7 @@ public class BugDemo
 		// build the description and the extended type
 		try
 		{
-			descriptionSemanticBuilder.build(Get.configurationService().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE).get();
+			descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE).get();
 			Assert.fail("build worked when it shouldn't have");
 		}
 		catch (Exception e)
@@ -126,9 +126,9 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 		cb.setLogicalExpression(parentDef);
 
-		cb.build(Get.configurationService().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE);
+		cb.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE);
 
-		Optional<CommitRecord> cr = Get.commitService().commit(Get.configurationService().getDefaultEditCoordinate(), "created extended type concept").get();
+		Optional<CommitRecord> cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "created extended type concept").get();
 
 		if (!cr.isPresent())
 		{
@@ -148,11 +148,11 @@ public class BugDemo
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(cb.getNid())) }));
 
 		// build the description and the extended type
-		SemanticChronology newDescription = descriptionSemanticBuilder.build(Get.configurationService().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE)
+		SemanticChronology newDescription = descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE)
 				.get();
 
 		// commit them.
-		cr = Get.commitService().commit(Get.configurationService().getDefaultEditCoordinate(),
+		cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
 				"creating new description semantic: NID=" + newDescription.getNid() + ", text=foo").get();
 
 		if (!cr.isPresent())
@@ -182,7 +182,7 @@ public class BugDemo
 	{
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
-		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getDefaultEditCoordinate());
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
 		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),
@@ -195,6 +195,6 @@ public class BugDemo
 		
 		Get.commitService().addUncommitted(lg).get();
 		
-		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getDefaultEditCoordinate(), "test"));
+		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "test"));
 	}
 }

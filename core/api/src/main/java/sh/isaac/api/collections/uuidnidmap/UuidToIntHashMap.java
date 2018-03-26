@@ -424,7 +424,7 @@ public class UuidToIntHashMap
     * Fills all values contained in the receiver into the specified list. Fills the list, starting at index
     * 0. After this call returns the specified list has a new size that equals {@code this.size()}.
     * Iteration order is guaranteed to be <i>identical</i> to the order used by method
-    * {@link #forEachKey(org.ihtsdo.otf.uuidnidmap.UuidProcedure)}. <p> This method can be used to iterate over the values of the
+    * {@link #forEachKey(UuidProcedure)}. <p> This method can be used to iterate over the values of the
     * receiver.
     *
     * @param list the list to be filled, can have any size.

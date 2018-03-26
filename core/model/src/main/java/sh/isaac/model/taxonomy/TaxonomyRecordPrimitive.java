@@ -43,6 +43,7 @@ import sh.isaac.model.taxonomy.TaxonomyFlag;
 import java.util.EnumSet;
 import java.util.Optional;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -425,7 +426,7 @@ public class TaxonomyRecordPrimitive {
     * @return the parent nids
     */
    public int[] getParentNids(ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getConceptNidsForType(tc.getIsaConceptNid(), tc);
+      return getTaxonomyRecordUnpacked().getConceptNidsForType(TermAux.IS_A.getNid(), tc);
    }
 
    //~--- set methods ---------------------------------------------------------

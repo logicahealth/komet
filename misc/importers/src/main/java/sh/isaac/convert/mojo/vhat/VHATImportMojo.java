@@ -368,7 +368,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 				for (String s : conceptsWithNoDesignations)
 				{
 					fw.write(s);
-					fw.write(System.getProperty("line.separator"));
+					fw.write(System.lineSeparator());
 				}
 				fw.close();
 			}

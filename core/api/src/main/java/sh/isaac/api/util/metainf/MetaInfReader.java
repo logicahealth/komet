@@ -96,7 +96,7 @@ public class MetaInfReader
          AtomicBoolean readDbMetadataFromProperties = new AtomicBoolean(false);
          AtomicBoolean readDbMetadataFromPom = new AtomicBoolean(false);
          
-         java.nio.file.Path dbLocation = LookupService.get().getService(ConfigurationService.class).getChronicleFolderPath().getParent();
+         java.nio.file.Path dbLocation = LookupService.get().getService(ConfigurationService.class).getDataStoreFolderPath();
          //find the pom.properties file in the hierarchy
          File dbMetadata = new File(dbLocation.toFile(), "META-INF");
          AtomicReference<String> metadataVersion = new AtomicReference<String>("");

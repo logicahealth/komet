@@ -63,7 +63,7 @@ public class ConceptBuilderProvider
          implements ConceptBuilderService {
    /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
-      TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService()
+      TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService().getGlobalDatastoreConfiguration()
                                                             .getDefaultLanguageCoordinate()
                                                             .getLanguageConceptNid());
 
@@ -71,7 +71,7 @@ public class ConceptBuilderProvider
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
 
    /** The default logic coordinate. */
-   private LogicCoordinate defaultLogicCoordinate = Get.configurationService()
+   private LogicCoordinate defaultLogicCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
                                                        .getDefaultLogicCoordinate();
 
    //~--- get methods ---------------------------------------------------------

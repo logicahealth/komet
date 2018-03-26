@@ -67,8 +67,7 @@ import sh.isaac.api.query.WhereClause;
 
 /**
  * Calculates descriptions that match the specified Java Regular Expression.
- * Very slow when iterating over a large
- * {@link org.ihtsdo.otf.query.implementation.ForCollection} set.
+ * Very slow when iterating over a large sets.
  *
  * @author kec
  */

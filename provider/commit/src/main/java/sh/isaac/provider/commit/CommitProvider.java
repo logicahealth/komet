@@ -41,7 +41,6 @@
  */
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -70,18 +69,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-
-//~--- JDK imports ------------------------------------------------------------
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
@@ -847,14 +840,9 @@ public class CommitProvider
             LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-            Optional<Path> dataStorePath = configurationService.getDataStoreFolderPath();
+            Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-            if (!dataStorePath.isPresent()) {
-                throw new IllegalStateException("dataStorePath is not set");
-            }
-
-            this.dbFolderPath = dataStorePath.get()
-                    .resolve("commit-provider");
+            this.dbFolderPath = dataStorePath.resolve("commit-provider");
 
             Files.createDirectories(this.dbFolderPath);
             this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);

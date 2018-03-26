@@ -189,14 +189,9 @@ public class StampProvider
    public StampProvider()
             throws IOException {
       ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-      Optional<Path>       dataStorePath        = configurationService.getDataStoreFolderPath();
+      Path       dataStorePath        = configurationService.getDataStoreFolderPath();
 
-      if (!dataStorePath.isPresent()) {
-         throw new IllegalStateException("dataStorePath is not set");
-      }
-
-      this.dbFolderPath = dataStorePath.get()
-                                       .resolve("stamp-provider");
+      this.dbFolderPath = dataStorePath.resolve("stamp-provider");
 
       Files.createDirectories(this.dbFolderPath);
       this.inverseStampMap    = new ConcurrentHashMap<>();

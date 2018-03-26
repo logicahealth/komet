@@ -203,7 +203,6 @@ public class LanguageCoordinateImpl
       return this.descriptionTypePreferenceList;
    }
 
-   @Override
    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
    }
@@ -235,7 +234,7 @@ public class LanguageCoordinateImpl
                                                                     boolean sizeChanged,
                                                                     int from,
                                                                     int to) -> {
-               this.dialectAssemblagePreferenceList = observableArray.toArray(this.dialectAssemblagePreferenceList);
+               this.dialectAssemblagePreferenceList = observableArray.toArray(new int[observableArray.size()]);
             };
 
       dialectAssemblagePreferenceListProperty.getValue()
@@ -342,7 +341,6 @@ public class LanguageCoordinateImpl
         return Optional.ofNullable(this.nextProrityLanguageCoordinate);
     }
 
-    @Override
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }

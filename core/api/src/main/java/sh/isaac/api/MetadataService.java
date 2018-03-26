@@ -34,7 +34,8 @@ public interface MetadataService {
     * Initialize the database with metadata, IFF the database was started completely blank.  If the database had existing data upon startup, 
     * this call will have no effect.  Calling this method multiple times has no effect beyond the first call.
     * 
-    * This is also a no-op if the application preferences do not contain the enum pref of {@link DatabaseInitialization.LOAD_METADATA}.
+    * This is also a no-op if unless {@link GlobalDatastoreConfiguration#getDatabaseInitializationMode()} returns 
+    * {@link DatabaseInitialization#LOAD_METADATA}.
     * @throws Exception 
     */
    void importMetadata() throws Exception;

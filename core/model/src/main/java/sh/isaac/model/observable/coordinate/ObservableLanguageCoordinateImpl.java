@@ -138,7 +138,7 @@ public final class ObservableLanguageCoordinateImpl
                     FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
 
             this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
-                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
+                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(new int[t1.size()]));
             });
         }
 
@@ -186,11 +186,6 @@ public final class ObservableLanguageCoordinateImpl
 
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -245,19 +240,10 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDescriptionTypePreferenceList() {
         if (this.descriptionTypePreferenceListProperty != null) {
             return this.descriptionTypePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
+                    .toArray(new int[] {this.descriptionTypePreferenceListProperty.get().size()});
         }
 
         return this.languageCoordinate.getDescriptionTypePreferenceList();
-    }
-
-    @Override
-    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-        if (this.descriptionTypePreferenceListProperty != null) {
-            this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
-        } else {
-            this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-        }
     }
 
     /**
@@ -269,7 +255,7 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDialectAssemblagePreferenceList() {
         if (this.dialectAssemblagePreferenceListProperty != null) {
             return this.dialectAssemblagePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
+                    .toArray(new int[dialectAssemblagePreferenceListProperty.get().size()]);
         }
 
         return this.languageCoordinate.getDialectAssemblagePreferenceList();

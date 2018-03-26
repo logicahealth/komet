@@ -184,7 +184,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
    @PostConstruct
    private void startMe() {
-      if (Get.configurationService().inDBBuildMode())
+      if (Get.configurationService().isInDBBuildMode())
       {
          disable();
       }
@@ -196,7 +196,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       }
       Get.configurationService().getDBBuildMode().addListener((change) -> 
       {
-         if (Get.configurationService().inDBBuildMode()) {
+         if (Get.configurationService().isInDBBuildMode()) {
              disable();
           }
       });

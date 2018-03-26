@@ -205,7 +205,7 @@ public class PasswordHashingTest {
       final char[] password     = "My password is really good!".toCharArray();
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
-      Assert.assertTrue(PasswordHasher.check(password, passwordHash));
+      Assert.assertTrue("had hash '" + passwordHash + "', second calc:" + PasswordHasher.getSaltedHash(password), PasswordHasher.check(password, passwordHash));
       Assert.assertFalse(PasswordHasher.check("not my password".toCharArray(), passwordHash));
    }
 

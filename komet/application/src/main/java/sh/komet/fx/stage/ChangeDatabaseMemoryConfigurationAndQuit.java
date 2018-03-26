@@ -15,19 +15,17 @@
  */
 package sh.komet.fx.stage;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
-import java.util.Optional;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.api.constants.MemoryConfiguration;
-import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.komet.preferences.IsaacPreferencesImpl;
+import sh.isaac.komet.preferences.PreferencesProvider;
+import sh.isaac.provider.metacontent.MVStoreMetaContentProvider;
 
 /**
  *
@@ -43,21 +41,25 @@ public class ChangeDatabaseMemoryConfigurationAndQuit extends TimedTaskWithProgr
    
    @Override
    protected Void call() throws Exception {
-      IsaacPreferences appPreferences = Get.applicationPreferences();
-                  appPreferences.putEnum(memoryConfiguration);
-      
-      appPreferences.sync();
+      Get.configurationService().getGlobalDatastoreConfiguration().putOption(MemoryConfiguration.class.getName(), memoryConfiguration.name());
       LookupService.shutdownSystem();
       
-      Optional<String> location = appPreferences.get(DATA_STORE_ROOT_LOCATION_PROPERTY);
-      if (location.isPresent()) {
-         Files.walk(Paths.get(location.get()))
-                .map(Path::toFile)
-                .sorted(Comparator.reverseOrder())
-                .forEach(File::delete);
-      }
+      Path location = Get.configurationService().getDataStoreFolderPath();
+      Files.walk(location)
+             .map(Path::toFile)
+             .sorted(Comparator.reverseOrder())
+             .forEach(file -> 
+             {
+                if (file.getParentFile().getName().equals(IsaacPreferencesImpl.DB_PREFERENCES_FOLDER) || file.getParentFile().getName().equals(MVStoreMetaContentProvider.STORE_FOLDER)
+                   || file.getName().equals(IsaacPreferencesImpl.DB_PREFERENCES_FOLDER) || file.getName().equals(MVStoreMetaContentProvider.STORE_FOLDER)) {
+                   //don't delete these files where our prefs are stored....
+                }
+                else {
+                   file.delete();
+                }
+             });
       Platform.exit();
-      System.exit(0);      
+      System.exit(0);
       return null;
    }
    

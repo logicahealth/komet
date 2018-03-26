@@ -27,6 +27,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+           <groupId>sh.isaac.core</groupId>
+           <artifactId>metacontent</artifactId>
+           <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.cedarsoftware</groupId>
             <artifactId>json-io</artifactId>
         </dependency>

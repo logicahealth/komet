@@ -24,9 +24,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 public class StatementViewController {
 
@@ -76,30 +76,12 @@ public class StatementViewController {
     }
    public void handleRefreshUserCss(ActionEvent event) {
         // "Feature" to make css editing/testing easy in the dev environment. 
-        if (System.getProperty(USER_CSS_LOCATION_PROPERTY)
-                .endsWith("application/target/data/isaac.data/preferences/user.css")) {
-            rootPane.getScene()
-                    .getStylesheets()
-                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            String devLocation = System.getProperty(USER_CSS_LOCATION_PROPERTY);
-            devLocation = devLocation
-                    .replace("/komet/application/target/data/isaac.data/preferences/user.css", 
-                             "/komet/css/src/main/resources/user.css");
-            rootPane.getScene()
-                    .getStylesheets()
-                    .remove(devLocation);
-            rootPane.getScene()
-                    .getStylesheets()
-                    .add(devLocation);
-            System.out.println("Updated css for statement: " + devLocation);
-        } else {
-            rootPane.getScene()
-                    .getStylesheets()
-                    .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            rootPane.getScene()
-                    .getStylesheets()
-                    .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
-            System.out.println("Updated css for statement: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
-        }
+        rootPane.getScene()
+                .getStylesheets()
+                .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
+        rootPane.getScene()
+                .getStylesheets()
+                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        System.out.println("Updated css for statement: " + FxGet.fxConfiguration().getUserCSSURL().toString());
     }
 }

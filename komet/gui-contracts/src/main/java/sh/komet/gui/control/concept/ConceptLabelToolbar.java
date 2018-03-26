@@ -97,7 +97,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
       // Manifold
       Manifold.getGroupNames().stream().filter((groupString) -> {
-          if (FxGet.showBetaFeatures()) {
+          if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
               return true;
           } 
           return !groupString.toLowerCase().startsWith("flwor");

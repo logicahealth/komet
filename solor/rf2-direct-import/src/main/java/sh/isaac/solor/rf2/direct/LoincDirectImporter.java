@@ -37,7 +37,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.index.IndexBuilderService;
 
-import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
@@ -57,7 +56,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
     public LoincDirectImporter() {
-        File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
         updateTitle("Importing LOINC from " + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
@@ -66,7 +65,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
         try {
-            File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+            File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
             int fileCount = loadDatabase(importDirectory);

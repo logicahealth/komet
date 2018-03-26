@@ -54,6 +54,7 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -86,7 +87,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
  */
 @Service
 @Singleton
-public class SemanticIndexerConfiguration {
+public class SemanticIndexerConfiguration implements IsaacCache {
 
    /**
     * The Constant LOG.
@@ -245,7 +246,7 @@ public class SemanticIndexerConfiguration {
       sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
               .get();
       Get.commitService()
-              .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change")
+              .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change")
               .get();
 
       if (!skipReindex) {
@@ -286,7 +287,7 @@ public class SemanticIndexerConfiguration {
          Get.commitService()
                  .addUncommitted(rdv.getChronology());
          Get.commitService()
-                 .commit(Get.configurationService().getDefaultEditCoordinate(), "Index Config Change");
+                 .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change");
          LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptSequence + "'");
          Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       } else {
@@ -451,5 +452,15 @@ public class SemanticIndexerConfiguration {
       }
 
       return true;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset()
+   {
+      readNeeded.set(1);
+      whatToIndexSequenceToCol.clear();
    }
 }

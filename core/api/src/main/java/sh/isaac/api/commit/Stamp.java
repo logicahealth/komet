@@ -99,21 +99,21 @@ public class Stamp
       this.authorNid = in.readInt();
       this.moduleNid = in.readInt();
       this.pathNid   = in.readInt();
-      assert time != 0:
-             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
-             pathNid;
-      assert status != null:
-             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
-             pathNid;
-      assert pathNid < 0:
-             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
-             pathNid;
-      assert moduleNid < 0:
-             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
-             pathNid;
-      assert authorNid < 0:
-             "s: " + status + " t: " + time + " a: " + authorNid + " " + " m: " + moduleNid + " p: " +
-             pathNid;
+      assert this.time != 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.status != null:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.pathNid < 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.moduleNid < 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
+      assert this.authorNid < 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
+             this.moduleNid + " p: " + this.pathNid;
    }
 
    /**

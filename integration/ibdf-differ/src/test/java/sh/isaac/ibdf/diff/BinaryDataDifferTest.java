@@ -42,11 +42,6 @@ package sh.isaac.ibdf.diff;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-import java.io.IOException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,14 +52,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-
-import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.externalizable.BinaryDataDifferService.ChangeType;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.util.DBLocator;
 import sh.isaac.provider.ibdf.diff.BinaryDataDifferProvider;
 
 //~--- classes ----------------------------------------------------------------
@@ -107,21 +96,8 @@ public class BinaryDataDifferTest {
    @Before
    public void setupDB()
             throws Exception {
-      final File dataStoreLocation = DBLocator.findDBFolder(this.DATASTORE_PATH);
-
-      if (!dataStoreLocation.exists()) {
-         throw new IOException("Couldn't find a data store from the input of '" +
-                               dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
-      }
-
-      if (!dataStoreLocation.isDirectory()) {
-         throw new IOException("The specified data store: '" + dataStoreLocation.getAbsolutePath() +
-                               "' is not a folder");
-      }
-
-      LookupService.getService(ConfigurationService.class)
-                   .setDataStoreFolderPath(dataStoreLocation.toPath());
-      log.info("  Setup AppContext, data store location = " + dataStoreLocation.getCanonicalPath());
+      Get.configurationService().setDataStoreFolderPath(DATASTORE_PATH.toPath());
+      log.info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getAbsolutePath());
       LookupService.startupIsaac();
       log.info("Done setting up ISAAC");
    }

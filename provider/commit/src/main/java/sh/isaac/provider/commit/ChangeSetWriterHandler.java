@@ -162,7 +162,7 @@ public class ChangeSetWriterHandler
       writePermits.acquireUninterruptibly();
       try {
 
-      if (this.writeEnabled && !Get.configurationService().inDBBuildMode()) {
+      if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();
          final Runnable r = () -> {
@@ -192,7 +192,7 @@ public class ChangeSetWriterHandler
 
          this.changeSetWriteExecutor.execute(r);
       } else {
-         if (Get.configurationService().inDBBuildMode()) {
+         if (Get.configurationService().isInDBBuildMode()) {
             LOG.info("ChangeSetWriter ignoring commit because in db build mode. ");
          }
          if (!this.writeEnabled) {
@@ -281,10 +281,9 @@ public class ChangeSetWriterHandler
    private void startMe() {
       try {
          LOG.info("Starting ChangeSetWriterHandler post-construct");
-         final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
-               .getDataStoreFolderPath();
+         final Path databasePath = LookupService.getService(ConfigurationService.class).getDataStoreFolderPath();
 
-         this.changeSetFolder = databasePath.get().resolve(CHANGESETS);
+         this.changeSetFolder = databasePath.resolve(CHANGESETS);
          Files.createDirectories(this.changeSetFolder);
          
          if (!this.changeSetFolder.toFile().isDirectory()) {

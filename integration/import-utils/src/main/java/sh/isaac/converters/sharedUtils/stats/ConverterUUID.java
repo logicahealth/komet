@@ -272,11 +272,11 @@ public class ConverterUUID {
          if (disableUUIDMap) {
             ConsoleUtil.println("UUID Debug map was disabled");
             br.write("Note - the UUID debug feature was disabled, this file is incomplete" +
-                     System.getProperty("line.separator"));
+                     System.lineSeparator());
          }
 
          for (final Map.Entry<UUID, String> entry: masterUUIDMap.entrySet()) {
-            br.write(entry.getKey() + " - " + entry.getValue() + System.getProperty("line.separator"));
+            br.write(entry.getKey() + " - " + entry.getValue() + System.lineSeparator());
          }
       }
    }

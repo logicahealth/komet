@@ -74,7 +74,7 @@ public class ConsoleUtil {
    private static StringBuilder consoleOutputCache = new StringBuilder();
 
    /** The eol. */
-   private static String eol = System.getProperty("line.separator");
+   private static String eol = System.lineSeparator();
 
    /** The disable fancy. */
    public static boolean disableFancy = (System.console() == null);

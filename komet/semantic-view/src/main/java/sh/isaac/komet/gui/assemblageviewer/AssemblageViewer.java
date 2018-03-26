@@ -39,7 +39,7 @@ package sh.isaac.komet.gui.assemblageviewer;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
-import javax.inject.Singleton;
+import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ import sh.komet.gui.util.FxGet;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
-@Singleton
+@PerLookup
 public class AssemblageViewer implements ExplorationNodeFactory 
 {
 	private final Logger LOG = LoggerFactory.getLogger(this.getClass());

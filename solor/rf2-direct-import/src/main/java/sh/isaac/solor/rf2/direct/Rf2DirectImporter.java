@@ -66,8 +66,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-
-import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.index.IndexBuilderService;
 
 //~--- classes ----------------------------------------------------------------
@@ -99,7 +97,7 @@ public class Rf2DirectImporter
     public Rf2DirectImporter(ImportType importType) {
         this.importType = importType;
         this.entriesToImport = null;
-        File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
@@ -112,7 +110,7 @@ public class Rf2DirectImporter
     public Rf2DirectImporter(ImportType importType, List<ZipFileEntry> entriesToImport) {
         this.importType = importType;
         this.entriesToImport = entriesToImport;
-        File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
@@ -141,7 +139,7 @@ public class Rf2DirectImporter
                 }
                 doImport(specificationsToImport, time);
             } else {
-                File importDirectory = new File(System.getProperty(IMPORT_FOLDER_LOCATION));
+                File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
 
                 System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
