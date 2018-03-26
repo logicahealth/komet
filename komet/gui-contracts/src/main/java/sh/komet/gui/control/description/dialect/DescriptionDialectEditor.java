@@ -66,6 +66,7 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
     public DescriptionDialectEditor(UUID conceptUuid, Manifold manifold) {
         this.manifold = manifold;
         this.propertyEditorFactory = new PropertyEditorFactory(manifold);
+        this.editorGridPane.maxWidthProperty().set(Double.MAX_VALUE);
         if (conceptUuid != null) {
             setupWithConceptUuid(conceptUuid);
         }
@@ -166,6 +167,7 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
             editorGridPane.getChildren().add(editor);
             
             GridPane dialectGrid = new GridPane();
+            dialectGrid.setMaxWidth(Double.MAX_VALUE);
             GridPane.setConstraints(dialectGrid, 
                     0, 2, // column, row
                     7, 1, 
@@ -177,7 +179,7 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
             editor = dialectPropertyEditor.getEditor();
             GridPane.setConstraints(editor, 
                     0, 0, // column, row
-                    1, 1, 
+                    3, 1, 
                     HPos.LEFT, VPos.TOP, 
                     Priority.ALWAYS, Priority.NEVER, // hgrow, vgrow
                     new Insets(1, 1, 1, 25)); //t,r,b,l
@@ -185,11 +187,11 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
 
             editor = acceptabilityPropertyEditor.getEditor();
             GridPane.setConstraints(editor, 
-                    1, 0, // column, row
-                    1, 1, 
+                    3, 0, // column, row
+                    3, 1, 
                     HPos.LEFT, VPos.TOP, 
                     Priority.ALWAYS, Priority.NEVER, // hgrow, vgrow
-                    new Insets(1, 0, 1, 1)); //t,r,b,l
+                    new Insets(1, 1, 1, 1)); //t,r,b,l
             dialectGrid.getChildren().add(editor);
         }
     }

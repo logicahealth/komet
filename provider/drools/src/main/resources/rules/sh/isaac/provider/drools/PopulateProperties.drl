@@ -90,7 +90,6 @@ then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
    $propertySheetItem.setDefaultValue(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
 end

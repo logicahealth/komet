@@ -63,7 +63,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     
     public ObservableDescriptionDialect(UUID conceptUuid, int assemblageNid) {
         ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(UUID.randomUUID(), conceptUuid, assemblageNid);
-        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), description.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getAssemblageNid());
+        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), description.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getNid());
         this.descriptionProperty.set(description);
         this.dialectProperty.set(dialect);
     }

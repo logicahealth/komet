@@ -35,7 +35,6 @@ import javafx.scene.text.Text;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;

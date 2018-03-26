@@ -109,7 +109,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 if (currentValue == null) {
                     editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
                 } else {
-                    editor.setValue(currentValue);
+                    
+                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, currentValue.getNid()));
                 }
                 return editor;
             }
