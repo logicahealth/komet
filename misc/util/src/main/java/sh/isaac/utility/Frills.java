@@ -2461,7 +2461,7 @@ public class Frills
          }
          catch (Exception e)
          {
-            LOG.error("Unexpeted error looking up dynamic semantics! with " + semanticC.toUserString(), e);
+            LOG.error("Unexpected error looking up dynamic semantics! with " + semanticC.toUserString(), e);
          }
       });
 
