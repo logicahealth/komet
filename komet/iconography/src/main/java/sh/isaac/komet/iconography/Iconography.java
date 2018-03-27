@@ -190,6 +190,11 @@ public enum Iconography {
   // MaterialIcon.QUEUE
   OPEN(MATERIAL_DESIGNS_WEBFONT, "open"),
   CLOSE(MATERIAL_DESIGNS_WEBFONT, "close"),
+  FEATURE_FUNCTION(MATERIAL_DESIGNS_WEBFONT, "feature-function"),
+  FEATURE_INFO(ICONS_525, "feature-info"),
+  FEATURE_RULER(MATERIAL_DESIGNS_WEBFONT, "feature-ruler"),
+  LITERAL_STRING(MATERIAL_DESIGNS_ICON, "literal-string"),
+  LITERAL_NUMERIC(FONT_AWSOME, "literal-numeric"),
   
   // MaterialDesignIcon.MENU_DOWN
   // MaterialDesignIcon.MENU_RIGHT

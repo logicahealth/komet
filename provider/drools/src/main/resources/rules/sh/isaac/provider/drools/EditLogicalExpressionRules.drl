@@ -38,7 +38,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.isaac.api.logic.NodeSemantic;
-
+import sh.isaac.model.logic.ConcreteDomainOperators;
 
 rule "Any logic node except root"
    lock-on-active true
@@ -82,6 +82,7 @@ then
    $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
    $addEditLogicalNode.addGenericRoleAction();
    $addEditLogicalNode.addRoleGroupAction();
+   $addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
 end
 
 /**
@@ -99,6 +100,7 @@ then
    $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
    $addEditLogicalNode.addGenericRoleAction();
    $addEditLogicalNode.addRoleGroupAction();
+   $addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
 end
 
 rule "AND items"
@@ -152,6 +154,7 @@ when
 then
    $addEditLogicalNode.addGenericRoleAction();
    $addEditLogicalNode.addRoleGroupAction();
+   $addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
 end
 
 rule "ROLE_SOME items"
@@ -176,7 +179,7 @@ rule "FEATURE items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.FEATURE);
 then
-   System.out.println($addEditLogicalNode.getNodeSemantic());
+   $addEditLogicalNode.changeFeatureTypeToRecentSelection();
 end
 
 rule "LITERAL_BOOLEAN items"

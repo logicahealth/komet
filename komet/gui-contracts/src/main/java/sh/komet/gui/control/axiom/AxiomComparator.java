@@ -17,8 +17,7 @@
 package sh.komet.gui.control.axiom;
 
 import java.util.Comparator;
-import sh.isaac.api.logic.assertions.NecessarySet;
-import sh.isaac.api.logic.assertions.SufficientSet;
+import sh.isaac.MetaData;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
@@ -60,10 +59,12 @@ public class AxiomComparator implements Comparator<ClauseView> {
             if (o2.logicNode instanceof FeatureNodeWithNids) {
                 return 1;
             }
-            if (o1.logicNode instanceof RoleNodeSomeWithNids) {
+            if (o1.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o1.logicNode).getTypeConceptNid() != MetaData.ROLE_GROUP____SOLOR.getNid()) {
                 return -1;
             }
-            if (o2.logicNode instanceof RoleNodeSomeWithNids) {
+            if (o2.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o2.logicNode).getTypeConceptNid() != MetaData.ROLE_GROUP____SOLOR.getNid()) {
                 return 1;
             }
             if (o1.logicNode instanceof RoleNodeAllWithNids) {
@@ -72,8 +73,26 @@ public class AxiomComparator implements Comparator<ClauseView> {
             if (o2.logicNode instanceof RoleNodeAllWithNids) {
                 return 1;
             }
+            if (o1.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o1.logicNode).getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
+                return -1;
+            }
+            if (o2.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o2.logicNode).getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
+                return 1;
+            }
             throw new UnsupportedOperationException("Can't sort: " + o1.logicNode.getClass().getName());
         }
+            if (o1.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o1.logicNode).getTypeConceptNid() != MetaData.ROLE_GROUP____SOLOR.getNid()&&
+                    ((RoleNodeSomeWithNids) o2.logicNode).getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
+                return -1;
+            }
+            if (o2.logicNode instanceof RoleNodeSomeWithNids &&
+                    ((RoleNodeSomeWithNids) o2.logicNode).getTypeConceptNid() != MetaData.ROLE_GROUP____SOLOR.getNid() &&
+                    ((RoleNodeSomeWithNids) o1.logicNode).getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
+                return 1;
+            }
         return o1.titleLabel.getText().compareTo(o2.titleLabel.getText());
     }
     

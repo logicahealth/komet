@@ -857,3 +857,33 @@ limitations under the License.
    -glyph-name: "MENU_RIGHT";
    -glyph-size: 18;
 }
+
+.feature-function {
+   -glyph-name: "FUNCTION";
+   -glyph-size: 18;
+    
+}
+
+.feature-info {
+   -glyph-name: "INFO";
+   -glyph-size: 18;
+    
+}
+
+.feature-ruler {
+   -glyph-name: "RULER";
+   -glyph-size: 18;
+    
+}
+
+.literal-string {
+   -glyph-name: "FORMAT_QUOTE";
+   -glyph-size: 18; 
+}
+
+
+.literal-numeric {
+   -glyph-name: "HASHTAG";
+   -glyph-size: 12; 
+}
+

@@ -571,7 +571,7 @@ public interface LogicalExpressionBuilder {
     * @param floatLiteral the float literal
     * @return the float literal
     */
-   FloatLiteral floatLiteral(float floatLiteral);
+   FloatLiteral floatLiteral(double floatLiteral);
 
    /**
     * Float substitution.

@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 

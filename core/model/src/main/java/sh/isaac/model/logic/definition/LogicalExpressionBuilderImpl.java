@@ -414,7 +414,7 @@ public class LogicalExpressionBuilderImpl
     * @return the float literal
     */
    @Override
-   public FloatLiteral floatLiteral(float floatLiteral) {
+   public FloatLiteral floatLiteral(double floatLiteral) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_FLOAT, this);
@@ -720,24 +720,10 @@ public class LogicalExpressionBuilderImpl
          return definition.Or(getChildren(axiom, definition));
 
       case FEATURE:
-         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.Feature((Integer) this.axiomParameters.get(axiom.getIndex()),
-                                      addToDefinition(this.definitionTree.get(axiom)
-                                            .get(0), definition));
-         }
-
-         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
-            return definition.Feature(((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid(),
-                                      addToDefinition(this.definitionTree.get(axiom)
-                                            .get(0), definition));
-         }
-
-         final ConceptChronology featureTypeSpecification =
-            (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
-
-         return definition.Feature(featureTypeSpecification.getNid(),
-                                   addToDefinition(this.definitionTree.get(axiom)
-                                         .get(0), definition));
+          // TODO, the feature node requires 3 things: type, measure semantic, and operator. 
+          // The getIndex scheme used here seems to only provide for 1 thing, so 
+          // not sure what the solution space might be...
+         throw new UnsupportedOperationException();
 
       case CONCEPT:
          if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
