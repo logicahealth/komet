@@ -40,10 +40,10 @@
 package sh.isaac.api.logic.assertions.literal;
 
 /**
- * The Interface FloatLiteral.
+ * The Interface DoubleLiteral.
  *
  * @author kec
  */
-public interface FloatLiteral
+public interface DoubleLiteral
         extends LiteralAssertion {}
 

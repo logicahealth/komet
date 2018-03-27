@@ -70,7 +70,7 @@ import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
@@ -252,7 +252,7 @@ public class GraphToAxiomTranslator {
          return Optional.of(Factory.createBooleanLiteral(literalNodeBoolean.getLiteralValue()));
 
       case LITERAL_FLOAT:
-         final LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
+         final LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
 
          return Optional.of(Factory.createFloatLiteral((float) literalNodeFloat.getLiteralValue()));
 

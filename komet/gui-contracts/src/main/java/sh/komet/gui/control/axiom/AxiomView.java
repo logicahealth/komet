@@ -66,7 +66,7 @@ import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
@@ -400,7 +400,7 @@ public class AxiomView {
                                 break;
                             }
                             case LITERAL_FLOAT: {
-                                LiteralNodeFloat node = (LiteralNodeFloat) featureChildNode;
+                                LiteralNodeDouble node = (LiteralNodeDouble) featureChildNode;
                                 builder.append(node.getLiteralValue());
                                 break;
                             }
@@ -528,7 +528,7 @@ public class AxiomView {
                     break;
                 }
                 case LITERAL_FLOAT: {
-                    LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
+                    LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());
                     titleLabel.setText(Double.toString(literalNodeFloat.getLiteralValue()));

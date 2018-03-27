@@ -70,7 +70,7 @@ import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.DisjointWithNode;
 import sh.isaac.model.logic.node.LiteralNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
@@ -613,8 +613,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the literal node float
     */
-   public final LiteralNodeFloat FloatLiteral(ByteArrayDataBuffer dataInputStream) {
-      return new LiteralNodeFloat(this, dataInputStream);
+   public final LiteralNodeDouble FloatLiteral(ByteArrayDataBuffer dataInputStream) {
+      return new LiteralNodeDouble(this, dataInputStream);
    }
 
    /**
@@ -623,9 +623,9 @@ public class LogicalExpressionImpl
     * @param literalValue the literal value
     * @return the literal node float
     */
-   public LiteralNodeFloat FloatLiteral(double literalValue) {
+   public LiteralNodeDouble FloatLiteral(double literalValue) {
       commitStateProperty.set(CommitStates.UNCOMMITTED);
-      return new LiteralNodeFloat(this, literalValue);
+      return new LiteralNodeDouble(this, literalValue);
    }
 
    /**
@@ -1386,7 +1386,7 @@ public class LogicalExpressionImpl
                break;
 
             case LITERAL_FLOAT:
-               results[i] = FloatLiteral(((LiteralNodeFloat) oldLogicNode).getLiteralValue());
+               results[i] = FloatLiteral(((LiteralNodeDouble) oldLogicNode).getLiteralValue());
                break;
 
             case LITERAL_INSTANT:
