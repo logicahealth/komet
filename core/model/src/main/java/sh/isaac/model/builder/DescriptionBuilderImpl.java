@@ -262,7 +262,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 			int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
 
 			setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
-					conceptBuilder.getPrimordialUuid(), 
+					conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 
 					Get.identifierService().getUuidPrimordialForNid(caseSigNid),
 					descriptionType.getPrimordialUuid(), 
 					languageForDescription.getPrimordialUuid(), 
