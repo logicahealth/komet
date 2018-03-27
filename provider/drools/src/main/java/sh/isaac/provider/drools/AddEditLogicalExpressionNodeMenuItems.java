@@ -342,6 +342,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         StringBuilder builder = new StringBuilder();
         builder.append("Add ⒡ ");
         builder.append(manifold.getPreferredDescriptionText(typeNid));
+        builder.append(" ");
         builder.append(operator);
         builder.append(" 0.0 ");
         builder.append(manifold.getPreferredDescriptionText(measureSemanticNid));
