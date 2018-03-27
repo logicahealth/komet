@@ -74,10 +74,9 @@ public class DynamicColumnInfo
 
    /** The index column. */
    private transient Boolean indexColumn;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
+   // than run-time lookup of the index configuration.
 
    /** The column order. */
-
-   // than run-time lookup of the index configuration.
    private int columnOrder;
 
    /** The assemblage concept. */
@@ -109,7 +108,7 @@ public class DynamicColumnInfo
     * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept, null validator info.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
@@ -129,7 +128,7 @@ public class DynamicColumnInfo
     * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept, and a single array item for the validator info.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
@@ -163,7 +162,7 @@ public class DynamicColumnInfo
     * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
