@@ -18,7 +18,7 @@ package sh.komet.gui.importation;
 
 import java.io.File;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import sh.isaac.solor.ContentProvider;
 
 /**
  *
@@ -28,13 +28,21 @@ public class ImportItemZipEntry extends ImportItemAbstract {
     public static final String FILE_PARENT_KEY = "file";
     
     final File zipFile;
+    final ZipEntry nestedZipFile;
     final ZipEntry entry;
     final String parentKey;
     SelectedImportType importType;
+    final byte[] itemBytes;
 
     public ImportItemZipEntry(File zipFile, ZipEntry entry) {
+       this(zipFile, null, entry, null);
+    }
+    
+    public ImportItemZipEntry(File zipFile, ZipEntry nestedZipFile, ZipEntry entry, byte[] itemBytes) {
         this.zipFile = zipFile;
         this.entry = entry;
+        this.nestedZipFile = nestedZipFile;
+        this.itemBytes = itemBytes;
         String[] nameParts = entry.getName().split("/");
         for (String namePart: nameParts) {
             if (namePart.toLowerCase().startsWith("readme")) {
@@ -61,17 +69,23 @@ public class ImportItemZipEntry extends ImportItemAbstract {
         }
         
         if (nameParts.length == 1) {
-            parentKey = FILE_PARENT_KEY;
+           if (nestedZipFile == null) {
+              parentKey = FILE_PARENT_KEY;
+           }
+           else {
+              parentKey = nestedZipFile.getName();
+           }
         } else {
-                        
             StringBuilder parentKeyBuilder = new StringBuilder();
+            if (nestedZipFile != null) {
+               parentKeyBuilder.append(nestedZipFile.getName()).append("/");
+            }
             for (int i = 0; i < nameParts.length - 1; i++) {
                 parentKeyBuilder.append(nameParts[i]).append("/");
             }
             parentKey = parentKeyBuilder.toString();
         }
         setName(nameParts[nameParts.length - 1]);
-        
     }
 
     public String getParentKey() {
@@ -90,7 +104,10 @@ public class ImportItemZipEntry extends ImportItemAbstract {
     @Override
     public String toString() {
         return "ImportItemZipEntry{" + "entry=" + entry + ", parentKey=" + parentKey + 
-                ", importType: " + importType + '}';
+                ", importType: " + importType + ", nestedZip:" + nestedZipFile + '}';
     }
     
+    public ContentProvider getContent() {
+        return new ContentProvider(zipFile, nestedZipFile, entry, itemBytes);
+    }
 }

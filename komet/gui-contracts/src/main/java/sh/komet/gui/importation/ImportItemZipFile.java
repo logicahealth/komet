@@ -24,10 +24,18 @@ import java.io.File;
  */
 public class ImportItemZipFile extends ImportItemAbstract {
     final File file;
+    final String nestedFile;
 
     public ImportItemZipFile(File file) {
         this.file = file;
+        this.nestedFile = null;
         setName(this.file.getName());
+    }
+    
+    public ImportItemZipFile(File parentZipFile, String nestedFile) {
+        this.file = parentZipFile;
+        this.nestedFile = nestedFile;
+        setName(this.file.getName() + ":" + nestedFile);
     }
 
     @Override

@@ -44,7 +44,11 @@
 			<artifactId>maven-compat</artifactId>
 			<version>3.5.2</version>
 		</dependency>
-
+		<dependency>
+			<groupId>sh.isaac.komet</groupId>
+			<artifactId>gui-contracts</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 
 
 		<!-- Putting logging here for running command line / console mains from this project -->

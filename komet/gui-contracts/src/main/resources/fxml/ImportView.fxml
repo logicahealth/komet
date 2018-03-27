@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -23,6 +24,11 @@
                   <ChoiceBox fx:id="importType" prefWidth="150.0" />
                   <Separator orientation="VERTICAL" prefHeight="15.0" />
                 <Button fx:id="addButton" mnemonicParsing="false" onAction="#addImportDataLocation" text="Add file..." />
+                  <Button fx:id="addArtifactButton" mnemonicParsing="false" text="Add Artifact...">
+                     <tooltip>
+                        <Tooltip text="Add a maven artifact" />
+                     </tooltip>
+                  </Button>
               </items>
             </ToolBar>
          </top>

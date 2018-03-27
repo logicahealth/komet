@@ -19,7 +19,6 @@ package sh.isaac.solor.rf2.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -55,9 +54,6 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          setStartTime();
          updateMessage("Computing concept to stated relationship associations...");
          int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-         
-         final int watchNid = Get.identifierService() // Beclamide overdose (disorder)
-                 .getNidForUuids(UUID.fromString("ec9af1ff-3a86-346c-818c-93b4109b09cb")); 
 
          SpinedIntIntArrayMap conceptElementSequence_StatedRelationshipNids_Map = setupRelSpinedMap(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
          addToTotalWork(4);

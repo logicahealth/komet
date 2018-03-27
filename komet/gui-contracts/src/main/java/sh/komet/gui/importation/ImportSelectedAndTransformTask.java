@@ -21,10 +21,10 @@ import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.rf2.direct.ImportType;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
-import sh.isaac.solor.rf2.direct.ZipFileEntry;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -35,10 +35,10 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    
    final Manifold manifold;
    final ImportType importType;
-   final List<ZipFileEntry> entriesToImport;
+   final List<ContentProvider> entriesToImport;
    
    public ImportSelectedAndTransformTask(Manifold manifold, ImportType importType,
-           List<ZipFileEntry> entriesToImport) {
+         List<ContentProvider> entriesToImport) {
       this.entriesToImport = entriesToImport;
       this.manifold = manifold;
       this.importType = importType;

@@ -16,30 +16,27 @@
  */
 package sh.isaac.solor.rf2.direct;
 
-import java.io.File;
 import java.util.Objects;
-import java.util.zip.ZipEntry;
+import sh.isaac.solor.ContentProvider;
 
 /**
  *
  * @author kec
  */
 public class ImportSpecification implements Comparable<ImportSpecification>{
-   final File zipFile;
    final ImportStreamType streamType;
-   final ZipEntry zipEntry;
-
-   public ImportSpecification(File zipFile, ImportStreamType streamType, ZipEntry zipEntry) {
-      this.zipFile = zipFile;
-      this.streamType = streamType;
-      this.zipEntry = zipEntry;
+   final ContentProvider contentProvider;
+   
+   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType) {
+         this.streamType = streamType;
+         this.contentProvider = contentProvider;
    }
-
+   
    @Override
    public int hashCode() {
       int hash = 7;
       hash = 37 * hash + Objects.hashCode(this.streamType);
-      hash = 37 * hash + Objects.hashCode(this.zipEntry);
+      hash = 37 * hash + Objects.hashCode(this.contentProvider.getStreamSourceName());
       return hash;
    }
 
@@ -55,13 +52,10 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
          return false;
       }
       final ImportSpecification other = (ImportSpecification) obj;
-      if (!Objects.equals(this.zipFile, other.zipFile)) {
-         return false;
-      }
       if (this.streamType != other.streamType) {
-         return false;
+          return false;
       }
-      return Objects.equals(this.zipEntry, other.zipEntry);
+      return Objects.equals(this.contentProvider.getStreamSourceName(), other.contentProvider.getStreamSourceName());
    }
 
    @Override
@@ -69,12 +63,11 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       if (this.streamType != o.streamType) {
          return this.streamType.compareTo(o.streamType);
       }
-      return this.zipEntry.toString().compareTo(o.zipEntry.toString());
+      return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName().toString());
    }
 
    @Override
    public String toString() {
-      return "ImportSpecification{" + zipFile.getName() + ", " + streamType + ", " + zipEntry + '}';
+      return "ImportSpecification{" + this.contentProvider.getStreamSourceName() + ", " + streamType + '}';
    }
-   
 }

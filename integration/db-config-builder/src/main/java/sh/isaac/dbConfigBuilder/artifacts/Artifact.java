@@ -37,7 +37,13 @@
 
 package sh.isaac.dbConfigBuilder.artifacts;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import sh.isaac.api.util.AlphanumComparator;
+import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 
 /**
  *
@@ -59,6 +65,8 @@ public abstract class Artifact implements Comparable<Artifact>
 
 	/** The classifier. */
 	private final String classifier;
+	
+	private final String dataType;
 
 	// ~--- constructors --------------------------------------------------------
 
@@ -88,6 +96,25 @@ public abstract class Artifact implements Comparable<Artifact>
 		this.artifactId = artifactId;
 		this.version = version;
 		this.classifier = classifier;
+		this.dataType = "zip";
+	}
+	
+	/**
+	 * Instantiates a new artifact.
+	 *
+	 * @param groupId the group id
+	 * @param artifactId the artifact id
+	 * @param version the version
+	 * @param classifier the classifier
+	 * @param dataType the datatype (zip, ibdf.zip, etc)
+	 */
+	public Artifact(String groupId, String artifactId, String version, String classifier, String dataType)
+	{
+		this.groupId = groupId;
+		this.artifactId = artifactId;
+		this.version = version;
+		this.classifier = classifier;
+		this.dataType = dataType;
 	}
 
 	/**
@@ -157,6 +184,37 @@ public abstract class Artifact implements Comparable<Artifact>
 		return this.version;
 	}
 	
+	public String getDataType()
+	{
+		return this.dataType;
+	}
+	
+	
+	/**
+	 * If this artifact exists in a local m2 folder (at the location of the m2 folder path in stored prefs) then return the file reference.
+	 * @param storedPrefs
+	 * @return the file ref, if available.
+	 */
+	public Optional<File> getLocalPath(StoredPrefs storedPrefs)
+	{
+		File temp = new File(storedPrefs.getLocalM2FolderPath());
+		
+		if (temp.isDirectory())
+		{
+			if (StringUtils.isNotBlank(getGroupId()) && StringUtils.isNotBlank(getArtifactId()) && StringUtils.isNotBlank(getVersion()))
+			{
+				Path potential = Paths.get(temp.getAbsolutePath(), getGroupId().replaceAll("\\.", File.separator), getArtifactId(), getVersion(), 
+						getArtifactId() + "-" + getVersion() + (hasClassifier() ? "-" + getClassifier() : "") + "." + getDataType());
+				File file = potential.toFile();
+				if (file.exists())
+				{
+					return Optional.of(file);
+				}
+			}
+		}
+		return Optional.empty();
+	}
+	
 	
 
 	@Override
@@ -187,6 +245,7 @@ public abstract class Artifact implements Comparable<Artifact>
 		result = prime * result + ((classifier == null) ? 0 : classifier.hashCode());
 		result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + ((dataType == null) ? 0 : dataType.hashCode());
 		return result;
 	}
 
@@ -227,6 +286,13 @@ public abstract class Artifact implements Comparable<Artifact>
 				return false;
 		}
 		else if (!version.equals(other.version))
+			return false;
+		if (dataType == null)
+		{
+			if (other.dataType != null)
+				return false;
+		}
+		else if (!dataType.equals(other.dataType))
 			return false;
 		return true;
 	}
