@@ -29,11 +29,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.model.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
 import sh.komet.gui.manifold.HistoryRecord;
@@ -208,12 +210,34 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
                 for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addIsaAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                    Action addAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
                         RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) this.nodeToEdit;
                         roleNode.setTypeConceptNid(historyRecord.getComponentId());
                         this.expressionUpdater.accept(expressionContiningNode);
                     });
-                    actionGroup.getActions().add(addIsaAction);
+                    actionGroup.getActions().add(addAction);
+                }
+                if (!actionGroup.getActions().isEmpty()) {
+                    actionItems.add(actionGroup);
+                }
+            }
+        } else {
+            throw new IllegalStateException(this.nodeToEdit + " getNodeSemantic() == NodeSemantic.ROLE_SOME");
+        }
+    }
+    public void changeFeatureTypeToRecentSelection() {
+        if (this.nodeToEdit.getNodeSemantic() == NodeSemantic.FEATURE) {
+
+            for (String groupName : Manifold.getGroupNames()) {
+                List<Action> actions = new ArrayList<>();
+                ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
+                for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
+                    Action addAction = new Action("Change feature type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                        FeatureNodeWithNids featureNode = (FeatureNodeWithNids) this.nodeToEdit;
+                        featureNode.setTypeConceptNid(historyRecord.getComponentId());
+                        this.expressionUpdater.accept(expressionContiningNode);
+                    });
+                    actionGroup.getActions().add(addAction);
                 }
                 if (!actionGroup.getActions().isEmpty()) {
                     actionItems.add(actionGroup);
@@ -308,6 +332,31 @@ public class AddEditLogicalExpressionNodeMenuItems {
             this.expressionUpdater.accept(expressionContiningNode);
         });
         actionItems.add(addIsaAction);
+    }
+
+    public void addFloatFeatureAction(ConceptSpecification typeSpec, ConceptSpecification measureSemanticNid, ConcreteDomainOperators operator) {
+        addFloatFeatureAction(typeSpec.getNid(), measureSemanticNid.getNid(), operator);
+    }
+
+    public void addFloatFeatureAction(int typeNid, int measureSemanticNid, ConcreteDomainOperators operator) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Add ⒡ ");
+        builder.append(manifold.getPreferredDescriptionText(typeNid));
+        builder.append(operator);
+        builder.append(" 0.0 ");
+        builder.append(manifold.getPreferredDescriptionText(measureSemanticNid));
+        Action addFeatureAction = new Action(builder.toString(), (ActionEvent event) -> {
+            FeatureNodeWithNids newRole = expressionContiningNode.Feature(typeNid, 
+                    measureSemanticNid, operator, expressionContiningNode.FloatLiteral(0.0));
+            for (LogicNode node : nodeToEdit.getChildren()) {
+                if (node.getNodeSemantic() == NodeSemantic.AND) {
+                    node.addChildren(newRole);
+                    break;
+                }
+            }
+            this.expressionUpdater.accept(expressionContiningNode);
+        });
+        actionItems.add(addFeatureAction);
     }
 
     @Override

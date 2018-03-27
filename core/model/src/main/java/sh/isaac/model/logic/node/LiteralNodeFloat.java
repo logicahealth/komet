@@ -61,12 +61,12 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
 public class LiteralNodeFloat
         extends LiteralNode {
    /** The literal value. */
-   float literalValue;
+   double literalValue;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new literal node float.
+    * Instantiates a new literal node double precision float.
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
@@ -74,7 +74,7 @@ public class LiteralNodeFloat
    public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion,
                            ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.literalValue = dataInputStream.getFloat();
+      this.literalValue = dataInputStream.getDouble();
    }
 
    /**
@@ -83,7 +83,7 @@ public class LiteralNodeFloat
     * @param logicGraphVersion the logic graph version
     * @param literalValue the literal value
     */
-   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion, float literalValue) {
+   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion, double literalValue) {
       super(logicGraphVersion);
       this.literalValue = literalValue;
    }
@@ -112,7 +112,7 @@ public class LiteralNodeFloat
 
       final LiteralNodeFloat that = (LiteralNodeFloat) o;
 
-      return Float.compare(that.literalValue, this.literalValue) == 0;
+      return Double.compare(that.literalValue, this.literalValue) == 0;
    }
 
    /**
@@ -124,7 +124,7 @@ public class LiteralNodeFloat
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + ((this.literalValue != +0.0f) ? Float.floatToIntBits(this.literalValue)
+      result = 31 * result + ((this.literalValue != +0.0f) ? Float.floatToIntBits((float) this.literalValue)
             : 0);
       return result;
    }
@@ -165,7 +165,7 @@ public class LiteralNodeFloat
    protected int compareFields(LogicNode o) {
       final LiteralNodeFloat that = (LiteralNodeFloat) o;
 
-      return Float.compare(this.literalValue, that.literalValue);
+      return Double.compare(this.literalValue, that.literalValue);
    }
 
    /**
@@ -175,7 +175,7 @@ public class LiteralNodeFloat
     */
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Float.toString(this.literalValue));
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Double.toString(this.literalValue));
    }
 
    /**
@@ -187,7 +187,7 @@ public class LiteralNodeFloat
    @Override
    protected void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.putFloat(this.literalValue);
+      dataOutput.putDouble(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -197,7 +197,7 @@ public class LiteralNodeFloat
     *
     * @return the literal value
     */
-   public float getLiteralValue() {
+   public double getLiteralValue() {
       return this.literalValue;
    }
 

@@ -46,13 +46,13 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -78,20 +78,18 @@ public class FeatureNodeWithUuids
 
    /** The operator. */
    ConcreteDomainOperators operator;
-
+   UUID measureSemanticUuid;
    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new feature node with uuids.
     *
     * @param internalNode the internal node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public FeatureNodeWithUuids(FeatureNodeWithNids internalNode) {
       super(internalNode);
       this.operator = internalNode.getOperator();
-
-//    unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptSequence()).get();
+      this.measureSemanticUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getMeasureSemanticNid());
    }
 
    /**
@@ -101,13 +99,11 @@ public class FeatureNodeWithUuids
     * @param dataInputStream the data input stream
     */
 
-// UUID unitsConceptUuid;
    public FeatureNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
                                ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.operator = concreteDomainOperators[dataInputStream.getByte()];
-
-//    unitsConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.measureSemanticUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
    }
 
    /**
@@ -125,30 +121,34 @@ public class FeatureNodeWithUuids
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Equals.
-    *
-    * @param o the o
-    * @return true, if successful
-    */
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) {
-         return true;
-      }
-
-      if ((o == null) || (getClass() != o.getClass())) {
-         return false;
-      }
-
-      if (!super.equals(o)) {
-         return false;
-      }
-
-      final FeatureNodeWithUuids that = (FeatureNodeWithUuids) o;
-
-      return this.operator == that.operator;
+   public UUID getMeasureSemanticUuid() {
+      return measureSemanticUuid;
    }
+
+    /**
+     * Equals.
+     *
+     * @param o the o
+     * @return true, if successful
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
+        
+        if (!super.equals(o)) {
+            return false;
+        }
+        
+        final FeatureNodeWithUuids that = (FeatureNodeWithUuids) o;
+        
+        return this.operator == that.operator;
+    }
 
    /**
     * Hash code.
@@ -160,8 +160,7 @@ public class FeatureNodeWithUuids
       int result = super.hashCode();
 
       result = 31 * result + this.operator.hashCode();
-
-//    result = 31 * result + unitsConceptUuid.hashCode();
+      result = 31 * result + this.measureSemanticUuid.hashCode();
       return result;
    }
 
@@ -185,7 +184,7 @@ public class FeatureNodeWithUuids
    public String toString(String nodeIdSuffix) {
       return "FeatureNode[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator + ", units:"
 
-      // + Get.conceptService().getConcept(unitsConceptUuid).toUserString()
+      + Get.concept(measureSemanticUuid).toUserString()
       + super.toString(nodeIdSuffix);
    }
    @Override
@@ -206,8 +205,8 @@ public class FeatureNodeWithUuids
          super.writeNodeData(dataOutput, dataTarget);
          dataOutput.putByte((byte) this.operator.ordinal());
 
-//       dataOutput.writeLong(unitsConceptUuid.getMostSignificantBits());
-//       dataOutput.writeLong(unitsConceptUuid.getLeastSignificantBits());
+        dataOutput.putLong(this.measureSemanticUuid.getMostSignificantBits());
+        dataOutput.putLong(this.measureSemanticUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
@@ -221,8 +220,6 @@ public class FeatureNodeWithUuids
       }
    }
 
-// public UUID getUnitsConceptUuid() {
-//     return unitsConceptUuid;
 
    /**
     * Compare typed node fields.
@@ -230,7 +227,6 @@ public class FeatureNodeWithUuids
     * @param o the o
     * @return the int
     */
-// }
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
       // node semantic already determined equals.

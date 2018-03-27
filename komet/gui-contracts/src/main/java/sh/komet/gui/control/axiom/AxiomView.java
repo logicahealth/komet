@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control.axiom;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,8 +62,14 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.LiteralNodeBoolean;
+import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeInstant;
+import sh.isaac.model.logic.node.LiteralNodeInteger;
+import sh.isaac.model.logic.node.LiteralNodeString;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
@@ -353,6 +360,77 @@ public class AxiomView {
                     }
                     break;
                 }
+                case FEATURE: {
+                    rootPane.getStyleClass()
+                                .add(StyleClasses.DEF_FEATURE.toString());
+                    int column = 0;
+                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
+                    openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
+                    addToToolbarNoGrowTopAlign(rootToolBar, openConceptButton, column++);
+                    openConceptButton.setOnMouseClicked(this::handleShowFeatureNodeClick);
+                    FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("⒡ ");
+                    builder.append(manifold.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
+                    switch (featureNode.getOperator()) {
+                        case EQUALS:
+                            builder.append(" = ");
+                            break;
+                        case GREATER_THAN:
+                            builder.append(" > ");
+                            break;
+                        case GREATER_THAN_EQUALS:
+                            builder.append(" ≥ ");
+                            break;
+                        case LESS_THAN:
+                            builder.append(" < ");
+                            break;
+                        case LESS_THAN_EQUALS:
+                            builder.append(" ≤ ");
+                            break;
+                            default:
+                                throw new UnsupportedOperationException("Can't handle: " + featureNode.getOperator());
+                    }
+                    
+                    for (AbstractLogicNode featureChildNode: featureNode.getChildren()) {
+                        switch (featureChildNode.getNodeSemantic()) {
+                            case LITERAL_BOOLEAN: {
+                                LiteralNodeBoolean node = (LiteralNodeBoolean) featureChildNode;
+                                builder.append(node.getLiteralValue());
+                                break;
+                            }
+                            case LITERAL_FLOAT: {
+                                LiteralNodeFloat node = (LiteralNodeFloat) featureChildNode;
+                                builder.append(node.getLiteralValue());
+                                break;
+                            }
+                            case LITERAL_INSTANT: {
+                                LiteralNodeInstant node = (LiteralNodeInstant) featureChildNode;
+                                builder.append(node.getLiteralValue());
+                                break;
+                            }
+                            case LITERAL_INTEGER: {
+                                LiteralNodeInteger node = (LiteralNodeInteger) featureChildNode;
+                                builder.append(node.getLiteralValue());
+                                node.getChildren();
+                                break;
+                            }
+                            case LITERAL_STRING: {
+                                LiteralNodeString node = (LiteralNodeString) featureChildNode;
+                                builder.append(node.getLiteralValue());
+                                break;
+                            }
+                        }
+                    }
+                    builder.append(" ");
+                    builder.append(manifold.getPreferredDescriptionText(featureNode.getMeasureSemanticNid()));
+                    titleLabel.setText(builder.toString());
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                  break;
+                }
                 case ROLE_SOME: {
                     int column = 0;
                     RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) logicNode;
@@ -371,11 +449,12 @@ public class AxiomView {
                             }
                         }
                         titleLabel.setText(builder.toString());
+                        addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     } else {
                         rootPane.getStyleClass()
                                 .add(StyleClasses.DEF_ROLE.toString());
                         StringBuilder builder = new StringBuilder();
-                        builder.append(" (");
+                        builder.append("∃ (");
                         builder.append(manifold.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
                         builder.append(")➞[");
                         for (LogicNode descendentNode : roleNode.getDescendents()) {
@@ -388,10 +467,10 @@ public class AxiomView {
                         titleLabel.setText(builder.toString());
                         openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
                         openConceptButton.setOnMouseClicked(this::handleShowRoleNodeClick);
+                        addToToolbarNoGrow(rootToolBar, expandButton, column++);
                         addToToolbarNoGrowTopAlign(rootToolBar, openConceptButton, column++);
                     }
 
-                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
@@ -448,13 +527,73 @@ public class AxiomView {
                     }
                     break;
                 }
-                case FEATURE: {
-                    FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
+                case LITERAL_FLOAT: {
+                    LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
                     rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_FEATURE.toString());
-                    throw new UnsupportedOperationException();
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Double.toString(literalNodeFloat.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                    break;
                 }
-
+                    
+                    
+                case LITERAL_BOOLEAN:{
+                    LiteralNodeBoolean literalNode = (LiteralNodeBoolean) logicNode;
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Boolean.toString(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                   break;
+                }
+                case LITERAL_INSTANT:{
+                    LiteralNodeInstant literalNode = (LiteralNodeInstant) logicNode;
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(DateTimeUtil.format(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                    break;
+                }
+                case LITERAL_INTEGER:{
+                    LiteralNodeInteger literalNode = (LiteralNodeInteger) logicNode;
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Integer.toString(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                   break;
+                }
+                case LITERAL_STRING:{
+                    LiteralNodeString literalNode = (LiteralNodeString) logicNode;
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(literalNode.getLiteralValue());
+                    titleLabel.setGraphic(Iconography.LITERAL_STRING.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                    break;
+                }
                 default:
                     throw new UnsupportedOperationException("Can't handle: " + logicNode);
             }
@@ -477,7 +616,8 @@ public class AxiomView {
             }
 
             childClauses.sort(new AxiomComparator());
-            if (logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME) {
+            if (logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME ||
+                    logicNode.getNodeSemantic() == NodeSemantic.FEATURE) {
                 expanded.set(false);
             } else {
                 for (ClauseView childClause : childClauses) {
@@ -549,6 +689,13 @@ public class AxiomView {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                 RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) logicNode;
                 showPopup(roleNode.getTypeConceptNid(), mouseEvent);
+            }
+        }
+
+        private void handleShowFeatureNodeClick(MouseEvent mouseEvent) {
+            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                FeatureNodeWithNids featureNid = (FeatureNodeWithNids) logicNode;
+                showPopup(featureNid.getTypeConceptNid(), mouseEvent);
             }
         }
 

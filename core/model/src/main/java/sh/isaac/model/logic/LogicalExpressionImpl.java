@@ -581,14 +581,16 @@ public class LogicalExpressionImpl
     * Feature.
     *
     * @param typeNid the type nid
+     * @param measureSemanticNid
+     * @param operator
     * @param literal the literal
     * @return the feature node with sequences
     */
-   public FeatureNodeWithNids Feature(int typeNid, AbstractLogicNode literal) {
+   public FeatureNodeWithNids Feature(int typeNid, int measureSemanticNid, ConcreteDomainOperators operator, AbstractLogicNode literal) {
       commitStateProperty.set(CommitStates.UNCOMMITTED);
       // check for LiteralNode or SubstitutionNodeLiteral
       if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
-         return new FeatureNodeWithNids(this, typeNid, literal);
+         return new FeatureNodeWithNids(this, typeNid, measureSemanticNid, operator, literal);
       }
 
       throw new IllegalStateException("LogicNode must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
@@ -621,7 +623,7 @@ public class LogicalExpressionImpl
     * @param literalValue the literal value
     * @return the literal node float
     */
-   public LiteralNodeFloat FloatLiteral(float literalValue) {
+   public LiteralNodeFloat FloatLiteral(double literalValue) {
       commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new LiteralNodeFloat(this, literalValue);
    }
@@ -1365,8 +1367,10 @@ public class LogicalExpressionImpl
                                        .toArray())[0]);
                break;
 
-            case FEATURE:
-               results[i] = Feature(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),
+            case FEATURE: {
+               FeatureNodeWithNids featureNode = (FeatureNodeWithNids) oldLogicNode;
+               results[i] = Feature(featureNode.getTypeConceptNid(), featureNode.getMeasureSemanticNid(),
+                       featureNode.getOperator(),
                        (AbstractLogicNode) addNodesWithMap(another,
                                solution,
                                anotherToThisNodeIdMap,
@@ -1375,6 +1379,7 @@ public class LogicalExpressionImpl
                                        .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
                                        .toArray())[0]);
                break;
+            }
 
             case LITERAL_BOOLEAN:
                results[i] = BooleanLiteral(((LiteralNodeBoolean) oldLogicNode).getLiteralValue());

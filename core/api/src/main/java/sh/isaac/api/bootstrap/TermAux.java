@@ -404,23 +404,26 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD = new ConceptProxy("Paternal ancestor of subject of record", "Paternal ancestor", UUID.fromString("e6ec4948-9167-5c16-9698-ab2747e5cdf3"));
 
     public static ConceptSpecification ISO_8601 = new ConceptProxy("ISO 8601 representation of dates and times", "ISO 8601", UUID.fromString("38baca53-e626-5196-91a5-76e05cb3e115"));
-    public static ConceptSpecification ISO_8601_AFTER = new ConceptProxy("ISO 8601 interval after to statement time", "ISO 8601 after statement", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
+    public static ConceptSpecification ISO_8601_AFTER = new ConceptProxy("ISO 8601 interval after statement time", "ISO 8601 after statement", UUID.fromString("53fb2295-49f9-58ec-8d71-167974e70eae"));
     public static ConceptSpecification ISO_8601_PRIOR = new ConceptProxy("ISO 8601 interval prior to statement time", "ISO 8601 before statement", UUID.fromString("0b7d4e60-7ef5-57fa-ad0e-ee13433b7ee1"));
 
     public static ConceptSpecification UNINITIALIZED_COMPONENT_ID = new ConceptProxy("Uninitialized component", "Uninitialized", UUID.fromString("55f74246-0a25-57ac-9473-a788d08fb656"));
     
+    public static ConceptSpecification TEXT_COMPARISON_SEMANTIC = new ConceptProxy("Text comparison measure semantic", "Text comparison", UUID.fromString("b1531e68-4e7a-5194-b1f9-9aaace269372"));
+    public static ConceptSpecification CASE_SENSITIVE_EVAL = new ConceptProxy("Case sensitive evaluation", "Compare case", UUID.fromString("a95e5dbc-a179-57f9-9cdd-6de8c026396d"));
+    public static ConceptSpecification CASE_INSENSITIVE_EVAL = new ConceptProxy("Case insensitive evaluation", "Ignore case", UUID.fromString("74bbdaff-f061-5807-b334-3c88ac3e9421"));
+    public static ConceptSpecification UNICODE_OPERATION_EVAL = new ConceptProxy("Unicode evaluation", "Unicode", UUID.fromString("977e682d-9611-5316-9791-f349b1d10fed"));
+
+    public static ConceptSpecification DISCREATE_MEASURE_SEMANTICS = new ConceptProxy("Discrete measure semantic", "Item measurement", UUID.fromString("2bd0936f-62dd-5425-bc38-1eca8abb8242"));
+    public static ConceptSpecification ITEM_COUNT = new ConceptProxy("Item count", "Items", UUID.fromString("ea3c3d2a-4a76-5441-90f8-a8caa4903a3f"));
+    public static ConceptSpecification PRESSURE_MEASURE_SEMANTICS = new ConceptProxy("Pressure measure semantic", "Pressure measurement", UUID.fromString("62728a7c-7546-5f70-83c4-2859e08dd9be"));
+    public static ConceptSpecification MM_HG = new ConceptProxy("Milimeters of mercury", "mm Hg", UUID.fromString("713876c4-a832-5302-8baa-41cd7e7bcd2d"));
+    public static ConceptSpecification TIME_MEASUREMENT_SEMANTIC = new ConceptProxy("Time measurement semantic", "Time measurement", UUID.fromString("6bd7c916-2bf1-5ae4-996a-6390074bf27f"));
+
+    public static ConceptSpecification MILLIGRAM = new ConceptProxy("milligram", "mg", UUID.fromString("64b14d8e-5893-5927-a165-28d7ea0a1357"));
+    public static ConceptSpecification MASS_MEASUREMENT_SEMANTIC = new ConceptProxy("Mass measurement semantic", "Mass measurement", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
+
     /*
-    public static ConceptSpecification SPEC16 = new ConceptProxy("", "", UUID.fromString("a95e5dbc-a179-57f9-9cdd-6de8c026396d"));
-    public static ConceptSpecification SPEC17 = new ConceptProxy("", "", UUID.fromString("74bbdaff-f061-5807-b334-3c88ac3e9421"));
-    public static ConceptSpecification SPEC18 = new ConceptProxy("", "", UUID.fromString("977e682d-9611-5316-9791-f349b1d10fed"));
-    public static ConceptSpecification SPEC19 = new ConceptProxy("", "", UUID.fromString("2bd0936f-62dd-5425-bc38-1eca8abb8242"));
-    public static ConceptSpecification SPEC20 = new ConceptProxy("", "", UUID.fromString("ea3c3d2a-4a76-5441-90f8-a8caa4903a3f"));
-    public static ConceptSpecification SPEC21 = new ConceptProxy("", "", UUID.fromString("62728a7c-7546-5f70-83c4-2859e08dd9be"));
-    public static ConceptSpecification SPEC22 = new ConceptProxy("", "", UUID.fromString("713876c4-a832-5302-8baa-41cd7e7bcd2d"));
-    public static ConceptSpecification SPEC23 = new ConceptProxy("", "", UUID.fromString("6bd7c916-2bf1-5ae4-996a-6390074bf27f"));
-    public static ConceptSpecification SPEC24 = new ConceptProxy("", "", UUID.fromString("b1531e68-4e7a-5194-b1f9-9aaace269372"));
-    public static ConceptSpecification SPEC25 = new ConceptProxy("", "", UUID.fromString("64b14d8e-5893-5927-a165-28d7ea0a1357"));
-    public static ConceptSpecification SPEC26 = new ConceptProxy("", "", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
     public static ConceptSpecification SPEC27 = new ConceptProxy("", "", UUID.fromString("492b1a88-dbce-56a0-a405-6c7742f3be86"));
     public static ConceptSpecification SPEC28 = new ConceptProxy("", "", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));
     public static ConceptSpecification SPEC29 = new ConceptProxy("", "", UUID.fromString("4fa29287-a80e-5f83-abab-4b587973e7b7"));

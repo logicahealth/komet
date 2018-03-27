@@ -31,10 +31,10 @@ public class FrillsTest {
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE____SOLOR.getNid(), true, false, null).size(), 10);
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE____SOLOR.getNid(), false, false, null).size(), 10);
 		
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), false, false, null).size(), 0);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), true, false, null).size(), 0);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), false, true, null).size(), 0);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), true, true, null).size(), 0);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), false, false, null).size(), 1);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), true, false, null).size(), 1);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), false, true, null).size(), 1);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), true, true, null).size(), 1);
 		
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.VERSION_PROPERTIES____SOLOR.getNid(), false, false, null).size(), 8);
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.VERSION_PROPERTIES____SOLOR.getNid(), true, false, null).size(), 12);

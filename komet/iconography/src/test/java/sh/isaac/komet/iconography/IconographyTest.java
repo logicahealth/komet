@@ -168,6 +168,11 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.OPEN.getIconographic());
       iconsPane.getChildren().add(Iconography.CLOSE.getIconographic());
       
+      iconsPane.getChildren().add(Iconography.FEATURE_FUNCTION.getIconographic());
+      iconsPane.getChildren().add(Iconography.FEATURE_INFO.getIconographic());
+      iconsPane.getChildren().add(Iconography.FEATURE_RULER.getIconographic());
+      iconsPane.getChildren().add(Iconography.LITERAL_STRING.getIconographic());
+      iconsPane.getChildren().add(Iconography.LITERAL_NUMERIC.getIconographic());
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);
 

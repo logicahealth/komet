@@ -907,6 +907,36 @@ limitations under the License.
     -fx-background-insets:4 0 2 0;
  }
  
+.def-feature  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #005ca2;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+.def-literal  {
+    -fx-background-color:white;
+    -fx-padding:0;
+    -fx-border-insets:2 0 2 0;
+    -fx-border-width:1 0 1 5;    
+    -fx-border-color:-komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-concept-color;
+    -fx-border-style:solid;
+    -fx-background-insets:4 0 2 0;
+ }
+ 
+.def-feature .open-concept-button {
+    -fx-padding:-3 6 0 0;
+ } 
+.def-role .open-concept-button {
+    -fx-padding:-3 6 0 0;
+ } 
+.def-feature .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;  
+ }
  .def-root .toggle-button {
      -fx-background-color: transparent;
     -fx-border-color: transparent;  

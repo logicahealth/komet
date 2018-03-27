@@ -254,7 +254,7 @@ public class GraphToAxiomTranslator {
       case LITERAL_FLOAT:
          final LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
 
-         return Optional.of(Factory.createFloatLiteral(literalNodeFloat.getLiteralValue()));
+         return Optional.of(Factory.createFloatLiteral((float) literalNodeFloat.getLiteralValue()));
 
       case LITERAL_INSTANT:
          final LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;

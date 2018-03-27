@@ -413,12 +413,36 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
                
             createConcept("Measurement semantic");
+            pushParent(current());
+                createConcept(TermAux.TIME_MEASUREMENT_SEMANTIC);
                 pushParent(current());
-                createConcept(TermAux.ISO_8601);
-                createConcept(TermAux.ISO_8601_AFTER);
-                createConcept(TermAux.ISO_8601_PRIOR);
+                    createConcept(TermAux.ISO_8601);
+                    createConcept(TermAux.ISO_8601_AFTER);
+                    createConcept(TermAux.ISO_8601_PRIOR);
                 popParent();
-            
+                createConcept(TermAux.DISCREATE_MEASURE_SEMANTICS);
+                pushParent(current());
+                    createConcept(TermAux.ITEM_COUNT);
+                popParent();
+                createConcept(TermAux.PRESSURE_MEASURE_SEMANTICS);
+                pushParent(current());
+                    createConcept(TermAux.MM_HG);
+                popParent();
+                createConcept(TermAux.MASS_MEASUREMENT_SEMANTIC);
+                pushParent(current());
+                    createConcept(TermAux.MILLIGRAM);
+                popParent();
+                createConcept(TermAux.TEXT_COMPARISON_SEMANTIC);
+                pushParent(current());
+                    createConcept(TermAux.CASE_SENSITIVE_EVAL);
+                    createConcept(TermAux.CASE_INSENSITIVE_EVAL);
+                    createConcept(TermAux.UNICODE_OPERATION_EVAL);
+                popParent();
+            popParent();
+                
+                
+                
+                
             createConcept("Axiom origin");
             pushParent(current());
                createConcept(TermAux.STATED_PREMISE_TYPE).addUuids(UUID.fromString("3fde38f6-e079-3cdc-a819-eda3ec74732d"));
@@ -488,7 +512,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Universal restriction").setPrimordialUuid(NodeSemantic.ROLE_ALL.getSemanticUuid());
                createConcept("Existential restriction").setPrimordialUuid(NodeSemantic.ROLE_SOME.getSemanticUuid());
                popParent();
-            createConcept("Feature").setPrimordialUuid(NodeSemantic.FEATURE.getSemanticUuid());
             createConcept("Literal value");
             pushParent(current());
                createConcept("Boolean literal").setPrimordialUuid(NodeSemantic.LITERAL_BOOLEAN.getSemanticUuid());
@@ -516,9 +539,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("SnoRocket classifier").mergeFromSpec(TermAux.SNOROCKET_CLASSIFIER);
                createConcept("ConDOR classifier");
                popParent();
+            createConcept("Feature").setPrimordialUuid(NodeSemantic.FEATURE.getSemanticUuid());
+            pushParent(current());
+               createConcept("Ingredient strength");
+            popParent();
             createConcept("Role").setPrimordialUuid("6155818b-09ed-388e-82ce-caa143423e99");
             pushParent(current());
-               createConcept("Has strength");
                createConcept("Intrinsic role");
                pushParent(current());
                   createConcept(TermAux.ROLE_GROUP);
