@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,6 +81,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.ToggleButton;
@@ -124,9 +126,11 @@ import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.DialogService;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  * 
@@ -136,7 +140,7 @@ import sh.komet.gui.manifold.Manifold;
 @SuppressWarnings({ "unused", "restriction" })
 @Service
 @PerLookup
-public class SemanticViewer implements DetailNodeFactory
+public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem>> 
 {
 	private VBox rootNode_ = null;
 	private TreeTableView<SemanticGUI> ttv_;
@@ -149,6 +153,7 @@ public class SemanticViewer implements DetailNodeFactory
 	private UpdateableBooleanBinding showStampColumns_, showActiveOnly_, showFullHistory_, showViewUsageButton_;
 	private TreeTableColumn<SemanticGUI, String> stampColumn_;
 	private BooleanProperty hasUncommitted_ = new SimpleBooleanProperty(false);
+	private ConceptLabelToolbar clt;
 
 	private Text placeholderText_ = new Text("No Dynamic Semantics were found associated with the component");
 	private ProgressBar progressBar_;
@@ -161,8 +166,8 @@ public class SemanticViewer implements DetailNodeFactory
 	int viewFocusNid_;
 	private Manifold manifoldConcept_;
 	private ManifoldLinkedConceptLabel titleLabel = null;
-	private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
-	private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+	private final SimpleStringProperty titleProperty = new SimpleStringProperty("-");
+	private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("-");
 
 	IndexedGenerationCallable newComponentIndexGen_ = null; //Useful when adding from the assemblage perspective - if they are using an index, we need to wait till the new thing is indexed
 	private AtomicInteger noRefresh_ = new AtomicInteger(0);
@@ -244,6 +249,10 @@ public class SemanticViewer implements DetailNodeFactory
 			
 			rootNode_ = new VBox();
 			rootNode_.setFillWidth(true);
+			
+			clt = ConceptLabelToolbar.make(manifoldConcept_, this, Optional.of(true));
+			rootNode_.getChildren().add(clt.getToolbarNode());
+			
 			rootNode_.getChildren().add(ttv_);
 			VBox.setVgrow(ttv_, Priority.ALWAYS);
 			
@@ -675,6 +684,7 @@ public class SemanticViewer implements DetailNodeFactory
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
 		manifoldConcept_ = manifold;
+		titleProperty.set(manifoldConcept_.getRegularName(componentNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(componentNid)));
 		initialInit();
 		viewFocus_ = ViewFocus.REFERENCED_COMPONENT;
 		viewFocusNid_ = componentNid;
@@ -690,6 +700,7 @@ public class SemanticViewer implements DetailNodeFactory
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
 		manifoldConcept_ = manifold;
+		titleProperty.set(manifoldConcept_.getRegularName(assemblageConceptNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(assemblageConceptNid)));
 		initialInit();
 		viewFocus_ = ViewFocus.ASSEMBLAGE;
 		viewFocusNid_ = assemblageConceptNid;
@@ -1712,7 +1723,7 @@ public class SemanticViewer implements DetailNodeFactory
 	@Override
 	public boolean isEnabled()
 	{
-		return Boolean.getBoolean("SHOW_SEMANTIC");
+		return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
 	}
 	/** 
 	 * {@inheritDoc}
@@ -1729,9 +1740,19 @@ public class SemanticViewer implements DetailNodeFactory
 		
 		manifoldConcept_.focusedConceptProperty().addListener((change) ->
 		{
-			setComponent(manifold.getFocusedConcept().get().getNid(), manifold, null, null, null, true);
-			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept().get()));
-			displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
+			if (manifoldConcept_.getFocusedConcept().isPresent())
+			{
+				setComponent(manifold.getFocusedConcept().get().getNid(), manifold, null, null, null, true);
+				toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept().get()));
+				displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
+			}
+			else
+			{
+				treeRoot_.getChildren().clear();
+				ttv_.getColumns().clear();
+				summary_.setText("");
+				titleProperty.set("-");
+			}
 		});
 		
 		nodeConsumer.accept(getView());
@@ -1741,7 +1762,7 @@ public class SemanticViewer implements DetailNodeFactory
 			@Override
 			public boolean selectInTabOnChange()
 			{
-				return false;
+				return clt.getFocusTabOnConceptChange().get();
 			}
 			
 			@Override
@@ -1757,7 +1778,6 @@ public class SemanticViewer implements DetailNodeFactory
 				{
 					titleLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 					titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
-					titleProperty.set("");
 				}
 
 				return Optional.of(titleLabel);
@@ -1775,5 +1795,13 @@ public class SemanticViewer implements DetailNodeFactory
 				return manifoldConcept_;
 			}
 		};
+	}
+	
+	@Override
+	public List<MenuItem> get()
+	{
+		List<MenuItem> assemblageMenuList = new ArrayList<>();
+		// No extra menu items added yet.
+		return assemblageMenuList;
 	}
 }

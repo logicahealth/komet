@@ -38,7 +38,8 @@ package sh.komet.gui.util;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.application.Platform;
-
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
@@ -54,7 +55,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-
+import javafx.stage.Window;
 //~--- JDK imports ------------------------------------------------------------
 import com.sun.javafx.tk.FontLoader;
 import com.sun.javafx.tk.Toolkit;
@@ -72,6 +73,7 @@ import sh.komet.gui.style.StyleClasses;
 
 //~--- non-JDK imports --------------------------------------------------------
 import static sh.komet.gui.style.StyleClasses.HEADER_PANEL;
+import org.controlsfx.dialog.ProgressDialog;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -340,5 +342,25 @@ public class FxUtils {
 
     public static Background makeBackground(Color color) {
         return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
+    }
+    
+    /**
+     * Show a wait dialog IFF the worker is not finished.
+     * @param title
+     * @param content
+     * @param worker
+     * @param owner
+     */
+    public static void waitWithProgress(String title, String content, Worker<?> worker, Window owner) {
+        if (worker.getState() == State.READY || worker.isRunning()) {
+            ProgressDialog pd = new ProgressDialog(worker);
+            pd.setTitle(title);
+            pd.setHeaderText(null);
+            pd.setContentText(content);
+            if (owner != null) {
+                pd.initOwner(owner);
+            }
+            pd.showAndWait();
+        }
     }
 }

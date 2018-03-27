@@ -40,7 +40,6 @@ package sh.isaac.solor.rf2.direct;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -66,6 +65,8 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.ContentStreamProvider;
 import sh.isaac.api.index.IndexBuilderService;
 
 //~--- classes ----------------------------------------------------------------
@@ -91,7 +92,7 @@ public class Rf2DirectImporter
 
     protected final ImportType importType;
 
-    protected final List<ZipFileEntry> entriesToImport;
+    protected final List<ContentProvider> entriesToImport;
 
     //~--- constructors --------------------------------------------------------
     public Rf2DirectImporter(ImportType importType) {
@@ -107,7 +108,7 @@ public class Rf2DirectImporter
                 .add(this);
     }
 
-    public Rf2DirectImporter(ImportType importType, List<ZipFileEntry> entriesToImport) {
+    public Rf2DirectImporter(ImportType importType, List<ContentProvider> entriesToImport) {
         this.importType = importType;
         this.entriesToImport = entriesToImport;
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
@@ -134,8 +135,8 @@ public class Rf2DirectImporter
   
             if (this.entriesToImport != null) {
                 ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
-                for (ZipFileEntry entry: this.entriesToImport) {
-                    processEntry(entry.zipEntry, specificationsToImport, entry.zipFile);
+                for (ContentProvider entry: this.entriesToImport) {
+                    processEntry(entry, specificationsToImport);
                 }
                 doImport(specificationsToImport, time);
             } else {
@@ -203,10 +204,9 @@ public class Rf2DirectImporter
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-                    String entryName = entry.getName()
-                            .toLowerCase();
+                    String entryName = entry.getName().toLowerCase();
                     if (entryName.matches(importPrefixRegex.toString())) {
-                        processEntry(entry, specificationsToImport, zipFilePath.toFile());
+                        processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport);
                     }
                 }
             }
@@ -222,7 +222,7 @@ public class Rf2DirectImporter
         builder.append("Importing the following zip entries: \n");
         for (ImportSpecification spec : specificationsToImport) {
             builder.append("     ").append(spec.streamType);
-            builder.append(": ").append(spec.zipEntry.getName()).append("\n");
+            builder.append(": ").append(spec.contentProvider.getStreamSourceName()).append("\n");
         }
 
         LOG.info(builder.toString());
@@ -230,14 +230,12 @@ public class Rf2DirectImporter
         addToTotalWork(specificationsToImport.size());
 
         for (ImportSpecification importSpecification : specificationsToImport) {
-            String message = "Importing " + trimZipName(importSpecification.zipEntry.getName());
+            String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
             updateMessage(message);
             LOG.info("\n\n" + message);
 
-            try (ZipFile zipFile = new ZipFile(importSpecification.zipFile, Charset.forName("UTF-8"))) {
-                try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(zipFile.getInputStream(importSpecification.zipEntry),
-                                Charset.forName("UTF-8")))) {
+            try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {
+                try (BufferedReader br = csp.get()) {
                     fileCount++;
 
                     switch (importSpecification.streamType) {
@@ -319,6 +317,9 @@ public class Rf2DirectImporter
                     }
                 }
             }
+         catch (Exception e) {
+            LOG.error("Error closing resource stream",e );
+         }
 
             completedUnitOfWork();
         }
@@ -335,104 +336,87 @@ public class Rf2DirectImporter
         return fileCount;
     }
 
-    protected void processEntry(ZipEntry entry, ArrayList<ImportSpecification> entriesToImport1, 
-            File zipFile) {
-        String entryName = entry.getName().toLowerCase();
+    protected void processEntry(ContentProvider contentProvider, ArrayList<ImportSpecification> entriesToImport1) {
+        String entryName = contentProvider.getStreamSourceName().toLowerCase();
         if (entryName.contains("sct2_concept_")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.CONCEPT, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.CONCEPT));
         } else if (entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.DESCRIPTION, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DESCRIPTION));
         } else if (entryName.contains("der2_crefset_") && entryName.contains("language")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.DIALECT, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DIALECT));
         } else if (entryName.contains("sct2_identifier_")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.ALTERNATIVE_IDENTIFIER, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.ALTERNATIVE_IDENTIFIER));
         } else if (entryName.contains("sct2_relationship_")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.INFERRED_RELATIONSHIP, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP));
         } else if (entryName.contains("sct2_statedrelationship_")) {
-            entriesToImport1.add(new ImportSpecification(zipFile, ImportStreamType.STATED_RELATIONSHIP, entry));
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
         } else if (entryName.contains("refset")) {
             if (entryName.contains("_ccirefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_NID2_INT3_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_NID2_INT3_REFSET));
             } else if (entryName.contains("_cirefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_INT2_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_INT2_REFSET));
             } else if (entryName.contains("_cissccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET));
             } else if (entryName.contains("_crefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_REFSET));
             } else if (entryName.contains("_ssccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_STR2_NID3_NID4_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_STR2_NID3_NID4_REFSET));
             } else if (entryName.contains("_ssrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_STR2_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_STR2_REFSET));
             } else if (entryName.contains("_sssssssrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET));
             } else if (entryName.contains("_refset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.MEMBER_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.MEMBER_REFSET));
             } else if (entryName.contains("_iisssccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET));
             } else if (entryName.contains("_srefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_REFSET));
             } else if (entryName.contains("_ccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_NID2_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_NID2_REFSET));
             } else if (entryName.contains("_ccsrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_NID2_STR3_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_NID2_STR3_REFSET));
             } else if (entryName.contains("_csrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.NID1_STR2_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.NID1_STR2_REFSET));
             } else if (entryName.contains("_irefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.INT1_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.INT1_REFSET));
             } else if (entryName.contains("_scccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_NID2_NID3_NID4_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_NID2_NID3_NID4_REFSET));
             } else if (entryName.contains("_sscccrefset")) {
                 entriesToImport1.add(new ImportSpecification(
-                        zipFile,
-                        ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET,
-                        entry));
+                        contentProvider,
+                        ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET));
             } else {
-                LOG.info("Ignoring: " + entry.getName());
+                LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
             }
         }
 
@@ -457,7 +441,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -466,12 +450,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -504,7 +488,7 @@ public class Rf2DirectImporter
             }
             if (watchCount >= 3) {
                 LOG.info("Found watch tokens in: "
-                        + importSpecification.zipFile.getName() + " entry: " + importSpecification.zipEntry.getName()
+                        + importSpecification.contentProvider.getStreamSourceName()
                         + " \n" + rowString);
             }
         }
@@ -530,7 +514,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing i semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -539,12 +523,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing i semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -576,7 +560,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -585,12 +569,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -622,7 +606,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ci semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -631,12 +615,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ci semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -668,7 +652,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cisscc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -677,12 +661,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cisscc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -714,7 +698,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cci semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -723,12 +707,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cci semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -760,7 +744,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -769,12 +753,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -806,7 +790,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ccs semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -815,12 +799,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ccs semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -852,7 +836,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing c semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -861,12 +845,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing c semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -898,7 +882,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cs semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -907,12 +891,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cs semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -944,7 +928,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing s semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -953,12 +937,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing s semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -990,7 +974,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sscc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -999,12 +983,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sscc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -1036,7 +1020,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ss semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1045,12 +1029,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ss semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -1082,7 +1066,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sssssss semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1091,12 +1075,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sssssss semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -1127,7 +1111,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sccc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1136,12 +1120,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sccc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -1172,7 +1156,7 @@ public class Rf2DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ssccc semantics from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1181,12 +1165,12 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ssccc semantics from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
             Get.executor()
                     .submit(writer);
@@ -1231,7 +1215,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing concepts from: " + trimZipName(
-                                importSpecification.zipEntry.getName()), importType);
+                                importSpecification.contentProvider.getStreamSourceName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1240,14 +1224,14 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             ConceptWriter conceptWriter = new ConceptWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing concepts from: " + trimZipName(
-                            importSpecification.zipEntry.getName()), importType);
+                            importSpecification.contentProvider.getStreamSourceName()), importType);
 
             Get.executor()
                     .submit(conceptWriter);
@@ -1287,7 +1271,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing descriptions from: " + trimZipName(
-                                importSpecification.zipEntry.getName()), importType);
+                                importSpecification.contentProvider.getStreamSourceName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1295,18 +1279,18 @@ public class Rf2DirectImporter
             }
         }
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             DescriptionWriter descriptionWriter = new DescriptionWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing descriptions from: " + trimZipName(
-                            importSpecification.zipEntry.getName()), importType);
+                            importSpecification.contentProvider.getStreamSourceName()), importType);
 
             Get.executor()
                     .submit(descriptionWriter);
@@ -1348,7 +1332,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing dialect from: " + trimZipName(
-                                importSpecification.zipEntry.getName()), importType);
+                                importSpecification.contentProvider.getStreamSourceName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1357,14 +1341,14 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             DialectWriter dialectWriter = new DialectWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing dialect from: " + trimZipName(
-                            importSpecification.zipEntry.getName()), importType);
+                            importSpecification.contentProvider.getStreamSourceName()), importType);
 
             Get.executor()
                     .submit(dialectWriter);
@@ -1406,7 +1390,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing inferred rels from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
@@ -1416,14 +1400,14 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing inferred rels from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
 
             Get.executor()
@@ -1465,7 +1449,7 @@ public class Rf2DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing stated rels from: " + trimZipName(
-                                importSpecification.zipEntry.getName()),
+                                importSpecification.contentProvider.getStreamSourceName()),
                         importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
@@ -1475,14 +1459,14 @@ public class Rf2DirectImporter
         }
 
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.zipEntry.getName());
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             Rf2RelationshipWriter relWriter = new Rf2RelationshipWriter(
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing stated rels from: " + trimZipName(
-                            importSpecification.zipEntry.getName()),
+                            importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType);
 
             Get.executor()

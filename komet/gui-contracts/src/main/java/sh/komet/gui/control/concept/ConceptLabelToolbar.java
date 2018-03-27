@@ -18,6 +18,8 @@ package sh.komet.gui.control.concept;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
@@ -26,9 +28,11 @@ import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -38,6 +42,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -53,19 +58,22 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    final Manifold manifold;
    final Supplier<List<MenuItem>> menuSupplier;
    final GridPane toolBarGrid = new GridPane();
+   final OnOffToggleSwitch focusOnChange = new OnOffToggleSwitch();
 
 
    public void manifoldEventHandler(Event event) {
       MenuItem menuItem = (MenuItem) event.getSource();
       String manifoldGroup = (String) menuItem.getUserData();
-       Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
+      Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
+      manifold.setGroupName(manifoldGroup);
       if (spec.isPresent()) {
          ConceptChronology focusedConcept = Get.concept(spec.get());
          manifold.setFocusedConceptChronology(focusedConcept);
       } else {
-         manifold.setFocusedConceptChronology(null);
+         if (!manifold.getGroupName().equals(Manifold.UNLINKED_GROUP_NAME)) {
+            manifold.setFocusedConceptChronology(null);
+         }
       }
-      manifold.setGroupName(manifoldGroup);
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
    }
 
@@ -90,10 +98,19 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       return combinedGraphic;
    }
 
-   private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier) {
+   private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
       this.manifold = manifold;
       this.menuSupplier = menuSupplier;
       this.conceptLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
+      if (focusTabOnConceptChange.isPresent())
+      {
+         this.focusOnChange.selectedProperty().set(focusTabOnConceptChange.get());
+      }
+      else
+      {
+         this.focusOnChange.setManaged(false);
+         this.focusOnChange.setVisible(false);
+      }
 
       // Manifold
       Manifold.getGroupNames().stream().filter((groupString) -> {
@@ -116,19 +133,35 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 // 
    }
 
-   public static ConceptLabelToolbar make(Manifold manifold, Supplier<List<MenuItem>> menuSupplier) {
+   /**
+    * 
+    * @param manifold
+    * @param menuSupplier
+    * @param focusTabOnConceptChange - Optional.empty, if you don't want this feature, other wise true or false to set the initial state
+    * @return
+    */
+   public static ConceptLabelToolbar make(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
 
-      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold, menuSupplier);
+      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold, menuSupplier, focusTabOnConceptChange);
       GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       gctb.toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
-      gctb.conceptLabel.setMaxWidth(2000);      
-      gctb.conceptLabel.setMinWidth(100);      
+      gctb.conceptLabel.setMaxWidth(2000);
+      gctb.conceptLabel.setMinWidth(100);
       gctb.toolBarGrid.getChildren().add(gctb.conceptLabel);
       
       GridPane.setConstraints(gctb.rightInfoLabel, 2, 0, 1, 1, HPos.RIGHT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       gctb.toolBarGrid.getChildren().add(gctb.rightInfoLabel);
       
+      if (focusTabOnConceptChange.isPresent())
+      {
+         Label focusChangeWrapper = new Label("Focus", gctb.focusOnChange);
+         focusChangeWrapper.setContentDisplay(ContentDisplay.RIGHT);
+         focusChangeWrapper.setStyle("-fx-font-size:12;");
+         Tooltip.install(focusChangeWrapper, new Tooltip("Focus tab on selection change"));
+         GridPane.setConstraints(focusChangeWrapper, 3, 0, 1, 1, HPos.RIGHT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+         gctb.toolBarGrid.getChildren().add(focusChangeWrapper);
+      }
       
       gctb.toolBarGrid.getStyleClass().add("concept-label-toolbar");
       return gctb;
@@ -144,5 +177,9 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
     public Label getRightInfoLabel() {
         return rightInfoLabel;
+    }
+    
+    public ReadOnlyBooleanProperty getFocusTabOnConceptChange() {
+       return BooleanProperty.readOnlyBooleanProperty(focusOnChange.selectedProperty());
     }
 }

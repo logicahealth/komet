@@ -92,6 +92,7 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
+import sh.komet.gui.util.FxUtils;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -284,11 +285,11 @@ public class ContentManagerController
 		databaseAdd.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
 				{
 					ibdfFiles_.clear();
 					ibdfFiles_.addAll(results);
-				}));
+				}), cm_.getPrimaryStage().getScene().getWindow());
 			}
 
 			ListView<IBDFFile> ibdfPicker = new ListView<>();
@@ -585,11 +586,11 @@ public class ContentManagerController
 		sourceConversionContentSelect.setOnAction(action -> {
 			if (sdoSourceFiles_.size() == 0)
 			{
-				waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", MavenArtifactUtils.readAvailableSourceFiles(sp_, items -> 
+				FxUtils.waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", MavenArtifactUtils.readAvailableSourceFiles(sp_, items -> 
 				{
 					sdoSourceFiles_.clear();
 					sdoSourceFiles_.addAll(items);
-				}));
+				}), cm_.getPrimaryStage().getScene().getWindow());
 			}
 
 			ListView<SDOSourceContent> sdoPicker = new ListView<>();
@@ -654,11 +655,11 @@ public class ContentManagerController
 		sourceConversionIBDFSelect.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
 				{
 					ibdfFiles_.clear();
 					ibdfFiles_.addAll(results);
-				}));
+				}), cm_.getPrimaryStage().getScene().getWindow());
 			}
 
 			ListView<IBDFFile> ibdfPicker = new ListView<>();
@@ -1165,7 +1166,7 @@ public class ContentManagerController
 		};
 
 		Get.workExecutors().getExecutor().execute(t);
-		waitWithProgress("Reading converter options", "Reading converter options", t);
+		FxUtils.waitWithProgress("Reading converter options", "Reading converter options", t, cm_.getPrimaryStage().getScene().getWindow());
 	}
 
 	private void updateSourceUploadFiles()
@@ -1841,23 +1842,10 @@ public class ContentManagerController
 		});
 		
 		//these will only appear for ones that aren't done yet
-		waitWithProgress("Reading Metadata Versions", "Reading available Metadata Versions", taskOne);
-		waitWithProgress("Reading Source Upload Existing Versions", "Reading available Source Upload Existing Versions", taskTwo);
-		waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", taskThree);
-		waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", taskFour);
-		waitWithProgress("Reading Available Converter Versions", "Reading Available Converter Versions", taskFive);
-	}
-
-	private void waitWithProgress(String title, String content, Worker<?> worker)
-	{
-		if (worker.getState() == State.READY || worker.isRunning())
-		{
-			ProgressDialog pd = new ProgressDialog(worker);
-			pd.setTitle(title);
-			pd.setHeaderText(null);
-			pd.setContentText(content);
-			pd.initOwner(cm_.getPrimaryStage().getScene().getWindow());
-			pd.showAndWait();
-		}
+		FxUtils.waitWithProgress("Reading Metadata Versions", "Reading available Metadata Versions", taskOne, cm_.getPrimaryStage().getScene().getWindow());
+		FxUtils.waitWithProgress("Reading Source Upload Existing Versions", "Reading available Source Upload Existing Versions", taskTwo, cm_.getPrimaryStage().getScene().getWindow());
+		FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", taskThree, cm_.getPrimaryStage().getScene().getWindow());
+		FxUtils.waitWithProgress("Reading SDO Source Files", "Reading available SDO Source Files", taskFour, cm_.getPrimaryStage().getScene().getWindow());
+		FxUtils.waitWithProgress("Reading Available Converter Versions", "Reading Available Converter Versions", taskFive, cm_.getPrimaryStage().getScene().getWindow());
 	}
 }
