@@ -41,6 +41,7 @@ package sh.isaac.model.tree;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.mahout.math.list.IntArrayList;
@@ -460,14 +461,15 @@ public class TreeNodeVisitDataImpl implements TreeNodeVisitData {
    }
 
    /**
-    * Gets the predecessor sequence or -1 if no predecessor.
-    *
-    * @param sequence the sequence
-    * @return the predecessor sequence
+    * {@inheritDoc}
     */
    @Override
-   public int getPredecessorNid(int sequence) {
-      return this.predecessorSequenceList.getQuick(sequence);
+   public Optional<Integer> getPredecessorNid(int sequence) {
+      int temp = this.predecessorSequenceList.getQuick(sequence);
+      if (temp == -1) {
+         return Optional.empty();
+      }
+      return Optional.ofNullable(temp);
    }
 
    //~--- set methods ---------------------------------------------------------
