@@ -125,7 +125,7 @@ public class MainApp
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY); 
         
         //TODO this will likely go away, at some point...
-        Rf2DirectImporter.importDynamic = true;
+//        Rf2DirectImporter.importDynamic = true;
         
         LookupService.startupIsaac();
         
