@@ -39,19 +39,35 @@
 
 package sh.isaac.model.semantic;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
-
 import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
-
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.concept.ConceptBuilder;
+import sh.isaac.api.component.concept.description.DescriptionBuilder;
+import sh.isaac.api.component.concept.description.DescriptionBuilderService;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -60,7 +76,15 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.LogicalExpressionBuilderService;
+import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.util.StringUtils;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
@@ -241,6 +265,136 @@ public class DynamicUtilityImpl
    public DynamicUsageDescription readDynamicUsageDescription(int assemblageNidOrSequence) {
       return DynamicUsageDescriptionImpl.read(assemblageNidOrSequence);
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public SemanticChronology[] configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord) {
+      if (StringUtils.isBlank(semanticDescription)) {
+         throw new RuntimeException("Semantic description is required");
+      }
+
+      final EditCoordinate localEditCoord = ((editCoord == null) ? 
+            Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate()
+            : editCoord);
+
+      ArrayList<SemanticChronology> builtSemantics = new ArrayList<>();
+
+      // Add the special synonym to establish this as an assemblage concept
+      // will specify all T5 uuids in our own namespace, to make sure we don't get dupe UUIDs while still being consistent
+      
+      final DescriptionBuilderService descriptionBuilderService = LookupService.getService(DescriptionBuilderService.class);
+
+      DescriptionBuilder<SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder = descriptionBuilderService
+            .getDescriptionBuilder(semanticDescription, conceptNid, TermAux.DEFINITION_DESCRIPTION_TYPE, TermAux.ENGLISH_LANGUAGE);
+      definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
+      definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
+
+      final SemanticChronology definitionSemantic = definitionBuilder.build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
+      builtSemantics.add(definitionSemantic);
+
+      builtSemantics.add(Get.semanticBuilderService()
+            .getDynamicBuilder(definitionSemantic.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
+            .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
+            .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+
+      // define the data columns (if any)
+      if (columns != null) {
+         // Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right
+         // order.
+         final TreeSet<DynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
+
+         for (final DynamicColumnInfo ci : sortedColumns) {
+            final DynamicData[] data = configureDynamicDefinitionDataForColumn(ci);
+            builtSemantics
+                  .add(Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
+                        .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
+                        .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+         }
+         DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
+         if (indexInfo != null) {
+            builtSemantics.add(Get.semanticBuilderService()
+                  .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
+                  .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
+                  .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+         }
+      }
+
+      final DynamicData[] data = configureDynamicRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
+
+      if (data != null) {
+         builtSemantics.add(
+               Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
+                  .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
+                  .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+      }
+      return builtSemantics.toArray(new SemanticChronology[builtSemantics.size()]);
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription, 
+         EditCoordinate editCoordinate, UUID[] extraParents) {
+         if (StringUtils.isBlank(columnName)) {
+            throw new RuntimeException("Column name is required");
+         }
+
+         final DescriptionBuilderService descriptionBuilderService = LookupService.getService(DescriptionBuilderService.class);
+         final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
+
+         ArrayList<Assertion> assertions = new ArrayList<>();
+         assertions.add(ConceptAssertion(Get.conceptService().getConceptChronology(DynamicConstants.get().DYNAMIC_COLUMNS.getNid()), defBuilder));
+         if (extraParents != null) {
+            for (UUID parent : extraParents) {
+               assertions.add(ConceptAssertion(Get.conceptService().getConceptChronology(parent), defBuilder));
+            }
+         }
+
+         NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
+
+         final LogicalExpression parentDef = defBuilder.build();
+         
+         final ConceptBuilder builder = Get.conceptBuilderService().getConceptBuilder(columnName, ConceptProxy.METADATA_SEMANTIC_TAG,
+              parentDef, 
+              TermAux.ENGLISH_LANGUAGE,
+              TermAux.US_DIALECT_ASSEMBLAGE,
+              Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLogicCoordinate(),
+              TermAux.CONCEPT_ASSEMBLAGE.getNid());
+         
+         StringBuilder temp = new StringBuilder();
+         temp.append(columnName);
+         temp.append(DynamicConstants.get().DYNAMIC_COLUMNS.getPrimordialUuid().toString());
+         if (extraParents != null) {
+            for (UUID u : extraParents)
+            {
+               temp.append(u.toString());
+            }
+         }
+         
+         builder.setPrimordialUuid(UuidT5Generator.get(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), temp.toString()));
+         
+         if (StringUtils.isNotBlank(columnDescription)) {
+            DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnDescription,
+                    builder, TermAux.DEFINITION_DESCRIPTION_TYPE,
+                    TermAux.ENGLISH_LANGUAGE);
+                definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
+                builder.addDescription(definitionBuilder);
+         }
+         ArrayList<Chronology> builtObjects = new ArrayList<>();
+         
+         for (SemanticBuilder<?> s : builder.getSemanticBuilders()) {
+            s.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
+         }
+
+         builder.build(editCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate() : editCoordinate,
+               ChangeCheckerMode.ACTIVE, builtObjects).getNoThrow();
+
+         return builtObjects;
+      }
 
    /**
     * To string.

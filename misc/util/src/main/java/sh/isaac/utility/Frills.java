@@ -195,71 +195,15 @@ public class Frills
     *       )}
     *    )
     * 
- //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
     * @param columnName the column name
     * @param columnDescription the column description
     * @return the concept chronology
     * @throws RuntimeException the runtime exception
     */
-   public static ConceptChronology buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName,
-         String columnDescription)
-            throws RuntimeException {
-      if ((columnName == null) ||
-            (columnName.length() == 0) ||
-            (columnDescription == null) ||
-            (columnDescription.length() == 0)) {
-         throw new RuntimeException("Both the column name and column description are required");
-      }
-
-      final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
-
-      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
-      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
-      conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
-
-      final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
-                                                                      DescriptionBuilderService.class);
-      final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
-                                                               .getLogicalExpressionBuilder();
-
-      NecessarySet(And(ConceptAssertion(Get.conceptService()
-                     .getConceptChronology(DynamicConstants.get().DYNAMIC_COLUMNS
-                           .getNid()),
-                  defBuilder)));
-
-      final LogicalExpression parentDef = defBuilder.build();
-      final ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef, MetaData.CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-      DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
-                                                       columnName,
-                                                             builder,
-                                                             MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR,
-                                                             MetaData.ENGLISH_LANGUAGE____SOLOR);
-
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
-      builder.addDescription(definitionBuilder);
-      definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
-          columnDescription,
-          builder,
-          MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
-          MetaData.ENGLISH_LANGUAGE____SOLOR);
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
-      builder.addDescription(definitionBuilder);
-
-      ConceptChronology newCon;
-
-      try {
-         newCon = builder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE, new ArrayList<>())
-                         .get();
-      } catch (InterruptedException | ExecutionException e) {
-         final String msg = "Failed building new DynamicSemanticColumnInfo concept columnName=\"" + columnName +
-                            "\", columnDescription=\"" + columnDescription + "\"";
-
-         LOG.error(msg, e);
-         throw new RuntimeException(msg, e);
-      }
-
-      return newCon;
+   public static List<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName,
+         String columnDescription) {
+      return Get.service(DynamicUtility.class).buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription, null, null);
    }
 
    /**
@@ -324,62 +268,8 @@ public class Frills
          final ConceptChronology newCon = builder.build(localEditCoord, ChangeCheckerMode.ACTIVE, new ArrayList<>())
                                                  .getNoThrow();
 
-         {
-
-            // Set up the dynamic 'special' definition
-            definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
-                semanticDescription,
-                builder,
-                MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
-                MetaData.ENGLISH_LANGUAGE____SOLOR);
-            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
-
-            final SemanticChronology definitionSemantic = definitionBuilder.build(
-                                                             localEditCoord,
-                                                                   ChangeCheckerMode.ACTIVE)
-                                                                          .getNoThrow();
-
-            Get.semanticBuilderService()
-               .getDynamicBuilder(definitionSemantic.getNid(),
-                   DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
-                                         .getNid(),
-                   null)
-               .build(localEditCoord, ChangeCheckerMode.ACTIVE)
-               .getNoThrow();
-         }
-
-         if (columns != null) {
-            // Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right order.
-            final TreeSet<DynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
-
-            for (final DynamicColumnInfo ci: sortedColumns) {
-               final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                             .configureDynamicDefinitionDataForColumn(ci);
-
-               Get.semanticBuilderService()
-                  .getDynamicBuilder(newCon.getNid(),
-                      DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
-                                            .getNid(),
-                      data)
-                  .build(localEditCoord, ChangeCheckerMode.ACTIVE)
-                  .getNoThrow();
-            }
-         }
-
-         final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                       .configureDynamicRestrictionData(
-                                                             referencedComponentRestriction,
-                                                                   referencedComponentSubRestriction);
-
-         if (data != null) {
-            Get.semanticBuilderService()
-               .getDynamicBuilder(newCon.getNid(),
-                   DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION
-                                         .getNid(),
-                   data)
-               .build(localEditCoord, ChangeCheckerMode.ACTIVE)
-               .getNoThrow();
-         }
+         LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(newCon.getNid(), semanticDescription, 
+            columns, referencedComponentRestriction, referencedComponentSubRestriction, localEditCoord);
 
          return newCon;
       } catch (final IllegalStateException e) {
@@ -409,8 +299,6 @@ public class Frills
     *       new DynamicStringImpl("default value")
     *       )}
     *    )
-
- //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
     * @param columnName the column name
     * @param columnDescription the column description
@@ -419,7 +307,7 @@ public class Frills
     */
    public static ConceptChronology createNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription)
             throws RuntimeException {
-      final ConceptChronology newCon = buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription);
+      final ConceptChronology newCon = (ConceptChronology)buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription).get(0);
 
       try {  //TODO [DAN 3] figure out what edit coords we should use for this sort of work.
          Get.commitService()
