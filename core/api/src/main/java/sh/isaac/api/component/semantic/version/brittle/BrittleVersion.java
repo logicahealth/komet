@@ -1,10 +1,29 @@
 package sh.isaac.api.component.semantic.version.brittle;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 public interface BrittleVersion extends SemanticVersion {
 
-	public enum BrittleDataTypes {STRING, NID, INTEGER, FLOAT, BOOLEAN};
+	public enum BrittleDataTypes {
+		STRING(DynamicDataType.STRING), 
+		NID(DynamicDataType.NID), 
+		INTEGER(DynamicDataType.INTEGER), 
+		FLOAT(DynamicDataType.FLOAT), 
+		BOOLEAN(DynamicDataType.BOOLEAN);
+	
+		private DynamicDataType mapTo;
+		
+		BrittleDataTypes(DynamicDataType mapTo)
+		{
+			this.mapTo = mapTo;
+		}
+		
+		public DynamicDataType getDynamicColumnType()
+		{
+			return mapTo;
+		}
+	}
 	
 	/**
 	 * Return the type and order of data fields that will be returned by {@link #getDataFields()}
