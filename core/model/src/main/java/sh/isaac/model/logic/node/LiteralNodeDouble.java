@@ -58,7 +58,7 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
 /**
  * Created by kec on 12/9/14.
  */
-public class LiteralNodeFloat
+public class LiteralNodeDouble
         extends LiteralNode {
    /** The literal value. */
    double literalValue;
@@ -71,7 +71,7 @@ public class LiteralNodeFloat
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
     */
-   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion,
+   public LiteralNodeDouble(LogicalExpressionImpl logicGraphVersion,
                            ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.literalValue = dataInputStream.getDouble();
@@ -83,7 +83,7 @@ public class LiteralNodeFloat
     * @param logicGraphVersion the logic graph version
     * @param literalValue the literal value
     */
-   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion, double literalValue) {
+   public LiteralNodeDouble(LogicalExpressionImpl logicGraphVersion, double literalValue) {
       super(logicGraphVersion);
       this.literalValue = literalValue;
    }
@@ -110,7 +110,7 @@ public class LiteralNodeFloat
          return false;
       }
 
-      final LiteralNodeFloat that = (LiteralNodeFloat) o;
+      final LiteralNodeDouble that = (LiteralNodeDouble) o;
 
       return Double.compare(that.literalValue, this.literalValue) == 0;
    }
@@ -163,7 +163,7 @@ public class LiteralNodeFloat
     */
    @Override
    protected int compareFields(LogicNode o) {
-      final LiteralNodeFloat that = (LiteralNodeFloat) o;
+      final LiteralNodeDouble that = (LiteralNodeDouble) o;
 
       return Double.compare(this.literalValue, that.literalValue);
    }

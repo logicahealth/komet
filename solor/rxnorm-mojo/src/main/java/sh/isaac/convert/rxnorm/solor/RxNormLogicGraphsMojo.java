@@ -85,7 +85,7 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
@@ -304,7 +304,7 @@ public class RxNormLogicGraphsMojo
 //                                                                                 FeatureNodeWithNids feature = new FeatureNodeWithNids(
 //                                                                                                 (LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.HAS_STRENGTH.getConceptSequence(), 
-//                                                                                                 new LiteralNodeFloat((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
+//                                                                                                 new LiteralNodeDouble((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
 //                                                                                 
 //                                                                                 RoleNodeSomeWithNids unitRole = new RoleNodeSomeWithNids((LogicalExpressionImpl)existing, 
 //                                                                                                 unitConcept.getConceptSequence(), 

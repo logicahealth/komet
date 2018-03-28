@@ -40,10 +40,10 @@
 package sh.isaac.api.logic.assertions.substitution;
 
 /**
- * The Interface FloatSubstitution.
+ * The Interface DoubleSubstitution.
  *
  * @author kec
  */
-public interface FloatSubstitution
+public interface DoubleSubstitution
         extends SubstitutionAssertion {}
 

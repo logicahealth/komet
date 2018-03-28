@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -86,7 +87,7 @@ public class MultiParentTreeItemImpl
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
-
+   
    //~--- fields --------------------------------------------------------------
 
    private final List<MultiParentTreeItemImpl> extraParents        = new ArrayList<>();
@@ -210,6 +211,7 @@ public class MultiParentTreeItemImpl
                LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
             } else {  // if (conceptChronology != null)
                // Gather the children
+               LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
                ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
                TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
                
@@ -250,6 +252,7 @@ public class MultiParentTreeItemImpl
       }
    }
    void addChildren() {
+               LOG.info("addChildren: conceptChronology={}", this.getValue());
       if (getChildren().isEmpty()) {
           if (shouldDisplay()) {
               FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);

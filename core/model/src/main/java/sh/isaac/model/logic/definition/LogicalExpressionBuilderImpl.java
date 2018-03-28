@@ -75,14 +75,12 @@ import sh.isaac.api.logic.assertions.connectors.Connector;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
 import sh.isaac.api.logic.assertions.connectors.Or;
 import sh.isaac.api.logic.assertions.literal.BooleanLiteral;
-import sh.isaac.api.logic.assertions.literal.FloatLiteral;
 import sh.isaac.api.logic.assertions.literal.InstantLiteral;
 import sh.isaac.api.logic.assertions.literal.IntegerLiteral;
 import sh.isaac.api.logic.assertions.literal.LiteralAssertion;
 import sh.isaac.api.logic.assertions.literal.StringLiteral;
 import sh.isaac.api.logic.assertions.substitution.BooleanSubstitution;
 import sh.isaac.api.logic.assertions.substitution.ConceptSubstitution;
-import sh.isaac.api.logic.assertions.substitution.FloatSubstitution;
 import sh.isaac.api.logic.assertions.substitution.InstantSubstitution;
 import sh.isaac.api.logic.assertions.substitution.IntegerSubstitution;
 import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
@@ -90,7 +88,7 @@ import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
@@ -105,6 +103,8 @@ import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
+import sh.isaac.api.logic.assertions.literal.DoubleLiteral;
+import sh.isaac.api.logic.assertions.substitution.DoubleSubstitution;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -410,16 +410,16 @@ public class LogicalExpressionBuilderImpl
    /**
     * Float literal.
     *
-    * @param floatLiteral the float literal
+    * @param doubleLiteral the float literal
     * @return the float literal
     */
    @Override
-   public FloatLiteral floatLiteral(double floatLiteral) {
+   public DoubleLiteral doubleLiteral(double doubleLiteral) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_FLOAT, this);
 
-      this.axiomParameters.put(axiom.getIndex(), floatLiteral);
+      this.axiomParameters.put(axiom.getIndex(), doubleLiteral);
       return axiom;
    }
 
@@ -430,7 +430,7 @@ public class LogicalExpressionBuilderImpl
     * @return the float substitution
     */
    @Override
-   public FloatSubstitution floatSubstitution(SubstitutionFieldSpecification fieldSpecification) {
+   public DoubleSubstitution doubleSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_FLOAT, this);
@@ -984,9 +984,9 @@ public class LogicalExpressionBuilderImpl
          return booleanLiteral(literalNodeBoolean.getLiteralValue());
 
       case LITERAL_FLOAT:
-         final LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
+         final LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
 
-         return floatLiteral(literalNodeFloat.getLiteralValue());
+         return doubleLiteral(literalNodeFloat.getLiteralValue());
 
       case LITERAL_INSTANT:
          final LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;
@@ -1021,7 +1021,7 @@ public class LogicalExpressionBuilderImpl
       case SUBSTITUTION_FLOAT:
          final SubstitutionNodeFloat substitutionNodeFloat = (SubstitutionNodeFloat) logicNode;
 
-         return floatSubstitution(substitutionNodeFloat.getSubstitutionFieldSpecification());
+         return doubleSubstitution(substitutionNodeFloat.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_INSTANT:
          final SubstitutionNodeInstant substitutionNodeInstant = (SubstitutionNodeInstant) logicNode;

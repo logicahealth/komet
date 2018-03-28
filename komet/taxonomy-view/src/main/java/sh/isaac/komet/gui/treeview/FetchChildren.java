@@ -18,7 +18,9 @@ package sh.isaac.komet.gui.treeview;
 
 import java.util.ArrayList;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
@@ -31,9 +33,13 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
-    private static final int CHILD_BATCH_SIZE = 25;
+   private static final AtomicInteger FETCHER_SEQUENCE = new AtomicInteger(1);
+   private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
+
+   private static final int CHILD_BATCH_SIZE = 25;
     private final CountDownLatch childrenLoadedLatch;
     private final MultiParentTreeItemImpl treeItemImpl;
+    private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
 
     public FetchChildren(CountDownLatch childrenLoadedLatch,
             MultiParentTreeItemImpl treeItemImpl) {
@@ -42,6 +48,15 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
         updateTitle("Fetching children for: " + treeItemImpl.getTreeView()
                 .getManifold().getPreferredDescriptionText(treeItemImpl.getValue()));
         Get.activeTasks().add(this);
+        LOG.debug("###Starting Adding children for: " + treeItemImpl.getValue().getNid()
+                                    + " from: " + fetcherId);
+        
+        FetchChildren oldFetcher = FETCHER_MAP.put(treeItemImpl.getValue().getNid(), this);
+        
+        if (oldFetcher != null) {
+            oldFetcher.cancel();
+            Get.activeTasks().remove(oldFetcher);
+        }
     }
 
     @Override
@@ -77,6 +92,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                                 + treeItemImpl.getConceptUuid());
                     }
                     completedUnitOfWork();
+                    if (isCancelled()) return null;
                 }
                 
                 int counter = 0;
@@ -93,13 +109,30 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                         itemList = new ArrayList<>();
                         itemListList.add(itemList);
                     }
+                    if (isCancelled()) return null;
                 }
-                
-                for (ArrayList<MultiParentTreeItemImpl> items: itemListList) {
                     Platform.runLater(
                         () -> {
-                            treeItemImpl.getChildren().addAll(items);
-                            completedUnitOfWork();
+                            if (!FetchChildren.this.isCancelled()) {
+                                LOG.debug("###Clearing children for: " + treeItemImpl.getValue().getNid()
+                                    + " from: " + fetcherId);
+                                treeItemImpl.getChildren().clear();
+                                completedUnitOfWork();
+                            }
+                            
+                        });
+                
+                for (ArrayList<MultiParentTreeItemImpl> items: itemListList) {
+                    if (isCancelled()) return null;
+                    Platform.runLater(
+                        () -> {
+                            if (!FetchChildren.this.isCancelled()) {
+                                LOG.debug("###Adding children for: " + treeItemImpl.getValue().getNid()
+                                    + " from: " + fetcherId);
+                                treeItemImpl.getChildren().addAll(items);
+                                completedUnitOfWork();
+                            }
+                            
                         });
                 }
                     
@@ -109,6 +142,14 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
         } finally {
             childrenLoadedLatch.countDown();
             Get.activeTasks().remove(this);
+            FETCHER_MAP.remove(treeItemImpl.getValue().getNid());
+            if (FetchChildren.this.isCancelled()) {
+                LOG.debug("###Canceled Adding children for: " + treeItemImpl.getValue().getNid()
+                                    + " from: " + fetcherId);
+            } else {
+                LOG.debug("###Finished Adding children for: " + treeItemImpl.getValue().getNid()
+                                    + " from: " + fetcherId);
+            }
         }
     }
 
