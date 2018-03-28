@@ -76,6 +76,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
+import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -122,6 +123,9 @@ public class MainApp
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY); 
+        
+        //TODO this will likely go away, at some point...
+        Rf2DirectImporter.importDynamic = true;
         
         LookupService.startupIsaac();
         
