@@ -40,34 +40,37 @@ package sh.isaac.solor.rf2.direct;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
-import sh.isaac.api.index.IndexBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -81,6 +84,8 @@ public class Rf2DirectImporter
             .availableProcessors() * 2;
 
     public static HashSet<String> watchTokens = new HashSet<>();
+    
+    public static Boolean importDynamic = false;
 
     /**
      * The date format parser.
@@ -224,6 +229,9 @@ public class Rf2DirectImporter
             builder.append("     ").append(spec.streamType);
             builder.append(": ").append(spec.contentProvider.getStreamSourceName()).append("\n");
         }
+        
+        HashMap<String, UUID> createdColumnConcepts = new HashMap<>();
+        ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
 
         LOG.info(builder.toString());
 
@@ -311,6 +319,9 @@ public class Rf2DirectImporter
                         case STR1_STR2_NID3_NID4_NID5_REFSET:
                             readSTR1_STR2_NID3_NID4_NID5_REFSET(br, importSpecification);
                             break;
+                        case DYNAMIC:
+                            read_DYNAMIC_REFSET(br, importSpecification, createdColumnConcepts, configuredDynamicSemantics);
+                            break;
 
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
@@ -318,9 +329,8 @@ public class Rf2DirectImporter
                 }
             }
          catch (Exception e) {
-            LOG.error("Error closing resource stream",e );
-         }
-
+            LOG.error("Unexpected error",e );
+        }
             completedUnitOfWork();
         }
 
@@ -351,72 +361,77 @@ public class Rf2DirectImporter
         } else if (entryName.contains("sct2_statedrelationship_")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
         } else if (entryName.contains("refset")) {
-            if (entryName.contains("_ccirefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_NID2_INT3_REFSET));
-            } else if (entryName.contains("_cirefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_INT2_REFSET));
-            } else if (entryName.contains("_cissccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET));
-            } else if (entryName.contains("_crefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_REFSET));
-            } else if (entryName.contains("_ssccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_STR2_NID3_NID4_REFSET));
-            } else if (entryName.contains("_ssrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_STR2_REFSET));
-            } else if (entryName.contains("_sssssssrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET));
-            } else if (entryName.contains("_refset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.MEMBER_REFSET));
-            } else if (entryName.contains("_iisssccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET));
-            } else if (entryName.contains("_srefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_REFSET));
-            } else if (entryName.contains("_ccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_NID2_REFSET));
-            } else if (entryName.contains("_ccsrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_NID2_STR3_REFSET));
-            } else if (entryName.contains("_csrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.NID1_STR2_REFSET));
-            } else if (entryName.contains("_irefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.INT1_REFSET));
-            } else if (entryName.contains("_scccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_NID2_NID3_NID4_REFSET));
-            } else if (entryName.contains("_sscccrefset")) {
-                entriesToImport1.add(new ImportSpecification(
-                        contentProvider,
-                        ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET));
-            } else {
-                LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
+            if (importDynamic) {
+                entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
+            }
+            else {
+                if (entryName.contains("_ccirefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_NID2_INT3_REFSET));
+                } else if (entryName.contains("_cirefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_INT2_REFSET));
+                } else if (entryName.contains("_cissccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET));
+                } else if (entryName.contains("_crefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_REFSET));
+                } else if (entryName.contains("_ssccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_STR2_NID3_NID4_REFSET));
+                } else if (entryName.contains("_ssrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_STR2_REFSET));
+                } else if (entryName.contains("_sssssssrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET));
+                } else if (entryName.contains("_refset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.MEMBER_REFSET));
+                } else if (entryName.contains("_iisssccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET));
+                } else if (entryName.contains("_srefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_REFSET));
+                } else if (entryName.contains("_ccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_NID2_REFSET));
+                } else if (entryName.contains("_ccsrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_NID2_STR3_REFSET));
+                } else if (entryName.contains("_csrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.NID1_STR2_REFSET));
+                } else if (entryName.contains("_irefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.INT1_REFSET));
+                } else if (entryName.contains("_scccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_NID2_NID3_NID4_REFSET));
+                } else if (entryName.contains("_sscccrefset")) {
+                    entriesToImport1.add(new ImportSpecification(
+                            contentProvider,
+                            ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET));
+                } else {
+                    LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
+                }
             }
         }
 
@@ -1178,6 +1193,97 @@ public class Rf2DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing semantic database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
+    
+    private void read_DYNAMIC_REFSET(BufferedReader br,
+            ImportSpecification importSpecification, HashMap<String, UUID> createdColumnConcepts, ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics) 
+                  throws IOException {
+        AssemblageService assemblageService = Get.assemblageService();
+        final int writeSize = 102400;
+        ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
+        String[] headerRow = checkWatchTokensAndSplit(br.readLine(), importSpecification);
+                
+        //Create concepts for each of the data columns
+        UUID[] columnDataConcepts = new UUID[importSpecification.refsetBrittleTypes.length];
+        EditCoordinate editCoord = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate();
+        boolean createdMetadata = false;
+        for (int i = 0; i < columnDataConcepts.length; i++)
+        {
+            String name = headerRow[DynamicRefsetWriter.VARIABLE_FIELD_START + i];
+            
+            //Some refsets share the same column names, so don't create duplicate column concepts.
+            if (createdColumnConcepts.get(name) == null)
+            {
+               //TODO need to read real metadata to get the description... the edit coord on this should probably be the same as the one on the metadata.
+               ArrayList<Chronology> builtConceptParts = Get.service(DynamicUtility.class)
+                       .buildUncommittedNewDynamicSemanticColumnInfoConcept(name, null, editCoord, null);
+               createdMetadata = true;
+               createdColumnConcepts.put(name, builtConceptParts.get(0).getPrimordialUuid());
+            }
+            columnDataConcepts[i] = createdColumnConcepts.get(name);
+        }
+        
+        if (createdMetadata)
+        {
+            //Do a global commit to commit the metadata concepts created here, and just above
+            Get.commitService().commit(editCoord, "metadata commit for refset " + trimZipName(importSpecification.contentProvider.getStreamSourceName()));
+        }
+        
+        //Define the column information for the refset(s) specified in this file (yes, their may be more than one, strangely)
+        DynamicColumnInfo[] dynamicColumns = new DynamicColumnInfo[importSpecification.refsetBrittleTypes.length];
+        for (int i = 0; i < importSpecification.refsetBrittleTypes.length; i++) {
+            //TODO is there column required / optional info in the RF2 spec?
+            dynamicColumns[i] = new DynamicColumnInfo(i, columnDataConcepts[i], 
+                    importSpecification.refsetBrittleTypes[i].getDynamicColumnType(), null, false, true);
+        }
+        
+        int dataCount = 0;
+        String rowString;
+        ArrayList<DynamicRefsetWriter> writers = new ArrayList<>();
+        while ((rowString = br.readLine()) != null) {
+            dataCount++;
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            columnsToWrite.add(columns);
+
+            if (columnsToWrite.size() == writeSize) {
+                DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
+                        "Processing dynamic semantics from: " + trimZipName(
+                                importSpecification.contentProvider.getStreamSourceName()),
+                        importSpecification, importType, dynamicColumns, configuredDynamicSemantics);
+                columnsToWrite = new ArrayList<>(writeSize);
+                Get.executor()
+                        .submit(writer);
+                writers.add(writer);
+            }
+        }
+        if (dataCount == 0) {
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
+        }
+        if (!columnsToWrite.isEmpty()) {
+           DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
+                    "Processing dynamic semantics from: " + trimZipName(
+                            importSpecification.contentProvider.getStreamSourceName()),
+                    importSpecification, importType, dynamicColumns, configuredDynamicSemantics);
+            Get.executor()
+                    .submit(writer);
+            writers.add(writer);
+        }
+
+        updateMessage("Waiting for refset file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        int skipped = 0;
+        for (DynamicRefsetWriter writer: writers) {
+            try {
+                skipped += writer.get();
+            }
+            catch (Exception e) {
+                LOG.error("Unexpected failure", e);
+            }
+        }
+        LOG.info("Read {} rows of data, and skipped {}", dataCount, skipped);
         updateMessage("Synchronizing semantic database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);

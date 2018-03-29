@@ -42,6 +42,7 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -70,12 +71,14 @@ import org.apache.logging.log4j.LogManager;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
@@ -142,6 +145,31 @@ public interface DynamicUtility {
     * @return the dynamic usage description
     */
    public DynamicUsageDescription readDynamicUsageDescription(int assemblageNidOrSequence);
+   
+   /**
+    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
+    * See {@link DynamicUsageDescription} class for more details on this format.
+    * @param conceptNid - The concept that will define a dynamic semantic
+    * @param semanticDescription - The description that describes the purpose of this dynamic semantic
+    * @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
+    * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
+    * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
+    * @param editCoord - optional - the edit coordinate to construct this on - if null, uses the system default coordinate
+    * @return all of the created (but uncommitted) SemanticChronologies
+    */
+   public SemanticChronology[] configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
+   
+   /**
+    * Create a new concept to be used in a column of a dynamic semantic definition
+    * @param columnName - the FSN and regular name of the concept
+    * @param columnDescription - the optional but highly recommended description of the column
+    * @param editCoordinate - optional - uses default if not provided
+    * @param extraParents - optional - by default, listed under {@link DynamicConstants#DYNAMIC_COLUMNS}
+    * @return the list of chronology objects created but not committed
+    */
+   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription, 
+            EditCoordinate editCoordinate, UUID[] extraParents);
 
    /**
     * validate that the proposed dynamicData aligns with the definition.  This also fills in default values,

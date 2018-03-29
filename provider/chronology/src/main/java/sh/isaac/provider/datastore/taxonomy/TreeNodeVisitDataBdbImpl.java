@@ -39,6 +39,7 @@ package sh.isaac.provider.datastore.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
@@ -480,18 +481,19 @@ public class TreeNodeVisitDataBdbImpl
    }
 
    /**
-    * Gets the predecessor sequence or -1 if no predecessor.
-    *
-    * @param nodeNid the node nid
-    * @return the predecessor nid
+    * {@inheritDoc}
     */
    @Override
-   public int getPredecessorNid(int nodeNid) {
+   public Optional<Integer> getPredecessorNid(int nodeNid) {
       int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
       if (nodeSequence == Integer.MAX_VALUE) {
          throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
       }
-      return this.predecessorNidList.getQuick(nodeSequence);
+      int toReturn = this.predecessorNidList.getQuick(nodeSequence);
+      if (toReturn == -1 ) {
+         return Optional.empty();
+      }
+      return Optional.of(toReturn);
    }
 
    //~--- set methods ---------------------------------------------------------

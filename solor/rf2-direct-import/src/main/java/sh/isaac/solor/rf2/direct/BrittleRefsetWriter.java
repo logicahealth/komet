@@ -77,7 +77,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final AssemblageService assemblageService = Get.assemblageService();
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
-   private final HashSet<String> refsetsToIgnore = new HashSet();
+   private final HashSet<String> refsetsToIgnore = new HashSet<>();
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
            ImportSpecification importSpecification, ImportType importType) {

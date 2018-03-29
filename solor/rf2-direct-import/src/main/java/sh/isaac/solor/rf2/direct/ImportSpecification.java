@@ -16,7 +16,9 @@
  */
 package sh.isaac.solor.rf2.direct;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.solor.ContentProvider;
 
 /**
@@ -26,10 +28,54 @@ import sh.isaac.solor.ContentProvider;
 public class ImportSpecification implements Comparable<ImportSpecification>{
    final ImportStreamType streamType;
    final ContentProvider contentProvider;
+   final BrittleDataTypes[] refsetBrittleTypes;
+   
+   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType, String refsetFileName) {
+       this.streamType = streamType;
+       this.contentProvider = contentProvider;
+       ArrayList<BrittleDataTypes> bdt = new ArrayList<>();
+       if (streamType != ImportStreamType.DYNAMIC) {
+          throw new RuntimeException("This constructor should only be used with DYNAMIC refset types");
+       }
+       if (refsetFileName.toLowerCase().contains("refset"))
+       {
+          //split things like "_iisssccrefset"
+          //Though this stuff should really be read from the refset metadata, not the file name
+          //as we could then capture the rest of the metadata we need about the column, like name, purpose, etc. 
+          int end = refsetFileName.toLowerCase().lastIndexOf("refset");
+          int start = refsetFileName.substring(0, end).lastIndexOf('_');
+          String spec = refsetFileName.substring(start + 1, end).toLowerCase();
+          for (char c : spec.toCharArray()) {
+             if (c == 'i') {
+                bdt.add(BrittleDataTypes.INTEGER);
+             }
+             else if (c == 'c') {
+                bdt.add(BrittleDataTypes.NID);
+             }
+             else if (c == 's') {
+                bdt.add(BrittleDataTypes.STRING);
+             }
+             else if (c == 'b') {
+                bdt.add(BrittleDataTypes.BOOLEAN);
+             }
+             else if (c == 'f') {
+                bdt.add(BrittleDataTypes.FLOAT);
+             }
+             else {
+                throw new RuntimeException("Unhandled refset type " + c + " or maybe misparsed the spec: " + spec);
+             }
+          }
+          refsetBrittleTypes = bdt.toArray(new BrittleDataTypes[bdt.size()]);
+       }
+       else {
+          throw new RuntimeException("Don't call this constructor without a valid refset file name");
+       }
+   }
    
    public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType) {
          this.streamType = streamType;
          this.contentProvider = contentProvider;
+         this.refsetBrittleTypes = null;
    }
    
    @Override

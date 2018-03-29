@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -1194,10 +1195,10 @@ public class LogicalExpressionImpl
 
       logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      int predecessorSequence = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
-      if (predecessorSequence >= 0) {
+      Optional<Integer> predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
+      if (predecessorNid.isPresent()) {
          
-         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorSequence).forEachKey((node) -> {
+         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.get()).forEachKey((node) -> {
             conceptsReferencedByNode.add(node);
             return true;
          });
