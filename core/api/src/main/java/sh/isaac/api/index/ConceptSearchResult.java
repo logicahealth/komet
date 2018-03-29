@@ -177,5 +177,13 @@ public class ConceptSearchResult
       }
       return false;
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public String toString() {
+      return "Concept Nid: " + getConceptNid() + " Score: " + getBestScore();
+   }
 }
 

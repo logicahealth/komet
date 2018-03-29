@@ -131,7 +131,7 @@ public class AssemblageViewerController
 		FXMLLoader loader = new FXMLLoader(resource);
 		loader.load();
 		AssemblageViewerController controller = loader.getController();
-		controller.manifold_ = (manifold == null ? Manifold.make("") : manifold);
+		controller.manifold_ = manifold;
 		return controller;
 	}
 
@@ -155,7 +155,7 @@ public class AssemblageViewerController
 			rebuildList(false);
 		});
 
-		conceptNode = new ConceptNode(null, false, () -> manifold_);
+		conceptNode = new ConceptNode(null, false, () -> manifold_, true);
 		conceptNode.getConceptProperty().addListener((invalidation) -> {
 			ConceptSnapshot cv = conceptNode.getConceptProperty().get();  //Need to do a get after each invalidation, otherwise, we won't get the next invalidation
 			if (cv != null)

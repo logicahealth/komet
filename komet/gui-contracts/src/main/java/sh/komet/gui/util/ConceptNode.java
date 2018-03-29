@@ -119,9 +119,9 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ObservableList<SimpleDisplayConcept> dropDownOptions_;
 	private ContextMenu cm_;
 	
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider)
+	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
 	{
-		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider);
+		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider, metadataConceptsOnly);
 	}
 
 	/**
@@ -131,10 +131,10 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 * @param dropDownOptions 
 	 * @param descriptionReader 
 	 * @param manifoldProvider 
+	 * @param metadataConceptsOnly 
 	 */
-	@SuppressWarnings("deprecation")
 	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
-			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider)
+			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		c_ = initialConcept;
 		//We can't simply use the ObservableList from the CommonlyUsedConcepts, because it infinite loops - there doesn't seem to be a way 
@@ -230,7 +230,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 
 		updateGUI();
 		
-		new LookAheadConceptPopup(cb_, manifoldProvider);
+		new LookAheadConceptPopup(cb_, manifoldProvider, metadataConceptsOnly);
 
 		if (cb_.getValue().getNid() == 0)
 		{
