@@ -17,8 +17,11 @@
 package sh.isaac.provider.query.lucene.indexers;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +44,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -48,9 +52,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.SemanticTags;
@@ -280,7 +287,71 @@ public class DescriptionIndexer extends LuceneIndexer
          outerWrapQueryBuilder.add(innerQueryBuilder.build(), Occur.MUST);
          q = outerWrapQueryBuilder.build();
       }
-      return search(q, filter, amp, pageNum, sizeLimit, targetGeneration);
+      List<SearchResult> results = search(q, filter, amp, pageNum, sizeLimit, targetGeneration);
+      
+      if (prefixSearch) {
+         long time = System.currentTimeMillis();
+         // Do some post search score manipulation to get relevant results closer to the top.
+
+         // Compute the max score of all results.
+         float maxScore = 0.0f;
+         for (final SearchResult sr : results) {
+            final float score = sr.getScore();
+
+            if (score > maxScore) {
+               maxScore = score;
+            }
+         }
+         
+         //A coordinate for best-effort readback of descriptions
+         StampCoordinate sc = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultStampCoordinate().makeCoordinateAnalog(Status.makeAnyStateSet());
+         
+         // normalize the scores between 0 and 1
+         for (final SearchResult sr : results) {
+            //This cast is safe, per the docs of the internal search
+            ((ComponentSearchResult)sr).setScore(sr.getScore() / maxScore);
+            
+            //Look up the object, and fiddle the scores, depending on how good the match is.
+            final Optional<? extends Chronology> chronology = Get.identifiedObjectService().getChronology(sr.getNid());
+            
+            if (chronology.isPresent() && chronology.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
+               if (((SemanticChronology)chronology.get()).getVersionType() == VersionType.DESCRIPTION) {
+                  
+                  LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(sc);
+                  if (dv.isPresent()) {
+                     float adjustValue = 0f;
+                     String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);
+                     String localQuery = query.trim().toLowerCase(Locale.ENGLISH);
+
+                     if (matchingString.equals(localQuery)) {
+                        // "exact match, bump by 2"
+                        adjustValue = 2.0f;
+                     }
+                     else if (matchingString.startsWith(localQuery)) {
+                        // "add 1, plus a bit more boost based on the length of the matches (shorter matches get more boost)"
+                        adjustValue = 1.0f + (1.0f - ((float) (matchingString.length() - localQuery.length()) / (float) matchingString.length()));
+                     }
+
+                     if (adjustValue > 0f) {
+                        ((ComponentSearchResult)sr).setScore(sr.getScore() + adjustValue);
+                     }
+                  }
+               }
+               else {
+                  LOG.warn("Prefix match search got an unexpected result: {}", chronology);
+               }
+            }
+            else {
+               LOG.warn("Prefix match search got an unexpected result: {}", chronology);
+            }
+         }
+         
+         //Re-sort based on adjusted scores
+         Collections.sort(results);
+         
+         LOG.debug("Time for prefix-search score manipulation: {}ms", System.currentTimeMillis() - time);
+      }
+      return results;
    }
 
    /**
