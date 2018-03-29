@@ -72,10 +72,10 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
-import sh.isaac.komet.gui.util.ConceptNode;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
 
 /**

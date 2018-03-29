@@ -80,10 +80,7 @@ import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
-import sh.isaac.dbConfigBuilder.fx.fxUtil.ErrorMarkerUtils;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.StreamRedirect;
-import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
-import sh.isaac.dbConfigBuilder.fx.fxUtil.ValidBooleanBinding;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
@@ -92,7 +89,10 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
+import sh.komet.gui.util.ErrorMarkerUtils;
 import sh.komet.gui.util.FxUtils;
+import sh.komet.gui.util.UpdateableBooleanBinding;
+import sh.komet.gui.util.ValidBooleanBinding;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>

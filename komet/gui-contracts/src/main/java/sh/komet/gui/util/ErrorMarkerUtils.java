@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.dbConfigBuilder.fx.fxUtil;
+package sh.komet.gui.util;
 
 import java.util.function.Function;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import javafx.beans.value.ObservableStringValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -29,12 +29,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import sh.isaac.komet.iconography.Iconography;
 
 /**
  * {@link ErrorMarkerUtils}
@@ -94,7 +94,7 @@ public class ErrorMarkerUtils
 	 */
 	public static StackPane setupErrorMarker(Node initialNode, ValidBooleanBinding isNodeCurrentlyValid, boolean swapInContainer)
 	{
-		ImageView exclamation = Images.EXCLAMATION.createImageView();
+		Node exclamation = Iconography.EXCLAMATION.getIconographic();
 		
 		StackPane stackPane = new StackPane();
 		
@@ -175,7 +175,7 @@ public class ErrorMarkerUtils
 	 */
 	public static StackPane setupDisabledInfoMarker(Control initialControl, ObservableStringValue reasonWhyControlDisabled, boolean swapInContainer)
 	{
-		ImageView information = Images.INFORMATION.createImageView();
+		Node information = Iconography.INFORMATION.getIconographic();
 
 		information.visibleProperty().bind(initialControl.disabledProperty());
 		Tooltip tooltip = new Tooltip();

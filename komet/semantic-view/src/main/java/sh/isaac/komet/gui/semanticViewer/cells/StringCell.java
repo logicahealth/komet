@@ -43,7 +43,7 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.text.Text;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
-import sh.isaac.komet.gui.util.CustomClipboard;
+import sh.komet.gui.util.CustomClipboard;
 
 /**
  * {@link StringCell}

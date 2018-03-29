@@ -114,7 +114,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexedGenerationCallable;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
-import sh.isaac.dbConfigBuilder.fx.fxUtil.UpdateableBooleanBinding;
 import sh.isaac.komet.gui.semanticViewer.HeaderNode.Filter;
 import sh.isaac.komet.gui.semanticViewer.cells.AttachedDataCellFactory;
 import sh.isaac.komet.gui.semanticViewer.cells.ComponentDataCell;
@@ -131,6 +130,7 @@ import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UpdateableBooleanBinding;
 
 /**
  * 

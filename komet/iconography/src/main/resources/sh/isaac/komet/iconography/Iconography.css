@@ -250,6 +250,29 @@ limitations under the License.
    -glyph-size: 16pt;
    -icons-color: #4CB709;
 }
+
+.target {
+   -glyph-name: "TARGET";
+   -glyph-size: 16pt;
+   -icons-color: #000000;
+}
+.alert-circle-outline {
+   -glyph-name: "ALERT_CIRCLE_OUTLINE";
+   -glyph-size: 16pt;
+   -icons-color: #D50000;
+}
+
+.information-outline {
+   -glyph-name: "INFORMATION_OUTLINE";
+   -glyph-size: 16pt;
+   -icons-color: #1E88E5;
+}
+
+.content-copy {
+   -glyph-name: "CONTENT_COPY";
+   -glyph-size: 16pt;
+   -icons-color: #000000;
+}
 .settings-gear {
    -glyph-name: "GEAR";
    -glyph-size: 16pt;

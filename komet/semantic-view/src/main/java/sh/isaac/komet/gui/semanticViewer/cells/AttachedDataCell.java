@@ -57,8 +57,8 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUIColumnType;
-import sh.isaac.komet.gui.util.CustomClipboard;
 import sh.komet.gui.drag.drop.DragRegistry;
+import sh.komet.gui.util.CustomClipboard;
 
 /**
  * {@link AttachedDataCell}

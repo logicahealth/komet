@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.komet.gui.util;
+package sh.komet.gui.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
