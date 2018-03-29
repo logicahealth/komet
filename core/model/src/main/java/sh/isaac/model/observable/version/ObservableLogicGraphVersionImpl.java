@@ -163,6 +163,10 @@ public class ObservableLogicGraphVersionImpl
 
    @Override
    public String toString() {
+      if (this.logicGraphProperty != null) {
+          return "ObservableLogicGraphVersionImpl{data[][]:" + new LogicalExpressionImpl(this.logicGraphProperty.get(), DataSource.INTERNAL);
+      } 
+       
       return "ObservableLogicGraphVersionImpl{data[][]:" +
              ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getLogicalExpression() + '}';
    }

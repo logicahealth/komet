@@ -655,6 +655,9 @@ public abstract class ObservableVersionImpl
     */
    @Override
    public int getNid() {
+       if (this.primordialUuidProperty != null) {
+           return Get.identifierService().assignNid(this.primordialUuidProperty.get());
+       }
       if (this.chronology != null) {
           return this.chronology.getNid();
       }

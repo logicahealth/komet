@@ -680,6 +680,27 @@ public class CommitProvider
     }
 
     /**
+     * Handle commit notification.
+     *
+     * @param chronology
+     */
+    protected void handleChangeNotification(Chronology chronology) {
+        this.changeListeners.forEach((listenerRef) -> {
+            final ChronologyChangeListener listener = listenerRef.get();
+
+            if (listener == null) {
+                this.changeListeners.remove(listenerRef);
+            } else {
+                if (chronology instanceof ConceptChronology) {
+                    listener.handleChange((ConceptChronology) chronology);
+                } else {
+                    listener.handleChange((SemanticChronology) chronology);
+                }
+                
+            }
+        });
+    }
+    /**
      * Revert commit.
      *
      * @param conceptsToCommit the concepts to commit

@@ -41,6 +41,7 @@ package sh.isaac.model.semantic;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -310,19 +311,25 @@ public class SemanticChronologyImpl
          break;
 
       case SEMANTIC:
-         SemanticChronologyImpl semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
-                                                                                .getSemanticChronology(
-                                                                                      this.referencedComponentNid);
-
-         builder.append("SEMANTIC: ")
-                .append(semanticChronicle.getVersionType())
-                .append(" <")
-                .append(semanticChronicle.getElementSequence())
-                .append(">\n from assemblage:")
-                .append(Get.conceptDescriptionText(semanticChronicle.getAssemblageNid()))
-                .append(" <")
-                .append(semanticChronicle.getAssemblageNid())
-                .append(">\n");
+          try {
+              SemanticChronologyImpl semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
+                      .getSemanticChronology(
+                              this.referencedComponentNid);
+              
+              builder.append("SEMANTIC: ")
+                      .append(semanticChronicle.getVersionType())
+                      .append(" <")
+                      .append(semanticChronicle.getElementSequence())
+                      .append(">\n from assemblage:")
+                      .append(Get.conceptDescriptionText(semanticChronicle.getAssemblageNid()))
+                      .append(" <")
+                      .append(semanticChronicle.getAssemblageNid())
+                      .append(">\n");
+          } catch (NoSuchElementException e) {
+              builder.append("SEMANTIC: ");
+              builder.append(this.referencedComponentNid);
+              builder.append(" is primordial. ");
+          }
          break;
 
       default:

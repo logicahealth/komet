@@ -93,8 +93,11 @@ public class SingleCommitTask extends CommitTask {
                     commitTime, editCoordinate.getAuthorNid(),
                     editCoordinate.getModuleNid(), editCoordinate.getPathNid());
             stampsInCommit.add(stampSequence);
+            
             Chronology chronologyForCommit = observableVersion.createChronologyForCommit(stampSequence);
+            this.commitService.handleChangeNotification(chronologyForCommit);
             Get.identifiedObjectService().putChronologyData(chronologyForCommit);
+            
         }
         CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
                 stampsInCommit,
