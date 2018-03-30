@@ -16,12 +16,12 @@
  */
 package sh.komet.gui.control.axiom;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -34,6 +34,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -103,7 +105,7 @@ public class AxiomView {
             new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0, 1, 1))
     );
 
-   private ObservableLogicGraphVersionImpl logicGraphVersion;
+    private ObservableLogicGraphVersionImpl logicGraphVersion;
     private LogicalExpression expression;
     private final Manifold manifold;
     private final PremiseType premiseType;
@@ -196,7 +198,7 @@ public class AxiomView {
         GridPane.setConstraints(node, column, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.ALWAYS, Priority.NEVER);
         rootToolBar.getChildren().add(node);
     }
-    
+
     public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
         AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
         axiomView.logicGraphVersion = logicGraphVersion;
@@ -208,7 +210,7 @@ public class AxiomView {
         axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
         return axiomView.anchorPane;
     }
- 
+
     public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
         AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
         axiomView.logicGraphVersion = logicGraphVersion;
@@ -220,14 +222,12 @@ public class AxiomView {
         axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
         axiomView.borderPane = new BorderPane(axiomView.anchorPane);
         return axiomView.borderPane;
-   }
- 
+    }
+
     private BorderPane create(AbstractLogicNode logicNode) {
         ClauseView clauseView = new ClauseView(logicNode);
         return clauseView.rootPane;
     }
-    
-    
 
     public static AnchorPane create(LogicalExpression expression,
             PremiseType premiseType, Manifold manifold) {
@@ -258,7 +258,7 @@ public class AxiomView {
         this.expression = expression;
         if (logicGraphVersion != null) {
             logicGraphVersion.setGraphData(expression.getData(DataTarget.INTERNAL));
-            
+
         }
         BorderPane axiomBorderPane = create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -362,7 +362,7 @@ public class AxiomView {
                 }
                 case FEATURE: {
                     rootPane.getStyleClass()
-                                .add(StyleClasses.DEF_FEATURE.toString());
+                            .add(StyleClasses.DEF_FEATURE.toString());
                     int column = 0;
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
@@ -388,11 +388,11 @@ public class AxiomView {
                         case LESS_THAN_EQUALS:
                             builder.append(" ≤ ");
                             break;
-                            default:
-                                throw new UnsupportedOperationException("Can't handle: " + featureNode.getOperator());
+                        default:
+                            throw new UnsupportedOperationException("Can't handle: " + featureNode.getOperator());
                     }
-                    
-                    for (AbstractLogicNode featureChildNode: featureNode.getChildren()) {
+
+                    for (AbstractLogicNode featureChildNode : featureNode.getChildren()) {
                         switch (featureChildNode.getNodeSemantic()) {
                             case LITERAL_BOOLEAN: {
                                 LiteralNodeBoolean node = (LiteralNodeBoolean) featureChildNode;
@@ -429,7 +429,7 @@ public class AxiomView {
                     if (premiseType == PremiseType.STATED) {
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     }
-                  break;
+                    break;
                 }
                 case ROLE_SOME: {
                     int column = 0;
@@ -516,6 +516,7 @@ public class AxiomView {
                     rootPane.setBorder(ROOT_BORDER);
                     titleLabel.setText(getConceptBeingDefinedText(null));
                     titleLabel.setGraphic(computeGraphic(expression.getConceptNid(), false));
+                    titleLabel.setContextMenu(getContextMenu());
                     int column = 0;
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
@@ -540,9 +541,8 @@ public class AxiomView {
                     }
                     break;
                 }
-                    
-                    
-                case LITERAL_BOOLEAN:{
+
+                case LITERAL_BOOLEAN: {
                     LiteralNodeBoolean literalNode = (LiteralNodeBoolean) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());
@@ -553,9 +553,9 @@ public class AxiomView {
                     if (premiseType == PremiseType.STATED) {
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     }
-                   break;
+                    break;
                 }
-                case LITERAL_INSTANT:{
+                case LITERAL_INSTANT: {
                     LiteralNodeInstant literalNode = (LiteralNodeInstant) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());
@@ -568,7 +568,7 @@ public class AxiomView {
                     }
                     break;
                 }
-                case LITERAL_INTEGER:{
+                case LITERAL_INTEGER: {
                     LiteralNodeInteger literalNode = (LiteralNodeInteger) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());
@@ -579,9 +579,9 @@ public class AxiomView {
                     if (premiseType == PremiseType.STATED) {
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     }
-                   break;
+                    break;
                 }
-                case LITERAL_STRING:{
+                case LITERAL_STRING: {
                     LiteralNodeString literalNode = (LiteralNodeString) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());
@@ -616,8 +616,8 @@ public class AxiomView {
             }
 
             childClauses.sort(new AxiomComparator());
-            if (logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME ||
-                    logicNode.getNodeSemantic() == NodeSemantic.FEATURE) {
+            if (logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME
+                    || logicNode.getNodeSemantic() == NodeSemantic.FEATURE) {
                 expanded.set(false);
             } else {
                 for (ClauseView childClause : childClauses) {
@@ -719,6 +719,124 @@ public class AxiomView {
                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
                 showPopup(conceptNode.getConceptNid(), mouseEvent);
             }
+        }
+
+        private void addSvg(StringBuilder builder, int depth, double xOffset, double yOffset) {
+
+            Bounds rootBounds = rootPane.localToScreen(rootPane.getBoundsInLocal());
+            if (rootBounds != null) {
+                int textOffset = 5;
+                double topWidth = 1;
+                double halfTopWidth = topWidth / 2;
+
+                double bottomWidth = 1;
+                double halfBottomWidth = bottomWidth / 2;
+
+                double leftWidth = 10;
+                double halfLeftWidth = leftWidth / 2;
+
+                int rightLineExtra;
+                if (depth == 0) {
+                    rightLineExtra = 0;
+                } else {
+                    rightLineExtra = 1;
+                }
+
+                // Top
+                addLine(builder, xOffset + rootBounds.getMinX(), yOffset + rootBounds.getMinY(),
+                        xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMinY(), topWidth, "stroke: black;");
+
+                if (depth == 0) {
+                    // Right
+                    addLine(builder, xOffset + rootBounds.getMaxX(), yOffset + rootBounds.getMinY(),
+                            xOffset + rootBounds.getMaxX(), yOffset + rootBounds.getMaxY(), 1, "stroke: black;");
+                }
+
+                // Bottom
+                addLine(builder, xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMaxY(),
+                        xOffset + rootBounds.getMinX(), yOffset + rootBounds.getMaxY(), bottomWidth, "stroke: black;");
+
+                // Left
+                addLine(builder, xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMaxY() + halfTopWidth,
+                        xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMinY() - halfBottomWidth, leftWidth, "stroke: red;");
+
+                // Text
+                addText(builder, xOffset + rootBounds.getMinX() + leftWidth + textOffset, yOffset + rootBounds.getMinY() + textOffset + 5, titleLabel.getText(),
+                        "font-size: 9pt; font-family: Open Sans Light, Symbol; baseline-shift: sub;");
+
+                for (ClauseView child : childClauses) {
+                    child.addSvg(builder, depth + 1, xOffset, yOffset);
+                }
+            }
+
+        }
+
+        private void addText(StringBuilder builder, double x, double y, String text, String style) {
+            text = text.replace("➞", "<tspan style=\"font-family: Symbol;\">→</tspan><tspan style=\"" + style + "\"/>");
+            addText(builder, (int) x, (int) y, text, style);
+        }
+
+        private void addText(StringBuilder builder, int x, int y, String text, String style) {
+            builder.append("    <text x=\"");
+            builder.append(x);
+            builder.append("\" y=\"");
+            builder.append(y);
+            builder.append("\" style=\"");
+            builder.append(style);
+            builder.append("\">");
+            builder.append(text);
+            builder.append("</text>\n");
+        }
+
+        private void addLine(StringBuilder builder, double x1, double y1, double x2, double y2, double width, String style) {
+            builder.append("<line x1=\"");
+            builder.append(x1);
+            builder.append("\" y1=\"");
+            builder.append(y1);
+            builder.append("\" x2=\"");
+            builder.append(x2);
+            builder.append("\" y2=\"");
+            builder.append(y2);
+            builder.append("\" style=\"");
+            builder.append(style);
+            builder.append(" stroke-width: ");
+            builder.append(width);
+            builder.append(";\"/>\n");
+        }
+
+        private ContextMenu getContextMenu() {
+            MenuItem svgItem = new MenuItem("Make concept svg");
+            svgItem.setOnAction(this::makeSvg);
+            return new ContextMenu(svgItem);
+        }
+
+        private void makeSvg(StringBuilder builder, int depth, double xOffset, double yOffset) {
+            addSvg(builder, depth + 1, xOffset, yOffset);
+
+        }
+
+        private void makeSvg(Event event) {
+            StringBuilder builder = new StringBuilder();
+            //builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            //builder.append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
+
+            Bounds rootBoundsInScreen = rootPane.localToScreen(borderPane.getBoundsInLocal());
+            builder.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"");
+            builder.append(rootBoundsInScreen.getWidth() + 5);
+            builder.append("px\" height=\"");
+            builder.append(rootBoundsInScreen.getHeight() + 5);
+            builder.append("px\">\n");
+            builder.append("    <g alignment-baseline=\"baseline\"></g>\n");
+
+            addSvg(builder, 0, -rootBoundsInScreen.getMinX(), -rootBoundsInScreen.getMinY());
+
+            builder.append("</svg>\n");
+
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(builder.toString());
+            clipboard.setContent(content);
+
         }
     }
 
