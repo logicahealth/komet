@@ -51,11 +51,11 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link NumberUtilities}.
+ * {@link NumericUtilsDynamic}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class NumberUtilities
+public class NumericUtilsDynamic
         extends NumericUtils {
    /**
     * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double.
