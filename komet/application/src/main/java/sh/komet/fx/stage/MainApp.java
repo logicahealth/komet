@@ -132,11 +132,14 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
+        else {
+            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
+            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
+            //be configured at the assemblage level.  Except, Dan now wants indexes on if beta features are enabled, due to new
+            //search panel supporting them
+            LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
+        }
         
-        //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
-        //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
-        //be configured at the assemblage level.
-        LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
 
         if (Get.metadataService()
                 .wasMetadataImported()) {

@@ -39,13 +39,9 @@
 
 package sh.isaac.provider.query.search;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Handle object to get search results.
@@ -54,25 +50,19 @@ import java.util.concurrent.Semaphore;
  * @author ocarlsen
  */
 public class SearchHandle {
-   /** The search start time. */
    private final long searchStartTime = System.currentTimeMillis();
 
-   /** The resultList block. */
    private final Semaphore resultBlock = new Semaphore(1);
 
-   /** The cancelled. */
    private volatile boolean cancelled = false;
 
-   /** The error. */
    private Exception error = null;
 
-   /** The search I D. */
    private final Integer searchID;
 
-   /** The resultList. */
    private List<CompositeSearchResult> resultList;
-
-   //~--- constructors --------------------------------------------------------
+   
+   private int offPathResultsFiltered = 0;
 
    /**
     * Instantiates a new search handle.
@@ -83,16 +73,9 @@ public class SearchHandle {
       this.searchID = searchID;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Cancel.
-    */
    public void cancel() {
       this.cancelled = true;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Checks if cancelled.
@@ -103,21 +86,12 @@ public class SearchHandle {
       return this.cancelled;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the error.
-    *
-    * @param e the new error
-    */
    protected void setError(Exception e) {
       synchronized (SearchHandle.this) {
          this.error = e;
          SearchHandle.this.notifyAll();
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * This is not the same as the size of the resultList collection, as results may be merged.
@@ -135,6 +109,10 @@ public class SearchHandle {
       }
 
       return result;
+   }
+   
+   public int getOffPathFilteredCount() {
+      return offPathResultsFiltered;
    }
 
    /**
@@ -168,21 +146,18 @@ public class SearchHandle {
       return this.resultList;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the results.
     *
     * @param results the new results
     */
-   protected void setResults(List<CompositeSearchResult> results) {
+   protected void setResults(List<CompositeSearchResult> results, int offPathResultsFiltered) {
       synchronized (SearchHandle.this) {
          this.resultList = results;
+         this.offPathResultsFiltered = offPathResultsFiltered;
          SearchHandle.this.notifyAll();
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the search start time.

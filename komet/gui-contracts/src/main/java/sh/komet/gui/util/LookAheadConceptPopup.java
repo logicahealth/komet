@@ -356,7 +356,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 					id,
 					null,
 					true,
-					sc.get().getStampCoordinate(),
+					sc.get().getManifoldCoordinate(),
 					false);
 					runningSearches.put(id, ssh);
 				}

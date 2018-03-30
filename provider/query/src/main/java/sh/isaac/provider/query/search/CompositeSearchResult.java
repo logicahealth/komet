@@ -58,7 +58,7 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.SearchResult;
 
 /**
@@ -80,18 +80,18 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 	// best score, rather than score, as multiple matches may go into a CompositeSearchResult
 	private float bestScore;
 	
-	private StampCoordinate stamp;
+	private ManifoldCoordinate manifoldCoord;
 
 	/**
 	 * Instantiates a new composite search result.
 	 * @param searchResult - the lucene search result to base this on
-	 * @param stamp - optional - the stamp coordinate to use for operations that require a stamp to get a version.
+	 * @param mc - optional - the stamp coordinate to use for operations that require a stamp to get a version.
 	 * Uses the user default, if not provided. 
 	 */
-	public CompositeSearchResult(SearchResult searchResult, StampCoordinate stamp)
+	public CompositeSearchResult(SearchResult searchResult, ManifoldCoordinate mc)
 	{
 		this.bestScore = searchResult.getScore();
-		this.stamp = (stamp == null ? Get.configurationService().getUserConfiguration(null).getStampCoordinate() : stamp);
+		this.manifoldCoord = (mc == null ? Get.configurationService().getUserConfiguration(null).getManifoldCoordinate() : mc);
 
 		// Get the match object.
 		Optional<? extends Chronology> chron = Get.identifiedObjectService().getChronology(searchResult.getNid());
@@ -106,7 +106,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 				{
 					if (cachedValue == null)
 					{
-						cachedValue = t.getLatestVersion(CompositeSearchResult.this.stamp);
+						cachedValue = t.getLatestVersion(CompositeSearchResult.this.manifoldCoord);
 					}
 					return cachedValue;
 				}
@@ -129,6 +129,16 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 			locateContainingConcept(matchingComponents.keySet().iterator().next());
 		}
 		return containingConcept;
+	}
+	
+	/**
+	 * Get the text (per the manifold) for the {@link #getContainingConcept()} concept
+	 * @return the text
+	 */
+	public String getContainingConceptText()
+	{
+		ConceptChronology cc = getContainingConcept();
+		return Get.conceptService().getSnapshot(manifoldCoord).conceptDescriptionText(cc.getNid());
 	}
 	
 
@@ -186,9 +196,9 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 	 *
 	 * @return the matching components
 	 */
-	public Set<Version> getMatchingComponentVersions()
+	public List<Version> getMatchingComponentVersions()
 	{
-		HashSet<Version> matchingVersions = new HashSet<>();
+		ArrayList<Version> matchingVersions = new ArrayList<>();
 		for (Entry<Chronology, Function<Chronology, LatestVersion<Version>>> vp : matchingComponents.entrySet())
 		{
 			LatestVersion<Version> version = vp.getValue().apply(vp.getKey());
@@ -249,6 +259,8 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 	 * 
 	 * This uses the coordinates that were passed in at search start, if the matching component
 	 * isn't available on the given stamp, it won't be included in this list.
+	 * 
+	 * This will return the items in the same number and order as {@link #getMatchingComponentVersions()}
 	 *
 	 * @return the matching strings
 	 */

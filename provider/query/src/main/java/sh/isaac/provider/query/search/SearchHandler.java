@@ -42,12 +42,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.IndexQueryService;
@@ -102,7 +104,7 @@ public class SearchHandler
 	 * @param mergeOnConcepts - If true, when multiple semantics attached to the same concept match the search, this will be returned
 	 *            as a single result representing the concept - with each matching component included, and the score being the best score of any of the
 	 *            matching items.  When false, you will get one search result per match (per semantic) - so concepts can be returned multiple times.
-	 * @param stampForVersionRead - optional - if not supplied, uses the default stamp for the user / system, for any operations that require getting a 
+	 * @param manifoldForRead - optional - if not supplied, uses the default for the user / system, for any operations that require getting a 
 	 *            version (as opposed to a chronology).  This primarily impacts convenience methods inside of {@link CompositeSearchResult}
 	 * @param filterOffPathResults - if true, will only return matching components that are present on the provided stampForVersionRead.  Note, 
 	 * it is faster to do Author / Module / Path restrictions with a {@link AmpRestriction} during the query - this should only be used to filter out 
@@ -111,7 +113,7 @@ public class SearchHandler
 	 */
 	public static SearchHandle search(final Supplier<List<SearchResult>> searchFunction, final Consumer<SearchHandle> operationToRunWhenSearchComplete, 
 			final Integer taskId, final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
-			boolean mergeOnConcepts, StampCoordinate stampForVersionRead, boolean filterOffPathResults)
+			boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults)
 	{
 		final SearchHandle searchHandle = new SearchHandle(taskId);
 
@@ -124,17 +126,19 @@ public class SearchHandler
 				LOG.debug(searchResults.size() + " results from search function");
 				
 				// sort, filter and merge the results as necessary
-				processResults(searchHandle, searchResults, filter, mergeOnConcepts, stampForVersionRead, filterOffPathResults);
-
-				if (operationToRunWhenSearchComplete != null)
-				{
-					operationToRunWhenSearchComplete.accept(searchHandle);
-				}
+				processResults(searchHandle, searchResults, filter, mergeOnConcepts, manifoldForRead, filterOffPathResults);
 			}
 			catch (final Exception ex)
 			{
 				LOG.error("Unexpected error during lucene search", ex);
 				searchHandle.setError(ex);
+			}
+			finally
+			{
+				if (operationToRunWhenSearchComplete != null)
+				{
+					operationToRunWhenSearchComplete.accept(searchHandle);
+				}
 			}
 		};
 
@@ -148,11 +152,11 @@ public class SearchHandler
 	 * see {@link #search(Supplier, Consumer, Integer, Function, boolean, StampCoordinate)} for details on the parameters.
 	 */
 	private static void processResults(SearchHandle searchHandle, List<SearchResult> initialResults,
-			final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter, boolean mergeOnConcepts, StampCoordinate stampForRead, 
+			final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter, boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, 
 			boolean filterOffPathResults)
 	{
 		
-		List<CompositeSearchResult> rawResults = lookupChronologies(initialResults, stampForRead, searchHandle);
+		List<CompositeSearchResult> rawResults = lookupChronologies(initialResults, manifoldForRead, searchHandle);
 		// filter and sort the results
 		if (filter != null)
 		{
@@ -161,6 +165,7 @@ public class SearchHandler
 			LOG.debug(rawResults.size() + " results remained after running the filter");
 		}
 
+		AtomicInteger filterCount = new AtomicInteger(0);
 		if (filterOffPathResults)
 		{
 			LOG.debug("Applying Path filter to " + rawResults.size() + " search results");
@@ -173,9 +178,15 @@ public class SearchHandler
 
 					while (it.hasNext())
 					{
-						if (it.next().getMatchingComponentVersions().isEmpty())
+						CompositeSearchResult next = it.next();
+						if (next.getMatchingComponentVersions().isEmpty())
 						{
+							filterCount.addAndGet(next.getMatchingComponents().size());
 							it.remove();
+						}
+						else
+						{
+							filterCount.addAndGet(next.getMatchingComponents().size() - next.getMatchingComponentVersions().size());
 						}
 					}
 
@@ -208,10 +219,10 @@ public class SearchHandler
 		}
 
 		Collections.sort(rawResults);
-		searchHandle.setResults(rawResults);
+		searchHandle.setResults(rawResults, filterCount.get());
 	}
 	
-	private static List<CompositeSearchResult> lookupChronologies(List<SearchResult> searchResults, StampCoordinate stampForRead, SearchHandle searchHandle)
+	private static List<CompositeSearchResult> lookupChronologies(List<SearchResult> searchResults, ManifoldCoordinate manifoldForRead, SearchHandle searchHandle)
 	{
 		List<CompositeSearchResult> initialSearchResults = new ArrayList<>(searchResults.size());
 		for (SearchResult searchResult : searchResults)
@@ -222,7 +233,7 @@ public class SearchHandler
 			}
 			try
 			{
-				initialSearchResults.add(new CompositeSearchResult(searchResult, stampForRead));
+				initialSearchResults.add(new CompositeSearchResult(searchResult, manifoldForRead));
 			}
 			catch (Exception e)
 			{
