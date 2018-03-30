@@ -1,0 +1,11 @@
+.boldLabel {
+	-fx-font-weight: bold;
+}
+
+.evenGridRow {
+	-fx-background-color: rgba(120, 120, 120, .1);
+}
+
+.oddGridRow {
+	-fx-background-color: rgba(20, 20, 20, .1);
+}
