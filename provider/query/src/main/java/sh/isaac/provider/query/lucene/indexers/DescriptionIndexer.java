@@ -264,7 +264,7 @@ public class DescriptionIndexer extends LuceneIndexer
          final BooleanQuery.Builder innerQueryBuilder = new BooleanQuery.Builder();
          for (Integer i : descriptionTypes)
          {
-            innerQueryBuilder.add(new TermQuery(new Term(FIELD_INDEXED_DESCRIPTION_TYPE_NID, i.toString())), Occur.SHOULD);
+            innerQueryBuilder.add(new TermQuery(new Term(FIELD_INDEXED_DESCRIPTION_TYPE_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, i.toString())), Occur.SHOULD);
          }
          
          outerWrapQueryBuilder.add(innerQueryBuilder.build(), Occur.MUST);
