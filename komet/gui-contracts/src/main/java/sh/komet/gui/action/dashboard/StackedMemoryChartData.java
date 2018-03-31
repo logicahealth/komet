@@ -96,7 +96,7 @@ public class StackedMemoryChartData {
         IDENTIFIER_MEMORY_USED_DATA.add(new XYChart.Data<>(timeTick, identifierMemoryUsed/ONE_MILLION));
         LUCENE_MEMORY_USED_DATA.add(new XYChart.Data<>(timeTick, luceneMemoryUsed/ONE_MILLION));
         USED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getUsed() - assemblageMemoryUsed - identifierMemoryUsed - luceneMemoryUsed)/ONE_MILLION));
-        USED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getCommitted() - memoryUsage.getUsed())/ONE_MILLION));
+        COMMITTED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getCommitted() - memoryUsage.getUsed())/ONE_MILLION));
         AVAILABLE_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getMax() - memoryUsage.getCommitted())/ONE_MILLION));
         
         while (ASSEMBLAGE_MEMORY_USED_DATA.size() > MaxDataListSize) {
