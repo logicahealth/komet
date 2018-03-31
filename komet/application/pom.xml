@@ -104,7 +104,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.solor</groupId>
-         <artifactId>rf2-direct-import</artifactId>
+         <artifactId>direct-import</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>

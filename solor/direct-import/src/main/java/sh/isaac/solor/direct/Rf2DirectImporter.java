@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.BufferedReader;

@@ -13,7 +13,7 @@
     <modules>
         <module>rxnorm-mojo</module>
         <module>solor-parent</module>
-        <module>rf2-direct-import</module>
         <module>solor-mojo</module>
+        <module>direct-import</module>
     </modules>
 </project>

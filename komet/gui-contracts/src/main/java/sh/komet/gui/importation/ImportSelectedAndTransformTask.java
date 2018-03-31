@@ -22,9 +22,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.rf2.direct.ImportType;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.manifold.Manifold;
 
 /**

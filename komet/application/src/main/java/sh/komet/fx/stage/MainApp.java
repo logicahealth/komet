@@ -76,7 +76,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.Rf2DirectImporter;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 

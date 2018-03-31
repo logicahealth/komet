@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.format.DateTimeFormatter;

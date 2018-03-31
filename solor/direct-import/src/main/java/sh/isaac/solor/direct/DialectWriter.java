@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
 

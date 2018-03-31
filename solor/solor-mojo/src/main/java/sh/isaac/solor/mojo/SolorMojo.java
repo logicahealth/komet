@@ -34,10 +34,10 @@ import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.solor.rf2.direct.ImportType;
-import sh.isaac.solor.rf2.direct.LoincDirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.LoincDirectImporter;
+import sh.isaac.solor.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
  *

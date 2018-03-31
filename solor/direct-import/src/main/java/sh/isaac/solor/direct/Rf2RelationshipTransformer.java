@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
 import java.util.Arrays;

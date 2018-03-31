@@ -224,17 +224,17 @@ public class ImportViewController {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
         
-        sh.isaac.solor.rf2.direct.ImportType directImportType = null;
+        sh.isaac.solor.direct.ImportType directImportType = null;
  
         switch (importType.getValue()) {
             case ACTIVE_ONLY:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.ACTIVE_ONLY;
+                directImportType = sh.isaac.solor.direct.ImportType.ACTIVE_ONLY;
                 break;
             case FULL:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.FULL;
+                directImportType = sh.isaac.solor.direct.ImportType.FULL;
                 break;
             case SNAPSHOT:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.SNAPSHOT;
+                directImportType = sh.isaac.solor.direct.ImportType.SNAPSHOT;
                 break;
          case IGNORE:
             break;
