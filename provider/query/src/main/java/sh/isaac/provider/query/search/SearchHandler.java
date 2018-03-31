@@ -42,6 +42,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,11 +51,18 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.util.NumericUtils;
+import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
@@ -69,20 +78,104 @@ import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 public class SearchHandler
 {
 	private static final Logger LOG = LogManager.getLogger();
+	
+	/**
+	 * @param searchString the string that contains an identifier
+	 * @param identifierTypes - optional - null, or the identifier types to restrict the search to
+	 * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the
+	 *            results are ready for use. Note that this function will also be executed in the background thread.
+	 * @param taskId - An optional field that is simply handed back during the callback when results are complete. Useful for matching
+	 *            requests to this method with callbacks.
+	 * @param filter - An optional filter than can add or remove items from the tentative result set before it is returned.
+	 * @param mergeOnConcepts - If true, when multiple semantics attached to the same concept match the search, this will be returned
+	 *            as a single result representing the concept - with each matching component included, and the score being the best score of any of the
+	 *            matching items.  When false, you will get one search result per match (per semantic) - so concepts can be returned multiple times.
+	 * @param manifoldForRead - optional - if not supplied, uses the default for the user / system, for any operations that require getting a 
+	 *            version (as opposed to a chronology).  This primarily impacts convenience methods inside of {@link CompositeSearchResult}
+	 * @param filterOffPathResults - if true, will only return matching components that are present on the provided stampForVersionRead.  Note, 
+	 * it is faster to do Author / Module / Path restrictions with a {@link AmpRestriction} during the query - this should only be used to filter out 
+	 * based on status or time.
+	 * @param sizeLimit - restrict to this number of results
+	 * @return A handle to the running search.
+	 */
+	public static SearchHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<SearchHandle> operationToRunWhenSearchComplete, 
+			final Integer taskId, final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
+			boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, int sizeLimit)
+	{
+		final SearchHandle searchHandle = new SearchHandle(taskId);
 
-	//TODO put some of this into a "just find the things" method
-	// If search query is an ID, look up concept and add the result.
-//	if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery))
-//	{
-//		throw new UnsupportedOperationException("Search for unknown identifier is not implemented.");
-//                     final Optional<? extends ConceptChronology> temp =
-//                        Frills.getConceptForUnknownIdentifier(localQuery);
-//
-//                     if (temp.isPresent()) {
-//                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
-//
-//                        initialSearchResults.add(gsr);
-//                     }
+		// Do search in background.
+		final Runnable r = () -> {
+			try
+			{
+				// execute the search
+				final List<SearchResult> searchResults = new ArrayList<>();
+				
+				if (UUIDUtil.isUUID(searchString) && 
+						(identifierTypes == null || contains(identifierTypes, TermAux.ISAAC_UUID.getNid())))
+				{
+					UUID uuid = UUID.fromString(searchString);
+					if (Get.identifierService().hasUuid(uuid))
+					{
+						searchResults.add(new ComponentSearchResult(Get.identifierService().getNidForUuids(uuid), 5.0f));
+					}
+				}
+				
+				else if (NumericUtils.isNID(searchString) && 
+						(identifierTypes == null || contains(identifierTypes, DynamicConstants.get().DYNAMIC_DT_NID.getNid())))
+				{
+					int nid = Integer.parseInt(searchString);
+					Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
+					if (c.isPresent())
+					{
+						searchResults.add(new ComponentSearchResult(c.get().getNid(), 5.0f));
+					}
+				}
+				else if (!contains(identifierTypes, TermAux.ISAAC_UUID.getNid()) && !contains(identifierTypes, DynamicConstants.get().DYNAMIC_DT_NID.getNid()))
+				{
+					//Any, or, a specific type - run the query.
+					searchResults.addAll(Get.service(IndexSemanticQueryService.class).queryData(searchString, false, identifierTypes, null, 1, sizeLimit, null));
+				}
+				
+				LOG.debug(searchResults.size() + " results from search function");
+				
+				// sort, filter and merge the results as necessary
+				processResults(searchHandle, searchResults, filter, mergeOnConcepts, manifoldForRead, filterOffPathResults);
+			}
+			catch (final Exception ex)
+			{
+				LOG.error("Unexpected error during lucene search", ex);
+				searchHandle.setError(ex);
+			}
+			finally
+			{
+				if (operationToRunWhenSearchComplete != null)
+				{
+					operationToRunWhenSearchComplete.accept(searchHandle);
+				}
+			}
+		};
+
+		Get.workExecutors().getExecutor().execute(r);
+		return searchHandle;
+	}
+	
+	private static boolean contains(int[] array, int item)
+	{
+		if (array == null) 
+		{
+			return false;
+		}
+			
+		for (int i : array)
+		{
+			if (i == item)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	
 	/**

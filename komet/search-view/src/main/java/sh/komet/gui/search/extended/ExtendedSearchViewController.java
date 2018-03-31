@@ -88,6 +88,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
@@ -141,9 +142,10 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 	@FXML private HBox searchInRefexHBox;
 	@FXML private VBox optionsContentVBox;
 	@FXML private HBox searchInDescriptionHBox;
+	@FXML private HBox searchInIdentifierHBox;
 	@FXML private ChoiceBox<SimpleDisplayConcept> descriptionTypeSelection;
 	@FXML private CheckBox treatAsString;
-	
+	@FXML private ChoiceBox<SimpleDisplayConcept> searchInIdentifiers;	
 	@FXML private ToolBar toolBar;
 	@FXML private Label statusLabel;
 
@@ -154,7 +156,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 	private Tooltip searchTextTooltip = new Tooltip();
 	private Integer currentlyEnteredAssemblageNid = null;
 	private FlowPane searchInColumnsHolder = new FlowPane();
-	private enum SearchInOptions {Descriptions, Semantics};
+	private enum SearchInOptions {Descriptions, Identifiers, Semantics};
 	private SimpleBooleanProperty displayIndexConfigMenu_ = new SimpleBooleanProperty(false);
 	private Manifold manifold;
 
@@ -192,6 +194,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 		borderPane.getStylesheets().add(ExtendedSearchViewController.class.getResource("/styles/extendedSearch.css").toString());
 		
 		searchIn.getItems().add(SearchInOptions.Descriptions);
+		searchIn.getItems().add(SearchInOptions.Identifiers);
 		searchIn.getItems().add(SearchInOptions.Semantics);
 
 		searchIn.getSelectionModel().select(0);
@@ -202,7 +205,9 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 		searchText.setTooltip(searchTextTooltip);
 		
 		optionsContentVBox.getChildren().remove(searchInRefexHBox);
+		optionsContentVBox.getChildren().remove(searchInIdentifierHBox);
 		optionsContentVBox.getChildren().remove(treatAsString);
+		
 		
 		searchIn.valueProperty().addListener((change) ->
 		{
@@ -213,8 +218,17 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 				optionsContentVBox.getChildren().remove(searchInRefexHBox);
 				optionsContentVBox.getChildren().remove(searchInColumnsHolder);
 				optionsContentVBox.getChildren().remove(treatAsString);
+				optionsContentVBox.getChildren().remove(searchInIdentifierHBox);
 				optionsContentVBox.getChildren().add(searchInDescriptionHBox);
 				searchInSemantics.clear();  //make sure an invalid state here doesn't prevent the search, when the field is hidden.
+			}
+			else if (searchIn.getSelectionModel().getSelectedItem() == SearchInOptions.Identifiers)
+			{
+				optionsContentVBox.getChildren().remove(searchInRefexHBox);
+				optionsContentVBox.getChildren().remove(searchInColumnsHolder);
+				optionsContentVBox.getChildren().remove(treatAsString);
+				optionsContentVBox.getChildren().remove(searchInDescriptionHBox);
+				optionsContentVBox.getChildren().add(searchInIdentifierHBox);
 			}
 			else if (searchIn.getSelectionModel().getSelectedItem() == SearchInOptions.Semantics)
 			{
@@ -222,18 +236,15 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 						+ "are indexed as string values.  For numeric values, mathematical interval syntax is supported - such as [4,6] or (-5,10]."
 						+ "  You may also search for 1 or more UUIDs and/or NIDs.");
 				optionsContentVBox.getChildren().remove(searchInDescriptionHBox);
-				if (!optionsContentVBox.getChildren().contains(treatAsString))
-				{
-					optionsContentVBox.getChildren().add(treatAsString);
-				}
+				optionsContentVBox.getChildren().remove(searchInIdentifierHBox);
+				optionsContentVBox.getChildren().add(treatAsString);
+				
 				if (!searchInRefexHBox.getChildren().contains(searchInSemantics.getNode()))
 				{
 					searchInRefexHBox.getChildren().add(searchInSemantics.getNode());
 				}
-				if (!optionsContentVBox.getChildren().contains(searchInRefexHBox))
-				{
-					optionsContentVBox.getChildren().add(searchInRefexHBox);
-				}
+				optionsContentVBox.getChildren().add(searchInRefexHBox);
+				
 				if (searchInColumnsHolder.getChildren().size() > 0)
 				{
 					optionsContentVBox.getChildren().add(searchInColumnsHolder);
@@ -244,6 +255,52 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 				throw new RuntimeException("oops");
 			}
 		});
+		
+		searchInIdentifiers.getItems().add(new SimpleDisplayConcept("Any", Integer.MIN_VALUE));
+		searchInIdentifiers.getItems().add(new SimpleDisplayConcept("Nid", MetaData.NID____SOLOR.getNid()));
+		for (ConceptChronology cc : Frills.getIdentifierAssemblages())
+		{
+			searchInIdentifiers.getItems().add(new SimpleDisplayConcept(cc.getNid()));
+		}
+		
+		searchInIdentifiers.getItems().sort(new Comparator<SimpleDisplayConcept>()
+		{
+			@Override
+			public int compare(SimpleDisplayConcept o1, SimpleDisplayConcept o2)
+			{
+				if (o1.getNid() == Integer.MIN_VALUE)
+				{
+					return -1;
+				}
+				else if (o2.getNid() == Integer.MIN_VALUE)
+				{
+					return 1;
+				}
+				
+				else if (o1.getNid() == MetaData.UUID____SOLOR.getNid())
+				{
+					return -1;
+				}
+				else if (o2.getNid() == MetaData.UUID____SOLOR.getNid())
+				{
+					return 1;
+				}
+				
+				else if (o1.getNid() == MetaData.NID____SOLOR.getNid())
+				{
+					return -1;
+				}
+				else if (o2.getNid() == MetaData.NID____SOLOR.getNid())
+				{
+					return 1;
+				}
+				else
+				{
+					return o1.getDescription().compareTo(o2.getDescription());
+				}
+			}});
+		
+		searchInIdentifiers.getSelectionModel().clearAndSelect(0);
 		
 		searchInSemantics = new ConceptNode(null, false, dynamicRefexList_, null, () -> {return manifold;}, false);
 		searchInSemantics.getConceptProperty().addListener(new InvalidationListener()
@@ -663,7 +720,6 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 	@Override
 	public void taskComplete(SearchHandle sh, long taskStartTime, Integer taskId)
 	{
-		System.out.println("task complete");
 		// Run on JavaFX thread.
 		Platform.runLater(() -> 
 		{
@@ -797,7 +853,18 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 							extendedDescriptionTypeRestriction, 1, searchLimit.getValue(), null);
 				}, 
 				((searchHandle) -> {taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());}),
-				null, null, true, manifold.getManifoldCoordinate(), false);
+				null, null, true, manifold.getManifoldCoordinate(), true);
+			}
+			else if (searchIn.getValue() == SearchInOptions.Identifiers)
+			{
+				LOG.debug("Doing an identifier search");
+				String searchString = searchText.getText().trim();
+
+				ssh = SearchHandler.searchIdentifiers(searchString, 
+						searchInIdentifiers.getSelectionModel().getSelectedItem().getNid() == Integer.MIN_VALUE ? null 
+								: new int[] {searchInIdentifiers.getSelectionModel().getSelectedItem().getNid()}, 
+								((searchHandle) -> {taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());}),
+						null, null, true, manifold.getManifoldCoordinate(), true, searchLimit.getValue());
 			}
 			else if (searchIn.getValue() == SearchInOptions.Semantics)
 			{
@@ -813,7 +880,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 										getSearchColumns(), null, 1, searchLimit.getValue(), null);
 					}, 
 					((searchHandle) -> {taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());}),
-					null, null, true, manifold.getManifoldCoordinate(), false);
+					null, null, true, manifold.getManifoldCoordinate(), true);
 				}
 				else if (Interval.isInterval(searchString) && !treatAsString.isSelected())
 				{
@@ -828,7 +895,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 								getSearchColumns(), null, null, 1, searchLimit.getValue(), null);
 					}, 
 					((searchHandle) -> {taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());}),
-					null, null, true, manifold.getManifoldCoordinate(), false);
+					null, null, true, manifold.getManifoldCoordinate(), true);
 					
 				}
 				else
@@ -842,7 +909,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 										getSearchColumns(), null, 1, searchLimit.getValue(), null);
 					}, 
 					((searchHandle) -> {taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());}),
-					null, null, true, manifold.getManifoldCoordinate(), false);
+					null, null, true, manifold.getManifoldCoordinate(), true);
 				}
 			}
 			else
