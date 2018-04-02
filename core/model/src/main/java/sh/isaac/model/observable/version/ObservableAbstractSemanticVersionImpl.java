@@ -40,11 +40,13 @@ package sh.isaac.model.observable.version;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -74,7 +76,7 @@ public abstract class ObservableAbstractSemanticVersionImpl
     /**
      * The referenced component nid property.
      */
-    ReadOnlyIntegerProperty referencedComponentNidProperty;
+    IntegerProperty referencedComponentNidProperty;
 
     /**
      * Minimal arg constructor, for making an observable uncoupled for
@@ -92,7 +94,7 @@ public abstract class ObservableAbstractSemanticVersionImpl
         this.referencedComponentUuidProperty = new SimpleObjectProperty(
                 this,
                 ObservableFields.REFERENCED_COMPONENT_UUID_FOR_SEMANTIC.toExternalString(),
-                primordialUuid);
+                referencedComponentUuid);
     }
 
     /**
@@ -113,9 +115,9 @@ public abstract class ObservableAbstractSemanticVersionImpl
                         ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
                         versionToClone.getAssemblageNid());
         this.referencedComponentNidProperty
-                = ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+                = new CommitAwareIntegerProperty(this,
                         ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
-                        versionToClone.getReferencedComponentNid()));
+                        versionToClone.getReferencedComponentNid());
         this.setStatus(versionToClone.getStatus());
     }
 
@@ -127,10 +129,18 @@ public abstract class ObservableAbstractSemanticVersionImpl
     @Override
     public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
         if (this.referencedComponentNidProperty == null) {
-            this.referencedComponentNidProperty
-                    = ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+            if (this.referencedComponentUuidProperty != null) {
+                this.referencedComponentNidProperty
+                    = new CommitAwareIntegerProperty(this,
                             ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
-                            getReferencedComponentNid()));
+                            Get.identifierService().assignNid(this.referencedComponentUuidProperty.get()));
+                
+            } else {
+            this.referencedComponentNidProperty
+                    = new CommitAwareIntegerProperty(this,
+                            ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                            getReferencedComponentNid());
+            }
         }
         return this.referencedComponentNidProperty;
     }
@@ -179,19 +189,35 @@ public abstract class ObservableAbstractSemanticVersionImpl
         if (this.stampedVersionProperty != null) {
             return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
         }
+        
         if (this.referencedComponentNidProperty != null) {
-            return referencedComponentNidProperty().get();
+            return this.referencedComponentNidProperty.get();
         }
+        
+        if (this.referencedComponentUuidProperty != null) {
+            int nid = Get.identifierService().assignNid(referencedComponentUuidProperty.get());
+            return nid;
+        }
+        
         return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
     }
 
     @Override
     public Chronology createIndependentChronicle() {
+        if (this.referencedComponentUuidProperty != null) {
+            this.referencedComponentNidProperty.set(
+             Get.identifierService().assignNid(this.referencedComponentUuidProperty.get()));
+        }
+        
+        int referencedComponentNid = this.getReferencedComponentNid();
+        if (referencedComponentNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {           
+            throw new IllegalStateException("Referenced component not properly initialized.");
+        }
         SemanticChronologyImpl independentChronology
                 = new SemanticChronologyImpl(
                         this.getSemanticType(),
                         this.getPrimordialUuid(), this.getAssemblageNid(),
-                        this.getReferencedComponentNid());
+                        referencedComponentNid);
         boolean added = false;
         if (this.getChronology() != null) {
             for (Version v : this.getChronology().getVersionList()) {

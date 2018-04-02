@@ -16,9 +16,6 @@
  */
 package sh.komet.gui.provider.concept.builder;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,17 +31,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -52,6 +44,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
@@ -138,6 +131,7 @@ public class ConceptBuilderNode implements DetailNode {
         final ParallelTransition parallelTransition = new ParallelTransition();
 
         this.conceptVersion = new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT____SOLOR.getNid());
+        this.conceptVersion.setStatus(Status.ACTIVE);
         ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
 
@@ -146,21 +140,28 @@ public class ConceptBuilderNode implements DetailNode {
         parallelTransition.getChildren()
                 .add(addNode(descriptionHeader));
         this.fqnDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        fqnDescriptionDialect.getDescription().setText(textField.getText());
-        fqnDescriptionDialect.getDescription().textProperty().bindBidirectional(textField.textProperty());
+        this.fqnDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        this.fqnDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        this.fqnDescriptionDialect.getDescription().setText(textField.getText());
+        this.fqnDescriptionDialect.getDescription().textProperty().bindBidirectional(textField.textProperty());
+        this.fqnDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
 
         ConceptBuilderComponentPanel fqnPanel = new ConceptBuilderComponentPanel(manifold, fqnDescriptionDialect);
         parallelTransition.getChildren()
                 .add(addComponent(fqnPanel));
 
         this.namDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        namDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        this.namDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        this.namDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        this.namDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
         ConceptBuilderComponentPanel synPanel = new ConceptBuilderComponentPanel(manifold, namDescriptionDialect);
         parallelTransition.getChildren()
                 .add(addComponent(synPanel));
 
         this.defDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
+        this.defDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        this.defDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        this.defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
         ConceptBuilderComponentPanel defPanel = new ConceptBuilderComponentPanel(manifold, defDescriptionDialect);
         parallelTransition.getChildren()
                 .add(addComponent(defPanel));
@@ -171,7 +172,8 @@ public class ConceptBuilderNode implements DetailNode {
                 .add(addNode(definitionHeader));
 
         this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, manifold.getLogicCoordinate().getStatedAssemblageNid());
-        statedDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
+        this.statedDefinition.setStatus(Status.ACTIVE);
+        this.statedDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
         ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition);
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));

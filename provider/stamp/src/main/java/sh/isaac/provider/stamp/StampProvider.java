@@ -735,6 +735,9 @@ public class StampProvider
     */
    @Override
    public int getStampSequence(Status status, long time, int authorSequence, int moduleSequence, int pathSequence) {
+       if (status == Status.PRIMORDIAL) {
+           throw new UnsupportedOperationException(status + " is not an assignable value.");
+       }
       final Stamp stampKey = new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
 
       if (time == Long.MAX_VALUE) {
