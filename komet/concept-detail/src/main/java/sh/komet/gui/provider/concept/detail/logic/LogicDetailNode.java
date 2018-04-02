@@ -71,7 +71,7 @@ public class LogicDetailNode
     private LogicalExpression editInFlight;
 
     //~--- constructors --------------------------------------------------------
-    public LogicDetailNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
+    public LogicDetailNode(Manifold conceptDetailManifold) {
         this.conceptDetailManifold = conceptDetailManifold;
         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
         conceptDetailManifold.focusedConceptProperty()
@@ -80,10 +80,6 @@ public class LogicDetailNode
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         getLogicDetail();
-        if (nodeConsumer != null) {
-            nodeConsumer.accept(conceptDetailPane);
-        }
-
     }
 
     private void setConceptListener(ObservableValue<? extends ConceptSpecification> observable,
@@ -278,4 +274,11 @@ Root[0]➞[41]
         return conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
 
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public Node getNode() {
+        return conceptDetailPane;
+    }
 }

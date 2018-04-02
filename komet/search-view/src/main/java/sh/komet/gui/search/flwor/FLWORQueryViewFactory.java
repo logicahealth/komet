@@ -17,17 +17,16 @@
 package sh.komet.gui.search.flwor;
 
 import java.io.IOException;
-import java.util.function.Consumer;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
@@ -39,13 +38,12 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLWOR Query";
    @Override
-   public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+   public ExplorationNode createNode(Manifold manifold) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/FLOWRQuery.fxml"));
          loader.load();
          FLWORQueryController flworQueryController = loader.getController();
          flworQueryController.setManifold(manifold);
-         nodeConsumer.accept(flworQueryController.getNode());
          return flworQueryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
@@ -62,4 +60,19 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
       return Iconography.FLWOR_SEARCH.getIconographic();
    }
    
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.FLWOR};
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return null;
+   }
 }

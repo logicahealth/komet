@@ -16,17 +16,16 @@
  */
 package sh.komet.gui.provider.concept.builder;
 
-import java.util.EnumSet;
-import java.util.function.Consumer;
-import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import javafx.scene.Node;
 import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
@@ -37,16 +36,13 @@ import sh.komet.gui.manifold.Manifold;
 public class ConceptBuilderProviderFactory implements DetailNodeFactory {
 
     @Override
-    public EnumSet<DetailType> getSupportedTypes() {
-        return EnumSet.of(DetailType.Builder);
+    public DetailType getSupportedType() {
+        return DetailType.Builder;
     }
 
     @Override
-    public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
-      if (type != DetailType.Builder && type != DetailType.Concept) {
-         throw new UnsupportedOperationException("ak Can't handle: " + type); 
-      }
-      return new ConceptBuilderNode(manifold, nodeConsumer);
+    public DetailNode createNode(Manifold manifold) {
+      return new ConceptBuilderNode(manifold);
     }
 
     @Override
@@ -58,5 +54,20 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
     public Node getMenuIcon() {
         return Iconography.NEW_CONCEPT.getIconographic();
     }
-    
+
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public ManifoldGroup[] getDefaultManifoldGroups() {
+        return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+    }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return PanelPlacement.CENTER;
+   }
 }

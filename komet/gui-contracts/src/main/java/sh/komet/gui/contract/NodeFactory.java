@@ -16,14 +16,31 @@
  */
 package sh.komet.gui.contract;
 
+import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.Node;
+import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
  * Common methods for node factories
  * @author kec
+ * @param <T> The type of node this factory will create.  
  */
-public interface NodeFactory {
+@Contract
+public interface NodeFactory<T extends ExplorationNode> {
+   
+   public enum PanelPlacement{LEFT, CENTER, RIGHT};
+   
+   /**
+    * Create the node
+    * @param manifold the manifold that determines the current coordinates and focus. 
+    * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()} 
+    * to get the appropriate node, when ready to add it to the scenegraph.
+    */
+   T createNode(Manifold manifold);
+   
    /**
     * 
     * @return text to display in a menu that invokes this factory
@@ -42,4 +59,21 @@ public interface NodeFactory {
    default boolean isEnabled() {
       return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
    }
+   
+   /**
+    * The initial manifold group(s) this view should be linked to.
+    * returning more than one manifold group will be seen as a request
+    * to create multiple copies of this node on system startup.
+    * 
+    * The first item in this array is used as the desired manifold group when the node is requested via a menu.
+    * 
+    * @return the desired manifold group
+    */
+   ManifoldGroup[] getDefaultManifoldGroups();
+   
+   /**
+    * On system start, place this node in the specified place, or, return null, to not have this node created / setup on system start.
+    * @return the desired placement
+    */
+   PanelPlacement getPanelPlacement();
 }

@@ -16,17 +16,16 @@
  */
 package sh.komet.gui.provider.concept.detail.logic;
 
-import java.util.EnumSet;
-import java.util.function.Consumer;
-import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import javafx.scene.Node;
 import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
@@ -37,16 +36,13 @@ import sh.komet.gui.manifold.Manifold;
 public class LogicDetailProviderFactory implements DetailNodeFactory {
 
    @Override
-   public EnumSet<DetailType> getSupportedTypes() {
-      return EnumSet.of(DetailType.Concept);
+   public DetailType getSupportedType() {
+      return DetailType.Concept;
    }
 
    @Override
-   public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
-      if (type != DetailType.Concept) {
-         throw new UnsupportedOperationException("ak Can't handle: " + type); 
-      }
-      return new LogicDetailNode(manifold, nodeConsumer);
+   public DetailNode createNode(Manifold manifold) {
+      return new LogicDetailNode(manifold);
    }
    @Override
    public String getMenuText() {
@@ -57,5 +53,20 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
    public Node getMenuIcon() {
       return Iconography.LAMBDA.getIconographic();
    }
-   
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return null;
+   }
 }

@@ -64,6 +64,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -200,7 +201,9 @@ public class AssemblageViewerController
 			if (sdc != null)
 			{
 				SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-				driv.setAssemblage(sdc.getNid(), manifold_, null, null, null, true);
+				Manifold mf = manifold_.deepClone();
+				mf.setFocusedConceptChronology(Get.concept(sdc.getNid()));
+				driv.setAssemblage(sdc.getNid(), mf, null, null, null, true);
 				driv.showView(null);
 			}
 		});
@@ -249,7 +252,9 @@ public class AssemblageViewerController
 		viewUsage.setDisable(true);
 		viewUsage.setOnAction((event) -> {
 			SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), manifold_, null, null, null, true);
+			Manifold mf = manifold_.deepClone();
+			mf.setFocusedConceptChronology(Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid()));
+			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), mf, null, null, null, true);
 			driv.showView(null);
 		});
 		extensionFields.setCellFactory(new Callback<ListView<DynamicColumnInfo>, ListCell<DynamicColumnInfo>>()

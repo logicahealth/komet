@@ -1,11 +1,11 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
  * 
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
@@ -38,29 +38,20 @@ package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Consumer;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.Window;
-import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -70,46 +61,17 @@ import sh.komet.gui.util.FxGet;
  */
 @Service
 @PerLookup
-public class AssemblageViewer implements ExplorationNodeFactory 
+public class AssemblageViewer implements ExplorationNodeFactory
 {
 	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
-	
+
 	private AssemblageViewerController drlvc_;
 	private Manifold manifold_;
-	
+
 	private AssemblageViewer()
 	{
 		// created by HK2
 		LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
-	}
-	
-	public void showView(Window parent)
-	{
-		Stage stage = new Stage(StageStyle.DECORATED);
-		stage.initModality(Modality.NONE);
-		stage.initOwner(parent);
-		
-		BorderPane root = new BorderPane();
-		
-		Label title = new Label("Assemblage Viewer");
-		title.getStyleClass().add("titleLabel");
-		title.setAlignment(Pos.CENTER);
-		title.setMaxWidth(Double.MAX_VALUE);
-		title.setPadding(new Insets(5, 5, 5, 5));
-		root.setTop(title);
-		root.setCenter(getView());
-		
-		Scene scene = new Scene(root);
-		stage.setScene(scene);
-		stage.setTitle("Assemblage Viewer");
-		stage.getScene().getStylesheets().add(SemanticViewer.class.getResource("/css/isaac-shared-styles.css").toString());
-		stage.setWidth(800);
-		stage.setHeight(600);
-		stage.onHiddenProperty().set((eventHandler) ->
-		{
-			stage.setScene(null);
-		});
-		stage.show();
 	}
 
 	public Region getView()
@@ -131,7 +93,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		return drlvc_.getRoot();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -140,7 +102,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		return "Dynamic Assemblage Definitions";
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -149,15 +111,32 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		return Iconography.PAPERCLIP.getIconographic();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer)
+	public PanelPlacement getPanelPlacement()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ManifoldGroup[] getDefaultManifoldGroups()
+	{
+		return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExplorationNode createNode(Manifold manifold)
 	{
 		manifold_ = manifold;
-		nodeConsumer.accept(getView());
-		
+
 		return new ExplorationNode()
 		{
 			@Override
@@ -165,25 +144,25 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			{
 				return new SimpleStringProperty("Shows all of the Dynamic Semantics in the system");
 			}
-			
+
 			@Override
 			public Optional<Node> getTitleNode()
 			{
 				return Optional.empty();
 			}
-			
+
 			@Override
 			public ReadOnlyProperty<String> getTitle()
 			{
 				return new SimpleStringProperty(getMenuText());
 			}
-			
+
 			@Override
 			public Node getNode()
 			{
 				return getView();
 			}
-			
+
 			@Override
 			public Manifold getManifold()
 			{

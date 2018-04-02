@@ -81,6 +81,7 @@ import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.docbook.DocBook;
@@ -117,6 +118,9 @@ public class ManifoldLinkedConceptLabel
                         ConceptSpecification newValue) -> {
                     this.descriptionTextUpdater.accept(this);
                 });
+        if (this.manifold.getFocusedConcept().isPresent()) {
+           this.descriptionTextUpdater.accept(this);
+        }
         this.getStyleClass().add(CONCEPT_LABEL.toString());
         this.setOnDragOver(this::handleDragOver);
         this.setOnDragEntered(this::handleDragEntered);
@@ -241,9 +245,9 @@ public class ManifoldLinkedConceptLabel
     private void unlink() {
         if (!this.manifold
                 .getGroupName()
-                .equals(Manifold.UNLINKED_GROUP_NAME)) {
+                .equals(ManifoldGroup.UNLINKED.getGroupName())) {
             this.manifold
-                    .setGroupName(Manifold.UNLINKED_GROUP_NAME);
+                    .setGroupName(ManifoldGroup.UNLINKED.getGroupName());
         }
     }
 

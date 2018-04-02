@@ -42,6 +42,7 @@ import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 
 /**
@@ -65,7 +66,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
          this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
          this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this, Optional.empty());
          this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
-         manifold.setGroupName(Manifold.UNLINKED_GROUP_NAME);
+         manifold.setGroupName(ManifoldGroup.UNLINKED.getGroupName());
 
          FXMLLoader loader = new FXMLLoader(
                  getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));

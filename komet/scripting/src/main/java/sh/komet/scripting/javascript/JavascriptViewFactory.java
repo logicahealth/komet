@@ -16,15 +16,15 @@
  */
 package sh.komet.scripting.javascript;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import javafx.scene.Node;
 import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
@@ -35,9 +35,8 @@ import sh.komet.gui.manifold.Manifold;
 public class JavascriptViewFactory implements ExplorationNodeFactory {
 
     @Override
-    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+    public ExplorationNode createNode(Manifold manifold) {
       JavascriptViewProvider javascriptViewProvider = new JavascriptViewProvider(manifold);
-      nodeConsumer.accept(javascriptViewProvider.getNode());
       return javascriptViewProvider;
     }
 
@@ -50,5 +49,19 @@ public class JavascriptViewFactory implements ExplorationNodeFactory {
     public Node getMenuIcon() {
         return Iconography.JAVASCRIPT.getIconographic();
     }
-    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PanelPlacement getPanelPlacement() {
+       return null;
+    }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   }
 }

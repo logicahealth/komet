@@ -78,6 +78,7 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -217,7 +218,7 @@ public class MainApp
         stage.setOnCloseRequest(this::handleShutdown);
 
         // ScenicView.show(scene);
-        Manifold statementManifold = Manifold.make(Manifold.CLINICAL_STATEMENT_GROUP_NAME);
+        Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
