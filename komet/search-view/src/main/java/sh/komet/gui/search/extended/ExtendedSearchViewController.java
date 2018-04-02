@@ -75,6 +75,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -519,21 +521,20 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 							setGraphic(box);
 
 							// Also show concept details on double-click.
-							//TODO figure out how to focus tie to gui
-//							setOnMouseClicked(new EventHandler<MouseEvent>()
-//							{
-//								@Override
-//								public void handle(MouseEvent mouseEvent)
-//								{
-//									if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
-//									{
-//										if (mouseEvent.getClickCount() == 2 && cc.isPresent())
-//										{
-//											AppContext.getCommonDialogs().showConceptDialog(cc.get().getPrimordialUuid());
-//										}
-//									}
-//								}
-//							});
+							setOnMouseClicked(new EventHandler<MouseEvent>()
+							{
+								@Override
+								public void handle(MouseEvent mouseEvent)
+								{
+									if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
+									{
+										if (mouseEvent.getClickCount() == 2)
+										{
+											 manifold.setFocusedConceptChronology(item.getContainingConcept());
+										}
+									}
+								}
+							});
 
 							//TODO port menus?
 //							ContextMenu cm = new ContextMenu();
