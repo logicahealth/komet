@@ -16,10 +16,9 @@
  */
 package sh.komet.scripting.groovy;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
-import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -31,7 +30,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  * @author kec
  */
 @Service(name = "Groovy View Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 public class GroovyViewFactory implements ExplorationNodeFactory {
 
     @Override

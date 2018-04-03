@@ -17,11 +17,10 @@
 package sh.komet.gui.search.flwor;
 
 import java.io.IOException;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -33,7 +32,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  * @author kec
  */
 @Service(name = "FLWOR Search Provider")
-@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
+@Singleton
 public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLWOR Query";

@@ -16,10 +16,9 @@
  */
 package sh.komet.gui.provider.concept.detail.logic;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
-import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -32,7 +31,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  * @author kec
  */
 @Service(name = "Logic Detail Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 public class LogicDetailProviderFactory implements DetailNodeFactory {
 
    @Override

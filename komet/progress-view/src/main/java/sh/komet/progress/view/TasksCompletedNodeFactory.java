@@ -16,10 +16,9 @@
  */
 package sh.komet.progress.view;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
-import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -35,7 +34,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  * @author kec
  */
 @Service(name = "Completed task panel factory")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 public class TasksCompletedNodeFactory 
          implements ExplorationNodeFactory {
    
