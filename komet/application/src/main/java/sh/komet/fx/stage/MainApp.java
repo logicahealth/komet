@@ -206,6 +206,8 @@ public class MainApp
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
         // GraphController.setSceneForControllers(scene);
         scene.getStylesheets()
