@@ -280,7 +280,8 @@ public class DescriptionIndexer extends LuceneIndexer
          {
             for (UUID uuid : Get.identifierService().getUuidsForNid(i))
             {
-               innerQueryBuilder.add(new TermQuery(new Term(FIELD_INDEXED_EXTENDED_DESCRIPTION_TYPE_UUID, uuid.toString())), Occur.SHOULD);
+               innerQueryBuilder.add(new TermQuery(new Term(FIELD_INDEXED_EXTENDED_DESCRIPTION_TYPE_UUID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, uuid.toString())), 
+                     Occur.SHOULD);
             }
          }
          
