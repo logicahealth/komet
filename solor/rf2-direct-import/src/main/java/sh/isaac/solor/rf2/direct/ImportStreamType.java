@@ -50,6 +50,7 @@ import sh.isaac.api.chronicle.VersionType;
  * @author kec
  */
 public enum ImportStreamType {
+   //Dan notes, the import sort order is controlled by this enum order. 
    CONCEPT,
    DESCRIPTION,
    DIALECT,
