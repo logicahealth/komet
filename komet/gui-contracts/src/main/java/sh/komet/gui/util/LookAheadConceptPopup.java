@@ -384,9 +384,10 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		if (!stylesAdded)
 		{
-			if (!sourceTextField.getScene().getStylesheets().contains("/css/look-ahead-styles.css"))
+			String stylesPath = this.getClass().getResource("/styles/look-ahead-styles.css").toString();
+			if (!sourceTextField.getScene().getStylesheets().contains(stylesPath))
 			{
-				sourceTextField.getScene().getStylesheets().add("/css/look-ahead-styles.css");
+				sourceTextField.getScene().getStylesheets().add(stylesPath);
 			}
 		}
 		stylesAdded = true;

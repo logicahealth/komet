@@ -211,7 +211,6 @@ public class DynamicSemanticDataColumnListCell extends ListCell<DynamicColumnInf
 		//Hack - wrapped labels don't seem to fire their height property changes at the right time - leaving the surrounding Pane node too small.
 		//this seems to help...
 		Platform.runLater(() -> p.autosize());
-		p.getStyleClass().add(((rowNumber % 2 == 0) ? "evenGridRow" : "oddGridRow"));
 		return p;
 	}
 

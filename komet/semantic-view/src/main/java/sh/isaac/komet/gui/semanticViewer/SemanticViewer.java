@@ -249,6 +249,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			ttv_.setPlaceholder(placeholderText_);
 			
 			rootNode_ = new VBox();
+			rootNode_.getStylesheets().add(SemanticViewer.class.getResource("/css/semantic-view.css").toString());
 			rootNode_.setFillWidth(true);
 			
 			clt = ConceptLabelToolbar.make(manifoldConcept_, this, ((viewFocus_ == null || viewFocus_ == ViewFocus.REFERENCED_COMPONENT) ?
@@ -671,7 +672,6 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setTitle("Semantic View");
-		stage.getScene().getStylesheets().add(SemanticViewer.class.getResource("/css/isaac-shared-styles.css").toString());
 		stage.getScene().getStylesheets().add(Iconography.getStyleSheetStringUrl());
 		stage.getScene().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
 		stage.setWidth(800);

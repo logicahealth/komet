@@ -90,14 +90,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
@@ -467,36 +469,78 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 							String conceptText = item.getContainingConceptText();
 
 							HBox hb = new HBox();
-							Label concept = new Label("Referenced Concept");
-							concept.getStyleClass().add("boldLabel");
-							hb.getChildren().add(concept);
-							hb.getChildren().add(new Label("  " + conceptText));
 							
-							box.getChildren().add(hb);
-						
-							List<String> strings = item.getMatchingStrings();
-							List<Version> versions = item.getMatchingComponentVersions();
-							
-							for (int i = 0; i < strings.size(); i++)
+							if (item.getContainingConcept().getNid() == item.getMatchingComponents().iterator().next().getNid())
 							{
-								if (versions.get(i).getChronology().getIsaacObjectType() == IsaacObjectType.SEMANTIC)
+								//matching item was a concept, which means this was a nid or UUID lookup.
+								Label concept = new Label("Concept");
+								concept.getStyleClass().add("boldLabel");
+								hb.getChildren().add(concept);
+								hb.getChildren().add(new Label("  " + conceptText));
+								
+								box.getChildren().add(hb);
+							}
+							else 
+							{
+								//A semantic of sorts
+								Label concept = new Label("Referenced Concept");
+								concept.getStyleClass().add("boldLabel");
+								hb.getChildren().add(concept);
+								hb.getChildren().add(new Label("  " + conceptText));
+								
+								box.getChildren().add(hb);
+								
+								List<String> strings = item.getMatchingStrings();
+								List<Version> versions = item.getMatchingComponentVersions();
+								
+								for (int i = 0; i < versions.size(); i++)
 								{
-									HBox assemblageConBox = new HBox();
-									Label assemblageCon = new Label("Assemblage Concept");
-									assemblageCon.getStyleClass().add("boldLabel");
-									HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
-									assemblageConBox.getChildren().add(assemblageCon);
-									assemblageConBox.getChildren().add(new Label("  " + Get.conceptDescriptionText(versions.get(i).getAssemblageNid())));
-									box.getChildren().add(assemblageConBox);
+									if (versions.get(i).getSemanticType() == VersionType.DESCRIPTION)
+									{
+										HBox descriptionBox = new HBox();
+										Label description = new Label(((DescriptionVersion)versions.get(i)).getDescriptionType());
+										HBox.setMargin(description, new Insets(0.0, 0.0, 0.0, 10.0));
+										description.getStyleClass().add("boldLabel");
+										descriptionBox.getChildren().add(description);
+										descriptionBox.getChildren().add(new Label("  " + strings.get(i)));
+										
+										box.getChildren().add(descriptionBox);
+									}
+									else 
+									{
+										HBox assemblageConBox = new HBox();
+										Label assemblageCon = new Label("Assemblage:");
+										assemblageCon.getStyleClass().add("boldLabel");
+										HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
+										assemblageConBox.getChildren().add(assemblageCon);
+										assemblageConBox.getChildren().add(new Label("  " + Get.conceptDescriptionText(versions.get(i).getAssemblageNid())));
+										box.getChildren().add(assemblageConBox);
+										
+										Label attachedData = new Label("Data");
+										attachedData.getStyleClass().add("boldLabel");
+										VBox.setMargin(attachedData, new Insets(0.0, 0.0, 0.0, 10.0));
+										box.getChildren().add(attachedData);
+										
+										if (versions.get(i).getSemanticType() == VersionType.DYNAMIC)
+										{
+											DynamicVersion<?> dv = ((DynamicVersion<?>)versions.get(i));
+											DynamicUsageDescription dud = dv.getDynamicUsageDescription();
+											for (DynamicColumnInfo dci : dud.getColumnInfo())
+											{
+												DynamicData dd = dv.getData(dci.getColumnOrder());
+												Label l = new Label(dci.getColumnName() + ": " + (dd == null ? "" : dd.dataToString()));
+												VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
+												box.getChildren().add(l);
+											}
+										}
+										else
+										{
+											Label l = new Label(strings.get(i));
+											VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
+											box.getChildren().add(l);
+										}
+									}
 								}
-
-								Label attachedData = new Label("Attached Data");
-								attachedData.getStyleClass().add("boldLabel");
-								VBox.setMargin(attachedData, new Insets(0.0, 0.0, 0.0, 10.0));
-								box.getChildren().add(attachedData);
-								Label l = new Label(strings.get(i));
-								VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
-								box.getChildren().add(l);
 							}
 							
 							StringBuilder tooltip = new StringBuilder();
@@ -646,7 +690,9 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 					}
 				}
 				
-				if ((searchIn.getValue() == SearchInOptions.Semantics && searchText.getText().length() > 0) || searchText.getText().length() > 1)
+				if (((searchIn.getValue() == SearchInOptions.Identifiers || searchIn.getValue() == SearchInOptions.Semantics) 
+						&& searchText.getText().length() > 0) 
+					|| searchText.getText().length() > 1)
 				{
 					return true;
 				}

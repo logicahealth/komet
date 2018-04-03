@@ -90,6 +90,13 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			}
 
 		}
+		
+		String style = AssemblageViewer.class.getResource("/css/semantic-view.css").toString();
+		if (!drlvc_.getRoot().getStylesheets().contains(style))
+		{
+			drlvc_.getRoot().getStylesheets().add(style);
+		}
+		
 		return drlvc_.getRoot();
 	}
 

@@ -2,20 +2,29 @@
 	-fx-font-weight: bold;
 }
 
-.list-cell:even {
+.titleLabel {
+	-fx-font-weight: bold;
+	-fx-font-size: 16;
+}
+
+.historical {
+	-fx-opacity: .60;
+}
+
+.tree-table-row-cell:even {
 	-fx-background-color: #FFFFFF;
 }
 
-.list-cell:odd {
+.tree-table-row-cell:odd {
 	-fx-background-color: rgba(25, 25, 25, .1);
 }
 
 /* out of focus style */
-.list-cell:selected {
+.tree-table-row-cell:selected {
 	-fx-background-color:  -fx-faint-focus-color;
 }
 
 /*in focus style */
-.list-view:focused .list-cell:selected {
+.table-view:focused .tree-table-row-cell:selected {
 	-fx-background-color: -fx-focus-color;
 }
