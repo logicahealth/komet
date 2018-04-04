@@ -361,7 +361,7 @@ public class Rf2DirectImporter
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP));
         } else if (entryName.contains("sct2_statedrelationship_")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
-        } else if (entryName.contains("refset")) {
+        } else if (entryName.contains("refset_")) {
             if (importDynamic) {
                 entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
             }
