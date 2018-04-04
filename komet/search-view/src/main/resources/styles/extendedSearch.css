@@ -1,0 +1,21 @@
+.boldLabel {
+	-fx-font-weight: bold;
+}
+
+.list-cell:even {
+	-fx-background-color: #FFFFFF;
+}
+
+.list-cell:odd {
+	-fx-background-color: rgba(25, 25, 25, .1);
+}
+
+/* out of focus style */
+.list-cell:selected {
+	-fx-background-color:  -fx-faint-focus-color;
+}
+
+/*in focus style */
+.list-view:focused .list-cell:selected {
+	-fx-background-color: -fx-focus-color;
+}

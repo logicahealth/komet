@@ -156,7 +156,7 @@ public class ConceptDetailPanelNode
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailPanelNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
+    public ConceptDetailPanelNode(Manifold conceptDetailManifold) {
         this.conceptDetailManifold = conceptDetailManifold;
         historySwitch.setSelected(false);
         updateManifoldHistoryStates();
@@ -183,7 +183,6 @@ public class ConceptDetailPanelNode
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        nodeConsumer.accept(this.scrollPane);
         expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
 
@@ -196,6 +195,11 @@ public class ConceptDetailPanelNode
     @Override
     public void handleChange(ConceptChronology cc) {
         // ignore uncommitted changes...
+    }
+
+    @Override
+    public Node getNode() {
+        return this.scrollPane;
     }
 
     @Override

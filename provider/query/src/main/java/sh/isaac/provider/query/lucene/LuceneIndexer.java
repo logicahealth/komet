@@ -441,9 +441,10 @@ public abstract class LuceneIndexer
          }
 
          if (prefixSearch) {
-            booleanQueryBuilder.add(buildPrefixQuery(query, field, new PerFieldAnalyzer()), Occur.SHOULD);
-            booleanQueryBuilder.add(buildPrefixQuery(query, field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()),
-                   Occur.SHOULD);
+            BooleanQuery.Builder bqParts = new BooleanQuery.Builder();
+            bqParts.add(buildPrefixQuery(query, field, new PerFieldAnalyzer()), Occur.SHOULD);
+            bqParts.add(buildPrefixQuery(query, field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
+            booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
          } else {
             final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
 
@@ -667,7 +668,8 @@ public abstract class LuceneIndexer
     *           is no need to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in progress
     *           indexing operations are completed - and then use the latest index. Null behaves the same as Long.MIN_VALUE. See
     *           {@link IndexQueryService#getIndexedGenerationCallable(int)}
-
+    *           
+    * Implementation note - this actually returns a list of {@link ComponentSearchResult}
     * @return the list
     */
    protected final List<SearchResult> search(Query q,
@@ -685,6 +687,8 @@ public abstract class LuceneIndexer
     * 
     * This API variation is simply so a second object can be returned to the caller (via the lastDoc reference)
     * for special cases.  
+    * 
+    * Implementation note - this actually returns a list of {@link ComponentSearchResult}
     * 
     * @param lastDoc - the passed reference will be updated with the last ScoreDoc of the search.
     */

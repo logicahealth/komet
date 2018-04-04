@@ -16,32 +16,30 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
+import javafx.scene.Node;
 import sh.isaac.MetaData;
-import sh.isaac.api.LookupService;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
  * @author kec
  */
 @Service(name = "Multi-Parent Tree View Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 
 public class TreeViewExplorationNodeFactory 
         implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "Taxonomy";
 
    @Override
-   public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+   public ExplorationNode createNode(Manifold manifold) {
       MultiParentTreeView multiParentTreeView = new MultiParentTreeView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
-      nodeConsumer.accept(multiParentTreeView);
       return multiParentTreeView;
    }
 
@@ -58,5 +56,21 @@ public class TreeViewExplorationNodeFactory
    @Override
    public boolean isEnabled() {
       return true;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return PanelPlacement.LEFT;
    }
 }

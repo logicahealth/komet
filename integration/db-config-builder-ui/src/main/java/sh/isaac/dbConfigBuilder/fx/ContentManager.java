@@ -38,6 +38,7 @@ import javafx.stage.WindowEvent;
 import sh.isaac.api.LookupService;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
+import sh.isaac.komet.iconography.Iconography;
 
 /**
  * A GUI for uploading, creating / running content converters, and building databases for ISAAC.
@@ -87,6 +88,8 @@ public class ContentManager extends Application
 		});
 
 		cmc_.finishSetup(this);
+		primaryStage.getScene().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+		primaryStage.getScene().getStylesheets().add(ContentManager.class.getResource("/contentManager.css").toString());
 
 		primaryStage.show();
 		primaryStage_ = primaryStage;

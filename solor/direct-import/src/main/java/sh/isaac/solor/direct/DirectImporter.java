@@ -41,7 +41,6 @@ import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +51,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -63,14 +63,13 @@ import java.util.zip.ZipFile;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
 
@@ -100,6 +99,7 @@ public class DirectImporter
     protected final ImportType importType;
 
     protected final List<ContentProvider> entriesToImport;
+    private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
 
     //~--- constructors --------------------------------------------------------
     public DirectImporter(ImportType importType) {
@@ -1369,52 +1369,115 @@ public class DirectImporter
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
-        String[] headerRow = checkWatchTokensAndSplit(br.readLine(), importSpecification);
+        br.readLine();  //skip header row
+        //String[] headerRow = checkWatchTokensAndSplit(br.readLine(), importSpecification);
 
-        //Create concepts for each of the data columns
-        UUID[] columnDataConcepts = new UUID[importSpecification.refsetBrittleTypes.length];
-        EditCoordinate editCoord = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate();
-        boolean createdMetadata = false;
-        for (int i = 0; i < columnDataConcepts.length; i++) {
-            String name = headerRow[DynamicRefsetWriter.VARIABLE_FIELD_START + i];
-
-            //Some refsets share the same column names, so don't create duplicate column concepts.
-            if (createdColumnConcepts.get(name) == null) {
-                //TODO need to read real metadata to get the description... the edit coord on this should probably be the same as the one on the metadata.
-                ArrayList<Chronology> builtConceptParts = Get.service(DynamicUtility.class)
-                        .buildUncommittedNewDynamicSemanticColumnInfoConcept(name, null, editCoord, null);
-                createdMetadata = true;
-                createdColumnConcepts.put(name, builtConceptParts.get(0).getPrimordialUuid());
+        if (refsetColumnInfo == null) {
+            /*
+             * If things have been sorted properly, the first time this method is called, it will be with the
+             * "Reference set descriptor reference set (foundation metadata concept)" (900000000000456007)
+             * refset. We must process this file first, to know how to process the rest of the refsets.
+             * 
+             * the refset descriptor file shouldn't be too huge, so set a mark on the stream, allowing us to back
+             * it up and read it again, when we actually process it into the DB below.
+             * 
+             * (we can't process it on the fly below, because we need to read it first, to know how to process itself, as it is
+             * self describing...)
+             */
+            
+            LOG.info("Reading refset descriptors");
+            br.mark(100000);  //this should be big enough, if not, we should fail on reset
+            
+            /*
+             * columns we care about are 6, 7 and 8: attributeDescription attributeType attributeOrder
+             * attributeDescription is an SCTID column, which provides the concept to use as the column header concept
+             * attributeType is an sctid columns, which provides the datatype of the column
+             * 
+             * attributeOrder is an integer column, which is 0 indexed starting at the referencedComponent columns (example)
+             * 
+             * id  effectiveTime  active  moduleId  refsetId  referencedComponentId  attributeDescription  attributeType  attributeOrder
+             *                                                0                      1                     2              3
+             * 00  01             02      03        04        05                     06                    07             08
+             * 
+             * The DynamicRefsetWriter already has hard-coded logic to handle columns 00 thru 05, as these are present in every refset.
+             * So, we only care about 06 on, which is the {@link DynamicRefsetWriter#VARIABLE_FIELD_START} constant, which will match up
+             * with the '1' in the attribute order column....
+             */
+            if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+                throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!"); 
             }
-            columnDataConcepts[i] = createdColumnConcepts.get(name);
+            
+            /*
+             * Per the RF2 spec:
+             * Creation of Reference set descriptor data is mandatory when creating a new reference set in the International
+             * Release or in a National Extension .
+             * 
+             * TODO need to handle ancestor refset spec lookups....
+             * 
+             * Creation of a Reference set descriptor is optional when creating a reference set in another Extension. If a descriptor
+             * is not created, the descriptor of the closest ancestor of the reference set is used when validating reference set
+             * member records.
+             */
+            
+            //Configure a hashmap of refsetId -> ArrayList<DynamicColumnInfo>
+            refsetColumnInfo = new HashMap<>();
+            String rowString;
+            while ((rowString = br.readLine()) != null) {
+                String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+                String refsetId = columns[5].trim();  //we actually want the referencedComponentId, not the refsetId, because this is the refset that is being described.
+                int adjustedColumnNumber = Integer.parseInt(columns[8]) - 1;
+                UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
+                
+                ArrayList<DynamicColumnInfo> refsetColumns = refsetColumnInfo.get(refsetId);
+                if (refsetColumns == null) {
+                   refsetColumns = new ArrayList<>();
+                   refsetColumnInfo.put(refsetId, refsetColumns);
+                }
+                
+                if (adjustedColumnNumber < 0) {
+                    continue;  //We don't need this one, as it should always be referencedComponentId when processing the refset descriptor file
+                }
+                
+                //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
+                refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept, 
+                    DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true)); 
+            }
+            //At this point, we should have a hash, of how every single refset should be configured.  
+           //sort the column info and sanity check....
+           for (Entry<String, ArrayList<DynamicColumnInfo>> dci : refsetColumnInfo.entrySet()) {
+              Collections.sort(dci.getValue());
+              for (int i = 0; i < dci.getValue().size(); i++) {
+                 if (dci.getValue().get(i).getColumnOrder() != i) {
+                    throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
+                 }
+              }
+           }
+           br.reset();  //back the stream up, and actually process the refset now.
         }
-
-        if (createdMetadata) {
-            //Do a global commit to commit the metadata concepts created here, and just above
-            Get.commitService().commit(editCoord, "metadata commit for refset " + trimZipName(importSpecification.contentProvider.getStreamSourceName()));
-        }
-
-        //Define the column information for the refset(s) specified in this file (yes, their may be more than one, strangely)
-        DynamicColumnInfo[] dynamicColumns = new DynamicColumnInfo[importSpecification.refsetBrittleTypes.length];
-        for (int i = 0; i < importSpecification.refsetBrittleTypes.length; i++) {
-            //TODO is there column required / optional info in the RF2 spec?
-            dynamicColumns[i] = new DynamicColumnInfo(i, columnDataConcepts[i],
-                    importSpecification.refsetBrittleTypes[i].getDynamicColumnType(), null, false, true);
-        }
-
+        
+        //Process the refset file
         int dataCount = 0;
         String rowString;
         ArrayList<DynamicRefsetWriter> writers = new ArrayList<>();
         while ((rowString = br.readLine()) != null) {
             dataCount++;
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            if (dataCount == 1) {
+               //Another sanity check - the header-row length beyond column 5 should match the column definitions...
+               ArrayList<DynamicColumnInfo> dci = refsetColumnInfo.get(columns[DynamicRefsetWriter.ASSEMBLAGE_SCT_ID_INDEX]);
+               if (dci != null && dci.size() != columns.length - DynamicRefsetWriter.VARIABLE_FIELD_START) {
+                  throw new RuntimeException("Header information in " + importSpecification.contentProvider.getStreamSourceName() 
+                       + " does not match specification from the der2_ccirefset_refsetdescriptor file ");
+              }
+              //dci being null isn't always fatal, if the refset is an extension that adds to an existing refset, for example.
+           }
             columnsToWrite.add(columns);
 
             if (columnsToWrite.size() == writeSize) {
                 DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing dynamic semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, dynamicColumns, configuredDynamicSemantics);
+                        importSpecification, importType, refsetColumnInfo, configuredDynamicSemantics);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1428,7 +1491,7 @@ public class DirectImporter
             DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing dynamic semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, dynamicColumns, configuredDynamicSemantics);
+                    importSpecification, importType, refsetColumnInfo, configuredDynamicSemantics);
             Get.executor()
                     .submit(writer);
             writers.add(writer);

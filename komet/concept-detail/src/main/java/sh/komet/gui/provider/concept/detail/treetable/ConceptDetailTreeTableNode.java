@@ -41,26 +41,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
-
 import javafx.fxml.FXMLLoader;
-
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Status;
-
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
-
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
@@ -81,7 +75,7 @@ public class ConceptDetailTreeTableNode
    private final ConceptLabelToolbar conceptLabelToolbar;
 
    //~--- constructors --------------------------------------------------------
-   public ConceptDetailTreeTableNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
+   public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
       try {
          this.conceptDetailManifold = conceptDetailManifold;
          this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
@@ -108,9 +102,6 @@ public class ConceptDetailTreeTableNode
          this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
          conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
          conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
-         if (nodeConsumer != null) {
-            nodeConsumer.accept(conceptDetailPane);
-         }
 
          FXMLLoader loader = new FXMLLoader(
                  getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
@@ -133,6 +124,11 @@ public class ConceptDetailTreeTableNode
    }
 
    @Override
+   public Node getNode() {
+      return conceptDetailPane;
+   }
+
+@Override
    public Optional<Node> getTitleNode() {
       if (titleLabel == null) {
          this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);

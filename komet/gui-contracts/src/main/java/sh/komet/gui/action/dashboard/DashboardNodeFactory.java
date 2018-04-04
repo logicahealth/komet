@@ -16,30 +16,27 @@
  */
 package sh.komet.gui.action.dashboard;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.LookupService;
+import javafx.scene.Node;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
  * @author kec
  */
 @Service(name = "Dashboard View Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 public class DashboardNodeFactory 
         implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "System Dashboard";
 
     @Override
-    public DashboardView createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+    public DashboardView createNode(Manifold manifold) {
       DashboardView dashboard = new DashboardView(manifold);
-      nodeConsumer.accept(dashboard);
       return dashboard;
     }
 
@@ -53,4 +50,19 @@ public class DashboardNodeFactory
         return Iconography.DASHBOARD.getIconographic();
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PanelPlacement getPanelPlacement() {
+       return null;
+    }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   }
 }

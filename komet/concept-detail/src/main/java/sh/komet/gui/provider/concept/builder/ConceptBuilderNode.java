@@ -91,10 +91,9 @@ public class ConceptBuilderNode implements DetailNode {
     private ObservableDescriptionDialect defDescriptionDialect;
     private ObservableLogicGraphVersionImpl statedDefinition;
 
-    public ConceptBuilderNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+    public ConceptBuilderNode(Manifold manifold) {
         this.manifold = manifold;
         builderBorderPane.setTop(builderToolbar);
-        nodeConsumer.accept(builderBorderPane);
         newConceptButton.setOnAction(this::newConcept);
         commitButton.setOnAction(this::commit);
         cancelButton.setOnAction(this::cancel);
@@ -111,7 +110,6 @@ public class ConceptBuilderNode implements DetailNode {
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        nodeConsumer.accept(this.scrollPane);
     }
 
     private void newConcept(Event event) {
@@ -326,4 +324,11 @@ public class ConceptBuilderNode implements DetailNode {
         return manifold;
     }
 
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public Node getNode() {
+        return this.scrollPane;
+    }
 }

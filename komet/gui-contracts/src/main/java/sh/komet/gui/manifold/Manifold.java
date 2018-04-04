@@ -102,22 +102,30 @@ public class Manifold
          implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy,
                     ChangeListener<ConceptSpecification> {
    private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
-   public static final String                                      UNLINKED_GROUP_NAME       = "unlinked";
-   public static final String                                      SIMPLE_SEARCH_GROUP_NAME  = "search";
-   public static final String                                      TAXONOMY_GROUP_NAME       = "taxonomy";
-   public static final String                                      FLWOR_SEARCH_GROUP_NAME   = "flwor";
-   public static final String                                      CLINICAL_STATEMENT_GROUP_NAME   = "statement";
-   private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap();
-   private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap();
+
+   private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap<>();
+   private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap<>();
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
+   public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement");
+      private String groupName;
+      private ManifoldGroup(String name) {
+         this.groupName = name;
+      }
+      
+      public String getGroupName() {
+         return groupName;
+      }
+      
+   }
+   
    //~--- static initializers -------------------------------------------------
 
    static {
-      ICONOGRAPHIC_SUPPLIER.put(UNLINKED_GROUP_NAME, () -> new Label());
-      ICONOGRAPHIC_SUPPLIER.put(SIMPLE_SEARCH_GROUP_NAME, () -> Iconography.SIMPLE_SEARCH.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(TAXONOMY_GROUP_NAME, () -> Iconography.TAXONOMY_ICON.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(FLWOR_SEARCH_GROUP_NAME, () -> Iconography.FLWOR_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
    }
 
    //~--- fields --------------------------------------------------------------
@@ -168,13 +176,13 @@ public class Manifold
                                                   newValue.getNid(),
                                                         manifold.getFullySpecifiedDescriptionText(newValue));
                 ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                                                             UNLINKED_GROUP_NAME,
+                                                            ManifoldGroup.UNLINKED.getGroupName(),
                                                                    k -> new ArrayDeque<>());
 
                 addHistory(historyRecord, groupHistory);
 
                 if ((manifold != this) &&
-                    !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
+                    !manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName()) &&
                     manifold.getGroupName().equals(this.getGroupName())) {
                    manifold.focusedConceptProperty()
                            .set(newValue);
@@ -203,9 +211,20 @@ public class Manifold
    public SimpleStringProperty groupNameProperty() {
       return groupNameProperty;
    }
+   
+   /**
+    * Get a manifold for local use within a control group that is not linked to the selection of other concept
+    * presentations.
+    *
+    * @param group
+    * @return a new manifold on each call.
+    */
+   public static final Manifold make(ManifoldGroup group) {
+      return make(group.getGroupName());
+   }
 
    /**
-    * Get a manifold for local use within a control group that *is not linked to the selection of other concept
+    * Get a manifold for local use within a control group that is not linked to the selection of other concept
     * presentations.
     *
     * @param groupName

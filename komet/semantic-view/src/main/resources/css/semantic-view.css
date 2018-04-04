@@ -1,0 +1,30 @@
+.boldLabel {
+	-fx-font-weight: bold;
+}
+
+.titleLabel {
+	-fx-font-weight: bold;
+	-fx-font-size: 16;
+}
+
+.historical {
+	-fx-opacity: .60;
+}
+
+.tree-table-row-cell:even {
+	-fx-background-color: #FFFFFF;
+}
+
+.tree-table-row-cell:odd {
+	-fx-background-color: rgba(25, 25, 25, .1);
+}
+
+/* out of focus style */
+.tree-table-row-cell:selected {
+	-fx-background-color:  -fx-faint-focus-color;
+}
+
+/*in focus style */
+.table-view:focused .tree-table-row-cell:selected {
+	-fx-background-color: -fx-focus-color;
+}

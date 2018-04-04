@@ -63,7 +63,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
  */
 public class DynamicColumnInfo
          implements Comparable<DynamicColumnInfo> {
-   /** The column description concept UUI D. */
+   /** The column description concept UUID. */
    private UUID columnDescriptionConceptUUID;
 
    /** The column name. */

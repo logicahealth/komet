@@ -76,7 +76,7 @@ import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
-import sh.isaac.utility.NumberUtilities;
+import sh.isaac.utility.NumericUtilsDynamic;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -244,19 +244,19 @@ public class SemanticGUI
 				}
 				else if (myData instanceof DynamicFloat && otherData instanceof DynamicFloat)
 				{
-					return NumberUtilities.compare(((DynamicFloat) myData).getDataFloat(), ((DynamicFloat) otherData).getDataFloat());
+					return NumericUtilsDynamic.compare(((DynamicFloat) myData).getDataFloat(), ((DynamicFloat) otherData).getDataFloat());
 				}
 				else if (myData instanceof DynamicDouble && otherData instanceof DynamicDouble) 
 				{
-					return NumberUtilities.compare(((DynamicDouble) myData).getDataDouble(), ((DynamicDouble) otherData).getDataDouble());
+					return NumericUtilsDynamic.compare(((DynamicDouble) myData).getDataDouble(), ((DynamicDouble) otherData).getDataDouble());
 				}
 				else if (myData instanceof DynamicInteger && otherData instanceof DynamicInteger) 
 				{
-					return NumberUtilities.compare(((DynamicInteger) myData).getDataInteger(), ((DynamicInteger) otherData).getDataInteger());
+					return NumericUtilsDynamic.compare(((DynamicInteger) myData).getDataInteger(), ((DynamicInteger) otherData).getDataInteger());
 				}
 				else if (myData instanceof DynamicLong && otherData instanceof DynamicLong)
 				{
-					return NumberUtilities.compare(((DynamicLong) myData).getDataLong(), ((DynamicLong) otherData).getDataLong());
+					return NumericUtilsDynamic.compare(((DynamicLong) myData).getDataLong(), ((DynamicLong) otherData).getDataLong());
 				}
 				else
 				{

@@ -78,6 +78,7 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -132,11 +133,14 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
+        else {
+            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
+            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
+            //be configured at the assemblage level.  Except, Dan now wants indexes on if beta features are enabled, due to new
+            //search panel supporting them
+            LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
+        }
         
-        //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
-        //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
-        //be configured at the assemblage level.
-        LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
 
         if (Get.metadataService()
                 .wasMetadataImported()) {
@@ -202,6 +206,8 @@ public class MainApp
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
         // GraphController.setSceneForControllers(scene);
         scene.getStylesheets()
@@ -214,7 +220,7 @@ public class MainApp
         stage.setOnCloseRequest(this::handleShutdown);
 
         // ScenicView.show(scene);
-        Manifold statementManifold = Manifold.make(Manifold.CLINICAL_STATEMENT_GROUP_NAME);
+        Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);

@@ -37,12 +37,13 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
        if (streamType != ImportStreamType.DYNAMIC) {
           throw new RuntimeException("This constructor should only be used with DYNAMIC refset types");
        }
-       if (refsetFileName.toLowerCase().contains("refset"))
+       if (refsetFileName.toLowerCase().contains("refset_"))
        {
           //split things like "_iisssccrefset"
+          //careful of file patterns like: snapshot/refset/metadata/der2_ccirefset_refsetdescriptorsnapshot_int_20170731.txt
           //Though this stuff should really be read from the refset metadata, not the file name
           //as we could then capture the rest of the metadata we need about the column, like name, purpose, etc. 
-          int end = refsetFileName.toLowerCase().lastIndexOf("refset");
+          int end = refsetFileName.toLowerCase().lastIndexOf("refset_");
           int start = refsetFileName.substring(0, end).lastIndexOf('_');
           String spec = refsetFileName.substring(start + 1, end).toLowerCase();
           for (char c : spec.toCharArray()) {
@@ -107,9 +108,21 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
 
    @Override
    public int compareTo(ImportSpecification o) {
+      //First, we sort by the stream type declaration order, so we can get concepts / descriptions, etc, to the top.
       if (this.streamType != o.streamType) {
          return this.streamType.compareTo(o.streamType);
       }
+     //Next, I need the "Reference set descriptor reference set (foundation metadata concept)" (900000000000456007) reference set first, 
+      //because this refset tells me what the columns / orders / etc are for every other refset.
+      //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
+      if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+         return -1;
+      }
+      else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+          return 1;
+      }
+      
+      //finally, just sort by file name...
       return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName());
    }
 

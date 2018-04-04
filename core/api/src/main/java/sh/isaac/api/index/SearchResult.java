@@ -45,7 +45,7 @@ package sh.isaac.api.index;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface SearchResult {
+public interface SearchResult extends Comparable<SearchResult> {
    /**
     * Gets the nid.
     *
@@ -59,5 +59,20 @@ public interface SearchResult {
     * @return the score
     */
    public float getScore();
+
+   /**
+    * {@inheritDoc}
+    * Note, this sorts largest to smallest by score.
+    */
+   @Override
+   default int compareTo(SearchResult o) {
+      int c = Float.compare(getScore(), o.getScore()) * -1;
+      
+      //Just keep consistent with equals
+      if (c == 0) {
+         return Integer.compare(getNid(), o.getNid());
+      }
+      return c;
+   }
 }
 

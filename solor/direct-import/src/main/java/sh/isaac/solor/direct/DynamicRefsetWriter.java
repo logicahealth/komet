@@ -19,6 +19,7 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -64,7 +65,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	private static final int EFFECTIVE_TIME_INDEX = 1;
 	private static final int ACTIVE_INDEX = 2;  // 0 == false, 1 == true
 	private static final int MODULE_SCTID_INDEX = 3;
-	private static final int ASSEMBLAGE_SCT_ID_INDEX = 4;
+	protected static final int ASSEMBLAGE_SCT_ID_INDEX = 4;
 	private static final int REFERENCED_CONCEPT_SCT_ID_INDEX = 5;
 	protected static final int VARIABLE_FIELD_START = 6;
 
@@ -78,17 +79,17 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	private final StampService stampService = Get.stampService();
 	private final HashSet<String> refsetsToIgnore = new HashSet<>();
 	private final ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics;
-	private final DynamicColumnInfo[] dynamicColumns;
+	private final HashMap<String, ArrayList<DynamicColumnInfo>> dynamicColumnInfo;
 
 	public DynamicRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, ImportSpecification importSpecification,
-			ImportType importType, DynamicColumnInfo[] dynamicColumns, ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics)
+			ImportType importType, HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo, ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics)
 	{
 		this.refsetRecords = semanticRecords;
 		this.writeSemaphore = writeSemaphore;
 		this.importSpecification = importSpecification;
 		this.importType = importType;
 		this.writeSemaphore.acquireUninterruptibly();
-		this.dynamicColumns = dynamicColumns;
+		this.dynamicColumnInfo = refsetColumnInfo;
 		this.configuredDynamicSemantics = configuredDynamicSemantics;
 		indexers = LookupService.get().getAllServices(IndexBuilderService.class);
 		updateTitle("Importing semantic batch of size: " + semanticRecords.size());
@@ -201,14 +202,39 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 								// set up the dynamic semantic definition for this assemblage we haven't seen before
 								// TODO would like to add a second parent to this concept into the metadata tree, but I don't think it knows how to
 								// merge logic graphs well yet....
-								//TODO this should be done with an edit coordinate the same as the refset concept, I suppose...
-								LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
-										"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
-										dynamicColumns, null, null, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
-
-								// Do a global commit to commit the metadata concepts created here, and just above
-								Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
-										"metadata commit for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()));
+								//TODO this should be done with an edit coordinate the same as the refset concept, I suppose... I don't know how to find 
+								//the coords of the refset concept that was specified during _this_ import, however...
+								
+								ArrayList<DynamicColumnInfo> dci = dynamicColumnInfo.get(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
+								if (dci == null)
+								{
+									LOG.warn("Refset may be misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file." 
+											+ "  This may be ok, if this is an extension that appends to an existing refset");
+									//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
+									//against the spec.
+								}
+								else
+								{
+									// check if the spec from the file matches the file name...
+									for (int i = 0; i < dci.size(); i++)
+									{
+										if (importSpecification.refsetBrittleTypes[i].getDynamicColumnType() != dci.get(i).getColumnDataType())
+										{
+											throw new RuntimeException("The name of the refset file " + importSpecification.contentProvider.getStreamSourceName()
+													+ " does not match the column type information in the 'attributeType' column of the der2_ccirefset_refsetdescriptor file "
+													+ " for 'attributeOrder' " + i);
+										}
+									}
+									
+									LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
+											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
+											dci.toArray(new DynamicColumnInfo[dci.size()]),
+											null, null, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+	
+									// Do a global commit to commit the metadata concepts created here, and just above
+									Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
+											"metadata commit for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName())).get();
+								}
 								configuredDynamicSemantics.put(assemblageNid, true);
 							}
 						}
@@ -241,7 +267,18 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 									data[i] = new DynamicFloatImpl(Float.parseFloat(readData));
 									break;
 								case INTEGER:
-									data[i] = new DynamicIntegerImpl(Integer.parseInt(readData));
+									try
+									{
+										data[i] = new DynamicIntegerImpl(Integer.parseInt(readData));
+									}
+									catch (NumberFormatException e)
+									{
+										// for some silly reason, a whole bunch of refsets in the core SCT are 
+										//defined with UNSIGNED integers as the data type.  Java 8 (kinda) supports
+										//unsigned ints - so we will at least make an attempt to shove it in here.
+										data[i] = new DynamicIntegerImpl(Integer.parseUnsignedInt(readData));
+										LOG.warn("You won the prize!  You actually found an unsigned int: " + data[i] + " more testing needed now....");
+									}
 									break;
 								case LONG:
 									data[i] = new DynamicLongImpl(Long.parseLong(readData));

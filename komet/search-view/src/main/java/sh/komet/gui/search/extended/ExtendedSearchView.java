@@ -34,19 +34,17 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.komet.gui.assemblageviewer;
+package sh.komet.gui.search.extended;
 
 import java.io.IOException;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -55,49 +53,25 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
- * {@link AssemblageViewer}
- *
- * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * A search viewer evolved from the old lego editor, to the previous JavaFX gui,
+ * to komet now. many features that need to be merged with the new search view and/or
+ * the query builder.
+ * 
+ * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @Service
 @PerLookup
-public class AssemblageViewer implements ExplorationNodeFactory
+public class ExtendedSearchView implements ExplorationNodeFactory
 {
-	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
-
-	private AssemblageViewerController drlvc_;
+	private ExtendedSearchViewController esvc_;
 	private Manifold manifold_;
+	private final Logger LOG = LogManager.getLogger(this.getClass());
 
-	private AssemblageViewer()
+	private ExtendedSearchView() throws IOException
 	{
 		// created by HK2
-		LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
-	}
-
-	public Region getView()
-	{
-		if (drlvc_ == null)
-		{
-			try
-			{
-				drlvc_ = AssemblageViewerController.construct(manifold_);
-			}
-			catch (IOException e)
-			{
-				LoggerFactory.getLogger(this.getClass()).error("Unexpected error initing AssemblageViewer", e);
-				FxGet.dialogs().showErrorDialog("Unexpected error creating AssemblageViewer", e);
-				return new Label("Unexpected error initializing view, see log file");
-			}
-
-		}
-		
-		String style = AssemblageViewer.class.getResource("/css/semantic-view.css").toString();
-		if (!drlvc_.getRoot().getStylesheets().contains(style))
-		{
-			drlvc_.getRoot().getStylesheets().add(style);
-		}
-		
-		return drlvc_.getRoot();
+		long startTime = System.currentTimeMillis();
+		LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", System.currentTimeMillis() - startTime);
 	}
 
 	/**
@@ -106,7 +80,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	@Override
 	public String getMenuText()
 	{
-		return "Dynamic Assemblage Definitions";
+		return "Extended Search";
 	}
 
 	/**
@@ -115,16 +89,16 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	@Override
 	public Node getMenuIcon()
 	{
-		return Iconography.PAPERCLIP.getIconographic();
+		return Iconography.TARGET.getIconographic();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PanelPlacement getPanelPlacement()
+	public boolean isEnabled()
 	{
-		return null;
+		return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
 	}
 
 	/**
@@ -133,7 +107,16 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	@Override
 	public ManifoldGroup[] getDefaultManifoldGroups()
 	{
-		return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+		return new ManifoldGroup[] {ManifoldGroup.SEARCH};
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PanelPlacement getPanelPlacement()
+	{
+		return PanelPlacement.RIGHT;
 	}
 
 	/**
@@ -143,6 +126,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	public ExplorationNode createNode(Manifold manifold)
 	{
 		manifold_ = manifold;
+		esvc_ = ExtendedSearchViewController.init(manifold_);
 
 		return new ExplorationNode()
 		{
@@ -167,7 +151,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			@Override
 			public Node getNode()
 			{
-				return getView();
+				return esvc_.getRoot();
 			}
 
 			@Override

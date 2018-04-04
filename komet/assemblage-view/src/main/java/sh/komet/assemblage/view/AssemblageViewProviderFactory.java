@@ -16,28 +16,25 @@
  */
 package sh.komet.assemblage.view;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.LookupService;
+import javafx.scene.Node;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
  * @author kec
  */
 @Service(name = "Assemblage View Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
+@Singleton
 public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
-   public AssemblageViewProvider createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+   public AssemblageViewProvider createNode(Manifold manifold) {
       AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold);
-      nodeConsumer.accept(assemblageViewProvider.getNode());
       return assemblageViewProvider;
    }
 
@@ -54,5 +51,21 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
    @Override
    public boolean isEnabled() {
       return true;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return null;
    }
 }

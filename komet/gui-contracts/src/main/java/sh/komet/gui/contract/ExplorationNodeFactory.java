@@ -16,24 +16,14 @@
  */
 package sh.komet.gui.contract;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.interfaces.ExplorationNode;
 import org.jvnet.hk2.annotations.Contract;
+import sh.komet.gui.interfaces.ExplorationNode;
 
 /**
  *
  * @author kec
  */
 @Contract
-public interface ExplorationNodeFactory extends NodeFactory {
-	//TODO KEC make sense of this API
-	/**
-	 * Dan doesn't understand this API, but be warned, the node that your node factory 
-	 * creates in response to this call needs to return the node to the nodeConsumer here...
-	 * which makes no sense to me.  Especially when the returned ExplorationNode has a 
-	 * {@link ExplorationNode#getNode()} method that seems to be unused.....
-	 */
-   ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer);
+public interface ExplorationNodeFactory extends NodeFactory<ExplorationNode> {
+
 }

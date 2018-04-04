@@ -16,39 +16,32 @@
  */
 package sh.komet.gui.provider.concept.detail.panel;
 
-import java.util.EnumSet;
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.LookupService;
+import javafx.scene.Node;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  *
  * @author kec
  */
 @Service(name = "Concept Detail Provider")
-@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
-
+@Singleton
 public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
 
    @Override
-   public EnumSet<DetailType> getSupportedTypes() {
-      return EnumSet.of(DetailType.Concept);
+   public DetailType getSupportedType() {
+      return DetailType.Concept;
    }
 
    @Override
-   public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
-      if (type != DetailType.Concept) {
-         throw new UnsupportedOperationException("aj Can't handle: " + type); 
-      }
-      return new ConceptDetailPanelNode(manifold, nodeConsumer);
+   public DetailNode createNode(Manifold manifold) {
+      return new ConceptDetailPanelNode(manifold);
    }
 
    @Override
@@ -72,5 +65,18 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
    @Override
    public boolean isEnabled() {
       return true;
+   }
+   
+  /** 
+   * {@inheritDoc}
+   */
+   @Override
+   public ManifoldGroup[] getDefaultManifoldGroups() {
+      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY, ManifoldGroup.SEARCH};
+   }
+
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return PanelPlacement.CENTER;
    }
 }

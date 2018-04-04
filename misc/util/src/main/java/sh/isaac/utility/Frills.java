@@ -2356,6 +2356,16 @@ public class Frills
       Collections.sort(allDynamicSemanticDefConcepts);
       return allDynamicSemanticDefConcepts;
    }
+   
+   public static List<ConceptChronology> getIdentifierAssemblages() {
+      List<ConceptChronology> identifierAnnotatedConcepts = new ArrayList<>();
+
+      Get.assemblageService().getSemanticChronologyStream(MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).sequential().forEach(
+            identifierAnnotationSemanticChronology ->  {
+         identifierAnnotatedConcepts.add(Get.conceptService().getConceptChronology(identifierAnnotationSemanticChronology.getReferencedComponentNid()));
+      });
+      return identifierAnnotatedConcepts;
+   }
 
    /** 
     * {@inheritDoc}

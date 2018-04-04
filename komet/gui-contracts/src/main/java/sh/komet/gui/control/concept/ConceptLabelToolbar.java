@@ -44,6 +44,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -70,7 +71,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
          ConceptChronology focusedConcept = Get.concept(spec.get());
          manifold.setFocusedConceptChronology(focusedConcept);
       } else {
-         if (!manifold.getGroupName().equals(Manifold.UNLINKED_GROUP_NAME)) {
+         if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
             manifold.setFocusedConceptChronology(null);
          }
       }
@@ -86,7 +87,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       combinedGraphic.setMinWidth(45);
       combinedGraphic.setPrefWidth(45);
       combinedGraphic.setMaxWidth(45);
-      if (manifoldGroup.equals(Manifold.UNLINKED_GROUP_NAME)) {
+      if (manifoldGroup.equals(ManifoldGroup.UNLINKED.getGroupName())) {
          Node linkBroken = Iconography.LINK_BROKEN.getIconographic();
          Rectangle rect = new Rectangle(16, 16, Color.TRANSPARENT);
          combinedGraphic.getChildren().addAll(linkBroken,rect);
@@ -156,6 +157,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       if (focusTabOnConceptChange.isPresent())
       {
          Label focusChangeWrapper = new Label("Focus", gctb.focusOnChange);
+         gctb.focusOnChange.setSelected(focusTabOnConceptChange.get());
          focusChangeWrapper.setContentDisplay(ContentDisplay.RIGHT);
          focusChangeWrapper.setStyle("-fx-font-size:12;");
          Tooltip.install(focusChangeWrapper, new Tooltip("Focus tab on selection change"));

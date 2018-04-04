@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.komet.gui.util;
+package sh.komet.gui.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -55,12 +55,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -73,7 +73,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.util.TaskCompleteCallback;
-import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.drag.drop.DragRegistry;
@@ -96,7 +96,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private HBox hbox_;
 	private ComboBox<SimpleDisplayConcept> cb_;
 	private ProgressIndicator pi_;
-	private ImageView lookupFailImage_;
+	private Node lookupFailImage_;
 	private ConceptSnapshot c_;
 	private ObjectBinding<ConceptSnapshot> conceptBinding_;
 	private SimpleDisplayConcept codeSetComboBoxConcept_ = null;
@@ -119,9 +119,9 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ObservableList<SimpleDisplayConcept> dropDownOptions_;
 	private ContextMenu cm_;
 	
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider)
+	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
 	{
-		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider);
+		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider, metadataConceptsOnly);
 	}
 
 	/**
@@ -131,10 +131,10 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 * @param dropDownOptions 
 	 * @param descriptionReader 
 	 * @param manifoldProvider 
+	 * @param metadataConceptsOnly 
 	 */
-	@SuppressWarnings("deprecation")
 	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
-			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider)
+			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		c_ = initialConcept;
 		//We can't simply use the ObservableList from the CommonlyUsedConcepts, because it infinite loops - there doesn't seem to be a way 
@@ -200,7 +200,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		cm_ = new ContextMenu();
 		
 		MenuItem copyText = new MenuItem("Copy Description");
-		copyText.setGraphic(Images.COPY.createImageView());
+		copyText.setGraphic(Iconography.COPY.getIconographic());
 		copyText.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -230,7 +230,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 
 		updateGUI();
 		
-		new LookAheadConceptPopup(cb_, manifoldProvider);
+		new LookAheadConceptPopup(cb_, manifoldProvider, metadataConceptsOnly);
 
 		if (cb_.getValue().getNid() == 0)
 		{
@@ -313,7 +313,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		pi_.setMaxWidth(16.0);
 		pi_.setMaxHeight(16.0);
 
-		lookupFailImage_ = Images.EXCLAMATION.createImageView();
+		lookupFailImage_ = Iconography.EXCLAMATION.getIconographic();// Images.EXCLAMATION.createImageView();
 		lookupFailImage_.visibleProperty().bind(isValid.not().and(isLookupInProgress_.not()));
 		Tooltip t = new Tooltip();
 		t.textProperty().bind(isValid.getReasonWhyInvalid());

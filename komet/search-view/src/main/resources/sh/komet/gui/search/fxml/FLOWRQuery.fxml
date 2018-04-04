@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
-<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.flowr.FLOWRQueryController">
+<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.flwor.FLWORQueryController">
    <stylesheets>
       <URL value="@/styles/search.css" />
    </stylesheets>

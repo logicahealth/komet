@@ -34,13 +34,12 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.komet.gui.util;
+package sh.komet.gui.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
@@ -65,7 +64,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
-import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
@@ -93,6 +96,8 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	private boolean enableMouseHover = false;
 	private boolean stylesAdded = false;
 	private DoubleBinding calculatedPrefWidth_;
+	private boolean metadataOnly = false;
+	private ConceptSnapshotService css;
 
 	private AtomicInteger activeSearchCount = new AtomicInteger(0);
 	private BooleanBinding searchRunning = new BooleanBinding()
@@ -126,11 +131,13 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	 * 
 	 * @param field
 	 * @param manifoldProvider
+	 * @param searchMetadataConceptsOnly true to only match metadata concepts, false for all
 	 */
 	@SuppressWarnings("unchecked")
-	public LookAheadConceptPopup(Control field, Supplier<Manifold> manifoldProvider)
+	public LookAheadConceptPopup(Control field, Supplier<Manifold> manifoldProvider, boolean searchMetadataConceptsOnly)
 	{
 		sc = manifoldProvider;
+		metadataOnly = searchMetadataConceptsOnly;
 		if (field instanceof ComboBox)
 		{
 			this.sourceTextField = ((ComboBox<?>) field).getEditor();
@@ -338,11 +345,19 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 				searchRunning.invalidate();
 				synchronized (runningSearches)
 				{
-					//TODO add the ability to pass a filter here, to do things like restrict to concepts that define dynamic semantics
+					//TODO add the ability to pass in the entire search function, so that the end user can have full control over the advanced query options
 					int id = searchCounter++;
-					SearchHandle ssh = SearchHandler.descriptionSearch(text, 5, true, true, ((searchHandle) -> {
-						this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
-					}), id, null, null, true, false);
+					SearchHandle ssh = SearchHandler.search(() -> 
+					{
+						return Get.service(IndexDescriptionQueryService.class).query(text, true, null, null, 
+								AmpRestriction.restrict(sc.get()), metadataOnly, null, null, 1, 5, null);
+					},
+					(searchHandle) -> {this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());},
+					id,
+					null,
+					true,
+					sc.get().getManifoldCoordinate(),
+					false);
 					runningSearches.put(id, ssh);
 				}
 			}
@@ -369,9 +384,10 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		if (!stylesAdded)
 		{
-			if (!sourceTextField.getScene().getStylesheets().contains("/css/look-ahead-styles.css"))
+			String stylesPath = this.getClass().getResource("/styles/look-ahead-styles.css").toString();
+			if (!sourceTextField.getScene().getStylesheets().contains(stylesPath))
 			{
-				sourceTextField.getScene().getStylesheets().add("/css/look-ahead-styles.css");
+				sourceTextField.getScene().getStylesheets().add(stylesPath);
 			}
 		}
 		stylesAdded = true;
@@ -391,20 +407,27 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		displayedSearchResults.fireEvent(event);
 	}
+	
+	private String getConceptDescriptionText(int nid)
+	{
+		if (css == null)
+		{
+			css = Get.conceptService().getSnapshot(sc.get());
+		}
+		return css.conceptDescriptionText(nid);
+	}
 
 	private VBox processResult(CompositeSearchResult result, final int idx)
 	{
 		VBox box = new VBox();
 		box.setPadding(new Insets(3, 3, 3, 3));
 
-		Optional<ConceptSnapshot> c = result.getContainingConcept();
-
-		Label concept = new Label(c.isPresent() ? c.get().getRegularName().orElse(c.get().getFullyQualifiedName())
-				: result.getMatchingComponents().iterator().next().getNid() + "");
+		ConceptChronology c = result.getContainingConcept();
+		Label concept = new Label(getConceptDescriptionText(c.getNid()));
 		concept.getStyleClass().add("lookAheadBoldLabel");
 		box.getChildren().add(concept);
 
-		for (String s : result.getMatchingStrings(Optional.of(sc.get().getStampCoordinate())))
+		for (String s : result.getMatchingStrings())
 		{
 			if (s.equals(concept.getText()))
 			{
@@ -415,7 +438,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 			box.getChildren().add(matchString);
 		}
 
-		popUpResults.add(idx, new PopUpResult(c.isPresent() ? c.get().getNid() : result.getMatchingComponents().iterator().next().getNid(), concept.getText()));
+		popUpResults.add(idx, new PopUpResult(c.getNid(), concept.getText()));
 		box.setOnMouseClicked(new EventHandler<MouseEvent>()
 		{
 			@Override
