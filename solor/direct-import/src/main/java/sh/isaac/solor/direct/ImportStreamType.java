@@ -72,7 +72,9 @@ public enum ImportStreamType {
    INT1_REFSET,
    STR1_NID2_NID3_NID4_REFSET,
    STR1_STR2_NID3_NID4_NID5_REFSET,
-   DYNAMIC
+   DYNAMIC,
+   RXNORM_CONSO,
+   LOINC
    ;
 
    public VersionType getSemanticVersionType() {

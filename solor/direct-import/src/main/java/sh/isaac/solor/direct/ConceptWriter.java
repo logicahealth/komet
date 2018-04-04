@@ -112,7 +112,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             // '2011-12-03T10:15:30Z'
 
             TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(
-                    Rf2DirectImporter.getIsoInstant(conceptRecord[EFFECTIVE_TIME_INDEX]));
+                    DirectImporter.getIsoInstant(conceptRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to concept assemblage

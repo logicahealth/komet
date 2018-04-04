@@ -76,7 +76,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.isaac.solor.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.DirectImporter;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -125,7 +125,7 @@ public class MainApp
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY); 
         
         //TODO this will likely go away, at some point...
-//        Rf2DirectImporter.importDynamic = true;
+//        DirectImporter.importDynamic = true;
         
         LookupService.startupIsaac();
         

@@ -20,7 +20,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.manifold.Manifold;
 
@@ -47,7 +47,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
       try {
          completedUnitOfWork();
          updateMessage("Importing new content...");
-         Rf2DirectImporter importer = new Rf2DirectImporter(importType);
+         DirectImporter importer = new DirectImporter(importType);
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
          completedUnitOfWork();

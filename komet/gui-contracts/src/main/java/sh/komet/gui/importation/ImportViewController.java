@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -63,6 +64,7 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxUtils;
+
 public class ImportViewController {
 
     protected static final Logger LOG = LogManager.getLogger();
@@ -78,7 +80,7 @@ public class ImportViewController {
 
     @FXML
     private Button addButton;
-    
+
     @FXML
     private Button addArtifactButton;
 
@@ -96,10 +98,10 @@ public class ImportViewController {
 
     Stage importStage;
 
-    Map<TreeItem<ImportItem>, HashMap<String, TreeItem<ImportItem>>> fileItemsMap = new HashMap<>();
+    Map<TreeItem<ImportItem>, ConcurrentHashMap<String, TreeItem<ImportItem>>> fileItemsMap = new ConcurrentHashMap<>();
     private Manifold manifold;
-    
-    private StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
+
+    private final StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
 
     @FXML
     void addImportDataLocation(ActionEvent event) {
@@ -107,22 +109,17 @@ public class ImportViewController {
         fileChooser.setTitle("Open Resource File");
         fileChooser.getExtensionFilters().addAll(
                 new ExtensionFilter("Zip files", "*.zip"));
-        addFile(fileChooser.showOpenDialog(importStage));
+        addFiles(fileChooser.showOpenMultipleDialog(importStage));
     }
-    
-    private void addFile(File file)
-    {
-        if (file != null)
-        {
-            Task<Void> t = new Task<Void>()
-            {
-                @Override
-                protected Void call() throws Exception
-                {
-                    try (ZipFile zipFile = new ZipFile(file, Charset.forName("UTF-8")))
-                    {
+
+    private void addFiles(List<File> files) {
+        Task<Void> t = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                for (File file : files) {
+                    try (ZipFile zipFile = new ZipFile(file, Charset.forName("UTF-8"))) {
                         TreeItem<ImportItem> newFileItem = new TreeItem<>(new ImportItemZipFile(file));
-                        HashMap<String, TreeItem<ImportItem>> newTreeItems = new HashMap<>();
+                        ConcurrentHashMap<String, TreeItem<ImportItem>> newTreeItems = new ConcurrentHashMap<>();
                         fileItemsMap.put(newFileItem, newTreeItems);
                         zipFile.stream().forEach((ZipEntry zipEntry) -> {
                             if (zipEntry.getName().toLowerCase().endsWith(".zip")) {
@@ -141,8 +138,7 @@ public class ImportViewController {
                                                 //that triples the load times.
                                                 LOG.debug("Caching unzipped content");
                                                 itemBytes = IOUtils.toByteArray(zis);
-                                            }
-                                            else {
+                                            } else {
                                                 LOG.info("content file too large to cache");
                                             }
                                             ImportItemZipEntry nestedImportItem = new ImportItemZipEntry(file, zipEntry, nestedEntry, itemBytes);
@@ -151,32 +147,52 @@ public class ImportViewController {
                                         }
                                         nestedEntry = zis.getNextEntry();
                                     }
-                                }
-                                catch (IOException e) {
+                                } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
                                 ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                 TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
                                 newTreeItems.put(zipEntry.getName(), entryItem);
-                            }
-                            else if (!zipEntry.getName().toUpperCase().contains("__MACOSX") && !zipEntry.getName().contains("._")) {
-                                ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
-                                TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
-                                newTreeItems.put(zipEntry.getName(), entryItem);
+                            } else if (!zipEntry.getName().toUpperCase().contains("__MACOSX") && !zipEntry.getName().contains("._")) {
+                                if (file.getName().toLowerCase().startsWith("rxnorm_")) {
+                                    if (zipEntry.getName().toLowerCase().endsWith(".rrf")) {
+                                        ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                        TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                        if (importItem.nameProperty.get().toUpperCase().endsWith("RXNCONSO.RRF")
+                                                && !importItem.parentKey.toLowerCase().contains("prescribe")) {
+                                            importItem.importData.set(true);
+                                        } else {
+                                            importItem.importData.set(false);
+                                        }
+
+                                        newTreeItems.put(zipEntry.getName(), entryItem);
+                                    }
+                                } else if (file.getName().toLowerCase().startsWith("loinc_")) {
+                                    if (zipEntry.getName().toLowerCase().equals("loinc.csv")) {
+                                        ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                        TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                        newTreeItems.put(zipEntry.getName(), entryItem);
+                                    }
+                                } else {
+                                    ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                    TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                    newTreeItems.put(zipEntry.getName(), entryItem);
+                                }
                             }
                         });
-        
-                        Platform.runLater(() -> setupEntryTree());
-                        return null;
-                    }
-                    catch (IOException ex) {
+
+                    } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
-            };
-            Get.workExecutors().getExecutor().execute(t);
-            FxUtils.waitWithProgress("Reading file", "Reading selected file", t, importStage.getOwner());
-        }
+
+            Platform.runLater(() -> setupEntryTree());
+            return null;
+            }
+        };
+        Get.workExecutors().getExecutor().execute(t);
+        FxUtils.waitWithProgress("Reading file", "Reading selected file", t, importStage.getOwner());
+
     }
 
     protected void setupEntryTree() {
@@ -184,37 +200,59 @@ public class ImportViewController {
         fileTreeTable.getRoot().getChildren().clear();
         for (TreeItem<ImportItem> fileItem : fileItemsMap.keySet()) {
             fileItem.getChildren().clear();
-            HashMap<String, TreeItem<ImportItem>> treeItems = fileItemsMap.get(fileItem);
+            ConcurrentHashMap<String, TreeItem<ImportItem>> treeItems = fileItemsMap.get(fileItem);
             for (Map.Entry<String, TreeItem<ImportItem>> entry : treeItems.entrySet()) {
                 entry.getValue().getChildren().clear();
             }
         }
         // hook all up here...
         for (TreeItem<ImportItem> fileItem : fileItemsMap.keySet()) {
-            
+
             SelectedImportType type = importType.getValue();
-            HashMap<String, TreeItem<ImportItem>> treeItems = fileItemsMap.get(fileItem);
-            
+            ConcurrentHashMap<String, TreeItem<ImportItem>> treeItems = fileItemsMap.get(fileItem);
+
             for (Map.Entry<String, TreeItem<ImportItem>> entry : treeItems.entrySet()) {
                 TreeItem<ImportItem> treeItem = entry.getValue();
-                ImportItemZipEntry treeItemValue = (ImportItemZipEntry) treeItem.getValue();
-                
-                if (treeItemValue.importType == null || treeItemValue.importType == type ||
-                        (type == SelectedImportType.ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
-                    if (treeItemValue.getParentKey().equals(FILE_PARENT_KEY)) {
-                        fileTreeTable.getRoot().getChildren().add(treeItem);
-                    } else {
-                        TreeItem<ImportItem> parentItem = treeItems.get(treeItemValue.getParentKey());
-                        if (parentItem != null) {
-                            parentItem.getValue().importDataProperty().removeListener(treeItemValue);
-                            parentItem.getValue().importDataProperty().addListener(treeItemValue);
-                            parentItem.getChildren().add(treeItem);
+                if (treeItem.getValue() instanceof ImportItemZipEntry) {
+                    ImportItemZipEntry treeItemValue = (ImportItemZipEntry) treeItem.getValue();
+
+                    if (treeItemValue.importType == null || treeItemValue.importType == type
+                            || (type == SelectedImportType.ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
+                        if (treeItemValue.getParentKey().equals(FILE_PARENT_KEY)) {
+                            if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
+                                fileTreeTable.getRoot().getChildren().add(fileItem);
+                            }
+                            fileItem.getChildren().add(treeItem);
                         } else {
-                            LOG.error("Null parent for: " + treeItemValue);
+                            TreeItem<ImportItem> parentItem = treeItems.get(treeItemValue.getParentKey());
+                            if (parentItem == null) {
+                                // Add... In some zip files, the directories are not added, just the files. 
+                                // So we may encounter a need for a parent directory
+                                if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
+                                    fileTreeTable.getRoot().getChildren().add(fileItem);
+                                }
+
+                                ImportItemDirectory importItemDirectory = new ImportItemDirectory();
+                                importItemDirectory.setName(treeItemValue.getParentKey());
+                                TreeItem<ImportItem> directoryItem = new TreeItem<>(importItemDirectory);
+                                fileItem.getChildren().add(directoryItem);
+                                importItemDirectory.importData.set(treeItemValue.importData());
+                                treeItems.put(treeItemValue.getParentKey(), directoryItem);
+                                directoryItem.getChildren().add(treeItem);
+
+                            } else {
+                                parentItem.getValue().importDataProperty().removeListener(treeItemValue);
+                                parentItem.getValue().importDataProperty().addListener(treeItemValue);
+                                parentItem.getChildren().add(treeItem);
+                                if (treeItemValue.importData()) {
+                                    parentItem.getValue().importDataProperty().set(true);
+                                }
+                            }
                         }
                     }
                 }
             }
+
             this.fileTreeTable.getRoot().expandedProperty().setValue(Boolean.TRUE);
         }
     }
@@ -223,9 +261,9 @@ public class ImportViewController {
     void importData(ActionEvent event) {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
-        
+
         sh.isaac.solor.direct.ImportType directImportType = null;
- 
+
         switch (importType.getValue()) {
             case ACTIVE_ONLY:
                 directImportType = sh.isaac.solor.direct.ImportType.ACTIVE_ONLY;
@@ -236,21 +274,21 @@ public class ImportViewController {
             case SNAPSHOT:
                 directImportType = sh.isaac.solor.direct.ImportType.SNAPSHOT;
                 break;
-         case IGNORE:
-            break;
-         case DELTA:
-         default :
-            throw new RuntimeException("oops");
- 
+            case IGNORE:
+                break;
+            case DELTA:
+            default:
+                throw new RuntimeException("oops");
+
         }
         if (directImportType != null) {
-            ImportSelectedAndTransformTask importer = 
-                    new ImportSelectedAndTransformTask(manifold, directImportType, entriesToImport);
+            ImportSelectedAndTransformTask importer
+                    = new ImportSelectedAndTransformTask(manifold, directImportType, entriesToImport);
             Get.executor().execute(importer);
         }
         importStage.close();
     }
-    
+
     private void recursiveAddToImport(TreeItem<ImportItem> treeItem, List<ContentProvider> entriesToImport) {
         ImportItem item = treeItem.getValue();
         if (item.importData()) {
@@ -260,10 +298,10 @@ public class ImportViewController {
                     entriesToImport.add(zipEntry.getContent());
                 }
             }
-            for (TreeItem<ImportItem> childItem: treeItem.getChildren()) {
+            for (TreeItem<ImportItem> childItem : treeItem.getChildren()) {
                 recursiveAddToImport(childItem, entriesToImport);
             }
-         }
+        }
     }
 
     @FXML
@@ -278,11 +316,11 @@ public class ImportViewController {
         this.treeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
 
         this.importColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("importData"));
-        
+
         this.importColumn.setCellFactory(CheckBoxTreeTableCell.forTreeTableColumn(
-                    (Integer index) -> this.fileTreeTable.getTreeItem(index).getValue().importDataProperty()));
+                (Integer index) -> this.fileTreeTable.getTreeItem(index).getValue().importDataProperty()));
         this.importColumn.setEditable(true);
-        
+
         this.fileTreeTable.setRoot(new TreeItem<>(new ImportRoot()));
         this.fileTreeTable.setShowRoot(false);
         this.fileTreeTable.setEditable(true);
@@ -293,73 +331,66 @@ public class ImportViewController {
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
         });
-        
+
         ArrayList<SDOSourceContent> sdoSourceFiles_ = new ArrayList<>();
-        
-        this.addArtifactButton.setOnAction((action) -> 
-        {
-           ListView<SDOSourceContent> sdoPicker = new ListView<>();
-           
-           FxUtils.waitWithProgress("Reading SDO Files", "Reading available SDO Source Files", 
-                 MavenArtifactUtils.readAvailableSourceFiles(storedPrefs, (results) -> 
-          {
-            sdoSourceFiles_.clear();
-            //TODO tie this to some sort of dynamic thing about what types are supported by the direct importer...
-            for (SDOSourceContent sdo : results) {
-               SupportedConverterTypes found = SupportedConverterTypes.findBySrcArtifactId(sdo.getArtifactId());
-               if (SupportedConverterTypes.SCT == found || SupportedConverterTypes.SCT_EXTENSION == found) {
-                  sdoSourceFiles_.add(sdo);
-               }
-            }
-            
-         }), importStage.getScene().getWindow());
-           
-           sdoPicker.setItems(FXCollections.observableArrayList(sdoSourceFiles_));
-           
-         sdoPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-         sdoPicker.setCellFactory(param -> new ListCell<SDOSourceContent>()
-         {
-            @Override
-            protected void updateItem(SDOSourceContent item, boolean empty)
-            {
-               super.updateItem(item, empty);
 
-               if (empty || item == null)
-               {
-                  setText(null);
-               }
-               else
-               {
-                  setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
-               }
-            }
-         });
+        this.addArtifactButton.setOnAction((action)
+                -> {
+            ListView<SDOSourceContent> sdoPicker = new ListView<>();
 
-         Alert sdoDialog = new Alert(AlertType.CONFIRMATION);
-         sdoDialog.setTitle("Select Files");
-         sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
-         sdoDialog.getDialogPane().setContent(sdoPicker);
-         sdoPicker.setPrefWidth(1024);
-         sdoDialog.initOwner(importStage.getOwner());
+            FxUtils.waitWithProgress("Reading SDO Files", "Reading available SDO Source Files",
+                    MavenArtifactUtils.readAvailableSourceFiles(storedPrefs, (results)
+                            -> {
+                        sdoSourceFiles_.clear();
+                        //TODO tie this to some sort of dynamic thing about what types are supported by the direct importer...
+                        for (SDOSourceContent sdo : results) {
+                            SupportedConverterTypes found = SupportedConverterTypes.findBySrcArtifactId(sdo.getArtifactId());
+                            if (SupportedConverterTypes.SCT == found || SupportedConverterTypes.SCT_EXTENSION == found) {
+                                sdoSourceFiles_.add(sdo);
+                            }
+                        }
 
-         if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK)
-         {
-            for (SDOSourceContent sdo : sdoPicker.getSelectionModel().getSelectedItems())
-            {
-               Optional<File> local = sdo.getLocalPath(storedPrefs);
-               if (local.isPresent())
-               {
-                  addFile(local.get());
-               }
+                    }), importStage.getScene().getWindow());
+
+            sdoPicker.setItems(FXCollections.observableArrayList(sdoSourceFiles_));
+
+            sdoPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            sdoPicker.setCellFactory(param -> new ListCell<SDOSourceContent>() {
+                @Override
+                protected void updateItem(SDOSourceContent item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+                    }
+                }
+            });
+
+            Alert sdoDialog = new Alert(AlertType.CONFIRMATION);
+            sdoDialog.setTitle("Select Files");
+            sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
+            sdoDialog.getDialogPane().setContent(sdoPicker);
+            sdoPicker.setPrefWidth(1024);
+            sdoDialog.initOwner(importStage.getOwner());
+
+            if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK) {
+                for (SDOSourceContent sdo : sdoPicker.getSelectionModel().getSelectedItems()) {
+                    Optional<File> local = sdo.getLocalPath(storedPrefs);
+                    if (local.isPresent()) {
+                        
+                        addFiles(Arrays.asList(new File[] { local.get() }));
+                    }
+                }
             }
-         }
         });
-        
+
         //TODO tie this to a real StoredPrefs in the GUI.  For now, just a default, so we can at least read a local .m2 folder
         //make this system property read go away
         String temp = System.getProperty("M2_PATH");
         if (StringUtils.isNotBlank(temp)) {
-           this.storedPrefs.setLocalM2FolderPath(temp);
+            this.storedPrefs.setLocalM2FolderPath(temp);
         }
     }
 

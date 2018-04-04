@@ -188,7 +188,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 					int moduleNid = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
 					int assemblageNid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
 					int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
-					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
+					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
 					long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 					int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
 					
@@ -203,12 +203,12 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 								// merge logic graphs well yet....
 								//TODO this should be done with an edit coordinate the same as the refset concept, I suppose...
 								LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
-										"DynamicDefinition for refset " + Rf2DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
+										"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
 										dynamicColumns, null, null, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
 								// Do a global commit to commit the metadata concepts created here, and just above
 								Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
-										"metadata commit for refset " + Rf2DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()));
+										"metadata commit for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()));
 								configuredDynamicSemantics.put(assemblageNid, true);
 							}
 						}

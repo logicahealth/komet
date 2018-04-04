@@ -142,7 +142,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  UUID relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_CHARACTERISTIC_NID_INDEX]);
                  UUID relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[REL_MODIFIER_NID_INDEX]);
                  
-                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(relationshipRecord[EFFECTIVE_TIME_INDEX]));
+                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(relationshipRecord[EFFECTIVE_TIME_INDEX]));
                  long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
                  // add to rel assemblage

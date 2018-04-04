@@ -47,68 +47,61 @@ public class ContentProvider implements Supplier<ContentStreamProvider>
 		streamSourceName = (nestedZipFile == null ? (zipFile.getName() + ":" +  entry.getName()) : 
 			(zipFile.getName() + ":" + nestedZipFile.getName() + ":" +  entry.getName()));
 			
-		contentStream = new Supplier<ContentStreamProvider>()
-		{
-			@Override
-			public ContentStreamProvider get()
-			{
-				return new ContentStreamProvider()
-				{
-					private ZipFile zipFileHandle;
-					
-					@Override
-					public void close() throws Exception
-					{
-						if (zipFileHandle != null)
-						{
-							zipFileHandle.close();
-						}
-						ContentProvider.this.itemBytes = null;
-					}
-					
-					@Override
-					public BufferedReader get()
-					{
-						try
-						{
-							if (nestedZipFile == null)
-							{
-								zipFileHandle = new ZipFile(zipFile, Charset.forName("UTF-8"));
-								return new BufferedReader(new InputStreamReader(zipFileHandle.getInputStream(entry), Charset.forName("UTF-8")));
-							}
-							else
-							{
-								
-								if (ContentProvider.this.itemBytes == null)
-								{
-									// This is returning a stream of another zip file.
-									zipFileHandle = new ZipFile(zipFile, Charset.forName("UTF-8"));
-									ZipInputStream innerZipStream = new ZipInputStream(zipFileHandle.getInputStream(nestedZipFile), Charset.forName("UTF-8"));
-									ZipEntry innerZipEntry = innerZipStream.getNextEntry();
-									while (innerZipEntry != null)
-									{
-										if (innerZipEntry.getName().equals(entry.getName()))
-										{
-											return new BufferedReader(new InputStreamReader(innerZipStream, Charset.forName("UTF-8")));
-										}
-										innerZipEntry = innerZipStream.getNextEntry();
-									}
-									throw new RuntimeException("Wrong file names passed in");
-								}
-								else
-								{
-									return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(ContentProvider.this.itemBytes), Charset.forName("UTF-8")));
-								}
-							}
-						}
-						catch (IOException e)
-						{
-							throw new RuntimeException(e);
-						}
-					}
-				};
-			}
-		};
+		contentStream = () -> new ContentStreamProvider()
+                {
+                    private ZipFile zipFileHandle;
+                    
+                    @Override
+                    public void close() throws Exception
+                    {
+                        if (zipFileHandle != null)
+                        {
+                            zipFileHandle.close();
+                        }
+                        ContentProvider.this.itemBytes = null;
+                    }
+                    
+                    @Override
+                    public BufferedReader get()
+                    {
+                        try
+                        {
+                            if (nestedZipFile == null)
+                            {
+                                zipFileHandle = new ZipFile(zipFile, Charset.forName("UTF-8"));
+                                return new BufferedReader(new InputStreamReader(zipFileHandle.getInputStream(entry), Charset.forName("UTF-8")));
+                            }
+                            else
+                            {
+                                
+                                if (ContentProvider.this.itemBytes == null)
+                                {
+                                    // This is returning a stream of another zip file.
+                                    zipFileHandle = new ZipFile(zipFile, Charset.forName("UTF-8"));
+                                    ZipInputStream innerZipStream = new ZipInputStream(zipFileHandle.getInputStream(nestedZipFile), Charset.forName("UTF-8"));
+                                    ZipEntry innerZipEntry = innerZipStream.getNextEntry();
+                                    while (innerZipEntry != null)
+                                    {
+                                        if (innerZipEntry.getName().equals(entry.getName()))
+                                        {
+                                            return new BufferedReader(new InputStreamReader(innerZipStream, Charset.forName("UTF-8")));
+                                        }
+                                        innerZipEntry = innerZipStream.getNextEntry();
+                                    }
+                                    throw new RuntimeException("Wrong file names passed in");
+                                }
+                                else
+                                {
+                                    return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(ContentProvider.this.itemBytes), Charset.forName("UTF-8")));
+                                }
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
 	}
 	
 	public String getStreamSourceName()

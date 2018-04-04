@@ -187,7 +187,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                  int moduleNid = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
                  int assemblageNid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
                  int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
+                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
                  long time = accessor.getLong(INSTANT_SECONDS) * 1000;
                  int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
                  

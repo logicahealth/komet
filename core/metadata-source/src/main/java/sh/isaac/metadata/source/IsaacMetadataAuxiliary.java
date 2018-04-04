@@ -274,6 +274,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.IDENTIFIER_SOURCE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
             pushParent(current());
+               createConcept(TermAux.RXNORM_CUI).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("UUID").setPrimordialUuid("2faa9262-8fb2-11db-b606-0800200c9a66").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("VUID", "Vets Unique Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
@@ -335,6 +336,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept(TermAux.ASSEMBLAGE);
             pushParent(current());
+               createConcept("Identifier assembalge");
+               pushParent(current());
+                  ConceptBuilder rxCuiBuilder = createConcept("RxNorm CUI assemblage");
+                  rxCuiBuilder.getPreferredDescriptionBuilder().setDescriptionText("RxNorm CUI");
+                  ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
+                  loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
+                  ConceptBuilder snomedBuilder = createConcept("SNOMED Clinical Term ID assemblage", "SCTID");
+                  snomedBuilder.getPreferredDescriptionBuilder().setDescriptionText("SCTID");
+                  popParent();
                createConcept("Issue managment assemblage");
                pushParent(current());
                   createConcept("Content issue assemblage");
@@ -367,7 +377,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
                   createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
-                  createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
+                  ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
+                  builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   popParent();
                createConcept(TermAux.CONCEPT_ASSEMBLAGE);
                pushParent(current());

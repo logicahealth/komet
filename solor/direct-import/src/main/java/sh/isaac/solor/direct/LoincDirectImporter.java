@@ -98,7 +98,6 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
      */
     private int loadDatabase(File contentDirectory)
             throws Exception {
-        final long time = System.currentTimeMillis();
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
                 .filter(p -> (p.toString().toLowerCase().endsWith("_text.zip")
@@ -153,7 +152,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
                 LoincWriter loincWriter = new LoincWriter(
                         columnsToWrite,
                         this.writeSemaphore,
-                        "Processing LOINC records from: " + Rf2DirectImporter.trimZipName(
+                        "Processing LOINC records from: " + DirectImporter.trimZipName(
                                 entry.getName()),
                         commitTime);
 
@@ -173,7 +172,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             LoincWriter loincWriter = new LoincWriter(
                     columnsToWrite,
                     this.writeSemaphore,
-                    "Reading LOINC records from: " + Rf2DirectImporter.trimZipName(
+                    "Reading LOINC records from: " + DirectImporter.trimZipName(
                             entry.getName()), commitTime);
 
             Get.executor()

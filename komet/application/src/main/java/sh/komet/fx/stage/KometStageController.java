@@ -90,7 +90,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.Rf2DirectImporter;
+import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderProviderFactory;
@@ -248,13 +248,13 @@ public class KometStageController
 
             MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
             importSourcesFull.setOnAction((ActionEvent event) -> {
-                Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
+                DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                 Get.executor().submit(importerFull);
             });
             items.add(importSourcesFull);
             MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
             importSourcesSnapshot.setOnAction((ActionEvent event) -> {
-                Rf2DirectImporter importerSnapshot = new Rf2DirectImporter(ImportType.ACTIVE_ONLY);
+                DirectImporter importerSnapshot = new DirectImporter(ImportType.ACTIVE_ONLY);
                 Get.executor().submit(importerSnapshot);
             });
             items.add(importSourcesSnapshot);
