@@ -121,7 +121,7 @@ public enum SupportedConverterTypes
                + " naming convention (4 digit year, 2 digit month, 2 digit day) - it also now also accepts the new naming convention with T and 2 digits each "
                + "of hour, minute and second.",
                ".*_\\d{8}.*\\.zip$", true)
-   }, "rf2-ibdf-", "convert-RF2-to-ibdf", "SnomedCT Extension", 
+   }, "rf2-ibdf-", "convert-RF2-direct-to-ibdf", "SnomedCT Extension", 
          new String[] {"shared/licenses/sct.xml"},
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
