@@ -71,11 +71,11 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.solor.rf2.direct.ImportType;
-import sh.isaac.solor.rf2.direct.LoincDirectImporter;
-import sh.isaac.solor.rf2.direct.LoincExpressionToConcept;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.DirectImporter;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.LoincDirectImporter;
+import sh.isaac.solor.direct.LoincExpressionToConcept;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.NodeFactory;
@@ -88,6 +88,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
+
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -257,13 +258,13 @@ public class KometStageController
 
             MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
             importSourcesFull.setOnAction((ActionEvent event) -> {
-                Rf2DirectImporter importerFull = new Rf2DirectImporter(ImportType.FULL);
+                DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                 Get.executor().submit(importerFull);
             });
             items.add(importSourcesFull);
             MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
             importSourcesSnapshot.setOnAction((ActionEvent event) -> {
-                Rf2DirectImporter importerSnapshot = new Rf2DirectImporter(ImportType.ACTIVE_ONLY);
+                DirectImporter importerSnapshot = new DirectImporter(ImportType.ACTIVE_ONLY);
                 Get.executor().submit(importerSnapshot);
             });
             items.add(importSourcesSnapshot);

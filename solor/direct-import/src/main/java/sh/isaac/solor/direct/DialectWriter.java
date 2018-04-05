@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -145,7 +145,7 @@ public class DialectWriter
 
             // '2011-12-03T10:15:30Z'
             TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(
-                                            Rf2DirectImporter.getIsoInstant(descriptionRecord[EFFECTIVE_TIME_INDEX]));
+                                            DirectImporter.getIsoInstant(descriptionRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
             // add to dialect assemblage

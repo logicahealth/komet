@@ -47,12 +47,12 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>sh.isaac.solor</groupId>
-            <artifactId>rf2-direct-import</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
+      <dependency>
+         <groupId>sh.isaac.solor</groupId>
+         <artifactId>direct-import</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>compile</scope>
+      </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.format.DateTimeFormatter;
@@ -189,7 +189,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 					int moduleNid = nidFromSctid(refsetRecord[MODULE_SCTID_INDEX]);
 					int assemblageNid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
 					int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
-					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
+					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
 					long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 					int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
 					
@@ -227,13 +227,13 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 									}
 									
 									LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
-											"DynamicDefinition for refset " + Rf2DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
+											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
 											dci.toArray(new DynamicColumnInfo[dci.size()]),
 											null, null, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 	
 									// Do a global commit to commit the metadata concepts created here, and just above
 									Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
-											"metadata commit for refset " + Rf2DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName())).get();
+											"metadata commit for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName())).get();
 								}
 								configuredDynamicSemantics.put(assemblageNid, true);
 							}

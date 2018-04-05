@@ -34,9 +34,10 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
+import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +77,7 @@ import sh.isaac.solor.ContentStreamProvider;
 /**
  * Loader code to convert RF2 format fileCount into the ISAAC format.
  */
-public class Rf2DirectImporter
+public class DirectImporter
         extends TimedTaskWithProgressTracker<Void>
         implements PersistTaskResult {
 
@@ -84,7 +85,7 @@ public class Rf2DirectImporter
             .availableProcessors() * 2;
 
     public static HashSet<String> watchTokens = new HashSet<>();
-    
+
     public static Boolean importDynamic = false;
 
     /**
@@ -102,7 +103,7 @@ public class Rf2DirectImporter
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
 
     //~--- constructors --------------------------------------------------------
-    public Rf2DirectImporter(ImportType importType) {
+    public DirectImporter(ImportType importType) {
         this.importType = importType;
         this.entriesToImport = null;
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
@@ -110,12 +111,12 @@ public class Rf2DirectImporter
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
 
-        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        updateTitle("Importing from from" + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
 
-    public Rf2DirectImporter(ImportType importType, List<ContentProvider> entriesToImport) {
+    public DirectImporter(ImportType importType, List<ContentProvider> entriesToImport) {
         this.importType = importType;
         this.entriesToImport = entriesToImport;
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
@@ -123,12 +124,12 @@ public class Rf2DirectImporter
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
 
-        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        updateTitle("Importing from from" + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
     
-    public Rf2DirectImporter(ImportType importType, File importDirectory) {
+    public DirectImporter(ImportType importType, File importDirectory) {
         this.importType = importType;
         this.entriesToImport = null;
         this.importDirectory = importDirectory;
@@ -149,10 +150,10 @@ public class Rf2DirectImporter
             throws Exception {
         try {
             final long time = System.currentTimeMillis();
-  
+
             if (this.entriesToImport != null) {
                 ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
-                for (ContentProvider entry: this.entriesToImport) {
+                for (ContentProvider entry : this.entriesToImport) {
                     processEntry(entry, specificationsToImport);
                 }
                 doImport(specificationsToImport, time);
@@ -241,9 +242,9 @@ public class Rf2DirectImporter
             builder.append("     ").append(spec.streamType);
             builder.append(": ").append(spec.contentProvider.getStreamSourceName()).append("\n");
         }
-        
+
         HashMap<String, UUID> createdColumnConcepts = new HashMap<>();
-        ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
 
         LOG.info(builder.toString());
 
@@ -335,24 +336,23 @@ public class Rf2DirectImporter
                             read_DYNAMIC_REFSET(br, importSpecification, createdColumnConcepts, configuredDynamicSemantics);
                             break;
 
+                        case RXNORM_CONSO:
+                            readRXNORM_CONSO(br, importSpecification);
+                            break;
+
+                        case LOINC:
+                            readLOINC(br, importSpecification);
+                            break;
+
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                     }
                 }
+            } catch (Exception e) {
+                LOG.error("Unexpected error", e);
             }
-         catch (Exception e) {
-            LOG.error("Unexpected error",e );
-        }
             completedUnitOfWork();
         }
-
-        updateMessage("Transforming LOINC expressions...");
-        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
-        Get.executor().submit(expressionToConceptTask).get();
-
-        updateMessage("Importing LOINC records...");
-        LoincDirectImporter importTask = new LoincDirectImporter();
-        Get.executor().submit(importTask).get();
 
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
@@ -375,8 +375,7 @@ public class Rf2DirectImporter
         } else if (entryName.contains("refset_")) {
             if (importDynamic) {
                 entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
-            }
-            else {
+            } else {
                 if (entryName.contains("_ccirefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
@@ -445,8 +444,167 @@ public class Rf2DirectImporter
                     LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
                 }
             }
+        } else if (entryName.toUpperCase().endsWith("RXNCONSO.RRF")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.RXNORM_CONSO));
+        } else if (entryName.toUpperCase().endsWith("LOINC.CSV")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.LOINC));
         }
 
+    }
+
+    private void readLOINC(BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
+        updateMessage("Transforming LOINC expressions...");
+        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
+        Get.executor().submit(expressionToConceptTask).get();
+
+        updateMessage("Importing LOINC data...");
+        long commitTime = System.currentTimeMillis();
+        AssemblageService assemblageService = Get.assemblageService();
+        boolean empty = true;
+
+        try (CSVReader reader = new CSVReader(br)) {
+            reader.readNext();  // discard header row
+
+            final int writeSize = 102400;
+            ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
+            String[] columns;
+            while ((columns = reader.readNext()) != null) {
+                empty = false;
+                for (int i = 0; i < columns.length; i++) {
+                    if (columns[i] == null) {
+                        columns[i] = "null";
+                    }
+                }
+
+                columnsToWrite.add(columns);
+
+                if (columnsToWrite.size() == writeSize) {
+                    LoincWriter loincWriter = new LoincWriter(
+                            columnsToWrite,
+                            this.writeSemaphore,
+                            "Processing LOINC records from: " + DirectImporter.trimZipName(
+                                    importSpecification.contentProvider.getStreamSourceName()),
+                            commitTime);
+
+                    columnsToWrite = new ArrayList<>(writeSize);
+                    Get.executor()
+                            .submit(loincWriter);
+                }
+            }
+            if (empty) {
+                LOG.warn("No data in file: " + 
+                                    importSpecification.contentProvider.getStreamSourceName());
+            }
+
+            if (empty) {
+                LOG.warn("No data in file: " + 
+                                    importSpecification.contentProvider.getStreamSourceName());
+            }
+            if (!columnsToWrite.isEmpty()) {
+                LoincWriter loincWriter = new LoincWriter(
+                        columnsToWrite,
+                        this.writeSemaphore,
+                        "Reading LOINC records from: " + DirectImporter.trimZipName(
+                                
+                                    importSpecification.contentProvider.getStreamSourceName()), commitTime);
+
+                Get.executor()
+                        .submit(loincWriter);
+            }
+
+            updateMessage("Waiting for LOINC file completion...");
+            this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+                try {
+                    indexer.sync().get();
+                } catch (Exception e) {
+                    LOG.error("problem calling sync on index", e);
+                }
+            }
+            updateMessage("Synchronizing LOINC records to database...");
+            assemblageService.sync();
+            this.writeSemaphore.release(WRITE_PERMITS);
+        }
+
+
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing LOINC to database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void readRXNORM_CONSO(BufferedReader br,
+            ImportSpecification importSpecification) throws IOException {
+        updateMessage("Importing RxNorm data...");
+        long commitTime = System.currentTimeMillis();
+        AssemblageService assemblageService = Get.assemblageService();
+        final int writeSize = 102400;
+        ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
+        String rowString;
+
+        // RRF has no header row br.readLine();  // discard header row
+        boolean empty = true;
+        while ((rowString = br.readLine()) != null) {
+            empty = false;
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+
+            columnsToWrite.add(columns);
+
+            if (columnsToWrite.size() == writeSize) {
+                RxNormWriter rxNormWriter = new RxNormWriter(
+                        columnsToWrite,
+                        this.writeSemaphore,
+                        "Processing RxNorm records from: " + trimZipName(
+                                importSpecification.contentProvider.getStreamSourceName()), commitTime);
+
+                columnsToWrite = new ArrayList<>(writeSize);
+                Get.executor()
+                        .submit(rxNormWriter);
+            }
+        }
+        if (empty) {
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
+        }
+
+        if (empty) {
+            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
+        }
+        if (!columnsToWrite.isEmpty()) {
+            RxNormWriter rxNormWriter = new RxNormWriter(
+                    columnsToWrite,
+                    this.writeSemaphore,
+                    "Finishing RxNorm records from: " + trimZipName(
+                            importSpecification.contentProvider.getStreamSourceName()), commitTime);
+
+            Get.executor()
+                    .submit(rxNormWriter);
+        }
+
+        updateMessage("Waiting for RxNorm file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing RxNorm to database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(BufferedReader br,
@@ -504,19 +662,25 @@ public class Rf2DirectImporter
     }
 
     protected String[] checkWatchTokensAndSplit(String rowString, ImportSpecification importSpecification) {
-        String[] columns = rowString.split("\t");
-        if (!watchTokens.isEmpty()) {
-            int watchCount = 0;
-            for (String column : columns) {
-                if (watchTokens.contains(column)) {
-                    watchCount++;
-                }
+        String[] columns;
+        if (importSpecification.streamType == ImportStreamType.RXNORM_CONSO) {
+            columns = rowString.split("\\|");
+        } else {
 
-            }
-            if (watchCount >= 3) {
-                LOG.info("Found watch tokens in: "
-                        + importSpecification.contentProvider.getStreamSourceName()
-                        + " \n" + rowString);
+            columns = rowString.split("\t");
+            if (!watchTokens.isEmpty()) {
+                int watchCount = 0;
+                for (String column : columns) {
+                    if (watchTokens.contains(column)) {
+                        watchCount++;
+                    }
+
+                }
+                if (watchCount >= 3) {
+                    LOG.info("Found watch tokens in: "
+                            + importSpecification.contentProvider.getStreamSourceName()
+                            + " \n" + rowString);
+                }
             }
         }
         return columns;
@@ -1209,10 +1373,10 @@ public class Rf2DirectImporter
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
-    
+
     private void read_DYNAMIC_REFSET(BufferedReader br,
-            ImportSpecification importSpecification, HashMap<String, UUID> createdColumnConcepts, ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics) 
-                  throws IOException {
+            ImportSpecification importSpecification, HashMap<String, UUID> createdColumnConcepts, ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics)
+            throws IOException {
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
@@ -1287,7 +1451,7 @@ public class Rf2DirectImporter
                 
                 //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
                 refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept, 
-                    DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true));
+                    DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true)); 
             }
             //At this point, we should have a hash, of how every single refset should be configured.  
            //sort the column info and sanity check....
@@ -1335,7 +1499,7 @@ public class Rf2DirectImporter
             LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
-           DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
+            DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing dynamic semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
                     importSpecification, importType, refsetColumnInfo, configuredDynamicSemantics);
@@ -1347,11 +1511,10 @@ public class Rf2DirectImporter
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         int skipped = 0;
-        for (DynamicRefsetWriter writer: writers) {
+        for (DynamicRefsetWriter writer : writers) {
             try {
                 skipped += writer.get();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOG.error("Unexpected failure", e);
             }
         }

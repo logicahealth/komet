@@ -18,11 +18,13 @@ package sh.isaac.komet.iconography;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import java.awt.Font;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import org.apache.batik.svggen.SVGFont;
 
 /**
  *
@@ -186,6 +188,9 @@ public class IconographyTest extends Application {
    }
 
    public static void main(String[] args) {
+//      Font font = new Font("FontAwesome", Font.PLAIN, 12);
+//      String svg = SVGFont.familyToSVG(font);
+//      System.out.println(svg);
       launch(args);
    }
 

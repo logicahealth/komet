@@ -97,7 +97,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.model.logic.node.RootNode;
 import sh.komet.gui.control.axiom.AxiomView;
 
 //~--- classes ----------------------------------------------------------------

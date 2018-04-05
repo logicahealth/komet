@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -47,24 +47,25 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
           int start = refsetFileName.substring(0, end).lastIndexOf('_');
           String spec = refsetFileName.substring(start + 1, end).toLowerCase();
           for (char c : spec.toCharArray()) {
-             if (c == 'i') {
-                bdt.add(BrittleDataTypes.INTEGER);
-             }
-             else if (c == 'c') {
-                bdt.add(BrittleDataTypes.NID);
-             }
-             else if (c == 's') {
-                bdt.add(BrittleDataTypes.STRING);
-             }
-             else if (c == 'b') {
-                bdt.add(BrittleDataTypes.BOOLEAN);
-             }
-             else if (c == 'f') {
-                bdt.add(BrittleDataTypes.FLOAT);
-             }
-             else {
-                throw new RuntimeException("Unhandled refset type " + c + " or maybe misparsed the spec: " + spec);
-             }
+              switch (c) {
+                  case 'i':
+                      bdt.add(BrittleDataTypes.INTEGER);
+                      break;
+                  case 'c':
+                      bdt.add(BrittleDataTypes.NID);
+                      break;
+                  case 's':
+                      bdt.add(BrittleDataTypes.STRING);
+                      break;
+                  case 'b':
+                      bdt.add(BrittleDataTypes.BOOLEAN);
+                      break;
+                  case 'f':
+                      bdt.add(BrittleDataTypes.FLOAT);
+                      break;
+                  default:
+                      throw new RuntimeException("Unhandled refset type " + c + " or maybe misparsed the spec: " + spec);
+              }
           }
           refsetBrittleTypes = bdt.toArray(new BrittleDataTypes[bdt.size()]);
        }
@@ -111,7 +112,7 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       if (this.streamType != o.streamType) {
          return this.streamType.compareTo(o.streamType);
       }
-      //Next, I need the "Reference set descriptor reference set (foundation metadata concept)" (900000000000456007) reference set first, 
+     //Next, I need the "Reference set descriptor reference set (foundation metadata concept)" (900000000000456007) reference set first, 
       //because this refset tells me what the columns / orders / etc are for every other refset.
       //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
       if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
@@ -122,7 +123,7 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       }
       
       //finally, just sort by file name...
-      return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName().toString());
+      return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName());
    }
 
    @Override

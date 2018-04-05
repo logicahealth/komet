@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.solor.rf2.direct;
+package sh.isaac.solor.direct;
 
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
@@ -118,7 +118,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             UUID descriptionTypeUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPTION_TYPE_SCT_ID_INDEX]);
             // '2011-12-03T10:15:30Z'
 
-            TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(Rf2DirectImporter.getIsoInstant(descriptionRecord[EFFECTIVE_TIME_INDEX]));
+            TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(descriptionRecord[EFFECTIVE_TIME_INDEX]));
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to description assemblage

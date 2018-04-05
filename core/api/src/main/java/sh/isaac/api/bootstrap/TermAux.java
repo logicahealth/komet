@@ -425,8 +425,9 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification MILLIGRAM = new ConceptProxy("milligram", "mg", UUID.fromString("64b14d8e-5893-5927-a165-28d7ea0a1357"));
     public static ConceptSpecification MASS_MEASUREMENT_SEMANTIC = new ConceptProxy("Mass measurement semantic", "Mass measurement", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
 
+    public static ConceptSpecification RXNORM_CUI = new ConceptProxy("RxNorm CUI", "RxNorm CUI", UUID.fromString("492b1a88-dbce-56a0-a405-6c7742f3be86"));
+
     /*
-    public static ConceptSpecification SPEC27 = new ConceptProxy("", "", UUID.fromString("492b1a88-dbce-56a0-a405-6c7742f3be86"));
     public static ConceptSpecification SPEC28 = new ConceptProxy("", "", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));
     public static ConceptSpecification SPEC29 = new ConceptProxy("", "", UUID.fromString("4fa29287-a80e-5f83-abab-4b587973e7b7"));
     public static ConceptSpecification SPEC30 = new ConceptProxy("", "", UUID.fromString("8ed01f85-4ecc-5a40-8061-d537106d9c9e"));

@@ -115,6 +115,11 @@ public class UuidT5Generator {
        return get(TermAux.LOINC_CONCEPT_ASSEMBLAGE.getPrimordialUuid(),
                name);
    }
+   
+   public static UUID rxNormConceptUuid(String name) {
+       return get(TermAux.RXNORM_CUI.getPrimordialUuid(),
+               name);
+   }
    /**
     * Gets the.
     *
