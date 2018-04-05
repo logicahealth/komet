@@ -79,6 +79,7 @@ public class ContentConverterCreator
 	private static final Logger LOG = LogManager.getLogger();
 	public static final String IBDF_OUTPUT_GROUP = "sh.isaac.terminology.converted";
 	public static final String WORKING_SUBFOLDER = "converter-executor";
+	public static final String CLASSIFIERS_OPTION = "classifiers";
 
 	// ~--- methods -------------------------------------------------------------
 
@@ -224,6 +225,7 @@ public class ContentConverterCreator
 			}
 
 			final StringBuilder userOptions = new StringBuilder();
+			String[] classifiers = null;
 
 			if (converterOptionValues != null)
 			{
@@ -231,6 +233,12 @@ public class ContentConverterCreator
 
 				for (final Entry<ConverterOptionParam, Set<String>> option : converterOptionValues.entrySet())
 				{
+					if (option.getKey().getInternalName().equals(CLASSIFIERS_OPTION))
+					{
+						//handled below
+						classifiers = option.getValue().toArray(new String[option.getValue().size()]);
+						continue;
+					}
 					if (option.getValue() != null)
 					{
 						if (!option.getKey().isAllowMultiSelect() && (option.getValue().size() > 1))
@@ -303,18 +311,21 @@ public class ContentConverterCreator
 			}
 
 			final StringBuilder profiles = new StringBuilder();
-			String[] classifiers = new String[] {};
 
-			switch (conversionType)
+			if (classifiers == null)
 			{
-				case SCT:
-				case SCT_EXTENSION:
-					classifiers = new String[] { "Snapshot", "Delta", "Full" };
-					break;
+				//no classifier option found above
+				switch (conversionType)
+				{
+					case SCT:
+					case SCT_EXTENSION:
+						classifiers = new String[] { "Snapshot", "Delta", "Full" };
+						break;
 
-				default :
-					classifiers = new String[] { "" };
-					break;
+					default :
+						classifiers = new String[] { "" };
+						break;
+				}
 			}
 
 			for (final String classifier : classifiers)
