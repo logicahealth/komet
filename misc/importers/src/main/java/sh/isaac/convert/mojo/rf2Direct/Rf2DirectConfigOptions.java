@@ -62,7 +62,8 @@ public class Rf2DirectConfigOptions implements ConfigOptionsDescriptor
                   true, 
                   true,
                   new ConverterOptionParamSuggestedValue("Snapshot", "Process the Snapshot portion of the RF2 content"),
-                  new ConverterOptionParamSuggestedValue("Full", "Process the Full portion of the RF2 content")
+                  new ConverterOptionParamSuggestedValue("Full", "Process the Full portion of the RF2 content"),
+                  new ConverterOptionParamSuggestedValue("Snapshot-Active-Only", "Process the Snapshot portion of the RF2 content, and only maintain the active components")
             )};
    }
 

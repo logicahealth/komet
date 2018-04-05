@@ -34,8 +34,12 @@ public enum ImportType {
         else if (stringValue.toLowerCase().equals(SNAPSHOT.name().toLowerCase())) {
             return SNAPSHOT;
         }
+        //Provide lots of parse options, because this is a classifier a user can hand enter when configuring the conversion...
         else if (stringValue.toLowerCase().equals(ACTIVE_ONLY.name().toLowerCase()) 
-                || stringValue.toLowerCase().equals("active only")) {
+                || stringValue.toLowerCase().equals("active only")
+                || stringValue.toLowerCase().equals("snapshot active only")
+                || stringValue.toLowerCase().equals("snapshot_active_only")
+                || stringValue.toLowerCase().equals("snapshot-active-only")) {
             return ACTIVE_ONLY;
         }
         else if (stringValue.toLowerCase().equals(DELTA.name().toLowerCase())) {
