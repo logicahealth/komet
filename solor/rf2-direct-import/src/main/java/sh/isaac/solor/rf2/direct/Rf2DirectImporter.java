@@ -98,6 +98,7 @@ public class Rf2DirectImporter
     protected final ImportType importType;
 
     protected final List<ContentProvider> entriesToImport;
+    protected File importDirectory;
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
 
     //~--- constructors --------------------------------------------------------
@@ -126,6 +127,16 @@ public class Rf2DirectImporter
         Get.activeTasks()
                 .add(this);
     }
+    
+    public Rf2DirectImporter(ImportType importType, File importDirectory) {
+        this.importType = importType;
+        this.entriesToImport = null;
+        this.importDirectory = importDirectory;
+
+        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        Get.activeTasks()
+                .add(this);
+    }
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -146,7 +157,7 @@ public class Rf2DirectImporter
                 }
                 doImport(specificationsToImport, time);
             } else {
-                File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
+                File importDirectory = this.importDirectory == null ? Get.configurationService().getIBDFImportPath().toFile() : this.importDirectory;
 
                 System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
