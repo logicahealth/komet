@@ -35,38 +35,30 @@
  *
  */
 
-
-
 package sh.isaac.provider.ibdf;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.nio.file.Path;
-
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.glassfish.hk2.api.PerLookup;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 
 /**
  * The Class BinaryDataWriterProvider.
@@ -77,29 +69,24 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 @PerLookup
 public class BinaryDataWriterProvider
          implements DataWriterService {
-   /** The Constant BUFFER_SIZE. */
+
    private static final int BUFFER_SIZE = 1024;
-
-   //~--- fields --------------------------------------------------------------
-
-   /**
-    * The Constant LOG.
-    */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The pause block. */
-   private final Semaphore pauseBlock = new Semaphore(1);
+   //Used to prevent corruption of the file being written, and to pause put operations, so other thread can read the file when necessary, 
+   //for example, when doing a git sync.
+   private final Semaphore ioBlock = new Semaphore(1);
 
-   /** The buffer. */
-   ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(BUFFER_SIZE);
+   //Where the file is written.
+   private Path dataPath;
 
-   /** The data path. */
-   Path dataPath;
-
-   /** The output. */
-   DataOutputStream output;
-
-   //~--- constructors --------------------------------------------------------
+   private DataOutputStream output;
+   
+   //In threaded mode, this is the intermediate buffer / queue to accept / hold input in a non-blocking way.
+   private ArrayBlockingQueue<Runnable> queue = null;
+   
+   //in threaded mode, a single-threaded executor that processes the queue.
+   private ThreadPoolExecutor tpe;
 
    /**
     * Instantiates a new binary data writer provider.
@@ -115,37 +102,62 @@ public class BinaryDataWriterProvider
     * For non-HK2 use cases.
     *
     * @param dataPath the data path
+    * @param threadedWrites enable or disable caching all {@link #put(IsaacExternalizable)} calls into a blocking queue, 
+    * and having a single thread do all writing from the queue.  This option is useful for a specific converter usecase.
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public BinaryDataWriterProvider(Path dataPath)
+   public BinaryDataWriterProvider(Path dataPath, boolean threadedWrites)
             throws IOException {
       this();
+      if (threadedWrites) {
+         queue = new ArrayBlockingQueue<>(1000);
+         tpe = new ThreadPoolExecutor(1, 1, 5, TimeUnit.MINUTES, queue, new NamedThreadFactory("BinaryDataWriter thread", false));
+         
+         RejectedExecutionHandler block = new RejectedExecutionHandler() {
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+               try {
+                  executor.getQueue().put(r);
+               }
+               catch (InterruptedException e){
+                  throw new RuntimeException(e);
+               }
+            }
+         };
+         tpe.setRejectedExecutionHandler(block);
+      }
       configure(dataPath);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Close.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
+    * {@inheritDoc}
     */
    @Override
    public void close()
             throws IOException {
       try {
-         this.output.flush();
-         this.output.close();
+         if (tpe != null) {
+            tpe.shutdown();
+         }
       } finally {
-         this.output = null;
+          closeFileOnly();
       }
    }
+   
+   /*
+    * For internal use by pause - doesn't tear down the executor.
+    */
+   private void closeFileOnly()
+           throws IOException {
+     try {
+        this.output.flush();
+        this.output.close();
+     } finally {
+        this.output = null;
+     }
+  }
 
    /**
-    * Configure.
-    *
-    * @param path the path
-    * @throws IOException Signals that an I/O exception has occurred.
+    * {@inheritDoc}
     */
    @Override
    public final void configure(Path path)
@@ -157,7 +169,6 @@ public class BinaryDataWriterProvider
       this.dataPath = path;
       this.dataPath.toFile().getParentFile().mkdirs();
       this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
-      this.buffer.setExternalData(true);
       LOG.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
 
       if (!Get.configurationService().isInDBBuildMode()) {
@@ -175,10 +186,7 @@ public class BinaryDataWriterProvider
    }
 
    /**
-    * Flush.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.externalizable.DataWriterService#flush()
+    * {@inheritDoc}
     */
    @Override
    public void flush()
@@ -189,9 +197,7 @@ public class BinaryDataWriterProvider
    }
 
    /**
-    * Pause.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
+    * {@inheritDoc}
     */
    @Override
    public void pause()
@@ -201,42 +207,51 @@ public class BinaryDataWriterProvider
          return;
       }
 
-      this.pauseBlock.acquireUninterruptibly();
-      close();
+      this.ioBlock.acquireUninterruptibly();
+      closeFileOnly();
       LOG.debug("ibdf writer paused");
    }
 
    /**
-    * Put.
-    *
-    * @param ochreObject the ochre object
-    * @throws RuntimeException the runtime exception
+    * {@inheritDoc}
     */
    @Override
    public void put(IsaacExternalizable ochreObject)
             throws RuntimeException {
-      try {
-         this.pauseBlock.acquireUninterruptibly();
-         this.buffer.clear();
-         ochreObject.putExternal(this.buffer);
-         this.output.writeInt(this.buffer.getLimit());
-         this.output.write(this.buffer.getData(), 0, this.buffer.getLimit());
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      } finally {
-         this.pauseBlock.release();
+
+      //Convert the content in the calling thread.
+      ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(BUFFER_SIZE);
+      buffer.setExternalData(true);
+      ochreObject.putExternal(buffer);
+      if (queue == null) {
+         //no queue, go ahead and block / write on this thread. 
+         realPut(buffer);
+      }
+      else {
+         tpe.execute(() -> realPut(buffer));
       }
    }
+   
+   private void realPut(ByteArrayDataBuffer bufferToWrite)
+           throws RuntimeException {
+     try {
+        this.ioBlock.acquireUninterruptibly();
+        this.output.writeInt(bufferToWrite.getLimit());
+        this.output.write(bufferToWrite.getData(), 0, bufferToWrite.getLimit());
+     } catch (final IOException e) {
+        throw new RuntimeException(e);
+     } finally {
+        this.ioBlock.release();
+     }
+  }
 
    /**
-    * Resume.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
+    * {@inheritDoc}
     */
    @Override
    public void resume()
             throws IOException {
-      if (this.pauseBlock.availablePermits() == 1) {
+      if (this.ioBlock.availablePermits() == 1) {
          LOG.warn("asked to resume, but not paused?");
          return;
       }
@@ -245,20 +260,15 @@ public class BinaryDataWriterProvider
          configure(this.dataPath);
       }
 
-      this.pauseBlock.release();
+      this.ioBlock.release();
       LOG.debug("ibdf writer resumed");
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the current path.
-    *
-    * @return the current path
+    * {@inheritDoc}
     */
    @Override
    public Path getCurrentPath() {
       return this.dataPath;
    }
 }
-
