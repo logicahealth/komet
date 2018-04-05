@@ -100,6 +100,7 @@ import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -144,6 +145,7 @@ public class BdbProvider
    private final DatabaseConfig                                     noDupConfig            = new DatabaseConfig();
    private final ConcurrentSkipListSet<Integer>                     assemblageNids = new ConcurrentSkipListSet<>();
    private final SpinedNidNidSetMap                                 componentToSemanticMap = new SpinedNidNidSetMap();
+   private ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
    /**
     * The database validity.
@@ -222,6 +224,10 @@ public class BdbProvider
       if (status != OperationStatus.SUCCESS) {
          throw new RuntimeException("Operation failed: " + status);
       }
+      
+      for (DataWriteListener dwl : writeListeners) {
+          dwl.writeData(chronology);
+       }
    }
 
    private void putSequenceGeneratorMap(ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map) {
@@ -955,6 +961,22 @@ public class BdbProvider
    public int getAssemblageSizeOnDisk(int assemblageNid) {
       // TODO [KEC] Auto-generated method stub
       return 0;
+   }
+   
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void registerDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.add(dataWriteListener);
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void unregisterDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.remove(dataWriteListener);
    }
 }
 
