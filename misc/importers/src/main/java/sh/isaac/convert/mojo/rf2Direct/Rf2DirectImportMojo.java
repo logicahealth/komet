@@ -156,6 +156,7 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 			{
 				uniqueModules.add(ss.getModuleNidForStamp(stampSequence));
 			});
+			long importTime = System.currentTimeMillis();
 			
 			for (int moduleNid : uniqueModules)
 			{
@@ -163,7 +164,7 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 				{
 					UUID module = Get.identifierService().getUuidPrimordialForNid(moduleNid);
 					ConverterUUID.configureNamespace(module);
-					importUtil.setModule(module, null);
+					importUtil.setModule(module, importTime);
 					log.info("adding loader metadata to {}", Get.conceptDescriptionText(moduleNid));
 					
 					// loadTerminologyMetadataAttributes on each module that came out of the RF2 content
