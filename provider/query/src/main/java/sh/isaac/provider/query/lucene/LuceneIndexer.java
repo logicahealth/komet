@@ -733,7 +733,7 @@ public abstract class LuceneIndexer
                LOG.debug("Search exhausted after finding only {} results (of {} requested) from query", results.size(), internalSize);
             } else {
                for (ScoreDoc hit : topDocs.scoreDocs) {
-                  LOG.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
+                  LOG.trace("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
 
                   // Save the last doc to search after later, if needed
                   after = hit;
