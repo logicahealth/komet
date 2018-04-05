@@ -61,6 +61,7 @@ import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.rf2.direct.ImportType;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxUtils;
 public class ImportViewController {
@@ -224,17 +225,17 @@ public class ImportViewController {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
         
-        sh.isaac.solor.rf2.direct.ImportType directImportType = null;
+        ImportType directImportType = null;
  
         switch (importType.getValue()) {
             case ACTIVE_ONLY:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.ACTIVE_ONLY;
+                directImportType = ImportType.ACTIVE_ONLY;
                 break;
             case FULL:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.FULL;
+                directImportType = ImportType.FULL;
                 break;
             case SNAPSHOT:
-                directImportType = sh.isaac.solor.rf2.direct.ImportType.SNAPSHOT;
+                directImportType = ImportType.SNAPSHOT;
                 break;
          case IGNORE:
             break;

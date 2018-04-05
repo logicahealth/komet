@@ -21,5 +21,26 @@ package sh.isaac.solor.rf2.direct;
  * @author kec
  */
 public enum ImportType {
-    FULL, SNAPSHOT, ACTIVE_ONLY;
+    FULL, SNAPSHOT, ACTIVE_ONLY, DELTA;
+
+    /**
+     * @param stringValue
+     * @return the Matching import type, or a runtime exception if unmatchable
+     */
+    public static ImportType parseFromString(String stringValue) {
+        if (stringValue.toLowerCase().equals(FULL.name().toLowerCase())) {
+            return FULL;
+        }
+        else if (stringValue.toLowerCase().equals(SNAPSHOT.name().toLowerCase())) {
+            return SNAPSHOT;
+        }
+        else if (stringValue.toLowerCase().equals(ACTIVE_ONLY.name().toLowerCase()) 
+                || stringValue.toLowerCase().equals("active only")) {
+            return ACTIVE_ONLY;
+        }
+        else if (stringValue.toLowerCase().equals(DELTA.name().toLowerCase())) {
+            return DELTA;
+        }
+        throw new IllegalArgumentException("No match for import type " + stringValue); 
+    }
 }
