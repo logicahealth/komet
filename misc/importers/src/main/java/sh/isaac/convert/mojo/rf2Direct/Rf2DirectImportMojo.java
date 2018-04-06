@@ -65,9 +65,9 @@ import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.DataStore;
-import sh.isaac.solor.rf2.direct.ImportType;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.DirectImporter;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
  * 
@@ -130,8 +130,8 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 
 			log.info("Setting up import file structure");
 			
-			Rf2DirectImporter.importDynamic = true;
-			Rf2DirectImporter importer = new Rf2DirectImporter(it, inputFileLocation.getCanonicalFile());
+			DirectImporter.importDynamic = true;
+			DirectImporter importer = new DirectImporter(it, inputFileLocation.getCanonicalFile());
 			
 			log.info("Importing");
 			Future<?> f = Get.executor().submit(importer);
