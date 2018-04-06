@@ -3,14 +3,26 @@
 	<Appenders>
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="%-5p %d  [%t] %C{2} (%F:%L) - %m%n" />
+			<Filters>
+				<ThresholdFilter level="warn" />
+			</Filters>
 		</Console>
+
+		<!-- Prints everything -->
+		<File name="FILE-DEBUG" fileName="db-config-builder-debug.log">
+			<PatternLayout pattern="%d %-5p [%t] %logger (%F:%L) - %msg%n" />
+			<Filters>
+				<ThresholdFilter level="ALL" />
+			</Filters>
+		</File>
 	</Appenders>
+
 	<Loggers>
-		<!-- Quiet down various loggers that we don't want flooding the console with debug info -->
-		<!--Logger name="gov.va.oia.HK2Utilities" level="info" /-->
-		<Root level="warn">
+		<!-- Quiet down / make louder various loggers -->
+		<Logger name="sh.isaac" level="debug" />
+		<Root level="info">
 			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE-DEBUG" />
 		</Root>
 	</Loggers>
 </Configuration>
-

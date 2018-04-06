@@ -31,6 +31,7 @@ public class StreamRedirect extends OutputStream
 	private static Logger log = LogManager.getLogger();
 	private TextArea ta_;
 	private StringBuilder buffer = new StringBuilder();
+	private String lastMessage = "";
 	
 	public StreamRedirect(TextArea ta)
 	{
@@ -49,12 +50,27 @@ public class StreamRedirect extends OutputStream
 		StringBuilder newBuffer = new StringBuilder();
 		final StringBuilder oldBuffer = buffer;
 		buffer = newBuffer;
-		log.info("Maven Execution: " + oldBuffer.toString());
 		
-		Platform.runLater(() ->
+		String message = oldBuffer.toString();
+		if (message.length() == 0)
 		{
-			ta_.appendText(oldBuffer.toString());
-		});
+			return;
+		}
+		if (!message.equals(lastMessage)) //maven can be repetitive...since it thinks its writing to a console and backspacing.
+		{
+			String messageTrimmed = oldBuffer.toString().trim();
+			if (messageTrimmed.length() > 0 && !messageTrimmed.equals("."))
+			{
+				log.info("Maven Execution: " + messageTrimmed);
+			}
+		
+			Platform.runLater(() ->
+			{
+				ta_.appendText(message);
+			});
+		}
+		
+		lastMessage = message;
 	}
 
 	@Override
