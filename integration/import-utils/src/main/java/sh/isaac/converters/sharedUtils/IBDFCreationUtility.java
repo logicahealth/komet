@@ -1073,8 +1073,8 @@ public class IBDFCreationUtility
     */
    private void validateDataTypes(UUID assemblageType, DynamicData[] values)
    {
-      //TODO [DAN 3] this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
-      //generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
+      //TODO [DAN 3] this should be a much better validator - checking all of the various things in DynamicUtility.validate - 
+      //need to enforce the restrictions defined in the columns in the validators
       
       DynamicColumnInfo[] colInfo;
       
