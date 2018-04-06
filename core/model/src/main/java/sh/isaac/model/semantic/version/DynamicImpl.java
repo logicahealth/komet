@@ -262,7 +262,12 @@ public class DynamicImpl
    @Override
    public DynamicData getData(int columnNumber)
             throws IndexOutOfBoundsException {
-      return getData()[columnNumber];
+      DynamicData[] dd = getData();
+      //We don't require trailing, blank columns in the cases where the end columns are optional
+      if (dd.length <= columnNumber) {
+         return null;
+      }
+      return dd[columnNumber];
    }
 
    /**
