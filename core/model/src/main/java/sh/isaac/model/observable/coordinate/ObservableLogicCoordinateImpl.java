@@ -130,6 +130,7 @@ public class ObservableLogicCoordinateImpl
                ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                getClassifierNid());
          addListenerReference(this.logicCoordinate.setClassifierNidProperty(this.classifierNidProperty));
+         this.classifierNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.classifierNidProperty;
@@ -142,9 +143,10 @@ public class ObservableLogicCoordinateImpl
                ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                getClassifierNid());
          addListenerReference(this.logicCoordinate.setConceptAssemblageNidProperty(this.conceptAssemblageNidProperty));
+         this.conceptAssemblageNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
-      return this.classifierNidProperty;
+      return this.conceptAssemblageNidProperty;
    }
 
    /**
@@ -159,6 +161,7 @@ public class ObservableLogicCoordinateImpl
                ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                getDescriptionLogicProfileNid());
          addListenerReference(this.logicCoordinate.setDescriptionLogicProfileNidProperty(this.descriptionLogicProfileNidProperty));
+         this.descriptionLogicProfileNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.descriptionLogicProfileNidProperty;
@@ -196,6 +199,7 @@ public class ObservableLogicCoordinateImpl
          this.inferredAssemblageNidProperty = new SimpleIntegerProperty(this,
                ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                getInferredAssemblageNid());
+         this.inferredAssemblageNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       addListenerReference(this.logicCoordinate.setInferredAssemblageNidProperty(this.inferredAssemblageNidProperty));
@@ -214,6 +218,7 @@ public class ObservableLogicCoordinateImpl
                ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                getStatedAssemblageNid());
          addListenerReference(this.logicCoordinate.setStatedAssemblageNidProperty(this.statedAssemblageNidProperty));
+         this.statedAssemblageNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.statedAssemblageNidProperty;

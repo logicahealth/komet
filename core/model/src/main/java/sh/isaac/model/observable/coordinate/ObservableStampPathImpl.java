@@ -43,6 +43,7 @@ package sh.isaac.model.observable.coordinate;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.beans.InvalidationListener;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -113,6 +114,7 @@ public class ObservableStampPathImpl
          this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
                getPathConceptNid());
+         this.pathConceptSequenceProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.pathConceptSequenceProperty;
@@ -129,6 +131,7 @@ public class ObservableStampPathImpl
          this.pathOriginsProperty = new ReadOnlyListWrapper<>(this,
                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
                FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
+         this.pathOriginsProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.pathOriginsProperty;

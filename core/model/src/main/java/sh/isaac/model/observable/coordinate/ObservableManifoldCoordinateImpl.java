@@ -49,7 +49,7 @@ import java.util.UUID;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -115,11 +115,13 @@ public class ObservableManifoldCoordinateImpl
             this.languageCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                     (ObservableLanguageCoordinate) this.manifoldCoordinate.getLanguageCoordinate());
+            languageCoordinateProperty.bind((ObservableValue<? extends ObservableLanguageCoordinate>) this.manifoldCoordinate.getLanguageCoordinate());
          } else {
             this.languageCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                new ObservableLanguageCoordinateImpl(this.manifoldCoordinate.getLanguageCoordinate()));
          }
+         this.languageCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.languageCoordinateProperty;
@@ -133,15 +135,17 @@ public class ObservableManifoldCoordinateImpl
    @Override
    public ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty() {
       if (this.logicCoordinateProperty == null) {
-         if (manifoldCoordinate.getLanguageCoordinate() instanceof ObservableLogicCoordinate) {
+         if (manifoldCoordinate.getLogicCoordinate() instanceof ObservableLogicCoordinate) {
             this.logicCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                     (ObservableLogicCoordinate) this.manifoldCoordinate.getLogicCoordinate());
+            logicCoordinateProperty.bind((ObservableValue<? extends ObservableLogicCoordinate>) this.manifoldCoordinate.getLogicCoordinate());
          } else {
             this.logicCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                new ObservableLogicCoordinateImpl(this.manifoldCoordinate.getLogicCoordinate()));
          }
+         this.logicCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
       return this.logicCoordinateProperty;
    }
@@ -193,6 +197,7 @@ public class ObservableManifoldCoordinateImpl
          this.taxonomyPremiseTypeProperty().addListener((observable, oldValue, newValue) -> {
              this.manifoldCoordinate.setTaxonomyPremiseType(newValue);
          });
+         this.taxonomyTypeProperty.addListener((invalidation) -> fireValueChangedEvent());
          
       }
       return this.taxonomyTypeProperty;
@@ -221,15 +226,17 @@ public class ObservableManifoldCoordinateImpl
    @Override
    public ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty() {
      if (this.stampCoordinateProperty == null) {
-         if (manifoldCoordinate.getLanguageCoordinate() instanceof ObservableStampCoordinate) {
+         if (manifoldCoordinate.getStampCoordinate() instanceof ObservableStampCoordinate) {
             this.stampCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                     (ObservableStampCoordinate) this.manifoldCoordinate.getStampCoordinate());
+            stampCoordinateProperty.bind((ObservableValue<? extends ObservableStampCoordinate>) this.manifoldCoordinate.getStampCoordinate());
          } else {
             this.stampCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
                new ObservableStampCoordinateImpl(this.manifoldCoordinate.getStampCoordinate()));
          }
+         this.stampCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
       return this.stampCoordinateProperty;
    }
@@ -255,6 +262,7 @@ public class ObservableManifoldCoordinateImpl
          this.uuidProperty = new SimpleObjectProperty<>(this,
                ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(),
                this.manifoldCoordinate.getCoordinateUuid());
+         this.uuidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.uuidProperty;

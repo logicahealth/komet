@@ -43,9 +43,7 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-
 import javafx.collections.ObservableIntegerArray;
-
 import sh.isaac.api.coordinate.LanguageCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,7 +54,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
  * @author kec
  */
 public interface ObservableLanguageCoordinate
-        extends LanguageCoordinate {
+        extends LanguageCoordinate, ObservableCoordinate {
    /**
     * Description type preference list property.
     *
@@ -86,7 +84,5 @@ public interface ObservableLanguageCoordinate
    
    @Override
    public ObservableLanguageCoordinate deepClone();
-   
-
 }
 

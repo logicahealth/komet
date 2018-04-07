@@ -53,7 +53,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public interface ObservableEditCoordinate
-        extends EditCoordinate {
+        extends EditCoordinate, ObservableCoordinate {
    /**
     * Author sequence property.
     *
@@ -77,7 +77,5 @@ public interface ObservableEditCoordinate
 
    @Override
    public ObservableEditCoordinate deepClone();
-   
-   
 }
 

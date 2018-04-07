@@ -42,6 +42,7 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.time.Instant;
+import javafx.beans.InvalidationListener;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -104,6 +105,7 @@ public class ObservableStampPositionImpl
                ObservableFields.PATH_NID_FOR_STAMP_POSITION.toExternalString(),
                getStampPathNid());
          addListenerReference(this.stampPosition.setStampPathSequenceProperty(this.stampPathSequenceProperty));
+         this.stampPathSequenceProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.stampPathSequenceProperty;
@@ -121,6 +123,7 @@ public class ObservableStampPositionImpl
                ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
                getTime());
          addListenerReference(this.stampPosition.setTimeProperty(this.timeProperty));
+         this.timeProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.timeProperty;

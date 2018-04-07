@@ -140,6 +140,7 @@ public final class ObservableLanguageCoordinateImpl
             this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
                 this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(new int[t1.size()]));
             });
+            this.descriptionTypePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
 
         return this.descriptionTypePreferenceListProperty;
@@ -159,6 +160,7 @@ public final class ObservableLanguageCoordinateImpl
 
             addListenerReference(this.languageCoordinate.setDialectAssemblagePreferenceListProperty(
                     this.dialectAssemblagePreferenceListProperty));
+            this.dialectAssemblagePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
 
         return this.dialectAssemblagePreferenceListProperty;
@@ -175,6 +177,7 @@ public final class ObservableLanguageCoordinateImpl
             this.nextProrityLanguageCoordinateProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.NEXT_PRIORITY_LANGUAGE_COORDINATE.toExternalString(),
                     nextPriorityLanguageCoordinate);
+            this.nextProrityLanguageCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
 
             addListenerReference(this.languageCoordinate
                     .setNextProrityLanguageCoordinateProperty(nextProrityLanguageCoordinateProperty));
@@ -202,6 +205,7 @@ public final class ObservableLanguageCoordinateImpl
                     getLanguageConceptNid());
             addListenerReference(this.languageCoordinate.setLanguageConceptNidProperty(
                     this.languageConceptSequenceProperty));
+            this.languageConceptSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
         return this.languageConceptSequenceProperty;
     }

@@ -96,6 +96,7 @@ public class ObservableEditCoordinateImpl
                ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
                getAuthorNid());
          addListenerReference(this.editCoordinate.setAuthorNidProperty(this.authorSequenceProperty));
+         this.authorSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.authorSequenceProperty;
@@ -113,6 +114,7 @@ public class ObservableEditCoordinateImpl
                ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
                getModuleNid());
          addListenerReference(this.editCoordinate.setModuleNidProperty(this.moduleSequenceProperty));
+         this.moduleSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.moduleSequenceProperty;
@@ -130,6 +132,7 @@ public class ObservableEditCoordinateImpl
                ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
                getPathNid());
          addListenerReference(this.editCoordinate.setPathNidProperty(pathSequenceProperty()));
+         this.pathSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
       return this.pathSequenceProperty;
@@ -193,7 +196,5 @@ public class ObservableEditCoordinateImpl
    public ObservableEditCoordinate deepClone() {
       return new ObservableEditCoordinateImpl(editCoordinate.deepClone());
    }
-   
-   
 }
 
