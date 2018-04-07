@@ -193,7 +193,7 @@ public class FLWORQueryController
          switch (Get.identifierService().getObjectTypeForComponent(nid)) {
             case CONCEPT: {
                // convert to a description. 
-               LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid);
+               LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid, manifold.getManifoldCoordinate());
                if (latestDescriptionForConcept.isPresent()) {
                   LatestVersion<ObservableDescriptionVersion> latestDescription
                           = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(

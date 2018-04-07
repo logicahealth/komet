@@ -255,13 +255,9 @@ public class Manifold
                                       ConceptChronology focusedObject) {
       return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
    }
-   
-   public LatestVersion<DescriptionVersion> getDescription(int conceptNid) {
-      return getLanguageCoordinate().getDescription(conceptNid, this);
-   }
 
    public LatestVersion<String> getDescriptionText(int conceptNid) {
-      LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid);
+      LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid, this);
       if (latestVersion.isPresent()) {
          LatestVersion<String> latestText = new LatestVersion<>(latestVersion.get().getText());
          for (DescriptionVersion contradition: latestVersion.contradictions()) {
