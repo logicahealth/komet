@@ -59,12 +59,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.PropertySheet;
@@ -98,6 +100,8 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.textarea.TextAreaReadOnly;
+import sh.komet.gui.control.textarea.TextAreaUtils;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -116,7 +120,7 @@ public abstract class BadgedVersionPanel
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected int columns = 10;
     protected Node logicDetailPanel = null;
-    protected final Text componentText = new Text();
+    protected final TextAreaReadOnly componentText = new TextAreaReadOnly();
     protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
     protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
@@ -165,8 +169,8 @@ public abstract class BadgedVersionPanel
         componentType.getStyleClass()
                 .add(StyleClasses.COMPONENT_VERSION_WHAT_CELL.toString());
         componentText.getStyleClass()
-                .add(StyleClasses.COMPONENT_TEXT.toString());
-        componentText.setWrappingWidth(wrappingWidth);
+                .setAll(StyleClasses.COMPONENT_TEXT.toString());
+        componentText.setWrapText(true);;
         componentText.layoutBoundsProperty()
                 .addListener(this::textLayoutChanged);
         componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
@@ -526,8 +530,15 @@ public abstract class BadgedVersionPanel
         setupColumns();
         wrappingWidth = (int) (layoutBoundsProperty().get()
                 .getWidth() - (5 * badgeWidth));
-        if (componentText.getWrappingWidth() != wrappingWidth) {
-            componentText.setWrappingWidth(wrappingWidth);
+        
+        
+        double height = TextAreaUtils.computeTextHeight(componentText.getFont(), componentText.getText(), wrappingWidth, TextBoundsType.LOGICAL) + 10;
+        if (componentText.getWidth() != wrappingWidth ||
+                componentText.getHeight() != height) {
+            componentText.setPrefSize(wrappingWidth, height);
+            componentText.setMinSize(wrappingWidth, height);
+            componentText.setMaxSize(wrappingWidth, height);
+            componentText.resize(wrappingWidth, height);
             // will call redoLayout, so should not continue to layout...
         } else {
 

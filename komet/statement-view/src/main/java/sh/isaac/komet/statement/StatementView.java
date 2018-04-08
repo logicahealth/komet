@@ -34,7 +34,7 @@ public class StatementView {
     final Manifold manifold;
     final StatementViewController controller;
     
-    private StatementView(Manifold manifold) {
+    private StatementView(Manifold manifold, String title) {
         try {
             this.manifold = manifold;
             this.stage = new Stage();
@@ -52,7 +52,7 @@ public class StatementView {
             stage.setScene(scene);
             
             //set title to stage
-            stage.setTitle("Clinical Statement");
+            stage.setTitle(title);
             
             stage.sizeToScene();
             
@@ -61,8 +61,8 @@ public class StatementView {
         }
     }
 
-    public static StatementViewController show(Manifold manifold) {
-        StatementView statementView = new StatementView(manifold);
+    public static StatementViewController show(Manifold manifold, String title) {
+        StatementView statementView = new StatementView(manifold, title);
         //show the stage
         //center stage on screen
         statementView.stage.centerOnScreen();
