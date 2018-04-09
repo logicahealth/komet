@@ -28,9 +28,6 @@ import javafx.scene.text.TextBoundsType;
  */
 public class TextAreaUtils {
     
-//    final Text text = new Text("This is my text");
-//          text.applyCss();
-
     static final Text helper = new Text();
 
     /* Using TextLayout directly for simple text measurement.
@@ -48,7 +45,6 @@ public class TextAreaUtils {
         return computeTextHeight(font, text, wrappingWidth, 0, boundsType);
     }
 
-    @SuppressWarnings("deprecation")
     public static double computeTextHeight(Font font, String text, double wrappingWidth, double lineSpacing, TextBoundsType boundsType) {
         layout.setContent(text != null ? text : "", font.impl_getNativeFont());
         layout.setWrapWidth((float)wrappingWidth);

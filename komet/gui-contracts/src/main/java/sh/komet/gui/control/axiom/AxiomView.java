@@ -807,19 +807,54 @@ public class AxiomView {
         private ContextMenu getContextMenu() {
             MenuItem svgItem = new MenuItem("Make concept svg");
             svgItem.setOnAction(this::makeSvg);
-            return new ContextMenu(svgItem);
+            MenuItem inlineSvgItem = new MenuItem("Make inline svg");
+            inlineSvgItem.setOnAction(this::makeInlineSvg);
+            MenuItem mediaObjectSvgItem = new MenuItem("Make media object svg");
+            mediaObjectSvgItem.setOnAction(this::makeMediaObjectSvg);
+            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem);
         }
-
-        private void makeSvg(StringBuilder builder, int depth, double xOffset, double yOffset) {
-            addSvg(builder, depth + 1, xOffset, yOffset);
-
+        
+      private void makeMediaObjectSvg(Event event) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("<mediaobject>\n");
+            builder.append("       <imageobject>\n");
+            builder.append("            <imagedata>\n");
+            makeSvg(builder);
+            builder.append("\n          </imagedata>");
+            builder.append("\n     </imageobject>");
+            builder.append("\n</mediaobject>");
+            
+            putOnClipboard(builder.toString());
+        }
+        private void makeInlineSvg(Event event) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("<inlinemediaobject>\n");
+            builder.append("                <imageobject>\n");
+            builder.append("                    <imagedata>\n");
+            makeSvg(builder);
+            builder.append("\n                    </imagedata>");
+            builder.append("\n                </imageobject>");
+            builder.append("\n</inlinemediaobject>");
+            
+            putOnClipboard(builder.toString());
         }
 
         private void makeSvg(Event event) {
-            StringBuilder builder = new StringBuilder();
-            //builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            //builder.append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
+            
+            StringBuilder builder = makeSvg(new StringBuilder());
 
+            putOnClipboard(builder.toString());
+
+        }
+
+        private void putOnClipboard(String string) {
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(string);
+            clipboard.setContent(content);
+        }
+
+        private StringBuilder makeSvg(StringBuilder builder) {
             Bounds rootBoundsInScreen = rootPane.localToScreen(borderPane.getBoundsInLocal());
             builder.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"");
             builder.append(rootBoundsInScreen.getWidth() + 5);
@@ -827,16 +862,9 @@ public class AxiomView {
             builder.append(rootBoundsInScreen.getHeight() + 5);
             builder.append("px\">\n");
             builder.append("    <g alignment-baseline=\"baseline\"></g>\n");
-
             addSvg(builder, 0, -rootBoundsInScreen.getMinX(), -rootBoundsInScreen.getMinY());
-
             builder.append("</svg>\n");
-
-            final Clipboard clipboard = Clipboard.getSystemClipboard();
-            final ClipboardContent content = new ClipboardContent();
-            content.putString(builder.toString());
-            clipboard.setContent(content);
-
+            return builder;
         }
     }
 
