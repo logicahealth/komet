@@ -81,7 +81,7 @@
       <guava.version>24.0-jre</guava.version>
       <hk2.version>2.5.0-b60</hk2.version>
       <HK2Utilities.version>1.5.2</HK2Utilities.version>
-      <httpclient.version>4.5.4</httpclient.version>
+      <httpclient.version>4.5.5</httpclient.version>
       <javassist.version>3.22.0-GA</javassist.version>
       <javac.version>1.8</javac.version>
       <jaxb-impl.version>2.3.0</jaxb-impl.version>
@@ -96,7 +96,7 @@
       <json-io.version>4.10.0</json-io.version>
       <junit.version>4.12</junit.version>
       <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-      <log4j.version>2.10.0</log4j.version>
+      <log4j.version>2.11.0</log4j.version>
       <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
       <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
       <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>

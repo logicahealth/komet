@@ -104,7 +104,7 @@ public enum SupportedConverterTypes
                "The expected file is the RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard"
                + " naming convention (4 digit year, 2 digit month, 2 digit day).",
                ".*_\\d{8}.*\\.zip$", true)
-   }, "rf2-ibdf-sct", "convert-RF2-to-ibdf", "SnomedCT", 
+   }, "rf2-ibdf-sct", "convert-RF2-direct-to-ibdf", "SnomedCT", 
          new String[] {"shared/licenses/sct.xml"},
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    
@@ -121,7 +121,7 @@ public enum SupportedConverterTypes
                + " naming convention (4 digit year, 2 digit month, 2 digit day) - it also now also accepts the new naming convention with T and 2 digits each "
                + "of hour, minute and second.",
                ".*_\\d{8}.*\\.zip$", true)
-   }, "rf2-ibdf-", "convert-RF2-to-ibdf", "SnomedCT Extension", 
+   }, "rf2-ibdf-", "convert-RF2-direct-to-ibdf", "SnomedCT Extension", 
          new String[] {"shared/licenses/sct.xml"},
          new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
    

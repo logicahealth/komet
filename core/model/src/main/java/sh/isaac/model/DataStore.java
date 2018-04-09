@@ -54,6 +54,7 @@ import sh.isaac.api.DatastoreServices;
 
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
@@ -106,5 +107,19 @@ public interface DataStore
     * @return true if it has data of the matching type
     */
    boolean hasChronologyData(int nid, IsaacObjectType ofType);
+   
+   /**
+    * Allow the addition of a dataWriteListener, that will get a copy of all data written via the 
+    * {@link #putChronologyData(ChronologyImpl)} method.  The listener will be notified of the write after the 
+    * {@link DataStore} implementations finishes writing the data.
+    * @param dataWriteListener the listener to notify
+    */
+   void registerDataWriteListener(DataWriteListener dataWriteListener);
+   
+   /**
+    * Remove a listener previously registered via {@link #registerDataWriteListener(DataWriteListener)}
+    * @param dataWriteListener the listener to stop sending write events to
+    */
+   void unregisterDataWriteListener(DataWriteListener dataWriteListener);
 }
 

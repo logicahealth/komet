@@ -99,6 +99,7 @@ public class DirectImporter
     protected final ImportType importType;
 
     protected final List<ContentProvider> entriesToImport;
+    protected File importDirectory;
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
 
     //~--- constructors --------------------------------------------------------
@@ -127,6 +128,16 @@ public class DirectImporter
         Get.activeTasks()
                 .add(this);
     }
+    
+    public DirectImporter(ImportType importType, File importDirectory) {
+        this.importType = importType;
+        this.entriesToImport = null;
+        this.importDirectory = importDirectory;
+
+        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        Get.activeTasks()
+                .add(this);
+    }
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -147,7 +158,7 @@ public class DirectImporter
                 }
                 doImport(specificationsToImport, time);
             } else {
-                File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
+                File importDirectory = this.importDirectory == null ? Get.configurationService().getIBDFImportPath().toFile() : this.importDirectory;
 
                 System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
@@ -361,7 +372,7 @@ public class DirectImporter
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP));
         } else if (entryName.contains("sct2_statedrelationship_")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
-        } else if (entryName.contains("refset")) {
+        } else if (entryName.contains("refset_")) {
             if (importDynamic) {
                 entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
             } else {

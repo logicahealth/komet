@@ -397,7 +397,54 @@ public class IBDFCreationUtility
          Optional.of(new File(debugOutputDirectory, "xmlBatchLoad-" + defaultTime + ".json").toPath()), Optional.empty());
       
       ConsoleUtil.println("Loading with module '" + this.module.getPrimordialUuid() + "' (" + this.module.getNid() + ") on DEVELOPMENT path");
+   }
+   
+   /**
+    * This constructor is for use when we are using this utility code to wrap a loader like the RF2 direct loader, 
+    * which uses a completely different paradigm.  Just need a constructor that lets me utilize some utility methods, 
+    * without doing most of the work....
+    * 
+    * DANGER WILL ROBINSON!
+    * Using this class at runtime is tricky, and not the designed use case.
+    * If you do so make sure that you)
+    * A) - only use a time of Long.MAX_VALUE.
+    * 
+    *  @param author - which author to use for these changes
+    *  @param module - which module to use while loading
+    *  @param path - which path to use for these changes
+    *  @param writer - the writer to write resulting IBDF into
+    */
+   public IBDFCreationUtility(UUID author, UUID module, UUID path, DataWriterService writer) throws Exception
+   {
+      this.authorNid = Get.identifierService().getNidForUuids(author);
+      this.terminologyPathNid = Get.identifierService().getNidForUuids(path);
+      this.module = ComponentReference.fromConcept(module);
+      this.writeToDB = true;
       
+      this.refexAllowedColumnTypes = null;
+
+      this.conceptBuilderService = Get.conceptBuilderService();
+      this.conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+      this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
+      this.conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
+
+      this.expressionBuilderService = Get.logicalExpressionBuilderService();
+      
+      this.semanticBuilder = Get.semanticBuilderService();
+      
+      this.defaultTime = Long.MAX_VALUE;
+      
+      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, terminologyPathNid);
+      IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATUS_SET);
+      
+      if (ConverterUUID.getNamespace() == null)
+      {
+         throw new RuntimeException("Namespace not configured!");
+      }
+      
+      this.writer = writer;
+      
+      ConsoleUtil.println("Loading with module '" + this.module.getPrimordialUuid() + "' (" + this.module.getNid() + ") on DEVELOPMENT path");
    }
 
    /**
@@ -1026,8 +1073,8 @@ public class IBDFCreationUtility
     */
    private void validateDataTypes(UUID assemblageType, DynamicData[] values)
    {
-      //TODO [DAN 3] this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
-      //generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
+      //TODO [DAN 3] this should be a much better validator - checking all of the various things in DynamicUtility.validate - 
+      //need to enforce the restrictions defined in the columns in the validators
       
       DynamicColumnInfo[] colInfo;
       

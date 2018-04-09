@@ -38,6 +38,7 @@
 package sh.isaac.provider.query.search;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,6 +54,7 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -274,12 +276,39 @@ public class SearchHandler
 						CompositeSearchResult next = it.next();
 						if (next.getMatchingComponentVersions().isEmpty())
 						{
+							if (LOG.isTraceEnabled() && filterCount.get() < 5) 
+							{
+								LOG.trace("Filtered examples: " + Arrays.toString(next.getMatchingComponents().toArray(new Chronology[next.getMatchingComponents().size()])));
+							}
 							filterCount.addAndGet(next.getMatchingComponents().size());
 							it.remove();
 						}
 						else
 						{
-							filterCount.addAndGet(next.getMatchingComponents().size() - next.getMatchingComponentVersions().size());
+							int filteredMergedHits = next.getMatchingComponents().size() - next.getMatchingComponentVersions().size();
+							filterCount.addAndGet(filteredMergedHits);
+							if (LOG.isTraceEnabled() && filteredMergedHits > 0 && filterCount.get() < 5) 
+							{
+								//Just for debug...
+								ArrayList<Chronology> filtered = new ArrayList<>();
+								for (Chronology c : next.getMatchingComponents())
+								{
+									boolean found = false;
+									for (Version v : next.getMatchingComponentVersions())
+									{
+										if (c.getNid() == v.getNid())
+										{
+											found = true;
+											break;
+										}
+									}
+									if (!found)
+									{
+										filtered.add(c);
+									}
+								}
+								LOG.trace("Filtered examples: " + Arrays.toString(filtered.toArray(new Chronology[filtered.size()])));
+							}
 						}
 					}
 

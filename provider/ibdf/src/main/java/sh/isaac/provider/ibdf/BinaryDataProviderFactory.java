@@ -110,7 +110,7 @@ public class BinaryDataProviderFactory
    @Override
    public DataWriterService getWriter(Path dataPath)
             throws IOException {
-      return new BinaryDataWriterProvider(dataPath);
+      return new BinaryDataWriterProvider(dataPath, false);
    }
 }
 

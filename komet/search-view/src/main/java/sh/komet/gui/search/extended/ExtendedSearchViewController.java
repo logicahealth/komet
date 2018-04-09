@@ -460,181 +460,190 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 					@Override
 					protected void updateItem(final CompositeSearchResult item, boolean empty)
 					{
-						super.updateItem(item, empty);
-						if (!empty)
+						try 
 						{
-							VBox box = new VBox();
-							box.setFillWidth(true);
-							
-							String conceptText = item.getContainingConceptText();
-
-							HBox hb = new HBox();
-							
-							if (item.getContainingConcept().getNid() == item.getMatchingComponents().iterator().next().getNid())
+							super.updateItem(item, empty);
+							if (!empty)
 							{
-								//matching item was a concept, which means this was a nid or UUID lookup.
-								Label concept = new Label("Concept");
-								concept.getStyleClass().add("boldLabel");
-								hb.getChildren().add(concept);
-								hb.getChildren().add(new Label("  " + conceptText));
+								VBox box = new VBox();
+								box.setFillWidth(true);
 								
-								box.getChildren().add(hb);
-							}
-							else 
-							{
-								//A semantic of sorts
-								Label concept = new Label("Referenced Concept");
-								concept.getStyleClass().add("boldLabel");
-								hb.getChildren().add(concept);
-								hb.getChildren().add(new Label("  " + conceptText));
+								String conceptText = item.getContainingConceptText();
+	
+								HBox hb = new HBox();
 								
-								box.getChildren().add(hb);
-								
-								List<String> strings = item.getMatchingStrings();
-								List<Version> versions = item.getMatchingComponentVersions();
-								
-								for (int i = 0; i < versions.size(); i++)
+								if (item.getContainingConcept().getNid() == item.getMatchingComponents().iterator().next().getNid())
 								{
-									if (versions.get(i).getSemanticType() == VersionType.DESCRIPTION)
+									//matching item was a concept, which means this was a nid or UUID lookup.
+									Label concept = new Label("Concept");
+									concept.getStyleClass().add("boldLabel");
+									hb.getChildren().add(concept);
+									hb.getChildren().add(new Label("  " + conceptText));
+									
+									box.getChildren().add(hb);
+								}
+								else 
+								{
+									//A semantic of sorts
+									Label concept = new Label("Referenced Concept");
+									concept.getStyleClass().add("boldLabel");
+									hb.getChildren().add(concept);
+									hb.getChildren().add(new Label("  " + conceptText));
+									
+									box.getChildren().add(hb);
+									
+									List<String> strings = item.getMatchingStrings();
+									List<Version> versions = item.getMatchingComponentVersions();
+									
+									for (int i = 0; i < versions.size(); i++)
 									{
-										HBox descriptionBox = new HBox();
-										Label description = new Label(((DescriptionVersion)versions.get(i)).getDescriptionType());
-										HBox.setMargin(description, new Insets(0.0, 0.0, 0.0, 10.0));
-										description.getStyleClass().add("boldLabel");
-										descriptionBox.getChildren().add(description);
-										descriptionBox.getChildren().add(new Label("  " + strings.get(i)));
-										
-										box.getChildren().add(descriptionBox);
-									}
-									else 
-									{
-										HBox assemblageConBox = new HBox();
-										Label assemblageCon = new Label("Assemblage:");
-										assemblageCon.getStyleClass().add("boldLabel");
-										HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
-										assemblageConBox.getChildren().add(assemblageCon);
-										assemblageConBox.getChildren().add(new Label("  " + Get.conceptDescriptionText(versions.get(i).getAssemblageNid())));
-										box.getChildren().add(assemblageConBox);
-										
-										Label attachedData = new Label("Data");
-										attachedData.getStyleClass().add("boldLabel");
-										VBox.setMargin(attachedData, new Insets(0.0, 0.0, 0.0, 10.0));
-										box.getChildren().add(attachedData);
-										
-										if (versions.get(i).getSemanticType() == VersionType.DYNAMIC)
+										if (versions.get(i).getSemanticType() == VersionType.DESCRIPTION)
 										{
-											DynamicVersion<?> dv = ((DynamicVersion<?>)versions.get(i));
-											DynamicUsageDescription dud = dv.getDynamicUsageDescription();
-											for (DynamicColumnInfo dci : dud.getColumnInfo())
+											HBox descriptionBox = new HBox();
+											Label description = new Label(((DescriptionVersion)versions.get(i)).getDescriptionType());
+											HBox.setMargin(description, new Insets(0.0, 0.0, 0.0, 10.0));
+											description.getStyleClass().add("boldLabel");
+											descriptionBox.getChildren().add(description);
+											descriptionBox.getChildren().add(new Label("  " + strings.get(i)));
+											
+											box.getChildren().add(descriptionBox);
+										}
+										else 
+										{
+											HBox assemblageConBox = new HBox();
+											Label assemblageCon = new Label("Assemblage:");
+											assemblageCon.getStyleClass().add("boldLabel");
+											HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
+											assemblageConBox.getChildren().add(assemblageCon);
+											assemblageConBox.getChildren().add(new Label("  " + Get.conceptDescriptionText(versions.get(i).getAssemblageNid())));
+											box.getChildren().add(assemblageConBox);
+											
+											Label attachedData = new Label("Data");
+											attachedData.getStyleClass().add("boldLabel");
+											VBox.setMargin(attachedData, new Insets(0.0, 0.0, 0.0, 10.0));
+											box.getChildren().add(attachedData);
+											
+											if (versions.get(i).getSemanticType() == VersionType.DYNAMIC)
 											{
-												DynamicData dd = dv.getData(dci.getColumnOrder());
-												Label l = new Label(dci.getColumnName() + ": " + (dd == null ? "" : dd.dataToString()));
+												DynamicVersion<?> dv = ((DynamicVersion<?>)versions.get(i));
+												DynamicUsageDescription dud = dv.getDynamicUsageDescription();
+												for (DynamicColumnInfo dci : dud.getColumnInfo())
+												{
+													DynamicData dd = dv.getData(dci.getColumnOrder());
+													Label l = new Label(dci.getColumnName() + ": " + (dd == null ? "" : dd.dataToString()));
+													VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
+													box.getChildren().add(l);
+												}
+											}
+											else
+											{
+												Label l = new Label(strings.get(i));
 												VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
 												box.getChildren().add(l);
 											}
 										}
-										else
-										{
-											Label l = new Label(strings.get(i));
-											VBox.setMargin(l, new Insets(0.0, 0.0, 0.0, 20.0));
-											box.getChildren().add(l);
-										}
 									}
 								}
-							}
-							
-							StringBuilder tooltip = new StringBuilder();
-							tooltip.append("Modules:\r");
-							HashSet<Integer> modules = new HashSet<>();
-							for (Chronology chronology : item.getMatchingComponents())
-							{
-								for (Version sv : chronology.getVersionList())
+								
+								StringBuilder tooltip = new StringBuilder();
+								tooltip.append("Modules:\r");
+								HashSet<Integer> modules = new HashSet<>();
+								for (Chronology chronology : item.getMatchingComponents())
 								{
-									modules.add(sv.getModuleNid());
-								}
-							}
-							
-							for (int i : modules)
-							{
-								tooltip.append(Frills.getDescription(i, manifold).orElse("Unknown module") + "\r");
-							}
-							
-							tooltip.setLength(tooltip.length() - 1);
-							
-							Tooltip.install(box, new Tooltip(tooltip.toString()));
-							setGraphic(box);
-
-							// Also show concept details on double-click.
-							setOnMouseClicked(new EventHandler<MouseEvent>()
-							{
-								@Override
-								public void handle(MouseEvent mouseEvent)
-								{
-									if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
+									for (Version sv : chronology.getVersionList())
 									{
-										if (mouseEvent.getClickCount() == 2)
-										{
-											 manifold.setFocusedConceptChronology(item.getContainingConcept());
-										}
+										modules.add(sv.getModuleNid());
 									}
 								}
-							});
-
-							//TODO port menus?
-//							ContextMenu cm = new ContextMenu();
-//							CommonMenusDataProvider dp = new CommonMenusDataProvider()
-//							{
-//								@Override
-//								public String[] getStrings()
-//								{
-//									List<String> items = new ArrayList<>();
-//									for (CompositeSearchResult currentItem : searchResults.getSelectionModel().getSelectedItems())
-//									{
-//										Optional<ConceptSnapshot> currentWbConcept = currentItem.getContainingConcept();
-//										if (!currentWbConcept.isPresent())
-//										{
-//											//not on path, most likely
-//											continue;
-//										}
-//										items.add(currentWbConcept.get().getConceptDescriptionText());
-//									}
-//
-//									String[] itemArray = items.toArray(new String[items.size()]);
-//
-//									return itemArray;
-//								}
-//							};
-//							CommonMenusNIdProvider nidProvider = new CommonMenusNIdProvider()
-//							{
-//								@Override
-//								public Set<Integer> getNIds()
-//								{
-//									Set<Integer> nids = new HashSet<>();
-//
-//									for (CompositeSearchResult r : searchResults.getSelectionModel().getSelectedItems())
-//									{
-//										if (r.getContainingConcept().isPresent())
-//										{
-//											nids.add(r.getContainingConcept().get().getNid());
-//										}
-//										
-//									}
-//									return nids;
-//								}
-//							}; 
-//							CommonMenuBuilderI menuBuilder = CommonMenus.CommonMenuBuilder.newInstance();
-//				
-//							menuBuilder.setMenuItemsToExclude(
-//									CommonMenus.CommonMenuItem.LOINC_REQUEST_VIEW, 
-//									CommonMenus.CommonMenuItem.USCRS_REQUEST_VIEW,
-//									CommonMenus.CommonMenuItem.WORKFLOW_INITIALIZATION_VIEW);
-//							CommonMenus.addCommonMenus(cm, menuBuilder, dp, nidProvider);
-//
-//							setContextMenu(cm);
+								
+								for (int i : modules)
+								{
+									tooltip.append(Frills.getDescription(i, manifold).orElse("Unknown module") + "\r");
+								}
+								
+								tooltip.setLength(tooltip.length() - 1);
+								
+								Tooltip.install(box, new Tooltip(tooltip.toString()));
+								setGraphic(box);
+	
+								// Also show concept details on double-click.
+								setOnMouseClicked(new EventHandler<MouseEvent>()
+								{
+									@Override
+									public void handle(MouseEvent mouseEvent)
+									{
+										if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
+										{
+											if (mouseEvent.getClickCount() == 2)
+											{
+												 manifold.setFocusedConceptChronology(item.getContainingConcept());
+											}
+										}
+									}
+								});
+	
+								//TODO port menus?
+	//							ContextMenu cm = new ContextMenu();
+	//							CommonMenusDataProvider dp = new CommonMenusDataProvider()
+	//							{
+	//								@Override
+	//								public String[] getStrings()
+	//								{
+	//									List<String> items = new ArrayList<>();
+	//									for (CompositeSearchResult currentItem : searchResults.getSelectionModel().getSelectedItems())
+	//									{
+	//										Optional<ConceptSnapshot> currentWbConcept = currentItem.getContainingConcept();
+	//										if (!currentWbConcept.isPresent())
+	//										{
+	//											//not on path, most likely
+	//											continue;
+	//										}
+	//										items.add(currentWbConcept.get().getConceptDescriptionText());
+	//									}
+	//
+	//									String[] itemArray = items.toArray(new String[items.size()]);
+	//
+	//									return itemArray;
+	//								}
+	//							};
+	//							CommonMenusNIdProvider nidProvider = new CommonMenusNIdProvider()
+	//							{
+	//								@Override
+	//								public Set<Integer> getNIds()
+	//								{
+	//									Set<Integer> nids = new HashSet<>();
+	//
+	//									for (CompositeSearchResult r : searchResults.getSelectionModel().getSelectedItems())
+	//									{
+	//										if (r.getContainingConcept().isPresent())
+	//										{
+	//											nids.add(r.getContainingConcept().get().getNid());
+	//										}
+	//										
+	//									}
+	//									return nids;
+	//								}
+	//							}; 
+	//							CommonMenuBuilderI menuBuilder = CommonMenus.CommonMenuBuilder.newInstance();
+	//				
+	//							menuBuilder.setMenuItemsToExclude(
+	//									CommonMenus.CommonMenuItem.LOINC_REQUEST_VIEW, 
+	//									CommonMenus.CommonMenuItem.USCRS_REQUEST_VIEW,
+	//									CommonMenus.CommonMenuItem.WORKFLOW_INITIALIZATION_VIEW);
+	//							CommonMenus.addCommonMenus(cm, menuBuilder, dp, nidProvider);
+	//
+	//							setContextMenu(cm);
+							}
+							else
+							{
+								setText("");
+								setGraphic(null);
+							}
 						}
-						else
+						catch (Exception e) 
 						{
-							setText("");
+							LOG.error("Unexpected error setting cell", e);
+							setText("-internal error-");
 							setGraphic(null);
 						}
 					}

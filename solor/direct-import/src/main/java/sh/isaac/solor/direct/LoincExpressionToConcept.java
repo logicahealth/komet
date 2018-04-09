@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
@@ -69,12 +68,17 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
         Get.activeTasks().add(this);
         updateTitle("Converting LOINC expressions to concepts");
-        addToTotalWork(Get.assemblageService().getSemanticCount(expressionRefset.getNid()));
+        if (Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
+           addToTotalWork(Get.assemblageService().getSemanticCount(expressionRefset.getNid()));
+        }
     }
 
     @Override
     protected Void call() throws Exception {
         try {
+            if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
+                return null;
+            }
             Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;

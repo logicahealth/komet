@@ -96,7 +96,7 @@ import sh.komet.gui.util.ValidBooleanBinding;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
- *         GUI controller for the Content Manager UI
+ * GUI controller for the Content Manager UI
  */
 
 public class ContentManagerController
@@ -1628,7 +1628,14 @@ public class ContentManagerController
 
 				if (workingFolderCleanup.isSelected())
 				{
-					RecursiveDelete.delete(new File(workingFolder.getText()));
+					try
+					{
+						RecursiveDelete.delete(new File(workingFolder.getText()));
+					}
+					catch (Exception e)
+					{
+						log.error("Error running cleanup: ", e);
+					}
 				}
 
 				return null;

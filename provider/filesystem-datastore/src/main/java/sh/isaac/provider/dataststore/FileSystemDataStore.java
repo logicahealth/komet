@@ -90,6 +90,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -151,6 +152,8 @@ public class FileSystemDataStore
     private File propertiesFile;
     private File nidToAssemblageNidMapDirectory;
     private File nidToElementSequenceMapDirectory;
+    
+    private ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
     private FileSystemDataStore() {
         //Private for HK2 construction only
@@ -177,6 +180,10 @@ public class FileSystemDataStore
             int elementSequence = ModelGet.identifierService().getElementSequenceForNid(chronology.getNid(), assemblageNid);
 
             spinedByteArrayArrayMap.put(elementSequence, getDataList(chronology));
+            
+            for (DataWriteListener dwl : writeListeners) {
+               dwl.writeData(chronology);
+            }
 
         } catch (Throwable e) {
             LOG.error("Unexpected error putting chronology data!", e);
@@ -812,4 +819,20 @@ public class FileSystemDataStore
             }
         }
     }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void registerDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.add(dataWriteListener);
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void unregisterDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.remove(dataWriteListener);
+   }
 }
