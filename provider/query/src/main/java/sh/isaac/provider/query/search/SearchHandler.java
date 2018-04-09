@@ -48,6 +48,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,6 +66,7 @@ import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
@@ -88,7 +90,7 @@ public class SearchHandler
 	 *            results are ready for use. Note that this function will also be executed in the background thread.
 	 * @param taskId - An optional field that is simply handed back during the callback when results are complete. Useful for matching
 	 *            requests to this method with callbacks.
-	 * @param filter - An optional filter than can add or remove items from the tentative result set before it is returned.
+	 * @param postQueryfilter - An optional filter than can add or remove items from the tentative result set before it is returned.
 	 * @param mergeOnConcepts - If true, when multiple semantics attached to the same concept match the search, this will be returned
 	 *            as a single result representing the concept - with each matching component included, and the score being the best score of any of the
 	 *            matching items.  When false, you will get one search result per match (per semantic) - so concepts can be returned multiple times.
@@ -97,12 +99,17 @@ public class SearchHandler
 	 * @param filterOffPathResults - if true, will only return matching components that are present on the provided stampForVersionRead.  Note, 
 	 * it is faster to do Author / Module / Path restrictions with a {@link AmpRestriction} during the query - this should only be used to filter out 
 	 * based on status or time.
+	 * @param queryFilter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
+	 *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
+	 *           true, or false, to have the item excluded.  Not applicable to UUID or nid queries
+	 * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.  Not applicable to UUID or nid queries
 	 * @param sizeLimit - restrict to this number of results
 	 * @return A handle to the running search.
 	 */
 	public static SearchHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<SearchHandle> operationToRunWhenSearchComplete, 
-			final Integer taskId, final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
-			boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, int sizeLimit)
+			final Integer taskId, final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> postQueryfilter,
+			boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, Predicate<Integer> queryFilter,
+			AmpRestriction amp, int sizeLimit)
 	{
 		final SearchHandle searchHandle = new SearchHandle(taskId);
 
@@ -136,13 +143,14 @@ public class SearchHandler
 				else if (!contains(identifierTypes, TermAux.ISAAC_UUID.getNid()) && !contains(identifierTypes, DynamicConstants.get().DYNAMIC_DT_NID.getNid()))
 				{
 					//Any, or, a specific type - run the query.
-					searchResults.addAll(Get.service(IndexSemanticQueryService.class).queryData(searchString, false, identifierTypes, null, 1, sizeLimit, null));
+					searchResults.addAll(Get.service(IndexSemanticQueryService.class).queryData(new DynamicStringImpl(searchString), false, 
+							identifierTypes, null, queryFilter, amp, 1, sizeLimit, null));
 				}
 				
 				LOG.debug(searchResults.size() + " results from search function");
 				
 				// sort, filter and merge the results as necessary
-				processResults(searchHandle, searchResults, filter, mergeOnConcepts, manifoldForRead, filterOffPathResults);
+				processResults(searchHandle, searchResults, postQueryfilter, mergeOnConcepts, manifoldForRead, filterOffPathResults);
 			}
 			catch (final Exception ex)
 			{
