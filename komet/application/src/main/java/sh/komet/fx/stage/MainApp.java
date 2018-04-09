@@ -203,6 +203,7 @@ public class MainApp
         if (tk != null) {
             // Application Menu
             // TBD: services menu
+            tk.setForceQuitOnCmdQ(false);
             Menu appMenu = new Menu(appName); // Name for appMenu can't be set at
             // Runtime
             Menu defaultApplicationMenu = tk.createDefaultApplicationMenu("SOLOR Viewer");
@@ -367,11 +368,6 @@ public class MainApp
                 stage.close();
             }
         });
-    }
-
-    @Override
-    public void stop() {
-        shutdown();
     }
 
     private void handleShutdown(WindowEvent e) {
