@@ -148,6 +148,28 @@ public class AxiomView {
         }
 
     }
+    
+    private boolean isDefined(int conceptNid) {
+        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        if (!conceptExpression.isPresent()) {
+            return false;
+        }
+        return conceptExpression.get().contains(NodeSemantic.SUFFICIENT_SET);
+    }
+
+    private boolean isMultiparent(int conceptNid) {
+        if (conceptNid == -1
+                || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
+            return false;
+        }
+        int[] parents = Get.taxonomyService().getSnapshot(manifold)
+                .getTaxonomyTree().getParentNids(conceptNid);
+        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        if (!conceptExpression.isPresent()) {
+            return false;
+        }
+        return parents.length > 1;
+    }
 
     public final Node computeGraphic(int conceptNid, boolean expanded) {
 
@@ -724,15 +746,140 @@ public class AxiomView {
         private void addSvg(StringBuilder builder, int depth, double xOffset, double yOffset) {
 
             Bounds rootBounds = rootPane.localToScreen(rootPane.getBoundsInLocal());
+            String leftStroke = "stroke: #c3cdd3;";
+            int textOffset = 5;
+            int preTextIconWidth = 0;
             if (rootBounds != null) {
-                int textOffset = 5;
+                double leftWidth = 1;
+                String nodeText = titleLabel.getText();
+                double bottomInset = 0;
+                double childOffset = 0;
+              switch (logicNode.getNodeSemantic()) {
+                  
+                  case DEFINITION_ROOT:
+                            preTextIconWidth = 23;
+                            if (premiseType == PremiseType.STATED) {
+                                builder.append("<use xlink:href=\"#stated\" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset - 1) * 33);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset + 1) * 33);
+                            
+                            builder.append("\" style=\"fill: black; stroke: black; \"");
+                            
+                            builder.append(" transform=\" scale(.03) \"/>");
+                            } else {
+                                builder.append("<use xlink:href=\"#inferred\" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset) * 100);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset + 4) * 100);
+                            
+                            builder.append("\" style=\"fill: black; stroke: black; \"");
+                            
+                            builder.append(" transform=\" scale(.01) \"/>");
+                            }
+                            
+                      break;
+                    case NECESSARY_SET:
+                        leftStroke = "stroke: #FF4E08;";
+                        leftWidth = 4;
+                        nodeText = "Necessary set";
+                        bottomInset = 4;
+                            preTextIconWidth = 20;
+                            builder.append("<use xlink:href=\"#hexagon\" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset) * 33);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset + 1) * 33);
+                            
+                            builder.append("\" style=\"fill: white; stroke: #FF4E08; stroke-width: 50.0;\"");
+                            
+                            builder.append(" transform=\" scale(.03) \"/>");
+                        break;
+                    case SUFFICIENT_SET:
+                        leftStroke = "stroke: #5ec200;";
+                        leftWidth = 4;
+                        nodeText = "Sufficient set";
+                        bottomInset = 4;
+                            preTextIconWidth = 20;
+                            builder.append("<use xlink:href=\"#circle\" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset) * 33);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset + 1) * 33);
+                            
+                            builder.append("\" style=\"fill: white; stroke: #5ec200; stroke-width: 50.0;\"");
+                            
+                            builder.append(" transform=\" scale(.03) \"/>");
+                        break;
+                    case CONCEPT:
+                        leftStroke = "stroke: #c3cdd3;";
+                        leftWidth = 4;
+                        bottomInset = 5;
+                            preTextIconWidth = 20;
+                            
+                            ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
+                            boolean defined = isDefined(conceptNode.getConceptNid());
+                            boolean multiParent = isMultiparent(conceptNode.getConceptNid());
+                            if (defined) {
+                                if (multiParent) {
+                                    builder.append("<use xlink:href=\"#arrow-circle\" ");
+                                    builder.append(" style=\"fill: #5ec200; stroke: #5ec200; \"");
+                                } else {
+                                    builder.append("<use xlink:href=\"#circle\" ");
+                                    builder.append(" style=\"fill: #5ec200; stroke: #5ec200; \"");
+                                }
+                            } else {
+                                if (multiParent) {
+                                    builder.append("<use xlink:href=\"#arrow-hexagon\" ");
+                                    builder.append(" style=\"fill: #FF4E08; stroke: #FF4E08; \"");
+                                } else {
+                                    builder.append("<use xlink:href=\"#hexagon\" ");
+                                    builder.append(" style=\"fill: #FF4E08; stroke: #FF4E08; \"");
+                                }
+                            }
+                            
+                            builder.append(" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset) * 33);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset + 1) * 33);
+                            
+                            
+                            builder.append("\" transform=\"scale(.03) \"/>");
+                        break;
+                    case ROLE_SOME:
+                        RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) logicNode;
+                        if (roleNode.getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
+                            leftStroke = "stroke: #009bff;";
+                            nodeText = "Role group";
+                            bottomInset = 5;
+                            childOffset = 3;
+                            preTextIconWidth = 20;
+                            builder.append("<use xlink:href=\"#role-group\" x=\"");
+                            builder.append((xOffset + rootBounds.getMinX() + leftWidth + textOffset) * 25);
+                            builder.append("\" y=\"");
+                            builder.append((yOffset + rootBounds.getMinY() + textOffset) * 25);
+                            
+                            builder.append("\" style=\"fill: black; stroke: black;\"");
+                            
+                            builder.append(" transform=\" scale(.04) \"/>\n");
+                             
+        
+                        } else {
+                            leftStroke = "stroke: #ff9100;";
+                            bottomInset = 5;
+                        }
+                        
+                        leftWidth = 4;
+                        break;
+                    
+                    default: 
+                }
+
                 double topWidth = 1;
                 double halfTopWidth = topWidth / 2;
 
                 double bottomWidth = 1;
                 double halfBottomWidth = bottomWidth / 2;
 
-                double leftWidth = 10;
+                
                 double halfLeftWidth = leftWidth / 2;
 
                 int rightLineExtra;
@@ -741,38 +888,39 @@ public class AxiomView {
                 } else {
                     rightLineExtra = 1;
                 }
-
-                // Top
+                  // Top
                 addLine(builder, xOffset + rootBounds.getMinX(), yOffset + rootBounds.getMinY(),
-                        xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMinY(), topWidth, "stroke: black;");
+                        xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMinY(), topWidth, "stroke: #c3cdd3;");
 
                 if (depth == 0) {
                     // Right
                     addLine(builder, xOffset + rootBounds.getMaxX(), yOffset + rootBounds.getMinY(),
-                            xOffset + rootBounds.getMaxX(), yOffset + rootBounds.getMaxY(), 1, "stroke: black;");
+                            xOffset + rootBounds.getMaxX(), yOffset + rootBounds.getMaxY() - bottomInset, 1, "stroke: #c3cdd3;");
                 }
 
                 // Bottom
-                addLine(builder, xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMaxY(),
-                        xOffset + rootBounds.getMinX(), yOffset + rootBounds.getMaxY(), bottomWidth, "stroke: black;");
+                addLine(builder, xOffset + rootBounds.getMaxX() + rightLineExtra, yOffset + rootBounds.getMaxY() - bottomInset,
+                        xOffset + rootBounds.getMinX(), yOffset + rootBounds.getMaxY() - bottomInset, bottomWidth, "stroke: #c3cdd3;");
 
                 // Left
-                addLine(builder, xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMaxY() + halfTopWidth,
-                        xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMinY() - halfBottomWidth, leftWidth, "stroke: red;");
+                addLine(builder, xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMaxY() + halfTopWidth - bottomInset,
+                        xOffset + rootBounds.getMinX() + halfLeftWidth, yOffset + rootBounds.getMinY() - halfBottomWidth  , leftWidth, leftStroke);
 
                 // Text
-                addText(builder, xOffset + rootBounds.getMinX() + leftWidth + textOffset, yOffset + rootBounds.getMinY() + textOffset + 5, titleLabel.getText(),
-                        "font-size: 9pt; font-family: Open Sans Light, Symbol; baseline-shift: sub;");
+                addText(builder, xOffset + rootBounds.getMinX() + leftWidth + textOffset + preTextIconWidth, 
+                        yOffset + rootBounds.getMinY() + textOffset + 9, 
+                        nodeText,
+                        "font-size: 9pt; font-family: Open Sans Condensed Light, Symbol; baseline-shift: sub;");
 
                 for (ClauseView child : childClauses) {
-                    child.addSvg(builder, depth + 1, xOffset, yOffset);
+                    child.addSvg(builder, depth + 1, xOffset, yOffset - childOffset);
                 }
             }
 
         }
 
         private void addText(StringBuilder builder, double x, double y, String text, String style) {
-            text = text.replace("➞", "<tspan style=\"font-family: Symbol;\">→</tspan><tspan style=\"" + style + "\"/>");
+            text = text.replace("➞", "<tspan style=\"font-family: Symbol;\">→</tspan>\n<tspan style=\"" + style + "\"/>\n");
             addText(builder, (int) x, (int) y, text, style);
         }
 
@@ -861,6 +1009,50 @@ public class AxiomView {
             builder.append("px\" height=\"");
             builder.append(rootBoundsInScreen.getHeight() + 5);
             builder.append("px\">\n");
+            builder.append("   <defs>\n");
+   
+            builder.append("<path id=\"arrow-circle\" d=\"M149,234h64v85h86v-85h64L256,127L149,234z M407,385c40-40,60.7-90.3,62-151c-1.3-60.7-22-111-62-151 ");
+            builder.append("s-90.3-60.7-151-62c-60.7,1.3-111,22-151,62s-60.7,90.3-62,151c1.3,60.7,22,111,62,151s90.3,60.7,151,62 ");
+            builder.append("C316.7,445.7,367,425,407,385z M135,355c-32-32-48.7-72.3-50-121c1.3-48.7,18-89,50-121s72.3-48.7,121-50c48.7,1.3,89,18,121,50 ");
+            builder.append("s48.7,72.3,50,121c-1.3,48.7-18,89-50,121s-72.3,48.7-121,50C207.3,403.7,167,387,135,355z\"/>\n");
+            builder.append("<path id=\"arrow-hexagon\" d=\"M133,227h64v85h86v-85h64L240,120L133,227z M432,131c-0.7-8.7-4.3-15-11-19L252,18c-3.3-2.7-7.3-4-12-4 ");
+            builder.append("c-4.7,0-8.7,1.3-12,4L59,112c-6.7,4-10.3,10.3-11,19v192c0.7,8.7,4.3,15,11,19l169,94c3.3,2.7,7.3,4,12,4c4.7,0,8.7-1.3,12-4l169-94 ");
+            builder.append("c6.7-4,10.3-10.3,11-19V131z M389,144v166l-149,84L91,310V144l149-84L389,144z\"/>\n");
+            builder.append("<path  id=\"circle\" d=\"M256 21q-73 2 -121 50t-50 121q2 73 50 121t121 50q73 -2 121 -50t50 -121q-2 -73 -50 -121t-121 -50zM256 405q-91 -2 -151 -62t-62 -151q2 -91 62 -151t151 -62q91 2 151 62t62 151q-2 91 -62 151t-151 62z\"/> \n"); 
+            builder.append("<path  id=\"hexagon\" d=\"M448 96q-1 -13 -11 -19l-169 -94q-5 -4 -12 -4t-12 4l-169 94q-10 6 -11 19v192q1 13 11 19l169 94q5 4 12 4t12 -4l169 -94q10 -6 11 -19v-192z\"/> \n"); 
+            builder.append("<path  id=\"role-group\" d=\"M107 245l53 -96h-107zM64 363h85v-86h-85v86zM107 21q18 1 30 13t12 30t-12 30t-30 12t-30.5 -12t-12.5 -30t12.5 -30t30.5 -13zM192 341v-42h256v42h-256zM192 43h256v42h-256v-42zM192 171h256v42h-256v-42z\"/> \n"); 
+             builder.append("<path id=\"stated\" d=\"M252.5,37c38.7,0,75,6.7,109,20c34,12.7,61,30.3,81,53c19.3,22.7,29,47,29,73s-9.7,50.3-29,73\n" +
+"	c-20,22.7-47,40.3-81,53c-34,13.3-70.3,20-109,20c-11.3,0-23.7-0.7-37-2l-16-2l-13,11c-23.3,20.7-49.3,37-78,49\n" +
+"	c8.7-15.3,15.3-31.7,20-49l7-28l-24-14c-25.3-14-44.7-30.7-58-50s-20-39.7-20-61c0-26,9.7-50.3,29-73c20-22.7,47-40.3,81-53\n" +
+"	C177.5,43.7,213.8,37,252.5,37L252.5,37z M508.5,183c0-33.3-11.3-64-34-92c-23.3-28-54.3-50-93-66c-39.3-16.7-82.3-25-129-25\n" +
+"	s-89.7,8.3-129,25c-38.7,16-69.7,38-93,66c-22.7,28-34,58.7-34,92c0,28.7,8.7,55.3,26,80c17.3,25.3,41,46.3,71,63\n" +
+"	c-2.7,8-5.3,15.3-8,22s-5.3,12.3-8,17c-6,9.3-9,14-9,14l-9,12l-10,10c-4,5.3-6.7,8.7-8,10c-0.7,0-1.7,1-3,3l-2,2l0,0l-1,3\n" +
+"	c-1.3,1.3-2,2.3-2,3v2c-0.7,2-0.7,3.3,0,4l0,0c0.7,3.3,2,6,4,8c2.7,2,5.3,3,8,3h2c12-1.3,22.7-3.3,32-6c50-12.7,94-35.7,132-69\n" +
+"	c14,1.3,27.7,2,41,2c46.7,0,89.7-8.3,129-25c38.7-16,69.7-38,93-66C497.2,247,508.5,216.3,508.5,183L508.5,183z\"/>\n");
+             builder.append("    <path id=\"inferred\" \n" +
+"d=\"M896 640q0 106 -75 181t-181 75t-181 -75t-75 -181t75 -181t181 -75t181 75t75 181zM1664 128q0 52 -38 90t-90 38t-90 -38t-38 -90q0 -53 37.5 -90.5t90.5 -37.5t90.5 37.5t37.5 90.5zM1664 1152q0 52 -38 90t-90 38t-90 -38t-38 -90q0 -53 37.5 -90.5t90.5 -37.5\n" +
+"t90.5 37.5t37.5 90.5zM1280 731v-185q0 -10 -7 -19.5t-16 -10.5l-155 -24q-11 -35 -32 -76q34 -48 90 -115q7 -11 7 -20q0 -12 -7 -19q-23 -30 -82.5 -89.5t-78.5 -59.5q-11 0 -21 7l-115 90q-37 -19 -77 -31q-11 -108 -23 -155q-7 -24 -30 -24h-186q-11 0 -20 7.5t-10 17.5\n" +
+"l-23 153q-34 10 -75 31l-118 -89q-7 -7 -20 -7q-11 0 -21 8q-144 133 -144 160q0 9 7 19q10 14 41 53t47 61q-23 44 -35 82l-152 24q-10 1 -17 9.5t-7 19.5v185q0 10 7 19.5t16 10.5l155 24q11 35 32 76q-34 48 -90 115q-7 11 -7 20q0 12 7 20q22 30 82 89t79 59q11 0 21 -7\n" +
+"l115 -90q34 18 77 32q11 108 23 154q7 24 30 24h186q11 0 20 -7.5t10 -17.5l23 -153q34 -10 75 -31l118 89q8 7 20 7q11 0 21 -8q144 -133 144 -160q0 -8 -7 -19q-12 -16 -42 -54t-45 -60q23 -48 34 -82l152 -23q10 -2 17 -10.5t7 -19.5zM1920 198v-140q0 -16 -149 -31\n" +
+"q-12 -27 -30 -52q51 -113 51 -138q0 -4 -4 -7q-122 -71 -124 -71q-8 0 -46 47t-52 68q-20 -2 -30 -2t-30 2q-14 -21 -52 -68t-46 -47q-2 0 -124 71q-4 3 -4 7q0 25 51 138q-18 25 -30 52q-149 15 -149 31v140q0 16 149 31q13 29 30 52q-51 113 -51 138q0 4 4 7q4 2 35 20\n" +
+"t59 34t30 16q8 0 46 -46.5t52 -67.5q20 2 30 2t30 -2q51 71 92 112l6 2q4 0 124 -70q4 -3 4 -7q0 -25 -51 -138q17 -23 30 -52q149 -15 149 -31zM1920 1222v-140q0 -16 -149 -31q-12 -27 -30 -52q51 -113 51 -138q0 -4 -4 -7q-122 -71 -124 -71q-8 0 -46 47t-52 68\n" +
+"q-20 -2 -30 -2t-30 2q-14 -21 -52 -68t-46 -47q-2 0 -124 71q-4 3 -4 7q0 25 51 138q-18 25 -30 52q-149 15 -149 31v140q0 16 149 31q13 29 30 52q-51 113 -51 138q0 4 4 7q4 2 35 20t59 34t30 16q8 0 46 -46.5t52 -67.5q20 2 30 2t30 -2q51 71 92 112l6 2q4 0 124 -70\n" +
+"q4 -3 4 -7q0 -25 -51 -138q17 -23 30 -52q149 -15 149 -31z\" />");
+             builder.append("");
+             builder.append("");
+             builder.append("");
+             builder.append("");
+             builder.append("");
+
+
+
+            builder.append("   </defs>\n");
+            
+                
+
+
+
+
             builder.append("    <g alignment-baseline=\"baseline\"></g>\n");
             addSvg(builder, 0, -rootBoundsInScreen.getMinX(), -rootBoundsInScreen.getMinY());
             builder.append("</svg>\n");
