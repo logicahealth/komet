@@ -797,7 +797,10 @@ public class FileSystemDataStore
                             if (!description.startsWith("No description")) {
                                 properties.put(Integer.toString(assemblageNid), description);
                                 properties.put(Integer.toUnsignedString(assemblageNid), description);
-                                description = description.replace('/', '|');
+                                description = description.replaceAll("[^a-zA-Z0-9\\-_\\. ]", "_");
+                                if (description.length() > 240) {
+                                   description = description.substring(0, 240);
+                                }
 
                                 File descriptionFile = new File(
                                         parentDirectory,
@@ -808,7 +811,7 @@ public class FileSystemDataStore
                                     descriptionFile.getParentFile().mkdirs();
                                     descriptionFile.createNewFile();
                                 } catch (IOException ex) {
-                                    LOG.error(ex);
+                                    LOG.warn("Failed to write assemblage description file", ex);
                                 }
                             }
                         }
