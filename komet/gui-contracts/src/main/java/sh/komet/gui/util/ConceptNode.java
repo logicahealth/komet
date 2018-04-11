@@ -72,12 +72,12 @@ import javafx.util.StringConverter;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.drag.drop.DragRegistry;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  * {@link ConceptNode}
@@ -119,7 +119,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ObservableList<SimpleDisplayConcept> dropDownOptions_;
 	private ContextMenu cm_;
 	
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
+	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<ManifoldCoordinate> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider, metadataConceptsOnly);
 	}
@@ -134,7 +134,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 * @param metadataConceptsOnly 
 	 */
 	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
-			Function<ConceptChronology, String> descriptionReader, Supplier<Manifold> manifoldProvider, boolean metadataConceptsOnly)
+			Function<ConceptChronology, String> descriptionReader, Supplier<ManifoldCoordinate> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		c_ = initialConcept;
 		//We can't simply use the ObservableList from the CommonlyUsedConcepts, because it infinite loops - there doesn't seem to be a way 

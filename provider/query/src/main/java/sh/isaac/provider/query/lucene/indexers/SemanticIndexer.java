@@ -638,21 +638,6 @@ public class SemanticIndexer
    @Override
    public List<SearchResult> queryData(DynamicData queryData,
          boolean prefixSearch,
-         int[] assemblageConcept,
-         int[] searchColumns,
-         AmpRestriction amp,
-         Integer pageNum,
-         Integer sizeLimit,
-         Long targetGeneration) {
-      return queryData(queryData, prefixSearch, assemblageConcept, searchColumns, null, amp, pageNum, sizeLimit, targetGeneration);
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public List<SearchResult> queryData(DynamicData queryData,
-         boolean prefixSearch,
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
@@ -732,11 +717,12 @@ public class SemanticIndexer
    public List<SearchResult> queryData(String queryString,
          boolean prefixSearch,
          int[] assemblageConcept,
+         Predicate<Integer> filter,
          AmpRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
-      return queryData(new DynamicStringImpl(queryString), prefixSearch, assemblageConcept, null, null, amp, pageNum, sizeLimit, targetGeneration);
+      return queryData(new DynamicStringImpl(queryString), prefixSearch, assemblageConcept, null, filter, amp, pageNum, sizeLimit, targetGeneration);
    }
 }
 

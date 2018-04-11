@@ -42,7 +42,7 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.Objects;
+import javafx.beans.InvalidationListener;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -50,10 +50,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
-
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -117,6 +115,7 @@ public class ObservableStampCoordinateImpl
                ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(),
                FXCollections.observableSet(this.stampCoordinate.getAllowedStates()));
          this.stampCoordinate.setAllowedStatesProperty(this.allowedStates);
+         this.allowedStates.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.allowedStates;
@@ -167,6 +166,7 @@ public class ObservableStampCoordinateImpl
                ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getModuleNids().asArray()));
          addListenerReference(this.stampCoordinate.setModuleSequencesProperty(this.moduleNidsProperty));
+         this.moduleNidsProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.moduleNidsProperty;
@@ -184,6 +184,7 @@ public class ObservableStampCoordinateImpl
                ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE.toExternalString(),
                new ObservableStampPositionImpl(this.stampCoordinate.getStampPosition()));
          addListenerReference(this.stampCoordinate.setStampPositionProperty(this.stampPositionProperty));
+         this.stampPositionProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.stampPositionProperty;
@@ -201,6 +202,7 @@ public class ObservableStampCoordinateImpl
                ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE.toExternalString(),
                getStampPrecedence());
          addListenerReference(this.stampCoordinate.setStampPrecedenceProperty(this.stampPrecedenceProperty));
+         this.stampPrecedenceProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.stampPrecedenceProperty;

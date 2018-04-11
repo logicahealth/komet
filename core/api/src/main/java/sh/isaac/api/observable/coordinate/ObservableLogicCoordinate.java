@@ -53,7 +53,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  * @author kec
  */
 public interface ObservableLogicCoordinate
-        extends LogicCoordinate {
+        extends LogicCoordinate, ObservableCoordinate {
    /**
     * Classifier nid property.
     *
@@ -91,8 +91,5 @@ public interface ObservableLogicCoordinate
    
    @Override
    public ObservableLogicCoordinate deepClone();
-   
-
-
 }
 

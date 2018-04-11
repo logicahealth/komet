@@ -87,6 +87,22 @@ public interface ManifoldCoordinate
     */
    UUID getCoordinateUuid();
    
+   
+   /**
+    * Return the best description text according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    *
+    * @param conceptId the concept id. 
+    * @return an optional String best matching the {@link LanguageCoordinate} constraints within this ManifoldCoordinate, or empty
+    * if none available that match the {@link ManifoldCoordinate}.
+    */
+   default Optional<String> getDescription(int conceptId) {
+      LatestVersion<DescriptionVersion> temp = getDescription(conceptId, this.getStampCoordinate());
+      if (temp.isPresent()) {
+         return Optional.of(temp.get().getText());
+      }
+      return Optional.empty();
+   }
+   
    /**
     * Return the description according to the type and dialect preferences
     * of the {@code ManifoldCoordinate}'s {@code LanguageCoordinate}.

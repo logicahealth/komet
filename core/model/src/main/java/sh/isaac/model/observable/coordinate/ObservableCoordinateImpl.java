@@ -35,33 +35,36 @@
  *
  */
 
-
-
 package sh.isaac.model.observable.coordinate;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.List;
-
-//~--- classes ----------------------------------------------------------------
+import javafx.beans.value.ObservableValueBase;
+import sh.isaac.api.observable.coordinate.ObservableCoordinate;
 
 /**
- * Created by kec on 7/24/15.
+ * The implementation code that actually makes all of these "Observable" coordinates observable as a whole, 
+ * instead of just a wrapper of a bunch of other observables.
+ * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class ObservableCoordinateImpl {
-   /** The listener references. */
+public abstract class ObservableCoordinateImpl extends ObservableValueBase<ObservableCoordinate> implements ObservableCoordinate {
    private final List<Object> listenerReferences = new ArrayList<>();
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Adds the listener reference.
+    * Convenience method for holding listener references to prevent garbage collection.
     *
     * @param listener the listener
     */
    protected void addListenerReference(Object listener) {
       this.listenerReferences.add(listener);
    }
-}
 
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public ObservableCoordinate getValue() {
+      return this;
+   }
+}

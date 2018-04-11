@@ -16,10 +16,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="borderPane" prefHeight="450.0"
-	prefWidth="300.0" styleClass="defaultBackgroundColor"
-	xmlns="http://javafx.com/javafx/8.0.152"
-	xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane fx:id="borderPane" prefHeight="450.0" prefWidth="300.0" styleClass="defaultBackgroundColor"
+	xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="sh.komet.gui.search.extended.ExtendedSearchViewController">
 	<center>
 		<StackPane prefHeight="150.0" prefWidth="200.0">
@@ -29,8 +27,7 @@
 						<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
 					</StackPane.margin>
 				</ListView>
-				<ProgressIndicator fx:id="searchProgress"
-					maxHeight="100.0" maxWidth="100.0" visible="false"
+				<ProgressIndicator fx:id="searchProgress" maxHeight="100.0" maxWidth="100.0" visible="false"
 					StackPane.alignment="CENTER">
 					<StackPane.margin>
 						<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -49,8 +46,7 @@
 								<Insets />
 							</HBox.margin>
 						</TextField>
-						<Button fx:id="searchButton" maxWidth="-Infinity"
-							mnemonicParsing="false" prefWidth="75.0" text="Search"
+						<Button fx:id="searchButton" maxWidth="-Infinity" mnemonicParsing="false" prefWidth="75.0" text="Search"
 							HBox.hgrow="NEVER">
 							<HBox.margin>
 								<Insets />
@@ -61,37 +57,45 @@
 						<Insets left="5.0" right="5.0" top="5.0" />
 					</VBox.margin>
 				</HBox>
-				<HBox maxHeight="1.7976931348623157E308"
-					maxWidth="1.7976931348623157E308" spacing="5.0">
+				<HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0">
 					<children>
-						<Label maxHeight="1.7976931348623157E308" minWidth="62.0"
-							text="Search In" HBox.hgrow="NEVER">
+						<Label maxHeight="1.7976931348623157E308" minWidth="62.0" text="Search In" HBox.hgrow="NEVER">
 							<tooltip>
 								<Tooltip
 									text="Specify the elements of the concept to search - either Descriptions or attached Sememe data" />
 							</tooltip>
 						</Label>
-						<ChoiceBox fx:id="searchIn"
-							maxWidth="1.7976931348623157E308" prefWidth="100.0"
-							HBox.hgrow="ALWAYS" />
-						<Label maxHeight="1.7976931348623157E308" text="Limit"
-							HBox.hgrow="NEVER" />
-						<ChoiceBox fx:id="searchLimit" maxWidth="150.0"
-							prefWidth="100.0" HBox.hgrow="ALWAYS" />
+						<ChoiceBox fx:id="searchIn" maxWidth="1.7976931348623157E308" prefWidth="100.0" HBox.hgrow="ALWAYS" />
+						<Label maxHeight="1.7976931348623157E308" text="Limit" HBox.hgrow="NEVER" />
+						<ChoiceBox fx:id="searchLimit" maxWidth="150.0" prefWidth="100.0" HBox.hgrow="ALWAYS" />
 					</children>
 					<VBox.margin>
 						<Insets left="5.0" right="5.0" />
 					</VBox.margin>
 				</HBox>
-				<TitledPane fx:id="optionsPane" expanded="false"
-					text="Options">
+				<TitledPane fx:id="optionsPane" expanded="false" text="Options">
 					<content>
 						<VBox fx:id="optionsContentVBox" spacing="10.0">
 							<children>
+								<HBox spacing="10.0">
+									<children>
+										<Label maxHeight="1.7976931348623157E308" minWidth="50.0" text="STAMP" />
+										<Label fx:id="stampCriteriaLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+											HBox.hgrow="ALWAYS">
+											<tooltip>
+												<Tooltip fx:id="stampCriteriaTooltip" text="&quot;&quot;" />
+											</tooltip>
+										</Label>
+										<Button fx:id="adjustStampButton" mnemonicParsing="false" text="...">
+											<tooltip>
+												<Tooltip text="Adjust search STAMP criteria" />
+											</tooltip>
+										</Button>
+									</children>
+								</HBox>
 								<HBox fx:id="searchInRefexHBox" spacing="10.0">
 									<children>
-										<Label maxHeight="1.7976931348623157E308"
-											minWidth="129.0" text="Search Assemblage" HBox.hgrow="NEVER">
+										<Label maxHeight="1.7976931348623157E308" minWidth="129.0" text="Search Assemblage" HBox.hgrow="NEVER">
 											<tooltip>
 												<Tooltip
 													text="Limit the search to Sememes that use the specified Assemblage concept.  Leave blank to search all Assemblage concepts." />
@@ -101,31 +105,24 @@
 								</HBox>
 								<HBox fx:id="searchInDescriptionHBox" spacing="10.0">
 									<children>
-										<Label maxHeight="1.7976931348623157E308"
-											text="Description Type" />
-										<ChoiceBox fx:id="descriptionTypeSelection"
-											maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+										<Label maxHeight="1.7976931348623157E308" text="Description Type" />
+										<ChoiceBox fx:id="descriptionTypeSelection" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
 									</children>
 								</HBox>
-								<CheckBox fx:id="treatAsString" mnemonicParsing="false"
-									text="Treat as String">
+								<CheckBox fx:id="treatAsString" mnemonicParsing="false" text="Treat as String">
 									<tooltip>
-										<Tooltip
-											text="Treat the number as a string for search purposes" />
+										<Tooltip text="Treat the number as a string for search purposes" />
 									</tooltip>
 								</CheckBox>
-								<HBox fx:id="searchInIdentifierHBox"
-									maxWidth="1.7976931348623157E308" spacing="10.0">
+								<HBox fx:id="searchInIdentifierHBox" maxWidth="1.7976931348623157E308" spacing="10.0">
 									<children>
-										<Label maxHeight="1.7976931348623157E308"
-											text="Identifier Type" HBox.hgrow="NEVER">
+										<Label maxHeight="1.7976931348623157E308" text="Identifier Type" HBox.hgrow="NEVER">
 											<tooltip>
 												<Tooltip
 													text="Limit the search to the specified Identifiers type.  Leave blank to search all Identifier types" />
 											</tooltip>
 										</Label>
-										<ChoiceBox fx:id="searchInIdentifiers"
-											maxWidth="1.7976931348623157E308" prefWidth="150.0"
+										<ChoiceBox fx:id="searchInIdentifiers" maxWidth="1.7976931348623157E308" prefWidth="150.0"
 											HBox.hgrow="ALWAYS" />
 									</children>
 								</HBox>
@@ -137,8 +134,7 @@
 		</VBox>
 	</top>
 	<bottom>
-		<ToolBar fx:id="statusBar" prefWidth="200.0"
-			BorderPane.alignment="CENTER">
+		<ToolBar fx:id="statusBar" prefWidth="200.0" BorderPane.alignment="CENTER">
 			<items>
 				<Label fx:id="statusLabel" />
 			</items>
