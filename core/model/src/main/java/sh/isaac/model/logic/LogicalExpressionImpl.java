@@ -45,16 +45,16 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import javafx.beans.property.SimpleObjectProperty;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.commit.CommitStates;
@@ -1195,10 +1195,10 @@ public class LogicalExpressionImpl
 
       logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      Optional<Integer> predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
+      OptionalInt predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
       if (predecessorNid.isPresent()) {
          
-         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.get()).forEachKey((node) -> {
+         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEachKey((node) -> {
             conceptsReferencedByNode.add(node);
             return true;
          });

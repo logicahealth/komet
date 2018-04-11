@@ -16,7 +16,7 @@
  */
 package sh.isaac.api.tree;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -116,7 +116,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @return the predecessor nid
     */
-   Optional<Integer> getPredecessorNid(int nodeId);
+   OptionalInt getPredecessorNid(int nodeId);
 
    //~--- get methods ---------------------------------------------------------
    /**

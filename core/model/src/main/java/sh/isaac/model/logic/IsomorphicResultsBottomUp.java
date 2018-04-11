@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -214,9 +215,9 @@ public class IsomorphicResultsBottomUp
         // Add the deletions
         getDeletedRelationshipRoots().forEach((deletionRoot) -> {
             // deleted relationships roots come from the comparison expression.
-            Optional<Integer> predecessorNid = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
             if (predecessorNid.isPresent()) {
-            int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.get()];
+            int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.getAsInt()];
                if (comparisonExpressionToReferenceNodeId >= 0) {
                    final int rootToAddParentSequence
                            = this.referenceExpressionToMergedNodeIdMap[comparisonExpressionToReferenceNodeId];
@@ -441,9 +442,9 @@ public class IsomorphicResultsBottomUp
         nodesNotInSolution.stream().forEach((additionNode) -> {
             int additionRoot = additionNode;
 
-            Optional<Integer> predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
-            while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.get())) {
-                additionRoot = predecessorNid.get(); 
+            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
+            while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.getAsInt())) {
+                additionRoot = predecessorNid.getAsInt(); 
                 predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
             }
 
@@ -474,9 +475,9 @@ public class IsomorphicResultsBottomUp
         comparisonNodesNotInSolution.stream().forEach((deletedNode) -> {
             int deletedRoot = deletedNode;
 
-            Optional<Integer> predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
-            while (predecessorNid.isPresent() && comparisonNodesNotInSolution.contains(predecessorNid.get())) {
-                deletedRoot = predecessorNid.get();
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
+            while (predecessorNid.isPresent() && comparisonNodesNotInSolution.contains(predecessorNid.getAsInt())) {
+                deletedRoot = predecessorNid.getAsInt();
                 predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
             }
 
@@ -603,13 +604,13 @@ public class IsomorphicResultsBottomUp
             final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
 
             nodesToTry.forEachKey((referenceNodeId) -> {
-                final Optional<Integer> predecessorNid = this.referenceVisitData.getPredecessorNid(
+                final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(
                         referenceNodeId);  // only add if the node matches. ?
 
                 if (predecessorNid.isPresent()) {
-                    if (!nodesProcessed.contains(predecessorNid.get())) {
+                    if (!nodesProcessed.contains(predecessorNid.getAsInt())) {
                         this.referenceVisitData.getPredecessorNid(referenceNodeId).ifPresent(nextSetToTry::add);
-                        nodesProcessed.add(predecessorNid.get());
+                        nodesProcessed.add(predecessorNid.getAsInt());
                     }
                 }
 
