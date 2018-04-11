@@ -67,6 +67,7 @@ import javafx.stage.Popup;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.util.NumericUtils;
@@ -76,7 +77,6 @@ import sh.isaac.provider.query.search.CompositeSearchResult;
 import sh.isaac.provider.query.search.SearchHandle;
 import sh.isaac.provider.query.search.SearchHandler;
 import sh.isaac.utility.SimpleDisplayConcept;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  * Popup code for typing in a text field and doing google-like searches based on the letters entered.
@@ -112,7 +112,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	private volatile int lastProcessedId = -1;
 	private HashMap<Integer, SearchHandle> runningSearches = new HashMap<>();
 	private boolean above = false;
-	private Supplier<Manifold> sc;
+	private Supplier<ManifoldCoordinate> manifoldCoord;
 
 	private class PopUpResult
 	{
@@ -134,9 +134,9 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	 * @param searchMetadataConceptsOnly true to only match metadata concepts, false for all
 	 */
 	@SuppressWarnings("unchecked")
-	public LookAheadConceptPopup(Control field, Supplier<Manifold> manifoldProvider, boolean searchMetadataConceptsOnly)
+	public LookAheadConceptPopup(Control field, Supplier<ManifoldCoordinate> manifoldProvider, boolean searchMetadataConceptsOnly)
 	{
-		sc = manifoldProvider;
+		manifoldCoord = manifoldProvider;
 		metadataOnly = searchMetadataConceptsOnly;
 		if (field instanceof ComboBox)
 		{
@@ -350,13 +350,13 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 					SearchHandle ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexDescriptionQueryService.class).query(text, true, null, null, 
-								AmpRestriction.restrict(sc.get()), metadataOnly, null, null, 1, 5, null);
+								AmpRestriction.restrict(manifoldCoord.get()), metadataOnly, null, null, 1, 5, null);
 					},
 					(searchHandle) -> {this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());},
 					id,
 					null,
 					true,
-					sc.get().getManifoldCoordinate(),
+					manifoldCoord.get(),
 					false);
 					runningSearches.put(id, ssh);
 				}
@@ -412,7 +412,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		if (css == null)
 		{
-			css = Get.conceptService().getSnapshot(sc.get());
+			css = Get.conceptService().getSnapshot(manifoldCoord.get());
 		}
 		return css.conceptDescriptionText(nid);
 	}

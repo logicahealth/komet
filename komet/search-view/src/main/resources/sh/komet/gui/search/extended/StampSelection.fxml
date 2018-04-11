@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane fx:id="gridPane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+	minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="500.0" vgap="5.0"
+	xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="sh.komet.gui.search.extended.StampSelectionController">
+	<columnConstraints>
+		<ColumnConstraints hgrow="SOMETIMES" maxWidth="292.0" minWidth="10.0" prefWidth="144.0" />
+		<ColumnConstraints hgrow="SOMETIMES" maxWidth="442.0" minWidth="10.0" prefWidth="351.0" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints fillHeight="false" vgrow="NEVER" />
+		<RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+		<RowConstraints fillHeight="false" vgrow="NEVER" />
+		<RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+		<RowConstraints fillHeight="false" vgrow="NEVER" />
+		<RowConstraints maxHeight="1.7976931348623157E308" minHeight="80.0" percentHeight="25.0"
+			prefHeight="30.0" vgrow="SOMETIMES" />
+		<RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+		<RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+	</rowConstraints>
+	<children>
+		<Label text="Status" />
+		<ChoiceBox fx:id="status" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
+		<Label text="Time Range Start" GridPane.rowIndex="1" GridPane.rowSpan="2" />
+		<Label text="Authors" GridPane.rowIndex="5" />
+		<ListView fx:id="authors" editable="true" maxHeight="1.7976931348623157E308"
+			maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+		<Label text="Modules" GridPane.rowIndex="6" />
+		<Label text="Paths" GridPane.rowIndex="7" />
+		<ListView fx:id="paths" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+			GridPane.columnIndex="1" GridPane.rowIndex="7" />
+		<Label text="Time Range End" GridPane.rowIndex="3" GridPane.rowSpan="2" />
+		<ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="6">
+			<content>
+				<VBox fx:id="modules" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0"
+					prefWidth="200.0" spacing="5.0" />
+			</content>
+		</ScrollPane>
+		<ComboBox fx:id="timeSelectStart" maxWidth="1.7976931348623157E308" prefWidth="150.0"
+			GridPane.columnIndex="1" GridPane.rowIndex="1" />
+		<ComboBox fx:id="timeSelectEnd" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1"
+			GridPane.rowIndex="3" />
+	</children>
+	<padding>
+		<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+	</padding>
+</GridPane>
