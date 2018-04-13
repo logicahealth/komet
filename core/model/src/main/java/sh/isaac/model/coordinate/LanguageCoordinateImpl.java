@@ -65,6 +65,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -322,6 +323,17 @@ public class LanguageCoordinateImpl
                                          descriptionList,
                                          Get.languageCoordinateService()
                                                .getSynonymConceptNid(),
+                                         this);
+   }
+
+   @Override
+   public LatestVersion<DescriptionVersion> getDefinitionDescription(
+           List<SemanticChronology> descriptionList,
+           StampCoordinate stampCoordinate) {
+      return Get.languageCoordinateService()
+                .getSpecifiedDescription(stampCoordinate,
+                                         descriptionList,
+                                         TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
                                          this);
    }
 

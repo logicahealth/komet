@@ -185,6 +185,10 @@ public interface LanguageCoordinate extends Coordinate {
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
+   LatestVersion<DescriptionVersion> getDefinitionDescription(
+           List<SemanticChronology> descriptionList,
+           StampCoordinate stampCoordinate);
+
    /**
     * Gets the preferred description.
     *

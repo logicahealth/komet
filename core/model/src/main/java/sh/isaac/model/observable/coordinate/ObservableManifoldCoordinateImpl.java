@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +52,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -59,6 +63,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -333,5 +338,12 @@ public class ObservableManifoldCoordinateImpl
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return getLanguageCoordinate().getNextProrityLanguageCoordinate();
     }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 }
 

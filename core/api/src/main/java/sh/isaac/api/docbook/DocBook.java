@@ -16,16 +16,20 @@
  */
 package sh.isaac.api.docbook;
 
+import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.DescriptionToToken;
 
 /**
@@ -34,18 +38,74 @@ import sh.isaac.api.util.DescriptionToToken;
  */
 public class DocBook {
 
-    public static String getGlossentry(ConceptSpecification concept,
+    public static String getInlineEntry(ConceptSpecification concept,
             ManifoldCoordinate manifold) {
-        ConceptChronology conceptChronology = Get.concept(concept);
+        boolean defined = isDefined(concept.getNid(), manifold);
+        boolean multiParent = isMultiparent(concept.getNid(), manifold);
+        String conceptChar;
+        String conceptCharColor;
+        String conceptUuid = concept.getPrimordialUuid().toString();
+        if (defined) {
+            if (multiParent) {
+                conceptChar = "&#xF060; ";
+                conceptCharColor = "#5ec200;";
+            } else {
+                conceptChar = "&#xF12F; ";
+                conceptCharColor = "#5ec200;";
+            }
+        } else {
+            if (multiParent) {
+                conceptChar = "&#xF061; ";
+                conceptCharColor = "#FF4E08;";
+            } else {
+                conceptChar = "&#xF2D8; ";
+                conceptCharColor = "#FF4E08;";
+            }
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("<link xlink:href=\"#ge_solor_");
+         builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
+        builder.append("_");
+        builder.append(conceptUuid);
+        builder.append("\"><inlinemediaobject>\n");
+        builder.append("            <imageobject>\n");
+        builder.append("                <imagedata>\n");
+        builder.append("                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"126px\"\n");
+        builder.append("                        height=\"14px\">\n");
+        builder.append("                        <text x=\"1\" y=\"7\"\n");
+        builder.append("                          style=\"font-size: 9pt; font-family: Open Sans Condensed Light, Symbol, Material Design Icons; baseline-shift: sub;\"\n");
+        builder.append("                          >[<tspan dy=\"1.5\"\n");
+        builder.append("                          style=\"font-family: Material Design Icons; fill: ");
+        builder.append(conceptCharColor);
+        builder.append(" stroke: ");
+        builder.append(conceptCharColor);
+        builder.append(" \"\n");
+        builder.append("                          >");
+        builder.append(conceptChar);
+        builder.append("</tspan>\n");
+        builder.append("                          <tspan dy=\"-1.5\"/>");
+        builder.append(manifold.getPreferredDescriptionText(concept));
+        builder.append("]</text>\n");
+        builder.append("                    </svg>\n");
+        builder.append("                </imagedata>\n");
+        builder.append("            </imageobject>\n");
+        builder.append("        </inlinemediaobject></link> \n");
+
+        return builder.toString();
+    }
+    
+    private static String makeGlossentry(ConceptSpecification concept,
+            ManifoldCoordinate manifold, String definitionSvg) {
         StringBuilder builder = new StringBuilder();
         builder.append("<glossentry xml:id=\"ge_solor_");
         builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
         builder.append("_");
         builder.append(concept.getPrimordialUuid());
         builder.append("\">\n");
-        builder.append("   ").append("<glossterm><emphasis>[");
+        builder.append("   ").append("<glossterm>");
         builder.append(manifold.getPreferredDescriptionText(concept));
-        builder.append("]</emphasis></glossterm>\n");
+        builder.append("</glossterm>\n");
         builder.append("   ").append("<glossdef>");
         builder.append("   ").append("<informaltable frame=\"topbot\" rowsep=\"0\" colsep=\"0\">");
         builder.append("   ").append("<?dbfo keep-together=\"always\" ?>");
@@ -62,19 +122,36 @@ public class DocBook {
         builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Text definition:</entry></row>");
         // add row for each text definition
         addTextDefinition(builder, concept, manifold);
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Stated definition:</entry></row>");
-        // add row for each code
-        addStatedDefinition(builder, conceptChronology, manifold);
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Inferred definition:</entry></row>");
-        // add row for each code
-        addInferredDefinition(builder, conceptChronology, manifold);
-
-        builder.append("          ").append("</tbody>");
+        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Axioms:</entry></row>");
+        builder.append(definitionSvg);
+       builder.append("          ").append("</tbody>");
         builder.append("      ").append("</tgroup>");
         builder.append("   ").append("</informaltable>");
         builder.append("   ").append("</glossdef>");
         builder.append("</glossentry>");
         return builder.toString();
+    }
+
+    public static String getGlossentry(int conceptNid,
+            ManifoldCoordinate manifold, String svgString) {
+        return getGlossentry(Get.concept(conceptNid), manifold, svgString);
+    }
+    public static String getGlossentry(ConceptSpecification concept,
+            ManifoldCoordinate manifold, String svgString) {
+        StringBuilder builder = new StringBuilder();
+            builder.append("          ").append("<row><entry/><entry>");
+            builder.append(svgString);
+            builder.append("</entry></row>");
+        return makeGlossentry(concept, manifold, builder.toString());
+
+    }
+
+    public static String getGlossentry(ConceptSpecification concept,
+            ManifoldCoordinate manifold) {
+        StringBuilder builder = new StringBuilder();
+        addInferredDefinition(builder, Get.concept(concept), manifold);
+        return makeGlossentry(concept, manifold, builder.toString());
+
     }
 
     private static void addDescriptions(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
@@ -107,7 +184,11 @@ public class DocBook {
     }
 
     private static void addTextDefinition(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
-        addDescriptionText(builder, "todo");
+        LatestVersion<DescriptionVersion> definition = manifold.getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold);
+        if (definition.isPresent()) {
+            addDescriptionText(builder, definition.get().getText());
+        }
+        
     }
 
     private static void addStatedDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
@@ -120,7 +201,7 @@ public class DocBook {
         }
     }
 
-private static void addInferredDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
+    private static void addInferredDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
         LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold, PremiseType.INFERRED, manifold);
         if (definition.isPresent()) {
             LogicGraphVersion logicGraph = definition.get();
@@ -128,5 +209,27 @@ private static void addInferredDefinition(StringBuilder builder, ConceptChronolo
             builder.append(logicGraph.getLogicalExpression().toSimpleString());
             builder.append("</emphasis></literallayout></entry></row>");
         }
+    }
+
+    public static boolean isDefined(int conceptNid, ManifoldCoordinate manifold) {
+        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
+        if (!conceptExpression.isPresent()) {
+            return false;
+        }
+        return conceptExpression.get().contains(NodeSemantic.SUFFICIENT_SET);
+    }
+
+    public static boolean isMultiparent(int conceptNid, ManifoldCoordinate manifold) {
+        if (conceptNid == -1
+                || conceptNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+            return false;
+        }
+        int[] parents = Get.taxonomyService().getSnapshot(manifold)
+                .getTaxonomyTree().getParentNids(conceptNid);
+        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
+        if (!conceptExpression.isPresent()) {
+            return false;
+        }
+        return parents.length > 1;
     }
 }

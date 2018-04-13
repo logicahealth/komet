@@ -61,6 +61,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
@@ -1005,7 +1006,9 @@ public class AxiomView {
             inlineSvgItem.setOnAction(this::makeInlineSvg);
             MenuItem mediaObjectSvgItem = new MenuItem("Make media object svg");
             mediaObjectSvgItem.setOnAction(this::makeMediaObjectSvg);
-            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem);
+            MenuItem glossaryEntryItem = new MenuItem("Make glossary entry");
+            glossaryEntryItem.setOnAction(this::makeGlossaryEntry);
+            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem, glossaryEntryItem);
         }
 
         private void makeMediaObjectSvg(Event event) {
@@ -1020,6 +1023,19 @@ public class AxiomView {
 
             putOnClipboard(builder.toString());
         }
+        
+        private void makeGlossaryEntry(Event event) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("<inlinemediaobject>\n");
+            builder.append("                <imageobject>\n");
+            builder.append("                    <imagedata>\n");
+            makeSvg(builder);
+            builder.append("\n                    </imagedata>");
+            builder.append("\n                </imageobject>");
+            builder.append("\n</inlinemediaobject>");
+            
+            putOnClipboard(DocBook.getGlossentry(expression.getConceptNid(), manifold, builder.toString()));
+         }
 
         private void makeInlineSvg(Event event) {
             StringBuilder builder = new StringBuilder();
@@ -1030,7 +1046,7 @@ public class AxiomView {
             builder.append("\n                    </imagedata>");
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
-
+            
             putOnClipboard(builder.toString());
         }
 

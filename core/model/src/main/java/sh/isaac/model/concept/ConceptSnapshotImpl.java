@@ -54,6 +54,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -365,5 +366,12 @@ public class ConceptSnapshotImpl
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return this.manifoldCoordinate.getNextProrityLanguageCoordinate();
     }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 }
 
