@@ -291,7 +291,12 @@ public class ObservableConceptChronologyImpl
 
     @Override
     public ObservableConceptVersionImpl createAutonomousMutableVersion(EditCoordinate ec) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public String toLongString() {
+        return getConceptChronology().toLongString();
     }
    
    

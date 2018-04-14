@@ -206,6 +206,18 @@ public class ManifoldLinkedConceptLabel
             }
         });
         
+        MenuItem copyConceptDetailedInfoItem = new MenuItem("Copy concept detailed info");
+        copyMenu.getItems().add(copyConceptDetailedInfoItem);
+        copyConceptDetailedInfoItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                ConceptChronology conceptChronicle = Get.concept(concept.get());
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(conceptChronicle.toLongString());
+                clipboard.setContent(content);
+            }
+        });
 
         return copyMenu;
 

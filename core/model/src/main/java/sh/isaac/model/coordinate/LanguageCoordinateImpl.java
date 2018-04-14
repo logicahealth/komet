@@ -330,11 +330,18 @@ public class LanguageCoordinateImpl
    public LatestVersion<DescriptionVersion> getDefinitionDescription(
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
-      return Get.languageCoordinateService()
+
+       LatestVersion<DescriptionVersion> definition = Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
                                          descriptionList,
                                          TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
                                          this);
+       
+        if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            return definition;
+        }
+        
+       return new LatestVersion();
    }
 
    @Override

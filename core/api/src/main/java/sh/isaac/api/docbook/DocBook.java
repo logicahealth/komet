@@ -16,6 +16,8 @@
  */
 package sh.isaac.api.docbook;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.Get;
@@ -23,6 +25,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
@@ -107,28 +110,28 @@ public class DocBook {
         builder.append(manifold.getPreferredDescriptionText(concept));
         builder.append("</glossterm>\n");
         builder.append("   ").append("<glossdef>");
-        builder.append("   ").append("<informaltable frame=\"topbot\" rowsep=\"0\" colsep=\"0\">");
-        builder.append("   ").append("<?dbfo keep-together=\"always\" ?>");
-        builder.append("      ").append("<tgroup cols=\"2\" align=\"left\">");
-        builder.append("      ").append("<colspec colname=\"c1\" colnum=\"1\" colwidth=\"15pt\"/>");
-        builder.append("      ").append("<colspec colname=\"c2\" colnum=\"2\" colwidth=\"260pt\"/>");
-        builder.append("          ").append("<tbody>");
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Descriptions:</entry></row>");
+        builder.append("\n   <informaltable frame=\"topbot\" rowsep=\"0\" colsep=\"0\">");
+        builder.append("\n   <?dbfo keep-together=\"always\" ?>");
+        builder.append("\n      <tgroup cols=\"2\" align=\"left\">");
+        builder.append("\n      <colspec colname=\"c1\" colnum=\"1\" colwidth=\"15pt\"/>");
+        builder.append("\n      <colspec colname=\"c2\" colnum=\"2\" colwidth=\"260pt\"/>");
+        builder.append("\n          <tbody>");
+        builder.append("\n          <row><entry namest=\"c1\" nameend=\"c2\">Descriptions:</entry></row>");
         // add row for each description
         addDescriptions(builder, concept, manifold);
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Codes:</entry></row>");
+        builder.append("\n          <row><entry namest=\"c1\" nameend=\"c2\">Codes:</entry></row>");
         // add row for each code
         addCodes(builder, concept, manifold);
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Text definition:</entry></row>");
+        builder.append("\n          <row><entry namest=\"c1\" nameend=\"c2\">Text definition:</entry></row>");
         // add row for each text definition
         addTextDefinition(builder, concept, manifold);
-        builder.append("          ").append("<row><entry namest=\"c1\" nameend=\"c2\">Axioms:</entry></row>");
+        builder.append("\n          <row><entry namest=\"c1\" nameend=\"c2\">Axioms:</entry></row>");
         builder.append(definitionSvg);
-       builder.append("          ").append("</tbody>");
-        builder.append("      ").append("</tgroup>");
-        builder.append("   ").append("</informaltable>");
-        builder.append("   ").append("</glossdef>");
-        builder.append("</glossentry>");
+       builder.append("\n          </tbody>");
+        builder.append("\n      </tgroup>");
+        builder.append("\n   </informaltable>");
+        builder.append("\n   </glossdef>");
+        builder.append("\n</glossentry>");
         return builder.toString();
     }
 
@@ -139,9 +142,9 @@ public class DocBook {
     public static String getGlossentry(ConceptSpecification concept,
             ManifoldCoordinate manifold, String svgString) {
         StringBuilder builder = new StringBuilder();
-            builder.append("          ").append("<row><entry/><entry>");
+            builder.append("\n          <row><entry/><entry>");
             builder.append(svgString);
-            builder.append("</entry></row>");
+            builder.append("\n          </entry></row>");
         return makeGlossentry(concept, manifold, builder.toString());
 
     }
@@ -155,8 +158,34 @@ public class DocBook {
     }
 
     private static void addDescriptions(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
-        addDescriptionText(builder, manifold.getFullySpecifiedDescriptionText(concept));
-        addDescriptionText(builder, manifold.getPreferredDescriptionText(concept));
+        List<SemanticChronology> descriptions = Get.concept(concept).getConceptDescriptionList();
+        HashMap<Integer, DescriptionVersion> nidDescriptionVersionMap = new HashMap<>();
+        for (SemanticChronology descriptionChronology: descriptions) {
+            LatestVersion<DescriptionVersion> latestDescriptionVersion = descriptionChronology.getLatestVersion(manifold);
+            if (latestDescriptionVersion.isPresent()) {
+                DescriptionVersion descriptionVersion = latestDescriptionVersion.get();
+                if (descriptionVersion.getDescriptionTypeConceptNid() == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() 
+                        || descriptionVersion.getDescriptionTypeConceptNid() == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+                    nidDescriptionVersionMap.put(descriptionVersion.getNid(), descriptionVersion);
+                }
+            }
+        }
+        
+        LatestVersion<DescriptionVersion> latestFQN = manifold.getFullySpecifiedDescription(concept);
+        if (latestFQN.isPresent()) {
+            DescriptionVersion fqn = latestFQN.get();
+            addDescriptionText(builder, fqn.getText());
+            nidDescriptionVersionMap.remove(fqn.getNid());
+        }
+        LatestVersion<DescriptionVersion> latestPreferredName = manifold.getPreferredDescription(concept);
+        if (latestPreferredName.isPresent()) {
+            DescriptionVersion name = latestPreferredName.get();
+            addDescriptionText(builder, name.getText());
+            nidDescriptionVersionMap.remove(name.getNid());
+        }
+        for (DescriptionVersion name: nidDescriptionVersionMap.values()) {
+            addDescriptionText(builder, name.getText());
+        }
     }
 
     private static void addDescriptionText(StringBuilder builder, String fullySpecifiedText) {
@@ -167,7 +196,7 @@ public class DocBook {
 
     private static void addCodes(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
         for (UUID uuid : Get.identifierService().getUuidArrayForNid(concept.getNid())) {
-            builder.append("          ").append("<row><entry/><entry>");
+            builder.append("          ").append("<row><entry/><entry>UUID: ");
             builder.append(uuid.toString());
             builder.append("</entry></row>");
         }
@@ -185,8 +214,10 @@ public class DocBook {
 
     private static void addTextDefinition(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
         LatestVersion<DescriptionVersion> definition = manifold.getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold);
-        if (definition.isPresent()) {
+        if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             addDescriptionText(builder, definition.get().getText());
+        } else {
+            addDescriptionText(builder, "Ø");
         }
         
     }

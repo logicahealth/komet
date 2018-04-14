@@ -40,6 +40,7 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,8 +49,10 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -89,6 +92,19 @@ public interface LanguageCoordinate extends Coordinate {
     */
    default LatestVersion<DescriptionVersion> getDescription(int conceptNid, StampCoordinate stampCoordinate) {
       return getDescription(Get.conceptService().getConceptDescriptions(conceptNid), stampCoordinate);
+   }
+   
+   default OptionalInt getAcceptabilityNid(int descriptionNid, int dialectAssemblageNid, StampCoordinate stampCoordinate) {
+       NidSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
+       
+       for (int acceptabilityChronologyNid: acceptabilityChronologyNids.asArray()) {
+           SemanticChronology acceptabilityChronology = Get.assemblageService().getSemanticChronology(acceptabilityChronologyNid);
+               LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(stampCoordinate);
+               if (latestAcceptability.isPresent()) {
+                   return OptionalInt.of(latestAcceptability.get().getComponentNid());
+               }
+       }
+       return OptionalInt.empty();
    }
 
    /**

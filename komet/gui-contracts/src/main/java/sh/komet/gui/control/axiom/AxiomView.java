@@ -19,6 +19,7 @@ package sh.komet.gui.control.axiom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
@@ -36,9 +37,15 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
@@ -59,6 +66,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.docbook.DocBook;
@@ -81,6 +92,8 @@ import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.komet.gui.drag.drop.DragImageMaker;
+import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
@@ -349,6 +362,9 @@ public class AxiomView {
         protected final VBox childBox = new VBox();
         protected PopOver popover;
         Button openConceptButton = new Button("", Iconography.LINK_EXTERNAL.getIconographic());
+        TransferMode[] transferMode = null;
+        Background originalBackground;
+        boolean editable = false;
 
         public ClauseView(AbstractLogicNode logicNode) {
             this.logicNode = logicNode;
@@ -365,8 +381,17 @@ public class AxiomView {
             });
             editButton.setOnMousePressed(this::handleEditClick);
 
+            titleLabel.setOnDragOver(this::handleDragOver);
+            titleLabel.setOnDragEntered(this::handleDragEntered);
+            titleLabel.setOnDragDetected(this::handleDragDetected);
+            titleLabel.setOnDragExited(this::handleDragExited);
+            titleLabel.setOnDragDone(this::handleDragDone);
+
             switch (logicNode.getNodeSemantic()) {
                 case CONCEPT: {
+                    if (premiseType == PremiseType.STATED) {
+                        editable = true;
+                    }
                     ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_CONCEPT.toString());
@@ -384,6 +409,9 @@ public class AxiomView {
                     break;
                 }
                 case FEATURE: {
+                    if (premiseType == PremiseType.STATED) {
+                        editable = true;
+                    }
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_FEATURE.toString());
                     int column = 0;
@@ -474,7 +502,10 @@ public class AxiomView {
                         titleLabel.setText(builder.toString());
                         addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     } else {
-                        rootPane.getStyleClass()
+                      if (premiseType == PremiseType.STATED) {
+                        editable = true;
+                      }
+                      rootPane.getStyleClass()
                                 .add(StyleClasses.DEF_ROLE.toString());
                         StringBuilder builder = new StringBuilder();
                         builder.append("∃ (");
@@ -649,6 +680,90 @@ public class AxiomView {
             }
             rootPane.setCenter(childBox);
             rootPane.setUserData(logicNode);
+        }
+
+        private void handleDragDetected(MouseEvent event) {
+            System.out.println("Drag detected: " + event);
+
+            DragImageMaker dragImageMaker = new DragImageMaker(titleLabel);
+            Dragboard db = titleLabel.startDragAndDrop(TransferMode.COPY);
+
+            db.setDragView(dragImageMaker.getDragImage());
+
+            int conceptNid;
+            switch (logicNode.getNodeSemantic()) {
+                case CONCEPT:
+                    ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
+                    conceptNid = conceptNode.getConceptNid();
+                    break;
+                case SUFFICIENT_SET:
+                case NECESSARY_SET:
+                    conceptNid = logicNode.getNodeSemantic().getConceptNid();
+                    break;
+                case DEFINITION_ROOT:
+                    conceptNid = logicNode.getNidForConceptBeingDefined();
+                    break;
+                case ROLE_SOME:
+                    RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) logicNode;
+                    conceptNid = roleNode.getTypeConceptNid();
+                    break;
+                case FEATURE:
+                    FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
+                    conceptNid = featureNode.getTypeConceptNid();
+                    break;
+                default:
+                    conceptNid = logicNode.getNidForConceptBeingDefined();
+            }
+
+            IsaacClipboard content = new IsaacClipboard(Get.concept(conceptNid));
+            db.setContent(content);
+            event.consume();
+        }
+
+        private void handleDragDone(DragEvent event) {
+            System.out.println("Dragging done: " + event);
+            titleLabel.setBackground(originalBackground);
+            this.transferMode = null;
+        }
+
+        private void handleDragEntered(DragEvent event) {
+            if (editable) {
+                System.out.println("Dragging entered: " + event);
+                this.originalBackground = titleLabel.getBackground();
+
+                Color backgroundColor;
+                Set<DataFormat> contentTypes = event.getDragboard()
+                        .getContentTypes();
+
+                if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
+                    backgroundColor = Color.AQUA;
+                    this.transferMode = TransferMode.COPY_OR_MOVE;
+                } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
+                    backgroundColor = Color.OLIVEDRAB;
+                    this.transferMode = TransferMode.COPY_OR_MOVE;
+                } else {
+                    backgroundColor = Color.RED;
+                    this.transferMode = null;
+                }
+
+                BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+
+                titleLabel.setBackground(new Background(fill));
+            }
+        }
+
+        private void handleDragExited(DragEvent event) {
+            System.out.println("Dragging exited: " + event);
+            titleLabel.setBackground(originalBackground);
+            this.transferMode = null;
+        }
+
+        private void handleDragOver(DragEvent event) {
+            // System.out.println("Dragging over: " + event );
+            if (this.transferMode != null) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                event.consume();
+            }
         }
 
         private void toggleExpansion() {
@@ -1023,7 +1138,7 @@ public class AxiomView {
 
             putOnClipboard(builder.toString());
         }
-        
+
         private void makeGlossaryEntry(Event event) {
             StringBuilder builder = new StringBuilder();
             builder.append("<inlinemediaobject>\n");
@@ -1033,9 +1148,9 @@ public class AxiomView {
             builder.append("\n                    </imagedata>");
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
-            
+
             putOnClipboard(DocBook.getGlossentry(expression.getConceptNid(), manifold, builder.toString()));
-         }
+        }
 
         private void makeInlineSvg(Event event) {
             StringBuilder builder = new StringBuilder();
@@ -1046,7 +1161,7 @@ public class AxiomView {
             builder.append("\n                    </imagedata>");
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
-            
+
             putOnClipboard(builder.toString());
         }
 

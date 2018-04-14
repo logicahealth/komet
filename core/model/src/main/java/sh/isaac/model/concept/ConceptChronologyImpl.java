@@ -207,11 +207,23 @@ public class ConceptChronologyImpl
       builder.append(" <");
       builder.append(getNid());
       builder.append("> \n");
+      return builder.toString();
+   }
+   
+   @Override
+   public String toLongString() {
+      final StringBuilder builder = new StringBuilder();
+
+      builder.append("ConceptChronologyImpl{");
+      builder.append(toUserString());
+      builder.append(" <");
+      builder.append(getNid());
+      builder.append("> \n");
+      
       
       builder.append("\nTaxonomy record: \n");
       builder.append(ModelGet.taxonomyDebugService().describeTaxonomyRecord(this.getNid()));
       builder.append("\n\n");
-
       toString(builder, true);
       return builder.toString();
    }

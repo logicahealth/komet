@@ -37,9 +37,12 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import de.jensd.fx.glyphs.GlyphIcon;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -60,6 +63,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -70,6 +75,7 @@ import javafx.scene.text.TextBoundsType;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -99,6 +105,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.komet.flags.CountryFlagImages;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.textarea.TextAreaReadOnly;
 import sh.komet.gui.control.textarea.TextAreaUtils;
@@ -387,15 +394,42 @@ public abstract class BadgedVersionPanel
             componentType.setText("");
         }
 
+        Tooltip tooltip = new Tooltip(manifold.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
+  
         if (description.getCaseSignificanceConceptNid() == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid()) {
-            badges.add(Iconography.CASE_SENSITIVE.getIconographic());
+            Node icon = Iconography.CASE_SENSITIVE.getIconographic();
+            Tooltip.install(icon, tooltip);
+            badges.add(icon);
         } else if (description.getCaseSignificanceConceptNid()
                 == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid()) {
             // TODO get iconographic for initial character sensitive
-            badges.add(Iconography.CASE_SENSITIVE.getIconographic());
+            Node icon = Iconography.CASE_SENSITIVE.getIconographic();
+            Tooltip.install(icon, tooltip);
+            badges.add(icon);
         } else if (description.getCaseSignificanceConceptNid()
                 == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getNid()) {
-            badges.add(Iconography.CASE_SENSITIVE_NOT.getIconographic());
+            Node icon = Iconography.CASE_SENSITIVE_NOT.getIconographic();
+            Tooltip.install(icon, tooltip);
+            badges.add(icon);
+        }
+        
+        addAcceptabilityBadge(description, MetaData.US_ENGLISH_DIALECT____SOLOR.getNid(), CountryFlagImages.USA.createImageView(16));
+        addAcceptabilityBadge(description, MetaData.GB_ENGLISH_DIALECT____SOLOR.getNid(), CountryFlagImages.UK.createImageView(16));
+    }
+
+    private void addAcceptabilityBadge(DescriptionVersion description, int dialogAssembblageNid, ImageView countryBadge) throws NoSuchElementException {
+        OptionalInt optAcceptabilityNid = manifold.getAcceptabilityNid(description.getNid(), dialogAssembblageNid, manifold);
+        if (optAcceptabilityNid.isPresent()) {
+            int acceptabilityNid = optAcceptabilityNid.getAsInt();
+            if (acceptabilityNid == MetaData.PREFERRED____SOLOR.getNid()) {
+                StringBuilder toolTipText = new StringBuilder();
+                toolTipText.append(manifold.getPreferredDescriptionText(acceptabilityNid));
+                toolTipText.append(" in ");
+                toolTipText.append(manifold.getPreferredDescriptionText(dialogAssembblageNid));
+                Tooltip acceptabilityTooltip = new Tooltip(toolTipText.toString());
+                Tooltip.install(countryBadge, acceptabilityTooltip);
+                badges.add(countryBadge);
+            }
         }
     }
 
