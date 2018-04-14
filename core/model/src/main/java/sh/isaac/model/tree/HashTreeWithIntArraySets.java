@@ -43,7 +43,7 @@ package sh.isaac.model.tree;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
@@ -55,7 +55,6 @@ import org.apache.mahout.math.list.IntArrayList;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -408,9 +407,9 @@ public class HashTreeWithIntArraySets
             OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             // add previous predecessor to node.
-            Optional<Integer> previousPred = nodeVisitData.getPredecessorNid(nid); 
+            OptionalInt previousPred = nodeVisitData.getPredecessorNid(nid); 
             if (previousPred.isPresent()) {
-                userNodeSet.add(previousPred.get());
+                userNodeSet.add(previousPred.getAsInt());
             }
 
             // add to extra parent set of the child...

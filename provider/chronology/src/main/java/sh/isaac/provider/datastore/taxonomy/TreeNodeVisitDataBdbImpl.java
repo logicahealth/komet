@@ -40,6 +40,7 @@ package sh.isaac.provider.datastore.taxonomy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
@@ -48,11 +49,10 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 
 //~--- classes ----------------------------------------------------------------
@@ -484,16 +484,16 @@ public class TreeNodeVisitDataBdbImpl
     * {@inheritDoc}
     */
    @Override
-   public Optional<Integer> getPredecessorNid(int nodeNid) {
+   public OptionalInt getPredecessorNid(int nodeNid) {
       int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
       if (nodeSequence == Integer.MAX_VALUE) {
          throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
       }
       int toReturn = this.predecessorNidList.getQuick(nodeSequence);
       if (toReturn == -1 ) {
-         return Optional.empty();
+         return OptionalInt.empty();
       }
-      return Optional.of(toReturn);
+      return OptionalInt.of(toReturn);
    }
 
    //~--- set methods ---------------------------------------------------------
