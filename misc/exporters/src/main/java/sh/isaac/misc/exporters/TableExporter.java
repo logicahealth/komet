@@ -25,18 +25,41 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 /**
  * A class to export content into a TSV and SQL form for data validation.
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
+@SuppressWarnings("deprecation")
 public class TableExporter
 {
 	private Workbook workbook;
@@ -45,6 +68,7 @@ public class TableExporter
 	private Connection h2Connection;
 	
 	private DataTypeWriter extraUUIDs;
+	private static final Logger LOG = LogManager.getLogger();
 
 	public TableExporter(File tsvExportFolder, File h2ExportFolder, File excelExportFolder) throws IOException, ClassNotFoundException, SQLException
 	{
@@ -73,6 +97,7 @@ public class TableExporter
 				new Class[] {UUID.class, UUID.class, UUID.class, UUID.class, UUID.class, UUID.class});
 		
 		exportConcepts();
+		exportSemantics();
 		close();
 
 	}
@@ -93,8 +118,8 @@ public class TableExporter
 	private void exportConcepts() throws IOException, SQLException
 	{
 		DataTypeWriter dtw = new DataTypeWriter("concept", tsvExportFolder, h2Connection, workbook, 
-				new String[] {"UUID", "IsaacObjectType", "VersionType", "Description", "Status", "Time", "Author", "Module", "Path"}, 
-				new Class[] {UUID.class, String.class, String.class, String.class, String.class, Time.class, UUID.class, UUID.class, UUID.class});
+				new String[] {"UUID", "IsaacObjectType", "VersionType", "Status", "Time", "Author", "Module", "Path", "Description"}, 
+				new Class[] {UUID.class, String.class, String.class, String.class, Time.class, UUID.class, UUID.class, UUID.class, String.class});
 		
 		Get.conceptService().getConceptChronologyStream().forEach(concept -> {
 			
@@ -117,14 +142,231 @@ public class TableExporter
 			for (Version conceptVersion : concept.getVersionList())
 			{
 				dtw.addRow(new Object[] {uuids[0], concept.getIsaacObjectType().toString(), concept.getVersionType().toString(), 
-						Get.conceptDescriptionText(concept.getNid()), 
 						conceptVersion.getStatus().toString(), new Date(conceptVersion.getTime()),
 						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getAuthorNid()),
 						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getModuleNid()),
-						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getPathNid())});
+						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getPathNid()),
+						Get.conceptDescriptionText(concept.getNid())});
 			}
 		});
 		
 		dtw.close();
+	}
+
+	private void exportSemantics() throws IOException, SQLException
+	{		
+		HashMap<Integer, DataTypeWriter> semanticWriters = new HashMap<>();
+
+		Get.assemblageService().getSemanticChronologyStream().forEach(semantic -> {
+			
+			UUID[] uuids = semantic.getUuids();
+			if (uuids.length > 1)
+			{
+				UUID[] temp = new UUID[6];
+				for (int i = 0; i < uuids.length; i++)
+				{
+					temp[i] = uuids[i];
+				}
+				//Pad to column length
+				for (int i = (uuids.length); i < 6; i++)
+				{
+					temp[i] = null;
+				}
+				extraUUIDs.addRow(temp);
+			}
+			DataTypeWriter dtw = semanticWriters.get(semantic.getAssemblageNid());
+			if (dtw == null)
+			{
+				String semanticDescription = Get.conceptService().getConceptChronology(semantic.getAssemblageNid()).getRegularName()
+						.orElse(Get.conceptDescriptionText(semantic.getAssemblageNid()));
+				
+				semanticDescription = "assemblage" + formatName(semanticDescription, true);
+				
+				ArrayList<String> columnHeaders = new ArrayList<>(Arrays.asList(
+						new String[] {"UUID", "IsaacObjectType", "VersionType", "ReferencedComponent", "Status", "Time", "Author", "Module", "Path"}));
+				ArrayList<Class<?>> columnDataTypes = new ArrayList<>(Arrays.asList(
+						new Class[] {UUID.class, String.class, String.class, UUID.class, String.class, Time.class, UUID.class, UUID.class, UUID.class}));
+				switch (semantic.getVersionType())
+				{
+					case MEMBER:
+						//noop
+						break;
+					case COMPONENT_NID:
+						columnHeaders.add("component");
+						columnDataTypes.add(UUID.class);
+						break;
+					case DESCRIPTION:
+						columnHeaders.add("text");
+						columnDataTypes.add(String.class);
+						columnHeaders.add("descriptionType");
+						columnDataTypes.add(String.class);
+						columnHeaders.add("language");
+						columnDataTypes.add(UUID.class);
+						columnHeaders.add("caseSignificance");
+						columnDataTypes.add(UUID.class);
+						break;
+					case STRING:
+						columnHeaders.add("string");
+						columnDataTypes.add(String.class);
+						break;
+					case LONG:
+						columnHeaders.add("long");
+						columnDataTypes.add(Long.class);
+						break;
+					case DYNAMIC:
+						DynamicUsageDescription dud = Get.service(DynamicUtility.class).readDynamicUsageDescription(semantic.getAssemblageNid());
+						for (DynamicColumnInfo dci : dud.getColumnInfo())
+						{
+							columnHeaders.add(formatName(dci.getColumnName(), false));
+							if (dci.getColumnDataType() == DynamicDataType.LONG)
+							{
+								columnDataTypes.add(Long.class);
+							}
+							else if (dci.getColumnDataType() == DynamicDataType.UUID || dci.getColumnDataType() == DynamicDataType.NID)
+							{
+								columnDataTypes.add(UUID.class);
+							}
+							else 
+							{
+								columnDataTypes.add(String.class);
+							}
+							//Could support some other types natively in sql / excel, but no real need at the moment...
+						}
+						break;
+					case LOGIC_GRAPH:
+						columnHeaders.add("graph");
+						columnDataTypes.add(String.class);
+						break;
+						
+					//These could be supported dynamically, with the mocking info available in the 'brittle' types.  but don't care right now.
+					case LOINC_RECORD:
+					case MEASURE_CONSTRAINTS:
+					case Nid1_Int2:
+					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+					case Nid1_Nid2:
+					case Nid1_Nid2_Int3:
+					case Nid1_Nid2_Str3:
+					case Nid1_Str2:
+					case RF2_RELATIONSHIP:
+					case Str1_Nid2_Nid3_Nid4:
+					case Str1_Str2:
+					case Str1_Str2_Nid3_Nid4:
+					case Str1_Str2_Nid3_Nid4_Nid5:
+					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+					case CONCEPT:
+					case UNKNOWN:
+					default :
+						LOG.warn("Not writing all data for unsupported semantic type " + semantic.getVersionType().toString());
+						break;
+				}
+				
+				dtw = new DataTypeWriter(semanticDescription, tsvExportFolder, h2Connection, workbook, columnHeaders.toArray(new String[columnHeaders.size()]),
+						columnDataTypes.toArray(new Class[columnDataTypes.size()]));
+				
+				semanticWriters.put(semantic.getAssemblageNid(), dtw);
+			}
+
+					
+			
+			for (Version semanticVersion : semantic.getVersionList())
+			{
+				ArrayList<Object> data = new ArrayList<>();
+				data.add(uuids[0]);
+				data.add(semantic.getIsaacObjectType().toString());
+				data.add(semantic.getVersionType().toString());
+				data.add(Get.identifierService().getUuidPrimordialForNid(semantic.getReferencedComponentNid()));
+				data.add(semanticVersion.getStatus().toString());
+				data.add(new Date(semanticVersion.getTime()));
+				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getAuthorNid()));
+				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getModuleNid()));
+				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getPathNid()));
+				
+				switch (semantic.getVersionType())
+				{
+					case MEMBER:
+						//noop
+						break;
+					case COMPONENT_NID:
+						data.add(Get.identifierService().getUuidPrimordialForNid(((ComponentNidVersion)semanticVersion).getComponentNid()));
+						break;
+					case DESCRIPTION:
+						data.add(((DescriptionVersion)semanticVersion).getText());
+						data.add(((DescriptionVersion)semanticVersion).getDescriptionType());
+						data.add(Get.identifierService().getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getLanguageConceptNid()));
+						data.add(Get.identifierService().getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getCaseSignificanceConceptNid()));
+						break;
+					case STRING:
+						data.add(((StringVersion)semanticVersion).getString());
+						break;
+					case LONG:
+						data.add(((LongVersion)semanticVersion).getLongValue());
+						break;
+					case DYNAMIC:
+						for (DynamicData dd : ((DynamicVersion<?>)semanticVersion).getData())
+						{
+							if (dd == null)
+							{
+								data.add(null);
+							}
+							else if (dd.getDynamicDataType() == DynamicDataType.NID)
+							{
+								data.add(Get.identifierService().getUuidPrimordialForNid(((DynamicNid)dd).getDataNid()));
+							}
+							else if (dd.getDynamicDataType() == DynamicDataType.UUID)
+							{
+								data.add(((DynamicUUID)dd).getDataUUID());
+							}
+							else if (dd.getDynamicDataType() == DynamicDataType.LONG)
+							{
+								data.add(((DynamicLong)dd).getDataLong());
+							}
+							else
+							{
+								data.add(dd.dataToString());
+							}
+						}
+						break;
+					case LOGIC_GRAPH:
+						data.add(new LogicalExpressionImpl(((LogicGraphVersion)semanticVersion).getExternalGraphData(), DataSource.EXTERNAL).toString());
+						break;
+						
+					//These could be supported dynamically, with the mocking info available in the 'brittle' types.  but don't care right now.
+					case LOINC_RECORD:
+					case MEASURE_CONSTRAINTS:
+					case Nid1_Int2:
+					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+					case Nid1_Nid2:
+					case Nid1_Nid2_Int3:
+					case Nid1_Nid2_Str3:
+					case Nid1_Str2:
+					case RF2_RELATIONSHIP:
+					case Str1_Nid2_Nid3_Nid4:
+					case Str1_Str2:
+					case Str1_Str2_Nid3_Nid4:
+					case Str1_Str2_Nid3_Nid4_Nid5:
+					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+					case CONCEPT:
+					case UNKNOWN:
+					default :
+						//noop for now
+						break;
+				}
+				dtw.addRow(data.toArray(new Object[data.size()]));
+			}
+		});
+		
+		for (DataTypeWriter dtw : semanticWriters.values())
+		{
+			dtw.close();
+		}
+	}
+	
+	private String formatName(String input, boolean uppercaseFirst)
+	{
+		String temp = WordUtils.capitalizeFully(input, ' ').replaceAll(" ", "").replaceAll("[\\[\\]\\+]", "");
+		
+		return uppercaseFirst ? temp.substring(0,  1).toUpperCase() + temp.substring(1, temp.length()) : temp;
 	}
 }

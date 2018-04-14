@@ -46,68 +46,77 @@ public class DataTypeWriter
 	private SimpleDateFormat timeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
 	public DataTypeWriter(String dataTypeLabel, File tsvExportFolder, Connection h2Connection, Workbook workbook, String[] columnHeaders, Class<?>[] dataTypes)
-			throws IOException, SQLException
 	{
-		if (tsvExportFolder != null)
+		try
 		{
-			tsvWriter = new CSVWriter(new BufferedWriter(new FileWriter(new File(tsvExportFolder, "IsaacExport-" + dataTypeLabel + ".tsv"))), '\t', 
-					CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
-			tsvWriter.writeNext(columnHeaders);
-		}
-		this.h2Connection = h2Connection;
-		
-		if (h2Connection != null)
-		{
-			StringBuilder tableCreate = new StringBuilder("CREATE TABLE " + dataTypeLabel + " (");
-			StringBuilder insertStatementBuilder = new StringBuilder("INSERT INTO " + dataTypeLabel + "(");
-			StringBuilder placeholders = new StringBuilder();
-			for (int i = 0; i < columnHeaders.length; i++)
+			if (tsvExportFolder != null)
 			{
-				tableCreate.append(columnHeaders[i]);
-				if (dataTypes[i].equals(UUID.class))
-				{
-					tableCreate.append(" UUID, ");
-				}
-				else if (dataTypes[i].equals(Time.class))
-				{
-					tableCreate.append(" TIMESTAMP, ");
-				}
-				else
-				{
-					tableCreate.append(" VARCHAR, ");
-				}
-				
-				insertStatementBuilder.append(columnHeaders[i]);
-				insertStatementBuilder.append(", ");
-				
-				placeholders.append("?, ");
+				tsvWriter = new CSVWriter(new BufferedWriter(new FileWriter(new File(tsvExportFolder, "IsaacExport-" + dataTypeLabel + ".tsv"))), '\t', 
+						CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
+				tsvWriter.writeNext(columnHeaders);
 			}
-			tableCreate.setLength(tableCreate.length() - 2);
-			tableCreate.append(")");
+			this.h2Connection = h2Connection;
 			
-			insertStatementBuilder.setLength(insertStatementBuilder.length() - 2);
-			insertStatementBuilder.append(") VALUES (");
-			
-			placeholders.setLength(placeholders.length() - 2);
-			insertStatementBuilder.append(placeholders.toString());
-			insertStatementBuilder.append(")");
-			
-			
-			h2Connection.createStatement().execute(tableCreate.toString());
-			insertStatement = h2Connection.prepareStatement(insertStatementBuilder.toString());
-		}
-		
-		if (workbook != null)
-		{
-			sheet = workbook.createSheet(dataTypeLabel);
-			Row row = sheet.createRow(0);
-			for (int i = 0; i < columnHeaders.length; i++)
+			if (h2Connection != null)
 			{
-				Cell cell = row.createCell(i);
-				cell.setCellValue(columnHeaders[i]);
+				StringBuilder tableCreate = new StringBuilder("CREATE TABLE \"" + dataTypeLabel + "\" (");
+				StringBuilder insertStatementBuilder = new StringBuilder("INSERT INTO \"" + dataTypeLabel + "\" (");
+				StringBuilder placeholders = new StringBuilder();
+				for (int i = 0; i < columnHeaders.length; i++)
+				{
+					tableCreate.append("\"" + columnHeaders[i] + "\"");
+					if (dataTypes[i].equals(UUID.class))
+					{
+						tableCreate.append(" UUID, ");
+					}
+					else if (dataTypes[i].equals(Time.class))
+					{
+						tableCreate.append(" TIMESTAMP, ");
+					}
+					else if (dataTypes[i].equals(Long.class))
+					{
+						tableCreate.append(" BIGINT, ");
+					}
+					else
+					{
+						tableCreate.append(" VARCHAR, ");
+					}
+					
+					insertStatementBuilder.append("\"" + columnHeaders[i] + "\"");
+					insertStatementBuilder.append(", ");
+					
+					placeholders.append("?, ");
+				}
+				tableCreate.setLength(tableCreate.length() - 2);
+				tableCreate.append(")");
+				
+				insertStatementBuilder.setLength(insertStatementBuilder.length() - 2);
+				insertStatementBuilder.append(") VALUES (");
+				
+				placeholders.setLength(placeholders.length() - 2);
+				insertStatementBuilder.append(placeholders.toString());
+				insertStatementBuilder.append(")");
+				
+				
+				h2Connection.createStatement().execute(tableCreate.toString());
+				insertStatement = h2Connection.prepareStatement(insertStatementBuilder.toString());
+			}
+			
+			if (workbook != null)
+			{
+				sheet = workbook.createSheet(dataTypeLabel);
+				Row row = sheet.createRow(0);
+				for (int i = 0; i < columnHeaders.length; i++)
+				{
+					Cell cell = row.createCell(i);
+					cell.setCellValue(columnHeaders[i]);
+				}
 			}
 		}
-		
+		catch (Exception e)
+		{
+			throw new RuntimeException("oops", e);
+		}
 	}
 	
 	public void addRow(Object[] data)
@@ -140,6 +149,10 @@ public class DataTypeWriter
 					if (data[i] instanceof Date)
 					{
 						cell.setCellValue((Date)data[i]);
+					}
+					else if (data[i] instanceof Long)
+					{
+						cell.setCellValue((Long)data[i]);
 					}
 					else if (data[i] != null)
 					{
