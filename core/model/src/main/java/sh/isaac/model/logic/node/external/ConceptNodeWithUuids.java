@@ -46,8 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -180,7 +178,8 @@ public class ConceptNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" +
-             Get.conceptService().getConceptChronology(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
+             Get.conceptService().getConceptChronology(this.conceptUuid).toUserString() + " <" +
+                     this.conceptUuid + ">" + "\"" + super.toString(nodeIdSuffix);
    }
    @Override
    public String toSimpleString() {

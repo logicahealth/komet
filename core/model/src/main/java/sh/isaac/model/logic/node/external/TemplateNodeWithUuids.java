@@ -198,8 +198,10 @@ public class TemplateNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] " + "assemblage: " +
-             Get.conceptService().getConceptChronology(this.assemblageConceptUuid).toUserString() + ", template: " +
-             Get.conceptService().getConceptChronology(this.templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
+             Get.conceptService().getConceptChronology(this.assemblageConceptUuid).toUserString()  + " <" +
+                     this.assemblageConceptUuid + ">" + ", template: " +
+             Get.conceptService().getConceptChronology(this.templateConceptUuid).toUserString()  + " <" +
+                     this.templateConceptUuid + ">" + super.toString(nodeIdSuffix);
    }
    @Override
    public String toSimpleString() {

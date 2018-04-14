@@ -184,7 +184,8 @@ public class FeatureNodeWithUuids
    public String toString(String nodeIdSuffix) {
       return "FeatureNode[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator + ", units:"
 
-      + Get.concept(measureSemanticUuid).toUserString()
+      + Get.concept(measureSemanticUuid).toUserString() + " <" +
+              this.measureSemanticUuid + ">"
       + super.toString(nodeIdSuffix);
    }
    @Override
