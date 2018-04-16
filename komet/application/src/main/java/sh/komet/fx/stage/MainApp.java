@@ -183,7 +183,7 @@ public class MainApp
         // Get the toolkit
         MenuToolkit menuToolkit = MenuToolkit.toolkit();
         if (menuToolkit != null) {
-            // Create the default Application menu
+            // Create the default Application menu for Apple, I guess.....
             Menu defaultApplicationMenu = menuToolkit.createDefaultApplicationMenu("SOLOR Viewer");
             MenuItem aboutItem = defaultApplicationMenu.getItems().get(0);
             aboutItem.setOnAction(this::handleAbout);
@@ -191,8 +191,9 @@ public class MainApp
             quitItem.setOnAction(this::close);
             menuToolkit.setApplicationMenu(defaultApplicationMenu);
         } else {
+            //And for everyone else....
             BorderPane wrappingPane = new BorderPane(root);
-            Menu defaultApplicationMenu = new Menu("Viewer");
+            Menu defaultApplicationMenu = new Menu("SOLOR Viewer");
             MenuItem aboutItem = new MenuItem("About...");
             defaultApplicationMenu.getItems().add(aboutItem);
             defaultApplicationMenu.getItems().add(new SeparatorMenuItem());
@@ -200,7 +201,13 @@ public class MainApp
             MenuItem quitItem = new MenuItem("Quit");
             defaultApplicationMenu.getItems().add(quitItem);
             quitItem.setOnAction(this::close);
-            wrappingPane.setTop(new MenuBar(defaultApplicationMenu));
+            
+            Menu toolMenu = new Menu("Tools");
+            MenuItem exportMenu = new MenuItem("Export");
+            toolMenu.getItems().add(exportMenu);
+           //TODO finish
+            
+            wrappingPane.setTop(new MenuBar(defaultApplicationMenu, toolMenu));
             root = wrappingPane;
             stage.setHeight(stage.getHeight() + 20);
         }
