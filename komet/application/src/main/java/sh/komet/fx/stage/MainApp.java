@@ -172,33 +172,6 @@ public class MainApp
 
         stage.setTitle("Viewer");
 
-        Scene scene = new Scene(root);
-
-        stage.setScene(scene);
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
-
-        // GraphController.setSceneForControllers(scene);
-        scene.getStylesheets()
-                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        scene.getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
-        FxGet.statusMessageService()
-                .addScene(scene, controller::reportStatus);
-        stage.show();
-        stage.setOnCloseRequest(this::handleShutdown);
-
-        // SNAPSHOT
-        // Chronology
-        // Reflector
-        //
-        // Logic, Language, Dialect, Chronology,
-        // LILAC Reflector (LOGIC,
-        // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
-        // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
-        // CHILLDE
-        // Knowledge, Language, Dialect, Chronology
-        // KOLDAC
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
@@ -217,6 +190,7 @@ public class MainApp
                     return o1.getText().compareTo(o2.getText());
                 }
             });
+            
             if (ap == AppMenu.APP) {
                 MenuItem prefsItem = new MenuItem("Preferences...");
                 //TODO make prefs do something
@@ -283,6 +257,32 @@ public class MainApp
             }
         });
 
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
+
+        // GraphController.setSceneForControllers(scene);
+        scene.getStylesheets()
+                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        scene.getStylesheets()
+                .add(Iconography.getStyleSheetStringUrl());
+        FxGet.statusMessageService()
+                .addScene(scene, controller::reportStatus);
+        stage.show();
+        stage.setOnCloseRequest(this::handleShutdown);
+
+        // SNAPSHOT
+        // Chronology
+        // Reflector
+        //
+        // Logic, Language, Dialect, Chronology,
+        // LILAC Reflector (LOGIC,
+        // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
+        // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
+        // CHILLDE
+        // Knowledge, Language, Dialect, Chronology
+        // KOLDAC
     }
 
     private void close(ActionEvent event) {
@@ -329,6 +329,8 @@ public class MainApp
             FxGet.statusMessageService()
                     .addScene(scene, controller::reportStatus);
             stage.show();
+            //TODO Dan notes, this seems like a really bad idea on an auxiliary window.
+            //Also, this window has no menus....
             stage.setOnCloseRequest(this::handleShutdown);
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
