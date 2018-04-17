@@ -111,10 +111,6 @@ public abstract class TimedTaskWithProgressTracker<T>
      */
     AtomicLong totalWork = new AtomicLong();
 
-    /**
-     * The last total work.
-     */
-    AtomicLong lastTotalWork = new AtomicLong();
     //~--- methods -------------------------------------------------------------
 
     /**
