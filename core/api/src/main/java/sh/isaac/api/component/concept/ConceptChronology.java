@@ -199,5 +199,10 @@ public interface ConceptChronology
       return getPreferredDescription(coordinate, coordinate);
    }
 
+   /**
+    * 
+    * @return a string with more detailed information about all taxonomy information and semantic extensions for the concept. 
+    */
+   String toLongString();
 }
 

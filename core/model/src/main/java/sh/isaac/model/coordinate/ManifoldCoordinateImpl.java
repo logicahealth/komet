@@ -41,6 +41,7 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,6 +59,9 @@ import sh.isaac.api.Get;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -338,6 +342,11 @@ public class ManifoldCoordinateImpl
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return languageCoordinate.getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
 }
 

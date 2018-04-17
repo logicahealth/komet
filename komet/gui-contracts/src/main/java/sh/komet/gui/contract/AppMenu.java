@@ -24,7 +24,12 @@ import javafx.scene.control.Menu;
  */
 public enum AppMenu
 {
-	TOOLS("_Tools");
+	APP("_SOLOR Viewer"),
+	FILE("_File"),
+	EDIT("_Edit"),
+	TOOLS("_Tools"),
+	WINDOW("_Window"),
+	HELP("_Help");
 
 	private String menuName;
 	private Menu menu = null;

@@ -145,7 +145,21 @@ public class ManifoldLinkedConceptLabel
     //~--- methods -------------------------------------------------------------
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
-        MenuItem copyDocBookMenuItem = new MenuItem("docbook glossary entry");
+        MenuItem docBookInlineReferenceMenuItem = new MenuItem("Docbook inline concept reference");
+        copyMenu.getItems().add(docBookInlineReferenceMenuItem);
+        docBookInlineReferenceMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                String docbookXml = DocBook.getInlineEntry(concept.get(), manifold);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(docbookXml);
+                clipboard.setContent(content);
+            }
+        });
+
+
+        MenuItem copyDocBookMenuItem = new MenuItem("Docbook glossary entry");
         copyMenu.getItems().add(copyDocBookMenuItem);
         copyDocBookMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -192,6 +206,18 @@ public class ManifoldLinkedConceptLabel
             }
         });
         
+        MenuItem copyConceptDetailedInfoItem = new MenuItem("Copy concept detailed info");
+        copyMenu.getItems().add(copyConceptDetailedInfoItem);
+        copyConceptDetailedInfoItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                ConceptChronology conceptChronicle = Get.concept(concept.get());
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(conceptChronicle.toLongString());
+                clipboard.setContent(content);
+            }
+        });
 
         return copyMenu;
 

@@ -315,4 +315,11 @@ public final class ObservableLanguageCoordinateImpl
     public LanguageCoordinateImpl unwrap() {
         return languageCoordinate;
     }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 }

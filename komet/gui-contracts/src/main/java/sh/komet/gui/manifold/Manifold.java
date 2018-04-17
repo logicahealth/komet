@@ -44,6 +44,7 @@ package sh.komet.gui.manifold;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -68,11 +69,13 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -413,5 +416,12 @@ public class Manifold
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return this.observableManifoldCoordinate.getNextProrityLanguageCoordinate();
     }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.observableManifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 }
 
