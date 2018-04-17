@@ -189,7 +189,8 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 				
 				ArrayList<String> columnHeaders = new ArrayList<>(Arrays.asList(
 						new String[] {"UUID", "IsaacObjectType", "VersionType", "ReferencedComponent", "Status", "Time", "Author", "Module", "Path"}));
-				ArrayList<Class<?>> columnDataTypes = new ArrayList<>(Arrays.asList(
+				@SuppressWarnings("rawtypes")
+				ArrayList<Class> columnDataTypes = new ArrayList<>(Arrays.asList(
 						new Class[] {UUID.class, String.class, String.class, UUID.class, String.class, Time.class, UUID.class, UUID.class, UUID.class}));
 				switch (semantic.getVersionType())
 				{
