@@ -37,6 +37,7 @@
 package sh.komet.fx.stage;
 
 import java.lang.management.ManagementFactory;
+import java.util.Comparator;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,6 +78,8 @@ import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.isaac.solor.direct.DirectImporter;
+import sh.komet.gui.contract.AppMenu;
+import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
@@ -202,12 +205,25 @@ public class MainApp
             defaultApplicationMenu.getItems().add(quitItem);
             quitItem.setOnAction(this::close);
             
-            Menu toolMenu = new Menu("Tools");
-            MenuItem exportMenu = new MenuItem("Export");
-            toolMenu.getItems().add(exportMenu);
-           //TODO finish
+            MenuBar mb = new MenuBar(defaultApplicationMenu);
             
-            wrappingPane.setTop(new MenuBar(defaultApplicationMenu, toolMenu));
+            for (AppMenu ap : AppMenu.values()) {
+                mb.getMenus().add(ap.getMenu());
+
+                for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                    if (mp.getParentMenu() == ap) {
+                        ap.getMenu().getItems().add(mp.getMenuItem(primaryStage.getOwner()));
+                    }
+                }
+                ap.getMenu().getItems().sort(new Comparator<MenuItem>() {
+                    @Override
+                    public int compare(MenuItem o1, MenuItem o2) {
+                        return o1.getText().compareTo(o2.getText());
+                    }
+                });
+            }
+
+            wrappingPane.setTop(mb);
             root = wrappingPane;
             stage.setHeight(stage.getHeight() + 20);
         }
