@@ -35,6 +35,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
@@ -70,6 +72,8 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 	
 	private DataTypeWriter extraUUIDs;
 	private static final Logger LOG = LogManager.getLogger();
+	
+	private Cache<Integer, UUID> nidToUUIDCache = Caffeine.newBuilder().initialCapacity(300).maximumSize(300).build();
 
 	public TableExporter(File tsvExportFolder, File h2ExportFolder, File excelExportFolder) throws IOException, ClassNotFoundException, SQLException
 	{
@@ -96,9 +100,6 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 		
 		extraUUIDs = new DataTypeWriter("extraUuids", tsvExportFolder, h2Connection, workbook, new String[] {"UUID", "UUID1", "UUID2", "UUID3", "UUID4", "UUID5"}, 
 				new Class[] {UUID.class, UUID.class, UUID.class, UUID.class, UUID.class, UUID.class});
-		
-		addToTotalWork(Get.conceptService().getConceptCount());
-		addToTotalWork(Get.assemblageService().getSemanticCount());
 		updateTitle("Exporting...");
 	}
 
@@ -125,7 +126,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 				new String[] {"UUID", "IsaacObjectType", "VersionType", "Status", "Time", "Author", "Module", "Path", "Description"}, 
 				new Class[] {UUID.class, String.class, String.class, String.class, Time.class, UUID.class, UUID.class, UUID.class, String.class});
 		
-		Get.conceptService().getConceptChronologyStream().forEach(concept -> {
+		Get.conceptService().getConceptChronologyStream().sequential().forEach(concept -> {
 			
 			UUID[] uuids = concept.getUuids();
 			if (uuids.length > 1)
@@ -147,9 +148,9 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 			{
 				dtw.addRow(new Object[] {uuids[0], concept.getIsaacObjectType().toString(), concept.getVersionType().toString(), 
 						conceptVersion.getStatus().toString(), new Date(conceptVersion.getTime()),
-						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getAuthorNid()),
-						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getModuleNid()),
-						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getPathNid()),
+						getUuidPrimordialForNid(conceptVersion.getAuthorNid()),
+						getUuidPrimordialForNid(conceptVersion.getModuleNid()),
+						getUuidPrimordialForNid(conceptVersion.getPathNid()),
 						Get.conceptDescriptionText(concept.getNid())});
 			}
 			completedUnitOfWork();
@@ -162,7 +163,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 	{		
 		HashMap<Integer, DataTypeWriter> semanticWriters = new HashMap<>();
 
-		Get.assemblageService().getSemanticChronologyStream().forEach(semantic -> {
+		Get.assemblageService().getSemanticChronologyStream().sequential().forEach(semantic -> {
 			
 			UUID[] uuids = semantic.getUuids();
 			if (uuids.length > 1)
@@ -185,7 +186,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 				String semanticDescription = Get.conceptService().getConceptChronology(semantic.getAssemblageNid()).getRegularName()
 						.orElse(Get.conceptDescriptionText(semantic.getAssemblageNid()));
 				
-				semanticDescription = "assemblage" + formatName(semanticDescription, true);
+				semanticDescription = "assemblage" + formatName(semanticDescription, true)+ "-" + semantic.getAssemblageNid();
 				
 				ArrayList<String> columnHeaders = new ArrayList<>(Arrays.asList(
 						new String[] {"UUID", "IsaacObjectType", "VersionType", "ReferencedComponent", "Status", "Time", "Author", "Module", "Path"}));
@@ -281,12 +282,12 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 				data.add(uuids[0]);
 				data.add(semantic.getIsaacObjectType().toString());
 				data.add(semantic.getVersionType().toString());
-				data.add(Get.identifierService().getUuidPrimordialForNid(semantic.getReferencedComponentNid()));
+				data.add(getUuidPrimordialForNid(semantic.getReferencedComponentNid()));
 				data.add(semanticVersion.getStatus().toString());
 				data.add(new Date(semanticVersion.getTime()));
-				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getAuthorNid()));
-				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getModuleNid()));
-				data.add(Get.identifierService().getUuidPrimordialForNid(semanticVersion.getPathNid()));
+				data.add(getUuidPrimordialForNid(semanticVersion.getAuthorNid()));
+				data.add(getUuidPrimordialForNid(semanticVersion.getModuleNid()));
+				data.add(getUuidPrimordialForNid(semanticVersion.getPathNid()));
 				
 				switch (semantic.getVersionType())
 				{
@@ -294,13 +295,13 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 						//noop
 						break;
 					case COMPONENT_NID:
-						data.add(Get.identifierService().getUuidPrimordialForNid(((ComponentNidVersion)semanticVersion).getComponentNid()));
+						data.add(getUuidPrimordialForNid(((ComponentNidVersion)semanticVersion).getComponentNid()));
 						break;
 					case DESCRIPTION:
 						data.add(((DescriptionVersion)semanticVersion).getText());
 						data.add(((DescriptionVersion)semanticVersion).getDescriptionType());
-						data.add(Get.identifierService().getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getLanguageConceptNid()));
-						data.add(Get.identifierService().getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getCaseSignificanceConceptNid()));
+						data.add(getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getLanguageConceptNid()));
+						data.add(getUuidPrimordialForNid(((DescriptionVersion)semanticVersion).getCaseSignificanceConceptNid()));
 						break;
 					case STRING:
 						data.add(((StringVersion)semanticVersion).getString());
@@ -317,7 +318,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 							}
 							else if (dd.getDynamicDataType() == DynamicDataType.NID)
 							{
-								data.add(Get.identifierService().getUuidPrimordialForNid(((DynamicNid)dd).getDataNid()));
+								data.add(getUuidPrimordialForNid(((DynamicNid)dd).getDataNid()));
 							}
 							else if (dd.getDynamicDataType() == DynamicDataType.UUID)
 							{
@@ -383,9 +384,19 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 	@Override
 	protected Void call() throws Exception
 	{
+		addToTotalWork(Get.conceptService().getConceptCount());
+		addToTotalWork(Get.assemblageService().getSemanticCount());
 		exportConcepts();
 		exportSemantics();
 		close();
 		return null;
+	}
+	
+	private UUID getUuidPrimordialForNid(int nid)
+	{
+		return nidToUUIDCache.get(nid, theNid -> 
+		{
+			return Get.identifierService().getUuidPrimordialForNid(theNid);
+		});
 	}
 }

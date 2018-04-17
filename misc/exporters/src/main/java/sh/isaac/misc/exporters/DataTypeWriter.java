@@ -42,6 +42,7 @@ public class DataTypeWriter
 	private CSVWriter tsvWriter;
 	private Connection h2Connection;
 	private PreparedStatement insertStatement;
+	private int insertStatementParamCount = 0;
 	private Sheet sheet;
 	private SimpleDateFormat timeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
@@ -86,6 +87,7 @@ public class DataTypeWriter
 					insertStatementBuilder.append(", ");
 					
 					placeholders.append("?, ");
+					insertStatementParamCount++;
 				}
 				tableCreate.setLength(tableCreate.length() - 2);
 				tableCreate.append(")");
@@ -166,6 +168,11 @@ public class DataTypeWriter
 				for (int i = 0; i < data.length; i++)
 				{
 					insertStatement.setObject((i + 1), data[i]);
+				}
+				//pad trailing / missing data
+				for (int i = data.length; i < insertStatementParamCount; i++)
+				{
+					insertStatement.setObject((i + 1), null);
 				}
 				insertStatement.execute();
 			}
