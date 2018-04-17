@@ -52,6 +52,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 
 /**
@@ -60,7 +61,7 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
-public class TableExporter
+public class TableExporter extends TimedTaskWithProgressTracker<Void>
 {
 	private Workbook workbook;
 	private File excelExportFolder;
@@ -96,10 +97,9 @@ public class TableExporter
 		extraUUIDs = new DataTypeWriter("extraUuids", tsvExportFolder, h2Connection, workbook, new String[] {"UUID", "UUID1", "UUID2", "UUID3", "UUID4", "UUID5"}, 
 				new Class[] {UUID.class, UUID.class, UUID.class, UUID.class, UUID.class, UUID.class});
 		
-		exportConcepts();
-		exportSemantics();
-		close();
-
+		addToTotalWork(Get.conceptService().getConceptCount());
+		addToTotalWork(Get.assemblageService().getSemanticCount());
+		updateTitle("Exporting...");
 	}
 
 	private void close() throws FileNotFoundException, IOException, SQLException
@@ -112,6 +112,10 @@ public class TableExporter
 				workbook.write(fileOut);
 			}
 			workbook.close();
+		}
+		if (h2Connection != null)
+		{
+			h2Connection.close();
 		}
 	}
 
@@ -148,6 +152,7 @@ public class TableExporter
 						Get.identifierService().getUuidPrimordialForNid(conceptVersion.getPathNid()),
 						Get.conceptDescriptionText(concept.getNid())});
 			}
+			completedUnitOfWork();
 		});
 		
 		dtw.close();
@@ -355,6 +360,7 @@ public class TableExporter
 				}
 				dtw.addRow(data.toArray(new Object[data.size()]));
 			}
+			completedUnitOfWork();
 		});
 		
 		for (DataTypeWriter dtw : semanticWriters.values())
@@ -368,5 +374,17 @@ public class TableExporter
 		String temp = WordUtils.capitalizeFully(input, ' ').replaceAll(" ", "").replaceAll("[\\[\\]\\+]", "");
 		
 		return uppercaseFirst ? temp.substring(0,  1).toUpperCase() + temp.substring(1, temp.length()) : temp;
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Void call() throws Exception
+	{
+		exportConcepts();
+		exportSemantics();
+		close();
+		return null;
 	}
 }

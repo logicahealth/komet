@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane fx:id="rootGridPane" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="148.0" prefWidth="693.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.152" fx:controller="sh.isaac.komet.gui.exporter.ExporterController">
+  <columnConstraints>
+    <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="193.0" minWidth="10.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="319.0" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="10.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints fillHeight="false" minHeight="10.0" vgrow="NEVER" />
+    <RowConstraints fillHeight="false" minHeight="10.0" vgrow="NEVER" />
+      <RowConstraints fillHeight="false" minHeight="10.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label text="Export Location">
+         <GridPane.margin>
+            <Insets right="10.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="exportLocation" GridPane.columnIndex="1" />
+      <Button fx:id="locationButton" mnemonicParsing="false" text="..." GridPane.columnIndex="2" />
+      <Label text="Export Formats" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets right="10.0" />
+         </GridPane.margin>
+      </Label>
+      <CheckBox fx:id="exportText" mnemonicParsing="false" selected="true" text="Text Files" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <CheckBox fx:id="exportExcel" mnemonicParsing="false" selected="true" text="Excel Spreadsheet" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <CheckBox fx:id="exportH2" mnemonicParsing="false" selected="true" text="H2 SQL Database" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</GridPane>

@@ -43,7 +43,8 @@ public class TableExporterTest
 			
 			File exportFolder = new File("target/export");
 			
-			new TableExporter(exportFolder, exportFolder, exportFolder);
+			TableExporter te = new TableExporter(exportFolder, exportFolder, exportFolder);
+			Get.workExecutors().getExecutor().execute(te);
 		}
 		finally
 		{

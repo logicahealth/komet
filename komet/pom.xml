@@ -25,5 +25,6 @@
         <module>scripting</module>
         <module>statement-view</module>
         <module>semantic-view</module>
+        <module>export-view</module>
     </modules>
-</project> 
+</project>
