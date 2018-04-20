@@ -158,8 +158,8 @@ public class IsaacTaxonomy {
     * @param author the author
     * @param module the module
     * @param semanticTag the semantic tag
-     * @param auxiliaryMetadataVersion
-     * @param namespaceForUUIDGeneration
+    * @param auxiliaryMetadataVersion
+    * @param namespaceForUUIDGeneration
     */
    public IsaacTaxonomy(ConceptSpecification path,
            ConceptSpecification author,
