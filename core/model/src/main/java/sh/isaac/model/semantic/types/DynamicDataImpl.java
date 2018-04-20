@@ -250,8 +250,13 @@ public abstract class DynamicDataImpl
     * @return the name
     */
    protected String getName() {
-      return ((this.nameProvider == null) ? "???"
-            : this.nameProvider.get());
+      try {
+         return ((this.nameProvider == null) ? "???"
+               : this.nameProvider.get());
+      }
+      catch (Exception e) {
+         return "???";
+      }
    }
 }
 
