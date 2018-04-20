@@ -56,6 +56,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 
@@ -89,6 +90,9 @@ public class Setup
    /** Location of the folder that contains the user profiles. */
    @Parameter(required = false)
    private File userProfileFolderLocation;
+   
+   @Parameter(required = false)
+   private boolean enableUUIDCache = false;
 
    //~--- methods -------------------------------------------------------------
 
@@ -126,8 +130,13 @@ public class Setup
          {
             Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
          }
+         
+         if (enableUUIDCache) {
+            UuidIntMapMap.NID_TO_UUID_CACHE_ENABLED = true;
+         }
 
-         getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
+         getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath()
+               + " uuidCache enabled: " + UuidIntMapMap.NID_TO_UUID_CACHE_ENABLED);
          LookupService.startupIsaac();
          getLog().info("Done setting up ISAAC");
       } catch (IllegalStateException | IllegalArgumentException | IOException e) {

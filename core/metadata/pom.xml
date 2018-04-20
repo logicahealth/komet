@@ -132,6 +132,7 @@
                      <dataStoreLocation>${project.build.directory}/datastore</dataStoreLocation>
                      <bindingPackage>sh.isaac</bindingPackage>
                      <bindingClass>MetaData</bindingClass>
+                     <enableUUIDCache>true</enableUUIDCache>
                   </configuration> 
                </execution>
             </executions>
