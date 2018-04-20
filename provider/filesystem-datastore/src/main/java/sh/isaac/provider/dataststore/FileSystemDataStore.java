@@ -787,7 +787,7 @@ public class FileSystemDataStore
                 File parentDirectory = directory.getParentFile();
                 File[] filesWithPrefix = parentDirectory.listFiles((dir, name) -> name.startsWith(directory.getName()));
 
-                if (filesWithPrefix.length < 2) {
+                if (filesWithPrefix.length < 2 && Get.conceptService().hasConcept(assemblageNid)) {
                     try {
                         Optional<String> descriptionOptional = Get.concept(assemblageNid)
                                 .getRegularName();
