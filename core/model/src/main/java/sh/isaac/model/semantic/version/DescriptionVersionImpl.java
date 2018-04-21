@@ -298,7 +298,7 @@ public class DescriptionVersionImpl
 
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
-      if (!(other instanceof LogicGraphVersionImpl)) {
+      if (!(other instanceof DescriptionVersionImpl)) {
          return false;
       }
       DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
