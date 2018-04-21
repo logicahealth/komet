@@ -91,7 +91,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
@@ -172,9 +171,6 @@ public class Get
 
    /** The logic service. */
    private static LogicService logicService;
-
-   /** The binary data differ service. */
-   private static BinaryDataDifferService binaryDataDifferService;
 
    /** The path service. */
    private static VersionManagmentPathService versionManagementPathService;
@@ -265,19 +261,6 @@ public class Get
       }
 
       return assemblageService != null;
-   }
-
-   /**
-    * Binary data differ service.
-    *
-    * @return the binary data differ service
-    */
-   public static BinaryDataDifferService binaryDataDifferService() {
-      if (binaryDataDifferService == null) {
-         binaryDataDifferService = getService(BinaryDataDifferService.class);
-      }
-
-      return binaryDataDifferService;
    }
 
    /**
@@ -719,7 +702,6 @@ public class Get
       taxonomyService                 = null;
       workExecutors                   = null;
       stampService                    = null;
-      binaryDataDifferService         = null;
       postCommitService               = null;
       changeSetWriterService          = null;
       observableChronologyService     = null;

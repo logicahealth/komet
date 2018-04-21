@@ -17,15 +17,4 @@
       <module>import-utils</module>
       <module>tests</module>
    </modules>
-   <profiles>
-      <profile>
-         <id>ibdf-differ</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>ibdf-differ</module>
-         </modules>
-      </profile>
-   </profiles>
 </project>
