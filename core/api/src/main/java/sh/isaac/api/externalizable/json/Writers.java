@@ -39,37 +39,33 @@
 
 package sh.isaac.api.externalizable.json;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 import java.io.Writer;
-
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.cedarsoftware.util.io.JsonWriter;
-
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link Writers}
  *
- * An experimental class that doesn't work yet due to upstream bugs.
+ * Some custom json writers for concepts and semantics
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -117,6 +113,41 @@ public class Writers {
 
          output.write(temp.toString());
          mainWriter.tabOut();
+         
+         boolean first = true;
+         
+         for (final Version sv: cc.getVersionList()) {
+             if (first) {
+                first = false;
+                output.write("{");
+             } else {
+                output.write(",");
+                mainWriter.newLine();
+                output.write("{");
+             }
+
+             mainWriter.tabIn();
+
+             if (showType) {
+                output.write("\"@type\":\"");
+                output.write(sv.getClass()
+                               .getName());
+                output.write("\",");
+                mainWriter.newLine();
+             }
+             
+             output.write("\"status\":\"");
+             output.write(sv.getStatus().toString() + "");
+             output.write("\",");
+             mainWriter.newLine();
+             output.write("\"time\":\"");
+             output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
+             output.write("\",");
+             mainWriter.newLine();
+
+             mainWriter.tabOut();
+             output.write("}");
+         }
          output.write("]");
       }
    }
@@ -209,6 +240,15 @@ public class Writers {
                output.write("\",");
                mainWriter.newLine();
             }
+            
+            output.write("\"status\":\"");
+            output.write(sv.getStatus().toString() + "");
+            output.write("\",");
+            mainWriter.newLine();
+            output.write("\"time\":\"");
+            output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
+            output.write("\",");
+            mainWriter.newLine();
 
             if (sv instanceof DescriptionVersion) {
                final DescriptionVersion ds = (DescriptionVersion) sv;
