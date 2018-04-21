@@ -146,11 +146,16 @@ public abstract class VersionImpl
       if (this.stampSequence != otherVersion.stampSequence) {
          return false;
       }
-      return deepEquals2(otherVersion);
+      return dataEquals(otherVersion);
    }
 
-   //TODO [DAN 2] see if this 'deep' stuff can be cleaned up.
-   protected abstract boolean deepEquals2(VersionImpl other);
+   /**
+    * Returns true if the data of this version is equal to the data of another version.
+    * Implementations should ignore STAMP attributes, and just compare the data.
+    * @param other
+    * @return true if equal
+    */
+   public abstract boolean dataEquals(VersionImpl other);
 
    /**
     * A representation of how different two versions are from each other. The author field is weighted such that a

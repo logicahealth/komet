@@ -97,7 +97,7 @@ public class ConceptVersionImpl
    }
 
    @Override
-   protected final boolean deepEquals2(VersionImpl other) {
+   public final boolean dataEquals(VersionImpl other) {
       // no additional fields to check. 
       return true;
    }

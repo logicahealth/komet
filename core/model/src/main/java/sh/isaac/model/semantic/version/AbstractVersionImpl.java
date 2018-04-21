@@ -94,13 +94,20 @@ public abstract class AbstractVersionImpl
    protected abstract int editDistance3(AbstractVersionImpl other, int editDistance);
    
    @Override
-   protected final boolean deepEquals2(VersionImpl other) {
+   public final boolean dataEquals(VersionImpl other) {
       if (!(other instanceof AbstractVersionImpl)) {
          return false;
       }
       AbstractVersionImpl otherVersion = (AbstractVersionImpl) other;
       return deepEquals3(otherVersion);
    }
+   
+   /**
+    * Because this class is abstract, we must force the actual implementers to implement the dataEquals themselves.
+    * Callers should implement per {@link VersionImpl#dataEquals(VersionImpl)}
+    * @param other
+    * @return true if equal
+    */
    protected abstract boolean deepEquals3(AbstractVersionImpl other);
    
 }
