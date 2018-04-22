@@ -38,7 +38,6 @@ package sh.komet.fx.stage;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
@@ -184,37 +183,34 @@ public class MainApp
                     ap.getMenu().getItems().add(mp.getMenuItem(primaryStage.getOwner()));
                 }
             }
-            ap.getMenu().getItems().sort(new Comparator<MenuItem>() {
-                @Override
-                public int compare(MenuItem o1, MenuItem o2) {
-                    return o1.getText().compareTo(o2.getText());
-                }
-            });
+            ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> o1.getText().compareTo(o2.getText()));
             
-            if (ap == AppMenu.APP) {
-                MenuItem prefsItem = new MenuItem("Preferences...");
-                //TODO make prefs do something
-                ap.getMenu().getItems().add(prefsItem);
-                
-                if (tk == null) {
-                    MenuItem quitItem = new MenuItem("Quit");
-                    quitItem.setOnAction(this::close);
-                    ap.getMenu().getItems().add(quitItem);
-                }
-            }
-            else if (ap == AppMenu.WINDOW) {
-                Menu newWindowMenu = new Menu("New");
-                MenuItem newStatementWindowItem = new MenuItem("Statement window");
-                newStatementWindowItem.setOnAction(this::newStatement);
-                MenuItem newKometWindowItem = new MenuItem("KOMET window");
-                newKometWindowItem.setOnAction(this::newViewer);
-                newWindowMenu.getItems().addAll(newStatementWindowItem, newKometWindowItem);
-                AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-            }
-            else if (ap == AppMenu.HELP) {
-                MenuItem aboutItem = new MenuItem("About...");
-                aboutItem.setOnAction(this::handleAbout);
-                ap.getMenu().getItems().add(aboutItem);
+            switch (ap) {
+                case APP:
+                    MenuItem prefsItem = new MenuItem("Preferences...");
+                    //TODO make prefs do something
+                    ap.getMenu().getItems().add(prefsItem);
+                    if (tk == null) {
+                        MenuItem quitItem = new MenuItem("Quit");
+                        quitItem.setOnAction(this::close);
+                        ap.getMenu().getItems().add(quitItem);
+                    }   break;
+                case WINDOW:
+                    Menu newWindowMenu = new Menu("New");
+                    MenuItem newStatementWindowItem = new MenuItem("Statement window");
+                    newStatementWindowItem.setOnAction(this::newStatement);
+                    MenuItem newKometWindowItem = new MenuItem("KOMET window");
+                    newKometWindowItem.setOnAction(this::newViewer);
+                    newWindowMenu.getItems().addAll(newStatementWindowItem, newKometWindowItem);
+                    AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
+                    break;
+                case HELP:
+                    MenuItem aboutItem = new MenuItem("About...");
+                    aboutItem.setOnAction(this::handleAbout);
+                    ap.getMenu().getItems().add(aboutItem);
+                    break;
+                default:
+                    break;
             }
         }
         

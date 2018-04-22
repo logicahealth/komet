@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -49,6 +48,7 @@ import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -322,6 +322,10 @@ public class ConceptBuilderNode implements DetailNode {
     @Override
     public Manifold getManifold() {
         return manifold;
+    }
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.NEW_CONCEPT.getIconographic();
     }
 
     /** 

@@ -146,6 +146,16 @@ public class AssemblageViewer implements ExplorationNodeFactory
 
 		return new ExplorationNode()
 		{
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node getMenuIcon()
+	{
+		return Iconography.PAPERCLIP.getIconographic();
+	}
+
 			@Override
 			public ReadOnlyProperty<String> getToolTip()
 			{

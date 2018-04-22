@@ -181,6 +181,12 @@ public class FLWORQueryController
    private LetPropertySheet letPropertySheet;
 
    //~--- methods -------------------------------------------------------------
+
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.FLWOR_SEARCH.getIconographic();
+   }
+
    void displayResults(NidSet resultNids) {
       ObservableList<ObservableDescriptionVersion> tableItems = resultTable.getItems();
 

@@ -175,6 +175,12 @@ public class DashboardView
         updateSystemTiles();
     }
 
+
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.DASHBOARD.getIconographic();
+    }
+
     private void setCellAlignment(Cell<Integer> cell) {
         cell.setContentDisplay(ContentDisplay.TEXT_ONLY);
         cell.setTextAlignment(TextAlignment.RIGHT);

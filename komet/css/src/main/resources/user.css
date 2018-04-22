@@ -87,62 +87,6 @@ limitations under the License.
 
 
 
-.tab-header-area {
-    -fx-background-color: greenyellow;
-    -fx-border-color: -komet-blue-color;
-}
-
-.tab-header-background {
-    -fx-background-color: -komet-tab-background-color;
-    -fx-border-color: -komet-blue-color;
-    -fx-border-width: 0 0 4 0;
-}
-
-/* barely visible behind the tabs themselves. Make them same as the background... */
-.headers-region {
-    -fx-background-color: -komet-tab-background-color; 
-}
-
-/* top refers to tabs that are layed out on the top of the pane, as opposed to side or bottom...*/
-.tab:top {
-    -fx-background-color: -komet-tab-background-color;
-    -fx-border-color: -komet-blue-color;
-    -fx-border-width: 0 0 3 0;
-    
-}
-
-/* only one tab in a tab group is selected at a time. */
-.tab-pane > .tab-header-area > .headers-region > .tab:selected {
-    -fx-background-color: -komet-blue-color;
-    -fx-border-color: -komet-blue-color;
-    -fx-border-radius: 5 5 0 0, 4 4 0 0;
-}
-/* since the selection is so different, the focus indicator is a distration, will make it same color */
-.tab-header-area * .tab:selected * .focus-indicator {
-    -fx-border-color: transparent;
-}
-
-    
-.tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
-   -fx-text-fill: white;
-    -icons-color: white;
-}
-.tab-label {
-   -fx-text-fill: white;
-}
-
-/* glphy-icon inside of tabs will be white... */
-.tab  * .glyph-icon  {
-   -icons-color: white;
-}
-
-.tab .concept-label {
-    -fx-text-fill: white;
-}
-.tab .label {
-    -fx-text-fill: white;
-}
-
 .concept-label-toolbar {
     -fx-background-color: -komet-blue-color;
     -fx-border-color: -komet-blue-color;   
@@ -989,3 +933,91 @@ limitations under the License.
  .open-concept-button {
     -fx-padding:-4 1 0 2;
  }
+ 
+
+.tab-header-area {
+    -fx-background-color: greenyellow;
+    -fx-border-color: -komet-blue-color;
+}
+
+.tab-header-background {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 4 0;
+}
+
+/* barely visible behind the tabs themselves. Make them same as the background... */
+.headers-region {
+    -fx-background-color: -komet-tab-background-color; 
+}
+
+/* top refers to tabs that are layed out on the top of the pane, as opposed to side or bottom...*/
+.tab:top {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 3 0;
+    
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+/* since the selection is so different, the focus indicator is a distration, will make it same color */
+.tab-header-area * .tab:selected * .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+    
+.tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
+   -fx-text-fill: white;
+    -icons-color: white;
+}
+.tab-label {
+   -fx-text-fill: white;
+}
+
+/* glphy-icon inside of tabs will be white... */
+.tab  * .glyph-icon  {
+   -icons-color: white;
+}
+
+.tab .concept-label {
+    -fx-text-fill: white;
+}
+.tab .label {
+    -fx-text-fill: white;
+}
+  
+
+ .tab:drop-possible {
+    -fx-border-color: white;  
+    -fx-border-style: dashed;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+    -fx-border-width:2;    
+  }
+ 
+ .tab:drop-ready {
+    -fx-border-color: white;  
+    -fx-border-style: dashed;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+    -fx-border-width:2;    
+ }
+  
+.tab {
+   -fx-text-fill: white;
+   -fx-border-width:0;    
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected:drop-ready {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: white;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+
+.tab-pane {
+    -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin";
+}

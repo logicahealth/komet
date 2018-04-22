@@ -94,6 +94,10 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " semantics");
 
    }
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.PAPERCLIP.getIconographic();
+   }
    
    @Override
    public Manifold getManifold() {

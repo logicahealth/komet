@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -190,6 +189,11 @@ public class ConceptDetailPanelNode
         Get.commitService()
                 .addChangeListener(this);
     }
+   @Override
+   public Node getMenuIcon() {
+      //return Iconography.CONCEPT_DETAILS.getImageView();
+      return Iconography.CONCEPT_DETAILS.getIconographic();
+   }
 
     //~--- methods -------------------------------------------------------------
     @Override

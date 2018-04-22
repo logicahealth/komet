@@ -104,6 +104,11 @@ public class SimpleSearchController implements ExplorationNode {
     private Label searchTextFieldLabel;
 
 
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.SIMPLE_SEARCH.getIconographic();
+   }
+
 
     @FXML
     public void executeSearch() {

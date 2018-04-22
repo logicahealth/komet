@@ -22,7 +22,10 @@ import de.jensd.fx.glyphs.icons525.Icons525View;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
@@ -214,6 +217,15 @@ public enum Iconography {
       this.cssClass = cssClass;
    }
 
+   public ImageView getImageView() {
+       Node node = getIconographic();
+       node.applyCss();
+       SnapshotParameters snapshotParameters = new SnapshotParameters();
+       snapshotParameters.setViewport(new Rectangle2D(0, 0, node.getLayoutBounds().getWidth(), node.getLayoutBounds().getHeight()));
+       Image image = node.snapshot(snapshotParameters, null);
+       return new ImageView(image);
+   }
+   
    public Node getIconographic() {
       switch (source) {
          case MATERIAL_DESIGNS_WEBFONT:

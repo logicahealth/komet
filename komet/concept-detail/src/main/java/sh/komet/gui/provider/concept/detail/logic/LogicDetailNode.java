@@ -19,7 +19,6 @@ package sh.komet.gui.provider.concept.detail.logic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -87,6 +86,11 @@ public class LogicDetailNode
             ConceptSpecification newSpec) {
         setConcept(newSpec);
 
+    }
+
+    @Override
+    public Node getMenuIcon() {
+       return Iconography.LAMBDA.getIconographic();
     }
 
     private void setConcept(ConceptSpecification newSpec) {

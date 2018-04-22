@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -51,7 +50,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
@@ -1772,6 +1770,14 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		
 		return new DetailNode()
 		{
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node getMenuIcon()
+	{
+		return Iconography.PAPERCLIP.getIconographic();
+	}
 			@Override
 			public boolean selectInTabOnChange()
 			{
