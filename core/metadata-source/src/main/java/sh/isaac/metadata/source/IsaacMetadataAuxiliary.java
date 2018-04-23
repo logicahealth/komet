@@ -308,8 +308,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept("Assemblage membership type");
                pushParent(current());
-               createConcept("Normal member").setPrimordialUuid("cc624429-b17d-4ac5-a69e-0b32448aaf3c");
-               createConcept("Marked parent").setPrimordialUuid("125f3d04-de17-490e-afec-1431c2a39e29");
+               createConcept("Normal member").setPrimordialUuid("bebbda5d-2fa4-5106-8f02-f2d4673fb1c9");
+               createConcept("Marked parent").setPrimordialUuid("5b5adb62-6ced-5013-b849-cad9d1bd34f3");
                popParent();
             createConcept(TermAux.CONTENT_LICENSE);
             pushParent(current());

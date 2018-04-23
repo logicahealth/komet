@@ -51,6 +51,7 @@ import java.util.function.BiConsumer;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -79,9 +80,9 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
    /** The preferred in dialect assemblages. */
-	private final HashMap<ConceptSpecification, SemanticBuilder<?>> preferredInDialectAssemblages = new HashMap<>();
-	
-	private final HashMap<ConceptSpecification, SemanticBuilder<?>> acceptableInDialectAssemblages = new HashMap<>();
+    private final HashMap<ConceptSpecification, SemanticBuilder<?>> preferredInDialectAssemblages = new HashMap<>();
+    
+    private final HashMap<ConceptSpecification, SemanticBuilder<?>> acceptableInDialectAssemblages = new HashMap<>();
 
    /** The concept sequence. */
    private int conceptNid = Integer.MAX_VALUE;
@@ -248,61 +249,69 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
    }
 
    @Override
-   public void setDescriptionText(String descriptionText) {
+   public DescriptionBuilder setDescriptionText(String descriptionText) {
       this.descriptionText = descriptionText;
+      return this;
    }
    
-	@Override
-	public DescriptionBuilder setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
-		if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
-			throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random");
-		}
-
-		if (!isPrimordialUuidSet()) {
-			int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
-
-			setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
-					conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 
-					Get.identifierService().getUuidPrimordialForNid(caseSigNid),
-					descriptionType.getPrimordialUuid(), 
-					languageForDescription.getPrimordialUuid(), 
-					descriptionText,
-					consumer));
-		}
-		return this;
-	}
-	
     @Override
-    public List<SemanticBuilder<?>> getSemanticBuilders() {
-        ArrayList<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + preferredInDialectAssemblages.size() 
-            + acceptableInDialectAssemblages.size());
-        
-        temp.addAll(super.getSemanticBuilders());
-        
-        SemanticBuilderService semanticBuilderService = LookupService.getService(SemanticBuilderService.class);
-        
-        for (Entry<ConceptSpecification, SemanticBuilder<?>> p : preferredInDialectAssemblages.entrySet()) {
-            if (p.getValue() == null) {
-                p.setValue(semanticBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(), this,
-                    p.getKey().getNid()));
-            }
-            temp.add(p.getValue());
-        }
-        
-        for (Entry<ConceptSpecification, SemanticBuilder<?>> a : acceptableInDialectAssemblages.entrySet()) {
-            if (a.getValue() == null) {
-                a.setValue(semanticBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(), this,
-                    a.getKey().getNid()));
-            }
-            temp.add(a.getValue());
-        }
-        
-        return temp;
-    }
+   public DescriptionBuilder setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
+      if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
+         throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random");
+      }
 
-    @Override
-    public String toString() {
-        return "DescriptionBuilderImpl{" + "descriptionText=" + descriptionText + '}';
-    }
+      if (!isPrimordialUuidSet()) {
+         int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
+
+         setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
+                 conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 
+                 Get.identifierService().getUuidPrimordialForNid(caseSigNid),
+                 descriptionType.getPrimordialUuid(), 
+                 languageForDescription.getPrimordialUuid(), 
+                 descriptionText,
+                 consumer));
+      }
+      return this;
+   }
+
+   @Override
+   public IdentifiedComponentBuilder<T> setT5UuidNested(UUID namespace) {
+      setT5Uuid(namespace, null);
+      for (SemanticBuilder<?> sb : getSemanticBuilders()) {
+         sb.setT5UuidNested(namespace);
+      }
+      return this;
+   }
+
+   @Override
+   public List<SemanticBuilder<?>> getSemanticBuilders() {
+      ArrayList<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + preferredInDialectAssemblages.size() 
+          + acceptableInDialectAssemblages.size());
+
+      temp.addAll(super.getSemanticBuilders());
+
+      SemanticBuilderService semanticBuilderService = LookupService.getService(SemanticBuilderService.class);
+
+      for (Entry<ConceptSpecification, SemanticBuilder<?>> p : preferredInDialectAssemblages.entrySet()) {
+         if (p.getValue() == null) {
+            p.setValue(semanticBuilderService.getComponentSemanticBuilder(TermAux.PREFERRED.getNid(), this,
+               p.getKey().getNid()));
+         }
+         temp.add(p.getValue());
+      }
+
+      for (Entry<ConceptSpecification, SemanticBuilder<?>> a : acceptableInDialectAssemblages.entrySet()) {
+         if (a.getValue() == null) {
+            a.setValue(semanticBuilderService.getComponentSemanticBuilder(TermAux.ACCEPTABLE.getNid(), this,
+               a.getKey().getNid()));
+         }
+         temp.add(a.getValue());
+      }
+      return temp;
+   }
+
+   @Override
+   public String toString() {
+      return "DescriptionBuilderImpl{" + "descriptionText=" + descriptionText + '}';
+   }
 }
-

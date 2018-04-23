@@ -283,7 +283,7 @@ public class IsaacTaxonomy {
             }
          }
          
-         ensureStableUUID(cb);
+         cb.setT5UuidNested(namespace);
          if (isIdentifier) {
              addIdentifierAssemblageMembership(cb);
          }
@@ -656,10 +656,10 @@ public class IsaacTaxonomy {
     */
    protected final void generateStableUUIDs() {
       this.conceptBuilders.values().forEach((cb) -> {
-         ensureStableUUID(cb);
+         cb.setT5UuidNested(namespace);
       });
       this.semanticBuilders.forEach((sb) -> {
-          ensureStableUUID(sb);
+         sb.setT5UuidNested(namespace);
       });
    }
 
@@ -676,7 +676,7 @@ public class IsaacTaxonomy {
     * @param parent the parent
     */
    protected final void pushParent(ConceptBuilder parent) {
-      ensureStableUUID(parent);  // no generated UUIDs from this point on....
+      parent.setT5UuidNested(namespace);  // no generated UUIDs from this point on....
       this.parentStack.push(parent);
    }
 
@@ -753,34 +753,5 @@ public class IsaacTaxonomy {
       if (this.conceptBuilders.containsKey(name)) {
          throw new RuntimeException("Concept is already added: " + name);
       }
-   }
-
-   /**
-    * Ensure stable UUID.
-    *
-    * @param builder the builder
-    */
-   private void ensureStableUUID(ConceptBuilder builder) {
-       if (!builder.isPrimordialUuidSet()) {
-           builder.setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, builder.getFullyQualifiedName()));
-       }
-
-       for (DescriptionBuilder<?, ?> db : builder.getDescriptionBuilders()) {
-           ensureStableUUID(db);
-       }
-   
-       for (SemanticBuilder<?> sb : builder.getSemanticBuilders()) {
-           ensureStableUUID(sb);
-       }
-   }
-   
-   /**
-    * Review semantic builder and assign it and its semantics a Type5 UUID.
-    *
-    * @param builder the builder
-    */
-   private void ensureStableUUID(IdentifiedComponentBuilder<?> builder) {
-       builder.setT5Uuid(namespace, null);
-       builder.getSemanticBuilders().forEach((b) -> ensureStableUUID(b));
    }
 }

@@ -82,7 +82,8 @@ public interface DescriptionBuilder<T extends Chronology, V extends StampedVersi
    /**
     * 
     * @param descriptionText the description text for this builder.
+    * @return the description builder
     */
-   void setDescriptionText(String descriptionText);
+   DescriptionBuilder<?, ?> setDescriptionText(String descriptionText);
 }
 

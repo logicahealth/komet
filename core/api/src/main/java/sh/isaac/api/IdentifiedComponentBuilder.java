@@ -196,11 +196,17 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @param namespace - what namespace to use to generate the UUIDs
     * @param consumer - an optional function that can be passed in.  Has no impact on the UUID generation.  Implementors of 
     * the method will receive the UUID seed string into the consumer during generation (useful as a debug aid), and the resulting UUID
-
     * 
     * @return the identified component builder
     */
    public IdentifiedComponentBuilder<T> setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer);
+   
+   /**
+    * Recursively call @link {@link #setT5Uuid(UUID, BiConsumer)} for this builder, and all nested builders.
+    * @param namespace 
+    * @return this builder
+    */
+   public IdentifiedComponentBuilder<T> setT5UuidNested(UUID namespace);
 
     /**
      * Returns true if the primordial UUID has already been set.

@@ -466,5 +466,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
        }
       return this;
    }
+   
+   @Override
+   public IdentifiedComponentBuilder<C> setT5UuidNested(UUID namespace) {
+      setT5Uuid(namespace, null);
+      for (SemanticBuilder<?> sb : getSemanticBuilders()) {
+         sb.setT5UuidNested(namespace);
+      }
+      return this;
+   }
 }
 

@@ -65,6 +65,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.SemanticTags;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
@@ -463,9 +464,28 @@ public class ConceptBuilderImpl
 
    @Override
    public IdentifiedComponentBuilder<ConceptChronology> setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
-      throw new UnsupportedOperationException("Concept doesn't have a full T5 implementation defined yet");
+      if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
+            throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random on - " + getFullyQualifiedName());
+      }
+      if (!isPrimordialUuidSet()) {
+         setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, getFullyQualifiedName()));
+      }
+      return this;
    }
    
+   @Override
+   public IdentifiedComponentBuilder<ConceptChronology> setT5UuidNested(UUID namespace) {
+      setT5Uuid(namespace, null);
+      for (DescriptionBuilder<?, ?> db : getDescriptionBuilders()) {
+         db.setT5UuidNested(namespace);
+      }
+      
+      for (SemanticBuilder<?> sb : getSemanticBuilders()) {
+         sb.setT5UuidNested(namespace);
+      }
+      return this;
+   }
+
    @Override
    public List<SemanticBuilder<?>> getSemanticBuilders() {
       List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
