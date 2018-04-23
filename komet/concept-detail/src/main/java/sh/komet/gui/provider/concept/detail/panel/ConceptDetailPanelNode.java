@@ -165,7 +165,11 @@ public class ConceptDetailPanelNode
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
-        conceptDetailPane.setCenter(componentPanelBox);
+        this.scrollPane = new ScrollPane(componentPanelBox);
+        this.scrollPane.setFitToWidth(true);
+        this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        conceptDetailPane.setCenter(this.scrollPane);
         versionBrancheGrid.add(versionGraphToggle, 0, 0);
         versionGraphToggle.getStyleClass()
                 .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
@@ -178,10 +182,8 @@ public class ConceptDetailPanelNode
         setupToolGrid();
         historySwitch.selectedProperty()
                 .addListener(this::setShowHistory);
-        this.scrollPane = new ScrollPane(conceptDetailPane);
-        this.scrollPane.setFitToWidth(true);
-        this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        
+        
         expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
 
@@ -203,7 +205,7 @@ public class ConceptDetailPanelNode
 
     @Override
     public Node getNode() {
-        return this.scrollPane;
+        return this.conceptDetailPane;
     }
 
     @Override
