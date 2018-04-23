@@ -388,16 +388,15 @@ public class KometStageController
                 });
         tabPane.skinProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
+                // TODO: Add drag and drop support to a helper class, so we don't need to redundantly do this. 
+                // TODO several enhancements to drag and drop support to align with UI spec from Cognitive. 
                 Collection<Node> nodes = TabPanelUtil.getTabs(newValue.getNode());
                 for (Node node : nodes) {
                     node.setOnDragEntered((DragEvent event) -> {
-                        Object source = event.getSource();
-                        if (source != null && source instanceof Pane) {
-                            Pane dropTarget = (Pane) source;
-                            Set<DataFormat> contentTypes = event.getDragboard()
-                                    .getContentTypes();
-                            event.acceptTransferModes(TransferMode.COPY);
+                        if (acceptDrag(event)) {
+                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                             event.consume();
+                            Pane dropTarget = (Pane) event.getSource();
                             dropTarget.pseudoClassStateChanged(PseudoClasses.DROP_READY, true);
                             dropTarget.applyCss();
                         }
@@ -413,35 +412,16 @@ public class KometStageController
                         }
                     });
                     node.setOnDragOver((DragEvent event) -> {
-                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                        event.consume();
+                        if (acceptDrag(event)) {
+                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                            event.consume();
+                        }
                     });
 
                     node.setOnDragDropped((DragEvent event) -> {
                         System.out.println("Drag dropped");
-                        if (event.getSource() instanceof KometTabPaneSkin.TabHeaderSkin) {
-                            KometTabPaneSkin.TabHeaderSkin tabHeaderSkin = (KometTabPaneSkin.TabHeaderSkin) event.getSource();
-                            Tab droppedOnTab = tabHeaderSkin.getTab();
-                            if (droppedOnTab.getProperties() != null
-                                    && droppedOnTab.getProperties().get(TAB_NODE_KEY) != null) {
-                                Object kometNode = droppedOnTab.getProperties().get(TAB_NODE_KEY);
-                                if (kometNode instanceof ConceptDetailPanelNode) {
-                                    ConceptDetailPanelNode detailNode = (ConceptDetailPanelNode) kometNode;
-                                    event.acceptTransferModes(TransferMode.COPY);
-                                    if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
-                                        ConceptChronology conceptChronology = Get.serializer()
-                                                .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT);
-
-                                        detailNode.getManifold().setFocusedConceptChronology(conceptChronology);
-                                    } else if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
-                                        ConceptVersion conceptVersion = Get.serializer()
-                                                .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT_VERSION);
-
-                                        detailNode.getManifold().setFocusedConceptChronology(conceptVersion.getChronology());
-                                    }
-                                }
-
-                            }
+                        if (acceptDrop(event))  {
+                            event.consume();
                         }
                     });
 
@@ -454,6 +434,54 @@ public class KometStageController
             }
             menuItems.add(tabFactoryMenuItem);
         });
+    }
+
+    /**
+     *  TODO: move this to a general utility for drag and drop...
+     * @param event
+     * @return 
+     */
+    boolean acceptDrop(DragEvent event) {
+        if (acceptDrag(event)) {
+            KometTabPaneSkin.TabHeaderSkin tabHeaderSkin = (KometTabPaneSkin.TabHeaderSkin) event.getSource();
+            Tab droppedOnTab = tabHeaderSkin.getTab();
+            ConceptDetailPanelNode detailNode = (ConceptDetailPanelNode) droppedOnTab.getProperties().get(TAB_NODE_KEY);
+            event.acceptTransferModes(TransferMode.COPY);
+            if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+                ConceptChronology conceptChronology = Get.serializer()
+                        .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT);
+
+                detailNode.getManifold().setFocusedConceptChronology(conceptChronology);
+            } else if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
+                ConceptVersion conceptVersion = Get.serializer()
+                        .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT_VERSION);
+
+                detailNode.getManifold().setFocusedConceptChronology(conceptVersion.getChronology());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * TODO: move this to a general utility for drag and drop...
+     *
+     * @param event
+     * @return
+     */
+    boolean acceptDrag(DragEvent event) {
+        if (event.getSource() instanceof KometTabPaneSkin.TabHeaderSkin) {
+            KometTabPaneSkin.TabHeaderSkin tabHeaderSkin = (KometTabPaneSkin.TabHeaderSkin) event.getSource();
+            Tab droppedOnTab = tabHeaderSkin.getTab();
+            if (droppedOnTab.getProperties() != null
+                    && droppedOnTab.getProperties().get(TAB_NODE_KEY) != null) {
+                Object kometNode = droppedOnTab.getProperties().get(TAB_NODE_KEY);
+                if (kometNode instanceof ConceptDetailPanelNode) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
