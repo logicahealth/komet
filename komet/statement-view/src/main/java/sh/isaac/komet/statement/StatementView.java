@@ -17,11 +17,13 @@
 package sh.isaac.komet.statement;
 
 import java.io.IOException;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -61,12 +63,14 @@ public class StatementView {
         }
     }
 
-    public static StatementViewController show(Manifold manifold, String title) {
+    public static StatementViewController show(Manifold manifold, String title, 
+            EventHandler<WindowEvent> closeRequestHandler) {
         StatementView statementView = new StatementView(manifold, title);
         //show the stage
         //center stage on screen
         statementView.stage.centerOnScreen();
         statementView.stage.show();
+        statementView.stage.setOnCloseRequest(closeRequestHandler);
         return statementView.controller;
     }
 }

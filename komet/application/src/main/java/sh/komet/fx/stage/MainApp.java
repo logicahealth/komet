@@ -92,6 +92,7 @@ public class MainApp
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
 
+    private static final AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
@@ -187,9 +188,17 @@ public class MainApp
             
             switch (ap) {
                 case APP:
+                    if (tk != null) {
+                        MenuItem aboutItem = new MenuItem("About...");
+                        aboutItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(aboutItem);
+                        ap.getMenu().getItems().add(new SeparatorMenuItem());
+                    }
                     MenuItem prefsItem = new MenuItem("Preferences...");
-                    //TODO make prefs do something
+                    //TODO TEMP to do  something. Need to make it do something better. 
+                    prefsItem.setOnAction(this::handleAbout);
                     ap.getMenu().getItems().add(prefsItem);
+                    ap.getMenu().getItems().add(new SeparatorMenuItem());
                     if (tk == null) {
                         MenuItem quitItem = new MenuItem("Quit");
                         quitItem.setOnAction(this::close);
@@ -205,9 +214,12 @@ public class MainApp
                     AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
                     break;
                 case HELP:
-                    MenuItem aboutItem = new MenuItem("About...");
-                    aboutItem.setOnAction(this::handleAbout);
-                    ap.getMenu().getItems().add(aboutItem);
+                    if (tk == null) {
+                        MenuItem aboutItem = new MenuItem("About...");
+                        aboutItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(aboutItem);
+                    }
+                    
                     break;
                 default:
                     break;
@@ -289,9 +301,10 @@ public class MainApp
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + windowSequence.getAndIncrement());
+                "Clinical statement " + windowSequence.getAndIncrement(), this::handleShutdown);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
+        WINDOW_COUNT.incrementAndGet();
     }
 
     private void newViewer(ActionEvent event) {
@@ -325,9 +338,13 @@ public class MainApp
             FxGet.statusMessageService()
                     .addScene(scene, controller::reportStatus);
             stage.show();
-            //TODO Dan notes, this seems like a really bad idea on an auxiliary window.
-            //Also, this window has no menus....
+            //Dan notes, this seems like a really bad idea on an auxiliary window.
+            //KEC: Yes, logic updated to count windows, and only close when just one is left... 
             stage.setOnCloseRequest(this::handleShutdown);
+            WINDOW_COUNT.incrementAndGet();
+            
+            //TODO Also, this window has no menus...
+            
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
@@ -369,9 +386,15 @@ public class MainApp
     }
 
     private void handleShutdown(WindowEvent e) {
-        // need this to all happen on a non event thread...
-        e.consume();
-        shutdown();
+        if (WINDOW_COUNT.get() == 1) {
+            // need this to all happen on a non event thread...
+            Thread shutdownThread = new Thread(() -> shutdown());
+            shutdownThread.start();
+            e.consume();
+        }
+        
+        WINDOW_COUNT.decrementAndGet();
+        
     }
 
     protected void shutdown() {
