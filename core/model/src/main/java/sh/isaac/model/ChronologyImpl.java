@@ -391,7 +391,6 @@ public abstract class ChronologyImpl
         this.assemblageNid = data.getNid();
         
         this.versionType = VersionType.getFromToken(data.getByte());
-        
 
         if (data.isExternalData()) {
             UUID primordialUUID = new UUID(this.primordialUuidMsb, this.primordialUuidLsb);

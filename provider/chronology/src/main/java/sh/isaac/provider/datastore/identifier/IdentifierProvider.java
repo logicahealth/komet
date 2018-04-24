@@ -290,8 +290,8 @@ public class IdentifierProvider
          this.store.getNidToAssemblageNidMap().put(nid, assemblageNid);
       } else if (assemblageNid != assemblageForNid) {
           throw new IllegalStateException("Assemblage nids do not match: \n" +
-                  Get.conceptDescriptionText(assemblageNid) + " and\n" +
-                  Get.conceptDescriptionText(assemblageForNid));
+                  Get.conceptDescriptionText(assemblageNid) + "(" + assemblageNid + ") and\n" +
+                  Get.conceptDescriptionText(assemblageForNid) + "(" + assemblageForNid + ")");
       }
 
       AtomicInteger sequenceGenerator = this.store.getSequenceGeneratorMap().computeIfAbsent(

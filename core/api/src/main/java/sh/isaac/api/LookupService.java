@@ -114,6 +114,7 @@ public class LookupService {
 
    /**
     * Stop all core isaac service, blocking until stopped (or failed).
+    * Goes down to {@link #SL_NEG_1_WORKERS_STARTED_RUNLEVEL}
     */
    public static void shutdownIsaac() {
       LOG.info("Shutdown Isaac called");
@@ -184,6 +185,9 @@ public class LookupService {
       }
    }
    
+   /**
+    * Bring the system up to runlevel {@link #SL_L0_METADATA_STORE_STARTED_RUNLEVEL}
+    */
    public static void startupPreferenceProvider() {
       if (getService(RunLevelController.class).getCurrentRunLevel() < SL_L0_METADATA_STORE_STARTED_RUNLEVEL) {
          Get.applicationStates().add(ApplicationStates.STARTING);
