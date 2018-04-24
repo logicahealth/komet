@@ -39,41 +39,25 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jvnet.hk2.annotations.Service;
-
 import com.lmax.disruptor.dsl.Disruptor;
-import java.io.InputStream;
-import java.util.concurrent.ConcurrentSkipListSet;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.IntSet;
@@ -99,13 +83,13 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.index.IndexDescriptionQueryService;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -203,6 +187,10 @@ public class Get
    private static ChangeSetWriterService      changeSetWriterService;
    private static ObservableChronologyService observableChronologyService;
    private static SerializationService        serializationService;
+   
+   private static IndexDescriptionQueryService descriptionIndexer;
+   private static IndexSemanticQueryService semanticIndexer;
+   
    
    //~--- constructors --------------------------------------------------------
 
@@ -636,6 +624,23 @@ public class Get
    public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
       return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
    }
+   
+
+   public static IndexDescriptionQueryService indexDescriptionService() {
+      if (descriptionIndexer == null) {
+         descriptionIndexer = getService(IndexDescriptionQueryService.class);
+      }
+
+      return descriptionIndexer;
+   }
+   
+   public static IndexSemanticQueryService indexSemanticService() {
+      if (semanticIndexer == null) {
+         semanticIndexer = getService(IndexSemanticQueryService.class);
+      }
+
+      return semanticIndexer;
+   }
 
    /**
     * IsaacExternalizable stream.
@@ -706,6 +711,8 @@ public class Get
       changeSetWriterService          = null;
       observableChronologyService     = null;
       serializationService            = null;
+      descriptionIndexer              = null;
+      semanticIndexer                 = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
