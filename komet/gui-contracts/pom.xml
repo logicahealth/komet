@@ -74,5 +74,11 @@
             <artifactId>db-config-builder</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>open-jdk-fixes</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
     </dependencies>
 </project>

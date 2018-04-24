@@ -99,15 +99,25 @@ import de.jensd.fx.glyphs.icons525.Icons525View;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
+import javafx.scene.input.DragEvent;
 import sh.isaac.komet.iconography.SvgIconographic;
 
 /**
  * Modification of Open JDK TabPaneSkin class to get better support for 
  * drag and drop onto tabs, better clone support for graphic labels, etc. 
- * Could not subclass the TabPaneSkin secondary to private fields and so forth. 
+ * Could not subclass the TabPaneSkin secondary to private fields and so forth, 
+ * so copied and modified. 
  * @author kec
  */
 public class KometTabPaneSkin extends BehaviorSkinBase<TabPane, TabPaneBehavior> {
+    
+    public static final String DRAG_DROP_KEY = "KometTabPaneSkin.dragDrop";
+    public static final String DRAG_ENTERED_KEY = "KometTabPaneSkin.dragEntered";
+    public static final String DRAG_EXITED_KEY = "KometTabPaneSkin.dragExited";
+    public static final String DRAG_DETECTED_KEY = "KometTabPaneSkin.dragDetected";
+    public static final String DRAG_DONE_KEY = "KometTabPaneSkin.dragDone";
+    public static final String DRAG_OVER_KEY = "KometTabPaneSkin.dragOver";
+    
     private static enum TabAnimation {
         NONE,
         GROW
@@ -1185,6 +1195,21 @@ public class KometTabPaneSkin extends BehaviorSkinBase<TabPane, TabPaneBehavior>
                 new WeakListChangeListener<>(styleClassListener);
 
         public TabHeaderSkin(final Tab tab) {
+            if (tab.hasProperties() && tab.getProperties().containsKey(DRAG_DONE_KEY)) {
+                this.setOnDragDone((EventHandler<? super DragEvent>) tab.getProperties().get(DRAG_DONE_KEY));
+            }
+            if (tab.hasProperties() && tab.getProperties().containsKey(DRAG_DROP_KEY)) {
+                this.setOnDragDropped((EventHandler<? super DragEvent>) tab.getProperties().get(DRAG_DROP_KEY));
+            }
+            if (tab.hasProperties() && tab.getProperties().containsKey(DRAG_ENTERED_KEY)) {
+                this.setOnDragEntered((EventHandler<? super DragEvent>) tab.getProperties().get(DRAG_ENTERED_KEY));
+            }
+            if (tab.hasProperties() && tab.getProperties().containsKey(DRAG_EXITED_KEY)) {
+                this.setOnDragExited((EventHandler<? super DragEvent>) tab.getProperties().get(DRAG_EXITED_KEY));
+            }
+            if (tab.hasProperties() && tab.getProperties().containsKey(DRAG_OVER_KEY)) {
+                this.setOnDragOver((EventHandler<? super DragEvent>) tab.getProperties().get(DRAG_OVER_KEY));
+            }
             getStyleClass().setAll(tab.getStyleClass());
             setId(tab.getId());
             setStyle(tab.getStyle());

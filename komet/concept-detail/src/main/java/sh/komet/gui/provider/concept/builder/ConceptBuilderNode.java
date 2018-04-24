@@ -130,7 +130,7 @@ public class ConceptBuilderNode implements DetailNode {
 
         final ParallelTransition parallelTransition = new ParallelTransition();
 
-        this.conceptVersion = new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT____SOLOR.getNid());
+        this.conceptVersion = new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
         this.conceptVersion.setStatus(Status.ACTIVE);
         ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));

@@ -37,7 +37,6 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
-import de.jensd.fx.glyphs.GlyphIcon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -62,7 +61,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -505,6 +503,11 @@ public abstract class BadgedVersionPanel
                     break;
 
                 case MEMBER:
+                    if (isLatestPanel()) {
+                        componentType.setText("MBR");
+                    } else {
+                        componentType.setText("");
+                    }
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                     break;
 

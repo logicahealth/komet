@@ -278,7 +278,7 @@ public class MainApp
         FxGet.statusMessageService()
                 .addScene(scene, controller::reportStatus);
         stage.show();
-        stage.setOnCloseRequest(this::handleShutdown);
+        stage.setOnCloseRequest(this::handleCloseRequest);
 
         // SNAPSHOT
         // Chronology
@@ -301,7 +301,7 @@ public class MainApp
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + windowSequence.getAndIncrement(), this::handleShutdown);
+                "Clinical statement " + windowSequence.getAndIncrement(), this::handleCloseRequest);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
         WINDOW_COUNT.incrementAndGet();
@@ -340,7 +340,7 @@ public class MainApp
             stage.show();
             //Dan notes, this seems like a really bad idea on an auxiliary window.
             //KEC: Yes, logic updated to count windows, and only close when just one is left... 
-            stage.setOnCloseRequest(this::handleShutdown);
+            stage.setOnCloseRequest(this::handleCloseRequest);
             WINDOW_COUNT.incrementAndGet();
             
             //TODO Also, this window has no menus...
@@ -385,12 +385,12 @@ public class MainApp
         });
     }
 
-    private void handleShutdown(WindowEvent e) {
+    private void handleCloseRequest(WindowEvent e) {
         if (WINDOW_COUNT.get() == 1) {
-            // need this to all happen on a non event thread...
+            e.consume();
+            // need shutdown to all happen on a non event thread...
             Thread shutdownThread = new Thread(() -> shutdown());
             shutdownThread.start();
-            e.consume();
         }
         
         WINDOW_COUNT.decrementAndGet();

@@ -38,12 +38,10 @@ package sh.komet.fx.stage;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
-import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -63,9 +61,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -74,7 +69,6 @@ import javafx.scene.layout.Priority;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
@@ -93,13 +87,10 @@ import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.TabPanelUtil;
-import sh.isaac.komet.openjdk.KometTabPaneSkin;
-import sh.komet.gui.drag.drop.IsaacClipboard;
-import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelNode;
+import sh.komet.gui.drag.drop.TabDragAndDropHandler;
+import sh.komet.gui.provider.concept.builder.ConceptBuilderNode;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -113,7 +104,6 @@ public class KometStageController
     private final Logger LOG = LogManager.getLogger();
     private final HashMap<ManifoldGroup, Manifold> manifolds = new HashMap<>();
 
-    private static final String TAB_NODE_KEY = "tab-node-key";
 
     //~--- fields --------------------------------------------------------------
     ArrayList<TabPane> tabPanes = new ArrayList<>();
@@ -385,103 +375,10 @@ public class KometStageController
                             }
                         });
                     }
+                    // Modify skin to look for drag handling methods... 
                 });
-        tabPane.skinProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // TODO: Add drag and drop support to a helper class, so we don't need to redundantly do this. 
-                // TODO several enhancements to drag and drop support to align with UI spec from Cognitive. 
-                Collection<Node> nodes = TabPanelUtil.getTabs(newValue.getNode());
-                for (Node node : nodes) {
-                    node.setOnDragEntered((DragEvent event) -> {
-                        if (acceptDrag(event)) {
-                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                            event.consume();
-                            Pane dropTarget = (Pane) event.getSource();
-                            dropTarget.pseudoClassStateChanged(PseudoClasses.DROP_READY, true);
-                            dropTarget.applyCss();
-                        }
-                    });
-                    node.setOnDragExited((DragEvent event) -> {
-                        Object source = event.getSource();
-                        if (source != null && source instanceof Pane) {
-                            Pane dropTarget = (Pane) source;
-                            event.acceptTransferModes(TransferMode.COPY);
-                            event.consume();
-                            dropTarget.pseudoClassStateChanged(PseudoClasses.DROP_READY, false);
-                            dropTarget.applyCss();
-                        }
-                    });
-                    node.setOnDragOver((DragEvent event) -> {
-                        if (acceptDrag(event)) {
-                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                            event.consume();
-                        }
-                    });
+        menuItems.add(tabFactoryMenuItem);
 
-                    node.setOnDragDropped((DragEvent event) -> {
-                        System.out.println("Drag dropped");
-                        if (acceptDrop(event))  {
-                            event.consume();
-                        }
-                    });
-
-                    node.setOnDragDone((DragEvent event) -> {
-                        System.out.println("Drag done");
-                    });
-
-                    System.out.println("Nodes: " + nodes);
-                }
-            }
-            menuItems.add(tabFactoryMenuItem);
-        });
-    }
-
-    /**
-     *  TODO: move this to a general utility for drag and drop...
-     * @param event
-     * @return 
-     */
-    boolean acceptDrop(DragEvent event) {
-        if (acceptDrag(event)) {
-            KometTabPaneSkin.TabHeaderSkin tabHeaderSkin = (KometTabPaneSkin.TabHeaderSkin) event.getSource();
-            Tab droppedOnTab = tabHeaderSkin.getTab();
-            ConceptDetailPanelNode detailNode = (ConceptDetailPanelNode) droppedOnTab.getProperties().get(TAB_NODE_KEY);
-            event.acceptTransferModes(TransferMode.COPY);
-            if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
-                ConceptChronology conceptChronology = Get.serializer()
-                        .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT);
-
-                detailNode.getManifold().setFocusedConceptChronology(conceptChronology);
-            } else if (event.getDragboard().hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
-                ConceptVersion conceptVersion = Get.serializer()
-                        .toObject(event.getDragboard(), IsaacClipboard.ISAAC_CONCEPT_VERSION);
-
-                detailNode.getManifold().setFocusedConceptChronology(conceptVersion.getChronology());
-            }
-        }
-        return false;
-    }
-
-    /**
-     * TODO: move this to a general utility for drag and drop...
-     *
-     * @param event
-     * @return
-     */
-    boolean acceptDrag(DragEvent event) {
-        if (event.getSource() instanceof KometTabPaneSkin.TabHeaderSkin) {
-            KometTabPaneSkin.TabHeaderSkin tabHeaderSkin = (KometTabPaneSkin.TabHeaderSkin) event.getSource();
-            Tab droppedOnTab = tabHeaderSkin.getTab();
-            if (droppedOnTab.getProperties() != null
-                    && droppedOnTab.getProperties().get(TAB_NODE_KEY) != null) {
-                Object kometNode = droppedOnTab.getProperties().get(TAB_NODE_KEY);
-                if (kometNode instanceof ConceptDetailPanelNode) {
-                    return true;
-                }
-
-            }
-        }
-        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -539,7 +436,6 @@ public class KometStageController
                     long start = System.currentTimeMillis();
                     Tab tab = new Tab();
                     ExplorationNode en = nf.createNode(manifolds.get(mg));
-                    tab.getProperties().put(TAB_NODE_KEY, en);
                     tab.setGraphic(en.getMenuIcon());
                     tab.setContent(new BorderPane(en.getNode()));
                     tab.textProperty().bind(en.getTitle());
@@ -554,8 +450,12 @@ public class KometStageController
                     tab.getTooltip().textProperty().bind(en.getToolTip());
 
                     if (en instanceof DetailNode) {
-                        //TODO this is broken by design, if more than one tab requests focus on change...
                         DetailNode dt = (DetailNode) en;
+                        if (!(en instanceof ConceptBuilderNode)) {
+                            TabDragAndDropHandler.setupTab(tab, dt);
+                        }
+                        
+                        //TODO this is broken by design, if more than one tab requests focus on change...
                         dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
                             if (dt.selectInTabOnChange()) {
                                 tabPane.getSelectionModel().select(tab);
