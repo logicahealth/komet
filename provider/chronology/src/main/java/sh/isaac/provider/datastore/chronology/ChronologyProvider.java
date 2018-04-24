@@ -36,12 +36,8 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-//~--- JDK imports ------------------------------------------------------------
-import sh.isaac.model.DataStore;
 import java.io.InputStream;
-
 import java.nio.file.Path;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,22 +52,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.IdentifiedObjectService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -89,6 +81,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
@@ -99,6 +92,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.ContainerSequenceService;
+import sh.isaac.model.DataStore;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
@@ -373,12 +367,17 @@ public class ChronologyProvider
                 UUID temp = UUID.fromString(((StringVersion) sdi.get()).getString());
                 
                 if (!temp.equals(fromFile)) {
-                   LOG.error("Semantic Store has {} while bdb file store has {}", temp, fromFile);
-                   throw new RuntimeException("UUID stored in the semantic store does not match the UUID on disk in the id file!");
+                   LOG.info("Semantic Store has {} while file store has {}.  This is expected, if an IBDF file with an existing ID was merged into a datastore."
+                         + "  Updating the semantic store to match the file store id.", temp, fromFile);
+                   
+                   MutableStringVersion sv = sdic.get().createMutableVersion(Status.ACTIVE, EditCoordinates.getDefaultUserMetadata());
+                   sv.setString(fromFile.toString());
+                   Get.commitService().addUncommitted(sdic.get());
+                   Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Updating database ID on root concept").get();
                 }
                    
              } catch (Exception e) {
-                LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+                LOG.warn("Unexpected error checking alignment of database UUID!", e);
              }
           }
        }
