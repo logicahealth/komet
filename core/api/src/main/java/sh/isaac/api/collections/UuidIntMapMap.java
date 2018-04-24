@@ -231,12 +231,11 @@ public class UuidIntMapMap
      *
      * @param uuidKey the uuid key
      * @param value the value
-     * @return true, if successful
+     * @return {@code true} if the receiver did not already contain such a key; {@code false} if the
+     * receiver did already contain such a key - the new value has now replaced the formerly associated value.
      */
     @Override
     public boolean put(UUID uuidKey, int value) {
-        updateCache(value, uuidKey);
-
         final int mapIndex = getMapIndex(uuidKey);
         final long[] keyAsArray = UUIDUtil.convert(uuidKey);
         final ConcurrentUuidToIntHashMap map = getMap(mapIndex);
@@ -247,6 +246,9 @@ public class UuidIntMapMap
             final boolean returnValue = map.put(keyAsArray, value, stamp);
 
             this.maps[mapIndex].elementUpdated();
+            if (returnValue) {
+               updateCache(value, uuidKey);
+            }
             return returnValue;
         } finally {
             map.getStampedLock()
@@ -374,17 +376,19 @@ public class UuidIntMapMap
      */
     private void updateCache(int nid, UUID uuidKey) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
-            UUID[] temp1;
-
-            if (temp == null) {
-                temp1 = new UUID[]{uuidKey};
-            } else {
-                temp1 = Arrays.copyOf(temp, temp.length + 1);
-                temp1[temp.length] = uuidKey;
+            synchronized (nidToPrimoridialCache) {
+                final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
+                UUID[] temp1;
+    
+                if (temp == null) {
+                    temp1 = new UUID[]{uuidKey};
+                } else {
+                    temp1 = Arrays.copyOf(temp, temp.length + 1);
+                    temp1[temp.length] = uuidKey;
+                }
+    
+                this.nidToPrimoridialCache.put(nid, temp1);
             }
-
-            this.nidToPrimoridialCache.put(nid, temp1);
         }
     }
 
