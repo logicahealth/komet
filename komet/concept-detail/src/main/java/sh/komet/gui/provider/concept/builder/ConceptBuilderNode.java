@@ -27,6 +27,8 @@ import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -86,15 +88,15 @@ public class ConceptBuilderNode implements DetailNode {
     private final ToolBar builderToolbar = new ToolBar(newConceptButton);
 
     private ObservableConceptVersionImpl conceptVersion;
-    private ObservableDescriptionDialect fqnDescriptionDialect;
-    private ObservableDescriptionDialect namDescriptionDialect;
-    private ObservableDescriptionDialect defDescriptionDialect;
+    private ObservableList<ObservableDescriptionDialect> descriptions = FXCollections.observableArrayList();
+
     private ObservableLogicGraphVersionImpl statedDefinition;
 
     public ConceptBuilderNode(Manifold manifold) {
         this.manifold = manifold;
         builderBorderPane.setTop(builderToolbar);
         newConceptButton.setOnAction(this::newConcept);
+        addDescriptionButton.setOnAction(this::newDescription);
         commitButton.setOnAction(this::commit);
         cancelButton.setOnAction(this::cancel);
         cancelButton.getStyleClass()
@@ -112,68 +114,81 @@ public class ConceptBuilderNode implements DetailNode {
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     }
 
+    private void newDescription(Event event) {
+        ObservableDescriptionDialect newDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+        descriptions.add(newDescriptionDialect);
+        newDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        newDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        layoutBuilderComponents();
+    }
+
     private void newConcept(Event event) {
         builderToolbar.getItems().clear();
+        descriptions.clear();
         conceptUuid = UUID.randomUUID();
         //Region spacer = new Region();
         HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setMinWidth(Region.USE_PREF_SIZE);
         builderToolbar.getItems().addAll(textField, cancelButton, commitButton);
 
-//        ListEditor<ObservableDescriptionDialect> descriptionEditor = new ListEditor<>(manifold, 
-//                () -> new ObservableDescriptionDialect(conceptUuid), 
-//                (Manifold m) -> new DescriptionDialectEditor(m));
-//        
         textField.setText("New concept");
         textField.requestFocus();
         textField.selectAll();
 
-        final ParallelTransition parallelTransition = new ParallelTransition();
-
         this.conceptVersion = new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
         this.conceptVersion.setStatus(Status.ACTIVE);
-        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
-        parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
 
-        AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
-        descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
-        parallelTransition.getChildren()
-                .add(addNode(descriptionHeader));
-        this.fqnDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        this.fqnDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-        this.fqnDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        this.fqnDescriptionDialect.getDescription().setText(textField.getText());
-        this.fqnDescriptionDialect.getDescription().textProperty().bindBidirectional(textField.textProperty());
-        this.fqnDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        ObservableDescriptionDialect fqnDescriptionDialect;
+        ObservableDescriptionDialect namDescriptionDialect;
+        ObservableDescriptionDialect defDescriptionDialect;
 
-        ConceptBuilderComponentPanel fqnPanel = new ConceptBuilderComponentPanel(manifold, fqnDescriptionDialect);
-        parallelTransition.getChildren()
-                .add(addComponent(fqnPanel));
+        fqnDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+        descriptions.add(fqnDescriptionDialect);
 
-        this.namDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        this.namDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-        this.namDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        this.namDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
-        ConceptBuilderComponentPanel synPanel = new ConceptBuilderComponentPanel(manifold, namDescriptionDialect);
-        parallelTransition.getChildren()
-                .add(addComponent(synPanel));
+        fqnDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        fqnDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        fqnDescriptionDialect.getDescription().setText(textField.getText());
+        fqnDescriptionDialect.getDescription().textProperty().bindBidirectional(textField.textProperty());
+        fqnDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
 
-        this.defDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        this.defDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        this.defDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
-        this.defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
-        ConceptBuilderComponentPanel defPanel = new ConceptBuilderComponentPanel(manifold, defDescriptionDialect);
-        parallelTransition.getChildren()
-                .add(addComponent(defPanel));
+        namDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+        descriptions.add(namDescriptionDialect);
+        namDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+        namDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        namDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
 
-        AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
-        definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
-        parallelTransition.getChildren()
-                .add(addNode(definitionHeader));
+        defDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+        descriptions.add(defDescriptionDialect);
+        defDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        defDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
 
         this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, manifold.getLogicCoordinate().getStatedAssemblageNid());
         this.statedDefinition.setStatus(Status.ACTIVE);
         this.statedDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
+
+        layoutBuilderComponents();
+    }
+
+    private void layoutBuilderComponents() {
+        componentPanelBox.getChildren().clear();
+        final ParallelTransition parallelTransition = new ParallelTransition();
+        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
+        parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
+        AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
+        descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
+        parallelTransition.getChildren()
+                .add(addNode(descriptionHeader));
+
+        for (ObservableDescriptionDialect descDialect : descriptions) {
+            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect);
+            parallelTransition.getChildren().add(addComponent(descPanel));
+        }
+        AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
+        definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
+        parallelTransition.getChildren()
+                .add(addNode(definitionHeader));
         ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition);
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));
@@ -254,11 +269,11 @@ public class ConceptBuilderNode implements DetailNode {
                                 alert.getAlertDescription(), componentPanelBox.getScene().getWindow());
                         break;
                     case INFORMATION:
-                        FxGet.dialogs().showInformationDialog(alert.getAlertTitle(), 
+                        FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
                                 alert.getAlertDescription(), componentPanelBox.getScene().getWindow());
                         break;
                     case WARNING:
-                        FxGet.dialogs().showInformationDialog(alert.getAlertTitle(), 
+                        FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
                                 alert.getAlertDescription(), componentPanelBox.getScene().getWindow());
                         break;
 
@@ -273,24 +288,18 @@ public class ConceptBuilderNode implements DetailNode {
         List<ObservableVersion> versionsToCommit = new ArrayList<>();
         // Concept
         versionsToCommit.add(this.conceptVersion);
-        // FQN
-        versionsToCommit.add(this.fqnDescriptionDialect.getDescription());
-        versionsToCommit.add(this.fqnDescriptionDialect.getDialect());
-        // NAM - optional
-        if (this.namDescriptionDialect.getDescription().getText() != null
-                && this.namDescriptionDialect.getDescription().getText().length() > 2) {
-            versionsToCommit.add(this.namDescriptionDialect.getDescription());
-            versionsToCommit.add(this.namDescriptionDialect.getDialect());
+
+        // descriptions
+        for (ObservableDescriptionDialect descDialect : descriptions) {
+            if (descDialect.getDescription().getText() != null
+                    && descDialect.getDescription().getText().length() > 2) {
+                versionsToCommit.add(descDialect.getDescription());
+                versionsToCommit.add(descDialect.getDialect());
+            }
         }
 
-        // DEF - optional
-        if (this.defDescriptionDialect.getDescription().getText() != null
-                && this.defDescriptionDialect.getDescription().getText().length() > 2) {
-            versionsToCommit.add(this.defDescriptionDialect.getDescription());
-            versionsToCommit.add(this.defDescriptionDialect.getDialect());
-        }
         // Stated Axioms
-        
+
         if (this.statedDefinition.getLogicalExpression().isMeaningful()) {
             versionsToCommit.add(this.statedDefinition);
         } else {
@@ -323,12 +332,13 @@ public class ConceptBuilderNode implements DetailNode {
     public Manifold getManifold() {
         return manifold;
     }
+
     @Override
     public Node getMenuIcon() {
         return Iconography.NEW_CONCEPT.getIconographic();
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     @Override

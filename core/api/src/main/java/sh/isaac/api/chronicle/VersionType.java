@@ -69,10 +69,10 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
  */
 public enum VersionType {
    /** The member. */
-   MEMBER((byte) 0, "Member", "MEMBER"),
+   MEMBER((byte) 0, "Member", "MBR"),
 
    /** A component nid version*/
-   COMPONENT_NID((byte) 1, "Component Nid", "COMPONENT"),
+   COMPONENT_NID((byte) 1, "Component Nid", "REF"),
 
    /** A long version. */
    LONG((byte) 2, "Long", "INT"),
@@ -84,7 +84,7 @@ public enum VersionType {
    STRING((byte) 5, "String", "STR"),
 
    /** A dynamic version. */
-   DYNAMIC((byte) 6, "Dynamic", "DYNAMIC"),
+   DYNAMIC((byte) 6, "Dynamic", "DYN"),
 
    /** A description version. */
    DESCRIPTION((byte) 7, "Description", "DESC"),
@@ -93,7 +93,7 @@ public enum VersionType {
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
    
    /** A concept version */
-   CONCEPT((byte) 9, "Concept", "CONCEPT"),
+   CONCEPT((byte) 9, "Concept", "CON"),
    
    /** An RF2 relationship for backwards compatibility. */
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
