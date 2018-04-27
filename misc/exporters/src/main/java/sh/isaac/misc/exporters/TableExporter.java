@@ -123,8 +123,8 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 	private void exportConcepts() throws IOException, SQLException
 	{
 		DataTypeWriter dtw = new DataTypeWriter("concept", tsvExportFolder, h2Connection, workbook, 
-				new String[] {"UUID", "IsaacObjectType", "VersionType", "Status", "Time", "Author", "Module", "Path", "Description"}, 
-				new Class[] {UUID.class, String.class, String.class, String.class, Time.class, UUID.class, UUID.class, UUID.class, String.class});
+				new String[] {"UUID", "IsaacObjectType", "VersionType", "Assemblage", "Status", "Time", "Author", "Module", "Path", "Description"}, 
+				new Class[] {UUID.class, String.class, String.class, UUID.class, String.class, Time.class, UUID.class, UUID.class, UUID.class, String.class});
 		
 		Get.conceptService().getConceptChronologyStream().sequential().forEach(concept -> {
 			
@@ -146,7 +146,8 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 			
 			for (Version conceptVersion : concept.getVersionList())
 			{
-				dtw.addRow(new Object[] {uuids[0], concept.getIsaacObjectType().toString(), concept.getVersionType().toString(), 
+				dtw.addRow(new Object[] {uuids[0], concept.getIsaacObjectType().toString(), concept.getVersionType().toString(),
+						getUuidPrimordialForNid(concept.getAssemblageNid()),
 						conceptVersion.getStatus().toString(), new Date(conceptVersion.getTime()),
 						getUuidPrimordialForNid(conceptVersion.getAuthorNid()),
 						getUuidPrimordialForNid(conceptVersion.getModuleNid()),
