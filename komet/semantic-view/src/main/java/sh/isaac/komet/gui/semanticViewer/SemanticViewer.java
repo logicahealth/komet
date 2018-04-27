@@ -1336,7 +1336,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			}
 			catch (Exception e)
 			{
-				if (e.getMessage().equals("Keyword"))
+				if ("Keyword".equals(e.getMessage()))
 				{
 					logger_.info("The specified concept is not specified correctly as a dynamic semantic, and is not utilized as a static semantic", e);
 					Platform.runLater(() ->
