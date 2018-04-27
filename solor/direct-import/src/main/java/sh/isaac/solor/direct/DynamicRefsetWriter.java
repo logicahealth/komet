@@ -19,6 +19,7 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +27,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
-import org.apache.mahout.math.Arrays;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -34,6 +34,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
@@ -226,14 +227,21 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 										}
 									}
 									
-									LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
+									int[] assemblageStamps = Get.concept(assemblageNid).getVersionStampSequences();
+									Arrays.sort(assemblageStamps);
+									int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
+									//since we probably just loaded the concept....
+									
+									List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
 											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
 											dci.toArray(new DynamicColumnInfo[dci.size()]),
-											null, null, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+											null, null, stampSequence);
 	
-									// Do a global commit to commit the metadata concepts created here, and just above
-									Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
-											"metadata commit for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName())).get();
+									for (Chronology c : items)
+									{
+										index(c);
+										assemblageService.writeSemanticChronology((SemanticChronology)c);
+									}
 								}
 								configuredDynamicSemantics.put(assemblageNid, true);
 							}
