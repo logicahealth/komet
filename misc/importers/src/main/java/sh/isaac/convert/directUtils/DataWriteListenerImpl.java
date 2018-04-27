@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.convert.mojo.rf2Direct;
+package sh.isaac.convert.directUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -62,7 +62,7 @@ public class DataWriteListenerImpl implements DataWriteListener
 	@Override
 	public void writeData(Chronology data)
 	{
-		if (assemblageTypesToIgnore.contains(data.getAssemblageNid()))
+		if (assemblageTypesToIgnore != null && assemblageTypesToIgnore.contains(data.getAssemblageNid()))
 		{
 			//ignore - these are just intermediate things Keith creates, that we don't actually want / need in the DB
 			ignored++;
@@ -75,9 +75,9 @@ public class DataWriteListenerImpl implements DataWriteListener
 	
 	/**
 	 * Careful using this - likely not thread safe
-	 * @return
+	 * @return The undelying writer
 	 */
-	protected DataWriterService getWriterHandle()
+	public DataWriterService getWriterHandle()
 	{
 		return writer;
 	}
