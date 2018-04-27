@@ -84,24 +84,6 @@ public class UuidT5Generator {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the desc uuid.
-    *
-    * @param text the text
-    * @param langPrimUuid the lang prim uuid
-    * @param conceptPrimUuid the concept prim uuid
-    * @return the desc uuid
-    * @throws NoSuchAlgorithmException the no such algorithm exception
-    * @throws UnsupportedEncodingException the unsupported encoding exception
-    */
-   public static UUID getDescUuid(String text,
-                                  UUID langPrimUuid,
-                                  UUID conceptPrimUuid)
-            throws NoSuchAlgorithmException,
-                   UnsupportedEncodingException {
-      return get(langPrimUuid, text + conceptPrimUuid.toString());
-   }
-
-   /**
     * Gets the.
     *
     * @param name the name
