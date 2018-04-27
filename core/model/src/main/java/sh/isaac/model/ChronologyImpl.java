@@ -190,7 +190,9 @@ public abstract class ChronologyImpl
         int oldSize = temp.size();
 
         for (UUID uuid : uuids) {
-            temp.add(uuid);
+            if (uuid != null) {
+               temp.add(uuid);
+            }
         }
         if (temp.size() == oldSize) {
            //didn't add anything, noop.
