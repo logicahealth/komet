@@ -127,7 +127,7 @@ public class RxNormMojo extends ConverterBaseMojo {
    //You can set this on low memory systems, if necessary to reduce the footprint.  
    //Also, play with the SABs and tty types in the ibdf pom config.
    //   static {
-   //      ConverterUUID.disableUUIDMap_ = true;
+   //      Get.service(ConverterUUID.class).disableUUIDMap_ = true;
    //   }
 
    // ~--- fields --------------------------------------------------------------
@@ -472,7 +472,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                continue;
             } else if (relTypeAsAssn != null) {
                r = ComponentReference.fromChronology(
-                     this.importUtil.addAssociation(concept, ((relationship.getRui() != null) ? ConverterUUID.createNamespaceUUIDFromString("RUI:" + relationship.getRui()) : null),
+                     this.importUtil.addAssociation(concept, ((relationship.getRui() != null) ? Get.service(ConverterUUID.class).createNamespaceUUIDFromString("RUI:" + relationship.getRui()) : null),
                            relationship.getTargetUUID(), relTypeAsAssn.getUUID(), Status.ACTIVE, null, null),
                      () -> "Association");
             } else {
@@ -590,7 +590,7 @@ public class RxNormMojo extends ConverterBaseMojo {
     * @return the uuid
     */
    private UUID createCUIConceptUUID(String cui) {
-      UUID temp = ConverterUUID.createNamespaceUUIDFromString("CUI:" + cui, true);
+      UUID temp = Get.service(ConverterUUID.class).createNamespaceUUIDFromString("CUI:" + cui, true);
       Get.identifierService().assignNid(temp);
       return temp;
    }
@@ -637,7 +637,7 @@ public class RxNormMojo extends ConverterBaseMojo {
 
       // this could be removed from final release. Just added to help debug editor problems.
       ConsoleUtil.println("Dumping UUID Debug File");
-      ConverterUUID.dump(this.outputDirectory, "RxNormUUID");
+      Get.service(ConverterUUID.class).dump(this.outputDirectory, "RxNormUUID");
       this.importUtil.shutdown();
       ConsoleUtil.writeOutputToFile(new File(this.outputDirectory, "ConsoleOutput.txt").toPath());
    }
@@ -982,7 +982,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                }
 
                final ComponentReference c = ComponentReference
-                     .fromConcept(this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(this.ptUMLSAttributes.getProperty("STYPE").getUUID() + ":" + name),
+                     .fromConcept(this.importUtil.createConcept(Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.ptUMLSAttributes.getProperty("STYPE").getUUID() + ":" + name),
                            name, null, null, sType, this.ptUMLSAttributes.getProperty("STYPE").getUUID(), null));
 
                this.sTypes.put(name, c.getPrimordialUuid());
@@ -1071,7 +1071,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                   }
 
                   final ComponentReference c = ComponentReference
-                        .fromConcept(this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(sourceMetadata.getProperty("SRL").getUUID() + ":" + value), value,
+                        .fromConcept(this.importUtil.createConcept(Get.service(ConverterUUID.class).createNamespaceUUIDFromString(sourceMetadata.getProperty("SRL").getUUID() + ":" + value), value,
                               null, null, description, sourceMetadata.getProperty("SRL").getUUID(), null));
 
                   this.sourceRestrictionLevels.put(value, c.getPrimordialUuid());
@@ -1183,7 +1183,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                final String stn = rs.getString("STN");
                final String sty = rs.getString("STY");
                final ComponentReference c = ComponentReference
-                     .fromConcept(this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(this.ptUMLSAttributes.getProperty("STY").getUUID() + ":" + sty), sty,
+                     .fromConcept(this.importUtil.createConcept(Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.ptUMLSAttributes.getProperty("STY").getUUID() + ":" + sty), sty,
                            null, null, null, this.ptUMLSAttributes.getProperty("STY").getUUID(), null));
 
                this.semanticTypes.put(tui, c.getPrimordialUuid());
@@ -1394,7 +1394,7 @@ public class RxNormMojo extends ConverterBaseMojo {
 
          if (r.getAltName() != null) {
             // Need to create this UUID to be different than forward name, in case forward and reverse are identical (like 'RO')
-            final UUID descUUID = ConverterUUID.createNamespaceUUIDFromStrings(cr.getPrimordialUuid().toString(), r.getInverseFQName(), DescriptionType.REGULAR_NAME.name(),
+            final UUID descUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromStrings(cr.getPrimordialUuid().toString(), r.getInverseFQName(), DescriptionType.REGULAR_NAME.name(),
                   "false", "inverse");
 
             // Yes, this looks funny, no its not a copy/paste error. We swap the FULLY_QUALIFIED_NAME and alt names for... it a long story. 42.
@@ -1665,7 +1665,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                desc.setTime(descriptionTime);
             }
 
-            desc.setUUID(ConverterUUID.createNamespaceUUIDFromStrings(cuiConcept.getPrimordialUuid().toString(), atom.rxaui));
+            desc.setUUID(Get.service(ConverterUUID.class).createNamespaceUUIDFromStrings(cuiConcept.getPrimordialUuid().toString(), atom.rxaui));
 
             // used for sorting description to figure out what to use for FULLY_QUALIFIED_NAME
             cuiDescriptions.add(desc);
@@ -1867,10 +1867,10 @@ public class RxNormMojo extends ConverterBaseMojo {
          final UUID refsetUUID = this.ptTermAttributes.getProperty(rxnsat.atn).getUUID();
 
          if (rxnsat.atui != null) {
-            stringAttrUUID = ConverterUUID.createNamespaceUUIDFromString("ATUI" + rxnsat.atui);
+            stringAttrUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromString("ATUI" + rxnsat.atui);
          } else {
             // need to put the aui in here, to keep it unique, as each AUI frequently specs the same CUI
-            stringAttrUUID = ConverterUUID.createNamespaceUUIDFromStrings(itemToAnnotate.getPrimordialUuid().toString(), rxnsat.rxaui, rxnsat.atv, refsetUUID.toString());
+            stringAttrUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromStrings(itemToAnnotate.getPrimordialUuid().toString(), rxnsat.rxaui, rxnsat.atv, refsetUUID.toString());
          }
 
          // You would expect that ptTermAttributes_.get() would be looking up sab, rather than having RxNorm hardcoded... but this is an oddity of
@@ -2044,7 +2044,7 @@ public class RxNormMojo extends ConverterBaseMojo {
                   throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
                }
 
-               final UUID created = this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(parent + ":" + (loadAsDefinition ? value : name)),
+               final UUID created = this.importUtil.createConcept(Get.service(ConverterUUID.class).createNamespaceUUIDFromString(parent + ":" + (loadAsDefinition ? value : name)),
                      (loadAsDefinition ? value : name), null, (loadAsDefinition ? null : value), (loadAsDefinition ? name : null), parent, null).getPrimordialUuid();
 
                result.put((loadAsDefinition ? value : name), created);

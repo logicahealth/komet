@@ -51,6 +51,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
@@ -173,7 +174,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 
 				// Create the Grouping value concept as a child of both NUCC root and the Grouping property metadata concept
 				// and store in map for later retrieval
-				final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(groupingPropertyUuid.toString() + "|" + value, true);
+				final UUID valueConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(groupingPropertyUuid.toString() + "|" + value, true);
 				final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, null, null, null, groupingPropertyUuid,
 						nuccRootConcept.getPrimordialUuid());
 				// ConsoleUtil.println("Created NUCC Grouping value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\" under
@@ -189,7 +190,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			{
 				if (StringUtils.isNotBlank(value))
 				{
-					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(classificationPropertyUuid.toString() + "|" + value, true);
+					final UUID valueConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(classificationPropertyUuid.toString() + "|" + value, true);
 					final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, true, classificationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Classification value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Classification property concept " + classificationPropertyUuid);
@@ -204,7 +205,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			{
 				if (StringUtils.isNotBlank(value))
 				{
-					final UUID valueConceptUuid = ConverterUUID.createNamespaceUUIDFromString(specializationPropertyUuid.toString() + "|" + value, true);
+					final UUID valueConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(specializationPropertyUuid.toString() + "|" + value, true);
 					final ConceptVersion valueConcept = importUtil.createConcept(valueConceptUuid, value, true, specializationPropertyUuid);
 					// ConsoleUtil.println("Created NUCC Specialization value concept " + valueConcept.getPrimordialUuid() + " for \"" + value + "\"
 					// under parent Specialization property concept " + classificationPropertyUuid);
@@ -237,7 +238,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 				try
 				{
 					// Create row concept
-					UUID rowConceptUuid = ConverterUUID
+					UUID rowConceptUuid = Get.service(ConverterUUID.class)
 							.createNamespaceUUIDFromString(groupingValueConcept.getPrimordialUuid().toString() + "|" + row.get(NUCCColumnsV1.Code), true);
 					final ConceptVersion rowConcept = importUtil.createConcept(rowConceptUuid, row.get(NUCCColumnsV1.Code), true,
 							groupingValueConcept.getPrimordialUuid());
@@ -307,7 +308,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "nuccUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "nuccUuid");
 
 			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());

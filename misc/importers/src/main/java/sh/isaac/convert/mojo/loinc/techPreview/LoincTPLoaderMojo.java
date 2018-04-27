@@ -380,6 +380,6 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo
 	
 	private UUID buildUUID(String uniqueIdentifier)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString(uniqueIdentifier, true);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString(uniqueIdentifier, true);
 	}
 }

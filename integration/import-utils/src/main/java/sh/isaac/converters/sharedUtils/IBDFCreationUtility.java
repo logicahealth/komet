@@ -202,6 +202,8 @@ public class IBDFCreationUtility
    
    private DataWriterService writer;
    private boolean writeToDB = false;
+   
+   private ConverterUUID converterUUID;
 
    private LoadStats ls = new LoadStats();
    
@@ -248,6 +250,8 @@ public class IBDFCreationUtility
          String outputArtifactId, String outputArtifactVersion, String outputArtifactClassifier, boolean outputGson, long defaultTime, 
          Collection<VersionType> versionTypesToSkip, Boolean preloadActiveOnly, File ... ibdfPreLoadFiles) throws Exception
    {
+      converterUUID = Get.service(ConverterUUID.class);
+      converterUUID.clearCache();
       UuidIntMapMap.NID_TO_UUID_CACHE_ENABLED = true;
       File file = new File(outputDirectory, "isaac-db");
       //make sure this is empty
@@ -324,7 +328,7 @@ public class IBDFCreationUtility
          preExistingModule.get().getPrimordialUuid();
       
       //If both modules are specified, use the parent grouping module.  If not, use the module as determined above.
-      ConverterUUID.configureNamespace(((moduleToCreate.isPresent() && preExistingModule.isPresent()) ? preExistingModule.get().getPrimordialUuid() : 
+      converterUUID.configureNamespace(((moduleToCreate.isPresent() && preExistingModule.isPresent()) ? preExistingModule.get().getPrimordialUuid() : 
          moduleUUID));
       
       //tack the version onto the end of the ibdf file, so that when multiple ibdf files for a single type of content, such as 
@@ -359,6 +363,7 @@ public class IBDFCreationUtility
     * If you do so make sure that you)
     * A) - only use a time of Long.MAX_VALUE.
     * B) - you may need to record some changes yourself, using {@link #storeManualUpdate(IsaacExternalizable)}
+    * C) - the underlying ConverterUUID instance is not thread safe - only one thread at a time should use the IBDF Creation Utility this way.
     * 
     *  @param author - which author to use for these changes
     *  @param module - which module to use while loading
@@ -367,6 +372,8 @@ public class IBDFCreationUtility
     */
    public IBDFCreationUtility(UUID author, UUID module, UUID path, File debugOutputDirectory) throws Exception
    {
+      this.converterUUID = Get.service(ConverterUUID.class);
+      this.converterUUID.clearCache();
       this.authorNid = Get.identifierService().getNidForUuids(author);
       this.terminologyPathNid = Get.identifierService().getNidForUuids(path);
       this.module = ComponentReference.fromConcept(module);
@@ -388,7 +395,7 @@ public class IBDFCreationUtility
       StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, terminologyPathNid);
       IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATUS_SET);
       
-      if (ConverterUUID.getNamespace() == null)
+      if (converterUUID.getNamespace() == null)
       {
          throw new RuntimeException("Namespace not configured!");
       }
@@ -408,6 +415,7 @@ public class IBDFCreationUtility
     * Using this class at runtime is tricky, and not the designed use case.
     * If you do so make sure that you)
     * A) - only use a time of Long.MAX_VALUE.
+    * B) - the underlying ConverterUUID instance is not thread safe - only one thread at a time should use the IBDF Creation Utility this way.
     * 
     *  @param author - which author to use for these changes
     *  @param module - which module to use while loading
@@ -416,6 +424,8 @@ public class IBDFCreationUtility
     */
    public IBDFCreationUtility(UUID author, UUID module, UUID path, DataWriterService writer) throws Exception
    {
+      converterUUID = Get.service(ConverterUUID.class);
+      converterUUID.clearCache();
       this.authorNid = Get.identifierService().getNidForUuids(author);
       this.terminologyPathNid = Get.identifierService().getNidForUuids(path);
       this.module = ComponentReference.fromConcept(module);
@@ -437,7 +447,7 @@ public class IBDFCreationUtility
       StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, terminologyPathNid);
       IBDFCreationUtility.readBackStamp = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.EMPTY, Status.ANY_STATUS_SET);
       
-      if (ConverterUUID.getNamespace() == null)
+      if (converterUUID.getNamespace() == null)
       {
          throw new RuntimeException("Namespace not configured!");
       }
@@ -456,7 +466,7 @@ public class IBDFCreationUtility
     */
    public ConceptVersion createConcept(String fsn, boolean createSynonymFromFSN)
    {
-      return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
+      return createConcept(converterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
    }
 
    /**
@@ -589,7 +599,7 @@ public class IBDFCreationUtility
    public ConceptVersion createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
          String definition, UUID parentConceptPrimordial, UUID secondParent)
    {
-      ConceptVersion concept = createConcept(primordial == null ? ConverterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
+      ConceptVersion concept = createConcept(primordial == null ? converterUUID.createNamespaceUUIDFromString(fsnName) : primordial,
             fsnName, StringUtils.isEmpty(preferredName) ? true : false);
       
       LogicalExpressionBuilder leb = this.expressionBuilderService.getLogicalExpressionBuilder();
@@ -788,7 +798,7 @@ public class IBDFCreationUtility
                   descriptionValue, 
                   concept.getNid());
       if (descriptionPrimordial == null) {
-         descBuilder.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         descBuilder.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       } else {
          descBuilder.setPrimordialUuid(descriptionPrimordial);
       }
@@ -810,7 +820,7 @@ public class IBDFCreationUtility
                preferred ? TermAux.PREFERRED.getNid() : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(),
                Get.identifierService().getNidForUuids(dialect));
 
-         acceptabilityTypeBuilder.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         acceptabilityTypeBuilder.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
          acceptabilityTypeBuilder.build(createStamp(status, selectTime(concept, time), module), builtObjects);
 
          this.ls.addAnnotation("Description", getOriginStringForUuid(dialect));
@@ -852,7 +862,7 @@ public class IBDFCreationUtility
             description.getNid(), Get.identifierService().getNidForUuids(dialectRefset));
       
       if (acceptabilityPrimordial == null) {
-         sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       } else {
          sb.setPrimordialUuid(acceptabilityPrimordial);
       }
@@ -957,7 +967,7 @@ public class IBDFCreationUtility
             Get.identifierService().getNidForUuids(annotationTypeAssemblage), values);
       
       if (uuidForCreatedAnnotation == null) {
-         sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       } else {
          sb.setPrimordialUuid(uuidForCreatedAnnotation);
       }
@@ -1052,7 +1062,7 @@ public class IBDFCreationUtility
     */
    private SemanticChronology addMembership(ComponentReference referencedComponent, ConceptSpecification assemblage) {
       SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getMembershipSemanticBuilder(referencedComponent.getNid(), assemblage.getNid());
-      sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+      sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
 
       ArrayList<Chronology> builtObjects = new ArrayList<>();
       SemanticChronology sc = (SemanticChronology)sb.build(createStamp(Status.ACTIVE, selectTime(referencedComponent, (Long)null)), builtObjects);
@@ -1174,7 +1184,7 @@ public class IBDFCreationUtility
       
       if (uuidForCreatedAnnotation == null)
       {
-         sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       }
       else
       {
@@ -1361,7 +1371,7 @@ public class IBDFCreationUtility
       if (relPrimordial != null) {
          sb.setPrimordialUuid(relPrimordial);
       } else {
-         sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       }
 
       ArrayList<Chronology> builtObjects = new ArrayList<>();
@@ -1429,7 +1439,7 @@ public class IBDFCreationUtility
 
       if (graphPrimordial == null)
       {
-         sb.setT5Uuid(ConverterUUID.getNamespace(), (name, uuid) -> ConverterUUID.addMapping(name, uuid));
+         sb.setT5Uuid(converterUUID.getNamespace(), (name, uuid) -> converterUUID.addMapping(name, uuid));
       }
       else
       {
@@ -1516,7 +1526,7 @@ public class IBDFCreationUtility
     */
    private String getOriginStringForUuid(UUID uuid)
    {
-      String temp = ConverterUUID.getUUIDCreationString(uuid);
+      String temp = converterUUID.getUUIDCreationString(uuid);
       if (temp != null)
       {
          String[] parts = temp.split(":");
@@ -1656,7 +1666,7 @@ public class IBDFCreationUtility
                   {
                      //Need to make our own UUID here, cause there are cases where the inverse name is identical to the forward name.
                      SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(concept), 
-                           ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), item.getAssociationInverseName(), 
+                           converterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), item.getAssociationInverseName(), 
                                  "inverse", DescriptionType.REGULAR_NAME.name()),
                            item.getAssociationInverseName(), 
                            DescriptionType.REGULAR_NAME, false, null, Status.ACTIVE);
@@ -1789,7 +1799,7 @@ public class IBDFCreationUtility
       //Add the special synonym to establish this as an assemblage concept
       
       //Need a custom UUID, otherwise duplicates are likely
-      UUID temp = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), semanticDescription, 
+      UUID temp = converterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), semanticDescription, 
          DescriptionType.DEFINITION.name(),  MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid().toString(), MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid().toString(), 
          new Boolean("true").toString(), "DynamicSemanticMarker");
       
@@ -1883,7 +1893,7 @@ public class IBDFCreationUtility
       {
          LookupService.shutdownSystem();
       }
-      ConverterUUID.clearCache();
+      converterUUID.clearCache();
       clearLoadStats();
    }
    

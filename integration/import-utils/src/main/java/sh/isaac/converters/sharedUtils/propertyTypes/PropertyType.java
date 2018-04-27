@@ -190,6 +190,7 @@ public abstract class PropertyType {
     * Adds the property.
     *
     * @param propertyNameFQN the property name FQN
+    * @param isIdentifier true if this should be treated as an identifier type
     * @return the property
     */
    public Property addProperty(String propertyNameFQN, boolean isIdentifier) {
@@ -207,7 +208,7 @@ public abstract class PropertyType {
    /**
     * @param propertyNameFQN
     * @param propertySubType
-    * @return
+    * @return the property
     */
    public Property addProperty(String propertyNameFQN, int propertySubType) {
       return addProperty(propertyNameFQN, propertySubType, false);
@@ -218,6 +219,7 @@ public abstract class PropertyType {
     *
     * @param propertyNameFQN the property name FQN
     * @param propertySubType the property sub type
+    * @param isIdentifier true if this should be treated as an identifier type
     * @return the property
     */
    public Property addProperty(String propertyNameFQN, int propertySubType, boolean isIdentifier) {
@@ -296,6 +298,7 @@ public abstract class PropertyType {
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param disabled the disabled
+    * @param isIdentifier true if this should be treated as an identifier type
     * @param propertySubType the property sub type
     * @param dataColumnForDynamicRefex the data column for dynamic refex
     * @return the property
@@ -461,7 +464,7 @@ public abstract class PropertyType {
     */
    public UUID getPropertyTypeUUID() {
       if (this.propertyTypeUUID == null) {
-         this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
+         this.propertyTypeUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.propertyTypeDescription);
          Get.identifierService().assignNid(this.propertyTypeUUID);
       }
       return this.propertyTypeUUID;
@@ -474,7 +477,7 @@ public abstract class PropertyType {
     * @return the property UUID
     */
    protected UUID getPropertyUUID(String propertyName) {
-      return ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
+      return Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
    }
 
    //~--- set methods ---------------------------------------------------------

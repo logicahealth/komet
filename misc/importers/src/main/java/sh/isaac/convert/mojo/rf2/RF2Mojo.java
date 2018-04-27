@@ -199,7 +199,7 @@ public class RF2Mojo extends ConverterBaseMojo
          consWithNoStatedRel.clear();
 
          ConsoleUtil.println("Dumping UUID Debug File");
-         ConverterUUID.dump(outputDirectory, converterOutputArtifactClassifier + "-RF2UUID");
+         Get.service(ConverterUUID.class).dump(outputDirectory, converterOutputArtifactClassifier + "-RF2UUID");
 
          ConsoleUtil.println("Load Statistics");
          for (String s : importUtil.getLoadStats().getSummary())

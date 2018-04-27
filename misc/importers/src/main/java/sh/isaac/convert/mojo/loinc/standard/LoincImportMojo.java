@@ -493,13 +493,13 @@ public class LoincImportMojo extends ConverterBaseMojo {
 
          // this could be removed from final release. Just added to help debug editor problems.
          ConsoleUtil.println("Dumping UUID Debug File");
-         ConverterUUID.dump(this.outputDirectory, "loincUuid");
+         Get.service(ConverterUUID.class).dump(this.outputDirectory, "loincUuid");
          ConsoleUtil.println("LOINC Processing Completes " + new Date().toString());
          ConsoleUtil.writeOutputToFile(new File(this.outputDirectory, "ConsoleOutput.txt").toPath());
       } catch (final Exception ex) {
          try {
             // make sure this is dumped
-            ConverterUUID.dump(this.outputDirectory, "loincUuid");
+            Get.service(ConverterUUID.class).dump(this.outputDirectory, "loincUuid");
          } catch (final IOException e) {
             // noop
          }
@@ -549,7 +549,7 @@ public class LoincImportMojo extends ConverterBaseMojo {
     * @return the uuid
     */
    private UUID buildUUID(String uniqueIdentifier) {
-      return ConverterUUID.createNamespaceUUIDFromString(uniqueIdentifier, true);
+      return Get.service(ConverterUUID.class).createNamespaceUUIDFromString(uniqueIdentifier, true);
    }
 
    /**
@@ -692,12 +692,12 @@ public class LoincImportMojo extends ConverterBaseMojo {
             } else if (pt instanceof PT_Descriptions) {
                // Gather for later - need to make our own UUIDs, because the default algorithm doesn't take extended types into account.
                descriptions.add(new ValuePropertyPair(fields[fieldIndex], 
-                     ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), fields[fieldIndex],
+            		   Get.service(ConverterUUID.class).createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), fields[fieldIndex],
                      p.getPropertyType().getPropertyTypeUUID().toString(), p.getUUID().toString()), p));
 
             } else if (pt instanceof PT_SkipAxis) {
                // See if this class object exists yet.
-               final UUID potential = ConverterUUID
+               final UUID potential = Get.service(ConverterUUID.class)
                      .createNamespaceUUIDFromString(this.pt_SkipAxis.getPropertyTypeDescription() + ":" + this.fieldMapInverse.get(fieldIndex) + ":" + fields[fieldIndex], true);
                ComponentReference axisConcept = this.concepts_.get(potential);
 
@@ -711,7 +711,7 @@ public class LoincImportMojo extends ConverterBaseMojo {
                      Status.ACTIVE, concept.getTime(), null);
             } else if (pt instanceof PT_SkipClass) {
                // See if this class object exists yet.
-               final UUID potential = ConverterUUID
+               final UUID potential = Get.service(ConverterUUID.class)
                      .createNamespaceUUIDFromString(this.pt_SkipClass.getPropertyTypeDescription() + ":" + this.fieldMapInverse.get(fieldIndex) + ":" + fields[fieldIndex], true);
                ComponentReference classConcept = this.concepts_.get(potential);
 

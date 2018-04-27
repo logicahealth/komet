@@ -49,6 +49,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.constants.DynamicConstants;
@@ -172,7 +173,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 					final long lastUpdateTime = CVXCodesHelper.getLastUpdatedDate(row).getTime();
 
 					// Create row concept
-					final UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
+					final UUID rowConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(code);
 					final ConceptVersion rowConcept = importUtil.createConcept(rowConceptUuid, lastUpdateTime, status, null);
 					final ComponentReference rowComponentReference = ComponentReference.fromConcept(rowConcept);
 					importUtil.addParent(rowComponentReference, cvxRootConcept.getPrimordialUuid());
@@ -221,7 +222,7 @@ public class CVXImportMojo extends ConverterBaseMojo
 			}
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "cvxUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "cvxUuid");
 
 			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());

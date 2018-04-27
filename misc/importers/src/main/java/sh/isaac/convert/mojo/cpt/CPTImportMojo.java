@@ -54,6 +54,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
@@ -194,7 +195,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 					groupingConCount++;
 				}
 				cptConCount++;
-				ComponentReference concept = ComponentReference.fromConcept(importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(d.code)));
+				ComponentReference concept = ComponentReference.fromConcept(importUtil.createConcept(Get.service(ConverterUUID.class).createNamespaceUUIDFromString(d.code)));
 
 				importUtil.addParent(concept, parent.getPrimordialUuid());
 				importUtil.addDescription(concept, d.code, DescriptionType.FULLY_QUALIFIED_NAME, true, null, Status.ACTIVE);
@@ -228,7 +229,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "cptUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "cptUuid");
 
 			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
@@ -241,7 +242,7 @@ public class CPTImportMojo extends ConverterBaseMojo
 
 	private void addDescription(ComponentReference concept, String text, DescriptionType descriptionType, UUID extendedType, boolean preferred)
 	{
-		UUID descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), text, extendedType.toString(),
+		UUID descriptionPrimordialUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), text, extendedType.toString(),
 				descriptionType.name(), new Boolean(preferred).toString());
 		importUtil.addDescription(concept, descriptionPrimordialUUID, text, descriptionType, preferred, extendedType, Status.ACTIVE);
 	}

@@ -178,6 +178,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
    private EditCoordinate editCoordinate;
    private LongSupplier vuidSupplier;
    private HashSet<String> conceptsToBeCreated = new HashSet<>();
+   private ConverterUUID converterUUID;
    
    private static final Logger LOG = LogManager.getLogger();
    
@@ -235,7 +236,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
          extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_SYNONYM.getRegularName().get().toLowerCase(), VHATConstants.VHAT_SYNONYM.getPrimordialUuid());
          extendedDescriptionTypeNameMap.put(VHATConstants.VHAT_VISTA_NAME.getRegularName().get().toLowerCase(), VHATConstants.VHAT_VISTA_NAME.getPrimordialUuid());
          
-         ConverterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());
+         converterUUID = new ConverterUUID(TermAux.VHAT_MODULES.getPrimordialUuid(), false);
          
          try
          {
@@ -322,7 +323,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       }
       finally
       {
-         ConverterUUID.clearCache();
+         converterUUID.clearCache();
       }
    }
 
@@ -563,7 +564,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
    private void createNewProperties(Terminology terminology) throws Exception
    {
       //Have to turn off dupe detection, cause they were already entered once, above, in the populate code.
-      ConverterUUID.disableUUIDMap = true;
+      converterUUID.setUUIDMapState(false);
       LOG.info("Checking for properties that need creation");
       sh.isaac.converters.sharedUtils.propertyTypes.PropertyType associations = new BPT_Associations("VHAT");
       sh.isaac.converters.sharedUtils.propertyTypes.PropertyType annotations = new BPT_Annotations("VHAT");
@@ -592,7 +593,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
       
       importUtil.loadMetaDataItems(associations, null);
       importUtil.loadMetaDataItems(annotations, null);
-      ConverterUUID.disableUUIDMap = false;
+      converterUUID.setUUIDMapState(true);
    }
    
    private void createNewSubsets(Terminology terminology) throws IOException
@@ -1302,7 +1303,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
    private UUID createNewConceptUuid(String codeId)
    {
-      return ConverterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
+      return converterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
    }
    
    private UUID createNewDescriptionUuid(UUID concept, String descriptionId)
@@ -1311,12 +1312,12 @@ public class VHATDeltaImport extends ConverterBaseMojo
       {
          return null;
       }
-      return ConverterUUID.createNamespaceUUIDFromString("description:" + concept.toString() + ":" + descriptionId, true);
+      return converterUUID.createNamespaceUUIDFromString("description:" + concept.toString() + ":" + descriptionId, true);
    }
    
    private UUID createNewMapItemUUID(UUID mapSetUUID, String mapItemVuid)
    {
-      return ConverterUUID.createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, true);
+      return converterUUID.createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, true);
    }
 
    /**

@@ -146,7 +146,7 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 			
 			StampService ss = Get.stampService();
 			
-			ConverterUUID.configureNamespace(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid());
+			Get.service(ConverterUUID.class).configureNamespace(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid());
 			importUtil = new IBDFCreationUtility(TermAux.USER.getPrimordialUuid(), MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid(), 
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), listener.getWriterHandle());
 			
@@ -163,7 +163,7 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 				if (moduleNid != MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getNid() && moduleNid != MetaData.SOLOR_MODULE____SOLOR.getNid())
 				{
 					UUID module = Get.identifierService().getUuidPrimordialForNid(moduleNid);
-					ConverterUUID.configureNamespace(module);
+					Get.service(ConverterUUID.class).configureNamespace(module);
 					importUtil.setModule(module, importTime);
 					log.info("adding loader metadata to {}", Get.conceptDescriptionText(moduleNid));
 					

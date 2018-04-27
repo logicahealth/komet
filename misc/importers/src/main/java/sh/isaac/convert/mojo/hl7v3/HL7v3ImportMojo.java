@@ -108,7 +108,6 @@ import mifschema.VocabularyValueSetRef;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
@@ -958,7 +957,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "hl7v3Uuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "hl7v3Uuid");
 
 			ConsoleUtil.println("Load stats");
 			for (String line : importUtil.getLoadStats().getSummary())
@@ -974,7 +973,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 			System.out.println("Dieing .... dumping UUID debug file: ");
 			try
 			{
-				ConverterUUID.dump(outputDirectory, "vhatUuid");
+				Get.service(ConverterUUID.class).dump(outputDirectory, "vhatUuid");
 			}
 			catch (IOException e)
 			{
@@ -1035,7 +1034,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 					for (Integer member : resolveRels(irc.getRelationshipTraversal(), irc.getRelationshipName(), 0,
 							findTargetConcept(codeSystemOid, cbcd.getCode()), codeSystemOid))
 					{
-						Set<Integer> members = inProgressRefsetMembers.get(Get.identifierService().getNidForUuids(refset.getPrimordialUuid()));
+						Set<Integer> members = inProgressRefsetMembers.get(refset.getPrimordialUuid());
 						if (members == null)
 						{
 							members = new HashSet<>();
@@ -1339,7 +1338,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 
 	private UUID createConceptDomainUUID(String name)
 	{
-		UUID temp =  ConverterUUID.createNamespaceUUIDFromString("ConceptDomain|" + name, true);
+		UUID temp =  Get.service(ConverterUUID.class).createNamespaceUUIDFromString("ConceptDomain|" + name, true);
 		Get.identifierService().assignNid(temp);  //We load some things out of order, so need to assign early.
 		return temp;
 	}
@@ -1358,7 +1357,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 				throw new MojoExecutionException("No oid for " + codeSystemNameOrOID + " and it doesn't appear to be an OID");
 			}
 		}
-		UUID temp = ConverterUUID.createNamespaceUUIDFromString("Code|" + oid + "|" + name, true);
+		UUID temp = Get.service(ConverterUUID.class).createNamespaceUUIDFromString("Code|" + oid + "|" + name, true);
 		if (assignNid) 
 		{
 			Get.identifierService().assignNid(temp);  //We load some things out of order, so need to assign early.
@@ -1373,7 +1372,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 		{
 			throw new MojoExecutionException("No oid for " + codeSystemName);
 		}
-		return ConverterUUID.createNamespaceUUIDFromString("CodeSystem|" + oid, true);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("CodeSystem|" + oid, true);
 	}
 
 	private List<Integer> resolveRels(RelationshipTraversalKind traversalKind, String relKind, int depth, Concept concept, String codeSystemOid)

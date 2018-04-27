@@ -51,6 +51,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.util.UuidT5Generator;
@@ -125,7 +126,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 
 			// Normally, the importer configures this to the parent ICD10 modules UUID - but then we get duplicates generated between CM and PCS.
 			// Need to use a different namespace for each.
-			ConverterUUID.configureNamespace(UuidT5Generator.get(MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid().toString() + sourceType.toUpperCase()));
+			Get.service(ConverterUUID.class).configureNamespace(UuidT5Generator.get(MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid().toString() + sourceType.toUpperCase()));
 
 			ConsoleUtil.println("Begin code import.");
 
@@ -196,7 +197,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "icd10Uuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "icd10Uuid");
 
 			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());
@@ -218,7 +219,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 			final Status state = Status.ACTIVE;
 
 			// Create row concept
-			final UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(code);
+			final UUID rowConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(code);
 			final ComponentReference conceptReference = ComponentReference.fromConcept(importUtil.createConcept(rowConceptUuid));
 
 			importUtil.addDescription(conceptReference, null, fsn, DescriptionType.FULLY_QUALIFIED_NAME, false, null, // dialect

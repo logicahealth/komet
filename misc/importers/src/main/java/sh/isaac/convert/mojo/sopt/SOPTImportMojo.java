@@ -53,6 +53,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import javafx.application.Platform;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -165,7 +166,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 						case ValueSetName:
 							//Due to the order of the data in the metadata, this case will hit first as we iterate.
 							valueSetConcept = ComponentReference.fromConcept(importUtil.createConcept(
-									ConverterUUID.createNamespaceUUIDFromString("ValueSet|" + md.getValue()), md.getValue(), false, refsets_.getPropertyTypeUUID()));
+									Get.service(ConverterUUID.class).createNamespaceUUIDFromString("ValueSet|" + md.getValue()), md.getValue(), false, refsets_.getPropertyTypeUUID()));
 							importUtil.addDescription(valueSetConcept, md.getValue(), DescriptionType.REGULAR_NAME, true, 
 									descriptions_.getProperty(md.getKey().name()).getUUID(), Status.ACTIVE);
 							
@@ -214,7 +215,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 				if (codeSystem == null)
 				{
 					codeSystem = ComponentReference.fromConcept(importUtil.createConcept(
-							ConverterUUID.createNamespaceUUIDFromString("CodeSystemSet|" + codeSystemName), codeSystemName,  false, soptRootConcept.getPrimordialUuid()));
+							Get.service(ConverterUUID.class).createNamespaceUUIDFromString("CodeSystemSet|" + codeSystemName), codeSystemName,  false, soptRootConcept.getPrimordialUuid()));
 					importUtil.addDescription(codeSystem, codeSystemName, DescriptionType.REGULAR_NAME, true, 
 							descriptions_.getProperty(SOPTDataColumnsV1.CodeSystemName.name()).getUUID(), Status.ACTIVE);
 					importUtil.addStaticStringAnnotation(codeSystem, codeSystemCode, attributes_.getProperty(SOPTDataColumnsV1.CodeSystemCode.name()).getUUID(), Status.ACTIVE);
@@ -225,7 +226,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 				}
 				
 				
-				UUID rowConceptUuid = ConverterUUID.createNamespaceUUIDFromString(conceptCode + "|" + conceptName);
+				UUID rowConceptUuid = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(conceptCode + "|" + conceptName);
 				UUID parentUuid = findParentUuid(conceptCode);
 				parentUuid = parentUuid == null ? codeSystem.getPrimordialUuid() : parentUuid;
 				parentConcepts.put(conceptCode, rowConceptUuid);
@@ -269,7 +270,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "soptUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "soptUuid");
 
 			importUtil.shutdown();
 			ConsoleUtil.writeOutputToFile(new File(outputDirectory, "ConsoleOutput.txt").toPath());

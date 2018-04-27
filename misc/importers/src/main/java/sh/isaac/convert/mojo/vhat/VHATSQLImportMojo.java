@@ -491,7 +491,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 			// This could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "vhatUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "vhatUuid");
 
 			if (conceptsWithNoDesignations.size() > 0)
 			{
@@ -572,18 +572,18 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 		{
 			for (PropertyImportDTO property : importer.getPropertiesForEntity(conceptEntityId).get())
 			{
-				ConverterUUID.disableUUIDMap = true;
+				Get.service(ConverterUUID.class).setUUIDMapState(false);
 				importUtil_.addStringAnnotation(concept, property.getValueNew(), attributes_.getProperty(property.getTypeName()).getUUID(),
 						property.isActive() ? Status.ACTIVE : Status.INACTIVE);
-				ConverterUUID.disableUUIDMap = false;
+				Get.service(ConverterUUID.class).setUUIDMapState(true);
 			}
 		}
 
 		// Per Dan, this is a valid reason to create duplicate UUIDs, as
 		// only the active/inactive values have changed
-		ConverterUUID.disableUUIDMap = true;
+		Get.service(ConverterUUID.class).setUUIDMapState(false);
 		List<SemanticChronology> wbDescriptions = importUtil_.addDescriptions(concept, descriptionHolder);
-		ConverterUUID.disableUUIDMap = false;
+		Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 		// Descriptions have now all been added to the concepts - now we need to process the rest of the ugly bits of vhat
 		// and place them on the descriptions.
@@ -637,10 +637,10 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 				{
 					for (PropertyImportDTO property : importer.getPropertiesForVuid(vpp.getDesignationImportDTO().getVuid()).get())
 					{
-						ConverterUUID.disableUUIDMap = true;
+						Get.service(ConverterUUID.class).setUUIDMapState(false);
 						importUtil_.addStringAnnotation(ComponentReference.fromChronology(desc, () -> "Description"), property.getValueNew(),
 								attributes_.getProperty(property.getTypeName()).getUUID(), property.isActive() ? Status.ACTIVE : Status.INACTIVE);
-						ConverterUUID.disableUUIDMap = false;
+						Get.service(ConverterUUID.class).setUUIDMapState(true);
 					}
 				}
 			}
@@ -680,10 +680,10 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 				// TODO: I'm assuming this is also a valid area to create duplicate UUIDs,
 				// only the active/inactive values have changed
-				ConverterUUID.disableUUIDMap = true;
+				Get.service(ConverterUUID.class).setUUIDMapState(false);
 				importUtil_.addAssociation(concept, null, targetUuid, associations_.getProperty(relationshipImportDTO.getTypeName()).getUUID(),
 						relationshipImportDTO.isActive() ? Status.ACTIVE : Status.INACTIVE, relationshipImportDTO.getTime(), null);
-				ConverterUUID.disableUUIDMap = false;
+				Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 				if (associations_.getProperty(relationshipImportDTO.getTypeName()) != null
 						&& MetaData.IS_A____SOLOR.getPrimordialUuid().equals(associations_.getProperty(relationshipImportDTO.getTypeName()).getWBTypeUUID()))
@@ -723,7 +723,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 			// Add it as an association too
 			// TODO: Validate this is ok for duplicates
-			ConverterUUID.disableUUIDMap = true;
+			Get.service(ConverterUUID.class).setUUIDMapState(false);
 			importUtil_.addAssociation(concept, null, refsets_.getPropertyTypeUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
 					concept.getTime(), null);
 
@@ -733,7 +733,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
-			ConverterUUID.disableUUIDMap = false;
+			Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 			// Place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic semantic mapping semantic type.
 			NecessarySet(And(new Assertion[] { ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getAltMetaDataParentUUID()), leb),
@@ -797,7 +797,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 					DynamicDataType.LONG, null, false, true);
 
 			// TODO: Not sure this is right
-			ConverterUUID.disableUUIDMap = true;
+			Get.service(ConverterUUID.class).setUUIDMapState(false);
 			importUtil_.configureConceptAsDynamicRefex(concept, mapSet.getName(), columns, IsaacObjectType.CONCEPT, null);
 
 			// Annotate this concept as a mapset definition concept.
@@ -836,7 +836,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 								new DynamicStringImpl(mapSet.getTargetVersionName()) },
 						IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getPrimordialUuid(), Status.ACTIVE, null, null);
 			}
-			ConverterUUID.disableUUIDMap = false;
+			Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 			if (importer.getMapEntriesForMapSet(conceptOrMapSet.getVuid()).isPresent())
 			{
@@ -899,11 +899,11 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 					columnData[col++] = mapItem.getEffectiveDate() != null ? new DynamicLongImpl(mapItem.getEffectiveDate().getTime()) : null; // effectiveDate
 
 					// TODO: Assuming these can have duplicates?
-					ConverterUUID.disableUUIDMap = true;
+					Get.service(ConverterUUID.class).setUUIDMapState(false);
 					UUID mapItemUUID = getMapItemUUID(concept.getPrimordialUuid(), mapItem.getVuid().toString());
 					SemanticChronology association = importUtil_.addAnnotation(sourceConcept, mapItemUUID, columnData, concept.getPrimordialUuid(),
 							mapItem.isActive() ? Status.ACTIVE : Status.INACTIVE, mapSet.getTime(), null);
-					ConverterUUID.disableUUIDMap = false;
+					Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 					if (!loadedMapEntries.contains(mapItemUUID))
 					{
@@ -954,22 +954,22 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 
 	private UUID getAssociationOrphanUuid(String code)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("associationOrphan:" + code, true);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("associationOrphan:" + code, true);
 	}
 
 	private UUID getMapItemUUID(UUID mapSetUUID, String mapItemVuid)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, false);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, false);
 	}
 
 	private UUID getConceptUuid(String codeId)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("code:" + codeId, true);
 	}
 
 	private UUID getDescriptionUuid(String descriptionId)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("description:" + descriptionId, true);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("description:" + descriptionId, true);
 	}
 
 	public static void main(String[] args) throws MojoExecutionException

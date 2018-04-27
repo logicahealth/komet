@@ -124,7 +124,7 @@ public class Property {
    public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
       this(owner, cs.getFullyQualifiedName(), cs.getRegularName().get(), null, false, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
-      ConverterUUID.addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
+      Get.service(ConverterUUID.class).addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
       this.isIdentifier = isIdentifier;
       if (this.isIdentifier)

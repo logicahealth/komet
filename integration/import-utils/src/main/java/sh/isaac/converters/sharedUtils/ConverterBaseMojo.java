@@ -141,7 +141,7 @@ public abstract class ConverterBaseMojo
       required     = false,
       defaultValue = "${skipUUIDDebug}"
    )
-   private String createDebugUUIDMap;
+   private String skipUUIDDebugMap;
 
    /**
     * An optional list of annotation type names which should be skipped during this transformation.
@@ -190,11 +190,11 @@ public abstract class ConverterBaseMojo
             throws MojoExecutionException {
       Get.configurationService().setDBBuildMode(BuildMode.IBDF);
 
-      ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
-                                       (this.createDebugUUIDMap.length() == 0)) ? false
-            : Boolean.parseBoolean(this.createDebugUUIDMap));
+      Get.service(ConverterUUID.class).setUUIDMapState(((this.skipUUIDDebugMap == null) ||
+                                       (this.skipUUIDDebugMap.length() == 0)) ? true
+            : !Boolean.parseBoolean(this.skipUUIDDebugMap));
 
-      if (ConverterUUID.disableUUIDMap) {
+      if (!Get.service(ConverterUUID.class).isUUIDMapEnabled()) {
          ConsoleUtil.println("The UUID Debug map is disabled - this also prevents duplicate ID detection");
       }
 

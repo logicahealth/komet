@@ -358,7 +358,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 			// this could be removed from final release. Just added to help debug editor problems.
 			ConsoleUtil.println("Dumping UUID Debug File");
-			ConverterUUID.dump(outputDirectory, "vhatUuid");
+			Get.service(ConverterUUID.class).dump(outputDirectory, "vhatUuid");
 
 			if (conceptsWithNoDesignations.size() > 0)
 			{
@@ -723,26 +723,26 @@ public class VHATImportMojo extends ConverterBaseMojo
 
 	private UUID getAssociationOrphanUuid(String code)
 	{
-		UUID temp = ConverterUUID.createNamespaceUUIDFromString("associationOrphan:" + code, true);
+		UUID temp = Get.service(ConverterUUID.class).createNamespaceUUIDFromString("associationOrphan:" + code, true);
 		Get.identifierService().assignNid(temp);
 		return temp;
 	}
 
 	private UUID getMapItemUUID(UUID mapSetUUID, String mapItemVuid)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, false);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("mapSetUuid:" + mapSetUUID + "mapItemVuid:" + mapItemVuid, false);
 	}
 
 	private UUID getConceptUuid(String codeId)
 	{
-		UUID temp = ConverterUUID.createNamespaceUUIDFromString("code:" + codeId, true);
+		UUID temp = Get.service(ConverterUUID.class).createNamespaceUUIDFromString("code:" + codeId, true);
 		Get.identifierService().assignNid(temp);
 		return temp;
 	}
 
 	private UUID getDescriptionUuid(String descriptionId)
 	{
-		return ConverterUUID.createNamespaceUUIDFromString("description:" + descriptionId, false);
+		return Get.service(ConverterUUID.class).createNamespaceUUIDFromString("description:" + descriptionId, false);
 	}
 
 	public static void main(String[] args) throws MojoExecutionException
