@@ -47,6 +47,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -266,6 +267,63 @@ public class DynamicUtilityImpl
       return DynamicUsageDescriptionImpl.read(assemblageNidOrSequence);
    }
    
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<Chronology> configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence) {
+      if (StringUtils.isBlank(semanticDescription)) {
+         throw new RuntimeException("Semantic description is required");
+      }
+
+      ArrayList<Chronology> builtSemantics = new ArrayList<>();
+
+      // Add the special synonym to establish this as an assemblage concept
+      // will specify all T5 uuids in our own namespace, to make sure we don't get dupe UUIDs while still being consistent
+
+      final DescriptionBuilderService descriptionBuilderService = LookupService.getService(DescriptionBuilderService.class);
+
+      DescriptionBuilder<SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder = descriptionBuilderService
+            .getDescriptionBuilder(semanticDescription, conceptNid, TermAux.DEFINITION_DESCRIPTION_TYPE, TermAux.ENGLISH_LANGUAGE);
+      definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
+      definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
+
+      definitionBuilder.build(stampSequence, builtSemantics);
+
+      Get.semanticBuilderService()
+            .getDynamicBuilder(definitionBuilder, DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
+            .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+
+      // define the data columns (if any)
+      if (columns != null) {
+         // Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right
+         // order.
+         final TreeSet<DynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
+
+         for (final DynamicColumnInfo ci : sortedColumns) {
+            final DynamicData[] data = configureDynamicDefinitionDataForColumn(ci);
+            Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
+                     .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+         }
+         DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
+         if (indexInfo != null) {
+            Get.semanticBuilderService()
+               .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
+               .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+         }
+      }
+
+      final DynamicData[] data = configureDynamicRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
+
+      if (data != null) {
+            Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
+                  .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+      }
+      return builtSemantics;
+   }
+
    /**
     * {@inheritDoc}
     */

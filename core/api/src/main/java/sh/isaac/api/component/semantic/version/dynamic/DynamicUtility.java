@@ -44,8 +44,8 @@ package sh.isaac.api.component.semantic.version.dynamic;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -69,7 +69,6 @@ import org.apache.logging.log4j.LogManager;
  * limitations under the License.
  */
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -161,6 +160,20 @@ public interface DynamicUtility {
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
    
    /**
+    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
+    * See {@link DynamicUsageDescription} class for more details on this format.
+    * @param conceptNid - The concept that will define a dynamic semantic
+    * @param semanticDescription - The description that describes the purpose of this dynamic semantic
+    * @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
+    * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
+    * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
+    * @param stampSequence - the stamp to construct this on
+    * @return all of the created (but unwritten) SemanticChronologies.  It is up to the caller to write the chronologies to the appropriate store.
+    */
+   public List<Chronology> configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence);
+   
+   /**
     * Create a new concept to be used in a column of a dynamic semantic definition
     * @param columnName - the FSN and regular name of the concept
     * @param columnDescription - the optional but highly recommended description of the column
@@ -178,6 +191,8 @@ public interface DynamicUtility {
     * @param dsud the dsud
     * @param data the data
     * @param referencedComponentNid the referenced component nid
+    * @param referencedComponentVersionType - optional - there are some build sequences where we can't look up the version type here, it must be
+    * passed in
     * @param stampSequence the stamp sequence of this data
     * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
@@ -185,6 +200,7 @@ public interface DynamicUtility {
    public default void validate(DynamicUsageDescription dsud,
                                 DynamicData[] data,
                                 int referencedComponentNid,
+                                VersionType referencedComponentVersionType,
                                 int stampSequence)
             throws IllegalArgumentException {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
@@ -202,9 +218,9 @@ public interface DynamicUtility {
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN)) {
             final VersionType requiredSemanticType = dsud.getReferencedComponentTypeSubRestriction();
-            final VersionType foundSemanticType    = Get.assemblageService()
+            final VersionType foundSemanticType    = referencedComponentVersionType == null ? Get.assemblageService()
                                                      .getSemanticChronology(referencedComponentNid)
-                                                     .getVersionType();
+                                                     .getVersionType() : referencedComponentVersionType;
 
             if (requiredSemanticType != foundSemanticType) {
                throw new IllegalArgumentException("The referenced component must be of type " +
