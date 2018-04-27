@@ -139,6 +139,9 @@ public class LanguageCoordinates {
     * @return the int
     */
    public static int iso639toConceptNid(String iso639text) {
+     //TODO we should really get rid of all of this hard-coded stuff and replace it with putting proper language codes 
+     //directly into the metadata concept definitions, where they should be, so this can just be a query.... 
+     //SeeAlso LanguageMap, for yet another implementation of all of this stuff...
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
          return Get.identifierService()
