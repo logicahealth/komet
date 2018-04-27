@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
@@ -313,5 +314,13 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
    @Override
    public String toString() {
       return "DescriptionBuilderImpl{" + "descriptionText=" + descriptionText + '}';
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public VersionType getVersionType() {
+      return VersionType.DESCRIPTION;
    }
 }

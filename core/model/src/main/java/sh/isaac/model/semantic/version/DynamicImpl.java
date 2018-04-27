@@ -39,15 +39,9 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.UUID;
-
 import javax.naming.InvalidNameException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.ConfigurationService.BuildMode;
@@ -68,8 +62,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * {@link DynamicImpl}.
  *
@@ -79,12 +71,8 @@ public class DynamicImpl
         extends AbstractVersionImpl
          implements MutableDynamicVersion<DynamicImpl> {
 
-   //~--- fields --------------------------------------------------------------
-
-   /** The dynamicData. */
    private DynamicData[] data = null;
-
-   //~--- constructors --------------------------------------------------------
+   private VersionType referencedComponentVersionType = null;
 
    /**
     * Instantiates a new dynamic element impl.
@@ -141,12 +129,24 @@ public class DynamicImpl
          }
       }
    }
+   
    private DynamicImpl(DynamicImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
       this.data = new DynamicData[other.data.length];
       System.arraycopy(other.data, 0, this.data, 0, this.data.length);
    }
+   
+   /**
+    * Support a builder pattern where this can't yet be looked up during validation
+    * @param versionType
+    */
+   public void setReferencedComponentVersionType(VersionType versionType) {
+      this.referencedComponentVersionType = versionType;
+   }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
@@ -163,13 +163,8 @@ public class DynamicImpl
       return (V) newVersion;   
    }
 
-
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Data to string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String dataToString() {
@@ -177,9 +172,7 @@ public class DynamicImpl
    }
 
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -203,9 +196,7 @@ public class DynamicImpl
    }
 
    /**
-    * Write version dynamicData.
-    *
-    * @param data the dynamicData
+    * {@inheritDoc}
     */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
@@ -238,13 +229,8 @@ public class DynamicImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the dynamicData.
-    *
-    * @return the dynamicData
-    * @see sh.isaac.api.component.semantic.version.DynamicSemantic#getData()
+    * {@inheritDoc}
     */
    @Override
    public DynamicData[] getData() {
@@ -253,11 +239,7 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the dynamicData.
-    *
-    * @param columnNumber the column number
-    * @return the dynamicData
-    * @throws IndexOutOfBoundsException the index out of bounds exception
+    * {@inheritDoc}
     */
    @Override
    public DynamicData getData(int columnNumber)
@@ -271,11 +253,7 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the dynamicData.
-    *
-    * @param columnName the column name
-    * @return the dynamicData
-    * @throws InvalidNameException the invalid name exception
+    * {@inheritDoc}
     */
    @Override
    public DynamicData getData(String columnName)
@@ -290,12 +268,8 @@ public class DynamicImpl
       throw new InvalidNameException("Could not find a column with name '" + columnName + "'");
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the dynamicData.
-    *
-    * @param data the new dynamicData
+    * {@inheritDoc}
     */
    @Override
    public void setData(DynamicData[] data) {
@@ -308,19 +282,15 @@ public class DynamicImpl
 
          LookupService.get()
                       .getService(DynamicUtility.class)
-                      .validate(dsud, data, getReferencedComponentNid(), getStampSequence());
+                      .validate(dsud, data, getReferencedComponentNid(), referencedComponentVersionType, getStampSequence());
       }
 
       this.data = (data == null) ? new DynamicData[] {}
                                   : data;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the dynamic element usage description.
-    *
-    * @return the dynamic element usage description
+    * {@inheritDoc}
     */
    @Override
    public DynamicUsageDescription getDynamicUsageDescription() {
@@ -328,17 +298,15 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
-   @Override
    public VersionType getSemanticType() {
       return VersionType.DYNAMIC;
    }
-   
-   
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       DynamicImpl otherImpl = (DynamicImpl) other;
@@ -348,6 +316,9 @@ public class DynamicImpl
       return editDistance;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof DynamicImpl)) {
@@ -356,6 +327,5 @@ public class DynamicImpl
       DynamicImpl otherImpl = (DynamicImpl) other;
       return Arrays.equals(this.data, otherImpl.data);
    }
-   
 }
 

@@ -53,6 +53,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 
 //~--- interfaces -------------------------------------------------------------
@@ -214,5 +215,10 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
      * @return true, if the primordial uuid has already been set
      */
     public boolean isPrimordialUuidSet();
+    
+    /**
+     * @return the {@link VersionType} that will be built by this builder
+     */
+    public VersionType getVersionType();
 }
 

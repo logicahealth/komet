@@ -242,6 +242,9 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
       case DYNAMIC: {
          final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(stampSequence);
+         if (referencedComponentBuilder != null) {
+            dsi.setReferencedComponentVersionType(referencedComponentBuilder.getVersionType());
+         }
 
          version = dsi;
          if ((this.parameters != null) && (this.parameters.length > 0)) {
@@ -474,6 +477,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
          sb.setT5UuidNested(namespace);
       }
       return this;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public VersionType getVersionType() {
+      return semanticType;
    }
 }
 

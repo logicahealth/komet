@@ -68,6 +68,7 @@ import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 
@@ -512,5 +513,13 @@ public class ConceptBuilderImpl
       }
 
       return temp;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public VersionType getVersionType() {
+      return VersionType.CONCEPT;
    }
 }
