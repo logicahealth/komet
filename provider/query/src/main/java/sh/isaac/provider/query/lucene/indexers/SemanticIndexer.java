@@ -129,8 +129,6 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 public class SemanticIndexer
         extends LuceneIndexer implements IndexSemanticQueryService {
 
-   private static final Logger LOG = LogManager.getLogger();
-
    /** The Constant INDEX_NAME. */
    public static final String INDEX_NAME = "semantics-index";
 
@@ -223,24 +221,29 @@ public class SemanticIndexer
                if (fieldData[i] == null) {
                   continue;
                }
-               if (types[i] == BrittleDataTypes.STRING) {
-                  handleType(doc, new DynamicStringImpl((String)fieldData[i]), types.length > 1 ? i : -1);
+               if (null == types[i]) {
+                   LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
                }
-               else if (types[i] == BrittleDataTypes.NID) {
-                  handleType(doc, new DynamicNidImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
-               }
-               else if (types[i] == BrittleDataTypes.INTEGER) {
-                  handleType(doc, new DynamicIntegerImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
-               }
-               else if (types[i] == BrittleDataTypes.FLOAT) {
-                   handleType(doc, new DynamicFloatImpl((Float)fieldData[i]), types.length > 1 ? i : -1);
-               }
-               else if (types[i] == BrittleDataTypes.BOOLEAN) {
-                   handleType(doc, new DynamicBooleanImpl((Boolean)fieldData[i]), types.length > 1 ? i : -1);
-               }
-               else {
-                  LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
-               }
+               else switch (types[i]) {
+                    case STRING:
+                        handleType(doc, new DynamicStringImpl((String)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case NID:
+                        handleType(doc, new DynamicNidImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case INTEGER:
+                        handleType(doc, new DynamicIntegerImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case FLOAT:
+                        handleType(doc, new DynamicFloatImpl((Float)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case BOOLEAN:
+                        handleType(doc, new DynamicBooleanImpl((Boolean)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    default:
+                        LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
+                        break;
+                }
             }
             incrementIndexedItemCount(sv.getSemanticType().name());
          }

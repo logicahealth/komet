@@ -958,7 +958,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 				if (NumericUtils.isNumber(searchString) && !treatAsString.isSelected())
 				{
 					DynamicData data = NumericUtilsDynamic.wrapIntoRefexHolder(NumericUtilsDynamic.parseUnknown(searchString));
-					LOG.debug("Doing a sememe search with a numeric value");
+					LOG.debug("Doing a semantic search with a numeric value");
 					ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexSemanticQueryService.class).queryData(data, false, 
@@ -972,7 +972,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 				else if (Interval.isInterval(searchString) && !treatAsString.isSelected())
 				{
 					Interval interval = new Interval(searchString);
-					LOG.debug("Doing a sememe search with an interval value");
+					LOG.debug("Doing a semantic search with an interval value");
 					ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexSemanticQueryService.class).queryNumericRange(
@@ -989,7 +989,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
 				else
 				{
 					//run it as a string search
-					LOG.debug("Doing a sememe search as a string search");
+					LOG.debug("Doing a semantic search as a string search");
 					ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexSemanticQueryService.class).queryData(new DynamicStringImpl(searchString), false, 
