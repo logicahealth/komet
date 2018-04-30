@@ -39,12 +39,14 @@
 
 package sh.isaac.model.semantic.types;
 
+import java.util.UUID;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
+import sh.isaac.api.Get;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 
 //~--- classes ----------------------------------------------------------------
@@ -79,6 +81,16 @@ public class DynamicNidImpl
    public DynamicNidImpl(int nid) {
       super();
       this.data = DynamicIntegerImpl.intToByteArray(nid);
+   }
+   
+   /**
+    * Instantiates a new dynamic nid impl.
+    *
+    * @param uuid the uuid to convert to a nid
+    */
+   public DynamicNidImpl(UUID uuid) {
+      super();
+      this.data = DynamicIntegerImpl.intToByteArray(Get.identifierService().getNidForUuids(uuid));
    }
 
    /**
