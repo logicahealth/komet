@@ -308,6 +308,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Korean language", TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Russian language", TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Irish language", TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
+               createConcept("Czech language", TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                popParent();
             createConcept("Assemblage membership type");
                pushParent(current());
@@ -379,6 +380,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                  createConcept("Korean dialect");
                  createConcept("Polish dialect");
                  createConcept("Irish dialect");
+                 createConcept("Czech dialect");
                  pushParent(current());
                     createConcept("Standard Korean dialect");
                     popParent();

@@ -66,6 +66,8 @@ public class LanguageMap {
     */
    public static ConceptSpecification getConceptForLanguageCode(LanguageCode lc) {
       switch (lc) {
+      case CS:
+         return MetaData.CZECH_LANGUAGE____SOLOR;
       case EN:
       case EN_AU:
       case EN_BZ:
@@ -160,6 +162,8 @@ public class LanguageMap {
     */
    public static ConceptSpecification getConceptDialectForLanguageCode(LanguageCode lc) {
       switch (lc) {
+      case CS:
+          return MetaData.CZECH_DIALECT____SOLOR;
       case EN_GB:
           return MetaData.GB_ENGLISH_DIALECT____SOLOR;
       case EN_US:

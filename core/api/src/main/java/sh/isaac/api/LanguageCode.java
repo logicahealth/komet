@@ -48,6 +48,11 @@ package sh.isaac.api;
  * @see <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes</a>
  */
 public enum LanguageCode {
+	/**
+	 *  Czech
+	 */
+	CS,
+	
    /**
     * English.
     */
