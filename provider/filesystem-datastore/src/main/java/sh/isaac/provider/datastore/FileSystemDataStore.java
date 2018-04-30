@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.provider.dataststore;
+package sh.isaac.provider.datastore;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.BufferedInputStream;
@@ -714,7 +714,7 @@ public class FileSystemDataStore
                     updateMessage("Writing component to semantics map...");
 
                     if (componentToSemanticNidsMap.write(componentToSemanticMapDirectory)) {
-                        LOG.info("Synchronized component to semantics map changes.");
+                        FileSystemDataStore.LOG.info("Synchronized component to semantics map changes.");
                     }
 
                     completedUnitOfWork();  // 3
@@ -727,7 +727,7 @@ public class FileSystemDataStore
 
                                 if (spinedMap.write(directory)) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
-                                    LOG.info("Syncronized chronologies: " + assemblageNid
+                                    FileSystemDataStore.LOG.debug("Syncronized chronologies: " + assemblageNid
                                             + " " + assemblageDescription);
                                 }
                             });
@@ -741,7 +741,7 @@ public class FileSystemDataStore
 
                                 if (spinedMap.write(directory)) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
-                                    LOG.info("Syncronizing taxonomies: " + assemblageNid
+                                    FileSystemDataStore.LOG.info("Syncronizing taxonomies: " + assemblageNid
                                             + " " + assemblageDescription);
                                 }
                             });
@@ -773,7 +773,7 @@ public class FileSystemDataStore
                     completedUnitOfWork();  // 9
                 }
                 updateMessage("Write complete");
-                LOG.info("FileSystemDataStore sync complete.");
+                FileSystemDataStore.LOG.info("FileSystemDataStore sync complete.");
                 return null;
             } finally {
                 syncSemaphore.release();
