@@ -194,13 +194,12 @@ public class TaxonomyProvider
         UpdateTaxonomyAfterCommitTask updateTask
                 = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
         try {
-           //wait for completion
-         updateTask.get();
-      }
-      catch (InterruptedException  | ExecutionException e) {
-         LOG.error("Unexpected error waiting for taxonomy update after commit",e);
-         throw new RuntimeException(e);
-      }
+            //wait for completion
+            updateTask.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Unexpected error waiting for taxonomy update after commit", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -242,13 +241,8 @@ public class TaxonomyProvider
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
-       if (LOG.isDebugEnabled()) {
-          LOG.debug("Updating taxonomy for commit to {}", logicGraphChronology);
-       }
-      try {
-            if (TermAux.SOLOR_METADATA.getNid() == logicGraphChronology.getReferencedComponentNid()) {
-                LOG.info("Found watch");
-            }
+        LOG.debug("Updating taxonomy for commit to {}", () -> logicGraphChronology.toString());
+        try {
             ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
         } catch (Throwable e) {
             LOG.error("error processing taxonomy update", e);
@@ -261,7 +255,6 @@ public class TaxonomyProvider
 //        throw new UnsupportedOperationException(
 //                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
 //    }
-
     /**
      * Start me.
      */
@@ -292,7 +285,7 @@ public class TaxonomyProvider
         LOG.info("Stopping TaxonomyProvider");
         try {
             // ensure all pending operations have completed. 
-            for (Task<?> updateTask: this.pendingUpdateTasks) {
+            for (Task<?> updateTask : this.pendingUpdateTasks) {
                 updateTask.get();
             }
             this.sync().get();
@@ -371,13 +364,13 @@ public class TaxonomyProvider
     public SpinedIntIntArrayMap getOrigin_DestinationTaxonomyRecord_Map(int conceptAssemblageNid) {
         return store.getTaxonomyMap(conceptAssemblageNid);
     }
-    
+
     @Override
     public TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
-       return getSnapshot(new ManifoldCoordinateImpl(
-             new StampCoordinateImpl(StampPrecedence.TIME, 
-                   new StampPositionImpl(Long.MAX_VALUE, pathNid), 
-                   modules, allowedStates), null));
+        return getSnapshot(new ManifoldCoordinateImpl(
+                new StampCoordinateImpl(StampPrecedence.TIME,
+                        new StampPositionImpl(Long.MAX_VALUE, pathNid),
+                        modules, allowedStates), null));
     }
 
     @Override
@@ -402,6 +395,7 @@ public class TaxonomyProvider
     }
 
     private class SnapshotCacheKey {
+
         PremiseType taxPremiseType;
         StampCoordinate stampCoordinate;
 
@@ -437,8 +431,9 @@ public class TaxonomyProvider
             }
             return true;
         }
-        
+
     }
+
     public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
         SnapshotCacheKey snapshotCacheKey = new SnapshotCacheKey(tc);
         final Task<Tree> treeTask = this.snapshotCache.get(snapshotCacheKey);
@@ -459,7 +454,7 @@ public class TaxonomyProvider
             Get.activeTasks().remove(treeBuilderTask);
             return previousTask;
         }
-        
+
         Get.executor().execute(treeBuilderTask);
 
         return treeBuilderTask;
@@ -507,29 +502,29 @@ public class TaxonomyProvider
             this.tc = tc;
             this.treeTask = treeTask;
 
-            if (!treeTask.isDone()) { 
-               if (Platform.isFxApplicationThread()) {
-                   this.treeTask.stateProperty()
-                           .addListener(this::succeeded);
-               } else {
-                   Platform.runLater(
-                           () -> {
-                               Task<Tree> theTask = treeTask;
-   
-                               if (theTask != null) {
-                                   if (!theTask.isDone()) {
-                                       theTask.stateProperty()
-                                               .addListener(this::succeeded);
-                                   } else {
-                                       try {
-                                           this.treeSnapshot = treeTask.get();
-                                       } catch (InterruptedException | ExecutionException ex) {
-                                           LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
-                                       }
-                                   }
-                               }
-                           });
-               }
+            if (!treeTask.isDone()) {
+                if (Platform.isFxApplicationThread()) {
+                    this.treeTask.stateProperty()
+                            .addListener(this::succeeded);
+                } else {
+                    Platform.runLater(
+                            () -> {
+                                Task<Tree> theTask = treeTask;
+
+                                if (theTask != null) {
+                                    if (!theTask.isDone()) {
+                                        theTask.stateProperty()
+                                                .addListener(this::succeeded);
+                                    } else {
+                                        try {
+                                            this.treeSnapshot = treeTask.get();
+                                        } catch (InterruptedException | ExecutionException ex) {
+                                            LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
+                                        }
+                                    }
+                                }
+                            });
+                }
             }
 
             if (treeTask.isDone()) {

@@ -58,6 +58,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     ConceptProxy expressionRefset = new ConceptProxy(
             "LOINC Term to Expression reference set (foundation metadata concept)",
             UUID.fromString("0fb94c6f-7117-36ff-8789-c5cf9bf132fe"));
+    ConceptProxy directSiteProxy = new ConceptProxy("Direct site (attribute)",
+            UUID.fromString("a6eebe78-7ca6-309e-94d6-cf797a786cd9"));
+    ConceptProxy hasSpecimenProxy = new ConceptProxy("Has specimen (attribute)",
+            UUID.fromString("5ce3e93b-8594-3d38-b410-b06039e63e3c"));
 
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
@@ -93,9 +97,13 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
                     // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
                     if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
-                        builder.sufficientSet(builder.and(getAssertions(tokenizer, builder)));
+                        builder.sufficientSet(builder.and(getStandardAssertions(tokenizer, builder)));
+                        tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
+                        builder.sufficientSet(builder.and(getProcedureAssertions(tokenizer, builder)));
                     } else {
-                        builder.necessarySet(builder.and(getAssertions(tokenizer, builder)));
+                        builder.necessarySet(builder.and(getStandardAssertions(tokenizer, builder)));
+                        tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
+                        builder.necessarySet(builder.and(getProcedureAssertions(tokenizer, builder)));
                     }
                     LogicalExpression logicalExpression = builder.build();
                     logicalExpression.getNodeCount();
@@ -110,8 +118,72 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             Get.activeTasks().remove(this);
         }
     }
+    
+    protected Assertion[] getProcedureAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
+         // nid 4: "Exact match map from SNOMED CT source code to target code (foundation metadata concept)"
+        // nid 5: "Originally in LOINC (foundation metadata concept)"
+        ArrayList<Assertion> assertions = new ArrayList<>();
+        PARSE parseElement = PARSE.CONCEPT;
+        while (parseElement == PARSE.CONCEPT) {
+            String token = tokenizer.nextToken(); // SNOMED concept id
+            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            // substitute procedure for observation...
+            
+            assertions.add(builder.conceptAssertion(TermAux.PROCEDURE.getNid()));
+            if (tokenizer.hasMoreTokens()) {
+                String delimiter = tokenizer.nextToken();
+                switch (delimiter) {
+                    case "+":
+                        break;
+                    case ":":
+                        parseElement = PARSE.ROLE;
+                        break;
+                    default:
+                        throw new IllegalStateException("1. Unexpected delimiter: " + delimiter);
+                }
+            } else {
+                parseElement = PARSE.END;
+            }
+        }
+        while (parseElement == PARSE.ROLE) {
+            String token = tokenizer.nextToken(); // SNOMED concept id
+            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            if (nid == directSiteProxy.getNid()) {
+                nid = hasSpecimenProxy.getNid();
+            }
+            String delimiter = tokenizer.nextToken();
+            switch (delimiter) {
+                case "=":
+                    break;
+                default:
+                    throw new IllegalStateException("2. Unexpected delimiter: " + delimiter);
+            }
+            String token2 = tokenizer.nextToken(); // SNOMED concept id
+            int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
+            
+            assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(
+                    builder.someRole(nid, builder.conceptAssertion(nid2)))));
+            if (tokenizer.hasMoreTokens()) {
+                delimiter = tokenizer.nextToken();
+                switch (delimiter) {
+                    case ",":
+                        break;
+                    default:
+                        throw new IllegalStateException("3. Unexpected delimiter: " + delimiter);
+                }
+            } else {
+                parseElement = PARSE.END;
+            }
+        }
+        assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(
+                    builder.someRole(new ConceptProxy("Method (attribute)", 
+                            UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc")).getNid(), 
+                            builder.conceptAssertion(new ConceptProxy("Measurement - action (qualifier value)", 
+                            UUID.fromString("10424678-abfd-3d47-b92b-84015811c10c")).getNid())))));
+        return assertions.toArray(new Assertion[assertions.size()]);
+   }
 
-    protected Assertion[] getAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
+    protected Assertion[] getStandardAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
         // nid 4: "Exact match map from SNOMED CT source code to target code (foundation metadata concept)"
         // nid 5: "Originally in LOINC (foundation metadata concept)"
         ArrayList<Assertion> assertions = new ArrayList<>();

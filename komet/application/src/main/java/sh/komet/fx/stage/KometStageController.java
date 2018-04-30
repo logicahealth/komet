@@ -76,6 +76,7 @@ import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
+import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
@@ -331,6 +332,13 @@ public class KometStageController
             });
             items.add(importLoincRecords);
 
+            MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
+            addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
+                LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(manifolds.get(ManifoldGroup.UNLINKED));
+                Get.executor().execute(conversionTask);
+            });
+            items.add(addLabNavigationConcepts);
+            
             MenuItem convertLoincExpressions = new MenuItem("Convert LOINC expressions");
             convertLoincExpressions.setOnAction((ActionEvent event) -> {
                 LoincExpressionToConcept conversionTask = new LoincExpressionToConcept();

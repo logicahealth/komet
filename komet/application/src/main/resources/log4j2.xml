@@ -38,9 +38,8 @@
 	</Appenders>
 	<Loggers>
 		<!-- To quiet down individual loggers, add entries like this -->
-		<!--Logger name="sh.isaac.api.LookupService" level="info" /-->
-		
-		<Root level="debug">
+		<Logger name="sh.isaac.api.LookupService" level="error" />
+		<Root level="info">
 			<AppenderRef ref="STDOUT" />
 			<AppenderRef ref="FILE-NORMAL" />
 			<AppenderRef ref="FILE-DEBUG" />
