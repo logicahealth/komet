@@ -411,7 +411,7 @@ public class DirectWriteHelper
 		int i = 0;
 		for (UUID parentUuid : uuids)
 		{
-			assertions[i++] = ConceptAssertion(Get.identifierService().getNidForUuids(parentUuid), leb);
+			assertions[i++] = ConceptAssertion(identifierService.getNidForUuids(parentUuid), leb);
 		}
 		NecessarySet(And(assertions));
 		
@@ -467,9 +467,9 @@ public class DirectWriteHelper
 	 */
 	public void processTaxonomyUpdates()
 	{
-		log.debug("Processing deferred taxonomy updates");
 		HashSet<Integer> temp = deferredTaxonomyUpdates;
 		deferredTaxonomyUpdates = new HashSet<>();
+		log.debug("Processing deferred taxonomy updates for {} graphs", temp.size());
 		for (int nid : temp)
 		{
 			taxonomyService.updateTaxonomy(Get.assemblageService().getSemanticChronology(nid));

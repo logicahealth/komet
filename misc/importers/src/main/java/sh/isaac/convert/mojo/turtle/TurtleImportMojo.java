@@ -204,8 +204,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		possibleDescriptionTypes.put("http://purl.org/dc/terms/description", new Pair<String, UUID>("description", definition));
 		possibleDescriptionTypes.put("http://xmlns.com/foaf/0.1/name", new Pair<String, UUID>("name", regularName));
 		
+		//TODO refsets metadata not being populated?
 		
 		//TODO put together code to dynamically build all of these anonymous, dynamic types.
+		//TODO fix the problem of not creating various referenced concepts here - column headers, and target data
 		
 		possibleDynamicAttributes.put("http://www.w3.org/2004/02/skos/core#historyNote", 
 				new DynamicSemanticHelper("history note", new Function<Object, DynamicData[]>()
@@ -291,9 +293,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				@Override
 				public DynamicData[] apply(Object data)
 				{
+					//TODO not sure what (if anything) I should do with languages on things like http://www.w3.org/2000/01/rdf-schema#label 
 					return new DynamicData[] {
 						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#seeAlso", (List<Statement>)data).asNode().getURI()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#label", (List<Statement>)data).asLiteral().getString()),  //TODO see if @en is on here
+						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#label", (List<Statement>)data).asLiteral().getString()),
 						new DynamicStringImpl(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#value", (List<Statement>)data).asLiteral().getString()),
 						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://purl.org/dc/dcam/memberOf", (List<Statement>)data).asResource().getURI())),
 						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
@@ -1113,6 +1116,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					throw new RuntimeException("Unhandled Predicate: " + s.getPredicate());
 				}
 			}
+			
+			if (time == 0)
+			{
+				time = releaseTime;
+			}
 
 			UUID concept = getConceptUUID(subjectFQN);
 			
@@ -1181,11 +1189,12 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				conceptsToBeBuilt.put(uuid, s.getObject().asResource());
 			}
 		}
-//		boolean addTermGroup = false;
+		boolean addTermGroup = false;
 		if (conceptsToHangFromRoot.contains(concept))
 		{
+			//TODO finish debugging why the taxonomy ignores this concept
 			parents.add(rootConcept);
-//			addTermGroup = true;
+			addTermGroup = true;
 		}
 		if (additionalParents != null)
 		{
@@ -1225,10 +1234,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		{
 			dwh.makeExtendedRelationshipTypeAnnotation(logicGraph, getConceptUUID(s), time);
 		}
-//			if (addTermGroup)
-//			{
-//				dwh.makeExtendedRelationshipTypeAnnotation(logicGraph, getConceptUUID("http://purl.org/vocab/vann/termGroup"), time);
-//			}
+		if (addTermGroup)
+		{
+			dwh.makeExtendedRelationshipTypeAnnotation(logicGraph, getConceptUUID("http://purl.org/vocab/vann/termGroup"), time);
+		}
 		return logicGraph;
 	}
 
@@ -1253,7 +1262,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 
 		for (Statement s : propStatements)
 		{
-			if (s.getPredicate().asResource().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && buildBag)
+			if (s.getPredicate().asResource().getURI().equals("http://purl.org/vocab/vann/termGroup") && concept.equals(rootConcept))
+			{
+				//skip, already handled
+			}
+			else if (s.getPredicate().asResource().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && buildBag)
 			{
 				//skip, already handled
 			}
@@ -1347,7 +1360,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		
 		for (Pair<String, String[]> nestedAnonIds : possibleDynamicAttributes.get(predicateURI).getNestedAnonRefs(predicateURI, anonNodeStatements))
 		{
-			//TODO test this nesting of "duration" on 'aging'
 			for (String nestedTargetId : nestedAnonIds.getValue())
 			{
 				processAnonStatements(allStatements.get(nestedTargetId), time, nestedAnonIds.getKey(), semantic, nestedTargetId);
