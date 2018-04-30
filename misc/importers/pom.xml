@@ -85,6 +85,13 @@
 			<artifactId>log4j-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- This gets us nice console logging, so long as we are running ad-hoc tests from the src/test/java package -->
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>log-config</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
