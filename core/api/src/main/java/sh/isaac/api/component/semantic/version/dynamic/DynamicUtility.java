@@ -325,7 +325,7 @@ public interface DynamicUtility {
                } catch (final IllegalArgumentException e) {
                   throw e;
                } catch (final RuntimeException e) {
-                  throw new IllegalArgumentException(e.getMessage());
+                  throw new IllegalArgumentException("Validator Failure: ", e);
                }
             }
          }
