@@ -391,10 +391,9 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    };
 
    /** The dynamic extended description type. */
-   // TODO [DAN 3] this should really be merged with TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY - or take the place of it.
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_DESCRIPTION_TYPE = new MetadataDynamicConstant("Extended description type",
          UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"), "Used to store non-snomed description types when other terminologies are imported",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_KIND_OF,
                LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()), true) }) {
    };
 
@@ -403,7 +402,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
          UUID.fromString("d41d928f-8a97-55c1-aa6c-a289b413fbfd"),
          "Used to store non-snomed relationship types when other terminologies are imported - especially when a relationship is mapped onto a "
                + "snomed relationship type (such as isa)",
-         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_CHILD_OF,
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, null, true, DynamicValidatorType.IS_KIND_OF,
                LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()), true) }) {
    };
 
