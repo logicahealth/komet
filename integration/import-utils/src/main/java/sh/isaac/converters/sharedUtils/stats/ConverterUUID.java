@@ -234,7 +234,7 @@ public class ConverterUUID
 		}
 		catch (final Exception e)
 		{
-			throw new RuntimeException("Unexpected error configuring UUID generator");
+			throw new RuntimeException("Unexpected error configuring UUID generator", e);
 		}
 
 		if (!disableUUIDMap)
