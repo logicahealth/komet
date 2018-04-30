@@ -221,8 +221,23 @@ public class DirectWriteHelper
 	 */
 	public UUID makeDynamicSemantic(UUID assemblageConcept, UUID referencedComponent, DynamicData[] data, long time)
 	{
-		UUID uuidForCreatedMember = UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, data,
-				((input, uuid) -> converterUUID.addMapping(input, uuid)));
+		return makeDynamicSemantic(assemblageConcept, referencedComponent, data, time, null);
+	}
+	
+	/**
+	 * This creates a semantic type of {@link VersionType#DYNAMIC} with the specified data columns.
+	 * 
+	 * @param assemblageConcept The type of refset member to create
+	 * @param referencedComponent the referenced component this dynamic semantic entry is being added to
+	 * @param data optional - The data columns for this dynamic semantic entry
+	 * @param time The time to use for the entry
+	 * @param uuidForCreatedSemantic - optional - if provided, used this UUID, instead of calculating one from the data.
+	 * @return The UUID of the object created
+	 */
+	public UUID makeDynamicSemantic(UUID assemblageConcept, UUID referencedComponent, DynamicData[] data, long time, UUID uuidForCreatedSemantic)
+	{
+		UUID uuidForCreatedMember = uuidForCreatedSemantic == null ? UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, data,
+				((input, uuid) -> converterUUID.addMapping(input, uuid))) : uuidForCreatedSemantic;
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC,
 				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(referencedComponent));
 		MutableDynamicVersion<?> dv = refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
@@ -330,6 +345,34 @@ public class DirectWriteHelper
 	}
 	
 	/**
+	 * Annotate a description with the native description type it came from
+	 * @param description the ISAAC description semantic to be annotated
+	 * @param nativeDescriptionType - the UUID of the concept that represents the native description type.  
+	 *   Must be a child of {@link TermAux#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY}
+	 * @param time The time to use for this creation
+	 * @return the identifier of the created object
+	 */
+	public UUID makeExtendedDescriptionTypeAnnotation(UUID description, UUID nativeDescriptionType, long time)
+	{
+		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getPrimordialUuid(), description, 
+				new DynamicData[] {new DynamicUUIDImpl(nativeDescriptionType)}, time);
+	}
+	
+	/**
+	 * Annotate a description with the native description type it came from
+	 * @param logicGraph the ISAAC logic graph that the relationship was put into
+	 * @param nativeRelationshipType - the UUID of the concept that represents the native relationship  type.  
+	 *   Must be a child of {@link TermAux#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY}
+	 * @param time The time to use for this creation
+	 * @return the identifier of the created object
+	 */
+	public UUID makeExtendedRelationshipTypeAnnotation(UUID logicGraph, UUID nativeRelationshipType, long time)
+	{
+		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getPrimordialUuid(), logicGraph, 
+				new DynamicData[] {new DynamicUUIDImpl(nativeRelationshipType)}, time);
+	}
+	
+	/**
 	 * Ensure that you call {@link #processTaxonomyUpdates()} at some point after using this method.
 	 * 
 	 * @param concept The concept we are placing the graph on
@@ -425,7 +468,9 @@ public class DirectWriteHelper
 	public void processTaxonomyUpdates()
 	{
 		log.debug("Processing deferred taxonomy updates");
-		for (int nid : deferredTaxonomyUpdates)
+		HashSet<Integer> temp = deferredTaxonomyUpdates;
+		deferredTaxonomyUpdates = new HashSet<>();
+		for (int nid : temp)
 		{
 			taxonomyService.updateTaxonomy(Get.assemblageService().getSemanticChronology(nid));
 		}
