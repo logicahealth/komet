@@ -61,7 +61,7 @@ import sh.isaac.api.bootstrap.TermAux;
  */
 public class UuidT5Generator {
    /** The Constant encoding. */
-   public static final String encoding = "8859_1";
+   public final static String encoding = "UTF-8";
 
    /** The Constant PATH_ID_FROM_FS_DESC. */
    public static final UUID PATH_ID_FROM_FS_DESC = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
