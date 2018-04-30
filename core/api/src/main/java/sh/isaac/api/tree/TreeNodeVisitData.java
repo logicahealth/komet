@@ -35,6 +35,17 @@ public interface TreeNodeVisitData {
    void endNodeVisit(int nodeId);
 
    Set<int[]> getCycleSet();
+   
+   default boolean nidInCycle(int nid) {
+      for (int[] nids : getCycleSet()) {
+         for (int cycleNid : nids) {
+            if (cycleNid == nid) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
 
    //~--- get methods ---------------------------------------------------------
    /**

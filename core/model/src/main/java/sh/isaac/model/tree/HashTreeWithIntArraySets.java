@@ -549,9 +549,32 @@ public class HashTreeWithIntArraySets
       if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
          return true;
       }
-
+      NidSet recursionFix = new NidSet();
       for (int nidToTest: parentNids) {
-         if (isDescendentOf(nidToTest, parentNid)) {
+         if (isDescendentOf(nidToTest, parentNid, recursionFix)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+   
+   private boolean isDescendentOf(int childNid, int parentNid, NidSet visitedNids) {
+      if (visitedNids.contains(childNid)) {
+         return false;
+      }
+      else {
+        visitedNids.add(childNid);
+      }
+
+      int[] parentNids = getParentNidsNoFilter(childNid);
+
+      if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
+         return true;
+      }
+      
+      for (int nidToTest: parentNids) {
+         if (isDescendentOf(nidToTest, parentNid, visitedNids)) {
             return true;
          }
       }
@@ -568,17 +591,20 @@ public class HashTreeWithIntArraySets
          int depth,
          int originalChildNid,
          TreeNodeVisitData nodeVisitData) {
-      int[] parentSequences = getParentNidsNoFilter(childNid);
+      int[] parentNids = getParentNidsNoFilter(childNid);
 
-      if (Arrays.binarySearch(parentSequences, parentNidToFind) >= 0) {
+      if (Arrays.binarySearch(parentNids, parentNidToFind) >= 0) {
          return true;
       }
 
-      for (int sequenceToTest: parentSequences) {
-         if (depth < 100) {
-            if (sequenceToTest != childNid) {
+      for (int nidToTest: parentNids) {
+         if (nodeVisitData.nidInCycle(nidToTest)) {
+           return false;
+         }
+         else if (depth < 100) {
+            if (nidToTest != childNid) {
                if (isDescendentOfWithDepth(
-                     sequenceToTest,
+                     nidToTest,
                      parentNidToFind,
                      depth + 1,
                      originalChildNid,
@@ -619,9 +645,9 @@ public class HashTreeWithIntArraySets
                          .append(" ")
                          .append(Get.conceptDescriptionText(originalChildNid));
                   builder.append("\n     ")
-                         .append(sequenceToTest)
+                         .append(nidToTest)
                          .append(" ")
-                         .append(Get.conceptDescriptionText(sequenceToTest));
+                         .append(Get.conceptDescriptionText(nidToTest));
                } else {
                   builder.append("Cycle found: \n");
 
@@ -638,7 +664,7 @@ public class HashTreeWithIntArraySets
                }
 
                builder.append("\n");
-               LOG.debug(builder.toString());
+               LOG.info(builder.toString());
             }
          }
       }
