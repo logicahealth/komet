@@ -22,6 +22,8 @@ import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+
+import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -54,15 +56,27 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
 102018	20170731	1	900000000000207008	126814004	en	900000000000013009	Neoplasm of junctional region of epiglottis	900000000000448009
     */
 
-   private static final int DESCRIPITON_SCT_ID_INDEX = 0;
-   private static final int EFFECTIVE_TIME_INDEX = 1;
-   private static final int ACTIVE_INDEX = 2; // 0 == false, 1 == true
-   private static final int MODULE_SCTID_INDEX = 3;
-   private static final int REFERENCED_CONCEPT_SCT_ID_INDEX = 4;
-   private static final int LANGUGE_CODE_INDEX = 5;
-   private static final int DESCRIPTION_TYPE_SCT_ID_INDEX = 6;
-   private static final int DESCRIPTION_TEXT_INDEX = 7;
-   private static final int CASE_SIGNIFICANCE_INDEX = 8;
+   private static final int RF2_DESCRIPITON_SCT_ID_INDEX = 0;
+   private static final int RF2_EFFECTIVE_TIME_INDEX = 1;
+   private static final int RF2_ACTIVE_INDEX = 2; // 0 == false, 1 == true
+   private static final int RF2_MODULE_SCTID_INDEX = 3;
+   private static final int RF2_REFERENCED_CONCEPT_SCT_ID_INDEX = 4;
+   private static final int RF2_LANGUGE_CODE_INDEX = 5;
+   private static final int RF2_DESCRIPTION_TYPE_SCT_ID_INDEX = 6;
+   private static final int RF2_DESCRIPTION_TEXT_INDEX = 7;
+   private static final int RF2_CASE_SIGNIFICANCE_INDEX = 8;
+
+   private static final int SRF_ID_INDEX = 0;
+   private static final int SRF_STATUS_INDEX = 1;
+   private static final int SRF_TIME_INDEX = 2; // 0 == false, 1 == true
+   private static final int SRF_AUTHOR_INDEX = 3;
+   private static final int SRF_MODULE_INDEX = 4;
+   private static final int SRF_PATH_INDEX = 5;
+   private static final int SRF_REFERENCED_CONCEPT_ID_INDEX = 6;
+   private static final int SRF_LANGUAGE_CODE_INDEX = 7;
+   private static final int SRF_DESCRIPTION_TYPE_ID_INDEX = 8;
+   private static final int SRF_TERM_INDEX = 9;
+   private static final int SRF_CASE_SIGNIFICANCE_ID_INDEX = 10;
 
    private final List<String[]> descriptionRecords;
    private final Semaphore writeSemaphore;
@@ -93,32 +107,59 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          AssemblageService assemblageService = Get.assemblageService();
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
-         int sctIdentifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
-         int authorNid = TermAux.USER.getNid();
-         int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
+         int identifierAssemblageNid;
+         int authorNid = 1;
+         int pathNid = 1;
+
+         if(DirectImporter.SRF_IMPORT){
+            identifierAssemblageNid = MetaData.UUID____SOLOR.getNid();
+         }else{
+            identifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
+            authorNid = TermAux.USER.getNid();
+            pathNid = TermAux.DEVELOPMENT_PATH.getNid();
+         }
 
          for (String[] descriptionRecord : descriptionRecords) {
-            final Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
+            final Status state = DirectImporter.SRF_IMPORT
+                    ? Status.fromZeroOneToken(descriptionRecord[SRF_STATUS_INDEX])
+                    : Status.fromZeroOneToken(descriptionRecord[RF2_ACTIVE_INDEX]);
             if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
                 continue;
             }
-            UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
+            UUID referencedConceptUuid = DirectImporter.SRF_IMPORT
+                    ? UUID.fromString(descriptionRecord[SRF_REFERENCED_CONCEPT_ID_INDEX])
+                    : UuidT3Generator.fromSNOMED(descriptionRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
             if (importType == ImportType.ACTIVE_ONLY) {
                 if (!identifierService.hasUuid(referencedConceptUuid)) {
                     // if concept was not imported because inactive, then skip
                     continue;
                 }
             }
-             
-            int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[LANGUGE_CODE_INDEX]);
-            int languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[LANGUGE_CODE_INDEX]);
-            UUID descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
-            UUID moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
-            UUID caseSignificanceUuid = UuidT3Generator.fromSNOMED(descriptionRecord[CASE_SIGNIFICANCE_INDEX]);
-            UUID descriptionTypeUuid = UuidT3Generator.fromSNOMED(descriptionRecord[DESCRIPTION_TYPE_SCT_ID_INDEX]);
-            // '2011-12-03T10:15:30Z'
 
-            TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(descriptionRecord[EFFECTIVE_TIME_INDEX]));
+            int descriptionAssemblageNid, languageNid;
+            UUID descriptionUuid, moduleUuid, caseSignificanceUuid, descriptionTypeUuid;
+            TemporalAccessor accessor;
+
+            if(DirectImporter.SRF_IMPORT){
+               authorNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_AUTHOR_INDEX]));
+               pathNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_PATH_INDEX]));
+               descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
+               languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
+               descriptionUuid = UUID.fromString(descriptionRecord[SRF_ID_INDEX]);
+               moduleUuid = UUID.fromString(descriptionRecord[SRF_MODULE_INDEX]);
+               caseSignificanceUuid = UUID.fromString(descriptionRecord[SRF_CASE_SIGNIFICANCE_ID_INDEX]);
+               descriptionTypeUuid = UUID.fromString(descriptionRecord[SRF_DESCRIPTION_TYPE_ID_INDEX]);
+               accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(descriptionRecord[SRF_TIME_INDEX]));
+            }else{
+               descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
+               languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
+               descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_DESCRIPITON_SCT_ID_INDEX]);
+               moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_MODULE_SCTID_INDEX]);
+               caseSignificanceUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_CASE_SIGNIFICANCE_INDEX]);
+               descriptionTypeUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_DESCRIPTION_TYPE_SCT_ID_INDEX]);
+               accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(descriptionRecord[RF2_EFFECTIVE_TIME_INDEX]));
+            }
+
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
             
             // add to description assemblage
@@ -134,21 +175,33 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             descriptionVersion.setCaseSignificanceConceptNid(caseSignificanceNid);
             descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
             descriptionVersion.setLanguageConceptNid(languageNid);
-            descriptionVersion.setText(descriptionRecord[DESCRIPTION_TEXT_INDEX]);
+            descriptionVersion.setText(DirectImporter.SRF_IMPORT
+                    ? descriptionRecord[SRF_TERM_INDEX]
+                    : descriptionRecord[RF2_DESCRIPTION_TEXT_INDEX]);
             
             index(descriptionToWrite);
             assemblageService.writeSemanticChronology(descriptionToWrite);
             
             // add to sct identifier assemblage
-            UUID sctIdentifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), 
-                    descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
+            UUID identifierUuid;
+
+            if(DirectImporter.SRF_IMPORT){
+               identifierUuid = UuidT5Generator.get(MetaData.UUID____SOLOR.getPrimordialUuid(),
+                       descriptionRecord[SRF_ID_INDEX]);
+            }else{
+               identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
+                       descriptionRecord[RF2_DESCRIPITON_SCT_ID_INDEX]);
+            }
+
             SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
-                               sctIdentifierUuid,
-                               sctIdentifierAssemblageNid,
+                               identifierUuid,
+                               identifierAssemblageNid,
                                descriptionToWrite.getNid());
             
-            StringVersionImpl sctIdVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
-            sctIdVersion.setString(descriptionRecord[DESCRIPITON_SCT_ID_INDEX]);
+            StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
+            idVersion.setString(DirectImporter.SRF_IMPORT
+                    ? descriptionRecord[SRF_ID_INDEX]
+                    : descriptionRecord[RF2_DESCRIPITON_SCT_ID_INDEX]);
             index(sctIdentifierToWrite);
             assemblageService.writeSemanticChronology(sctIdentifierToWrite);
             completedUnitOfWork();

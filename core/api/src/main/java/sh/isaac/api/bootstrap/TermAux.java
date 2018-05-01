@@ -52,6 +52,8 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 
 //~--- classes ----------------------------------------------------------------
@@ -426,6 +428,15 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification MASS_MEASUREMENT_SEMANTIC = new ConceptProxy("Mass measurement semantic", "Mass measurement", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
 
     public static ConceptSpecification RXNORM_CUI = new ConceptProxy("RxNorm CUI", "RxNorm CUI", UUID.fromString("492b1a88-dbce-56a0-a405-6c7742f3be86"));
+
+    public static ConceptSpecification DELOITTE_USER = new ConceptProxy("Deloitte User", "Deloitte User", UUID.fromString("871b89e1-cbd3-5071-8162-7c09b8d45977"));
+    public static ConceptSpecification SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("SRF legacy relationship implication assemblage",
+            "SRF legacy relationship implication", UUID.fromString("d16114d4-5df9-58d9-bafd-216bf336cf18"));
+    public static ConceptSpecification SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("SRF inferred relationship assemblage", "SRF inferred relationships",
+            UUID.fromString("b218d92d-df8e-52d2-9214-c84a64862a23"));
+    public static ConceptSpecification SRF_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("SRF stated relationship assemblage", "SRF stated relationships",
+            UUID.fromString("c2b97bad-d5e0-5eb5-ba13-b9e6824411e0"));
+
 
     /*
     public static ConceptSpecification SPEC28 = new ConceptProxy("", "", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));

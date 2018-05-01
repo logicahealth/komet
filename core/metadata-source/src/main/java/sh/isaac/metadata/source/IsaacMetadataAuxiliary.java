@@ -222,6 +222,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.USER);
             pushParent(current());
                createConcept(TermAux.KEITH_CAMPBELL);
+               createConcept(TermAux.DELOITTE_USER);
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -377,6 +378,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
                   createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   popParent();
@@ -390,6 +392,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   popParent();
                createConcept("Rule assemblage");

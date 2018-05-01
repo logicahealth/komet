@@ -315,7 +315,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			}
 			if (!noSuchElementList.isEmpty())
 			{
-				LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList);
+				LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList.toString());
 			}
 			return skipped;
 		}
