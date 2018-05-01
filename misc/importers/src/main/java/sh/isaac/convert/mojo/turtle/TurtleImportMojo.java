@@ -168,7 +168,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		//TODO also write out converterSourceArtifactVersion
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		
+		init();
+	}
+	
+	private void init()
+	{
 		//Each of these will only get created as a metadata concept if it is present in the dataset.
 		possibleAssociations.put("http://www.w3.org/2000/01/rdf-schema#seeAlso", "see also");
 		possibleAssociations.put("http://purl.org/dc/terms/replaces", "replaces");
@@ -563,6 +567,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			LoggingConfig.configureLogging(outputDirectory, converterOutputArtifactClassifier);
 
 			converterUUID = Get.service(ConverterUUID.class);
+			converterUUID.configureNamespace(UuidT5Generator.PATH_ID_FROM_FS_DESC);
 
 			String outputName = converterOutputArtifactId
 					+ (StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : "-" + converterOutputArtifactClassifier) + "-"
@@ -594,6 +599,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
+			
+			init();
 
 			processTurtle();
 
@@ -636,15 +643,16 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			log.info("The read TURTLE file contains {} subjects", allStatements.size());
 			
 			HashSet<String> processedSubjects = new HashSet<>();
-	
-			for (String s : allStatements.keySet())
-			{
-				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
-				for (Statement st : allStatements.get(s))
-				{
-					System.out.println("  " + st.toString());
-				}
-			}
+
+//For debug...
+//			for (String s : allStatements.keySet())
+//			{
+//				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
+//				for (Statement st : allStatements.get(s))
+//				{
+//					System.out.println("  " + st.toString());
+//				}
+//			}
 			
 			for (Entry<String, String> s : singleValueTypedSemantics.entrySet())
 			{
