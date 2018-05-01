@@ -16,6 +16,7 @@
 package sh.isaac.convert.directUtils;
 
 import java.io.File;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -47,7 +48,8 @@ public class LoggingConfig
 		}
 		
 		FileAppender fa = FileAppender.newBuilder().withName("mylogger").withAppend(false)
-				.withFileName(new File(outputDirectory, converterOutputArtifactClassifier + "-ConsoleOutput.txt").toString())
+				.withFileName(new File(outputDirectory, 
+						(StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : converterOutputArtifactClassifier + "-") + "ConsoleOutput.txt").toString())
 				.withLayout(PatternLayout.newBuilder().withPattern("%-5p %d  [%t] %C{2} (%F:%L) - %m%n").build())
 				.setConfiguration(lc.getConfiguration()).build();
 		fa.start();
