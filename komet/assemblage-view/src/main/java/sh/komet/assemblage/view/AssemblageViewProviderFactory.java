@@ -58,7 +58,7 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
     */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
    }
 
    /**

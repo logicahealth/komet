@@ -27,5 +27,6 @@
         <module>semantic-view</module>
         <module>countries-flags</module>
         <module>export-view</module>
-    </modules>
+          <module>open-jdk-fixes</module>
+     </modules>
 </project>

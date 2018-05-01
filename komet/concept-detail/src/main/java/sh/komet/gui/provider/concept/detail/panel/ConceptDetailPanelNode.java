@@ -43,7 +43,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -56,8 +55,11 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -117,6 +119,8 @@ import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.model.observable.ObservableDescriptionDialect;
+import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -150,6 +154,8 @@ public class ConceptDetailPanelNode
     private final ScrollPane scrollPane;
     private final ConceptLabelToolbar conceptLabelToolbar;
 
+    private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
+
     //~--- initializers --------------------------------------------------------
     {
         expandControlLabel.setGraphicTextGap(0);
@@ -166,7 +172,11 @@ public class ConceptDetailPanelNode
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
-        conceptDetailPane.setCenter(componentPanelBox);
+        this.scrollPane = new ScrollPane(componentPanelBox);
+        this.scrollPane.setFitToWidth(true);
+        this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        conceptDetailPane.setCenter(this.scrollPane);
         versionBrancheGrid.add(versionGraphToggle, 0, 0);
         versionGraphToggle.getStyleClass()
                 .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
@@ -179,16 +189,19 @@ public class ConceptDetailPanelNode
         setupToolGrid();
         historySwitch.selectedProperty()
                 .addListener(this::setShowHistory);
-        this.scrollPane = new ScrollPane(conceptDetailPane);
-        this.scrollPane.setFitToWidth(true);
-        this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
         expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
 
         // commit service uses weak change listener references, so this method call is not a leak.
         Get.commitService()
                 .addChangeListener(this);
+    }
+
+    @Override
+    public Node getMenuIcon() {
+        //return Iconography.CONCEPT_DETAILS.getImageView();
+        return Iconography.CONCEPT_DETAILS.getIconographic();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -199,7 +212,7 @@ public class ConceptDetailPanelNode
 
     @Override
     public Node getNode() {
-        return this.scrollPane;
+        return this.conceptDetailPane;
     }
 
     @Override
@@ -252,6 +265,24 @@ public class ConceptDetailPanelNode
             }
         }
     }
+    
+    private Animation addComponent(ConceptBuilderComponentPanel panel) {
+        return this.addComponent(panel, new Insets(1, 5, 1, 5));
+    }
+    private Animation addComponent(ConceptBuilderComponentPanel panel, Insets insets) {
+
+        panel.setOpacity(0);
+        VBox.setMargin(panel, insets);
+        componentPanelBox.getChildren()
+                .add(panel);
+
+        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), panel);
+
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        return ft;
+    }
+
 
     private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
         ObservableCategorizedVersion categorizedVersion;
@@ -327,9 +358,16 @@ public class ConceptDetailPanelNode
 
             addDescriptionButton.getStyleClass()
                     .setAll(ADD_DESCRIPTION_BUTTON.toString());
+
+            addDescriptionButton.setOnAction(this::newDescription);
             descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
             parallelTransition.getChildren()
                     .add(addNode(descriptionHeader));
+
+            for (ObservableDescriptionDialect descDialect : newDescriptions) {
+                ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect);
+                parallelTransition.getChildren().add(addComponent(descPanel));
+            }
 
             // Sort them...
             observableConceptChronology.getObservableSemanticList()
@@ -410,6 +448,18 @@ public class ConceptDetailPanelNode
                             });
             parallelTransition.play();
         }
+    }
+
+    private void newDescription(Event event) {
+        if (conceptDetailManifold.getFocusedConcept().isPresent()) {
+            ObservableDescriptionDialect newDescriptionDialect
+                    = new ObservableDescriptionDialect(conceptDetailManifold.getFocusedConcept().get().getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+            newDescriptions.add(newDescriptionDialect);
+            newDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
+            newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+            newDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+            clearComponents();
+         }
     }
 
     private void clearComponents() {

@@ -176,8 +176,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.MEDICATION);
             createConcept(TermAux.PHENOMENON);
             pushParent(current());
-               createConcept("Finding (Observation)").addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
-               createConcept("Observation (Finding)").addUuids(UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
+               createConcept("Finding").addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
+               createConcept("Observation").addUuids(UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
             popParent();
             createConcept(TermAux.ORGANISM);
             createConcept(TermAux.OBJECT);
@@ -222,6 +222,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.USER);
             pushParent(current());
                createConcept(TermAux.KEITH_CAMPBELL);
+               createConcept(TermAux.DELOITTE_USER);
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -390,6 +391,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
                   createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   popParent();
@@ -403,6 +405,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   popParent();
                createConcept("Rule assemblage");

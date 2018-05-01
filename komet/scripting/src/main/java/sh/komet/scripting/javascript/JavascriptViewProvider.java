@@ -50,6 +50,12 @@ public class JavascriptViewProvider implements ExplorationNode {
        }
     }
     
+
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.JAVASCRIPT.getIconographic();
+    }
+
     @Override
     public Manifold getManifold() {
         return this.manifold;

@@ -197,4 +197,8 @@ public class TaskProgressNode
    public ReadOnlyProperty<String> getToolTip() {
       return activeTasksTooltip;
    }
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.SPINNER.getIconographic();
+   }
 }

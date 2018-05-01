@@ -17,6 +17,7 @@
 package sh.komet.gui.provider.concept.builder;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -32,6 +33,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
+import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
@@ -140,18 +142,28 @@ public class ConceptBuilderComponentPanel
         this.editorPane = editor.getEditor();
         componentText.setText(descriptionDialect.getDescription().getText());
 
-            int descriptionType = descriptionDialect.getDescription().getDescriptionTypeConceptNid();
+        
+        int descriptionType = descriptionDialect.getDescription().getDescriptionTypeConceptNid();
 
-            if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText(" FQN");
-            } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText(" NĀM");
-            } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText(" DEF");
-            } else {
-                componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
-            }
+        setComponentDescriptionType(descriptionType);
+        descriptionDialect.getDescription().descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
+            setComponentDescriptionType(newValue.intValue());
+        });
 
+    }
+
+    private void setComponentDescriptionType(int descriptionType) throws NoSuchElementException {
+        if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" FQN");
+        } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" NĀM");
+        } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" DEF");
+        } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {
+            componentType.setText(" UNK");
+        } else {
+            componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+        }
     }
 
     protected void textLayoutChanged(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {

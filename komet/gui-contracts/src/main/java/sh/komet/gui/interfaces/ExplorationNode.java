@@ -51,7 +51,7 @@ public interface ExplorationNode {
    Optional<Node> getTitleNode();
 
    /**
-    * Tool tip text to explain this node in more detail that a title would.
+    * Tool tip text to explain this node in more detail than a title would.
     * 
     * @return the read-only property for the tool-tip text.
     */
@@ -67,4 +67,7 @@ public interface ExplorationNode {
     * @return The node to be displayed
     */
    Node getNode();
+   
+   
+   Node getMenuIcon();
 }

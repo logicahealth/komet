@@ -113,7 +113,7 @@ public class Get
          implements StaticIsaacCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
-   private static final Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
+   private static final Disruptor<AlertEvent> ALERT_DISRUPTOR = new Disruptor<>(
                                                              AlertEvent::new,
                                                                    512,
                                                                    new NamedThreadFactory("alert-disruptor", true));
@@ -836,7 +836,7 @@ public class Get
    //~--- get methods ---------------------------------------------------------
 
    public static Disruptor<AlertEvent> alertDisruptor() {
-      return alertDisruptor;
+      return ALERT_DISRUPTOR;
    }
 
    /**

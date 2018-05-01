@@ -37,40 +37,46 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
        if (streamType != ImportStreamType.DYNAMIC) {
           throw new RuntimeException("This constructor should only be used with DYNAMIC refset types");
        }
-       if (refsetFileName.toLowerCase().contains("refset_"))
-       {
-          //split things like "_iisssccrefset"
-          //careful of file patterns like: snapshot/refset/metadata/der2_ccirefset_refsetdescriptorsnapshot_int_20170731.txt
-          //Though this stuff should really be read from the refset metadata, not the file name
-          //as we could then capture the rest of the metadata we need about the column, like name, purpose, etc. 
-          int end = refsetFileName.toLowerCase().lastIndexOf("refset_");
-          int start = refsetFileName.substring(0, end).lastIndexOf('_');
-          String spec = refsetFileName.substring(start + 1, end).toLowerCase();
-          for (char c : spec.toCharArray()) {
-              switch (c) {
-                  case 'i':
-                      bdt.add(BrittleDataTypes.INTEGER);
-                      break;
-                  case 'c':
-                      bdt.add(BrittleDataTypes.NID);
-                      break;
-                  case 's':
-                      bdt.add(BrittleDataTypes.STRING);
-                      break;
-                  case 'b':
-                      bdt.add(BrittleDataTypes.BOOLEAN);
-                      break;
-                  case 'f':
-                      bdt.add(BrittleDataTypes.FLOAT);
-                      break;
-                  default:
-                      throw new RuntimeException("Unhandled refset type " + c + " or maybe misparsed the spec: " + spec);
-              }
-          }
-          refsetBrittleTypes = bdt.toArray(new BrittleDataTypes[bdt.size()]);
-       }
-       else {
-          throw new RuntimeException("Don't call this constructor without a valid refset file name");
+       if (refsetFileName.toLowerCase().contains("refset_") || DirectImporter.SRF_IMPORT) {
+           //split things like "_iisssccrefset"
+           //careful of file patterns like: snapshot/refset/metadata/der2_ccirefset_refsetdescriptorsnapshot_int_20170731.txt
+           //Though this stuff should really be read from the refset metadata, not the file name
+           //as we could then capture the rest of the metadata we need about the column, like name, purpose, etc.
+           String spec;
+
+           if (DirectImporter.SRF_IMPORT) {
+               int start = refsetFileName.toLowerCase().lastIndexOf("assemblage_");
+               spec = refsetFileName.substring(start, refsetFileName.length()).toLowerCase()
+                       .replace("assemblage_", "").split(" ")[0];
+           } else {
+               int end = refsetFileName.toLowerCase().lastIndexOf("refset_");
+               int start = refsetFileName.substring(0, end).lastIndexOf('_');
+               spec = refsetFileName.substring(start + 1, end).toLowerCase();
+           }
+           for (char c : spec.toCharArray()) {
+               switch (c) {
+                   case 'i':
+                       bdt.add(BrittleDataTypes.INTEGER);
+                       break;
+                   case 'c':
+                       bdt.add(BrittleDataTypes.NID);
+                       break;
+                   case 's':
+                       bdt.add(BrittleDataTypes.STRING);
+                       break;
+                   case 'b':
+                       bdt.add(BrittleDataTypes.BOOLEAN);
+                       break;
+                   case 'f':
+                       bdt.add(BrittleDataTypes.FLOAT);
+                       break;
+                   default:
+                       throw new RuntimeException("Unhandled refset type " + c + " or maybe misparsed the spec: " + spec);
+               }
+           }
+           refsetBrittleTypes = bdt.toArray(new BrittleDataTypes[bdt.size()]);
+       }else {
+          throw new RuntimeException("Don't call this constructor without a valid refset/assemblage file name");
        }
    }
    
@@ -115,12 +121,22 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
      //Next, I need the "Reference set descriptor reference set (foundation metadata concept)" (900000000000456007) reference set first, 
       //because this refset tells me what the columns / orders / etc are for every other refset.
       //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
-      if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
-         return -1;
-      }
-      else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
-          return 1;
-      }
+
+       if(DirectImporter.SRF_IMPORT){
+           if ( this.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
+               return -1;
+           }
+           else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
+               return 1;
+           }
+       } else{
+           if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+               return -1;
+           }
+           else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+               return 1;
+           }
+       }
       
       //finally, just sort by file name...
       return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName());

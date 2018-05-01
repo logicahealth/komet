@@ -101,6 +101,7 @@ public class DirectImporter
     protected final List<ContentProvider> entriesToImport;
     protected File importDirectory;
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
+    public static Boolean SRF_IMPORT = false;
 
     //~--- constructors --------------------------------------------------------
     public DirectImporter(ImportType importType) {
@@ -153,6 +154,9 @@ public class DirectImporter
 
             if (this.entriesToImport != null) {
                 ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
+
+                SRF_IMPORT = this.entriesToImport.get(0).getStreamSourceName().toLowerCase().startsWith("srf_")? true : false;
+
                 for (ContentProvider entry : this.entriesToImport) {
                     processEntry(entry, specificationsToImport);
                 }
@@ -360,19 +364,20 @@ public class DirectImporter
 
     protected void processEntry(ContentProvider contentProvider, ArrayList<ImportSpecification> entriesToImport1) {
         String entryName = contentProvider.getStreamSourceName().toLowerCase();
-        if (entryName.contains("sct2_concept_")) {
+        if (entryName.contains("sct2_concept_") || (entryName.contains("solor_concept"))) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.CONCEPT));
-        } else if (entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_")) {
+        } else if ((entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_"))
+                || (entryName.contains("solor_description") || entryName.contains("solor_textdefinition"))) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DESCRIPTION));
         } else if (entryName.contains("der2_crefset_") && entryName.contains("language")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DIALECT));
-        } else if (entryName.contains("sct2_identifier_")) {
+        } else if (entryName.contains("sct2_identifier_") || entryName.contains("solor_identifier")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.ALTERNATIVE_IDENTIFIER));
-        } else if (entryName.contains("sct2_relationship_")) {
+        } else if (entryName.contains("sct2_relationship_") || entryName.contains("solor_relationship")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP));
-        } else if (entryName.contains("sct2_statedrelationship_")) {
+        } else if (entryName.contains("sct2_statedrelationship_") || entryName.contains("solor_statedrelationship")) {
             entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
-        } else if (entryName.contains("refset_")) {
+        } else if (entryName.contains("refset_") || entryName.contains("assemblage_")) {
             if (importDynamic) {
                 entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
             } else {
@@ -404,7 +409,7 @@ public class DirectImporter
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
                             ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET));
-                } else if (entryName.contains("_refset")) {
+                } else if (entryName.contains("_refset") || entryName.contains("assemblage_ ")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
                             ImportStreamType.MEMBER_REFSET));
@@ -1414,8 +1419,14 @@ public class DirectImporter
              * So, we only care about 06 on, which is the {@link DynamicRefsetWriter#VARIABLE_FIELD_START} constant, which will match up
              * with the '1' in the attribute order column....
              */
-            if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
-                throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!"); 
+            if(SRF_IMPORT){
+                if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
+                    throw new RuntimeException("assemblage_cci snapshot descriptor is missing or not sorted to the top of the assemblages!");
+                }
+            }else {
+                if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+                    throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
+                }
             }
             
             /*

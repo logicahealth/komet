@@ -237,6 +237,11 @@ public class MultiParentTreeView
         LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
     }
 
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.TAXONOMY_ICON.getIconographic();
+   }
+
     private void dragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
         boolean success = false;

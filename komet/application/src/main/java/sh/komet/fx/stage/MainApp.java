@@ -38,7 +38,6 @@ package sh.komet.fx.stage;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
@@ -93,6 +92,7 @@ public class MainApp
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
 
+    private static final AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
@@ -177,44 +177,69 @@ public class MainApp
         MenuBar mb = new MenuBar();
 
         for (AppMenu ap : AppMenu.values()) {
+            if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                if (ap == AppMenu.EDIT) {
+                   continue; 
+                }
+                if (ap == AppMenu.FILE) {
+                   continue; 
+                }            
+                if (ap == AppMenu.TOOLS) {
+                   continue; 
+                }            
+            }
             mb.getMenus().add(ap.getMenu());
 
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                 if (mp.getParentMenu() == ap) {
+                    
                     ap.getMenu().getItems().add(mp.getMenuItem(primaryStage.getOwner()));
                 }
             }
-            ap.getMenu().getItems().sort(new Comparator<MenuItem>() {
-                @Override
-                public int compare(MenuItem o1, MenuItem o2) {
-                    return o1.getText().compareTo(o2.getText());
-                }
-            });
+            ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> o1.getText().compareTo(o2.getText()));
             
-            if (ap == AppMenu.APP) {
-                MenuItem prefsItem = new MenuItem("Preferences...");
-                //TODO make prefs do something
-                ap.getMenu().getItems().add(prefsItem);
-                
-                if (tk == null) {
-                    MenuItem quitItem = new MenuItem("Quit");
-                    quitItem.setOnAction(this::close);
-                    ap.getMenu().getItems().add(quitItem);
-                }
-            }
-            else if (ap == AppMenu.WINDOW) {
-                Menu newWindowMenu = new Menu("New");
-                MenuItem newStatementWindowItem = new MenuItem("Statement window");
-                newStatementWindowItem.setOnAction(this::newStatement);
-                MenuItem newKometWindowItem = new MenuItem("KOMET window");
-                newKometWindowItem.setOnAction(this::newViewer);
-                newWindowMenu.getItems().addAll(newStatementWindowItem, newKometWindowItem);
-                AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-            }
-            else if (ap == AppMenu.HELP) {
-                MenuItem aboutItem = new MenuItem("About...");
-                aboutItem.setOnAction(this::handleAbout);
-                ap.getMenu().getItems().add(aboutItem);
+            switch (ap) {
+                case APP:
+                    if (tk != null) {
+                        MenuItem aboutItem = new MenuItem("About...");
+                        aboutItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(aboutItem);
+                        ap.getMenu().getItems().add(new SeparatorMenuItem());
+                    }
+                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                        MenuItem prefsItem = new MenuItem("Preferences...");
+                        //TODO TEMP to do  something. Need to make it do something better. 
+                        prefsItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(prefsItem);
+                        ap.getMenu().getItems().add(new SeparatorMenuItem());
+                    }
+                    if (tk == null) {
+                        MenuItem quitItem = new MenuItem("Quit");
+                        quitItem.setOnAction(this::close);
+                        ap.getMenu().getItems().add(quitItem);
+                    }   break;
+                case WINDOW:
+                    Menu newWindowMenu = new Menu("New");
+                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                        MenuItem newStatementWindowItem = new MenuItem("Statement window");
+                        newStatementWindowItem.setOnAction(this::newStatement);
+                        newWindowMenu.getItems().addAll(newStatementWindowItem);
+                    }
+                    MenuItem newKometWindowItem = new MenuItem("Viewer window");
+                    newKometWindowItem.setOnAction(this::newViewer);
+                    newWindowMenu.getItems().addAll(newKometWindowItem);
+                    AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
+                    break;
+                case HELP:
+                    if (tk == null) {
+                        MenuItem aboutItem = new MenuItem("About...");
+                        aboutItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(aboutItem);
+                    }
+                    
+                    break;
+                default:
+                    break;
             }
         }
         
@@ -270,7 +295,7 @@ public class MainApp
         FxGet.statusMessageService()
                 .addScene(scene, controller::reportStatus);
         stage.show();
-        stage.setOnCloseRequest(this::handleShutdown);
+        stage.setOnCloseRequest(this::handleCloseRequest);
 
         // SNAPSHOT
         // Chronology
@@ -293,9 +318,10 @@ public class MainApp
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + windowSequence.getAndIncrement());
+                "Clinical statement " + windowSequence.getAndIncrement(), this::handleCloseRequest);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
+        WINDOW_COUNT.incrementAndGet();
     }
 
     private void newViewer(ActionEvent event) {
@@ -329,9 +355,13 @@ public class MainApp
             FxGet.statusMessageService()
                     .addScene(scene, controller::reportStatus);
             stage.show();
-            //TODO Dan notes, this seems like a really bad idea on an auxiliary window.
-            //Also, this window has no menus....
-            stage.setOnCloseRequest(this::handleShutdown);
+            //Dan notes, this seems like a really bad idea on an auxiliary window.
+            //KEC: Yes, logic updated to count windows, and only close when just one is left... 
+            stage.setOnCloseRequest(this::handleCloseRequest);
+            WINDOW_COUNT.incrementAndGet();
+            
+            //TODO Also, this window has no menus...
+            
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
@@ -372,10 +402,16 @@ public class MainApp
         });
     }
 
-    private void handleShutdown(WindowEvent e) {
-        // need this to all happen on a non event thread...
-        e.consume();
-        shutdown();
+    private void handleCloseRequest(WindowEvent e) {
+        if (WINDOW_COUNT.get() == 1) {
+            e.consume();
+            // need shutdown to all happen on a non event thread...
+            Thread shutdownThread = new Thread(() -> shutdown());
+            shutdownThread.start();
+        }
+        
+        WINDOW_COUNT.decrementAndGet();
+        
     }
 
     protected void shutdown() {

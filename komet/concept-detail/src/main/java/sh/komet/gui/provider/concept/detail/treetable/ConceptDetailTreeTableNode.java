@@ -124,6 +124,11 @@ public class ConceptDetailTreeTableNode
    }
 
    @Override
+   public Node getMenuIcon() {
+      return Iconography.CONCEPT_TABLE.getIconographic();
+   }
+
+   @Override
    public Node getNode() {
       return conceptDetailPane;
    }

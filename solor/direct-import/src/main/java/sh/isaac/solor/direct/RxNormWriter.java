@@ -128,6 +128,7 @@ private static final int CVF = 17; //18 CVF Content view kag. RxNorm includes on
                             StringVersionImpl stringVersion = rxNormCuiChronicle.createMutableVersion(recordStamp);
                             stringVersion.setString(conSoRecord[RXCUI]);
                             assemblageService.writeSemanticChronology(rxNormCuiChronicle);
+                            index(rxNormCuiChronicle);
                         
                     }
              } catch (NoSuchElementException ex) {
@@ -144,4 +145,6 @@ private static final int CVF = 17; //18 CVF Content view kag. RxNorm includes on
             Get.activeTasks().remove(this);
         }
     }
+
+
 }

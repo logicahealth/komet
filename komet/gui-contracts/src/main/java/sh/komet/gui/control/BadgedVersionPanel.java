@@ -37,7 +37,6 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
-import de.jensd.fx.glyphs.GlyphIcon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -62,7 +61,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -105,6 +103,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.textarea.TextAreaReadOnly;
@@ -352,12 +351,12 @@ public abstract class BadgedVersionPanel
                     conceptVersion.getPathNid()));
         }
     }
-    
+
     protected final void setupLogicDef(LogicGraphVersion logicGraphVersion) {
         PremiseType premiseType = PremiseType.STATED;
         if (isLatestPanel()) {
             componentType.setText("EL++");
-      
+
             if (getManifold().getLogicCoordinate()
                     .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.INFERRED;
@@ -375,27 +374,38 @@ public abstract class BadgedVersionPanel
         this.logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
     }
 
+    private void setComponentDescriptionType(int descriptionType) throws NoSuchElementException {
+        if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" FQN");
+        } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" NĀM");
+        } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" DEF");
+        } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {
+            componentType.setText(" UNK");
+        } else {
+            componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+        }
+    }
+
     protected final void setupDescription(DescriptionVersion description) {
         componentText.setText(description.getText());
 
         if (isLatestPanel()) {
             int descriptionType = description.getDescriptionTypeConceptNid();
 
-            if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText("FQN");
-            } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText("NĀM");
-            } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
-                componentType.setText("DEF");
-            } else {
-                componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+            setComponentDescriptionType(descriptionType);
+            if (description instanceof ObservableDescriptionVersion) {
+                ((ObservableDescriptionVersion)description).descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
+                    setComponentDescriptionType(newValue.intValue());
+                });
             }
         } else {
             componentType.setText("");
         }
 
         Tooltip tooltip = new Tooltip(manifold.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
-  
+
         if (description.getCaseSignificanceConceptNid() == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid()) {
             Node icon = Iconography.CASE_SENSITIVE.getIconographic();
             Tooltip.install(icon, tooltip);
@@ -412,7 +422,7 @@ public abstract class BadgedVersionPanel
             Tooltip.install(icon, tooltip);
             badges.add(icon);
         }
-        
+
         addAcceptabilityBadge(description, MetaData.US_ENGLISH_DIALECT____SOLOR.getNid(), CountryFlagImages.USA.createImageView(16));
         addAcceptabilityBadge(description, MetaData.GB_ENGLISH_DIALECT____SOLOR.getNid(), CountryFlagImages.UK.createImageView(16));
     }
@@ -505,6 +515,11 @@ public abstract class BadgedVersionPanel
                     break;
 
                 case MEMBER:
+                    if (isLatestPanel()) {
+                        componentType.setText("MBR");
+                    } else {
+                        componentType.setText("");
+                    }
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                     break;
 
@@ -564,11 +579,10 @@ public abstract class BadgedVersionPanel
         setupColumns();
         wrappingWidth = (int) (layoutBoundsProperty().get()
                 .getWidth() - (5 * badgeWidth));
-        
-        
+
         double height = TextAreaUtils.computeTextHeight(componentText.getFont(), componentText.getText(), wrappingWidth, TextBoundsType.LOGICAL) + 10;
-        if (componentText.getWidth() != wrappingWidth ||
-                componentText.getHeight() != height) {
+        if (componentText.getWidth() != wrappingWidth
+                || componentText.getHeight() != height) {
             componentText.setPrefSize(wrappingWidth, height);
             componentText.setMinSize(wrappingWidth, height);
             componentText.setMaxSize(wrappingWidth, height);

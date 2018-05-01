@@ -76,8 +76,6 @@ then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
    $propertySheetItem.setDefaultValue(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
-   
-   $propertySheetItem.getAllowedValues().add(MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
 end

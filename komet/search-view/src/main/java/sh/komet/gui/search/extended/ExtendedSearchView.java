@@ -130,6 +130,14 @@ public class ExtendedSearchView implements ExplorationNodeFactory
 
 		return new ExplorationNode()
 		{
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node getMenuIcon()
+	{
+		return Iconography.TARGET.getIconographic();
+	}
 			@Override
 			public ReadOnlyProperty<String> getToolTip()
 			{
