@@ -264,6 +264,19 @@ public abstract class LuceneIndexer
          throw new RuntimeException(ex);
       }
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void refreshQueryEngine()
+   {
+      try {
+          this.referenceManager.maybeRefreshBlocking();
+       } catch (final IOException ex) {
+          throw new RuntimeException(ex);
+       }
+   }
 
    /**
     * {@inheritDoc}

@@ -203,6 +203,14 @@ public interface IndexQueryService {
     * to the searcher.
     */
    public IndexedGenerationCallable getIndexedGenerationCallable(int nid);
+   
+   /**
+    * After content is indexed, it may be up to 60 seconds until it is visible in queries, unless the user queries with a target 
+    * generation.
+    * 
+    * Alternatively, call this after indexing, to force a reopen now.
+    */
+   void refreshQueryEngine();
 
    /**
     * Gets the indexer name.
