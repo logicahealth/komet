@@ -84,6 +84,10 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
            ConceptSpecification oldValue,
            ConceptSpecification newValue) {
+      if (newValue == null) {
+         LOG.warn("Not sure on intent.... but hey, I didn't break the GUI...");
+         return;
+      }
       if (titleLabel == null) {
          titleProperty.set(manifold.getPreferredDescriptionText(newValue));
       } else {

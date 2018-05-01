@@ -18,6 +18,8 @@ package sh.komet.gui.control.concept;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -53,6 +55,7 @@ import sh.komet.gui.util.FxGet;
  */
 public class ConceptLabelToolbar implements ChangeListener<String> {
 
+   protected static final Logger LOG = LogManager.getLogger();
    final MenuButton manifoldLinkMenu = new MenuButton();
    final ManifoldLinkedConceptLabel conceptLabel;
    final Label rightInfoLabel = new Label("");
@@ -63,19 +66,24 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
 
    public void manifoldEventHandler(Event event) {
-      MenuItem menuItem = (MenuItem) event.getSource();
-      String manifoldGroup = (String) menuItem.getUserData();
-      Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
-      manifold.setGroupName(manifoldGroup);
-      if (spec.isPresent()) {
-         ConceptChronology focusedConcept = Get.concept(spec.get());
-         manifold.setFocusedConceptChronology(focusedConcept);
-      } else {
-         if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
-            manifold.setFocusedConceptChronology(null);
-         }
+      try {
+         MenuItem menuItem = (MenuItem) event.getSource();
+           String manifoldGroup = (String) menuItem.getUserData();
+           Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
+           manifold.setGroupName(manifoldGroup);
+           if (spec.isPresent()) {
+              ConceptChronology focusedConcept = Get.concept(spec.get());
+              manifold.setFocusedConceptChronology(focusedConcept);
+           } else {
+              if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
+                 manifold.setFocusedConceptChronology(null);
+              }
+           }
+           manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
       }
-      manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
+      catch (Exception e) {
+         LOG.warn("Failure handling manifold event!", e);
+      }
    }
 
    public final Node getNodeForManifold(Manifold manifold) {
