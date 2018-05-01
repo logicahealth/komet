@@ -177,10 +177,22 @@ public class MainApp
         MenuBar mb = new MenuBar();
 
         for (AppMenu ap : AppMenu.values()) {
+            if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                if (ap == AppMenu.EDIT) {
+                   continue; 
+                }
+                if (ap == AppMenu.FILE) {
+                   continue; 
+                }            
+                if (ap == AppMenu.TOOLS) {
+                   continue; 
+                }            
+            }
             mb.getMenus().add(ap.getMenu());
 
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                 if (mp.getParentMenu() == ap) {
+                    
                     ap.getMenu().getItems().add(mp.getMenuItem(primaryStage.getOwner()));
                 }
             }
@@ -194,11 +206,13 @@ public class MainApp
                         ap.getMenu().getItems().add(aboutItem);
                         ap.getMenu().getItems().add(new SeparatorMenuItem());
                     }
-                    MenuItem prefsItem = new MenuItem("Preferences...");
-                    //TODO TEMP to do  something. Need to make it do something better. 
-                    prefsItem.setOnAction(this::handleAbout);
-                    ap.getMenu().getItems().add(prefsItem);
-                    ap.getMenu().getItems().add(new SeparatorMenuItem());
+                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                        MenuItem prefsItem = new MenuItem("Preferences...");
+                        //TODO TEMP to do  something. Need to make it do something better. 
+                        prefsItem.setOnAction(this::handleAbout);
+                        ap.getMenu().getItems().add(prefsItem);
+                        ap.getMenu().getItems().add(new SeparatorMenuItem());
+                    }
                     if (tk == null) {
                         MenuItem quitItem = new MenuItem("Quit");
                         quitItem.setOnAction(this::close);
@@ -206,11 +220,14 @@ public class MainApp
                     }   break;
                 case WINDOW:
                     Menu newWindowMenu = new Menu("New");
-                    MenuItem newStatementWindowItem = new MenuItem("Statement window");
-                    newStatementWindowItem.setOnAction(this::newStatement);
-                    MenuItem newKometWindowItem = new MenuItem("KOMET window");
+                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                        MenuItem newStatementWindowItem = new MenuItem("Statement window");
+                        newStatementWindowItem.setOnAction(this::newStatement);
+                        newWindowMenu.getItems().addAll(newStatementWindowItem);
+                    }
+                    MenuItem newKometWindowItem = new MenuItem("Viewer window");
                     newKometWindowItem.setOnAction(this::newViewer);
-                    newWindowMenu.getItems().addAll(newStatementWindowItem, newKometWindowItem);
+                    newWindowMenu.getItems().addAll(newKometWindowItem);
                     AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
                     break;
                 case HELP:

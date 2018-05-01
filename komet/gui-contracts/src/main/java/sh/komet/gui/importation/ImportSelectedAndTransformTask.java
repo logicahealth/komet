@@ -19,11 +19,14 @@ package sh.komet.gui.importation;
 import java.util.List;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
+import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.DirectImporter;
+import sh.isaac.solor.direct.LoincExpressionToConcept;
+import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.manifold.Manifold;
 
@@ -44,7 +47,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
       this.importType = importType;
       updateTitle("Import and transform " + importType.toString());
       
-      addToTotalWork(3);
+      addToTotalWork(6);
       Get.activeTasks().add(this);
    }
    
@@ -64,11 +67,23 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          transformTask.get();
          completedUnitOfWork();
          
-//         updateMessage("Classifying new content...");
-//         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
-//         Future<?> classifyTask = classifierService.classify();
-//         classifyTask.get();
-//         completedUnitOfWork();
+        updateMessage("Convert LOINC expressions...");
+         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+         Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
+         convertLoincTask.get();
+         completedUnitOfWork();
+         
+         updateMessage("Adding navigation concepts...");
+         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(manifold);
+         Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
+         addNavigationConceptsTask.get();
+         completedUnitOfWork();
+         
+         updateMessage("Classifying new content...");
+         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
+         Future<?> classifyTask = classifierService.classify();
+         classifyTask.get();
+         completedUnitOfWork();
          
          return null;
       } finally {

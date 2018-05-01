@@ -230,12 +230,13 @@ public class KometStageController
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
 
-        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             MenuItem selectiveImport = new MenuItem("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
                 ImportView.show(manifolds.get(ManifoldGroup.TAXONOMY));
             });
             items.add(selectiveImport);
+            
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
             MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
@@ -248,15 +249,6 @@ public class KometStageController
 
             items.add(importTransformFull);
         }
-
-        MenuItem importTransformSNAPSHOT = new MenuItem("Import and transform - ACTIVE");
-
-        importTransformSNAPSHOT.setOnAction((ActionEvent event) -> {
-            ImportAndTransformTask itcTask = new ImportAndTransformTask(manifolds.get(ManifoldGroup.TAXONOMY),
-                    ImportType.ACTIVE_ONLY);
-            Get.executor().submit(itcTask);
-        });
-        items.add(importTransformSNAPSHOT);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 

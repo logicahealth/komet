@@ -268,8 +268,11 @@ public class IsomorphicResultsBottomUp
                 maxScoreSet.add(solution);
             }
         }
-
-        return scoreSolutionMap.get(maxScore);
+        Set<IsomorphicSolution> solution = scoreSolutionMap.get(maxScore);
+        if (solution != null) {
+            return solution;
+        }
+        return new HashSet<>();
     }
 
     /**
@@ -687,7 +690,10 @@ public class IsomorphicResultsBottomUp
 
             tempPossibleSolutions.addAll(possibleSolutions);
             possibleSolutions.clear();
-            possibleSolutions.addAll(generatePossibleSolutions(tempPossibleSolutions, possibleMatches));
+            Set<IsomorphicSolution> someSolutions = generatePossibleSolutions(tempPossibleSolutions, possibleMatches);
+            if (someSolutions != null) {
+                possibleSolutions.addAll(someSolutions);
+            }
             nodesToTry = nextSetToTry;
         }
 

@@ -60,12 +60,7 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
       // FontAwesomeIcon.NAVICON
       return Iconography.CONCEPT_TABLE.getIconographic();
    }
-   
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-   
+     
    /** 
     * {@inheritDoc}
     */
