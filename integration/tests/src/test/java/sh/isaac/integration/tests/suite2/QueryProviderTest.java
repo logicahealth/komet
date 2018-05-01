@@ -81,7 +81,7 @@ public class QueryProviderTest {
 	public void testSizeLimits() {
 		
 		int expectedMaxHits = 15;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
-		
+
 		Assert.assertEquals(di.query("h*").size(), expectedMaxHits);
 		
 		for (int i = 1; i <=1; i++)
@@ -96,10 +96,9 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 626;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
-		
+		int expectedMaxHits = 633;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
+
 		Assert.assertEquals(di.query("s*", Integer.MAX_VALUE).size(), expectedMaxHits);
-		
 		Assert.assertEquals(di.query("s*", 0).size(), 1);
 		Assert.assertEquals(di.query("s*", -5).size(), 1);
 		Assert.assertEquals(di.query("s*", null).size(), 100);
@@ -112,7 +111,7 @@ public class QueryProviderTest {
 	public void testPaging() {
 		
 		int expectedMaxHits = 15;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
-		
+
 		Assert.assertEquals(di.query("h*", null, null, null, null, null).size(), expectedMaxHits);
 		
 		final List<SearchResult> allResults = di.query("h*", null, null, null, null, null);
@@ -164,7 +163,7 @@ public class QueryProviderTest {
 	public void testReversePaging() {
 		
 		int expectedMaxHits = 4;  //May need to change this when tweaking metadata... until we come up with a proper "testing" terminology to use for things like this.
-		
+
 		Assert.assertEquals(di.query("RF2 AND nid", null, null, null, null, null).size(), expectedMaxHits);
 		
 		final List<SearchResult> allResults = di.query("RF2 AND nid", null, null, null, null, null);
@@ -199,20 +198,20 @@ public class QueryProviderTest {
 	
 	@Test
 	public void testQueries() {
-		Assert.assertEquals(di.query("legacy", null).size(), 2);
+		Assert.assertEquals(di.query("legacy", null).size(), 4);
 
-		Assert.assertEquals(di.query("legacy AND (SOLOR)", null).size(), 1);
-		Assert.assertEquals(di.query("legacy AND SOLOR", null).size(), 1);
-		Assert.assertEquals(di.query("legacy AND \\(SOLOR\\)", null).size(), 1);
+		Assert.assertEquals(di.query("legacy AND (SOLOR)", null).size(), 2);
+		Assert.assertEquals(di.query("legacy AND SOLOR", null).size(), 2);
+		Assert.assertEquals(di.query("legacy AND \\(SOLOR\\)", null).size(), 2);
 		Assert.assertEquals(di.query("\"RF2 legacy\" AND (SOLOR)", null).size(), 1);
 		
 		
 		
-		Assert.assertEquals(di.query("legacy NOT \\(SOLOR\\)", null).size(), 1);
+		Assert.assertEquals(di.query("legacy NOT \\(SOLOR\\)", null).size(), 2);
 		//This query won't work as expected, because the way we are searching, the white space analyzer keeps the text as ... "(SOLOR)" so "NOT SOLOR"
 		//matches on the whitespace analyzed field, as it doesn't contain the token "SOLOR".
 		//Assert.assertEquals(di.query("legacy NOT SOLOR", null).size(), 1);
-		Assert.assertEquals(di.query("legacy NOT (SOLOR)", null).size(), 1);
+		Assert.assertEquals(di.query("legacy NOT (SOLOR)", null).size(), 2);
 
 		Assert.assertEquals(di.query("legacy OR (SOLOR)", null).size(), 100);
 		Assert.assertEquals(di.query("legacy SOLOR", null).size(), 100);
@@ -246,10 +245,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 489);
+		Assert.assertEquals(di.query("so*", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 493);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 489);
+		Assert.assertEquals(di.query("so*", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 493);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("so*", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);
