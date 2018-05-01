@@ -37,8 +37,9 @@
 package sh.isaac.convert.mojo.turtle;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,6 +111,8 @@ import sh.isaac.utility.LanguageMap;
 public class TurtleImportMojo extends ConverterBaseMojo
 {
 	private Logger log = LogManager.getLogger();
+	
+	private InputStream inputStream;
 
 	private ConverterUUID converterUUID;
 	private DirectWriteHelper dwh;
@@ -152,17 +155,17 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	/**
 	 * Constructor for runtime use
 	 * 
-	 * @param outputDirectory {@link #outputDirectory}
-	 * @param inputFileLocation {@link #inputFileLocation}
-	 * @param converterVersion {@link #converterVersion}
+	 * @param outputDirectory {@link #outputDirectory} - optional for runtime use, if provided, UUID debug file will be written here.
+	 * @param ttlFile {@link #inputFileLocation}
 	 * @param converterSourceArtifactVersion {@link #converterSourceArtifactVersion}
 	 */
-	public TurtleImportMojo(File outputDirectory, File inputFileLocation, String converterVersion, String converterSourceArtifactVersion)
+	public TurtleImportMojo(File outputDirectory, InputStream ttlFile, String converterSourceArtifactVersion)
 	{
 		this();
 		this.outputDirectory = outputDirectory;
-		this.inputFileLocation = inputFileLocation;
-		this.converterVersion = converterSourceArtifactVersion;
+		this.inputStream = ttlFile;
+		//TODO write the converter version out in the metadata somewhere - should be able to read this at runtime need to find the whats-my-version utility method
+		//TODO also write out converterSourceArtifactVersion
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
 		
@@ -543,6 +546,20 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	{
 		try
 		{
+			File ttlFile = null;
+			for (File f : inputFileLocation.listFiles())
+			{
+				if (f.getName().toLowerCase().endsWith("ttl"))
+				{
+					ttlFile = f;
+					break;
+				}
+			}
+	
+			getLog().info("Reading " + ttlFile.getCanonicalPath());
+			
+			this.inputStream = new FileInputStream(ttlFile);
+			
 			LoggingConfig.configureLogging(outputDirectory, converterOutputArtifactClassifier);
 
 			converterUUID = Get.service(ConverterUUID.class);
@@ -595,20 +612,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	{
 		try
 		{
-			File ttlFile = null;
-			for (File f : inputFileLocation.listFiles())
-			{
-				if (f.getName().toLowerCase().endsWith("ttl"))
-				{
-					ttlFile = f;
-					break;
-				}
-			}
-	
-			getLog().info("Reading " + ttlFile.getCanonicalPath());
-	
 			Model model = ModelFactory.createDefaultModel();
-			model.read(new FileReader(ttlFile), "", "TURTLE");
+			model.read(inputStream, "", "TURTLE");
 	
 			log.info("The read TURTLE graph contains {} objects", model.getGraph().size());
 	
@@ -904,7 +909,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		{
 			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
 	
-			if (converterUUID != null)
+			if (converterUUID != null && this.outputDirectory != null)
 			{
 				ConsoleUtil.println("Dumping UUID Debug File");
 				converterUUID.dump(this.outputDirectory, "TurtleUUID");
@@ -1368,7 +1373,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	}
 	
 	//This hack won't work, if you use the dynamic data type NID anywhere...
-	public int hashNestedData(String predicateURI, List<Statement> anonNodeStatements)
+	private int hashNestedData(String predicateURI, List<Statement> anonNodeStatements)
 	{
 		int hashCode = 0;
 		for (Pair<String, String[]> nestedAnonIds : possibleDynamicAttributes.get(predicateURI).getNestedAnonRefs(predicateURI, anonNodeStatements))
