@@ -191,8 +191,22 @@ public class BinaryDataWriterProvider
    @Override
    public void flush()
             throws IOException {
-      if (this.output != null) {
-         this.output.flush();
+      if (queue != null)
+      {
+         while (!queue.isEmpty()) {
+            // Ugly, but not sure of a better way to make sure the queue is drained...
+            try {
+               Thread.sleep(10);
+            }
+            catch (InterruptedException e) {
+               LOG.debug("Interrupted while flushing?");
+               // probably a reason, exit the loop.
+            }
+         }
+      }
+      DataOutputStream localOutput = this.output;
+      if (localOutput != null) {
+         localOutput.flush();
       }
    }
 
