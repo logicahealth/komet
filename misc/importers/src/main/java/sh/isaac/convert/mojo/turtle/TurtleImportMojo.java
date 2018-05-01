@@ -603,7 +603,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			init();
 
 			processTurtle();
-
+			
+			LookupService.shutdownSystem();
+			
+			listener.close();
 		}
 		catch (Exception ex)
 		{

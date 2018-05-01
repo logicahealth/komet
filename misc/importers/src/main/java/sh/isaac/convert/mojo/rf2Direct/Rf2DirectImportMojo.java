@@ -171,9 +171,9 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 				}
 			}
 			
-			listener.close();
-			
 			LookupService.shutdownSystem();
+			
+			listener.close();
 			
 			log.info("Conversion complete");
 		}
