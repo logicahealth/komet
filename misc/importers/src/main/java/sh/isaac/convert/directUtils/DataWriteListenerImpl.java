@@ -81,4 +81,20 @@ public class DataWriteListenerImpl implements DataWriteListener
 	{
 		return writer;
 	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sync()
+	{
+		try 
+		{
+			writer.flush();
+		}
+		catch (IOException e) 
+		{
+			log.error("Flush error", e);
+		}
+	}
 }

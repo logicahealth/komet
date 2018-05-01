@@ -935,6 +935,7 @@ public class BdbProvider
             updateMessage("Writing database environment...");
             myDbEnvironment.sync();
             completedUnitOfWork();
+            writeListeners.forEach(listener -> listener.sync());
             updateMessage("Write complete");
             return null;
          } finally {

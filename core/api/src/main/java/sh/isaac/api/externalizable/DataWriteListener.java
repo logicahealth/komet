@@ -29,4 +29,9 @@ public interface DataWriteListener
 	 * @param data
 	 */
 	void writeData(Chronology data);
+	
+	/**
+	 * Flush any buffers to disk
+	 */
+	void sync();
 }

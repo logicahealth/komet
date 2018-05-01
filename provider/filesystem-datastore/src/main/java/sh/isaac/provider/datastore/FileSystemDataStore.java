@@ -771,6 +771,8 @@ public class FileSystemDataStore
                         FileSystemDataStore.this.properties.store(writer, null);
                     }
                     completedUnitOfWork();  // 9
+                    
+                    writeListeners.forEach(listener -> listener.sync());
                 }
                 updateMessage("Write complete");
                 FileSystemDataStore.LOG.info("FileSystemDataStore sync complete.");
