@@ -36,6 +36,8 @@
  */
 package sh.komet.fx.stage;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +50,8 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
@@ -70,6 +74,7 @@ import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.convert.mojo.turtle.TurtleImportMojo;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
@@ -99,7 +104,7 @@ import sh.komet.gui.util.FxGet;
 public class KometStageController
         implements StatusMessageConsumer {
 
-	private final Logger LOG = LogManager.getLogger();
+    private final Logger LOG = LogManager.getLogger();
     private final HashMap<ManifoldGroup, Manifold> manifolds = new HashMap<>(); 
 
     //~--- fields --------------------------------------------------------------
@@ -334,6 +339,31 @@ public class KometStageController
                 Get.executor().execute(conversionTask);
             });
             items.add(convertLoincExpressions);
+            
+            File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
+            if (beer.isFile()) {
+                // This should only appear if you are running from eclipse / netbeans....
+                MenuItem convertBeer = new MenuItem("Beer me!");
+                convertBeer.setOnAction((ActionEvent event) -> {
+                    Get.executor().execute(() -> {
+                        try {
+                            new TurtleImportMojo(null, new FileInputStream(beer), "0.8").processTurtle();
+                            Get.indexDescriptionService().refreshQueryEngine();
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(AlertType.INFORMATION);
+                                alert.setTitle("Beer has arrived!");
+                                alert.setHeaderText("Beer has been imported!");
+                                alert.initOwner(topGridPane.getScene().getWindow());
+                                alert.showAndWait();
+                            });
+                        }
+                        catch (Exception e) {
+                            LOG.error("Beer failure", e);
+                        }
+                    });
+                });
+                items.add(convertBeer);
+            }
         }
         return items;
     }
@@ -370,7 +400,7 @@ public class KometStageController
     }
 
     @SuppressWarnings("unchecked")
-	private Pane createWrappedTabPane(PanelPlacement panelPlacement) {
+    private Pane createWrappedTabPane(PanelPlacement panelPlacement) {
         Pane pane = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, (tabPane -> setupTabPane(tabPane, panelPlacement)));
         TabPane tabPane = (TabPane) pane.getChildren()
                 .get(0);
