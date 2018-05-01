@@ -208,7 +208,8 @@ public class IdentifierProvider
       if (elementSequence != Integer.MAX_VALUE) {
          return elementSequence;
       }
-      return getElementSequenceForNid(nid, getAssemblageNid(nid).getAsInt());
+      return getElementSequenceForNid(nid, getAssemblageNid(nid).orElseThrow(() -> new RuntimeException("No assemblage nid available for " + nid 
+            + " " + Get.identifierService().getUuidPrimordialForNid(nid))));
    }
 
    @Override
