@@ -125,7 +125,7 @@ public class IsomorphicResultsBottomUp
     * If the nodeIdInComparison == -1, then there is no corresponding node in the
     * comparisonExpression as part of the localIsomorphicSolution.
      */
-    IsomorphicSolution isomorphicSolution;
+    Optional<IsomorphicSolution> optionalIsomorphicSolution;
 
     /**
      * The reference visit data.
@@ -165,17 +165,21 @@ public class IsomorphicResultsBottomUp
         Arrays.fill(this.referenceExpressionToMergedNodeIdMap, -1);
         this.comparisonExpressionToReferenceNodeIdMap = new int[comparisonExpression.getNodeCount()];
         Arrays.fill(this.comparisonExpressionToReferenceNodeIdMap, -1);
-        this.isomorphicSolution = isomorphicAnalysis();
+        this.optionalIsomorphicSolution = isomorphicAnalysis();
 
-        for (int referenceNodeId = 0; referenceNodeId < this.isomorphicSolution.solution.length; referenceNodeId++) {
-            if (this.isomorphicSolution.solution[referenceNodeId] > -1) {
-                this.comparisonExpressionToReferenceNodeIdMap[this.isomorphicSolution.solution[referenceNodeId]]
-                        = referenceNodeId;
+        if (optionalIsomorphicSolution.isPresent()) {
+            for (int referenceNodeId = 0; referenceNodeId < this.optionalIsomorphicSolution.get().solution.length; referenceNodeId++) {
+                if (this.optionalIsomorphicSolution.get().solution[referenceNodeId] > -1) {
+                    this.comparisonExpressionToReferenceNodeIdMap[this.optionalIsomorphicSolution.get().solution[referenceNodeId]]
+                            = referenceNodeId;
+                }
             }
+            this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
+                this.optionalIsomorphicSolution.get().solution);
+        } else {
+            this.isomorphicExpression = this.referenceExpression;
         }
 
-        this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
-                this.isomorphicSolution.solution);
         this.referenceVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
             this.referenceRelationshipNodesMap.put(
                     new RelationshipKey(nodeId, this.referenceExpression), nodeId);
@@ -203,10 +207,11 @@ public class IsomorphicResultsBottomUp
         final int[] comparisonToMergedMap = new int[comparisonExpression.getNodeCount()];
 
         Arrays.fill(comparisonToMergedMap, -1);
-
-        for (int referenceNodeId = 0; referenceNodeId < this.isomorphicSolution.solution.length; referenceNodeId++) {
-            if (this.isomorphicSolution.solution[referenceNodeId] >= 0) {
-                comparisonToMergedMap[this.isomorphicSolution.solution[referenceNodeId]] = referenceNodeId;
+        if (optionalIsomorphicSolution.isPresent()) {
+            for (int referenceNodeId = 0; referenceNodeId < this.optionalIsomorphicSolution.get().solution.length; referenceNodeId++) {
+                if (this.optionalIsomorphicSolution.get().solution[referenceNodeId] >= 0) {
+                    comparisonToMergedMap[this.optionalIsomorphicSolution.get().solution[referenceNodeId]] = referenceNodeId;
+                }
             }
         }
 
@@ -217,12 +222,12 @@ public class IsomorphicResultsBottomUp
             // deleted relationships roots come from the comparison expression.
             OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
             if (predecessorNid.isPresent()) {
-            int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.getAsInt()];
-               if (comparisonExpressionToReferenceNodeId >= 0) {
-                   final int rootToAddParentSequence
-                           = this.referenceExpressionToMergedNodeIdMap[comparisonExpressionToReferenceNodeId];
-                   addFragment(deletionRoot, this.comparisonExpression, rootToAddParentSequence);
-               }
+                int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.getAsInt()];
+                if (comparisonExpressionToReferenceNodeId >= 0) {
+                    final int rootToAddParentSequence
+                            = this.referenceExpressionToMergedNodeIdMap[comparisonExpressionToReferenceNodeId];
+                    addFragment(deletionRoot, this.comparisonExpression, rootToAddParentSequence);
+                }
             }
         });
     }
@@ -309,36 +314,36 @@ public class IsomorphicResultsBottomUp
             builder.append(Arrays.stream(comparisonExpressionToReferenceNodeIdMap).boxed().collect(Collectors.toList()));
         }
 
-        if (this.isomorphicSolution != null) {
+        if (this.optionalIsomorphicSolution.isPresent()) {
             builder.append("\nIsomorphic solution: \n");
 
             String formatString = "[%2d";
             String nullString = " ∅ ";
 
-            if (this.isomorphicSolution.getSolution().length < 10) {
+            if (this.optionalIsomorphicSolution.get().getSolution().length < 10) {
                 formatString = "[%d";
                 nullString = " ∅ ";
             }
 
-            if (this.isomorphicSolution.getSolution().length > 99) {
+            if (this.optionalIsomorphicSolution.get().getSolution().length > 99) {
                 formatString = "[%3d";
                 nullString = " ∅ ";
             }
 
-            for (int i = 0; i < this.isomorphicSolution.getSolution().length; i++) {
+            for (int i = 0; i < this.optionalIsomorphicSolution.get().getSolution().length; i++) {
                 builder.append("  ");
                 builder.append(String.format(formatString, i));
                 builder.append("r] ➞ ");
 
-                if (this.isomorphicSolution.getSolution()[i] == -1) {
+                if (this.optionalIsomorphicSolution.get().getSolution()[i] == -1) {
                     builder.append(nullString);
                 } else {
-                    builder.append(String.format(formatString, this.isomorphicSolution.getSolution()[i]));
+                    builder.append(String.format(formatString, this.optionalIsomorphicSolution.get().getSolution()[i]));
                 }
 
-                if (this.isomorphicSolution.getSolution()[i] < 0) {
+                if (this.optionalIsomorphicSolution.get().getSolution()[i] < 0) {
                     builder.append("\n");
-                } else if (i != this.isomorphicSolution.getSolution()[i]) {
+                } else if (i != this.optionalIsomorphicSolution.get().getSolution()[i]) {
                     builder.append("c]* ");
                     builder.append(this.referenceExpression.getNode(i)
                             .toString("r"));
@@ -434,11 +439,13 @@ public class IsomorphicResultsBottomUp
         final SequenceSet<?> nodesInSolution = new SequenceSet<>();
         final SequenceSet<?> nodesNotInSolution = new SequenceSet<>();
 
-        for (int i = 0; i < this.isomorphicSolution.getSolution().length; i++) {
-            if (this.isomorphicSolution.getSolution()[i] >= 0) {
-                nodesInSolution.add(i);
-            } else {
-                nodesNotInSolution.add(i);
+        if (optionalIsomorphicSolution.isPresent()) {
+            for (int i = 0; i < this.optionalIsomorphicSolution.get().getSolution().length; i++) {
+                if (this.optionalIsomorphicSolution.get().getSolution()[i] >= 0) {
+                    nodesInSolution.add(i);
+                } else {
+                    nodesNotInSolution.add(i);
+                }
             }
         }
 
@@ -447,7 +454,7 @@ public class IsomorphicResultsBottomUp
 
             OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
             while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.getAsInt())) {
-                additionRoot = predecessorNid.getAsInt(); 
+                additionRoot = predecessorNid.getAsInt();
                 predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
             }
 
@@ -461,11 +468,13 @@ public class IsomorphicResultsBottomUp
     private void computeDeletions() {
         final SequenceSet<?> comparisonNodesInSolution = new SequenceSet<>();
 
-        Arrays.stream(this.isomorphicSolution.getSolution()).forEach((nodeId) -> {
-            if (nodeId >= 0) {
-                comparisonNodesInSolution.add(nodeId);
-            }
-        });
+        if (optionalIsomorphicSolution.isPresent()) {
+            Arrays.stream(this.optionalIsomorphicSolution.get().getSolution()).forEach((nodeId) -> {
+                if (nodeId >= 0) {
+                    comparisonNodesInSolution.add(nodeId);
+                }
+            });
+        }
 
         final SequenceSet<?> comparisonNodesNotInSolution = new SequenceSet<>();
 
@@ -539,7 +548,7 @@ public class IsomorphicResultsBottomUp
      * @return the isomorphic solution
      */
     // ? score based on number or leafs included, with higher score for smaller number of intermediate logicNodes.
-    private IsomorphicSolution isomorphicAnalysis() {
+    private Optional<IsomorphicSolution> isomorphicAnalysis() {
         final TreeSet<IsomorphicSearchBottomUpNode> comparisonSearchNodeSet = new TreeSet<>();
 
         for (int i = 0; i < this.comparisonVisitData.getNodesVisited(); i++) {
@@ -699,8 +708,7 @@ public class IsomorphicResultsBottomUp
 
         return possibleSolutions.stream()
                 .max((IsomorphicSolution o1,
-                        IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()))
-                .get();
+                        IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()));
     }
 
     /**
@@ -857,11 +865,14 @@ public class IsomorphicResultsBottomUp
 
     @Override
     public boolean equivalent() {
-        for (int solutionIndex: isomorphicSolution.solution) {
-            if (solutionIndex == -1) {
-                return false;
+        if (optionalIsomorphicSolution.isPresent()) {
+            for (int solutionIndex : optionalIsomorphicSolution.get().solution) {
+                if (solutionIndex == -1) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true; 
+        return false;
     }
 }

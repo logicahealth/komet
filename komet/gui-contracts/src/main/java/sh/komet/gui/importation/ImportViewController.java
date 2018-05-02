@@ -64,6 +64,7 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
 
 public class ImportViewController {
@@ -325,7 +326,13 @@ public class ImportViewController {
         this.fileTreeTable.setEditable(true);
         this.fileTreeTable.treeColumnProperty().set(treeColumn);
 
-        this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
+        } else {
+            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY);
+            this.addArtifactButton.setVisible(false);
+        }
+        
         this.importType.getSelectionModel().select(SelectedImportType.ACTIVE_ONLY);
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
