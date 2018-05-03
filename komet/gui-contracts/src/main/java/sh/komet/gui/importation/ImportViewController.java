@@ -56,11 +56,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.komet.gui.manifold.Manifold;
@@ -263,6 +265,20 @@ public class ImportViewController {
     void importData(ActionEvent event) {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
+        if(entriesToImport.get(0).getStreamSourceName().toLowerCase().startsWith("srf_")){
+            //TODO create some SRF based dependency logic, for now check if snomed is there
+            if(LookupService.get().getService(DescriptionIndexer.class)
+                    .query("theophobia",0).size() == 0) {
+
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("SOLOR Release Format Import Dependency");
+                alert.setContentText("This SOLOR Release Format content has a dependency requiring the following content:"
+                        + "\n\t-2018 SNOMED CT Release (.zip)");
+                alert.setHeaderText(null);
+                alert.showAndWait();
+                return;
+            }
+        }
         ImportType directImportType = null;
         switch (importType.getValue()) {
             case ACTIVE_ONLY:

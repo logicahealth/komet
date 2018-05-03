@@ -38,28 +38,6 @@ package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
 import com.opencsv.CSVReader;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -72,6 +50,25 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+//~--- non-JDK imports --------------------------------------------------------
+
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -155,7 +152,8 @@ public class DirectImporter
             if (this.entriesToImport != null) {
                 ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
 
-                SRF_IMPORT = this.entriesToImport.get(0).getStreamSourceName().toLowerCase().startsWith("srf_")? true : false;
+                SRF_IMPORT = this.entriesToImport.get(0).getStreamSourceName().toLowerCase().startsWith("srf_")
+                        ? true : false;
 
                 for (ContentProvider entry : this.entriesToImport) {
                     processEntry(entry, specificationsToImport);
