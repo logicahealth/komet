@@ -71,13 +71,20 @@ public class SimpleSearchService extends Service<NidSet> {
             private void runLuceneDescriptionQuery(NidSet results) {
                 updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
                 descriptionLuceneMatch.setManifoldCoordinate(getManifold());
-                descriptionLuceneMatch.setParameterString(getLuceneQuery());
+                String queryString = getLuceneQuery();
+                // Special handling to remove check digit from LOINC code query. 
+                if (queryString.charAt(queryString.length() -2) == '-') {
+                    queryString = queryString.substring(0, queryString.length() -2);
+                }
+                
+                
+                descriptionLuceneMatch.setParameterString(queryString);
                 results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
                 if (results.isEmpty()) {
                     
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);
-                        SearchHandle ssh = SearchHandler.searchIdentifiers(getLuceneQuery(),
+                        SearchHandle ssh = SearchHandler.searchIdentifiers(queryString,
                                 null,
                                 ((searchHandle) -> {
                                     try {

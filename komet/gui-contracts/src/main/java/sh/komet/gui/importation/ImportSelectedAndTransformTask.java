@@ -18,6 +18,7 @@ package sh.komet.gui.importation;
 
 import java.util.List;
 import java.util.concurrent.Future;
+import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.progress.PersistTaskResult;
@@ -84,7 +85,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          Future<?> classifyTask = classifierService.classify();
          classifyTask.get();
          completedUnitOfWork();
-         
+                  
          return null;
       } finally {
          this.done();
