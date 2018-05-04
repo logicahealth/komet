@@ -39,9 +39,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.api.util.DownloadUnzipTask;
 import sh.isaac.api.util.WorkExecutors;
+import sh.isaac.api.util.metainf.VersionFinder;
 import sh.isaac.dbConfigBuilder.artifacts.rest.query.NexusRead;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
-import sh.isaac.pombuilder.VersionFinder;
 
 /**
  * Convenience methods related to maven artifacts

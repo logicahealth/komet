@@ -35,30 +35,19 @@
  *
  */
 
-
-
-package sh.isaac.pombuilder;
-
-//~--- JDK imports ------------------------------------------------------------
+package sh.isaac.api.util.metainf;
 
 import java.io.File;
 import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link VersionFinder}.
@@ -66,10 +55,7 @@ import org.w3c.dom.Node;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class VersionFinder {
-   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Note that while this finds the project version from either the metadata embedded in the jar that contains this, 
@@ -92,7 +78,7 @@ public class VersionFinder {
     */
    public static String findProjectVersion(boolean allowSNAPSHOT) {
       try (InputStream is =
-            VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.integration/db-config-builder/pom.xml");) {
+            VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.core/api/pom.xml");) {
          final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
          // added to avoid XXE injections
@@ -146,4 +132,3 @@ public class VersionFinder {
       }
    }
 }
-

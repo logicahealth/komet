@@ -45,6 +45,7 @@ import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
+import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
@@ -60,6 +61,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.metainf.VersionFinder;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
@@ -200,9 +202,9 @@ public class DirectWriteHelper
 	 */
 	public UUID makeBrittleRefsetMember(UUID assemblageConcept, UUID memberUUID, long time)
 	{
-		UUID uuidForCreatedMember = UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, memberUUID, null,
+		UUID uuidForCreatedMember = UuidFactory.getUuidForMemberSemantic(converterUUID.getNamespace(), assemblageConcept, memberUUID, 
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC,
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.MEMBER,
 				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
 		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
@@ -669,6 +671,42 @@ public class DirectWriteHelper
 	{
 		makeBrittleRefsetMember(MetaData.IDENTIFIER_ASSEMBALGE____SOLOR.getPrimordialUuid(), concept, time);
 	}
+	
+	public UUID makeStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
+	{
+		UUID uuidForCreatedMember = UuidFactory.getUuidForStringSemantic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, annotation,
+				((input, uuid) -> converterUUID.addMapping(input, uuid)));
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.STRING,
+				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(referencedComponent));
+		MutableStringVersion version = refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		version.setString(annotation);
+		indexAndWrite(refsetMemberToWrite);
+		loadStats.addRefsetMember(Get.conceptDescriptionText(identifierService.getNidForUuids(assemblageConcept)));
+		return refsetMemberToWrite.getPrimordialUuid();
+	}
+	
+	public void makeTerminologyMetadataAnnotations(UUID terminologyModuleVersionConcept, String converterSourceArtifactVersion,
+			Optional<String> converterSourceReleaseDate, Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier, long time)
+	{
+		makeStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, converterSourceArtifactVersion, time);
+		if (converterOutputArtifactVersion.isPresent() && StringUtils.isNotBlank(converterOutputArtifactVersion.get()))
+		{
+			makeStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+					converterOutputArtifactVersion.get(), time);
+		}
+		makeStringAnnotation(MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, VersionFinder.findProjectVersion(true), time);
+
+		if (converterOutputArtifactClassifier.isPresent() && StringUtils.isNotBlank(converterOutputArtifactClassifier.get()))
+		{
+			makeStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+					converterOutputArtifactClassifier.get(), time);
+		}
+		if (converterSourceReleaseDate.isPresent() && StringUtils.isNotBlank(converterSourceReleaseDate.get()))
+		{
+			makeStringAnnotation(MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+					converterSourceReleaseDate.get(), time);
+		}
+	}
 
 	/**
 	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
@@ -723,5 +761,14 @@ public class DirectWriteHelper
 	public boolean isAssociation(UUID concept)
 	{
 		return associations.contains(concept);
+	}
+
+	/**
+	 * @param authorNid
+	 */
+	public void changeAuthor(int authorNid)
+	{
+		log.debug("Changing author nid from {} to {}", this.authorNid, authorNid);
+		this.authorNid = authorNid;
 	}
 }

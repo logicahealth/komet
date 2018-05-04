@@ -16,12 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test;
+package sh.isaac.api.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.pombuilder.VersionFinder;
+import sh.isaac.api.util.metainf.VersionFinder;
 
 /**
  * {@link VersionFinderTest}
