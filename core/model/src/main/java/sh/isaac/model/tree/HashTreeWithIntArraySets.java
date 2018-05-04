@@ -63,6 +63,7 @@ import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -714,7 +715,7 @@ public class HashTreeWithIntArraySets
    public final int[] getParentNids(int childNid) {
       if (this.childNid_ParentNidSetArray_Map.containsKey(childNid)) {
          int[] parents = this.childNid_ParentNidSetArray_Map.get(childNid);
-         if (parents.length > 1) {
+         if (parents.length > 1 && manifoldCoordinate.getTaxonomyPremiseType() == PremiseType.INFERRED) {
              OpenIntHashSet redundantParents = new OpenIntHashSet();
              for (int i = 0; i < parents.length -1; i++) {
                  for (int j = 1; j < parents.length; j++) {
@@ -735,6 +736,10 @@ public class HashTreeWithIntArraySets
              }
              IntArrayList closestParentList = closestParentSet.keys();
              closestParentList.sort();
+             int removed = parents.length - closestParentList.elements().length;
+             if (removed > 0) {
+                LOG.debug("Removed {} redundant parents", removed);
+             }
              return closestParentList.elements();
          }
          return parents;

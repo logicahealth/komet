@@ -265,20 +265,22 @@ public class ImportViewController {
     void importData(ActionEvent event) {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
-        if(entriesToImport.get(0).getStreamSourceName().toLowerCase().startsWith("srf_")){
-            //TODO create some SRF based dependency logic, for now check if snomed is there
-            if(LookupService.get().getService(DescriptionIndexer.class)
-                    .query("theophobia",0).size() == 0) {
 
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("SOLOR Release Format Import Dependency");
-                alert.setContentText("This SOLOR Release Format content has a dependency requiring the following content:"
-                        + "\n\t-2018 SNOMED CT Release (.zip)");
-                alert.setHeaderText(null);
-                alert.showAndWait();
-                return;
-            }
+        final boolean entryListContainsSRF = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().startsWith("srf_"));
+        final boolean entryListcontainsRF2 = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().contains("sct2_concept"));
+        final boolean solorDBContainsSNOMEDCT = LookupService.get().getService(DescriptionIndexer.class).query("theophobia",0).size() > 0;
+
+        //TODO create some SRF based dependency logic, for now check if snomed is there
+        if(entryListContainsSRF && (!entryListcontainsRF2 & !solorDBContainsSNOMEDCT)){
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("SOLOR Release Format Import Dependency");
+            alert.setContentText("This SOLOR Release Format content has a dependency requiring the following content:"
+                    + "\n\t-2018 SNOMED CT Release (.zip)");
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return;
         }
+
         ImportType directImportType = null;
         switch (importType.getValue()) {
             case ACTIVE_ONLY:

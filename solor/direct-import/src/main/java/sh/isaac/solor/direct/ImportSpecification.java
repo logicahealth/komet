@@ -29,22 +29,24 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
    final ImportStreamType streamType;
    final ContentProvider contentProvider;
    final BrittleDataTypes[] refsetBrittleTypes;
+   private boolean solorReleaseFormat;
    
-   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType, String refsetFileName) {
+   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType, String refsetFileName, boolean solorReleaseFormat) {
        this.streamType = streamType;
        this.contentProvider = contentProvider;
+       this.solorReleaseFormat = solorReleaseFormat;
        ArrayList<BrittleDataTypes> bdt = new ArrayList<>();
        if (streamType != ImportStreamType.DYNAMIC) {
           throw new RuntimeException("This constructor should only be used with DYNAMIC refset types");
        }
-       if (refsetFileName.toLowerCase().contains("refset_") || DirectImporter.SRF_IMPORT) {
+       if (refsetFileName.toLowerCase().contains("refset_") || this.solorReleaseFormat) {
            //split things like "_iisssccrefset"
            //careful of file patterns like: snapshot/refset/metadata/der2_ccirefset_refsetdescriptorsnapshot_int_20170731.txt
            //Though this stuff should really be read from the refset metadata, not the file name
            //as we could then capture the rest of the metadata we need about the column, like name, purpose, etc.
            String spec;
 
-           if (DirectImporter.SRF_IMPORT) {
+           if (this.solorReleaseFormat) {
                int start = refsetFileName.toLowerCase().lastIndexOf("assemblage_");
                spec = refsetFileName.substring(start, refsetFileName.length()).toLowerCase()
                        .replace("assemblage_", "").split(" ")[0];
@@ -80,13 +82,18 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
        }
    }
    
-   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType) {
+   public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType, boolean solorReleaseFormat) {
          this.streamType = streamType;
          this.contentProvider = contentProvider;
          this.refsetBrittleTypes = null;
+         this.solorReleaseFormat = solorReleaseFormat;
    }
-   
-   @Override
+
+    public boolean isSolorReleaseFormat() {
+        return solorReleaseFormat;
+    }
+
+    @Override
    public int hashCode() {
       int hash = 7;
       hash = 37 * hash + Objects.hashCode(this.streamType);
@@ -122,11 +129,11 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       //because this refset tells me what the columns / orders / etc are for every other refset.
       //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
 
-       if(DirectImporter.SRF_IMPORT){
-           if ( this.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
+       if(this.solorReleaseFormat){
+           if ( this.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci descriptor")) {
                return -1;
            }
-           else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
+           else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci descriptor")) {
                return 1;
            }
        } else{

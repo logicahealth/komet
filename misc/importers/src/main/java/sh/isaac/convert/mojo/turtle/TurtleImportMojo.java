@@ -120,12 +120,13 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private int moduleNid;
 	private int authorNid;
 	private UUID rootConcept;
+	private UUID coreGroupConcept;
 	
 	private long releaseTime;
 
 	private HashMap<String, List<Statement>> allStatements;
 	private HashMap<UUID, Resource> conceptsToBeBuilt = new HashMap<>();
-	private HashSet<UUID> conceptsToHangFromRoot = new HashSet<>();
+	private HashSet<UUID> conceptsToHangFromCore = new HashSet<>();
 	
 	private HashSet<String> observedAnonNodes = new HashSet<>();
 	private HashSet<String> processedAnonNodes = new HashSet<>();
@@ -196,8 +197,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		possibleAssociations.put("http://www.w3.org/ns/adms#status", "status");
 		possibleAssociations.put("http://purl.org/dc/terms/publisher", "publisher");
 		possibleAssociations.put("http://purl.org/dc/terms/isVersionOf", "is version of");
+		possibleAssociations.put("http://purl.org/vocab/vann/termGroup", "term group");
 		
-		possibleRelationships.put("http://purl.org/vocab/vann/termGroup", "term group");  
 		possibleRelationships.put("http://www.w3.org/2000/01/rdf-schema#subClassOf", "sub class of");
 		possibleRelationships.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "type");
 		
@@ -210,8 +211,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		possibleDescriptionTypes.put("http://rdfs.co/bevon/description", new Pair<String, UUID>("description", definition));
 		possibleDescriptionTypes.put("http://purl.org/dc/terms/description", new Pair<String, UUID>("description", definition));
 		possibleDescriptionTypes.put("http://xmlns.com/foaf/0.1/name", new Pair<String, UUID>("name", regularName));
-		
-		//TODO refsets metadata not being populated?
 		
 		//TODO put together code to dynamically build all of these anonymous, dynamic types.
 		//TODO fix the problem of not creating various referenced concepts here - column headers, and target data
@@ -743,13 +742,26 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						Status.ACTIVE, releaseTime, preferred);
 				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 	
-				for (RDFNode value : findPredicateValues("http://purl.org/vocab/vann/termGroup", false, statements))
+				for (Statement s : allStatements.get("http://rdfs.co/bevon/CoreGroup"))
 				{
-					conceptsToHangFromRoot.add(getConceptUUID(value.asResource().getURI()));
+					if (s.getPredicate().asResource().getURI().startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#_"))
+					{
+						conceptsToHangFromCore.add(getConceptUUID(s.getObject().asResource().getURI()));
+					}
 				}
 				
 				//Set up our metadata hierarchy
 				dwh.makeMetadataHierarchy(title, true, true, true, true, true, releaseTime);
+				
+				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
+				rootConcept = getConceptUUID(subject);
+				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
+				
+				coreGroupConcept = getConceptUUID("http://rdfs.co/bevon/CoreGroup");
+				dwh.makeConcept(coreGroupConcept, Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				
 				
 				//Create some types...
 				for (Entry<String, String> entry : possibleRelationships.entrySet())
@@ -797,7 +809,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(associationUUID, parentStatements, new UUID[] {dwh.getAssociationTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), associationUUID, parentStatements, new UUID[] {dwh.getAssociationTypes().get()}, releaseTime);
 						}
 						else
 						{
@@ -827,7 +839,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(dynamicSemenatic, parentStatements, new UUID[] {dwh.getAttributeTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), dynamicSemenatic, parentStatements, new UUID[] {dwh.getAttributeTypes().get()}, releaseTime);
 						}
 						else
 						{
@@ -859,7 +871,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(uuid, parentStatements, new UUID[] {dwh.getDescriptionTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), uuid, parentStatements, new UUID[] {dwh.getDescriptionTypes().get()}, releaseTime);
 						}
 						else 
 						{
@@ -869,11 +881,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						}
 					}
 				}
-				
-				//Need to make the root concept, and its rel, prior to adding its descriptions
-				rootConcept = getConceptUUID(subject);
-				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				
 				generatePlaceholdersForMissing(releaseTime);  //Some type rels have extended types that point to concets we don't have - must create now
 				//for the next step to work properly
@@ -1094,6 +1101,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			Status status = Status.ACTIVE;  //haven't yet seen an attribute that would qualify to inactivate something
 			String title = null;
 			
+			String collectionType = "Unspecified collection";
+			
 			for (Statement s : subjectStatements)
 			{
 				if (s.getPredicate().isURIResource())
@@ -1117,6 +1126,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					else if (possibleRelationships.containsKey(s.getPredicate().getURI()))
 					{
 						parentStatements.add(s);
+						if (s.getObject().asResource().getURI().startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+						{
+							collectionType = s.getObject().asResource().getURI().substring("http://www.w3.org/1999/02/22-rdf-syntax-ns#".length()); 
+						}
 					}
 					else if (s.getPredicate().getURI().equals("http://purl.org/dc/terms/title"))
 					{
@@ -1147,7 +1160,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			}
 			
 			if (possibleAssociations.containsKey(subjectFQN) || possibleDynamicAttributes.containsKey(subjectFQN) || possibleDescriptionTypes.containsKey(subjectFQN) 
-					|| concept.equals(rootConcept))
+					|| concept.equals(rootConcept) || concept.equals(coreGroupConcept))
 			{
 				//We already made this concept, and its parent graphs
 				writeParentGraphs = false;
@@ -1183,17 +1196,17 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						acceptable);
 			}
 
-			boolean madeRefset = handleProperties(concept,time, subjectRegularName, properties);
+			boolean madeRefset = handleProperties(concept,time, subjectRegularName, properties, collectionType);
 
 			if (writeParentGraphs) 
 			{
-				writeParentGraph(concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypes().get()} : null), time);
+				writeParentGraph(subjectFQN, concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypes().get()} : null), time);
 			}
 			return concept;
 		}
 	}
 	
-	private UUID writeParentGraph(UUID concept, ArrayList<Statement> parentStatements, UUID[] additionalParents, long time)
+	private UUID writeParentGraph(String subjectFQN, UUID concept, ArrayList<Statement> parentStatements, UUID[] additionalParents, long time)
 	{
 		ArrayList<UUID> parents = new ArrayList<>();
 		for (Statement s : parentStatements)
@@ -1205,12 +1218,15 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				conceptsToBeBuilt.put(uuid, s.getObject().asResource());
 			}
 		}
-		boolean addTermGroup = false;
-		if (conceptsToHangFromRoot.contains(concept))
+
+		if (subjectFQN.equals("http://rdfs.co/bevon/CoreGroup"))
 		{
-			//TODO finish debugging why the taxonomy ignores this concept
 			parents.add(rootConcept);
-			addTermGroup = true;
+		}
+		//This is a refset, in OWL, but it makes it much more browseable as a taxononomy, if we also make it a isA...
+		if (conceptsToHangFromCore.contains(concept))
+		{
+			parents.add(coreGroupConcept);
 		}
 		if (additionalParents != null)
 		{
@@ -1250,10 +1266,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		{
 			dwh.makeExtendedRelationshipTypeAnnotation(logicGraph, getConceptUUID(s), time);
 		}
-		if (addTermGroup)
-		{
-			dwh.makeExtendedRelationshipTypeAnnotation(logicGraph, getConceptUUID("http://purl.org/vocab/vann/termGroup"), time);
-		}
 		return logicGraph;
 	}
 
@@ -1261,32 +1273,18 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	 * @param propStatements
 	 * @return true, if this concept was turned into a refset definition by the properties we processed
 	 */
-	private boolean handleProperties(UUID concept, long time, String localName, ArrayList<Statement> propStatements)
+	private boolean handleProperties(UUID concept, long time, String localName, ArrayList<Statement> propStatements, String collectionType)
 	{
-		List<RDFNode> typeStatement = findPredicateValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", false, propStatements);
-		boolean buildBag = false;
-		if (typeStatement.size() == 1 && typeStatement.get(0).asResource().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag"))
+		boolean madeRefset = false;
+		if (findPredicateValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#_", true, propStatements).size() > 0)
 		{
-			buildBag = true;
-			dwh.configureConceptAsDynamicAssemblage(concept, "Owl Bag", null, null, null, time);
-		}
-		else if (typeStatement.size() == 0 && findPredicateValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#_", true, propStatements).size() > 0)
-		{
-			//Unspecified collection type  this may actually be a bug in the data...
-			dwh.configureConceptAsDynamicAssemblage(concept, "Unspecified collection", null, null, null, time);
+			dwh.configureConceptAsDynamicAssemblage(concept, collectionType, null, null, null, time);
+			madeRefset = true;
 		}
 
 		for (Statement s : propStatements)
 		{
-			if (s.getPredicate().asResource().getURI().equals("http://purl.org/vocab/vann/termGroup") && concept.equals(rootConcept))
-			{
-				//skip, already handled
-			}
-			else if (s.getPredicate().asResource().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") && buildBag)
-			{
-				//skip, already handled
-			}
-			else if (s.getPredicate().asResource().getURI().startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#_"))
+			if (s.getPredicate().asResource().getURI().startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#_"))
 			{
 				//collection entry (bag or otherwise)
 				dwh.makeDynamicRefsetMember(concept, getConceptUUID(s.getObject().asResource().getURI()), time);
@@ -1344,7 +1342,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				log.warn("property type not yet handled: " + s.getPredicate().asResource().getURI());
 			}
 		}
-		return buildBag;
+		return madeRefset;
 	}
 	
 	private void processAnonStatements(List<Statement> anonNodeStatements, long time, String predicateURI, UUID attachTo, String anonId)
