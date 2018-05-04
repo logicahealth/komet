@@ -75,12 +75,14 @@ id	effectiveTime	active	moduleId	definitionStatusId
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
    private final ImportType importType;
+   private final boolean solorReleaseFormat;
 
    public ConceptWriter(List<String[]> conceptRecords, Semaphore writeSemaphore, 
-           String message, ImportType importType) {
+           String message, ImportType importType, boolean solorReleaseFormat) {
       this.conceptRecords = conceptRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      this.solorReleaseFormat = solorReleaseFormat;
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing concept batch of size: " + conceptRecords.size());
       updateMessage(message);
@@ -106,7 +108,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          int authorNid = 1;   //TODO need to initialize them, rework the Logic AKS
          int pathNid = 1;     //TODO need to initialize them, rework the Logic AKS
 
-         if(DirectImporter.SRF_IMPORT){
+         if(this.solorReleaseFormat){
             conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
             identifierAssemblageNid = MetaData.UUID____SOLOR.getNid();
             defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
@@ -119,7 +121,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          }
 
          for (String[] conceptRecord : conceptRecords) {
-            final Status state = DirectImporter.SRF_IMPORT
+            final Status state = this.solorReleaseFormat
                     ? Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
             if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
@@ -129,7 +131,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             UUID conceptUuid, moduleUuid, legacyDefStatus;
             TemporalAccessor accessor;
 
-            if(DirectImporter.SRF_IMPORT){
+            if(this.solorReleaseFormat){
                authorNid = identifierService.getNidForUuids(UUID.fromString(conceptRecord[SRF_AUTHOR_INDEX]));
                pathNid = identifierService.getNidForUuids(UUID.fromString(conceptRecord[SRF_PATH_INDEX]));
                conceptUuid = UUID.fromString(conceptRecord[SRF_ID_INDEX]);
@@ -160,7 +162,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             // add to legacy def status assemblage
             UUID defStatusPrimordialUuid;
 
-            if(DirectImporter.SRF_IMPORT){
+            if(this.solorReleaseFormat){
                defStatusPrimordialUuid = UuidT5Generator.get(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
@@ -181,7 +183,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             // add to sct identifier assemblage
             UUID identifierUuid;
 
-            if(DirectImporter.SRF_IMPORT){
+            if(this.solorReleaseFormat){
                identifierUuid = UuidT5Generator.get(MetaData.UUID____SOLOR.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
@@ -195,7 +197,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
                                conceptToWrite.getNid());
 
             StringVersionImpl idVersion = identifierToWrite.createMutableVersion(conceptStamp);
-            idVersion.setString(DirectImporter.SRF_IMPORT ? conceptRecord[SRF_ID_INDEX]: conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+            idVersion.setString(this.solorReleaseFormat ? conceptRecord[SRF_ID_INDEX]: conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
             index(identifierToWrite);
             assemblageService.writeSemanticChronology(identifierToWrite);
             completedUnitOfWork();

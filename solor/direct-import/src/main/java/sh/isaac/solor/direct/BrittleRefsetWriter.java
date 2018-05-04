@@ -19,7 +19,6 @@ package sh.isaac.solor.direct;
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
-import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -91,14 +90,16 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
    private final HashSet<String> refsetsToIgnore = new HashSet<>();
+   private final boolean solorReleaseFormat;
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
-           ImportSpecification importSpecification, ImportType importType) {
+           ImportSpecification importSpecification, ImportType importType, boolean solorReleaseFormat) {
       this.refsetRecords = semanticRecords;
       this.writeSemaphore = writeSemaphore;
       this.importSpecification = importSpecification;
       this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
+      this.solorReleaseFormat = solorReleaseFormat;
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing semantic batch of size: " + semanticRecords.size());
       updateMessage(message);
@@ -165,7 +166,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          int authorNid = 1;
          int pathNid = 1;
 
-         if(!DirectImporter.SRF_IMPORT){
+         if(!this.solorReleaseFormat){
              authorNid = TermAux.USER.getNid();
              pathNid = TermAux.DEVELOPMENT_PATH.getNid();
          }
@@ -175,10 +176,10 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          boolean skippedAny = false;
          for (String[] refsetRecord : refsetRecords) {
              try {
-                 UUID referencedComponentUuid = DirectImporter.SRF_IMPORT
+                 UUID referencedComponentUuid = this.solorReleaseFormat
                          ? UUID.fromString(refsetRecord[SRF_REFERENCED_COMPONENT_ID_INDEX])
                          : UuidT3Generator.fromSNOMED(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                 final Status state = DirectImporter.SRF_IMPORT
+                 final Status state = this.solorReleaseFormat
                          ? Status.fromZeroOneToken(refsetRecord[SRF_STATUS_INDEX])
                          : Status.fromZeroOneToken(refsetRecord[RF2_ACTIVE_INDEX]);
                  if (importType == ImportType.ACTIVE_ONLY) {
@@ -191,7 +192,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                         if (!skippedAny) {
                             skippedAny = true;
                             StringBuilder builder = new StringBuilder();
-                            int assemblageNid = DirectImporter.SRF_IMPORT
+                            int assemblageNid = this.solorReleaseFormat
                                     ? identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_ASSEMBLAGE_ID_INDEX]))
                                     : nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
                             builder.append("Skipping at least one record in: ");
@@ -203,7 +204,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                         continue;
                     }
                  }
-                 if (!DirectImporter.SRF_IMPORT && refsetsToIgnore.contains(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX])) {
+                 if (!this.solorReleaseFormat && refsetsToIgnore.contains(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX])) {
                      continue;
                  }
 
@@ -211,7 +212,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                  int moduleNid, assemblageNid, referencedComponentNid;
                  TemporalAccessor accessor;
 
-                 if (DirectImporter.SRF_IMPORT) {
+                 if (this.solorReleaseFormat) {
                      authorNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_AUTHOR_INDEX]));
                      pathNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_PATH_INDEX]));
                      elementUuid = UUID.fromString(refsetRecord[SRF_ID_INDEX]);
