@@ -64,8 +64,6 @@ import org.jvnet.hk2.annotations.Service;
 
 
 import sh.isaac.api.Get;
-import sh.isaac.api.IsaacCache;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -86,14 +84,11 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 @Service
 @Singleton  // Singleton from the perspective of HK2 managed instances
-public class RelativePositionCalculator
-         implements IsaacCache {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+public class RelativePositionCalculator {
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant CALCULATOR_CACHE. */
-   private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> CALCULATOR_CACHE =
-      new ConcurrentHashMap<>();
+   private static RelativePositionCalculator lastCaclulator = null;
 
    //~--- fields --------------------------------------------------------------
 
@@ -374,15 +369,6 @@ public class RelativePositionCalculator
    }
 
    /**
-    * Reset.
-    */
-   @Override
-   public void reset() {
-      log.info("Resetting RelativePositionCalculator.");
-      CALCULATOR_CACHE.clear();
-   }
-
-   /**
     * To string.
     *
     * @return the string
@@ -470,7 +456,7 @@ public class RelativePositionCalculator
             this.errorCount++;
 
             if (this.errorCount < 5) {
-               log.warn(
+               LOG.warn(
                    "{} should never happen. " + "Data is malformed. stampSequence: {} Part:\n{} \n  Part to test: \n{}",
                    new Object[] { RelativePosition.EQUAL, part.getStampSequence(), part, prevPartToTest });
             }
@@ -514,8 +500,7 @@ public class RelativePositionCalculator
       // items to the stampsForPosition.
       final OpenIntHashSet stampsToCompare = (OpenIntHashSet) stampsForPosition.clone();
 
-      stampsToCompare.forEachKey(
-          (prevStamp) -> {
+      stampsToCompare.forEachKey((prevStamp) -> {
              switch (fastRelativePosition(stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
              case AFTER:
                 stampsForPosition.remove(prevStamp);
@@ -543,7 +528,7 @@ public class RelativePositionCalculator
                 this.errorCount++;
 
                 if (this.errorCount < 20) {
-                   log.warn(
+                   LOG.warn(
                        "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
                        new Object[] { RelativePosition.EQUAL, 
                            Get.stampService().describeStampSequence(stampSequence), 
@@ -615,7 +600,17 @@ public class RelativePositionCalculator
     * @return the calculator
     */
    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
-      return LookupService.get().getService(RelativePositionCalculator.class).getCalculatorInstance(coordinate);
+       RelativePositionCalculator calcToTry = lastCaclulator;
+       if (calcToTry != null) {
+           if (calcToTry.coordinate == coordinate) {
+               return calcToTry;
+           }
+       }
+
+      calcToTry = new RelativePositionCalculator(coordinate);
+      lastCaclulator = calcToTry;
+
+      return calcToTry;
    }
 
    /**
@@ -625,21 +620,18 @@ public class RelativePositionCalculator
     * @return the calculator
     */
    public RelativePositionCalculator getCalculatorInstance(StampCoordinate coordinate) {
-      RelativePositionCalculator calculator = CALCULATOR_CACHE.get(coordinate);
+       
+       RelativePositionCalculator calcToTry = lastCaclulator;
+       if (calcToTry != null) {
+           if (calcToTry.coordinate == coordinate) {
+               return calcToTry;
+           }
+       }
 
-      if (calculator != null) {
-         return calculator;
-      }
+      calcToTry = new RelativePositionCalculator(coordinate);
+      lastCaclulator = calcToTry;
 
-      calculator = new RelativePositionCalculator(coordinate);
-
-      final RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, calculator);
-
-      if (existing != null) {
-         calculator = existing;
-      }
-
-      return calculator;
+      return calcToTry;
    }
 
    /**

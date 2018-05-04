@@ -421,6 +421,11 @@ public class Manifold
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return this.observableManifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
+
+    @Override
+    public StampCoordinate getImmutableAllStateAnalog() {
+        return getStampCoordinate().getImmutableAllStateAnalog();
+    }
     
     
 }
