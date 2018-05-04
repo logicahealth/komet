@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,7 +119,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private DirectWriteHelper dwh;
 
 	private int moduleNid;
-	private int authorNid;
+	private int authorNid = 0;
 	private UUID rootConcept;
 	private UUID coreGroupConcept;
 	
@@ -165,8 +166,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		this();
 		this.outputDirectory = outputDirectory;
 		this.inputStream = ttlFile;
-		//TODO write the converter version out in the metadata somewhere - should be able to read this at runtime need to find the whats-my-version utility method
-		//TODO also write out converterSourceArtifactVersion
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
 		init();
@@ -647,14 +646,14 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			HashSet<String> processedSubjects = new HashSet<>();
 
 //For debug...
-//			for (String s : allStatements.keySet())
-//			{
-//				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
-//				for (Statement st : allStatements.get(s))
-//				{
-//					System.out.println("  " + st.toString());
-//				}
-//			}
+			for (String s : allStatements.keySet())
+			{
+				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
+				for (Statement st : allStatements.get(s))
+				{
+					System.out.println("  " + st.toString());
+				}
+			}
 			
 			for (Entry<String, String> s : singleValueTypedSemantics.entrySet())
 			{
@@ -662,6 +661,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				possibleDynamicAttributes.put(s.getKey(), 
 					new DynamicSemanticHelper(s.getValue(), value.get(), getConceptUUID(s.getKey()), IsaacObjectType.CONCEPT, null));
 			}
+			
+			authorNid = TermAux.USER.getNid();
 			
 			UUID parentModule = null;
 			releaseTime = 0;
@@ -689,8 +690,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				String identifier = findPredicateValue("http://purl.org/dc/terms/identifier", statements).asLiteral().getString();  //"http://rdfs.co/bevon/0.8"
 				String version = findPredicateValue("http://www.w3.org/2002/07/owl#versionInfo", statements).asLiteral().getString();  //"0.8"
 				
-				authorNid = TermAux.USER.getNid();  // TODO read from somewhere?
-				
 				if (!subject.equals(identifier))
 				{
 					throw new RuntimeException("Was expecting these to be the same: " + subject + ", " + identifier);
@@ -702,7 +701,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				{
 					//We don't have a module of our own yet, so put the "grouping" concept on the solor module.
 					moduleNid = MetaData.MODULE____SOLOR.getNid();
-					dwh = new DirectWriteHelper(authorNid, moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID);
+					dwh = new DirectWriteHelper(MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID);
 					dwh.makeConcept(parentModule, Status.ACTIVE, releaseTime);
 					
 					dwh.makeDescriptionEn(parentModule, preferredNamespaceUri + " modules", fsn, 
@@ -718,6 +717,27 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				//We have now created a Bevon modules grouping concept.  Configure to that module for further work...
 				converterUUID.configureNamespace(parentModule);  //UUID generation always using the parent grouping namespace, not a version-specific module.
 				moduleNid = Get.identifierService().getNidForUuids(parentModule);
+				
+				//See if we can find a better author
+				for (List<Statement> groupedStatements : allStatements.values())
+				{
+					if (!groupedStatements.get(0).getSubject().isAnon())
+					{
+						for (Statement s : groupedStatements)
+						{
+							if (s.getPredicate().getURI().equals("http://purl.org/dc/terms/creator"))
+							{
+								if (authorNid != TermAux.USER.getNid())
+								{
+									throw new RuntimeException("Not written to handle multiple authors");
+								}
+								UUID temp = getConceptUUID(s.getObject().asNode().getURI());
+								authorNid = Get.identifierService().assignNid(temp);
+							}
+						}
+					}
+				}
+				
 				//Switch the direct write helper to the bevon module for the 'version specific' module...
 				if (dwh == null)
 				{
@@ -726,8 +746,9 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				else
 				{
 					dwh.changeModule(moduleNid);
+					dwh.changeAuthor(authorNid);
 				}
-	
+				
 				//Create a module for this version.
 				UUID versionModule = getConceptUUID(identifier + " module");
 				moduleNid = Get.identifierService().assignNid(versionModule);
@@ -741,6 +762,9 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
 				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+				
+				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
+						Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
 	
 				for (Statement s : allStatements.get("http://rdfs.co/bevon/CoreGroup"))
 				{
@@ -1228,6 +1252,12 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		{
 			parents.add(coreGroupConcept);
 		}
+		
+		if (Get.identifierService().getNidForUuids(concept) == authorNid)
+		{
+			parents.add(MetaData.USER____SOLOR.getPrimordialUuid());
+		}
+		
 		if (additionalParents != null)
 		{
 			for (UUID parent : additionalParents) 
