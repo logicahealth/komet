@@ -80,7 +80,8 @@ public class SimpleSearchService extends Service<NidSet> {
                 
                 descriptionLuceneMatch.setParameterString(queryString);
                 results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
-                if (results.isEmpty()) {
+//                if (results.isEmpty()) {
+                if (true) {
                     
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);
