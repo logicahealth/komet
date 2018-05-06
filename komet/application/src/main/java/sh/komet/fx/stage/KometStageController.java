@@ -36,14 +36,19 @@
  */
 package sh.komet.fx.stage;
 
+import com.cedarsoftware.util.io.JsonObject;
+import com.cedarsoftware.util.io.JsonReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -70,6 +75,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -82,6 +89,7 @@ import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
+import sh.isaac.solor.direct.MiscJson;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
@@ -341,6 +349,20 @@ public class KometStageController
                 Get.executor().execute(conversionTask);
             });
             items.add(convertLoincExpressions);
+            
+            MenuItem processJson = new MenuItem("Process JSON");
+            processJson.setOnAction((ActionEvent event) -> {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open JSON File");                
+                fileChooser.getExtensionFilters().addAll(
+                    new ExtensionFilter("JSON Files", "*.json")
+                );
+                File selectedFile = fileChooser.showOpenDialog(null);
+                Get.executor().execute(new MiscJson(selectedFile));
+            });
+            items.add(processJson);
+
+
             
             File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
             if (beer.isFile()) {

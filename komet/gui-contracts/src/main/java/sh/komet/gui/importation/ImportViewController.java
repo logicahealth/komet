@@ -190,8 +190,8 @@ public class ImportViewController {
                     }
                 }
 
-            Platform.runLater(() -> setupEntryTree());
-            return null;
+                Platform.runLater(() -> setupEntryTree());
+                return null;
             }
         };
         Get.workExecutors().getExecutor().execute(t);
@@ -228,7 +228,8 @@ public class ImportViewController {
                             }
                             fileItem.getChildren().add(treeItem);
                         } else {
-                            TreeItem<ImportItem> parentItem = treeItems.get(treeItemValue.getParentKey());
+                            String parentKey = treeItemValue.getParentKey();
+                            TreeItem<ImportItem> parentItem = treeItems.get(parentKey);
                             if (parentItem == null) {
                                 // Add... In some zip files, the directories are not added, just the files. 
                                 // So we may encounter a need for a parent directory
@@ -245,11 +246,23 @@ public class ImportViewController {
                                 directoryItem.getChildren().add(treeItem);
 
                             } else {
+                                if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
+                                    fileTreeTable.getRoot().getChildren().add(fileItem);
+                                }
+
                                 parentItem.getValue().importDataProperty().removeListener(treeItemValue);
                                 parentItem.getValue().importDataProperty().addListener(treeItemValue);
-                                parentItem.getChildren().add(treeItem);
+                                if (!parentItem.getChildren().contains(fileItem)) {
+                                    parentItem.getChildren().add(treeItem);
+                                }
+
                                 if (treeItemValue.importData()) {
                                     parentItem.getValue().importDataProperty().set(true);
+                                }
+                                if (parentKey.indexOf('/') == parentKey.length() - 1) {
+                                    if (!fileItem.getChildren().contains(parentItem)) {
+                                        fileItem.getChildren().add(parentItem);
+                                    }
                                 }
                             }
                         }
@@ -268,10 +281,10 @@ public class ImportViewController {
 
         final boolean entryListContainsSRF = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().startsWith("srf_"));
         final boolean entryListcontainsRF2 = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().contains("sct2_concept"));
-        final boolean solorDBContainsSNOMEDCT = LookupService.get().getService(DescriptionIndexer.class).query("theophobia",0).size() > 0;
+        final boolean solorDBContainsSNOMEDCT = LookupService.get().getService(DescriptionIndexer.class).query("theophobia", 0).size() > 0;
 
         //TODO create some SRF based dependency logic, for now check if snomed is there
-        if(entryListContainsSRF && (!entryListcontainsRF2 & !solorDBContainsSNOMEDCT)){
+        if (entryListContainsSRF && (!entryListcontainsRF2 & !solorDBContainsSNOMEDCT)) {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("SOLOR Release Format Import Dependency");
             alert.setContentText("This SOLOR Release Format content has a dependency requiring the following content:"
@@ -350,7 +363,7 @@ public class ImportViewController {
             this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY);
             this.addArtifactButton.setVisible(false);
         }
-        
+
         this.importType.getSelectionModel().select(SelectedImportType.ACTIVE_ONLY);
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
@@ -403,8 +416,8 @@ public class ImportViewController {
                 for (SDOSourceContent sdo : sdoPicker.getSelectionModel().getSelectedItems()) {
                     Optional<File> local = sdo.getLocalPath(storedPrefs);
                     if (local.isPresent()) {
-                        
-                        addFiles(Arrays.asList(new File[] { local.get() }));
+
+                        addFiles(Arrays.asList(new File[]{local.get()}));
                     }
                 }
             }
