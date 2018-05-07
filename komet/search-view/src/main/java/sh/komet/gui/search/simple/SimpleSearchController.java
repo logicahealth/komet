@@ -70,6 +70,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import sh.komet.gui.util.FxGet;
 
 /**
  * @author kec
@@ -80,7 +81,7 @@ public class SimpleSearchController implements ExplorationNode {
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
     private final SimpleStringProperty       titleNodeProperty =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
+    private final SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
     private final SimpleObjectProperty<Node> iconProperty      =
         new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
@@ -166,7 +167,11 @@ public class SimpleSearchController implements ExplorationNode {
                         Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
             }
         });
-       /* searchTextField.setText("+tetra* +fallot"); */
+
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            searchTextField.setText("+tetra* +fallot");
+        }
+
     }
 
     private void initializeControls() {
