@@ -41,6 +41,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.api.util.UuidT5Generator;
 
 /**
  *
@@ -58,6 +59,9 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     ConceptProxy inheresInProxy = new ConceptProxy("Inheres in (attribute)",
             UUID.fromString("c0403a4d-aa15-35ef-ba57-1c244ea7bda0"));
+    
+    ConceptProxy processOutput = new ConceptProxy("Process output (attribute)",
+            UUID.fromString("ef18b2b0-dc77-3ed9-a80f-0386da11c8e5"));
 
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
@@ -136,8 +140,8 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservesComponent(new ConceptProxy("Substance (SOLOR)", 
                         UUID.fromString("95f41098-8391-3f5e-9d61-4b019f1de99d")).getNid(), 
                         builderService, stamp);
-                addObservesComponent(new ConceptProxy("Substance (SOLOR)", 
-                        UUID.fromString("95f41098-8391-3f5e-9d61-4b019f1de99d")).getNid(), 
+                addObservesComponent(new ConceptProxy("Medication (SOLOR)", 
+                        UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449")).getNid(), 
                         builderService, stamp);
             }
             
@@ -156,9 +160,14 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservesComponent(int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(TermAux.PHENOMENON),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+        
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(processOutput.getNid(), eb.conceptAssertion(componentNid))))));
+        
         
         StringBuilder conceptNameBuilder = new StringBuilder();
         conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
@@ -168,7 +177,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addInheresInConcept(int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(TermAux.PHENOMENON),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
         
@@ -180,10 +189,12 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     }
 
     private void buildConcept(ConceptBuilderService builderService, StringBuilder conceptNameBuilder, LogicalExpressionBuilder eb, int stamp) throws IllegalStateException, NoSuchElementException {
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptNameBuilder.toString(),
+        String conceptName = conceptNameBuilder.toString();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "OP",
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), conceptName));
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(stamp, builtObjects);
         for (Chronology chronology : builtObjects) {
@@ -228,7 +239,8 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             String token2 = tokenizer.nextToken(); // SNOMED concept id
             int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
 
-            if (nid == componentProxy.getNid()) {
+            if (nid == componentProxy.getNid() || 
+                    nid == processOutput.getNid()) {
                 components.add(nid2);
             } else if (nid == inheresInProxy.getNid()) {
                 systems.add(nid2);
@@ -263,4 +275,4 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         }
 
     }
-}
+ }
