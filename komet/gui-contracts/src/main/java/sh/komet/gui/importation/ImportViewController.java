@@ -16,45 +16,24 @@
  */
 package sh.komet.gui.importation;
 
-import static sh.komet.gui.importation.ImportItemZipEntry.FILE_PARENT_KEY;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.CheckBoxTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.util.StringUtils;
@@ -68,6 +47,18 @@ import sh.isaac.solor.direct.ImportType;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import static sh.komet.gui.importation.ImportItemZipEntry.FILE_PARENT_KEY;
 
 public class ImportViewController {
 
@@ -100,12 +91,27 @@ public class ImportViewController {
     @FXML
     private TreeTableColumn<ImportItem, String> importColumn;
 
+    @FXML
+    private Text textImportMessage;
+
+
     Stage importStage;
 
     Map<TreeItem<ImportItem>, ConcurrentHashMap<String, TreeItem<ImportItem>>> fileItemsMap = new ConcurrentHashMap<>();
     private Manifold manifold;
 
     private final StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
+
+    private final SimpleListProperty<File> filesProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final SimpleBooleanProperty snomedSelectedProperty = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty loincSelectedProperty = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty collabSelectedProperty = new SimpleBooleanProperty();
+    private final String loincSNOMEDCollabRequiredText =
+            "✘ Import Selection Requires LOINC/SNOMED Collaboration (SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip)";
+    private final String importIsReadyText =
+            "✔ Ready to Import (e.g. LOINC, RxNorm, LOINC/SNOMED CT Collaboration, and Deloitte Assemblages)";
+    private final String snomedCTRequiredText =
+            "✘ Import Selection Requires SNOMED CT (SnomedCT_InternationalRF2_PRODUCTION_20170731T150000Z.zip)";
 
     @FXML
     void addImportDataLocation(ActionEvent event) {
@@ -117,6 +123,9 @@ public class ImportViewController {
     }
 
     private void addFiles(List<File> files) {
+
+        this.filesProperty.addAll(files);
+
         Task<Void> t = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -279,21 +288,6 @@ public class ImportViewController {
         List<ContentProvider> entriesToImport = new ArrayList<>();
         recursiveAddToImport(fileTreeTable.getRoot(), entriesToImport);
 
-        final boolean entryListContainsSRF = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().startsWith("srf_"));
-        final boolean entryListcontainsRF2 = entriesToImport.stream().anyMatch(s -> s.getStreamSourceName().toLowerCase().contains("sct2_concept"));
-        final boolean solorDBContainsSNOMEDCT = LookupService.get().getService(DescriptionIndexer.class).query("theophobia", 0).size() > 0;
-
-        //TODO create some SRF based dependency logic, for now check if snomed is there
-        if (entryListContainsSRF && (!entryListcontainsRF2 & !solorDBContainsSNOMEDCT)) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("SOLOR Release Format Import Dependency");
-            alert.setContentText("This SOLOR Release Format content has a dependency requiring the following content:"
-                    + "\n\t-2018 SNOMED CT Release (.zip)");
-            alert.setHeaderText(null);
-            alert.showAndWait();
-            return;
-        }
-
         ImportType directImportType = null;
         switch (importType.getValue()) {
             case ACTIVE_ONLY:
@@ -343,6 +337,7 @@ public class ImportViewController {
         assert treeColumn != null : "fx:id=\"treeColumn\" was not injected: check your FXML file 'ImportView.fxml'.";
         assert importColumn != null : "fx:id=\"importColumn\" was not injected: check your FXML file 'ImportView.fxml'.";
         assert importDataButton != null : "fx:id=\"importDataButton\" was not injected: check your FXML file 'ImportView.fxml'.";
+        assert textImportMessage != null : "fx:id=\"textImportMessage\" was not injected: check your FXML file 'ImportView.fxml'.";
 
         this.treeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
 
@@ -429,6 +424,59 @@ public class ImportViewController {
         if (StringUtils.isNotBlank(temp)) {
             this.storedPrefs.setLocalM2FolderPath(temp);
         }
+
+        //Initial SNOMED CT check
+        this.snomedSelectedProperty.set(LookupService.get().getService(DescriptionIndexer.class)
+                .query("theophobia", 0).size() > 0);
+        this.collabSelectedProperty.set(LookupService.get().getService(DescriptionIndexer.class)
+                .query("O2 Ct RA.high-sCnc", 0).size() > 0);
+
+        //Initial display to UI if SNOMED CT is present from prior import
+        if(this.snomedSelectedProperty.get() == false){
+            this.textImportMessage.setText(this.snomedCTRequiredText);
+            this.importDataButton.setDisable(true);
+        }else{
+            this.textImportMessage.setText(this.importIsReadyText);
+            this.importDataButton.setDisable(false);
+        }
+
+        //Check to see, after each file is added, if dependencies are being met :)
+        this.filesProperty.addListener((observable, oldValue, newValue) -> {
+            observable.getValue().stream()
+                    .map(File::getName)
+                    .map(String::toLowerCase)
+                    .forEach(name ->{
+                        if(!snomedSelectedProperty.get()
+                                && name.contains("snomedct_internationalrf2_production_20170731t150000z.zip")){
+                            this.snomedSelectedProperty.set(true);
+                        } else if(!loincSelectedProperty.get()
+                                && (name.contains("loinc_") && name.contains("_text.zip")) ){
+                            this.loincSelectedProperty.set(true);
+                        } else if(!collabSelectedProperty.get()
+                                && name.contains("snomedct_loincrf2_production_20170831t120000z.zip")){
+                            this.collabSelectedProperty.set(true);
+                        }
+            });
+
+            if(!this.snomedSelectedProperty.get()){
+                this.textImportMessage.setText(this.snomedCTRequiredText);
+                this.importDataButton.setDisable(true);
+            }else{
+                if(this.loincSelectedProperty.get()){
+                    if(!this.collabSelectedProperty.get()){
+                        this.textImportMessage.setText(this.loincSNOMEDCollabRequiredText);
+                        this.importDataButton.setDisable(true);
+                    }else{
+                        this.textImportMessage.setText(this.importIsReadyText);
+                        this.importDataButton.setDisable(false);
+                    }
+                }else {
+                    this.textImportMessage.setText(this.importIsReadyText);
+                    this.importDataButton.setDisable(false);
+                }
+            }
+
+        });
     }
 
     private void importTypeChanged(SelectedImportType importType) {
