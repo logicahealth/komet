@@ -240,10 +240,12 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("bevon", null, AmpRestriction.restrictModule(NidSet.of(Arrays.asList(new Integer[] {MetaData.ICD10_MODULES____SOLOR.getNid()}))), 
 				null, 10, null).size(), 0);
 		
-		Assert.assertEquals(di.query("bevon", null, AmpRestriction.restrictAuthor(NidSet.of(Arrays.asList(new Integer[] {MetaData.USER____SOLOR.getNid()}))), 
-				null, 10, null).size(), 10);
+		int userNid = Get.assemblageService().getSemanticChronology(di.query("jayg.me").get(0).getNid()).getReferencedComponentNid();
+		
+		Assert.assertEquals(di.query("whiskey", null, AmpRestriction.restrictAuthor(NidSet.of(Arrays.asList(new Integer[] {userNid}))), 
+				null, 13, null).size(), 13);
 		Assert.assertEquals(di.query("bevon", null, AmpRestriction.restrictAuthor(NidSet.of(Arrays.asList(new Integer[] {MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.getNid()}))), 
-				null, 10, null).size(), 0);
+				null, 13, null).size(), 0);
 	}
 	
 	@Test
