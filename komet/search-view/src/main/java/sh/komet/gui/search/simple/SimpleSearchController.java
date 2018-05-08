@@ -167,9 +167,11 @@ public class SimpleSearchController implements ExplorationNode {
                         Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
             }
         });
+
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             searchTextField.setText("+tetra* +fallot");
         }
+
     }
 
     private void initializeControls() {
