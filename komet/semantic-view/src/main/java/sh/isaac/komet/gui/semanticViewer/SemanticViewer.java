@@ -139,8 +139,6 @@ import sh.komet.gui.util.UpdateableBooleanBinding;
 @SuppressWarnings({ "unused", "restriction" })
 @Service
 @PerLookup
-//TODO there is a bug in here, in that it doesn't calculate / show nested column data properly when in the assemblage-centric view.  See it by looking
-//at the nested children of http://rdfs.co/bevon/aging
 public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem>> 
 {
 	private VBox rootNode_ = null;
@@ -981,8 +979,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 				}
 				else
 				{
-					//This case is easy - as there is only one assemblage.  The 3 level mapping stuff is way overkill for this case... but don't
-					//want to rework it at this point... might come back and cleanup this mess later.
+					//This case is easier since the columns for the first-level items are all the same, but we still have to handle nested semantics
+					
 					uniqueColumns = new Hashtable<>();
 					
 					DynamicUsageDescription rdud;
@@ -1026,6 +1024,35 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 						}
 						doubleNested.add(col);
 					}
+					
+					//Handle any nested columns
+					Get.assemblageService().getSemanticNidsFromAssemblage(viewFocusNid_).stream().forEach(semanticNid ->
+					{
+						Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nested = getUniqueColumns(semanticNid);
+						for (Entry<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nestedItem : nested.entrySet())
+						{
+							if (uniqueColumns.get(nestedItem.getKey()) == null)
+							{
+								uniqueColumns.put(nestedItem.getKey(), nestedItem.getValue());
+							}
+							else
+							{
+								Hashtable<UUID, List<DynamicColumnInfo>> mergeInto = uniqueColumns.get(nestedItem.getKey());
+								for (Entry<UUID, List<DynamicColumnInfo>> toMergeItem : nestedItem.getValue().entrySet())
+								{
+									if (mergeInto.get(toMergeItem.getKey()) == null)
+									{
+										mergeInto.put(toMergeItem.getKey(), toMergeItem.getValue());
+									}
+									else
+									{
+										//don't care - we already have this assemblage concept - the column values will be the same as what we already have.
+									}
+								}
+							}
+						}
+					});
+					
 				}
 				
 				ArrayList<Hashtable<UUID, List<DynamicColumnInfo>>> sortedUniqueColumns = new ArrayList<>();
