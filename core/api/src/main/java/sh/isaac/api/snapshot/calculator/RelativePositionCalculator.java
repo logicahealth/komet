@@ -64,6 +64,7 @@ import org.jvnet.hk2.annotations.Service;
 
 
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -84,11 +85,11 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 @Service
 @Singleton  // Singleton from the perspective of HK2 managed instances
-public class RelativePositionCalculator {
+public class RelativePositionCalculator implements StaticIsaacCache {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   private static RelativePositionCalculator lastCaclulator = null;
+   private static RelativePositionCalculator lastCalculator = null;
 
    //~--- fields --------------------------------------------------------------
 
@@ -600,7 +601,7 @@ public class RelativePositionCalculator {
     * @return the calculator
     */
    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
-       RelativePositionCalculator calcToTry = lastCaclulator;
+       RelativePositionCalculator calcToTry = lastCalculator;
        if (calcToTry != null) {
            if (calcToTry.coordinate == coordinate) {
                return calcToTry;
@@ -608,7 +609,7 @@ public class RelativePositionCalculator {
        }
 
       calcToTry = new RelativePositionCalculator(coordinate);
-      lastCaclulator = calcToTry;
+      lastCalculator = calcToTry;
 
       return calcToTry;
    }
@@ -621,7 +622,7 @@ public class RelativePositionCalculator {
     */
    public RelativePositionCalculator getCalculatorInstance(StampCoordinate coordinate) {
        
-       RelativePositionCalculator calcToTry = lastCaclulator;
+       RelativePositionCalculator calcToTry = lastCalculator;
        if (calcToTry != null) {
            if (calcToTry.coordinate == coordinate) {
                return calcToTry;
@@ -629,7 +630,7 @@ public class RelativePositionCalculator {
        }
 
       calcToTry = new RelativePositionCalculator(coordinate);
-      lastCaclulator = calcToTry;
+      lastCalculator = calcToTry;
 
       return calcToTry;
    }
@@ -912,6 +913,14 @@ public class RelativePositionCalculator {
 
          return false;
       }
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      lastCalculator = null;
    }
 }
 
