@@ -783,7 +783,7 @@ public class Frills
       }
 
       if (columnDescription == null) {
-         LOG.info(
+         LOG.debug(
              "No preferred or acceptable definition or acceptable synonym found on '" + columnDescriptionConcept +
              "' to use for the column description- re-using the the columnName, instead.");
          columnDescription = columnName;
