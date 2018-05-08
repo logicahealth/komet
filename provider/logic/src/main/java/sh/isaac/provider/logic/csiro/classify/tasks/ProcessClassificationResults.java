@@ -160,8 +160,8 @@ public class ProcessClassificationResults
         final HashSet<IntArrayList> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
-            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+            if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
             }
             int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
             final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
@@ -276,8 +276,8 @@ public class ProcessClassificationResults
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
                 int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
-                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                    LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
 
                 final NidSet inferredSemanticNids
@@ -357,15 +357,15 @@ public class ProcessClassificationResults
                                                 conceptNid,
                                                 this.logicCoordinate.getInferredAssemblageNid());
 
-                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                     TestConcept.WATCH_NID_SET.add(builder.getNid());
                 }
                                 // get classifier edit coordinate...
                                 builder.build(EditCoordinates.getClassifierSolorOverlay(),
                                         ChangeCheckerMode.INACTIVE);
-                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                     TestConcept.WATCH_NID_SET.add(builder.getNid());
                 }
                             } else {

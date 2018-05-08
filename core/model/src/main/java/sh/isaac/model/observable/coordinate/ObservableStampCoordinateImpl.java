@@ -280,5 +280,10 @@ public class ObservableStampCoordinateImpl
       return new ObservableStampCoordinateImpl(stampCoordinate.deepClone());
    }
 
+    @Override
+    public StampCoordinate getImmutableAllStateAnalog() {
+        return this.stampCoordinate.getImmutableAllStateAnalog();
+    }
+
 }
 

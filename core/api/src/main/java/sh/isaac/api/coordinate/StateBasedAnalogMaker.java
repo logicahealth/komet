@@ -61,6 +61,10 @@ public interface StateBasedAnalogMaker<T> {
     */
    T makeCoordinateAnalog(Status... state);
    
+   default StampCoordinate getImmutableAllStateAnalog() {
+       throw new UnsupportedOperationException();
+   }
+   
    
    default T makeCoordinateAnalog(EnumSet<Status> statusSet) {
       return makeCoordinateAnalog(statusSet.toArray(new Status[statusSet.size()]));

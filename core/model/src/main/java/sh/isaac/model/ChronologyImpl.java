@@ -710,10 +710,7 @@ public abstract class ChronologyImpl
      */
     @Override
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ACTIVE,
-                Status.INACTIVE,
-                Status.CANCELED,
-                Status.PRIMORDIAL));
+        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.getImmutableAllStateAnalog());
         final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
         for (int stampSequence : latestStampSequences) {

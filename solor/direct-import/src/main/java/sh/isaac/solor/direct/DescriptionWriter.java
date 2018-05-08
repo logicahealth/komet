@@ -82,12 +82,14 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
    private final ImportType importType;
+   private final boolean solorReleaseFormat;
 
    public DescriptionWriter(List<String[]> descriptionRecords, 
-           Semaphore writeSemaphore, String message, ImportType importType) {
+           Semaphore writeSemaphore, String message, ImportType importType, boolean solorReleaseFormat) {
       this.descriptionRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      this.solorReleaseFormat = solorReleaseFormat;
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing description batch of size: " + descriptionRecords.size());
       updateMessage(message);
@@ -111,7 +113,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          int authorNid = 1;
          int pathNid = 1;
 
-         if(DirectImporter.SRF_IMPORT){
+         if(this.solorReleaseFormat){
             identifierAssemblageNid = MetaData.UUID____SOLOR.getNid();
          }else{
             identifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
@@ -120,13 +122,13 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          }
 
          for (String[] descriptionRecord : descriptionRecords) {
-            final Status state = DirectImporter.SRF_IMPORT
+            final Status state = this.solorReleaseFormat
                     ? Status.fromZeroOneToken(descriptionRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(descriptionRecord[RF2_ACTIVE_INDEX]);
             if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
                 continue;
             }
-            UUID referencedConceptUuid = DirectImporter.SRF_IMPORT
+            UUID referencedConceptUuid = this.solorReleaseFormat
                     ? UUID.fromString(descriptionRecord[SRF_REFERENCED_CONCEPT_ID_INDEX])
                     : UuidT3Generator.fromSNOMED(descriptionRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
             if (importType == ImportType.ACTIVE_ONLY) {
@@ -140,7 +142,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             UUID descriptionUuid, moduleUuid, caseSignificanceUuid, descriptionTypeUuid;
             TemporalAccessor accessor;
 
-            if(DirectImporter.SRF_IMPORT){
+            if(this.solorReleaseFormat){
                authorNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_AUTHOR_INDEX]));
                pathNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_PATH_INDEX]));
                descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
@@ -175,7 +177,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             descriptionVersion.setCaseSignificanceConceptNid(caseSignificanceNid);
             descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
             descriptionVersion.setLanguageConceptNid(languageNid);
-            descriptionVersion.setText(DirectImporter.SRF_IMPORT
+            descriptionVersion.setText(this.solorReleaseFormat
                     ? descriptionRecord[SRF_TERM_INDEX]
                     : descriptionRecord[RF2_DESCRIPTION_TEXT_INDEX]);
             
@@ -185,7 +187,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             // add to sct identifier assemblage
             UUID identifierUuid;
 
-            if(DirectImporter.SRF_IMPORT){
+            if(this.solorReleaseFormat){
                identifierUuid = UuidT5Generator.get(MetaData.UUID____SOLOR.getPrimordialUuid(),
                        descriptionRecord[SRF_ID_INDEX]);
             }else{
@@ -199,7 +201,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
                                descriptionToWrite.getNid());
             
             StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(conceptStamp);
-            idVersion.setString(DirectImporter.SRF_IMPORT
+            idVersion.setString(this.solorReleaseFormat
                     ? descriptionRecord[SRF_ID_INDEX]
                     : descriptionRecord[RF2_DESCRIPITON_SCT_ID_INDEX]);
             index(sctIdentifierToWrite);

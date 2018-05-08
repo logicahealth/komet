@@ -82,18 +82,20 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
    private final ImportType importType;
+   private final boolean solorReleaseFormat;
 
    private final ImportSpecification importSpecification;
 
    public Rf2RelationshipWriter(List<String[]> descriptionRecords, 
             Semaphore writeSemaphore, String message, 
-            ImportSpecification importSpecification, ImportType importType) {
+            ImportSpecification importSpecification, ImportType importType, boolean solorReleaseFormat) {
       this.relationshipRecords = descriptionRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
+      this.solorReleaseFormat = solorReleaseFormat;
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       this.importSpecification = importSpecification;
-      updateTitle(DirectImporter.SRF_IMPORT
+      updateTitle(this.solorReleaseFormat
               ? "Importing srf relationship batch of size: " + descriptionRecords.size()
               : "Importing rf2 relationship batch of size: " + descriptionRecords.size());
       updateMessage(message);
@@ -123,7 +125,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          int pathNid = 1;
          int relAssemblageNid;
 
-         if(DirectImporter.SRF_IMPORT){
+         if(this.solorReleaseFormat){
              relAssemblageNid = TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
              if (importSpecification.streamType == ImportStreamType.STATED_RELATIONSHIP) {
                  relAssemblageNid = TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
@@ -140,13 +142,13 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
 
          for (String[] relationshipRecord : relationshipRecords) {
              try {
-                 final Status state = Status.fromZeroOneToken(DirectImporter.SRF_IMPORT
+                 final Status state = Status.fromZeroOneToken(this.solorReleaseFormat
                          ? relationshipRecord[SRF_STATUS_INDEX]
                          : relationshipRecord[RF2_ACTIVE_INDEX]);
                  if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
                      continue;
                  }
-                 UUID referencedConceptUuid = DirectImporter.SRF_IMPORT
+                 UUID referencedConceptUuid = this.solorReleaseFormat
                          ? UUID.fromString(relationshipRecord[SRF_SOURCE_ID_INDEX])
                          : UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
                  if (importType == ImportType.ACTIVE_ONLY) {
@@ -159,7 +161,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  UUID betterRelUuid, moduleUuid, destinationUuid, relTypeUuid, relCharacteristicUuid, relModifierUuid;
                  TemporalAccessor accessor;
 
-                 if(DirectImporter.SRF_IMPORT){
+                 if(this.solorReleaseFormat){
                      authorNid = identifierService.getNidForUuids(UUID.fromString(relationshipRecord[SRF_AUTHOR_INDEX]));
                      pathNid = identifierService.getNidForUuids(UUID.fromString(relationshipRecord[SRF_PATH_INDEX]));
                      betterRelUuid = UuidT5Generator.get(
@@ -213,7 +215,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // 900062011000036108 = AU module
                  if (relationshipRecord[RF2_MODULE_SCTID_INDEX].equals("900062011000036108")
                          || relationshipRecord[SRF_MODULE_INDEX].equals("cee6956f-7f49-388d-9c48-f0116b5af980")) {
-                     UUID relUuid = DirectImporter.SRF_IMPORT
+                     UUID relUuid = this.solorReleaseFormat
                              ? UUID.fromString(relationshipRecord[SRF_ID_INDEX])
                              : UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
                      identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
@@ -226,7 +228,7 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  relVersion.setDestinationNid(destinationNid);
                  relVersion.setModifierNid(relModifierNid);
                  relVersion.setTypeNid(relTypeNid);
-                 relVersion.setRelationshipGroup(DirectImporter.SRF_IMPORT
+                 relVersion.setRelationshipGroup(this.solorReleaseFormat
                          ? Integer.parseInt(relationshipRecord[SRF_RELATIONSHIP_GROUP_INDEX])
                          : Integer.parseInt(relationshipRecord[RF2_REL_GROUP_INDEX]));
                  index(relationshipToWrite);
