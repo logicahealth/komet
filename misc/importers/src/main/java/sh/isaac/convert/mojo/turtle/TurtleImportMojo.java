@@ -52,7 +52,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
-import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.rdf.model.Model;
@@ -61,7 +60,6 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -75,11 +73,7 @@ import sh.isaac.api.LanguageCode;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
@@ -87,17 +81,12 @@ import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DataWriteListenerImpl;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.directUtils.DynamicSemanticHelper;
 import sh.isaac.convert.directUtils.LoggingConfig;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.DataStore;
-import sh.isaac.model.semantic.types.DynamicArrayImpl;
-import sh.isaac.model.semantic.types.DynamicFloatImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.utility.LanguageMap;
 
 /**
@@ -141,10 +130,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	
 	private HashMap<String, String> possibleAssociations = new HashMap<>();
 	private HashMap<String, String> possibleRefSets = new HashMap<>();
-	private HashMap<String, DynamicSemanticHelper> possibleDynamicAttributes = new HashMap<>();
 	private HashMap<String, String> possibleRelationships = new HashMap<>();
 	private HashMap<String, Pair<String, UUID>> possibleDescriptionTypes = new HashMap<>();
-	private HashMap<String, String> singleValueTypedSemantics = new HashMap<>();
+	private HashMap<String, String> possibleSingleValueTypedSemantics = new HashMap<>();
+	private HashMap<String, DynamicSemanticHelper> possibleDynamicAttributes = new HashMap<>();
+	private AnonymousNodeUtil anu;
 
 	/**
 	 * Constructor for maven
@@ -211,332 +201,21 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		possibleDescriptionTypes.put("http://purl.org/dc/terms/description", new Pair<String, UUID>("description", definition));
 		possibleDescriptionTypes.put("http://xmlns.com/foaf/0.1/name", new Pair<String, UUID>("name", regularName));
 		
-		//TODO put together code to dynamically build all of these anonymous, dynamic types.
-		//TODO fix the problem of not creating various referenced concepts here - column headers, and target data
-		
-		possibleDynamicAttributes.put("http://www.w3.org/2004/02/skos/core#historyNote", 
-				new DynamicSemanticHelper("history note", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://purl.org/dc/terms/creator", (List<Statement>)data).asResource().getURI()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#value", (List<Statement>)data).asLiteral().getString())
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/dc/terms/creator"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#value"), DynamicDataType.STRING, null, true, true)
-			}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://www.w3.org/2004/02/skos/core#changeNote", 
-				new DynamicSemanticHelper("change note", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://purl.org/dc/terms/creator", (List<Statement>)data).asResource().getURI()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#value", (List<Statement>)data).asLiteral().getString())
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/dc/terms/creator"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#value"), DynamicDataType.STRING, null, true, true)
-			}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/volume", 
-				new DynamicSemanticHelper("volume", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicIntegerImpl(findPredicateValue("http://purl.org/goodrelations/v1#hasValue", (List<Statement>)data).asLiteral().getInt()),
-						new DynamicStringImpl(findPredicateValue("http://purl.org/goodrelations/v1#hasUnitOfMeasurement", (List<Statement>)data).asLiteral().getString()),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/goodrelations/v1#hasValue"), DynamicDataType.INTEGER, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://purl.org/goodrelations/v1#hasUnitOfMeasurement"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/color", 
-				new DynamicSemanticHelper("volume", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					ArrayList<DynamicUUIDImpl> sameAsValues = new ArrayList<>(); 
-					for (RDFNode node : findPredicateValues("http://www.w3.org/2002/07/owl#sameAs", false, (List<Statement>)data))
-					{
-						sameAsValues.add(new DynamicUUIDImpl(getConceptUUID(node.asResource().getURI())));
-					}
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://purl.org/dc/terms/title", (List<Statement>)data).asLiteral().getString()),
-						new DynamicArrayImpl<DynamicUUID>(sameAsValues.toArray(new DynamicUUID[sameAsValues.size()])),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/dc/terms/title"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/2002/07/owl#sameAs"), DynamicDataType.ARRAY, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://purl.org/dc/terms/format", 
-				new DynamicSemanticHelper("format", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					//TODO not sure what (if anything) I should do with languages on things like http://www.w3.org/2000/01/rdf-schema#label 
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#seeAlso", (List<Statement>)data).asNode().getURI()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#label", (List<Statement>)data).asLiteral().getString()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#value", (List<Statement>)data).asLiteral().getString()),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://purl.org/dc/dcam/memberOf", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://www.w3.org/2000/01/rdf-schema#seeAlso"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/2000/01/rdf-schema#label"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#value"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(3, getConceptUUID("http://purl.org/dc/dcam/memberOf"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(4, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/aging", 
-				new DynamicSemanticHelper("aging", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					ArrayList<DynamicUUIDImpl> previousContentValues = new ArrayList<>(); 
-					for (RDFNode node : findPredicateValues("http://rdfs.co/bevon/previous_content", false, (List<Statement>)data))
-					{
-						previousContentValues.add(new DynamicUUIDImpl(getConceptUUID(node.asResource().getURI())));
-					}
-					return new DynamicData[] {
-						new DynamicArrayImpl<DynamicUUIDImpl>(previousContentValues.toArray(new DynamicUUIDImpl[previousContentValues.size()])),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://rdfs.co/bevon/material", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI()))
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://rdfs.co/bevon/previous_content"), DynamicDataType.ARRAY, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://rdfs.co/bevon/material"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null, new String[] {"http://rdfs.co/bevon/duration"}, (key, data) -> 
-			{
-				return new String[] {findPredicateValue((String)key, (List<Statement>)data).asResource().getId().toString()};
-			}));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/duration", 
-				new DynamicSemanticHelper("duration", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicFloatImpl(findPredicateValue("http://www.w3.org/2006/time#years", (List<Statement>)data).asLiteral().getFloat()),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://www.w3.org/2006/time#years"), DynamicDataType.FLOAT, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/ingredient", 
-				new DynamicSemanticHelper("ingredient", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null,  new String[] {"http://rdfs.co/bevon/food", "http://rdfs.co/bevon/quantity"}, (key, data) -> 
-			{
-				ArrayList<String> targets = new ArrayList<>(); 
-				for (RDFNode node : findPredicateValues((String)key, false, (List<Statement>)data))
-				{
-					targets.add(node.asResource().getId().toString());
-				}
-				return targets.toArray(new String[targets.size()]);
-			}));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/food", 
-				new DynamicSemanticHelper("food", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://purl.org/dc/terms/title", (List<Statement>)data).asLiteral().getString()),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/2002/07/owl#sameAs", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/dc/terms/title"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/2002/07/owl#sameAs"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/manufacturer", //This isn't defined consistently, sometimes a URI, sometimes an anonymous...
-				new DynamicSemanticHelper("manufacturer", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					if (data instanceof ResourceImpl)
-					{
-						return new DynamicData[] {null, null, 
-								new DynamicArrayImpl<DynamicString>(new DynamicString[] {new DynamicStringImpl(((ResourceImpl)data).getURI())}), null};
-					}
-					else if (data instanceof List)
-					{
-						ArrayList<DynamicStringImpl> nameValues = new ArrayList<>(); 
-						for (RDFNode node : findPredicateValues("http://xmlns.com/foaf/0.1/name", false, (List<Statement>)data))
-						{
-							nameValues.add(new DynamicStringImpl(node.asLiteral().getString()));
-						}
-						
-						return new DynamicData[] {
-							new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#seeAlso", (List<Statement>)data).asNode().getURI()),
-							new DynamicStringImpl(findPredicateValue("http://xmlns.com/foaf/0.1/homepage", (List<Statement>)data).asNode().getURI()),
-							new DynamicArrayImpl<DynamicString>(nameValues.toArray(new DynamicString[nameValues.size()])),
-							new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-						};
-					}
-					else
-					{
-						throw new RuntimeException("Unexpected type: " + data);
-					}
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://www.w3.org/2000/01/rdf-schema#seeAlso"), DynamicDataType.STRING, null, false, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://xmlns.com/foaf/0.1/homepage"), DynamicDataType.STRING, null, false, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://xmlns.com/foaf/0.1/name"), DynamicDataType.ARRAY, null, false, true),
-					new DynamicColumnInfo(3, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, false, true)
-			}, null, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/distillery", 
-				new DynamicSemanticHelper("distillery", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://purl.org/vocab/whisky/terms/owner", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://purl.org/vocab/whisky/terms/region", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/2002/07/owl#sameAs", (List<Statement>)data).asResource().getURI())),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI()))
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/vocab/whisky/terms/owner"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://purl.org/vocab/whisky/terms/region"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/2002/07/owl#sameAs"), DynamicDataType.UUID, null, true, true),
-					new DynamicColumnInfo(3, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null, new String[] {"http://purl.org/vocab/whisky/terms/waterSource"}, (key, data) -> 
-			{
-				return new String[] {findPredicateValue((String)key, (List<Statement>)data).asResource().getId().toString()};
-			}));
-		
-		possibleDynamicAttributes.put("http://purl.org/vocab/whisky/terms/waterSource", 
-				new DynamicSemanticHelper("manufacturer", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					ArrayList<DynamicStringImpl> titleValues = new ArrayList<>(); 
-					for (RDFNode node : findPredicateValues("http://purl.org/dc/terms/title", false, (List<Statement>)data))
-					{
-						titleValues.add(new DynamicStringImpl(node.asLiteral().getString()));
-					}
-					
-					return new DynamicData[] {
-						new DynamicArrayImpl<DynamicString>(titleValues.toArray(new DynamicString[titleValues.size()])),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/dc/terms/title"), DynamicDataType.ARRAY, null, false, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, false, true)
-			}, null, null));
-		
-		possibleDynamicAttributes.put("http://purl.org/vocab/vann/example", 
-				new DynamicSemanticHelper("example", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#label", (List<Statement>)data).asLiteral().getString()),
-						new DynamicStringImpl(findPredicateValue("http://www.w3.org/2000/01/rdf-schema#comment", (List<Statement>)data).asLiteral().getString()),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://www.w3.org/2000/01/rdf-schema#label"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://www.w3.org/2000/01/rdf-schema#comment"), DynamicDataType.STRING, null, true, true),
-				}, IsaacObjectType.CONCEPT, null));
-		
-		possibleDynamicAttributes.put("http://rdfs.co/bevon/quantity", 
-				new DynamicSemanticHelper("quantity", new Function<Object, DynamicData[]>()
-			{
-				@SuppressWarnings("unchecked")
-				@Override
-				public DynamicData[] apply(Object data)
-				{
-					return new DynamicData[] {
-						new DynamicIntegerImpl(findPredicateValue("http://purl.org/goodrelations/v1#hasValue", (List<Statement>)data).asLiteral().getInt()),
-						new DynamicStringImpl(findPredicateValue("http://purl.org/goodrelations/v1#hasUnitOfMeasurement", (List<Statement>)data).asLiteral().getString()),
-						new DynamicUUIDImpl(getConceptUUID(findPredicateValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", (List<Statement>)data).asResource().getURI())),
-					};
-				}
-			}, new DynamicColumnInfo[] {
-					new DynamicColumnInfo(0, getConceptUUID("http://purl.org/goodrelations/v1#hasValue"), DynamicDataType.INTEGER, null, true, true),
-					new DynamicColumnInfo(1, getConceptUUID("http://purl.org/goodrelations/v1#hasUnitOfMeasurement"), DynamicDataType.STRING, null, true, true),
-					new DynamicColumnInfo(2, getConceptUUID("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DynamicDataType.UUID, null, true, true)
-			}, null, null));
-		
-		singleValueTypedSemantics.put("http://rdfs.co/bevon/ibu", "ibu");
-		singleValueTypedSemantics.put("http://rdfs.co/bevon/abv", "abv");
-		singleValueTypedSemantics.put("http://rdfs.co/bevon/launch", "launch");
-		singleValueTypedSemantics.put("http://www.w3.org/2003/06/sw-vocab-status/ns#term_status", "term status");
-		singleValueTypedSemantics.put("http://purl.org/dc/terms/issued", "issued");
-		singleValueTypedSemantics.put("http://purl.org/dc/terms/modified", "modified");
-		singleValueTypedSemantics.put("http://purl.org/dc/terms/identifier", "identifier");
-		singleValueTypedSemantics.put("http://xmlns.com/foaf/0.1/mbox_sha1sum", "mbox sha1sum");
-		singleValueTypedSemantics.put("http://rdfs.co/bevon/srm", "srm");
-		singleValueTypedSemantics.put("http://rdfs.co/bevon/proof", "proof");
-		singleValueTypedSemantics.put("http://purl.org/dc/terms/rights", "rights");
-		singleValueTypedSemantics.put("http://purl.org/vocab/vann/preferredNamespacePrefix", "preferred namespace prefix");
-		singleValueTypedSemantics.put("http://www.w3.org/2002/07/owl#versionInfo", "version info");
-		singleValueTypedSemantics.put("http://purl.org/vocab/vann/preferredNamespaceUri", "preferred namespace uri");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/ibu", "ibu");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/abv", "abv");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/launch", "launch");
+		possibleSingleValueTypedSemantics.put("http://www.w3.org/2003/06/sw-vocab-status/ns#term_status", "term status");
+		possibleSingleValueTypedSemantics.put("http://purl.org/dc/terms/issued", "issued");
+		possibleSingleValueTypedSemantics.put("http://purl.org/dc/terms/modified", "modified");
+		possibleSingleValueTypedSemantics.put("http://purl.org/dc/terms/identifier", "identifier");
+		possibleSingleValueTypedSemantics.put("http://xmlns.com/foaf/0.1/mbox_sha1sum", "mbox sha1sum");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/srm", "srm");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/proof", "proof");
+		possibleSingleValueTypedSemantics.put("http://purl.org/dc/terms/rights", "rights");
+		possibleSingleValueTypedSemantics.put("http://purl.org/vocab/vann/preferredNamespacePrefix", "preferred namespace prefix");
+		possibleSingleValueTypedSemantics.put("http://www.w3.org/2002/07/owl#versionInfo", "version info");
+		possibleSingleValueTypedSemantics.put("http://purl.org/vocab/vann/preferredNamespaceUri", "preferred namespace uri");
+		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/manufacturer", "manufacturer");  //This is inconsistent, sometimes defined as anonymous
 	}
 
 	/**
@@ -627,6 +306,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	
 			allStatements = new HashMap<>();
 			HashSet<String> allPredicates = new HashSet<>();
+			
+			HashMap<String, String> allAnonPointers = new HashMap<>();
 	
 			model.listStatements().forEachRemaining(statement -> {
 				String key = statement.getSubject().getURI() == null ? statement.getSubject().getId().getLabelString() : statement.getSubject().getURI();
@@ -639,6 +320,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				}
 				statements.add(statement);
 				allPredicates.add(statement.getPredicate().getURI());
+				if (statement.getObject().isAnon())
+				{
+					allAnonPointers.put(statement.getPredicate().asResource().getURI(), statement.getObject().asResource().getId().toString());
+				}
 			});
 	
 			log.info("The read TURTLE file contains {} subjects", allStatements.size());
@@ -646,21 +331,14 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			HashSet<String> processedSubjects = new HashSet<>();
 
 //For debug...
-			for (String s : allStatements.keySet())
-			{
-				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
-				for (Statement st : allStatements.get(s))
-				{
-					System.out.println("  " + st.toString());
-				}
-			}
-			
-			for (Entry<String, String> s : singleValueTypedSemantics.entrySet())
-			{
-				Optional<RDFNode> value = findFirstPredicateValue(s.getKey());
-				possibleDynamicAttributes.put(s.getKey(), 
-					new DynamicSemanticHelper(s.getValue(), value.get(), getConceptUUID(s.getKey()), IsaacObjectType.CONCEPT, null));
-			}
+//			for (String s : allStatements.keySet())
+//			{
+//				System.out.println("Subject: " + s + " :" + allStatements.get(s).size());
+//				for (Statement st : allStatements.get(s))
+//				{
+//					System.out.println("  " + st.toString());
+//				}
+//			}
 			
 			authorNid = TermAux.USER.getNid();
 			
@@ -786,8 +464,32 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				dwh.makeConcept(coreGroupConcept, Status.ACTIVE, releaseTime);
 				dwh.makeParentGraph(coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 				
-				
 				//Create some types...
+				anu = new AnonymousNodeUtil(string -> getConceptUUID(string), resource -> conceptsToBeBuilt.put(getConceptUUID(resource.getURI()), resource));
+				
+				//Need to scan all anonymous statements to configure our dynamic semantic mapping rules
+				for (Entry<String, String> pointer : allAnonPointers.entrySet())
+				{
+					Optional<RDFNode> singleValuedExample = Optional.empty();
+					if (possibleSingleValueTypedSemantics.containsKey(pointer.getKey()))
+					{
+						singleValuedExample = findFirstPredicateValue(pointer.getKey());
+						possibleSingleValueTypedSemantics.remove(pointer.getKey());
+					}
+					anu.init(pointer.getKey(), allStatements.get(pointer.getValue()), singleValuedExample.orElse(null));
+					possibleDynamicAttributes.put(pointer.getKey(), new DynamicSemanticHelper(pointer.getKey()));
+				}
+				
+				for (Entry<String, String> s : possibleSingleValueTypedSemantics.entrySet())
+				{
+					Optional<RDFNode> value = findFirstPredicateValue(s.getKey());
+					if (value.isPresent())
+					{
+						anu.initSingleValuedType(s.getKey(), value.get());
+						possibleDynamicAttributes.put(s.getKey(), new DynamicSemanticHelper(s.getValue(), IsaacObjectType.CONCEPT, null));
+					}
+				}
+				
 				for (Entry<String, String> entry : possibleRelationships.entrySet())
 				{
 					if (allPredicates.contains(entry.getKey()))
@@ -868,12 +570,16 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						else
 						{
 							dwh.makeDescriptionEn(dynamicSemenatic, entry.getKey(), fsn, insensitive, Status.ACTIVE, releaseTime, preferred);
-							dwh.makeDescriptionEn(dynamicSemenatic, entry.getValue().getNiceName(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
+							if (StringUtils.isNotBlank(entry.getValue().getNiceName()))
+							{
+								dwh.makeDescriptionEn(dynamicSemenatic, entry.getValue().getNiceName(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
+							}
 							dwh.makeParentGraph(dynamicSemenatic, dwh.getAttributeTypes().get(), Status.ACTIVE, releaseTime);
 						}
 						
-						dwh.configureConceptAsDynamicAssemblage(dynamicSemenatic, "Stores anonymous RDF node data", entry.getValue().getColumnConstructionInfo(), 
-								entry.getValue().getReferencedComponentTypeRestriction(), entry.getValue().getReferencedComponentTypeSubRestriction(), releaseTime);
+						dwh.configureConceptAsDynamicAssemblage(dynamicSemenatic, "Stores anonymous RDF node data", 
+								anu.getColumnConstructionInfo(entry.getKey()), entry.getValue().getReferencedComponentTypeRestriction(), 
+								entry.getValue().getReferencedComponentTypeSubRestriction(), releaseTime);
 					}
 				}
 				
@@ -906,7 +612,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					}
 				}
 				
-				generatePlaceholdersForMissing(releaseTime);  //Some type rels have extended types that point to concets we don't have - must create now
+				generatePlaceholdersForMissing(releaseTime);  //Some type rels have extended types that point to concepts we don't have - must create now
 				//for the next step to work properly
 				dwh.processTaxonomyUpdates();  //process our metadata, so the taxonomy works properly for other things during load
 				Get.taxonomyService().notifyTaxonomyListenersToRefresh();
@@ -933,6 +639,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			}
 			
 			generatePlaceholdersForMissing(releaseTime);
+			
+			if (conceptsToBeBuilt.size() > 0)
+			{
+				throw new RuntimeException("Didn't build all concepts that we should have: " + conceptsToBeBuilt.size() + " remaining");
+			}
 			
 			observedAnonNodes.removeAll(processedAnonNodes);
 			if (observedAnonNodes.size() > 0)
@@ -1001,9 +712,16 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				dwh.makeParentGraph(unresolvedConcepts, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 			}
 			
-			for (Entry<UUID, Resource> entry : conceptsToBeBuilt.entrySet())
+			Iterator<Entry<UUID, Resource>> i = conceptsToBeBuilt.entrySet().iterator();
+			while (i.hasNext())
 			{
+				Entry<UUID, Resource> entry = i.next();
+				if (entry.getValue().isResource() && allStatements.containsKey(entry.getValue().asResource().getURI()))
+				{
+					continue;  //we will make this one later, when we process the statements
+				}
 				dwh.makeConcept(entry.getKey(), Status.ACTIVE, releaseTime, (UUID[])null);
+				i.remove();
 				dwh.makeDescriptionEn(entry.getKey(), entry.getValue().getURI(), fsn, 
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
@@ -1037,7 +755,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		{
 			for (Statement s : sl)
 			{
-				if (s.getPredicate().isResource() && s.getPredicate().asResource().getURI().equals(predicate))
+				if (s.getPredicate().isResource() && s.getPredicate().asResource().getURI().equals(predicate) && !s.getObject().isAnon())
 				{
 					return Optional.of(s.getObject());
 				}
@@ -1183,7 +901,9 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				additional = getConceptUUID(title);
 			}
 			
-			if (possibleAssociations.containsKey(subjectFQN) || possibleDynamicAttributes.containsKey(subjectFQN) || possibleDescriptionTypes.containsKey(subjectFQN) 
+			if (possibleAssociations.containsKey(subjectFQN) || possibleDynamicAttributes.containsKey(subjectFQN) || possibleDescriptionTypes.containsKey(subjectFQN)
+					|| possibleRefSets.containsKey(subjectFQN) || possibleRelationships.containsKey(subjectFQN) || possibleSingleValueTypedSemantics.containsKey(subjectFQN)
+					|| anu.knownTypes.containsKey(subjectFQN)
 					|| concept.equals(rootConcept) || concept.equals(coreGroupConcept))
 			{
 				//We already made this concept, and its parent graphs
@@ -1192,6 +912,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			else
 			{
 				dwh.makeConcept(concept, status, time, new UUID[] {additional});
+				conceptsToBeBuilt.remove(concept);
 			}
 
 			UUID language = MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid();
@@ -1330,7 +1051,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			else if (possibleDynamicAttributes.containsKey(s.getPredicate().asResource().getURI()))
 			{
 				dwh.makeDynamicSemantic(getConceptUUID(s.getPredicate().asResource().getURI()), concept, 
-						possibleDynamicAttributes.get(s.getPredicate().asResource().getURI()).getDataColumns(s.getObject()), time);
+						anu.getDataColumns(s.getPredicate().asResource().getURI(), Arrays.asList(new Statement[] {s})), time);
 			}
 			else if (possibleDescriptionTypes.containsKey(s.getPredicate().asResource().getURI()))
 			{
@@ -1385,7 +1106,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			return;
 		}
 		
-		DynamicData[] data = possibleDynamicAttributes.get(predicateURI).getDataColumns(anonNodeStatements);
+		DynamicData[] data = anu.getDataColumns(predicateURI, anonNodeStatements);
 		DynamicData[] tempDataForUUIDGen = Arrays.copyOf(data, data.length + 1);
 		tempDataForUUIDGen[data.length] = new DynamicIntegerImpl(hashNestedData(predicateURI, anonNodeStatements));
 		
@@ -1393,8 +1114,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		UUID semantic = UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), getConceptUUID(predicateURI), attachTo, tempDataForUUIDGen,
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
 		
-		dwh.makeDynamicSemantic(getConceptUUID(predicateURI), attachTo, 
-				possibleDynamicAttributes.get(predicateURI).getDataColumns(anonNodeStatements), semanticTime.orElse(time), semantic);
+		dwh.makeDynamicSemantic(getConceptUUID(predicateURI), attachTo, data, semanticTime.orElse(time), semantic);
 		
 		if (!observedAnonNodes.remove(anonId))
 		{
@@ -1402,12 +1122,9 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			processedAnonNodes.add(anonId);
 		}
 		
-		for (Pair<String, String[]> nestedAnonIds : possibleDynamicAttributes.get(predicateURI).getNestedAnonRefs(predicateURI, anonNodeStatements))
+		for (Pair<String, String> nestedAnonIds : anu.getNestedAnons(anonNodeStatements))
 		{
-			for (String nestedTargetId : nestedAnonIds.getValue())
-			{
-				processAnonStatements(allStatements.get(nestedTargetId), time, nestedAnonIds.getKey(), semantic, nestedTargetId);
-			}
+			processAnonStatements(allStatements.get(nestedAnonIds.getValue()), time, nestedAnonIds.getKey(), semantic, nestedAnonIds.getValue());
 		}
 	}
 	
@@ -1415,22 +1132,24 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private int hashNestedData(String predicateURI, List<Statement> anonNodeStatements)
 	{
 		int hashCode = 0;
-		for (Pair<String, String[]> nestedAnonIds : possibleDynamicAttributes.get(predicateURI).getNestedAnonRefs(predicateURI, anonNodeStatements))
+		for (Pair<String, String> nestedAnonIds : anu.getNestedAnons(anonNodeStatements))
 		{
-			for (String nestedTargetId : nestedAnonIds.getValue())
+			if (!possibleDynamicAttributes.containsKey(nestedAnonIds.getKey()))
 			{
-				if (!possibleDynamicAttributes.containsKey(nestedAnonIds.getKey()))
+				log.warn("Property type not yet handled: " + nestedAnonIds.getKey());
+				hashCode +=1;
+			}
+			else
+			{
+				DynamicData[] nestedData = anu.getDataColumns(nestedAnonIds.getKey(), allStatements.get(nestedAnonIds.getValue()));
+				for (DynamicData dd : nestedData)
 				{
-					log.warn("Property type not yet handled: " + nestedAnonIds.getKey());
-					hashCode +=1;
+					hashCode += dd.getData().hashCode();
 				}
-				else
+				
+				for (Pair<String, String> nested : anu.getNestedAnons(allStatements.get(nestedAnonIds.getValue())))
 				{
-					DynamicData[] nestedData = possibleDynamicAttributes.get(nestedAnonIds.getKey()).getDataColumns(allStatements.get(nestedTargetId));
-					for (DynamicData dd : nestedData)
-					{
-						hashCode += dd.getData().hashCode();
-					}
+					hashCode += hashNestedData(nested.getKey(), allStatements.get(nestedAnonIds.getValue()));
 				}
 			}
 		}
