@@ -442,14 +442,14 @@ public class SemanticGUI
 				SemanticChronology sc = (SemanticChronology)oc.get();
 				switch (sc.getVersionType()) {
 					case COMPONENT_NID:
-						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case DESCRIPTION:
 						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampCoordinate());
 						text = "Description Semantic: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
 						break;
 					case DYNAMIC:
-						text = "Dynamic Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Dynamic Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case LOGIC_GRAPH:
 						text = "Logic Graph Semantic [NID]: " + oc.get().getNid();
@@ -459,7 +459,7 @@ public class SemanticGUI
 						text = "String Semantic: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
 						break;
 					case MEMBER:
-						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null);
+						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case STRING:
 						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampCoordinate());
