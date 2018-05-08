@@ -139,6 +139,8 @@ import sh.komet.gui.util.UpdateableBooleanBinding;
 @SuppressWarnings({ "unused", "restriction" })
 @Service
 @PerLookup
+//TODO there is a bug in here, in that it doesn't calculate / show nested column data properly when in the assemblage-centric view.  See it by looking
+//at the nested children of http://rdfs.co/bevon/aging
 public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem>> 
 {
 	private VBox rootNode_ = null;
