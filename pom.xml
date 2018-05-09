@@ -966,11 +966,12 @@
                <execution>
                   <phase>post-site</phase>
                   <configuration>
-                     <tasks>
+                     <failOnError>false</failOnError>  <!-- TODO this needs to be fixed, no idea what all this site stuff is anyway... but some sub-projects don't have site folders, so this fails. -->
+                     <target>
                         <replace token="div id=&quot;banner&quot;" value="div id=&quot;banner&quot; style=&quot;background-color:black;color:white;&quot;" dir="${project.build.directory}/site/">
                            <include name="**/*.html" />
                         </replace>
-                     </tasks>
+                     </target>
                   </configuration>
                   <goals>
                      <goal>run</goal>
