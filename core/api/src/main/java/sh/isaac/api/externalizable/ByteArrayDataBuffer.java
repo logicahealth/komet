@@ -46,7 +46,6 @@ import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 

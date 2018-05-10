@@ -37,6 +37,7 @@
 
 package sh.isaac.utility;
 
+import sh.isaac.api.util.SctId;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;

@@ -42,6 +42,7 @@ package sh.isaac.api.util;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 
 import java.nio.ByteBuffer;
 
@@ -60,8 +61,8 @@ import sh.isaac.api.bootstrap.TermAux;
  * @author kec
  */
 public class UuidT5Generator {
-   /** The Constant encoding. */
-   public final static String encoding = "UTF-8";
+   /** The Constant ENCODING. */
+   public final static String ENCODING = "UTF-8";
 
    /** The Constant PATH_ID_FROM_FS_DESC. */
    public static final UUID PATH_ID_FROM_FS_DESC = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
@@ -120,7 +121,7 @@ public class UuidT5Generator {
             sha1Algorithm.update(getRawBytes(namespace));
          }
 
-         sha1Algorithm.update(name.getBytes(encoding));
+         sha1Algorithm.update(name.getBytes(ENCODING));
 
          final byte[] sha1digest = sha1Algorithm.digest();
 
@@ -221,5 +222,62 @@ public class UuidT5Generator {
 
       return new UUID(raw.getLong(raw.position()), raw.getLong(raw.position() + 8));
    }
+   
+   public static String makeLongIdFromRxNormId(String rxNormId)  {
+       String compressedLoincCodeWithPartition = rxNormId +  "97";
+       return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
+   }
+   
+   
+   public static String makeLongIdFromLoincId(String loincId)  {
+       if (loincId.charAt(loincId.length() - 2) != '-') {
+           throw new IllegalStateException("Improperly formed loinc id: " + loincId);
+       }
+       String compressedLoincCode = loincId.substring(0, loincId.length() - 2);
+       String compressedLoincCodeWithPartition = compressedLoincCode + loincId.charAt(loincId.length() - 1) + "98";
+       return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
+   }
+   
+   public static String makeLongIdFromUuid(UUID uuid)  {
+       try {
+           final MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
+           
+           // Generate the digest.
+           sha1Algorithm.reset();
+           sha1Algorithm.update(getRawBytes(uuid));
+           
+           sha1Algorithm.update("sh.isaac.longid".getBytes(ENCODING));
+           
+           final byte[] sha1digest = sha1Algorithm.digest();
+           
+           byte[] longBytes = new byte[8];
+           
+           for (int i = 0; i < longBytes.length; i++) {
+               longBytes[i] = sha1digest[i];
+           }
+           
+           BigInteger bigResult = new BigInteger(1, longBytes);
+           String resultAsString = bigResult.toString();
+           String lastDigits = resultAsString.substring(resultAsString.length() - 3);
+           String resultNoCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
+           return resultNoCheckDigit.subSequence(0, resultNoCheckDigit.length()-1) + SctId.verhoeffComputeStr(resultNoCheckDigit);
+       } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+           throw new RuntimeException(ex.getLocalizedMessage(), ex);
+       }
+       
+   }
+   
+   
+   public static void main(String[] args) {
+        System.out.println(makeLongIdFromRxNormId("1234"));
+        System.out.println(makeLongIdFromRxNormId("12345"));
+        System.out.println(makeLongIdFromLoincId("8867-4"));
+        System.out.println(makeLongIdFromLoincId("67129-7"));
+       for (int i = 0; i < 10; i++) {
+           System.out.println(makeLongIdFromUuid(UUID.randomUUID()));
+       }
+       
+   }
+   
 }
 

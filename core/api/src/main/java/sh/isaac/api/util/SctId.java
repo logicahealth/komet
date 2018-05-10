@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.utility;
+package sh.isaac.api.util;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,7 +66,7 @@ public class SctId {
    /** The Fn F. */
 
    // parts of the SCTID algorithm
-   private static int[][] FnF = {
+   private static final int[][] FnF = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -89,7 +89,7 @@ public class SctId {
    };
 
    /** The Dihedral. */
-   private static int[][] Dihedral = {
+   private static final int[][] Dihedral = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -111,6 +111,13 @@ public class SctId {
       }, {
          9, 8, 7, 6, 5, 4, 3, 2, 1, 0
       }
+   };
+   private static final int[]   InverseD5 = {
+      0, 4, 3, 2, 1, 5, 6, 7, 8, 9
+   };
+
+   private static final String[]   InverseD5Char = {
+      "0", "4", "3", "2", "1", "5", "6", "7", "8", "9"
    };
 
    //~--- static initializers -------------------------------------------------
@@ -271,17 +278,28 @@ public class SctId {
 //  * @return the generated SCT ID
 //  * @see <a href="http://www.snomed.org/tig?t=trg_app_check_digit">IHTSDO Technical Implementation Guide - Verhoeff</a>
 //  */
-// public static long verhoeffCompute(String idAsString)
-// {
-//         int check = 0;
-//         for (int i = idAsString.length() - 1; i >= 0; i--)
-//         {
-//                 check = Dihedral_[check][FnF_[((idAsString.length() - i) % 8)][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
-//
-//         }
-//         return InverseD5_[check];
-// }
+ public static long verhoeffCompute(String idAsString)
+ {
+         int check = 0;
+         for (int i = idAsString.length() - 1; i >= 0; i--)
+         {
+                 check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
 
+         }
+         return InverseD5[check];
+ }
+
+ public static String verhoeffComputeStr(String idAsString)
+ {
+         int check = 0;
+         for (int i = idAsString.length() - 1; i >= 0; i--)
+         {
+                 check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
+
+         }
+         return InverseD5Char[check];
+ }
+ 
    /**
     * Verifies the check digit of an SCT identifier.
     *
