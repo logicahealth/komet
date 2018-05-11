@@ -37,8 +37,6 @@
 
 package sh.isaac.pombuilder.converter;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -51,7 +49,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.util.Pair;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.dbConfigBuilder.artifacts.Converter;
@@ -60,8 +57,6 @@ import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.FileUtil;
 import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -81,9 +76,6 @@ public class ContentConverterCreator
 	public static final String WORKING_SUBFOLDER = "converter-executor";
 	public static final String CLASSIFIERS_OPTION = "classifiers";
 
-	// ~--- methods -------------------------------------------------------------
-
-	// TODO jruby note - added the workingFolder and deleteAfterPublish params
 	/**
 	 * Create a source conversion project which is executable via maven.
 	 *
