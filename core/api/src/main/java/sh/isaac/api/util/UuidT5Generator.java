@@ -259,8 +259,9 @@ public class UuidT5Generator {
            BigInteger bigResult = new BigInteger(1, longBytes);
            String resultAsString = bigResult.toString();
            String lastDigits = resultAsString.substring(resultAsString.length() - 3);
-           String resultNoCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
-           return resultNoCheckDigit.subSequence(0, resultNoCheckDigit.length()-1) + SctId.verhoeffComputeStr(resultNoCheckDigit);
+           String resultZeroForCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
+           String resultNoCheckDigit = resultZeroForCheckDigit.substring(0, resultZeroForCheckDigit.length()-1);
+           return resultNoCheckDigit + SctId.verhoeffComputeStr(resultNoCheckDigit);
        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
            throw new RuntimeException(ex.getLocalizedMessage(), ex);
        }
