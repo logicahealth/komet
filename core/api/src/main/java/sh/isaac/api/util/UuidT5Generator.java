@@ -239,6 +239,9 @@ public class UuidT5Generator {
    }
    
    public static String makeLongIdFromUuid(UUID uuid)  {
+       // 18,446,744,073,709,551,615 max unsigned long
+       // Remove the partition and check digits
+       // ~18,000,000,000,000,000 = ~18 quadrillion possibilities
        try {
            final MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
            
@@ -274,9 +277,9 @@ public class UuidT5Generator {
         System.out.println(makeLongIdFromRxNormId("12345"));
         System.out.println(makeLongIdFromLoincId("8867-4"));
         System.out.println(makeLongIdFromLoincId("67129-7"));
-       for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
            System.out.println(makeLongIdFromUuid(UUID.randomUUID()));
-       }
+        }
        
    }
    
