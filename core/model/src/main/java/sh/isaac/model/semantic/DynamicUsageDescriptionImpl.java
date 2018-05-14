@@ -39,8 +39,6 @@
 
 package sh.isaac.model.semantic;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -48,13 +46,13 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
+import org.jvnet.hk2.annotations.Service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -75,19 +73,19 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.configuration.StampCoordinates;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * See {@link DynamicUsageDescription}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
+//Even though this class is static, needs to be a service, so that the reset() gets fired at appropriate times.
+@Service
+@Singleton
 public class DynamicUsageDescriptionImpl
-         implements DynamicUsageDescription {
-   /** The Constant logger. */
+         implements DynamicUsageDescription, StaticIsaacCache {
+
    protected static final Logger logger = Logger.getLogger(DynamicUsageDescription.class.getName());
 
-   /** The cache. */
    private static Cache<Integer, DynamicUsageDescriptionImpl> cache =
          Caffeine.newBuilder().maximumSize(25).build();
 
@@ -144,7 +142,6 @@ public class DynamicUsageDescriptionImpl
             ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
 
          if (descriptionVersion.isPresent()) {
-            @SuppressWarnings("rawtypes")
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
 
             if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
@@ -153,11 +150,9 @@ public class DynamicUsageDescriptionImpl
                                                                                                         DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                                                                                               .getNid())
                                                                                                .findAny();
-
                if (nestesdSemantic.isPresent()) {
                   this.semanticUsageDescription = ds.getText();
                }
-               ;
             }
 
             if (ds.getDescriptionTypeConceptNid() ==
@@ -731,6 +726,14 @@ public class DynamicUsageDescriptionImpl
            Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId),
            0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null, false)};
         return dsud;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      cache.invalidateAll();
    }
 }
 
