@@ -183,8 +183,6 @@ public class Writers {
          output.write(sc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
-         output.write("\",");
-         mainWriter.newLine();
          output.write("\"uuidList\":[");
          mainWriter.tabIn();
 
