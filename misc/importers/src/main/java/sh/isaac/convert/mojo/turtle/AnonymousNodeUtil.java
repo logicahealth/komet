@@ -252,7 +252,7 @@ public class AnonymousNodeUtil
 				if (!existing.get(i).hasMoreThanOneValue() && orderedData[i].size() > 1)
 				{
 					//If the boolean of the pair is false, it means only one data element.  If true, it means more than one.
-					//So, if it is currently false, but we foudn one with more than one element, we need to change it to true.
+					//So, if it is currently false, but we found one with more than one element, we need to change it to true.
 					existing.get(i).setMoreThanOneValue();
 				}
 			}

@@ -477,7 +477,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						possibleSingleValueTypedSemantics.remove(pointer.getKey());
 					}
 					anu.init(pointer.getKey(), allStatements.get(pointer.getValue()), singleValuedExample.orElse(null));
-					possibleDynamicAttributes.put(pointer.getKey(), new DynamicSemanticHelper(pointer.getKey()));
+					if (null != possibleDynamicAttributes.put(pointer.getKey(), new DynamicSemanticHelper(pointer.getKey())))
+					{
+						throw new RuntimeException("Duplicate definition for " + pointer.getKey());
+					}
 				}
 				
 				for (Entry<String, String> s : possibleSingleValueTypedSemantics.entrySet())
@@ -486,7 +489,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					if (value.isPresent())
 					{
 						anu.initSingleValuedType(s.getKey(), value.get());
-						possibleDynamicAttributes.put(s.getKey(), new DynamicSemanticHelper(s.getValue(), IsaacObjectType.CONCEPT, null));
+						if (null != possibleDynamicAttributes.put(s.getKey(), new DynamicSemanticHelper(s.getValue(), IsaacObjectType.CONCEPT, null)))
+						{
+							throw new RuntimeException("Duplicate definition for " + s.getKey());
+						}
 					}
 				}
 				
@@ -633,7 +639,15 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				}
 				else
 				{
-					process(entries.getValue(), true);
+					try
+					{
+						process(entries.getValue(), true);
+					}
+					catch (Exception e)
+					{
+						log.error("Failed on {}",entries.getKey());
+						throw e;
+					}
 					processedSubjects.add(entries.getKey());
 				}
 			}
@@ -1167,7 +1181,11 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private UUID getConceptUUID(String input)
 	{
 		UUID temp = converterUUID.createNamespaceUUIDFromString(input, true);
-		Get.identifierService().assignNid(temp);
+		int nid = Get.identifierService().assignNid(temp);
+		if (input.equals("http://rdfs.co/bevon/manufacturer") || input.equals("http://rdfs.co/bevon/origin"))
+		{
+			System.out.println("hi " + nid);
+		}
 		return temp;
 	}
 }
