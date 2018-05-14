@@ -214,7 +214,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
          {
             JAXBContext jaxbContext = JAXBContext.newInstance(Terminology.class);
    
-            XMLInputFactory xif = XMLInputFactory.newFactory();
+            XMLInputFactory xif = XMLInputFactory.newInstance();
             xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             XMLStreamReader xsr = xif.createXMLStreamReader(new StringReader(xmlData));
