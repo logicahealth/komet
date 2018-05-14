@@ -163,16 +163,16 @@ public class TaxonomyRecord {
     /**
      * Adds the concept sequence stamp records.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param newRecord the new record
      */
-    public void addConceptSequenceStampRecords(int conceptSequence, TypeStampTaxonomyRecords newRecord) {
-        if (this.conceptNidRecordMap.containsKey(conceptSequence)) {
-            final TypeStampTaxonomyRecords oldRecord = this.conceptNidRecordMap.get(conceptSequence);
+    public void addConceptSequenceStampRecords(int conceptNid, TypeStampTaxonomyRecords newRecord) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+            final TypeStampTaxonomyRecords oldRecord = this.conceptNidRecordMap.get(conceptNid);
 
             oldRecord.merge(newRecord);
         } else {
-            this.conceptNidRecordMap.put(conceptSequence, newRecord);
+            this.conceptNidRecordMap.put(conceptNid, newRecord);
         }
     }
 

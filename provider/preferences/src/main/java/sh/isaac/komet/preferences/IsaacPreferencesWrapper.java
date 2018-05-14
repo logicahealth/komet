@@ -26,7 +26,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferenceNodeType;
 
 /**
- *
+ * An application preferences wrapper. 
  * @author kec
  */
 public class IsaacPreferencesWrapper implements IsaacPreferences {

@@ -28,5 +28,6 @@
         <module>countries-flags</module>
         <module>export-view</module>
           <module>open-jdk-fixes</module>
+          <module>komet-preferences</module>
      </modules>
 </project>

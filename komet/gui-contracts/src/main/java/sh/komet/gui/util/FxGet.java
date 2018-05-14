@@ -20,7 +20,10 @@ import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.PreferencesService;
 import sh.komet.gui.contract.DialogService;
+import sh.komet.gui.contract.KometPreferences;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.contract.StatusMessageService;
 import sh.komet.gui.provider.StatusMessageProvider;
@@ -66,6 +69,10 @@ public class FxGet implements StaticIsaacCache
          return FX_CONFIGURATION;
       }
 
+      public static KometPreferences kometPreferences() {
+         return Get.service(KometPreferences.class);
+      }
+
    /**
     * {@inheritDoc}
     */
@@ -76,4 +83,21 @@ public class FxGet implements StaticIsaacCache
       STATUS_MESSAGE_PROVIDER = null;
       FX_CONFIGURATION = null;
    }
+   
+   public static PreferencesService preferenceService() {
+       return Get.service(PreferencesService.class);
+   }
+   
+   public static IsaacPreferences systemNode(Class<?> c) {
+       return preferenceService().getApplicationPreferences().node(c);
+   }
+   
+   public static IsaacPreferences userNode(Class<?> c) {
+       return preferenceService().getUserPreferences().node(c);
+   }
+   
+   public static IsaacPreferences applicationNode(Class<?> c) {
+       return preferenceService().getApplicationPreferences().node(c);
+   }
+   
 }

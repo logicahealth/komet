@@ -73,7 +73,19 @@ public interface IsaacPreferences  {
     default Optional<String> get(String key) {
        return Optional.ofNullable(get(key, null));
     }
-
+    
+   default Optional<String> get(Enum key) {
+       return Optional.ofNullable(get(key, null));
+    }
+    
+    default String get(Enum key, String defaultValue) {
+        return get(enumToGeneralKey(key), defaultValue);
+    }
+    
+    default String enumToGeneralKey(Enum key) {
+        return key.getDeclaringClass() + key.name();
+    }
+ 
     /**
      * Removes the value associated with the specified key in this preference
      * node, if any.
@@ -820,7 +832,11 @@ public interface IsaacPreferences  {
    default boolean hasKey(Enum enumDefault) {
       return get(enumDefault.getClass().getCanonicalName()).isPresent();
    }
+   
+   
    default boolean hasKey(String key) {
       return get(key).isPresent();
    }
-}
+   
+ }
+
