@@ -36,19 +36,14 @@
  */
 package sh.komet.fx.stage;
 
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -77,6 +72,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import org.controlsfx.control.action.Action;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -96,6 +92,7 @@ import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
+import sh.komet.gui.exportation.ExportView;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -247,6 +244,10 @@ public class KometStageController
                 ImportView.show(manifolds.get(ManifoldGroup.TAXONOMY));
             });
             items.add(selectiveImport);
+
+            MenuItem selectiveExport = new MenuItem("Selective export");
+            selectiveExport.setOnAction(event -> ExportView.show(manifolds.get(ManifoldGroup.UNLINKED)));
+            items.add(selectiveExport);
             
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 

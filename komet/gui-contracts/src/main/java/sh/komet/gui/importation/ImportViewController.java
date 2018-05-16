@@ -104,8 +104,8 @@ public class ImportViewController {
 
     private final SimpleListProperty<File> filesProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final SimpleBooleanProperty snomedSelectedProperty = new SimpleBooleanProperty(false);
-    private final SimpleBooleanProperty loincSelectedProperty = new SimpleBooleanProperty();
-    private final SimpleBooleanProperty collabSelectedProperty = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty loincSelectedProperty = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty collabSelectedProperty = new SimpleBooleanProperty(false);
     private final String loincSNOMEDCollabRequiredText =
             "✘ Import Selection Requires LOINC/SNOMED Collaboration (SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip)";
     private final String importIsReadyText =
@@ -124,7 +124,8 @@ public class ImportViewController {
 
     private void addFiles(List<File> files) {
 
-        this.filesProperty.addAll(files);
+        if(files != null)
+            this.filesProperty.addAll(files);
 
         Task<Void> t = new Task<Void>() {
             @Override
@@ -428,8 +429,6 @@ public class ImportViewController {
         //Initial SNOMED CT check
         this.snomedSelectedProperty.set(LookupService.get().getService(DescriptionIndexer.class)
                 .query("theophobia", 0).size() > 0);
-        this.collabSelectedProperty.set(LookupService.get().getService(DescriptionIndexer.class)
-                .query("O2 Ct RA.high-sCnc", 0).size() > 0);
 
         //Initial display to UI if SNOMED CT is present from prior import
         if(this.snomedSelectedProperty.get() == false){

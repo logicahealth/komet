@@ -20,6 +20,7 @@ import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashSet;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 /**
@@ -29,6 +30,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 public class MiscJson extends TimedTaskWithProgressTracker<Void> {
 
     private final File jsonFile;
+    private final HashSet<Integer> refIdSet = new HashSet();
 
     public MiscJson(File jsonFile) {
         this.jsonFile = jsonFile;
@@ -111,24 +113,38 @@ public class MiscJson extends TimedTaskWithProgressTracker<Void> {
     private void handleConcept(JsonObject concept, StringBuilder builder, int depth) {
         conceptCount++;
         pad(builder, depth).append("Concept: ").append(concept.get("name")).append("\n");
+        handleRefId(concept, builder, depth);
         
     }
     int entityCount = 0;
     private void handleEntity(JsonObject entity, StringBuilder builder, int depth) {
         entityCount++;
         pad(builder, depth).append("Entity: ").append(entity.get("name")).append("\n");
+        handleRefId(entity, builder, depth);
         
+    }
+
+    private void handleRefId(JsonObject entity, StringBuilder builder, int depth) throws NumberFormatException {
+        String refId = (String) entity.get("ref_id");
+        Integer refIdInt = Integer.parseInt(refId);
+        if (refIdSet.contains(refIdInt)) {
+            pad(builder, depth+1).append("Duplicate ref_id: ").append(refIdInt).append("\n");
+        } else {
+            refIdSet.add(refIdInt);
+        }
     }
     int attributeCount = 0;
     private void handleAttribute(JsonObject attribute, StringBuilder builder, int depth) {
         attributeCount++;
         pad(builder, depth).append("Attribute: ").append(attribute.get("name")).append("\n");
+        handleRefId(attribute, builder, depth);
         
     }
     int relationshpCount = 0;
-    private void handleRelationship(JsonObject attribute, StringBuilder builder, int depth) {
+    private void handleRelationship(JsonObject relationship, StringBuilder builder, int depth) {
         relationshpCount++;
-        pad(builder, depth).append("Relationship: ").append(attribute.get("name")).append("\n");
+        pad(builder, depth).append("Relationship: ").append(relationship.get("name")).append("\n");
+        handleRefId(relationship, builder, depth);
         
     }
 }

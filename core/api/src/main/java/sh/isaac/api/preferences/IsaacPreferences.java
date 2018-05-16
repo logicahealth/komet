@@ -73,7 +73,19 @@ public interface IsaacPreferences  {
     default Optional<String> get(String key) {
        return Optional.ofNullable(get(key, null));
     }
-
+    
+   default Optional<String> get(Enum key) {
+       return Optional.ofNullable(get(key, null));
+    }
+    
+    default String get(Enum key, String defaultValue) {
+        return get(enumToGeneralKey(key), defaultValue);
+    }
+    
+    default String enumToGeneralKey(Enum key) {
+        return key.getDeclaringClass() + key.name();
+    }
+ 
     /**
      * Removes the value associated with the specified key in this preference
      * node, if any.
@@ -279,7 +291,12 @@ public interface IsaacPreferences  {
      * @see #putBoolean(String,boolean)
      */
     boolean getBoolean(String key, boolean defaultValue);
-    
+    default boolean getBoolean(Enum key, boolean defaultValue) {
+        return getBoolean(key.toString(), defaultValue);
+    }
+    default Optional<Boolean> getBoolean(Enum key) {
+        return getBoolean(key.toString());
+    }
     default Optional<Boolean> getBoolean(String key) {
        Optional<String> optionalValue = get(key);
        if (optionalValue.isPresent()) {
@@ -486,7 +503,24 @@ public interface IsaacPreferences  {
      * @see #flush()
      */
     IsaacPreferences node(String pathName);
+    
+    default IsaacPreferences node(Class<?> c) {
+        return node(nodeName(c));
+    }
 
+    static String nodeName(Class<?> c) {
+        if (c.isArray())
+            throw new IllegalArgumentException(
+                "Arrays have no associated preferences node.");
+        String className = c.getName();
+        int pkgEndIndex = className.lastIndexOf('.');
+        if (pkgEndIndex < 0)
+            return "/<unnamed>";
+        String packageName = className.substring(0, pkgEndIndex);
+        return "/" + packageName.replace('.', '/');
+    }
+
+    
     /**
      * Returns true if the named preference node exists in the same tree
      * as this node.  Relative path names (which do not begin with the slash
@@ -515,6 +549,10 @@ public interface IsaacPreferences  {
      */
     boolean nodeExists(String pathName)
         throws BackingStoreException;
+    
+    default boolean nodeExists(Class<?> c) throws BackingStoreException {
+        return nodeExists(nodeName(c));
+    }
 
     /**
      * Removes this preference node and all of its descendants, invalidating
@@ -794,7 +832,11 @@ public interface IsaacPreferences  {
    default boolean hasKey(Enum enumDefault) {
       return get(enumDefault.getClass().getCanonicalName()).isPresent();
    }
+   
+   
    default boolean hasKey(String key) {
       return get(key).isPresent();
    }
-}
+   
+ }
+

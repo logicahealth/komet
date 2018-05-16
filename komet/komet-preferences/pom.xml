@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>komet</artifactId>
+        <version>4.48-SNAPSHOT</version>
+    </parent>
+    <groupId>sh.isaac.komet</groupId>
+    <artifactId>komet-preferences</artifactId>
+    <packaging>jar</packaging>
+
+    <name>ISAAC’s KOMET: Preferences</name>
+    <description>
+        User configurable preferences from within KOMET. Incorporates PreferencesFx, which is licensed under Apache 2. 
+        https://github.com/dlemmermann/PreferencesFX
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>gui-contracts</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.dlsc.preferencesfx</groupId>
+            <artifactId>preferencesfx-core</artifactId>
+            <version>2.0.1</version>
+        </dependency>        
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <name>BestSolution e(fx)clipse releases</name>
+            <id>efxclipse-releases</id>
+            <url>http://maven.bestsolution.at/efxclipse-releases/</url>
+        </repository>
+    </repositories>
+</project>

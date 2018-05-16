@@ -74,8 +74,9 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.preferences.ApplicationPreferences;
+import sh.isaac.komet.preferences.IsaacPreferencesImpl;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -203,7 +204,7 @@ public class MainApp
                     if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                         MenuItem prefsItem = new MenuItem("Preferences...");
                         //TODO TEMP to do  something. Need to make it do something better. 
-                        prefsItem.setOnAction(this::handleAbout);
+                        prefsItem.setOnAction(this::handlePrefs);
                         ap.getMenu().getItems().add(prefsItem);
                         ap.getMenu().getItems().add(new SeparatorMenuItem());
                     }
@@ -359,6 +360,10 @@ public class MainApp
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
+    }
+    
+    private void handlePrefs(ActionEvent event) {
+       FxGet.kometPreferences().showPreferences("ISAAC's KOMET Preferences" , FxGet.applicationNode(ApplicationPreferences.class));
     }
 
     private void handleAbout(ActionEvent event) {

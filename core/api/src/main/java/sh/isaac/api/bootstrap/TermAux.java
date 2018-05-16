@@ -52,7 +52,6 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -77,7 +76,10 @@ public class TermAux implements StaticIsaacCache {
    public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
    public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
    
-   public static ConceptSpecification ISAAC_UUID = new ConceptProxy("UUID", UUID.fromString("2faa9262-8fb2-11db-b606-0800200c9a66"));
+   //SNOMED CT universally unique identifier (core metadata concept)
+   // SCTID: 900000000000002006
+   public static ConceptSpecification ISAAC_UUID = new ConceptProxy("UUID", UUID.fromString("2faa9262-8fb2-11db-b606-0800200c9a66"),
+    UuidT3Generator.fromSNOMED("900000000000002006"));
    
    /** ConceptProxy for: "Part of concept". */
    public static ConceptSpecification PART_OF = new ConceptProxy("Part of", UUID.fromString("b4c3f6f9-6937-30fd-8412-d0c77f8a7f73"));

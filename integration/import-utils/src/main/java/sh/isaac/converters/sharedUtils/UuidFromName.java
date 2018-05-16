@@ -59,7 +59,7 @@ public class UuidFromName {
    /**
     * @param args the arguments
     * @throws NoSuchAlgorithmException the no such algorithm exception
-    * @throws UnsupportedEncodingException the unsupported encoding exception
+    * @throws UnsupportedEncodingException the unsupported ENCODING exception
     */
    public static void main(String[] args)
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
