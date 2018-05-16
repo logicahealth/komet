@@ -100,7 +100,7 @@ public interface IdentifiedObject {
    }
 
    /**
-    * Gets the uuid list.
+    * Gets a COPY of the uuid list.  Edits to the returned list are not stored.
     *
     * @return the uuid list
     */

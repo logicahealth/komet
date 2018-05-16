@@ -395,14 +395,13 @@ public abstract class ChronologyImpl
         this.versionType = VersionType.getFromToken(data.getByte());
 
         if (data.isExternalData()) {
-            UUID primordialUUID = new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
             List<UUID> allUUIDs = getUuidList();
-            if (!Get.identifierService().hasUuid(primordialUUID)) {
+            if (!Get.identifierService().hasUuid(allUUIDs)) {
                 this.nid = Get.identifierService().assignNid(allUUIDs.toArray(new UUID[allUUIDs.size()]));
             } else {
                 this.nid = Get.identifierService().getNidForUuids(allUUIDs);
-                if (allUUIDs.size() > 1) {
-                    for (UUID additionalUuid : allUUIDs.subList(1, allUUIDs.size())) {
+                if (allUUIDs.size() > 1) {  //make sure every UUID is in the identifier service
+                    for (UUID additionalUuid : allUUIDs) {
                         Get.identifierService().addUuidForNid(additionalUuid, this.nid);
                     }
                 }
@@ -783,9 +782,7 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Gets the uuid list.
-     *
-     * @return the uuid list
+     * {@inheritDoc}
      */
     @Override
     public List<UUID> getUuidList() {
