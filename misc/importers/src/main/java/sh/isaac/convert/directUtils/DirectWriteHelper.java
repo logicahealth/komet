@@ -315,6 +315,10 @@ public class DirectWriteHelper
 	public UUID makeDescription(UUID concept, String text, UUID descriptionType, UUID language, UUID caseSignificance, Status status, long time, UUID dialect,
 			UUID dialectAcceptibility)
 	{
+		if (StringUtils.isBlank(text))
+		{
+			throw new RuntimeException("Blank text!");
+		}
 		UUID descriptionUuid = UuidFactory.getUuidForDescriptionSemantic(converterUUID.getNamespace(), concept, caseSignificance, descriptionType, language,
 				text, ((input, uuid) -> converterUUID.addMapping(input, uuid)));
 
