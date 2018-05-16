@@ -159,7 +159,7 @@ public class WorkExecutors {
       final TimeUnit timeUnit        = TimeUnit.SECONDS;
 
       // The blocking executor
-      this.blockingThreadPoolExecutor = new ThreadPoolExecutor(corePoolSize,
+      this.blockingThreadPoolExecutor = new ThreadPoolExecutorFixed(corePoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
@@ -176,7 +176,7 @@ public class WorkExecutors {
 
       // The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.threadPoolExecutor = new ThreadPoolExecutor(maximumPoolSize,
+      this.threadPoolExecutor = new ThreadPoolExecutorFixed(maximumPoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
@@ -186,7 +186,7 @@ public class WorkExecutors {
 
       // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.ioThreadPoolExecutor = new ThreadPoolExecutor(6,
+      this.ioThreadPoolExecutor = new ThreadPoolExecutorFixed(6,
             6,
             keepAliveTime,
             timeUnit,

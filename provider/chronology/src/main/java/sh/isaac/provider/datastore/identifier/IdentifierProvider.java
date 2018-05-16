@@ -111,6 +111,10 @@ public class IdentifierProvider
 
    @Override
    public void addUuidForNid(UUID uuid, int nid) {
+      int old = this.uuidIntMapMap.get(uuid);
+      if (old != Integer.MAX_VALUE && old != nid) {
+         throw new RuntimeException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
+      }
       this.uuidIntMapMap.put(uuid, nid);
    }
 

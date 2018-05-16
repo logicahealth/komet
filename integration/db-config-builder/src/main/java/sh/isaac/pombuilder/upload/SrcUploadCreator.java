@@ -37,8 +37,6 @@
 
 package sh.isaac.pombuilder.upload;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -58,8 +56,6 @@ import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * {@link SrcUploadCreator}
  * Create a new maven pom project which when executed, will upload a set of SDO input files.
@@ -68,16 +64,10 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
  */
 public class SrcUploadCreator
 {
-	/** The Constant LOG. */
 	private static final Logger LOG = LogManager.getLogger();
 	
 	public static final String SRC_UPLOAD_GROUP = "sh.isaac.terminology.source";
 	public static final String WORKING_SUB_FOLDER_NAME = "src-upload";
-
-	// ~--- methods -------------------------------------------------------------
-
-	// TODO notes for jruby
-	// Added the following parameters, workingFolder, moveSourceFiles, deleteAfterPublish
 
 	/**
 	 * Creates the src upload configuration.  Operates in 4 stages, depending on the amount of parameters provided.

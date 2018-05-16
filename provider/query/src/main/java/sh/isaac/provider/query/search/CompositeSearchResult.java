@@ -158,7 +158,6 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult>
 				locateContainingConcept(Get.identifiedObjectService().getChronology(((SemanticChronology)chronology).getReferencedComponentNid()).get());
 				break;
 			//Things below here should never come back from a nid from the indexer
-			case LOGICAL_EXPRESSION:
 			case STAMP:
 			case STAMP_ALIAS:
 			case STAMP_COMMENT:

@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -113,6 +114,11 @@ public class Writers {
 
          output.write(temp.toString());
          mainWriter.tabOut();
+         output.write("],");
+         
+         mainWriter.newLine();
+         output.write("\"versions\":[");
+         mainWriter.tabIn();
          
          boolean first = true;
          
@@ -142,14 +148,13 @@ public class Writers {
              mainWriter.newLine();
              output.write("\"time\":\"");
              output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
-             output.write("\",");
-             mainWriter.newLine();
-
+             output.write("\"");
              mainWriter.tabOut();
              output.write("}");
          }
+         mainWriter.tabOut();
          output.write("]");
-      }
+       }
    }
 
 
@@ -181,8 +186,6 @@ public class Writers {
          mainWriter.newLine();
          output.write("\"nid\":\"");
          output.write(sc.getNid() + "");
-         output.write("\",");
-         mainWriter.newLine();
          output.write("\",");
          mainWriter.newLine();
          output.write("\"uuidList\":[");
@@ -265,9 +268,8 @@ public class Writers {
                output.write(ds.getDescriptionTypeConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
-               output.write("\"text\":\"");
-               output.write(ds.getText() + "");
-               output.write("\"");
+               output.write("\"text\":");
+               mainWriter.write(ds.getText());
             } else if (sv instanceof ComponentNidVersion) {
                final ComponentNidVersion cns = (ComponentNidVersion) sv;
 
@@ -288,6 +290,7 @@ public class Writers {
                final LogicalExpression   le   = lgs.getLogicalExpression();
                final LogicNode           root = le.getRoot();
 
+               ArrayList<String> parents = new ArrayList<>();
                for (final LogicNode necessaryOrSufficient: root.getChildren()) {
                   for (final LogicNode connector: necessaryOrSufficient.getChildren()) {
                      for (final LogicNode target: connector.getChildren()) {
@@ -295,12 +298,9 @@ public class Writers {
                            // Hack ALERT!
                            // This should look like this: Concept[1] ISAAC metadata (ISAAC) <14>
                            final String conceptString = target.toString();
-
                            if (conceptString.contains("<") && conceptString.contains(">")) {
-                              output.write("\"parentConceptSequence\":\"");
-                              output.write(conceptString.substring(conceptString.lastIndexOf('<') + 1,
+                              parents.add(conceptString.substring(conceptString.lastIndexOf('<') + 1,
                                     conceptString.lastIndexOf('>')));
-                              output.write("\"");
                            } else {
                               output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
                            }
@@ -309,6 +309,22 @@ public class Writers {
                         }
                      }
                   }
+               }
+               
+               if (parents.size() > 0)
+               {
+                  output.write("\"parentConceptSequence\":[");
+                  mainWriter.tabIn();
+                  for (int i = 0; i < parents.size(); i++)
+                  {
+                     output.write("\"" + parents.get(i) + "\"");
+                     if (i < parents.size() - 1) {
+                        output.write(",");
+                        mainWriter.newLine();
+                     }
+                  }
+                  mainWriter.tabOut();
+                  output.write("]");
                }
             } else if (sv instanceof LongVersion) {
                final LongVersion ls = (LongVersion) sv;

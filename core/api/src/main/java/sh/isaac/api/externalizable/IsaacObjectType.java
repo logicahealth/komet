@@ -73,6 +73,8 @@ public enum IsaacObjectType {
     * A semantic unit of meaning, associated with a concept or another SEMANTIC.
     */
    SEMANTIC((byte) 2, (byte) 1, "Semantic"),
+   
+   //3 was a commit record, deprecated, should not be reused
 
    /**
     * A stamp comment.
@@ -89,10 +91,7 @@ public enum IsaacObjectType {
     */
    STAMP((byte) 6, (byte) 1, "Stamp"),
 
-   /**
-    * A logical expression.
-    */
-   LOGICAL_EXPRESSION((byte) 7, (byte) 1, "Logical Expression"),
+   //7 was logical expression, deprecated, should not be reused
 
    /**
     * A logical expression.
@@ -161,7 +160,7 @@ public enum IsaacObjectType {
          return STAMP;
 
       case 7:
-         return LOGICAL_EXPRESSION;
+         throw new UnsupportedOperationException("Logical Expression deprecated: " + token);
 
       default:
          UnsupportedOperationException ex = new UnsupportedOperationException("i Can't handle: " + token);

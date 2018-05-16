@@ -110,6 +110,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private int moduleNid;
 	private int authorNid = 0;
 	private UUID rootConcept;
+	private UUID rootConceptId2;
 	private UUID coreGroupConcept;
 	
 	private long releaseTime;
@@ -456,8 +457,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				dwh.makeMetadataHierarchy(title, true, true, true, true, true, releaseTime);
 				
 				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
-				rootConcept = getConceptUUID(subject);
-				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime);
+				rootConcept = getConceptUUID(preferredNamespaceUri, subject);  //make sure our nid is assigned to the combination of both nids.
+				//But also give it two UUIDs, so everything attached ends up in the right spot.
+				rootConceptId2 = getConceptUUID(subject);
+				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime, new UUID[] {rootConceptId2});
 				dwh.makeParentGraph(rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				
 				coreGroupConcept = getConceptUUID("http://rdfs.co/bevon/CoreGroup");
@@ -477,7 +480,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						possibleSingleValueTypedSemantics.remove(pointer.getKey());
 					}
 					anu.init(pointer.getKey(), allStatements.get(pointer.getValue()), singleValuedExample.orElse(null));
-					possibleDynamicAttributes.put(pointer.getKey(), new DynamicSemanticHelper(pointer.getKey()));
+					if (null != possibleDynamicAttributes.put(pointer.getKey(), new DynamicSemanticHelper(pointer.getKey())))
+					{
+						throw new RuntimeException("Duplicate definition for " + pointer.getKey());
+					}
 				}
 				
 				for (Entry<String, String> s : possibleSingleValueTypedSemantics.entrySet())
@@ -486,7 +492,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					if (value.isPresent())
 					{
 						anu.initSingleValuedType(s.getKey(), value.get());
-						possibleDynamicAttributes.put(s.getKey(), new DynamicSemanticHelper(s.getValue(), IsaacObjectType.CONCEPT, null));
+						if (null != possibleDynamicAttributes.put(s.getKey(), new DynamicSemanticHelper(s.getValue(), IsaacObjectType.CONCEPT, null)))
+						{
+							throw new RuntimeException("Duplicate definition for " + s.getKey());
+						}
 					}
 				}
 				
@@ -617,9 +626,10 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				dwh.processTaxonomyUpdates();  //process our metadata, so the taxonomy works properly for other things during load
 				Get.taxonomyService().notifyTaxonomyListenersToRefresh();
 				
-				rootConcept = process(statements, false);  //Don't add any isA's to the parent, because this will cause cycles, due to how we are generating 
+				process(statements, false);  //Don't add any isA's to the parent, because this will cause cycles, due to how we are generating 
 				//unresolved references
 				processedSubjects.add(subject);
+				processedSubjects.add(preferredNamespaceUri);
 
 				//Technically, we could break here, but would rather validate that this isn't a second entry that fits the criteria - exception will be thrown if we 
 				//loop through this code a second time.
@@ -633,7 +643,15 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				}
 				else
 				{
-					process(entries.getValue(), true);
+					try
+					{
+						process(entries.getValue(), true);
+					}
+					catch (Exception e)
+					{
+						log.error("Failed on {}",entries.getKey());
+						throw e;
+					}
 					processedSubjects.add(entries.getKey());
 				}
 			}
@@ -725,9 +743,12 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				dwh.makeDescriptionEn(entry.getKey(), entry.getValue().getURI(), fsn, 
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
-				dwh.makeDescriptionEn(entry.getKey(), entry.getValue().getLocalName(), regularName, 
+				if (StringUtils.isNotBlank(entry.getValue().getLocalName()))
+				{
+					dwh.makeDescriptionEn(entry.getKey(), entry.getValue().getLocalName(), regularName, 
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
+				}
 				dwh.makeParentGraph(entry.getKey(), Arrays.asList(new UUID[] {unresolvedConcepts}), Status.ACTIVE, releaseTime);
 			}
 		}
@@ -904,10 +925,14 @@ public class TurtleImportMojo extends ConverterBaseMojo
 			if (possibleAssociations.containsKey(subjectFQN) || possibleDynamicAttributes.containsKey(subjectFQN) || possibleDescriptionTypes.containsKey(subjectFQN)
 					|| possibleRefSets.containsKey(subjectFQN) || possibleRelationships.containsKey(subjectFQN) || possibleSingleValueTypedSemantics.containsKey(subjectFQN)
 					|| anu.knownTypes.containsKey(subjectFQN)
-					|| concept.equals(rootConcept) || concept.equals(coreGroupConcept))
+					|| concept.equals(rootConcept) || concept.equals(rootConceptId2) || concept.equals(coreGroupConcept))
 			{
 				//We already made this concept, and its parent graphs
 				writeParentGraphs = false;
+				if (concept.equals(rootConceptId2))
+				{
+					concept = rootConcept;  //this is so our dynamic UUID generation is consistent, and uses the UUID of the non-versioned URI for the referenced component
+				}
 			}
 			else
 			{
@@ -1161,13 +1186,19 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	 * Get a UUID from a string WITHOUT doing duplicate generation checking. You should only use this method
 	 * if you are sure you aren't creating a duplicate entry...
 	 * 
-	 * @param input
+	 * @param input - one or more strings to map to UUIDs.  All UUIDs will be treated together, in assignment of the associated nid...
 	 * @return
 	 */
-	private UUID getConceptUUID(String input)
+	private UUID getConceptUUID(String ... input)
 	{
-		UUID temp = converterUUID.createNamespaceUUIDFromString(input, true);
-		Get.identifierService().assignNid(temp);
-		return temp;
+		UUID[] allUUIDs = new UUID[input.length];
+		int i = 0;
+		for (String in : input)
+		{
+			UUID temp = converterUUID.createNamespaceUUIDFromString(in, true);
+			allUUIDs[i++] = temp;
+		}
+		Get.identifierService().assignNid(allUUIDs);
+		return allUUIDs[0];
 	}
 }

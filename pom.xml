@@ -133,6 +133,7 @@
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
       <fontawesome.version>4.7.0-5</fontawesome.version>
+      <xml-apis.version>1.4.01</xml-apis.version>  <!-- Be really careful about changing this... tis a nightmare dependency -->
 
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
@@ -387,6 +388,12 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>${poi-ooxml.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>stax</groupId>
+                  <artifactId>stax-api</artifactId><!-- Nasty old incompatible version in the dependency chain -->
+               </exclusion>
+            </exclusions>
          </dependency>
          <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -595,6 +602,11 @@
             <groupId>org.jetbrains.xodus</groupId>
             <artifactId>xodus-environment</artifactId>
             <version>${xodus.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>xml-apis</groupId>
+             <artifactId>xml-apis</artifactId>
+             <version>${xml-apis.version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
@@ -966,11 +978,12 @@
                <execution>
                   <phase>post-site</phase>
                   <configuration>
-                     <tasks>
+                     <failOnError>false</failOnError>  <!-- TODO this needs to be fixed, no idea what all this site stuff is anyway... but some sub-projects don't have site folders, so this fails. -->
+                     <target>
                         <replace token="div id=&quot;banner&quot;" value="div id=&quot;banner&quot; style=&quot;background-color:black;color:white;&quot;" dir="${project.build.directory}/site/">
                            <include name="**/*.html" />
                         </replace>
-                     </tasks>
+                     </target>
                   </configuration>
                   <goals>
                      <goal>run</goal>
