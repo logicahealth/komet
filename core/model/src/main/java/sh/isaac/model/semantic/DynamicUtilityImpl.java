@@ -288,13 +288,13 @@ public class DynamicUtilityImpl
       DescriptionBuilder<SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder = descriptionBuilderService
             .getDescriptionBuilder(semanticDescription, conceptNid, TermAux.DEFINITION_DESCRIPTION_TYPE, TermAux.ENGLISH_LANGUAGE);
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
-      definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
+      definitionBuilder.setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid());
 
       definitionBuilder.build(stampSequence, builtSemantics);
 
       Get.semanticBuilderService()
             .getDynamicBuilder(definitionBuilder, DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
-            .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+            .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
 
       // define the data columns (if any)
       if (columns != null) {
@@ -305,13 +305,13 @@ public class DynamicUtilityImpl
          for (final DynamicColumnInfo ci : sortedColumns) {
             final DynamicData[] data = configureDynamicDefinitionDataForColumn(ci);
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
-                     .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+                     .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
          }
          DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
          if (indexInfo != null) {
             Get.semanticBuilderService()
                .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
-               .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+               .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
          }
       }
 
@@ -319,7 +319,7 @@ public class DynamicUtilityImpl
 
       if (data != null) {
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
-                  .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null).build(stampSequence, builtSemantics);
+                  .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
       }
       return builtSemantics;
    }
