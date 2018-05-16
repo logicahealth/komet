@@ -84,7 +84,6 @@ import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.MiscJson;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
@@ -344,20 +343,6 @@ public class KometStageController
                 Get.executor().execute(conversionTask);
             });
             items.add(convertLoincExpressions);
-            
-            MenuItem processJson = new MenuItem("Process JSON");
-            processJson.setOnAction((ActionEvent event) -> {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Open JSON File");                
-                fileChooser.getExtensionFilters().addAll(
-                    new ExtensionFilter("JSON Files", "*.json")
-                );
-                File selectedFile = fileChooser.showOpenDialog(null);
-                Get.executor().execute(new MiscJson(selectedFile));
-            });
-            items.add(processJson);
-
-
             
             File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
             if (beer.isFile()) {

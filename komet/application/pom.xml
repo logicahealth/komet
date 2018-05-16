@@ -382,6 +382,12 @@
                <version>1.0-SNAPSHOT</version>
                <type>jar</type>
             </dependency>
+            <dependency>
+               <groupId>com.informatics</groupId>
+               <artifactId>special-load</artifactId>
+               <version>${project.parent.version}</version>
+               <type>jar</type>
+            </dependency>
          </dependencies>
       </profile>
       <profile>

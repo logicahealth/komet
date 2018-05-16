@@ -31,7 +31,7 @@ public enum AppMenu
 	WINDOW("_Window"),
 	HELP("_Help");
 
-	private String menuName;
+	private final String menuName;
 	private Menu menu = null;
 
 	private AppMenu(String niceName)
