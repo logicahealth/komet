@@ -2141,7 +2141,6 @@ public class Frills
          case CONCEPT:
             return ConceptVersionImpl.class;
          
-         case LOGICAL_EXPRESSION:
          case STAMP:
          case STAMP_ALIAS:
          case STAMP_COMMENT:
