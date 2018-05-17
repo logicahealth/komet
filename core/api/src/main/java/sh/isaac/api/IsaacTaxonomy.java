@@ -91,6 +91,7 @@ import sh.isaac.api.util.DescriptionToToken;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.api.util.metainf.VersionFinder;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -355,6 +356,7 @@ public class IsaacTaxonomy {
       out.append("import java.util.UUID;\n");
       
       out.append("\n//Generated " + new Date().toString() + "\n");
+      out.append("//Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
       
 
       out.append("\n\npublic class " + className + " {\n");
@@ -418,9 +420,8 @@ public class IsaacTaxonomy {
    public void exportYamlBinding(Writer out, String packageName, String className, Map<String, MetadataConceptConstant> additionalConstants)
            throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
-
-      // TODO [Dan 2] use common code (when moved somewhere common) to extract the version number from the pom.xml
       out.append("#Generated " + new Date().toString() + "\n");
+      out.append("#Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
