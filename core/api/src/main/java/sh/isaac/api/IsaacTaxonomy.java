@@ -431,10 +431,7 @@ public class IsaacTaxonomy {
              throw new RuntimeException("The metadata concept '" + regularName + "' contains parens, which is illegal.");
          }
 
-         constantName = constantName.replace(" ", "_");
-         constantName = constantName.replace("-", "_");
-         constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND");
+         constantName = DescriptionToToken.get(constantName);
          out.append("\n" + constantName + ":\n");
          out.append("    fqn: " + concept.getFullyQualifiedName() + "\n");
          out.append("    regular: " + regularName + "\n");
