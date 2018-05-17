@@ -68,7 +68,7 @@ public class DocBook {
 
         StringBuilder builder = new StringBuilder();
         builder.append("<link xlink:href=\"#ge_solor_");
-         builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
+        builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
         builder.append("_");
         builder.append(conceptUuid);
         builder.append("\"><inlinemediaobject>\n");
