@@ -33,7 +33,6 @@ public class DescriptionToToken {
          tokenString = tokenString.replace("-", "_");
          tokenString = tokenString.replace("+", "_PLUS");
          tokenString = tokenString.replace("/", "_AND_OR_");
-         tokenString = tokenString.replace("↳", "ASSOCIATED_PARAMETER");
         return tokenString;
     }
 }

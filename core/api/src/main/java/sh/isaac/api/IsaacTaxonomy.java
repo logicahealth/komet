@@ -425,7 +425,12 @@ public class IsaacTaxonomy {
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String regularName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
+         String regularName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
+         
+         if (regularName.contains("↳"))  //This oddball causes problems all over
+         {
+             regularName = SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName());
+         }
          String constantName = regularName.toUpperCase();
          
          if (regularName.indexOf("(") > 0 || regularName.indexOf(")") > 0) {
