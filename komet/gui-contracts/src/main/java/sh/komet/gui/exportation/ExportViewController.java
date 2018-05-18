@@ -30,11 +30,11 @@ public class ExportViewController {
     @FXML
     private Button exportButton;
     @FXML
-    private ChoiceBox<ExportTypes> exportTypeChoiceBox;
+    private ChoiceBox<ExportType> exportTypeChoiceBox;
     @FXML
     private TextField directoryTextField;
 
-    private final ObservableList<ExportTypes> exportTypes = FXCollections.observableArrayList();
+    private final ObservableList<ExportType> exportTypes = FXCollections.observableArrayList();
     private File selectedDirectory;
 
 
@@ -46,7 +46,7 @@ public class ExportViewController {
         assert directoryTextField != null : "fx:id=\"directoryTextField\" was not injected: check your FXML file 'ExportView.fxml'.";
 
 
-        this.exportTypes.addAll(ExportTypes.values());
+        this.exportTypes.addAll(ExportType.values());
         this.exportTypeChoiceBox.setItems(this.exportTypes);
         this.exportButton.setDisable(true);
         this.exportTypeChoiceBox.getSelectionModel().selectFirst();

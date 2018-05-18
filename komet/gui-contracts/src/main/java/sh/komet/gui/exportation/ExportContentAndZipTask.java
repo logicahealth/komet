@@ -6,9 +6,12 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
-import java.util.*;
-
-import static sh.isaac.api.Get.concept;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 
 /*
  * aks8m - 5/15/18
@@ -16,27 +19,36 @@ import static sh.isaac.api.Get.concept;
 public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
     private final File exportDirectory;
-    private final ExportTypes exportType;
+    private final ExportType exportType;
     private final Manifold manifold;
 
-    public ExportContentAndZipTask(Manifold manifold, File exportDirectory, ExportTypes exportType){
+    public ExportContentAndZipTask(Manifold manifold, File exportDirectory, ExportType exportType){
         this.manifold = manifold;
         this.exportDirectory = exportDirectory;
         this.exportType = exportType;
+        updateTitle("Export " + this.exportType.toString());
+
+        addToTotalWork(2);
+        Get.activeTasks().add(this);
     }
 
     @Override
     protected Void call() throws Exception {
 
-        List<String> linesToWrite = new ArrayList<>();
+        //Concepts
+        completedUnitOfWork();
+        List<String> conceptsToWrite = new ArrayList<>();
+        conceptsToWrite.add("id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId");
+        updateMessage("Exporting Concepts...");
+        ConceptExporter conceptExporter = new ConceptExporter(this.exportType, this.manifold);
+        Future<List<String>> conceptExportTask = Get.executor().submit(conceptExporter, conceptsToWrite);
+        conceptsToWrite.addAll(conceptExportTask.get());
+        completedUnitOfWork();
 
-        System.out.println("Concept Cronology Count: " + Get.conceptService().getConceptChronologyStream().count());
-        System.out.println("Concept NID Count: " + Get.conceptService().getConceptNidStream().count());
+        //Add zipping algorithm
+        Files.write(Paths.get(this.exportDirectory.getAbsolutePath() + "/concepts.txt"), conceptsToWrite);
 
-
-
-
-
+        String b = "break";
 
 
         return null;

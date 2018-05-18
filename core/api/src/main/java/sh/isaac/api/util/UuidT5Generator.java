@@ -51,6 +51,9 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
@@ -238,7 +241,7 @@ public class UuidT5Generator {
        return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
    }
    
-   public static String makeLongIdFromUuid(UUID uuid)  {
+   public static String makeLongIdFromUuid(UUID uuid, boolean isSNOMEDBased)  {
        // 18,446,744,073,709,551,615 max unsigned long
        // Remove the partition and check digits
        // ~18,000,000,000,000,000 = ~18 quadrillion possibilities
@@ -262,7 +265,14 @@ public class UuidT5Generator {
            BigInteger bigResult = new BigInteger(1, longBytes);
            String resultAsString = bigResult.toString();
            String lastDigits = resultAsString.substring(resultAsString.length() - 3);
-           String resultZeroForCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
+
+           String resultZeroForCheckDigit;
+
+           if(isSNOMEDBased)
+               resultZeroForCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
+           else
+               resultZeroForCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("960")).toString();
+
            String resultNoCheckDigit = resultZeroForCheckDigit.substring(0, resultZeroForCheckDigit.length()-1);
            return resultNoCheckDigit + SctId.verhoeffComputeStr(resultNoCheckDigit);
        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
@@ -278,7 +288,7 @@ public class UuidT5Generator {
         System.out.println(makeLongIdFromLoincId("8867-4"));
         System.out.println(makeLongIdFromLoincId("67129-7"));
         for (int i = 0; i < 10; i++) {
-           System.out.println(makeLongIdFromUuid(UUID.randomUUID()));
+           System.out.println(makeLongIdFromUuid(UUID.randomUUID(), true));
         }
        
    }
