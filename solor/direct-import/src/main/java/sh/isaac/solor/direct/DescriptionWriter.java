@@ -114,7 +114,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
          int pathNid = 1;
 
          if(this.solorReleaseFormat){
-            identifierAssemblageNid = MetaData.UUID____SOLOR.getNid();
+            identifierAssemblageNid = MetaData.UUID____SOLOR.getNid(); //TODO Needs to be SOLOR Identifier or SOLORID :)
          }else{
             identifierAssemblageNid = TermAux.SNOMED_IDENTIFIER.getNid();
             authorNid = TermAux.USER.getNid();
@@ -183,7 +183,7 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             
             index(descriptionToWrite);
             assemblageService.writeSemanticChronology(descriptionToWrite);
-            
+
             // add to sct identifier assemblage
             UUID identifierUuid;
 
