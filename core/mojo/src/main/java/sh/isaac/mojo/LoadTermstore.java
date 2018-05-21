@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -115,6 +116,25 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 public class LoadTermstore
         extends AbstractMojo {
    
+   /**
+    * Constructor for maven
+    */
+   public LoadTermstore() {
+      //for maven
+   }
+   
+   /**
+    * Constructor for runtime usage
+    * @param ibdfFiles the files to import
+    * @param log where to route logging messages
+    * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
+    * False, to simply load the IBDF as is.
+    */
+  public LoadTermstore(File[] ibdfFiles, Log log, boolean mergeLogicGraphs) {
+     setibdfFiles(ibdfFiles);
+     setLog(log);
+     this.mergeLogicGraphs = mergeLogicGraphs;
+  }
    
    //Maven available parameters
    
@@ -172,13 +192,12 @@ public class LoadTermstore
    
    //internal use / non-maven exposed parameters
 
-   /** The semantic types to skip. */
+   private boolean mergeLogicGraphs = true;
+   
    private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
 
-   /** The skipped items. */
    private final HashSet<Integer> skippedItems = new HashSet<>();
 
-   /** The skipped any. */
    private boolean skippedAny = false;
    
    private boolean setDBBuildMode = true;
@@ -313,77 +332,72 @@ public class LoadTermstore
                               getLog().info("Loading development path semantic at count: " + this.itemCount);
                            }
 
-                           if (sc.getAssemblageNid() == statedNid) {
-                              final NidSet sequences = Get.assemblageService()
-                                                                     .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
-                                                                              statedNid);
-
-                              if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
-                                 // not a duplicate, just an index for itself. 
-                              } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
-                                 duplicateCount++;
-                                 final List<LogicalExpression> listToMerge = new ArrayList<>();
-
-                                 listToMerge.add(getLatestLogicalExpression(sc));
-                                 getLog().debug("\nDuplicate: " + sc);
-                                 sequences.stream()
-                                          .forEach(
-                                              (semanticSequence) -> listToMerge.add(
-                                                  getLatestLogicalExpression(Get.assemblageService()
-                                                        .getSemanticChronology(semanticSequence))));
-                                 getLog().debug("Duplicates: " + listToMerge);
-
-                                 if (listToMerge.size() > 2) {
-                                    throw new UnsupportedOperationException("Can't merge list of size: " +
-                                          listToMerge.size() + "\n" + listToMerge);
-                                 }
-                                 
-                                 Set<Integer> mergedParents = new HashSet<>();
-                                 for (LogicalExpression le : listToMerge) {
-                                    mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
-                                 }
-
-                                 byte[][] data;
-
-                                 if (mergedParents.size() == 0) {
-                                    // The logic graph is too complex for our stupid merger - Use the isomorphic one.
-                                    IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
-                                    getLog().debug("Isomorphic results: " + isomorphicResults);
-                                    data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
-                                 } else {
-                                    // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
-                                    // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
-                                    // Note, this hack won't work at all to merge more complex logic graphs.
-                                    // Probably won't work for RF2 content.
-                                    // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
-                                    Assertion[] assertions = new Assertion[mergedParents.size()];
-                                    LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                                    int i = 0;
-                                    for (Integer parent : mergedParents) {
-                                       assertions[i++] = ConceptAssertion(parent, leb);
+                           if (mergeLogicGraphs) {
+                              if (sc.getAssemblageNid() == statedNid) {
+                                 final NidSet sequences = Get.assemblageService()
+                                                                        .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
+                                                                                 statedNid);
+   
+                                 if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
+                                    // not a duplicate, just an index for itself. 
+                                 } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
+                                    duplicateCount++;
+                                    final List<LogicalExpression> listToMerge = new ArrayList<>();
+   
+                                    listToMerge.add(getLatestLogicalExpression(sc));
+                                    getLog().debug("\nDuplicate: " + sc);
+                                    sequences.stream()
+                                             .forEach(
+                                                 (semanticSequence) -> listToMerge.add(
+                                                     getLatestLogicalExpression(Get.assemblageService()
+                                                           .getSemanticChronology(semanticSequence))));
+                                    getLog().debug("Duplicates: " + listToMerge);
+   
+                                    if (listToMerge.size() > 2) {
+                                       throw new UnsupportedOperationException("Can't merge list of size: " +
+                                             listToMerge.size() + "\n" + listToMerge);
                                     }
-
-                                    NecessarySet(And(assertions));
-                                    data = leb.build().getData(DataTarget.INTERNAL);
+                                    
+                                    Set<Integer> mergedParents = new HashSet<>();
+                                    for (LogicalExpression le : listToMerge) {
+                                       mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+                                    }
+   
+                                    byte[][] data;
+   
+                                    if (mergedParents.size() == 0) {
+                                       // The logic graph is too complex for our stupid merger - Use the isomorphic one.
+                                       IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                                       getLog().debug("Isomorphic results: " + isomorphicResults);
+                                       data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
+                                    } else {
+                                       // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
+                                       // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
+                                       // Note, this hack won't work at all to merge more complex logic graphs.
+                                       // Probably won't work for RF2 content.
+                                       // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
+                                       Assertion[] assertions = new Assertion[mergedParents.size()];
+                                       LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                                       int i = 0;
+                                       for (Integer parent : mergedParents) {
+                                          assertions[i++] = ConceptAssertion(parent, leb);
+                                       }
+   
+                                       NecessarySet(And(assertions));
+                                       data = leb.build().getData(DataTarget.INTERNAL);
+                                    }
+                                    
+                                    mergeCount++;
+   
+                                    final SemanticChronology existingChronology = Get.assemblageService()
+                                                                                   .getSemanticChronology(sequences.findFirst()
+                                                                                         .getAsInt());
+                                    int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
+                                       TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+                                    MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+                                    newVersion.setGraphData(data);
+                                    sc = existingChronology;
                                  }
-                                 
-                                 mergeCount++;
-
-                                 final SemanticChronology existingChronology = Get.assemblageService()
-                                                                                .getSemanticChronology(sequences.findFirst()
-                                                                                      .getAsInt());
-                              int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
-                                    TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
-                              MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
-                              newVersion.setGraphData(data);
-
-//                               TODO [DAN 2] mess - this isn't merging properly - how should we merge!? - I think this issue referrs to UUIDs... ?
-                              //Need to take a new look at what is and isn't working right when merging concepts, and get the issues fixed.
-//                               for (UUID uuid : sc.getUuidList())
-//                               {
-//                                       Get.identifierService().addUuidForNid(uuid, newVersion.getNid());
-//                               }
-                                 sc = existingChronology;
                               }
                            }
 
