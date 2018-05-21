@@ -152,7 +152,7 @@ public class AnonymousNodeUtil
 	{
 		ArrayList<DynamicTypeMapColumnInfo> entry = new ArrayList<>();
 		entry.add(new DynamicTypeMapColumnInfo(uriForDynamicDefinition, 
-				new DynamicTypeMap(exampleNode, uriToUUIDFunction, nodeToCreateAsConcept), 
+				new DynamicTypeMap(uriForDynamicDefinition, exampleNode, uriToUUIDFunction, nodeToCreateAsConcept), 
 				false, true, uriToUUIDFunction.apply(uriForDynamicDefinition)));
 		if (null != knownTypes.put(uriForDynamicDefinition, entry))
 		{
@@ -227,7 +227,8 @@ public class AnonymousNodeUtil
 						if (!found)
 						{
 							//this one is missing.  Add it as optional
-							existing.add(new DynamicTypeMapColumnInfo(newDataItem.getKey(), new DynamicTypeMap(newDataItem.getValue().get(0), uriToUUIDFunction, 
+							existing.add(new DynamicTypeMapColumnInfo(newDataItem.getKey(), 
+									new DynamicTypeMap(uriForDynamicDefinition, newDataItem.getValue().get(0), uriToUUIDFunction, 
 									nodeToCreateAsConcept), newDataItem.getValue().size() > 1, false, uriToUUIDFunction.apply(newDataItem.getKey())));
 						}
 					}
@@ -262,7 +263,8 @@ public class AnonymousNodeUtil
 			ArrayList<DynamicTypeMapColumnInfo> entries = new ArrayList<>();
 			for (Entry<String, List<RDFNode>> itemData : data.entrySet())
 			{
-				entries.add(new DynamicTypeMapColumnInfo(itemData.getKey(), new DynamicTypeMap(itemData.getValue().get(0), uriToUUIDFunction, nodeToCreateAsConcept), 
+				entries.add(new DynamicTypeMapColumnInfo(itemData.getKey(), 
+						new DynamicTypeMap(uriForDynamicDefinition, itemData.getValue().get(0), uriToUUIDFunction, nodeToCreateAsConcept), 
 						itemData.getValue().size() > 1, required, uriToUUIDFunction.apply(itemData.getKey())));
 			}
 			knownTypes.put(uriForDynamicDefinition, entries);

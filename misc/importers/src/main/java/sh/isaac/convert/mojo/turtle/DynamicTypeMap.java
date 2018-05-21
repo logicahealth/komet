@@ -47,9 +47,18 @@ public class DynamicTypeMap
 	private DynamicDataType dynamicDataType;
 	private Function<RDFNode, DynamicData> conversionFunction;
 	
-	public DynamicTypeMap(RDFNode exampleData, Function<String, UUID> uriToUUIDFunction, Consumer<Resource> conceptThatMustBeCreated)
+	public DynamicTypeMap(String typeURI, RDFNode exampleData, Function<String, UUID> uriToUUIDFunction, Consumer<Resource> conceptThatMustBeCreated)
 	{
-		if (exampleData.isLiteral())
+		if (typeURI.equals("http://purl.org/dc/terms/replaces"))
+		{
+			//this usually points to a different version of our root concept which all merge onto the same concept.  Don't want to create this as a concept, 
+			//that ends up under the unresolvedRefs area, as that leads to a strange hierarchy when diffs are merged in.
+			dynamicDataType = DynamicDataType.STRING;
+			conversionFunction = data -> {
+				return new DynamicStringImpl(data.asResource().getURI());
+			};
+		}
+		else if (exampleData.isLiteral())
 		{
 			switch (exampleData.asLiteral().getDatatypeURI())
 			{

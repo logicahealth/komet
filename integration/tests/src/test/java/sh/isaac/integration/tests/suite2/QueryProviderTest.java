@@ -104,7 +104,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 159;
+		int expectedMaxHits = 158;
 		
 		Assert.assertEquals(di.query("bevon", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -252,10 +252,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 142);
+		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 141);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 142);
+		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 141);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);

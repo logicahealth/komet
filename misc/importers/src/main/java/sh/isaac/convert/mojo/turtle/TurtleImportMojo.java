@@ -166,7 +166,6 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	{
 		//Each of these will only get created as a metadata concept if it is present in the dataset.
 		possibleAssociations.put("http://www.w3.org/2000/01/rdf-schema#seeAlso", "see also");
-		possibleAssociations.put("http://purl.org/dc/terms/replaces", "replaces");
 		possibleAssociations.put("http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "is defined by");
 		possibleAssociations.put("http://www.w3.org/2002/07/owl#disjointWith", "disjoint with");
 		possibleAssociations.put("http://www.w3.org/2002/07/owl#sameAs", "same as");
@@ -217,6 +216,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 		possibleSingleValueTypedSemantics.put("http://www.w3.org/2002/07/owl#versionInfo", "version info");
 		possibleSingleValueTypedSemantics.put("http://purl.org/vocab/vann/preferredNamespaceUri", "preferred namespace uri");
 		possibleSingleValueTypedSemantics.put("http://rdfs.co/bevon/manufacturer", "manufacturer");  //This is inconsistent, sometimes defined as anonymous
+		possibleSingleValueTypedSemantics.put("http://purl.org/dc/terms/replaces", "replaces");
 	}
 
 	/**
