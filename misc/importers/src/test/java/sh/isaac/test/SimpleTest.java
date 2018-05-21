@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package test;
+package sh.isaac.test;
 
 import java.io.File;
 import java.io.IOException;
