@@ -90,7 +90,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.util.DescriptionToToken;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.metainf.VersionFinder;
 
 //~--- classes ----------------------------------------------------------------

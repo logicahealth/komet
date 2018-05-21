@@ -15,27 +15,29 @@
  */
 package sh.komet.gui.contract;
 
+import java.util.EnumSet;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
 
 /**
- * An interface various modules can implement to provide menus that will be automatically
- * added into the application.
- * 
+ * An interface various modules can implement to provide menus that will be
+ * automatically added into the application.
+ *
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @Contract
-public interface MenuProvider
-{
-	/**
-	 * @return the parent menu this item should be added to
-	 */
-	public AppMenu getParentMenu();
+public interface MenuProvider {
 
-	/**
-	 * @param window the window this menu will be part of
-	 * @return the menu item to add to the app level menu
-	 */
-	public MenuItem getMenuItem(Window window);
+    /**
+     * @return the parent menus this provider creates items for
+     */
+    public EnumSet<AppMenu> getParentMenus();
+
+    /**
+     * @param parentMenu
+     * @param window the window this menu will be part of
+     * @return the menu item to add to the app level menu
+     */
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window);
 }

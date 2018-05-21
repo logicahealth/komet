@@ -39,6 +39,7 @@ package sh.isaac.komet.gui.exporter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.EnumSet;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,85 +62,77 @@ import sh.komet.gui.contract.MenuProvider;
  */
 @Service
 @Singleton
-public class ExporterViewer implements MenuProvider
-{
-	private final Logger LOG = LogManager.getLogger();
+public class ExporterViewer implements MenuProvider {
 
-	private ExporterController ec_;
-	private Window window_;
+    private final Logger LOG = LogManager.getLogger();
 
-	private ExporterViewer()
-	{
-		// created by HK2
-		LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
-	}
+    private ExporterController ec_;
+    private Window window_;
 
-	private void showView()
-	{
-		try
-		{
-			URL resource = ExporterController.class.getResource("Exporter.fxml");
-			FXMLLoader loader = new FXMLLoader(resource);
-			loader.load();
-			ec_= loader.getController();
-			
-			Alert stampDialog = new Alert(AlertType.CONFIRMATION);
-			stampDialog.setTitle("Configure Table Export");
-			stampDialog.setHeaderText("Please specify the parameters for export");
-			stampDialog.getDialogPane().setContent(ec_.getView());
-			stampDialog.initOwner(window_);
+    private ExporterViewer() {
+        // created by HK2
+        LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
+    }
 
-			if (stampDialog.showAndWait().orElse(null) == ButtonType.OK)
-			{
-				try
-				{
-					File temp = new File(ec_.exportLocation.getText());
-					
-					TableExporter te = new TableExporter((ec_.exportText.isSelected() ? new File(temp, "text") : null),
-							(ec_.exportH2.isSelected() ? new File(temp, "h2") : null), 
-							(ec_.exportExcel.isSelected() ? new File(temp, "excel") : null));
-					
-					Get.activeTasks().add(te);
-					Get.workExecutors().getExecutor().execute(te);
-				}
-				catch (Exception e)
-				{
-					LOG.error("Error launching export", e);
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Error");
-					alert.setHeaderText("Unexpected error launching export");
-					alert.initOwner(window_);
-					alert.showAndWait();
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			LOG.error("Unexpected!", e);
-		}
-	}
+    private void showView() {
+        try {
+            URL resource = ExporterController.class.getResource("Exporter.fxml");
+            FXMLLoader loader = new FXMLLoader(resource);
+            loader.load();
+            ec_ = loader.getController();
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AppMenu getParentMenu()
-	{
-		return AppMenu.TOOLS;
-	}
+            Alert stampDialog = new Alert(AlertType.CONFIRMATION);
+            stampDialog.setTitle("Configure Table Export");
+            stampDialog.setHeaderText("Please specify the parameters for export");
+            stampDialog.getDialogPane().setContent(ec_.getView());
+            stampDialog.initOwner(window_);
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public MenuItem getMenuItem(Window window)
-	{
-		this.window_ = window;
-		MenuItem mi = new MenuItem("Table Exporter");
-		mi.setOnAction(event -> 
-		{
-			showView();
-		});
-		return mi;
-	}
+            if (stampDialog.showAndWait().orElse(null) == ButtonType.OK) {
+                try {
+                    File temp = new File(ec_.exportLocation.getText());
+
+                    TableExporter te = new TableExporter((ec_.exportText.isSelected() ? new File(temp, "text") : null),
+                            (ec_.exportH2.isSelected() ? new File(temp, "h2") : null),
+                            (ec_.exportExcel.isSelected() ? new File(temp, "excel") : null));
+
+                    Get.activeTasks().add(te);
+                    Get.workExecutors().getExecutor().execute(te);
+                } catch (Exception e) {
+                    LOG.error("Error launching export", e);
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Unexpected error launching export");
+                    alert.initOwner(window_);
+                    alert.showAndWait();
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Unexpected!", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EnumSet<AppMenu> getParentMenus() {
+        return EnumSet.of(AppMenu.TOOLS);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MenuItem[] getMenuItems(AppMenu appMenu, Window window) {
+        if (appMenu == AppMenu.TOOLS) {
+            this.window_ = window;
+            MenuItem mi = new MenuItem("Table Exporter");
+            mi.setOnAction(event
+                    -> {
+                showView();
+            });
+            return new MenuItem[] { mi };
+        }
+        return new MenuItem[] {};
+    }
 }

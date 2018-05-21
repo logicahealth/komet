@@ -381,6 +381,8 @@ public abstract class BadgedVersionPanel
             componentType.setText(" NĀM");
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
+        } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+            componentType.setText(" ABR");
         } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {
             componentType.setText(" UNK");
         } else {

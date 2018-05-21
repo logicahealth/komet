@@ -76,7 +76,6 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.ApplicationPreferences;
-import sh.isaac.komet.preferences.IsaacPreferencesImpl;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -98,7 +97,7 @@ public class MainApp
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
 
-    private static final AtomicInteger windowSequence = new AtomicInteger(1);
+    private static final AtomicInteger WINDOW_SEQUENCE = new AtomicInteger(1);
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -186,9 +185,10 @@ public class MainApp
             mb.getMenus().add(ap.getMenu());
 
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
-                if (mp.getParentMenu() == ap) {
-                    
-                    ap.getMenu().getItems().add(mp.getMenuItem(primaryStage.getOwner()));
+                if (mp.getParentMenus().contains(ap)) {
+                    for (MenuItem mi: mp.getMenuItems(ap, primaryStage.getOwner())) {
+                        ap.getMenu().getItems().add(mi);
+                    }
                 }
             }
             ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> o1.getText().compareTo(o2.getText()));
@@ -313,7 +313,7 @@ public class MainApp
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + windowSequence.getAndIncrement(), this::handleCloseRequest);
+                "Clinical statement " + WINDOW_SEQUENCE.getAndIncrement(), this::handleCloseRequest);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
         WINDOW_COUNT.incrementAndGet();
@@ -330,8 +330,8 @@ public class MainApp
             root.setId(UUID.randomUUID()
                     .toString());
 
-            if (windowSequence.get() > 1) {
-                stage.setTitle("Viewer " + windowSequence.incrementAndGet());
+            if (WINDOW_SEQUENCE.get() > 1) {
+                stage.setTitle("Viewer " + WINDOW_SEQUENCE.incrementAndGet());
             } else {
                 stage.setTitle("Viewer");
             }

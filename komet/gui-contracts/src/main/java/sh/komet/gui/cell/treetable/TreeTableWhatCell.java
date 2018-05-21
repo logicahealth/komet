@@ -50,6 +50,8 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
                  setText("NĀM");
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
+              } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+                 setText("ABR");
               } else {
                  setText(manifold.getPreferredDescriptionText(descriptionType));
               } 

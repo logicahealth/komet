@@ -486,6 +486,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                syn.addDescription("Synonyn", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("Unknown description type");
+               createConcept("Abbreviation description type", "Abbreviation");
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
             createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // RxNorm relationship types are created under this node

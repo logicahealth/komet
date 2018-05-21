@@ -84,7 +84,6 @@ public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
    
-   private static final Logger LOG = LogManager.getLogger();
    /** The objects. */
    int objects = 0;
 
