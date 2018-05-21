@@ -56,10 +56,10 @@ public interface StateBasedAnalogMaker<T> {
    /**
     * Make analog.
     *
-    * @param state the allowed states for the resulting analog
+    * @param status the allowed status for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */
-   T makeCoordinateAnalog(Status... state);
+   T makeCoordinateAnalog(Status... status);
    
    default StampCoordinate getImmutableAllStateAnalog() {
        throw new UnsupportedOperationException();
