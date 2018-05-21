@@ -88,7 +88,7 @@ public class ConceptBuilderNode implements DetailNode {
     private final ToolBar builderToolbar = new ToolBar(newConceptButton);
 
     private ObservableConceptVersionImpl conceptVersion;
-    private ObservableList<ObservableDescriptionDialect> descriptions = FXCollections.observableArrayList();
+    private final ObservableList<ObservableDescriptionDialect> descriptions = FXCollections.observableArrayList();
 
     private ObservableLogicGraphVersionImpl statedDefinition;
 

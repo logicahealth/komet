@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -53,10 +54,11 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeTableRow;
@@ -108,10 +110,11 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.RootNode;
+import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -143,6 +146,7 @@ public class TreeTableGeneralCell
                 .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
         editButton.setOnAction(this::toggleEdit);
         textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
+        setContextMenu(makeContextMenu());
         // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
         GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
         GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
@@ -166,16 +170,48 @@ public class TreeTableGeneralCell
     }
 
     //~--- methods -------------------------------------------------------------
+    public final ContextMenu makeContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem item1 = new MenuItem("Search for contents");
+        item1.setOnAction((ActionEvent e) -> {
+            this.search();
+        });
+        contextMenu.getItems().addAll(item1);
+        return contextMenu;
+    }
+
+    private void search() {
+        if (semanticVersion.getSemanticType() == VersionType.STRING) {
+            StringVersion stringVersion = (StringVersion) semanticVersion;
+            String searchString = stringVersion.getString();
+            String[] searchParts = searchString.split("\\s+");
+            List<String> searchPartsList = new ArrayList<>();
+            for (String part: searchParts) {
+                if (part.length() > 2) {
+                    searchPartsList.add(part);
+                }
+            }
+            StringBuilder searchBuilder = new StringBuilder();
+            for (String part: searchPartsList) {
+                searchBuilder.append("+").append(part).append(" ");
+            }
+            
+            for (GuiSearcher searcher: FxGet.searchers()) {
+                searcher.executeSearch(searchBuilder.toString());
+            }
+        }
+        
+    }
     public void addDefToCell(LogicGraphVersion logicGraphVersion) {
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
         PremiseType premiseType = PremiseType.STATED;
-            if (manifold.getLogicCoordinate()
-                    .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
-                premiseType = PremiseType.INFERRED;
-            } else if (manifold.getLogicCoordinate()
-                    .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
-                premiseType = PremiseType.STATED;
-            }
+        if (manifold.getLogicCoordinate()
+                .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+            premiseType = PremiseType.INFERRED;
+        } else if (manifold.getLogicCoordinate()
+                .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
+            premiseType = PremiseType.STATED;
+        }
         addDefToCell(expression, premiseType);
     }
 
@@ -208,7 +244,7 @@ public class TreeTableGeneralCell
         this.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         this.setGraphic(textAndEditGrid);
     }
-    
+
     public void addTextToCell(Text... text) {
         TextFlow textFlow = new TextFlow(text);
 
@@ -244,8 +280,8 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit( 
-                this.manifold.getEditCoordinate(), 
+        CommitTask commitTask = Get.commitService().commit(
+                this.manifold.getEditCoordinate(),
                 "No comment",
                 this.mutableVersion);
         Get.executor().execute(() -> {
@@ -263,9 +299,10 @@ public class TreeTableGeneralCell
             } catch (InterruptedException | ExecutionException ex) {
                 LOG.error("Error committing change.", ex);
             } finally {
-             }
+            }
         });
     }
+
     private void toggleEdit(ActionEvent event) {
 
         if (editPanel.getChildren().isEmpty()) {
@@ -273,7 +310,7 @@ public class TreeTableGeneralCell
                 if (this.semanticVersion instanceof ObservableVersion) {
                     ObservableVersion currentVersion = (ObservableVersion) this.semanticVersion;
                     mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
-                    
+
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);

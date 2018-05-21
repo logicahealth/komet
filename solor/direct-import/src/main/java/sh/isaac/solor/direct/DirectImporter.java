@@ -1866,6 +1866,9 @@ public class DirectImporter
 
     //~--- get methods ---------------------------------------------------------
     public static String getIsoInstant(String basicIsoDate) {
+        if (basicIsoDate.contains("-")) {
+            return basicIsoDate;
+        }
         // From basicIsoDate: '20111203'
         StringBuilder isoInstantBuilder = new StringBuilder();
 

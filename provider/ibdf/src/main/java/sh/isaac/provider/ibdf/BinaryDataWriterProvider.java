@@ -114,6 +114,7 @@ public class BinaryDataWriterProvider
          tpe = new ThreadPoolExecutor(1, 1, 5, TimeUnit.MINUTES, queue, new NamedThreadFactory("BinaryDataWriter thread", false));
          
          RejectedExecutionHandler block = new RejectedExecutionHandler() {
+            @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                try {
                   executor.getQueue().put(r);

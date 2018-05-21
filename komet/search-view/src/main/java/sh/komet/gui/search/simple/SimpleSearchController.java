@@ -71,11 +71,12 @@ import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.contract.GuiSearcher;
 
 /**
  * @author kec
  */
-public class SimpleSearchController implements ExplorationNode {
+public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     private static final Logger              LOG               = LogManager.getLogger();
     private final SimpleStringProperty       titleProperty     =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
@@ -109,6 +110,12 @@ public class SimpleSearchController implements ExplorationNode {
    public Node getMenuIcon() {
       return Iconography.SIMPLE_SEARCH.getIconographic();
    }
+
+    @Override
+    public void executeSearch(String searchString) {
+        setSearchText(searchString);
+        executeSearch();
+    }
 
 
     @FXML
@@ -171,7 +178,7 @@ public class SimpleSearchController implements ExplorationNode {
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             searchTextField.setText("+tetra* +fallot");
         }
-
+        FxGet.searchers().add(this);
     }
 
     private void initializeControls() {
@@ -287,6 +294,11 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
 
+    public void setSearchText(String searchText) {
+        searchTextField.setText(searchText);
+    }
+    
+    
     @Override
     public Manifold getManifold() {
         return manifold;

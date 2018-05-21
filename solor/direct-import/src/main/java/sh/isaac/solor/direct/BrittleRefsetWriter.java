@@ -81,7 +81,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
 
 
 
-    private final List<String[]> refsetRecords;
+   private final List<String[]> refsetRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
    private final ImportSpecification importSpecification;
@@ -91,6 +91,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final StampService stampService = Get.stampService();
    private final HashSet<String> refsetsToIgnore = new HashSet<>();
    private final boolean solorReleaseFormat;
+   private final int VARIABLE_FIELD_START;
 
    public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
            ImportSpecification importSpecification, ImportType importType, boolean solorReleaseFormat) {
@@ -100,6 +101,11 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
       this.solorReleaseFormat = solorReleaseFormat;
+      if (solorReleaseFormat) {
+          VARIABLE_FIELD_START = SRF_VARIABLE_FIELD_START;
+      } else {
+          VARIABLE_FIELD_START = RF2_VARIABLE_FIELD_START;
+      }
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       updateTitle("Importing semantic batch of size: " + semanticRecords.size());
       updateMessage(message);
@@ -328,54 +334,54 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
 
    private void addVersionNID1_NID2_INT3_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_Int3_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
-      brittleVersion.setInt3(Integer.parseInt(refsetRecord[RF2_VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setInt3(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
    }
    private void addVersionNID1_INT2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Int2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
    }
 
    private void addVersionNID1_INT2_STR3_STR4_NID5_NID6_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
-      brittleVersion.setStr3(refsetRecord[RF2_VARIABLE_FIELD_START + 3]);
-      brittleVersion.setStr4(refsetRecord[RF2_VARIABLE_FIELD_START + 4]);
-      brittleVersion.setNid5(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 5].trim()));
-      brittleVersion.setNid6(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 6].trim()));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
+      brittleVersion.setStr4(refsetRecord[VARIABLE_FIELD_START + 4]);
+      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5].trim()));
+      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6].trim()));
    }
 
    private void addVersionNID1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setComponentNid(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setComponentNid(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
 
    private void addVersionSTR1_STR2_NID3_NID4_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Str2_Nid3_Nid4_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setStr1(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
-      brittleVersion.setStr2(refsetRecord[RF2_VARIABLE_FIELD_START + 2]);
-      brittleVersion.setNid3(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 3].trim()));
-      brittleVersion.setNid4(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 4].trim()));
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
    }
 
    private void addVersionSTR1_STR2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Str2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setStr1(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
-      brittleVersion.setStr2(refsetRecord[RF2_VARIABLE_FIELD_START + 2]);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
    }
 
    private void addVersionSTR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setStr1(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
-      brittleVersion.setStr2(refsetRecord[RF2_VARIABLE_FIELD_START + 2]);
-      brittleVersion.setStr3(refsetRecord[RF2_VARIABLE_FIELD_START + 3]);
-      brittleVersion.setStr4(refsetRecord[RF2_VARIABLE_FIELD_START + 4]);
-      brittleVersion.setStr5(refsetRecord[RF2_VARIABLE_FIELD_START + 5]);
-      brittleVersion.setStr6(refsetRecord[RF2_VARIABLE_FIELD_START + 6]);
-      brittleVersion.setStr7(refsetRecord[RF2_VARIABLE_FIELD_START + 7]);
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
+      brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
+      brittleVersion.setStr4(refsetRecord[VARIABLE_FIELD_START + 4]);
+      brittleVersion.setStr5(refsetRecord[VARIABLE_FIELD_START + 5]);
+      brittleVersion.setStr6(refsetRecord[VARIABLE_FIELD_START + 6]);
+      brittleVersion.setStr7(refsetRecord[VARIABLE_FIELD_START + 7]);
    }
 
    private void addVersionMEMBER_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
@@ -384,60 +390,58 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
 
    private void addVersionINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setInt1(Integer.parseInt(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setInt2(Integer.parseInt(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
-      brittleVersion.setStr3(refsetRecord[RF2_VARIABLE_FIELD_START + 3]);
-      brittleVersion.setStr4(refsetRecord[RF2_VARIABLE_FIELD_START + 4]);
-      brittleVersion.setStr5(refsetRecord[RF2_VARIABLE_FIELD_START + 5]);
-      brittleVersion.setNid6(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 6].trim()));
-      brittleVersion.setNid7(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 7].trim()));
+      brittleVersion.setInt1(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setInt2(Integer.parseInt(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
+      brittleVersion.setStr4(refsetRecord[VARIABLE_FIELD_START + 4]);
+      brittleVersion.setStr5(refsetRecord[VARIABLE_FIELD_START + 5]);
+      brittleVersion.setNid6(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 6].trim()));
+      brittleVersion.setNid7(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 7].trim()));
    }
 
    private void addVersionSTR1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       StringVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setString(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
+      brittleVersion.setString(refsetRecord[VARIABLE_FIELD_START + 1]);      
    }
 
    private void addVersionNID1_NID2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
    }
 
    private void addVersionNID1_NID2_STR3_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Nid2_Str3_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
-      brittleVersion.setStr3(refsetRecord[RF2_VARIABLE_FIELD_START + 3]);
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setStr3(refsetRecord[VARIABLE_FIELD_START + 3]);
    }
 
    private void addVersionNID1_STR2_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Nid1_Str2_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setNid1(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
-      brittleVersion.setStr2(refsetRecord[RF2_VARIABLE_FIELD_START + 2]);
+      brittleVersion.setNid1(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
    }
 
    private void addVersionINT1_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       LongVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setLongValue(Long.parseLong(refsetRecord[RF2_VARIABLE_FIELD_START + 1].trim()));
+      brittleVersion.setLongValue(Long.parseLong(refsetRecord[VARIABLE_FIELD_START + 1].trim()));
    }
 
     private void addVersionSTR1_NID2_NID3_NID4_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Nid2_Nid3_Nid4_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setStr1(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
-      brittleVersion.setNid2(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 2].trim()));
-      brittleVersion.setNid3(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 3].trim()));
-      brittleVersion.setNid4(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 4].trim()));
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setNid2(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 2].trim()));
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
     }
 
     private void addVersionSTR1_STR2_NID3_NID4_NID5_REFSET(SemanticChronologyImpl refsetMemberToWrite, int versionStamp, String[] refsetRecord) {
       Str1_Str2_Nid3_Nid4_Nid5_VersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-      brittleVersion.setStr1(refsetRecord[RF2_VARIABLE_FIELD_START + 1]);
-      brittleVersion.setStr2(refsetRecord[RF2_VARIABLE_FIELD_START + 2]);
-      brittleVersion.setNid3(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 3].trim()));
-      brittleVersion.setNid4(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 4].trim()));
-      brittleVersion.setNid5(nidFromSctid(refsetRecord[RF2_VARIABLE_FIELD_START + 5].trim()));
+      brittleVersion.setStr1(refsetRecord[VARIABLE_FIELD_START + 1]);
+      brittleVersion.setStr2(refsetRecord[VARIABLE_FIELD_START + 2]);
+      brittleVersion.setNid3(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 3].trim()));
+      brittleVersion.setNid4(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 4].trim()));
+      brittleVersion.setNid5(nidFromSctid(refsetRecord[VARIABLE_FIELD_START + 5].trim()));
     }
-
-   
 }

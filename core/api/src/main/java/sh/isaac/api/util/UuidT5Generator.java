@@ -51,9 +51,6 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
