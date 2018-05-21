@@ -110,6 +110,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
@@ -176,10 +177,23 @@ public class TreeTableGeneralCell
         item1.setOnAction((ActionEvent e) -> {
             this.search();
         });
-        contextMenu.getItems().addAll(item1);
+        MenuItem item2 = new MenuItem("Initilize concept builder");
+        item2.setOnAction((ActionEvent e) -> {
+            this.initializeConceptBuilder();
+        });
+        contextMenu.getItems().addAll(item1, item2);
         return contextMenu;
     }
 
+    private void initializeConceptBuilder() {
+        if (semanticVersion.getSemanticType() == VersionType.STRING) {
+            StringVersion stringVersion = (StringVersion) semanticVersion;
+            String searchString = stringVersion.getString();
+            for (GuiConceptBuilder builder: FxGet.builders()) {
+                builder.initializeBuilder(searchString);
+            }
+        }
+    }
     private void search() {
         if (semanticVersion.getSemanticType() == VersionType.STRING) {
             StringVersion stringVersion = (StringVersion) semanticVersion;

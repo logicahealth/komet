@@ -25,6 +25,7 @@ import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.komet.gui.contract.DialogService;
+import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.contract.KometPreferences;
 import sh.komet.gui.contract.RulesDrivenKometService;
@@ -43,11 +44,16 @@ public class FxGet implements StaticIsaacCache
    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
    private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
    private static FxConfiguration FX_CONFIGURATION = null;
-   // TODO make searcherList behave like a normal lookup service. 
-   private static List<GuiSearcher> searcherList = new ArrayList<>();
+   // TODO make SEARCHER_LIST behave like a normal lookup service. 
+   private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
+   // TODO make SEARCHER_LIST behave like a normal lookup service. 
+   private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
 
    public static List<GuiSearcher> searchers() {
-       return searcherList;
+       return SEARCHER_LIST;
+   }
+   public static List<GuiConceptBuilder> builders() {
+       return BUILDER_LIST;
    }
    public static DialogService dialogs() {
       if (DIALOG_SERVICE == null) {

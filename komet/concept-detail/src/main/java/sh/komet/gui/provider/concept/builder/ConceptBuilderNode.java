@@ -54,6 +54,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
@@ -66,7 +67,7 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
  *
  * @author kec
  */
-public class ConceptBuilderNode implements DetailNode {
+public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
 
     private static final int TRANSITION_OFF_TIME = 250;
     private static final int TRANSITION_ON_TIME = 750;
@@ -112,6 +113,13 @@ public class ConceptBuilderNode implements DetailNode {
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        FxGet.builders().add(this);
+    }
+
+    @Override
+    public void initializeBuilder(String conceptName) {
+        newConcept(null);
+        textField.setText(conceptName);
     }
 
     private void newDescription(Event event) {
