@@ -140,10 +140,11 @@ public class DirectWriteHelper
 	 * @param concept The UUID of the concept to be created
 	 * @param status The status of the concept to be created
 	 * @param time The time to use for the concept to be created
+	 * @return The UUId of the concept created for convenience (same as the passed in value)
 	 */
-	public void makeConcept(UUID concept, Status status, long time)
+	public UUID makeConcept(UUID concept, Status status, long time)
 	{
-		makeConcept(concept, status, time, null);
+		return makeConcept(concept, status, time, null);
 	}
 
 	/**
@@ -151,8 +152,9 @@ public class DirectWriteHelper
 	 * @param status The status of the concept to be created
 	 * @param time The time to use for the concept to be created
 	 * @param additionalUUIDs additional UUIDs for the concept, if any.
+	 * @return The UUId of the concept created for convenience (same as the passed in value)
 	 */
-	public void makeConcept(UUID concept, Status status, long time, UUID[] additionalUUIDs)
+	public UUID makeConcept(UUID concept, Status status, long time, UUID[] additionalUUIDs)
 	{
 		int nid = identifierService.assignNid(concept);
 		if (conceptService.hasConcept(nid))
@@ -167,6 +169,7 @@ public class DirectWriteHelper
 		
 		indexAndWrite(conceptToWrite);
 		loadStats.addConcept();
+		return concept;
 	}
 
 	/**
