@@ -48,13 +48,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -422,6 +423,8 @@ public class IsaacTaxonomy {
       out.append("#Generated " + new Date().toString() + "\n");
       out.append("#Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
+      
+      HashSet<String> genConstants = new HashSet<>();
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
          String regularName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
@@ -437,6 +440,9 @@ public class IsaacTaxonomy {
          }
 
          constantName = DescriptionToToken.get(constantName);
+         if (!genConstants.add(constantName)) {
+            throw new RuntimeException("Duplicate definition of regular name for constant " + constantName + " " + concept.getFullyQualifiedName());
+         }
          out.append("\n" + constantName + ":\n");
          out.append("    fqn: " + concept.getFullyQualifiedName() + "\n");
          out.append("    regular: " + regularName + "\n");
