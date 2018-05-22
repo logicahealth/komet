@@ -118,12 +118,12 @@ private static final int CVF = 17; //18 CVF Content view kag. RxNorm includes on
                         int nid = identifierService.assignNid(snomedUuid);
 
                             // make a RxCUI semantic
-                            UUID rxCuiSemanticUuid = UuidT5Generator.get(MetaData.RXNORM_CUI_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
+                            UUID rxCuiSemanticUuid = UuidT5Generator.get(MetaData.RXNORM_CUI____SOLOR.getPrimordialUuid(),
                                     conSoRecord[RXCUI]);
                             
                             SemanticChronologyImpl rxNormCuiChronicle
                                     = new SemanticChronologyImpl(VersionType.STRING, rxCuiSemanticUuid,
-                                            MetaData.RXNORM_CUI_ASSEMBLAGE____SOLOR.getNid(), nid);
+                                            MetaData.RXNORM_CUI____SOLOR.getNid(), nid);
                             
                             StringVersionImpl stringVersion = rxNormCuiChronicle.createMutableVersion(recordStamp);
                             stringVersion.setString(conSoRecord[RXCUI]);

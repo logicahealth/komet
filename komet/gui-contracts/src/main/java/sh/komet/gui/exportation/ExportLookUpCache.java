@@ -22,7 +22,7 @@ public class ExportLookUpCache {
                 .boxed()
                 .collect(Collectors.toList());
         rxnormNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI_ASSEMBLAGE____SOLOR)
+                .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI____SOLOR)
                 .boxed()
                 .collect(Collectors.toList());
         loincNids = Get.assemblageService()

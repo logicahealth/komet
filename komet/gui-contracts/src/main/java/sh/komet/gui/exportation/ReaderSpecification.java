@@ -91,7 +91,7 @@ public class ReaderSpecification {
             final String loincId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.CODE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeLongIdFromLoincId(loincId) + "\t";
         } else if (this.exportLookUpCache.getRxnormNids().contains(chronology.getNid())) {
-            final String rxnormId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.RXNORM_CUI_ASSEMBLAGE____SOLOR.getNid(), chronology);
+            final String rxnormId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeLongIdFromRxNormId(rxnormId) + "\t";
         } else {
             return UuidT5Generator.makeLongIdFromUuid(chronology.getPrimordialUuid()) + "\t";

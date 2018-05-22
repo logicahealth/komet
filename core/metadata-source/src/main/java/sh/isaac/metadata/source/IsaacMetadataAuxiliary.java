@@ -281,6 +281,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("VUID", "Vets Unique Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("Code").setPrimordialUuid("803af596-aea8-5184-b8e1-45f801585d17")
                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);// UUID comes from the algorithm in the VHAT econ loader
+               ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
+               loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
                
                popParent();
             createConcept("Language");
@@ -341,15 +344,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept(TermAux.ASSEMBLAGE);
             pushParent(current());
-               createConcept("Identifier assembalge");
-               pushParent(current());
-                  ConceptBuilder rxCuiBuilder = createConcept("RxNorm CUI assemblage");
-                  rxCuiBuilder.getPreferredDescriptionBuilder().setDescriptionText("RxNorm CUI");
-                  ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
-                  loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-                  ConceptBuilder snomedBuilder = createConcept("SNOMED Clinical Term ID assemblage", "SCTID");
-                  snomedBuilder.getPreferredDescriptionBuilder().setDescriptionText("SCTID");
-                  popParent();
                createConcept("Issue managment assemblage");
                pushParent(current());
                   createConcept("Content issue assemblage");
