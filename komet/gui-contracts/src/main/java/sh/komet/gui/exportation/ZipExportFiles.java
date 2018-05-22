@@ -1,6 +1,5 @@
 package sh.komet.gui.exportation;
 
-import org.hsqldb.types.Charset;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
