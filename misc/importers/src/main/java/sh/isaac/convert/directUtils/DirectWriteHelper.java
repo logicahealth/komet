@@ -664,7 +664,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * The current usage of the {@link MetaData#IDENTIFIER_ASSEMBALGE____SOLOR} refset is for {@link StringVersion} semantics 
+	 * The current usage of the {@link MetaData#IDENTIFIER_SOURCE____SOLOR} refset is for {@link StringVersion} semantics 
 	 * which happen to contain a value that is an identifier.
 	 * 
 	 * Assemblage concepts marked with this identifier assemblage get special treatment in search patterns.
@@ -676,7 +676,7 @@ public class DirectWriteHelper
 	 */
 	public void configureConceptAsIdentifier(UUID concept, long time)
 	{
-		makeBrittleRefsetMember(MetaData.IDENTIFIER_ASSEMBALGE____SOLOR.getPrimordialUuid(), concept, time);
+		makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
 	}
 	
 	public UUID makeStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
