@@ -223,13 +223,13 @@ public class UuidT5Generator {
       return new UUID(raw.getLong(raw.position()), raw.getLong(raw.position() + 8));
    }
    
-   public static String makeLongIdFromRxNormId(String rxNormId)  {
+   public static String makeSolorIdFromRxNormId(String rxNormId)  {
        String compressedLoincCodeWithPartition = rxNormId +  "97";
        return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
    }
    
    
-   public static String makeLongIdFromLoincId(String loincId)  {
+   public static String makeSolorIdFromLoincId(String loincId)  {
        if (loincId.charAt(loincId.length() - 2) != '-') {
            throw new IllegalStateException("Improperly formed loinc id: " + loincId);
        }
@@ -238,7 +238,7 @@ public class UuidT5Generator {
        return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
    }
    
-   public static String makeLongIdFromUuid(UUID uuid)  {
+   public static String makeSolorIdFromUuid(UUID uuid)  {
        // 18,446,744,073,709,551,615 max unsigned long
        // Remove the partition and check digits
        // ~18,000,000,000,000,000 = ~18 quadrillion possibilities
@@ -273,12 +273,12 @@ public class UuidT5Generator {
    
    
    public static void main(String[] args) {
-        System.out.println(makeLongIdFromRxNormId("1234"));
-        System.out.println(makeLongIdFromRxNormId("12345"));
-        System.out.println(makeLongIdFromLoincId("8867-4"));
-        System.out.println(makeLongIdFromLoincId("67129-7"));
+        System.out.println(makeSolorIdFromRxNormId("1234"));
+        System.out.println(makeSolorIdFromRxNormId("12345"));
+        System.out.println(makeSolorIdFromLoincId("8867-4"));
+        System.out.println(makeSolorIdFromLoincId("67129-7"));
         for (int i = 0; i < 10; i++) {
-           System.out.println(makeLongIdFromUuid(UUID.randomUUID()));
+           System.out.println(makeSolorIdFromUuid(UUID.randomUUID()));
         }
        
    }
