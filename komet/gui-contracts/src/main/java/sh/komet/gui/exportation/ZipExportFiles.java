@@ -4,12 +4,13 @@ import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 
-import javax.xml.soap.Text;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -23,31 +24,27 @@ import java.util.zip.ZipOutputStream;
 public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
     private final ExportFormatType exportFormatType;
-    private final Manifold manifold;
     private final File exportDirectory;
     private final Map<ExportComponentType, List<String>>  linesToZipMap;
 
-    private final Path terminologyPath;
-    private final Path refsetPath;
 
-    public ZipExportFiles(ExportFormatType exportFormatType, Manifold manifold, File exportDirectory, Map linesToZipMap) {
+    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map linesToZipMap) {
         this.exportFormatType = exportFormatType;
-        this.manifold = manifold;
         this.exportDirectory = exportDirectory;
         this.linesToZipMap = linesToZipMap;
-        this.terminologyPath = Paths.get(this.exportDirectory.getAbsolutePath()+ "/Snapshot/Terminology");
-        this.refsetPath = Paths.get(this.exportDirectory.getAbsolutePath() + "/Snapshot/Refset");
     }
 
     @Override
     protected Void call() throws Exception {
 
-
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String dateTimeFormattedString = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime);
+        String dateFormattedString = DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime);
 
         ZipOutputStream zipOut = new ZipOutputStream(
                 new FileOutputStream(this.exportDirectory.getAbsolutePath()
-                        + "/SOLOR_SnapshotRF2_PRODUCTION_"
-                        + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(LocalDateTime.now())
+                        + "/SnomedCT_SnapshotRF2_PRODUCTION_"
+                        + dateTimeFormattedString
                         + ".zip"),
                 StandardCharsets.UTF_8);
 
@@ -56,11 +53,13 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
             switch (entry.getKey()){
                 case CONCEPT:
-                    zipEntry = new ZipEntry("Snapshot/Terminology/Concepts.txt");//TODO follow RF2 Naming Convention
+                    zipEntry = new ZipEntry("Snapshot/Terminology/sct2_Concept_Snapshot_"
+                            + dateFormattedString + ".txt");
                     zipOut.putNextEntry(zipEntry);
                     break;
                 case DESCRIPTION:
-                    zipEntry = new ZipEntry("Snapshot/Terminology/Descriptions.txt");//TODO follow RF2 Naming Convention
+                    zipEntry = new ZipEntry("Snapshot/Terminology/sct2_Description_Snapshot_"
+                            + dateFormattedString + ".txt");
                     zipOut.putNextEntry(zipEntry);
                     break;
                 default:
@@ -93,28 +92,4 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
         return null;
     }
-
-    private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
-            return;
-        }
-        if (fileToZip.isDirectory()) {
-            File[] children = fileToZip.listFiles();
-            for (File childFile : children) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
-            }
-            return;
-        }
-        FileInputStream fis = new FileInputStream(fileToZip);
-        ZipEntry zipEntry = new ZipEntry(fileName);
-        zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zipOut.write(bytes, 0, length);
-        }
-        fis.close();
-    }
-
-
 }

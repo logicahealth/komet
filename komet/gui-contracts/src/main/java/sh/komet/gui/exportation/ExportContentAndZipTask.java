@@ -84,7 +84,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                 completedUnitOfWork();
                 updateMessage("Zipping SOLOR Export...");
 
-                ZipExportFiles zipExportFiles = new ZipExportFiles(this.exportFormatType, this.manifold, this.exportDirectory, exportLineseMap);
+                ZipExportFiles zipExportFiles = new ZipExportFiles(this.exportFormatType, this.exportDirectory, exportLineseMap);
                 Future zipExportFilesTask = Get.executor().submit(zipExportFiles);
                 zipExportFilesTask.get();
                 System.out.println("Finish ZipingExport================" + LocalDateTime.now());
