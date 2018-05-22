@@ -61,16 +61,16 @@ import sh.isaac.api.util.UuidT5Generator;
 public enum ObservableFields
          implements ConceptSpecification {
    /** The author nid for edit coordinate. */
-   AUTHOR_NID_FOR_EDIT_COORDINATE("Author nid for edit coordinate", "Author"),
+   AUTHOR_NID_FOR_EDIT_COORDINATE("Author nid for edit coordinate", "Author nid for edit coordinate"),
 
    /** The module nid for edit coordinate. */
-   MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module"),
+   MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
 
    /** The path nid for edit coordinate. */
-   PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path"),
+   PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path nid for edit cordinate"),
 
    /** The language nid for language coordinate. */
-   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language"),
+   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
 
    /** The dialect assemblage nid preference list for language coordinate. */
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
@@ -102,28 +102,28 @@ public enum ObservableFields
    STAMP_POSITION_FOR_STAMP_COORDINATE("Stamp position for stamp coordinate", "Stamp position"),
 
    /** The module nid array for stamp coordinate. */
-   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules"),
+   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
    /** The path nid for stamp path. */
-   PATH_NID_FOR_STAMP_PATH("Path nid for stamp path", "Path"),
+   PATH_NID_FOR_STAMP_PATH("Path nid for stamp path", "Path nid for stamp path"),
 
    /** The path origin list for stamp path. */
    PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origin list for stamp path", "Path origin"),
 
    /** The time for stamp position. */
-   TIME_FOR_STAMP_POSITION("Time for stamp position", "Time"),
+   TIME_FOR_STAMP_POSITION("Time for stamp position", "Time for stamp"),
 
    /** The path nid for stamp position. */
-   PATH_NID_FOR_STAMP_POSITION("Path nid for stamp position", "Path"),
+   PATH_NID_FOR_STAMP_POSITION("Path nid for stamp position", "Path for stamp position"),
 
    /** The premise type for taxonomy coordinate. */
    PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("Premise type for taxonomy coordinate", "Premise"),
 
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
 
    /** The language coordinate for taxonomy coordinate. */
    LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),
@@ -135,51 +135,51 @@ public enum ObservableFields
    UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
 
    /** The status for version. */
-   STATUS_FOR_VERSION("Status for version", "Status"),
+   STATUS_FOR_VERSION("Status for version", "Status for version"),
 
    /** The time for version. */
-   TIME_FOR_VERSION("Time for version", "Time"),
+   TIME_FOR_VERSION("Time for version", "Time for version"),
 
    /** The author nid for version. */
-   AUTHOR_NID_FOR_VERSION("Author nid for version", "Author"),
+   AUTHOR_NID_FOR_VERSION("Author nid for version", "Author nid for version"),
 
    /** The module nid for version. */
-   MODULE_NID_FOR_VERSION("Module nid for version", "Module"),
+   MODULE_NID_FOR_VERSION("Module nid for version", "Module nid for version"),
 
    /** The path nid for version. */
-   PATH_NID_FOR_VERSION("Path nid for version", "Path"),
+   PATH_NID_FOR_VERSION("Path nid for version", "Path nid for version"),
 
    /** The committed state for version. */
-   COMMITTED_STATE_FOR_VERSION("Committed state for version", "Committed state"),
+   COMMITTED_STATE_FOR_VERSION("Committed state for version", "Committed state for version"),
 
    /** The stamp nid for version. */
-   STAMP_SEQUENCE_FOR_VERSION("Stamp sequence for version", "Stamp"),
+   STAMP_SEQUENCE_FOR_VERSION("Stamp sequence for version", "Stamp sequence for version"),
 
    /** The case significance concept nid for description. */
    CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
 
    /** The language concept nid for description. */
-   LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("Language concept nid for description", "Language"),
+   LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("Language concept nid for description", "Language for description"),
 
    /** The text for description. */
-   TEXT_FOR_DESCRIPTION("Text for description", "Text"),
+   TEXT_FOR_DESCRIPTION("Text for description", "Text for description"),
 
    /** The description type for description. */
-   DESCRIPTION_TYPE_FOR_DESCRIPTION("Description type for description", "Description type"),
+   DESCRIPTION_TYPE_FOR_DESCRIPTION("Description type for description", "Description type for description"),
 
    /** The version list for chronicle. */
    VERSION_LIST_FOR_CHRONICLE("Version list for chronicle", "Versions"),
 
-   CONCEPT_VERSION("Concept version", "Concept"),
+   CONCEPT_VERSION("Concept version", "Concept version"),
 
    /** The native id for chronicle. */
-   NATIVE_ID_FOR_COMPONENT("Native id for component", "Nid"),
+   NATIVE_ID_FOR_COMPONENT("Native id for component", "Nid for component"),
 
    /** The entry sequence for chronicle. */
    ENTRY_SEQUENCE_FOR_COMPONENT("Entry sequence for component", "Entry ID"),
 
    /** The assemblage nid for chronicle. */
-   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage"),
+   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage for component"),
 
    /** The referenced component nid for semantic chronicle. */
    REFERENCED_COMPONENT_NID_FOR_SEMANTIC("Referenced component nid for semantic", "Referenced component id"),
@@ -188,13 +188,13 @@ public enum ObservableFields
    REFERENCED_COMPONENT_UUID_FOR_SEMANTIC("Referenced component UUID for semantic", "Referenced component UUID"),
 
    /** The primordial uuid for chronicle. */
-   PRIMORDIAL_UUID_FOR_COMPONENT("Primordial UUID for chronicle", "UUID"),
+   PRIMORDIAL_UUID_FOR_COMPONENT("Primordial UUID for chronicle", "Primordial UUID"),
 
    /** The uuid list for chronicle. */
    UUID_LIST_FOR_COMPONENT("UUID list for component", "UUIDs"),
 
    /** The committed state for chronicle. */
-   COMMITTED_STATE_FOR_CHRONICLE("Committed state for chronicle", "Committed state"),
+   COMMITTED_STATE_FOR_CHRONICLE("Committed state for chronicle", "Committed state for chronicle"),
 
    /** The semantic list for chronicle. */
    SEMANTIC_LIST_FOR_CHRONICLE("semantic list for chronicle"),
@@ -208,7 +208,7 @@ public enum ObservableFields
    /** The description list for concept. */
    DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),
    
-   STRING_VALUE_FOR_SEMANTIC("String value for semantic", "String"),
+   STRING_VALUE_FOR_SEMANTIC("String value for semantic", "String value for semantic"),
    
    COMPONENT_NID_FOR_SEMANTIC("Component nid for semantic", "Component"),
    
@@ -254,7 +254,7 @@ public enum ObservableFields
    STATEMENT_NARRATIVE("Statement narrative", "Narrative"),
    STATEMENT_TIME("Statement time", "Statement time"),
    STATEMENT_ID("Statement identifier"),
-   STATEMENT_SOR("Statement subject of record", "Subject of record"),
+   STATEMENT_SOR("Statement subject of record", "Statement subject of record"),
    STATEMENT_AUTHORS("Statement authors", "Authors"),
    STATEMENT_SOI("Statement subject of information", "Subject"),
    STATEMENT_TYPE("Statement type", "Type"),
@@ -267,7 +267,7 @@ public enum ObservableFields
    INTERVAL_INCLUDE_UPPER_BOUND("Include upper bound"),
    INTERVAL_INCLUDE_LOWER_BOUND("Include lower bound"),
    
-   INTERVENTION_RESULT_STATUS("Status"),
+   INTERVENTION_RESULT_STATUS("Intervention result status"),
    
    MEASURE_NARRATIVE("Measure narritive"),
    MEASURE_RESOLUTION("Resolution"),
@@ -300,7 +300,7 @@ public enum ObservableFields
    
    STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
    
-   STATEMENT_MODE("Statement mode", "Mode"),
+   STATEMENT_MODE("Statement mode", "Statement mode"),
    
    LOINC_NUMBER("LOINC number"),
    LOINC_COMPONENT("LOINC component"),

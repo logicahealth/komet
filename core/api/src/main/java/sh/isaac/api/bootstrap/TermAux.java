@@ -282,12 +282,12 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("45df0b38-67ec-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is inactive (query clause)", "inactive",
          UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and",
+   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and query",
          UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("Not (query clause)", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not (query clause)", "and not",
+   public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not (query clause)", "and not query",
          UUID.fromString("d9c1ec02-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component (query clause)", "or",
+   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component (query clause)", "or query",
          UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("XOR (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version (query clause)",
@@ -304,7 +304,7 @@ public class TermAux implements StaticIsaacCache {
          "preferred name for concept", UUID.fromString("d9c1f882-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular (query clause)", "relationship is circular",
          UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of",
+   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of query",
          UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match",
          UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
