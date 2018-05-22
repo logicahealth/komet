@@ -52,6 +52,7 @@ public class ReaderSpecification {
             case CONCEPT:
                 return createSharedElements(chronology) //id, effectiveTime, active, moduleId
                         .append(getConceptPrimitiveOrSufficientDefinedSCTID(chronology.getNid()))   //definitionStatusId
+                        .append("\r")
                         .toString();
             case DESCRIPTION:
                 return createSharedElements(chronology) //id, effectiveTime, active, moduleId
@@ -60,6 +61,7 @@ public class ReaderSpecification {
                         .append(getTypeId(chronology) + "\t") //typeId
                         .append(getTerm(chronology) + "\t") //term
                         .append(getCaseSignificanceId(chronology)) //caseSignificanceId
+                        .append("\r")
                         .toString();
             default:
                 return "¯\\_(ツ)_/¯";
@@ -77,41 +79,41 @@ public class ReaderSpecification {
         else if(this.exportComponentType == ExportComponentType.DESCRIPTION)
             stampNid = this.snapshot.getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
 
-        return sb.append(getIdString(chronology))       //id
-                .append(getTimeString(stampNid))        //time
-                .append(getActiveString(stampNid))      //active
-                .append(getModuleString(stampNid));     //moduleId
+        return sb.append(getIdString(chronology) + "\t")       //id
+                .append(getTimeString(stampNid) + "\t")        //time
+                .append(getActiveString(stampNid) + "\t")      //active
+                .append(getModuleString(stampNid) + "\t");     //moduleId
     }
 
     private String getIdString(Chronology chronology){
 
         if (this.exportLookUpCache.getSctidNids().contains(chronology.getNid())) {
-            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), chronology) + "\t";
+            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
         } else if (this.exportLookUpCache.getLoincNids().contains(chronology.getNid())) {
             final String loincId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.CODE____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeLongIdFromLoincId(loincId) + "\t";
+            return UuidT5Generator.makeLongIdFromLoincId(loincId);
         } else if (this.exportLookUpCache.getRxnormNids().contains(chronology.getNid())) {
             final String rxnormId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeLongIdFromRxNormId(rxnormId) + "\t";
+            return UuidT5Generator.makeLongIdFromRxNormId(rxnormId);
         } else {
-            return UuidT5Generator.makeLongIdFromUuid(chronology.getPrimordialUuid()) + "\t";
+            return UuidT5Generator.makeLongIdFromUuid(chronology.getPrimordialUuid());
         }
     }
 
     private String getTimeString(int stampNid){
-        return Long.toString(Get.stampService().getTimeForStamp(stampNid)) + "\t";
+        return Long.toString(Get.stampService().getTimeForStamp(stampNid));
     }
 
     private String getActiveString(int stampNid){
-        return Get.stampService().getStatusForStamp(stampNid).isActive() ? "1\t" : "0\t";
+        return Get.stampService().getStatusForStamp(stampNid).isActive() ? "1" : "0";
     }
 
     private String getModuleString(int stampNid){
         ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
         if (this.exportLookUpCache.getSctidNids().contains(moduleConcept.getNid())) {
-            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept) + "\t";
+            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
-            return UuidT5Generator.makeLongIdFromUuid(moduleConcept.getPrimordialUuid()) + "\t";
+            return UuidT5Generator.makeLongIdFromUuid(moduleConcept.getPrimordialUuid());
         }
     }
 
@@ -202,10 +204,10 @@ public class ReaderSpecification {
         if(this.exportFormatType == ExportFormatType.RF2) {
             switch (this.exportComponentType){
                 case CONCEPT:
-                    lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId");
+                    lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId\r");
                     break;
                 case DESCRIPTION:
-                    lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId");
+                    lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId\r");
                     break;
             }
         }

@@ -6,11 +6,11 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /*
@@ -36,6 +36,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
     protected Void call() throws Exception {
 
         try {
+            Map<ExportComponentType, List<String>> exportLineseMap = new HashMap<>();
 
             completedUnitOfWork();
 
@@ -56,9 +57,8 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                 BatchReader conceptBatchReader = new BatchReader(readerSpecification, 102400);
 
                 Future<List<String>> conceptReadTask = Get.executor().submit(conceptBatchReader, new ArrayList<>());
-                List<String> conceptsToWrite = new ArrayList<>(conceptReadTask.get());
+                exportLineseMap.put(ExportComponentType.CONCEPT, conceptReadTask.get());
                 completedUnitOfWork();
-                Files.write(Paths.get(this.exportDirectory.getAbsolutePath() + "/concepts.txt"), conceptsToWrite);
                 System.out.println("Finish Concept================" + LocalDateTime.now());
             }
 
@@ -74,9 +74,20 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                 BatchReader descriptionBatchReader = new BatchReader(readerSpecification, 102400);
 
                 Future<List<String>> descriptionReadTask = Get.executor().submit(descriptionBatchReader, new ArrayList<>());
-                List<String> descriptionsToWrite = new ArrayList<>(descriptionReadTask.get());
-                Files.write(Paths.get(this.exportDirectory.getAbsolutePath() + "/descriptions.txt"), descriptionsToWrite);
+                exportLineseMap.put(ExportComponentType.DESCRIPTION, descriptionReadTask.get());
                 System.out.println("Finish Descriptions================" + LocalDateTime.now());
+            }
+
+            if(true){
+                System.out.println("Start ZipingExport================" + LocalDateTime.now());
+                //Zipping
+                completedUnitOfWork();
+                updateMessage("Zipping SOLOR Export...");
+
+                ZipExportFiles zipExportFiles = new ZipExportFiles(this.exportFormatType, this.manifold, this.exportDirectory, exportLineseMap);
+                Future zipExportFilesTask = Get.executor().submit(zipExportFiles);
+                zipExportFilesTask.get();
+                System.out.println("Finish ZipingExport================" + LocalDateTime.now());
             }
 
             completedUnitOfWork();
