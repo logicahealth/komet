@@ -41,7 +41,8 @@ public class StoredPrefs
 	private String gitPasswordEncrypted;
 
 	private String artifactReadURL;
-	private String artifactDeployURL;
+	private String artifactSnapshotDeployURL;
+	private String artifactReleaseDeployURL;
 	private String artifactUsername;
 	private String artifactPasswordEncrypted;
 
@@ -193,14 +194,24 @@ public class StoredPrefs
 		this.artifactReadURL = artifactReadURL;
 	}
 	
-	public String getArtifactDeployURL()
+	public String getArtifactSnapshotDeployURL()
 	{
-		return artifactDeployURL == null ? "" : artifactDeployURL;
+		return artifactSnapshotDeployURL == null ? "" : artifactSnapshotDeployURL;
 	}
 
-	public void setArtifactDeployURL(String artifactDeployURL)
+	public void setArtifactReleaseDeployURL(String artifactReleaseDeployURL)
 	{
-		this.artifactDeployURL = artifactDeployURL;
+		this.artifactReleaseDeployURL = artifactReleaseDeployURL;
+	}
+	
+	public String getArtifactReleaseDeployURL()
+	{
+		return artifactReleaseDeployURL == null ? "" : artifactReleaseDeployURL;
+	}
+	
+	public void setArtifactSnapshotDeployURL(String artifactSnapshotDeployURL)
+	{
+		this.artifactSnapshotDeployURL = artifactSnapshotDeployURL;
 	}
 
 	public String getArtifactUsername()

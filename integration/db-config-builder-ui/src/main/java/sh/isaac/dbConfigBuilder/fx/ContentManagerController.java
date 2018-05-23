@@ -42,8 +42,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
-import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -1422,7 +1420,8 @@ public class ContentManagerController
 				
 				ArrayList<DeployFile> temp = new ArrayList<>();
 				temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, "", "pom",
-						new File(new File(workingFolder.getText()), ContentConverterCreator.WORKING_SUBFOLDER + "/pom.xml"), sp_.getArtifactDeployURL(),
+						new File(new File(workingFolder.getText()), ContentConverterCreator.WORKING_SUBFOLDER + "/pom.xml"), 
+						isSnapshot(outputVersion) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(),
 						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				
 				for (File f : new File(new File(workingFolder.getText()), ContentConverterCreator.WORKING_SUBFOLDER  + "/target/")
@@ -1440,8 +1439,9 @@ public class ContentManagerController
 						classifier = f.getName().substring((f.getName().lastIndexOf(outputVersion) + outputVersion.length() + 1), 
 								(f.getName().length() - ".ibdf.zip".length()));
 					}
-					temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, classifier, "ibdf.zip",
-							f, sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+					temp.add(new DeployFile(ContentConverterCreator.IBDF_OUTPUT_GROUP, outputArtifactId, outputVersion, classifier, "ibdf.zip", f, 
+							isSnapshot(outputVersion) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(),
+							sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				}
 				return temp;
 			}
@@ -1490,13 +1490,15 @@ public class ContentManagerController
 				String updatedArtifactName = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().replace("*",
 						sourceUploadExtension.getText());
 				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "pom",
-						new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"), sp_.getArtifactDeployURL(),
+						new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"), 
+						isSnapshot(sourceUploadVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(),
 						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 
 				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "zip",
 						new File(new File(workingFolder.getText()),
 								SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/target/" + updatedArtifactName + "-" + sourceUploadVersion.getText() + ".zip"),
-						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+						isSnapshot(sourceUploadVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(), 
+						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				return temp;
 			}
 			catch (Exception e)
@@ -1527,7 +1529,8 @@ public class ContentManagerController
 			{
 				ArrayList<DeployFile> temp = new ArrayList<>();
 				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), "", "pom",
-						new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"), sp_.getArtifactDeployURL(),
+						new File(new File(workingFolder.getText()), DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/pom.xml"), 
+						isSnapshot(databaseVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(),
 						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 
 				temp.add(new DeployFile(DBConfigurationCreator.GROUP_ID, databaseName.getText(), databaseVersion.getText(), databaseClassifier.getText(),
@@ -1535,7 +1538,8 @@ public class ContentManagerController
 						new File(new File(workingFolder.getText()),
 								DBConfigurationCreator.PARENT_ARTIFIACT_ID + "/target/" + databaseName.getText() + "-" + databaseVersion.getText() + "-"
 										+ databaseClassifier.getText() + ".isaac.zip"),
-						sp_.getArtifactDeployURL(), sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+						isSnapshot(databaseVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(), 
+						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
 				return temp;
 			}
 			catch (Exception e)
@@ -1543,6 +1547,11 @@ public class ContentManagerController
 				throw new RuntimeException(e);
 			}
 		}, new File(workingFolder.getText() + "/" + DBConfigurationCreator.PARENT_ARTIFIACT_ID));
+	}
+	
+	private boolean isSnapshot(String versionString)
+	{
+		return versionString.toUpperCase().endsWith("-SNAPSHOT");
 	}
 
 	private void doRun(Supplier<String> jobRunner, Supplier<List<DeployFile>> fileDepoyer, File mavenLaunchFolder)
@@ -1758,14 +1767,16 @@ public class ContentManagerController
 			artifactDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			artifactController.artifactReadUrl.setText(sp_.getArtifactReadURL());
-			artifactController.artifactDeployUrl.setText(sp_.getArtifactDeployURL());
+			artifactController.artifactReleaseDeployUrl.setText(sp_.getArtifactReleaseDeployURL());
+			artifactController.artifactSnapshotDeployUrl.setText(sp_.getArtifactSnapshotDeployURL());
 			artifactController.artifactUsername.setText(sp_.getArtifactUsername());
 			artifactController.artifactPassword.setText(new String(sp_.getArtifactPassword()));
 
 			if (artifactDialog.showAndWait().orElse(null) == ButtonType.OK)
 			{
 				sp_.setArtifactReadURL(artifactController.artifactReadUrl.getText());
-				sp_.setArtifactDeployURL(artifactController.artifactDeployUrl.getText());
+				sp_.setArtifactSnapshotDeployURL(artifactController.artifactSnapshotDeployUrl.getText());
+				sp_.setArtifactReleaseDeployURL(artifactController.artifactReleaseDeployUrl.getText());
 				sp_.setArtifactUsername(artifactController.artifactUsername.getText());
 				sp_.setArtifactPassword(artifactController.artifactPassword.textProperty().get().toCharArray());
 				cm_.storePrefsFile();
