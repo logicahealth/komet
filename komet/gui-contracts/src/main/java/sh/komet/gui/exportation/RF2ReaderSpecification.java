@@ -52,12 +52,12 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
             return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
         } else if (this.exportLookUpCache.getLoincNids().contains(chronology.getNid())) {
             final String loincId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.CODE____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeLongIdFromLoincId(loincId);
+            return UuidT5Generator.makeSolorIdFromLoincId(loincId);
         } else if (this.exportLookUpCache.getRxnormNids().contains(chronology.getNid())) {
             final String rxnormId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeLongIdFromRxNormId(rxnormId);
+            return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
         } else {
-            return UuidT5Generator.makeLongIdFromUuid(chronology.getPrimordialUuid());
+            return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
         }
     }
 
@@ -74,7 +74,7 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
         if (this.exportLookUpCache.getSctidNids().contains(moduleConcept.getNid())) {
             return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
-            return UuidT5Generator.makeLongIdFromUuid(moduleConcept.getPrimordialUuid());
+            return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());
         }
     }
 

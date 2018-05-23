@@ -55,4 +55,5 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
     public String getFileName(String rootDirName) {
         return rootDirName + "/Snapshot/Terminology/sct2_Relationship_Snapshot_" + DateTimeFormatter.ofPattern("uuuuMMdd").format(LocalDateTime.now()) + ".txt";
     }
+
 }
