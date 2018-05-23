@@ -1,29 +1,12 @@
 package sh.komet.gui.exportation;
 
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
-import sh.isaac.api.util.UuidT5Generator;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.List;
-import java.util.Optional;
 
-/*
- * aks8m - 5/19/18
- */
-public class ReaderSpecification {
+public interface ReaderSpecification {
 
+<<<<<<< Updated upstream
     private final ExportFormatType exportFormatType;
     private final Manifold manifold;
     private final ObservableSnapshotService snapshot;
@@ -215,4 +198,11 @@ public class ReaderSpecification {
 
         }
     }
+=======
+    String createExportString(Chronology chronology);
+    void addColumnHeaders(List<String> stringList);
+    String getReaderUIText();
+    List<Chronology> createChronologyList();
+    String getFileName(String rootDirName);
+>>>>>>> Stashed changes
 }

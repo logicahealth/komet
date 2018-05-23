@@ -20,7 +20,9 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
         this.readerSpecification = readerSpecification;
         this.chronologiesToRead = chronologiesToRead;
 
-        updateTitle("Reading " + this.chronologiesToRead.size() + " " + this.readerSpecification.getExportComponentType().toString() +"s");
+
+
+        updateTitle("Reading " + this.chronologiesToRead.size() + " " + this.readerSpecification.getReaderUIText());
         addToTotalWork(3);
         Get.activeTasks().add(this);
     }
