@@ -40,8 +40,8 @@
 package sh.isaac.converters.sharedUtils.propertyTypes;
 
 import java.util.UUID;
-
 import sh.isaac.MetaData;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
 /**
  * Fields to treat as refsets.
@@ -54,9 +54,20 @@ public class BPT_Refsets extends PropertyType implements BPT_HasAltMetaDataParen
     *
     * @param terminologyName
     *           the terminology name
+    * @param converterUUID optional converter to use
+    */
+   public BPT_Refsets(String terminologyName, ConverterUUID converterUUID) {
+     super(terminologyName + " Refsets", true, null, converterUUID);
+   }
+   
+   /**
+    * Instantiates a new BP T refsets.
+    *
+    * @param terminologyName
+    *           the terminology name
     */
    public BPT_Refsets(String terminologyName) {
-     super(terminologyName + " Refsets", true, null);
+     this(terminologyName, null);
    }
 
    public UUID getAltMetaDataParentUUID() {

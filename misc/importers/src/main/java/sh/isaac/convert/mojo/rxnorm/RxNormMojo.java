@@ -1091,7 +1091,7 @@ public class RxNormMojo extends ConverterBaseMojo {
 
       {
          ConsoleUtil.println("Creating Source Vocabulary types");
-         this.ptSABs = new PropertyType(RxNormConstants.RXNORM_TERMINOLOGY_NAME + " Source Vocabularies", true, DynamicDataType.STRING){}; {
+         this.ptSABs = new PropertyType(RxNormConstants.RXNORM_TERMINOLOGY_NAME + " Source Vocabularies", true, DynamicDataType.STRING, Get.service(ConverterUUID.class)){}; {
          };
          this.ptSABs.indexByAltNames();
 

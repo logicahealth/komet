@@ -64,7 +64,7 @@ public class PT_Refsets
     * @param terminologyName the terminology name
     */
    public PT_Refsets(String terminologyName) {
-      super(terminologyName);
+      super(terminologyName, null);
 
       // owner autofiled by addProperty call
       this.CUI_CONCEPTS = addProperty("All " + terminologyName + " CUI Concepts");

@@ -42,7 +42,6 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 
@@ -99,11 +98,18 @@ public class Property {
    
    private UUID secondParent = null;
 
-   /** The owner. */
    private PropertyType owner;
-
-   //~--- constructors --------------------------------------------------------
-
+   
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    * @param converterUUID 
+    */
+   public Property(PropertyType owner, ConceptSpecification cs, ConverterUUID converterUUID) {
+      this(owner, cs, false, converterUUID);
+   }
    
    /**
     * Instantiates a new property.
@@ -112,8 +118,9 @@ public class Property {
     * @param cs the cs
     */
    public Property(PropertyType owner, ConceptSpecification cs) {
-      this(owner, cs, false);
+      this(owner, cs, null);
    }
+   
    /**
     * Instantiates a new property.
     *
@@ -122,9 +129,20 @@ public class Property {
     * @param isIdentifier set to true, if this type should be handled as an identifier.
     */
    public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
+      this(owner, cs, isIdentifier, null);
+   }
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    * @param isIdentifier set to true, if this type should be handled as an identifier.
+    * @param converterUUID 
+    */
+   public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier, ConverterUUID converterUUID) {
       this(owner, cs.getFullyQualifiedName(), cs.getRegularName().get(), null, false, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
-      Get.service(ConverterUUID.class).addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
+      (converterUUID == null ? Get.service(ConverterUUID.class) : converterUUID).addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
       this.isIdentifier = isIdentifier;
       if (this.isIdentifier)
@@ -182,9 +200,13 @@ public class Property {
       this(null, sourcePropertyNameFSN, null, null, disabled, false, propertySubType, columnInforForDynamicRefex);
    }
    
+   public Property(ConceptSpecification cs, boolean isIdentifier, ConverterUUID converterUUID) {
+      this((PropertyType)null, cs, isIdentifier, converterUUID);
+   }
+   
    public Property(ConceptSpecification cs, boolean isIdentifier) {
-      this((PropertyType)null, cs, isIdentifier);
-}
+         this(cs, isIdentifier, null);
+   }
 
    /**
     * Instantiates a new property.

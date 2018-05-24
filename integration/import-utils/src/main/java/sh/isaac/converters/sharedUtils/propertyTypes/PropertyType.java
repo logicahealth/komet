@@ -105,6 +105,8 @@ public abstract class PropertyType {
 
    /** The properties. */
    private final Map<String, Property> properties;
+   
+   private ConverterUUID converterUUID;
 
    //~--- constructors --------------------------------------------------------
 
@@ -115,15 +117,17 @@ public abstract class PropertyType {
     * "Attribute Types" or "Association Types".  This text is also used to construct the UUID for this property type grouping.
     * @param createAsDynamicRefex - true to mark as a dynamic refex, false otherwise.
     * @param defaultDynamicRefexColumnType - If the property is specified without further column instructions, and createAsDynamicRefex is true,
-    * //use this information to configure the (single) data column.
+    * use this information to configure the (single) data column.
     */
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
-                          DynamicDataType defaultDynamicRefexColumnType) {
+                          DynamicDataType defaultDynamicRefexColumnType, 
+                          ConverterUUID converterUUID) {
       this.properties              = new HashMap<>();
       this.propertyTypeDescription = propertyTypeDescription;
       this.createAsDynamicRefex    = createAsDynamicRefex;
       this.defaultDataColumn       = defaultDynamicRefexColumnType;
+      this.converterUUID = converterUUID == null ? Get.service(ConverterUUID.class) : converterUUID;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -198,11 +202,11 @@ public abstract class PropertyType {
    }
    
    public Property addProperty(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
-     return addProperty(new Property(owner, cs, isIdentifier));
+     return addProperty(new Property(owner, cs, isIdentifier, converterUUID));
      }
    
    public Property addProperty(ConceptSpecification cs, boolean isIdentifier) {
-      return addProperty(new Property((PropertyType)null, cs, isIdentifier));
+      return addProperty(new Property((PropertyType)null, cs, isIdentifier, converterUUID));
    }
    
    /**
@@ -464,7 +468,7 @@ public abstract class PropertyType {
     */
    public UUID getPropertyTypeUUID() {
       if (this.propertyTypeUUID == null) {
-         this.propertyTypeUUID = Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.propertyTypeDescription);
+         this.propertyTypeUUID = converterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
          Get.identifierService().assignNid(this.propertyTypeUUID);
       }
       return this.propertyTypeUUID;
@@ -477,7 +481,7 @@ public abstract class PropertyType {
     * @return the property UUID
     */
    protected UUID getPropertyUUID(String propertyName) {
-      return Get.service(ConverterUUID.class).createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
+      return converterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
    }
 
    //~--- set methods ---------------------------------------------------------
