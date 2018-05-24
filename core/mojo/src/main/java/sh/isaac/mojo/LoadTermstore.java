@@ -130,11 +130,24 @@ public class LoadTermstore
     * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
     * False, to simply load the IBDF as is.
     */
-  public LoadTermstore(File[] ibdfFiles, Log log, boolean mergeLogicGraphs) {
-     setibdfFiles(ibdfFiles);
-     setLog(log);
-     this.mergeLogicGraphs = mergeLogicGraphs;
-  }
+   public LoadTermstore(File[] ibdfFiles, Log log, boolean mergeLogicGraphs) {
+      setibdfFiles(ibdfFiles);
+      setLog(log);
+      this.mergeLogicGraphs = mergeLogicGraphs;
+   }
+   
+   /**
+    * Constructor for runtime usage
+    * @param ibdfContainingFolder the folder containing ibdf files to import
+    * @param log where to route logging messages
+    * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
+    * False, to simply load the IBDF as is.
+    */
+   public LoadTermstore(File ibdfContainingFolder, Log log, boolean mergeLogicGraphs) {
+      setibdfFilesFolder(ibdfContainingFolder);
+      setLog(log);
+      this.mergeLogicGraphs = mergeLogicGraphs;
+   }
    
    //Maven available parameters
    
