@@ -224,7 +224,7 @@
                      <useManifestOnlyJar>false</useManifestOnlyJar>
                      <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
                      <includes>
-                        <include>**/*.class</include>
+                        <include>**/VhatXmlTests.java</include>
                      </includes>
                   </configuration>
                </plugin>
