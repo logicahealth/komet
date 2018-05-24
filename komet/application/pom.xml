@@ -366,7 +366,24 @@
             </plugins>
          </build>
       </profile>
-      
+       <profile>
+         <id>special-load</id>
+         <activation>
+            <property>
+               <name>plugins</name>
+               <value>true</value>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>com.informatics</groupId>
+               <artifactId>special-load</artifactId>
+               <version>${project.parent.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
+    
       <profile>
          <id>external-plugins</id>
          <activation>
