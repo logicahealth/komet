@@ -139,7 +139,7 @@ public class PasswordHasher {
 
       LOG.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
-   }
+   }    
    
    /**
     * Decrypt data encrypted with the {@link #encrypt(char[], String)} method (which contains random salt)

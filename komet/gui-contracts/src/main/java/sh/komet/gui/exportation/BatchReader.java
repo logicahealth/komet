@@ -8,7 +8,6 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /*
  * aks8m - 5/20/18
@@ -23,7 +22,7 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
         this.readerSpecification = readerSpecification;
         this.BATCH_SIZE = BATCH_SIZE;
 
-        updateTitle("Managing " + this.readerSpecification.getExportComponentType().toString() + " Readers");
+        updateTitle("Managing " + this.readerSpecification.getReaderUIText() + " Readers");
         addToTotalWork(4);
         Get.activeTasks().add(this);
     }
@@ -33,22 +32,13 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
 
         final List<String> returnList = new ArrayList<>();
         final List<Chronology> chronologyBatches = new ArrayList<>();
-        final List<Chronology> chronologies = new ArrayList<>();
         final List<Future<List<String>>> futures = new ArrayList<>();
 
         try {
 
             completedUnitOfWork();
-            switch (this.readerSpecification.getExportComponentType()) {
-                case CONCEPT:
-                    chronologies.addAll(Get.conceptService().getConceptChronologyStream().collect(Collectors.toList()));
-                    break;
-                case DESCRIPTION:
-                    chronologies.addAll(Get.conceptService().getConceptChronologyStream()
-                            .flatMap(conceptChronology -> conceptChronology.getConceptDescriptionList().stream())
-                            .collect(Collectors.toList()));
-                    break;
-            }
+
+            final List<Chronology> chronologies = this.readerSpecification.createChronologyList();
 
             completedUnitOfWork();
             for (int i = 0; i < chronologies.size(); i++) {
@@ -67,7 +57,6 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
                             new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches)), new ArrayList<>()));
                 }
             }
-
             completedUnitOfWork();
 
             for (Future<List<String>> future : futures)
