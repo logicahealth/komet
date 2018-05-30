@@ -417,10 +417,9 @@ public class MainApp
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         Get.executor().execute(() -> {
-            LookupService.syncAll();  //This should be unnecessary....
+            LookupService.shutdownSystem();
             Platform.runLater(() -> {
                 try {
-                    LookupService.shutdownSystem();
                     Platform.exit();
                     System.exit(0);
                 } catch (Throwable ex) {

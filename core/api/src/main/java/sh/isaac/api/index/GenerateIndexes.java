@@ -41,60 +41,48 @@
  */
 package sh.isaac.api.index;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.progress.Stoppable;
+import sh.isaac.api.task.TimedTask;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class GenerateIndexes.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class GenerateIndexes
-        extends TimedTask<Void> implements PersistTaskResult {
+public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResult, Stoppable {
 
-   /**
-    * The Constant LOG.
-    */
    private static final Logger LOG = LogManager.getLogger();
 
-   //~--- fields --------------------------------------------------------------
-   /**
-    * The processed.
-    */
-   AtomicLong processed = new AtomicLong(0);
+   //The number of items processed so far
+   private AtomicLong processed = new AtomicLong(0);
+
+   //Which indexers are being used for this reindex request
+   private List<IndexBuilderService> indexers = new ArrayList<>();
+
+   //The number of items that must be indexed, in total.
+   private long componentCount;
+   
+   private boolean stopNow = false;
 
    /**
-    * The indexers.
-    */
-   List<IndexBuilderService> indexers = new ArrayList<>();
-
-   /**
-    * The component count.
-    */
-   long componentCount;
-
-   /**
-    * Instantiates a new generate indexes.
+    * Instantiates a new generate indexes, which will not yet be executing.
     *
-    * @param indexersToReindex the indexers to reindex
+    * @param indexersToReindex - optional - the indexers to reindex - if not provided, all indexers are reindexed
     */
    public GenerateIndexes(Class<?>... indexersToReindex) {
+      register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
       updateTitle("Index generation");
       updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
@@ -121,6 +109,7 @@ public class GenerateIndexes
      * @param indexersToReindex
      */
    public GenerateIndexes(IndexBuilderService... indexersToReindex) {
+      register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
       updateTitle("Index generation");
       updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
@@ -167,6 +156,9 @@ public class GenerateIndexes
 
          Get.assemblageService().getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
             for (final IndexBuilderService i : this.indexers) {
+               if (stopNow) {
+                  throw new RuntimeException("Stop requested!");
+               }
                try {
                   if (semantic == null) {
                      // noop - this error is already logged elsewhere. Just skip.
@@ -188,11 +180,16 @@ public class GenerateIndexes
                }
             }
 
-            i.sync().get();
-            i.forceMerge();
-            LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
-            for (final Map.Entry<String, Integer> entry : i.reportIndexedItems().entrySet()) {
-               LOG.info(entry.getKey() + ": " + entry.getValue());
+            if (stopNow) {
+               LOG.warn("A reindex was aborted midway!  Index is likely corrupt - a full reindex is recommended");
+            }
+            else {
+               i.sync().get();
+               i.forceMerge();
+               LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
+               for (final Map.Entry<String, Integer> entry : i.reportIndexedItems().entrySet()) {
+                  LOG.info(entry.getKey() + ": " + entry.getValue());
+               }
             }
          }
 
@@ -223,5 +220,11 @@ public class GenerateIndexes
             LOG.info("Indexed " + processedCount + " semantics");
          }
       }
+   }
+
+   @Override
+   public void stopJob() {
+      LOG.info("Stop requested");
+      stopNow = true;
    }
 }

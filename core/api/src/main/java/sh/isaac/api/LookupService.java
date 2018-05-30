@@ -42,10 +42,15 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +67,7 @@ import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.util.HeadlessToolkit;
 
 //~--- classes ----------------------------------------------------------------
@@ -109,6 +115,8 @@ public class LookupService {
 
    /** The Constant STARTUP_LOCK. */
    private static final Object STARTUP_LOCK = new Object();
+   
+   private static Map<Stoppable, Integer> jobsToStop = Collections.synchronizedMap(new WeakHashMap<>());
 
    //~--- methods -------------------------------------------------------------
 
@@ -121,7 +129,6 @@ public class LookupService {
       if (isInitialized()) {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
-         syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
          setRunLevel(SL_NEG_1_WORKERS_STARTED_RUNLEVEL);
 
          // Fully release any system locks to database
@@ -140,7 +147,6 @@ public class LookupService {
       if (isInitialized()) {
          Get.applicationStates().add(ApplicationStates.STOPPING);
          Get.applicationStates().remove(ApplicationStates.RUNNING);
-         syncAll();  //Dan says - really not sure why this should be necessary....  if a datastore doesn't sync itself on shutdown, its broken...
          setRunLevel(SL_NEG_2_SYSTEM_STOPPED_RUNLEVEL);
          looker.shutdown();
          ServiceLocatorFactory.getInstance()
@@ -507,9 +513,30 @@ public class LookupService {
       }
       
       if (currentRunLevel > targetRunLevel) {
+         Iterator<Entry<Stoppable, Integer>> it = jobsToStop.entrySet().iterator();
+          while (it.hasNext()) { 
+              //Stop any jobs that need to be stopped prior to shutting down services
+             Entry<Stoppable, Integer> job = it.next();
+              if (job.getValue() > targetRunLevel) {
+                 job.getKey().stopJob();
+                 it.remove();
+              }
+           }
+
          while (currentRunLevel > targetRunLevel) {
             LOG.info("Setting run level to: " + --currentRunLevel);
-            getService(RunLevelController.class).proceedTo(currentRunLevel);
+            try {
+               getService(RunLevelController.class).proceedTo(currentRunLevel);
+            }
+            catch (MultiException e) {
+               if (e.getErrors().size() == 1 && e.getErrors().get(0) instanceof InterruptedException) {
+                  LOG.info("Interrupted while wating for runlevel change?  Continuing to try to achive desired run level...");
+                  ++currentRunLevel;  //the attempt failed, make sure we try again.
+               }
+               else {
+                  throw e;
+               }
+            }
          }
          HashSet<String> clearedCaches = new HashSet<>();
          getActiveServices(IsaacCache.class).forEach((cache) -> {
@@ -647,6 +674,18 @@ public class LookupService {
             LOG.error(ex);
          }
       }
+   }
+   
+   /**
+    * Certain background jobs may need to be told to stop, if a system shutdown is in process - for example, the indexer 
+    * uses services at run levels 4 and 5 - while it itself starts at runlevel 3.  If we are shutting down, and a reindex
+    * is in process - bad things happen when 4 and 5 runlevel services stop, prior to the index service stopping at runlevel 3.
+    * @param stoppable - the job to stop
+    * @param stopIfGoingBelowRunlevel - issue the stop command if the run level is going to drop below this level.
+    */
+   public static void registerStoppable(Stoppable stoppable, int stopIfGoingBelowRunlevel) {
+      LOG.debug("Registering {} to stop if below runlevel {}", stoppable, stopIfGoingBelowRunlevel);
+      jobsToStop.put(stoppable, stopIfGoingBelowRunlevel);
    }
 }
 
