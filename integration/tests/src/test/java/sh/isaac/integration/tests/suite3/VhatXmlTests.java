@@ -102,7 +102,7 @@ public class VhatXmlTests
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 		
-		LoadTermstore lt = new LoadTermstore(new File("target/suite3data/"), new SystemStreamLog(), false);
+		LoadTermstore lt = new LoadTermstore(new File("target/suite3data/"), false, false);
 		lt.execute();
 	}
 

@@ -80,5 +80,10 @@
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>mojo</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
     </dependencies>
 </project>

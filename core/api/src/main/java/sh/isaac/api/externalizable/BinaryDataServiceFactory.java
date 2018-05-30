@@ -69,6 +69,13 @@ public interface BinaryDataServiceFactory {
     */
    BinaryDataReaderQueueService getQueueReader(Path dataPath)
             throws FileNotFoundException;
+   
+   /**
+    * Gets the queue reader.
+    * @param inputStream the inputStream to read
+    * @return the BinaryDataReaderService for the given dataPath
+    */
+   BinaryDataReaderQueueService getQueueReader(InputStream inputStream);
 
    /**
     * Gets the reader.
