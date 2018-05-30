@@ -46,6 +46,8 @@ public class ImportView {
             
             //create scene with set width, height and color
             Scene scene = new Scene(root, 900, 600, Color.WHITESMOKE);
+            //Disabled for now, due to bugs in the CSS interacting with the treeTable view.
+            //scene.getStylesheets().add(Iconography.getStyleSheetStringUrl());
             
             //set scene to stage
             stage.setScene(scene);
