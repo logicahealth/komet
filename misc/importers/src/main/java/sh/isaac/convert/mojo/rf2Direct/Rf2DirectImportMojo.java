@@ -146,7 +146,7 @@ public class Rf2DirectImportMojo extends ConverterBaseMojo
 			
 			Get.service(ConverterUUID.class).configureNamespace(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid());
 			importUtil = new IBDFCreationUtility(TermAux.USER.getPrimordialUuid(), MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid(), 
-					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), listener.getWriterHandle());
+					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), listener.getWriterHandle(), null);
 			
 
 			log.info("Reading modules");

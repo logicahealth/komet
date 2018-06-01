@@ -47,6 +47,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,9 +69,19 @@ public class BPT_Associations
 
    /**
     * Instantiates a new BP T associations.
+    * @param terminologyName 
+    * @param converterUUID optional
+    */
+   public BPT_Associations(String terminologyName, ConverterUUID converterUUID) {
+      super(terminologyName + " Association Types", false, null, converterUUID);
+   }
+   
+   /**
+    * Instantiates a new BP T associations.
+    * @param terminologyName 
     */
    public BPT_Associations(String terminologyName) {
-      super(terminologyName + " Association Types", false, null);
+      this(terminologyName, null);
    }
 
    //~--- methods -------------------------------------------------------------

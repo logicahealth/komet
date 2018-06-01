@@ -13,7 +13,7 @@
    
    <!-- Setting for XML tests, use this VHAT loader IBDF -->
    <properties>
-      <vhat-loader-version>2017.09.07-198-loader-4.15</vhat-loader-version>
+      <vhat-loader-version>2017.09.07-198-loader-4.48-SNAPSHOT</vhat-loader-version>
    </properties>
 
    <dependencies>
@@ -202,20 +202,13 @@
                            <skip>${skipTests}</skip>
                            <artifactItems>
                               <artifact>
-                                 <groupId>sh.isaac.core</groupId>
-                                 <artifactId>metadata</artifactId>
-                                 <version>${project.version}</version>
-                                 <classifier>all</classifier>
-                                 <type>ibdf.zip</type>
-                              </artifact>
-                              <artifact>
                                  <groupId>sh.isaac.terminology.converted</groupId>
                                  <artifactId>vhat-ibdf</artifactId>
                                  <version>${vhat-loader-version}</version>
                                  <type>ibdf.zip</type>
                               </artifact>
                            </artifactItems>
-                           <outputDirectory>${project.build.directory}/data</outputDirectory>
+                           <outputDirectory>${project.build.directory}/suite3data</outputDirectory>
                         </configuration>
                      </execution>
                   </executions>
@@ -231,7 +224,7 @@
                      <useManifestOnlyJar>false</useManifestOnlyJar>
                      <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
                      <includes>
-                        <include>**/*.class</include>
+                        <include>**/VhatXmlTests.java</include>
                      </includes>
                   </configuration>
                </plugin>

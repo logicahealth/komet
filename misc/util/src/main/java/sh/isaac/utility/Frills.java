@@ -1776,7 +1776,7 @@ public class Frills
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
-      final IndexQueryService si = LookupService.get().getService(IndexQueryService.class, "semantic indexer");
+      final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search

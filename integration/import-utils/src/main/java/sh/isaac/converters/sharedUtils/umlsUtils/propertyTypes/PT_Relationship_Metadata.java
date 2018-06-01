@@ -58,7 +58,7 @@ public class PT_Relationship_Metadata
     * @param termName 
     */
    public PT_Relationship_Metadata(String termName) {
-      super(termName + " Relationship Metadata", true, DynamicDataType.UUID);
+      super(termName + " Relationship Metadata", true, DynamicDataType.UUID, null);
       indexByAltNames();
       addProperty("General Rel Type");
       addProperty("Inverse General Rel Type");

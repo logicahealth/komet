@@ -51,7 +51,9 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
@@ -64,13 +66,15 @@ import sh.isaac.model.tree.HashTreeBuilder;
  * @author kec
  */
 public class TreeBuilderTask
-        extends TimedTaskWithProgressTracker<Tree> {
+        extends TimedTaskWithProgressTracker<Tree> implements Stoppable {
    private final AtomicInteger             conceptsProcessed = new AtomicInteger();
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
    private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
+   private boolean                         stopRequested = false;
+   private static final String             stopMessage = "Stop requested during compute";
 
    private static final Logger LOG = LogManager.getLogger();
    
@@ -85,6 +89,7 @@ public class TreeBuilderTask
       this.manifoldCoordinate                 = manifoldCoordinate;
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
             .getConceptAssemblageNid();
+      LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
@@ -111,7 +116,12 @@ public class TreeBuilderTask
          return compute();
       }
       catch (Exception e) {
-         LOG.error("Error in Tree Builder task", e);
+         if (!e.getMessage().equals(stopMessage)) {
+            LOG.error("Error in Tree Builder task", e);
+         }
+         else {
+            LOG.info("Tree build interrupted by shutdown request");
+         }
          throw e;
       }
       finally {
@@ -130,6 +140,9 @@ public class TreeBuilderTask
          LOG.info("Empty concept stream in TreeBuilderTask");
       } 
       
+      if (stopRequested) {
+         throw new RuntimeException("Stop requested during compute");
+      }
       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       HashTreeBuilder graphBuilder     = conceptNidStream.filter(
@@ -151,6 +164,32 @@ public class TreeBuilderTask
       message = "complete";
       LOG.debug("Tree build completed for {}", this.manifoldCoordinate);
       return tree;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void stopJob() {
+      stopRequested = true;
+   }
+
+   @Override
+   public void completedUnitOfWork()
+   {
+      if (stopRequested) {
+         throw new RuntimeException(stopMessage);
+      }
+      super.completedUnitOfWork();
+   }
+
+   @Override
+   public void completedUnitsOfWork(long unitsCompleted)
+   {
+      if (stopRequested) {
+         throw new RuntimeException(stopMessage);
+      }
+      super.completedUnitsOfWork(unitsCompleted);
    }
 }
 

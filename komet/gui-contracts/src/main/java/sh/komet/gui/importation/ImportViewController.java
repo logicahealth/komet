@@ -16,49 +16,64 @@
  */
 package sh.komet.gui.importation;
 
+import static sh.komet.gui.importation.ImportItemZipEntry.FILE_PARENT_KEY;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.CheckBoxTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
-import static sh.komet.gui.importation.ImportItemZipEntry.FILE_PARENT_KEY;
+import sh.komet.gui.util.UpdateableBooleanBinding;
 
 public class ImportViewController {
 
@@ -103,15 +118,15 @@ public class ImportViewController {
     private final StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
 
     private final SimpleListProperty<File> filesProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final SimpleBooleanProperty snomedSelectedProperty = new SimpleBooleanProperty(false);
-    private final SimpleBooleanProperty loincSelectedProperty = new SimpleBooleanProperty(false);
-    private final SimpleBooleanProperty collabSelectedProperty = new SimpleBooleanProperty(false);
+    
+    private UpdateableBooleanBinding importReady;
+
     private final String loincSNOMEDCollabRequiredText =
             "✘ Import Selection Requires LOINC/SNOMED Collaboration (SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip)";
-    private final String importIsReadyText =
-            "✔ Ready to Import (e.g. LOINC, RxNorm, LOINC/SNOMED CT Collaboration, and Deloitte Assemblages)";
     private final String snomedCTRequiredText =
             "✘ Import Selection Requires SNOMED CT (SnomedCT_InternationalRF2_PRODUCTION_20170731T150000Z.zip)";
+    
+    private String importReadyMessage = "";
 
     @FXML
     void addImportDataLocation(ActionEvent event) {
@@ -133,6 +148,7 @@ public class ImportViewController {
                 for (File file : files) {
                     try (ZipFile zipFile = new ZipFile(file, Charset.forName("UTF-8"))) {
                         TreeItem<ImportItem> newFileItem = new TreeItem<>(new ImportItemZipFile(file));
+                        importReady.addBinding(newFileItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                         ConcurrentHashMap<String, TreeItem<ImportItem>> newTreeItems = new ConcurrentHashMap<>();
                         fileItemsMap.put(newFileItem, newTreeItems);
                         zipFile.stream().forEach((ZipEntry zipEntry) -> {
@@ -157,6 +173,7 @@ public class ImportViewController {
                                             }
                                             ImportItemZipEntry nestedImportItem = new ImportItemZipEntry(file, zipEntry, nestedEntry, itemBytes);
                                             TreeItem<ImportItem> nestedEntryItem = new TreeItem<>(nestedImportItem);
+                                            importReady.addBinding(nestedEntryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                             newTreeItems.put(zipEntry.getName() + "/" + nestedEntry.getName(), nestedEntryItem);
                                         }
                                         nestedEntry = zis.getNextEntry();
@@ -166,12 +183,14 @@ public class ImportViewController {
                                 }
                                 ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                 TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                 newTreeItems.put(zipEntry.getName(), entryItem);
                             } else if (!zipEntry.getName().toUpperCase().contains("__MACOSX") && !zipEntry.getName().contains("._")) {
                                 if (file.getName().toLowerCase().startsWith("rxnorm_")) {
                                     if (zipEntry.getName().toLowerCase().endsWith(".rrf")) {
                                         ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                         TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                        importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                         if (importItem.nameProperty.get().toUpperCase().endsWith("RXNCONSO.RRF")
                                                 && !importItem.parentKey.toLowerCase().contains("prescribe")) {
                                             importItem.importData.set(true);
@@ -185,11 +204,13 @@ public class ImportViewController {
                                     if (zipEntry.getName().toLowerCase().equals("loinc.csv")) {
                                         ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                         TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                        importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                         newTreeItems.put(zipEntry.getName(), entryItem);
                                     }
                                 } else {
                                     ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                     TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                    importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                     newTreeItems.put(zipEntry.getName(), entryItem);
                                 }
                             }
@@ -426,56 +447,113 @@ public class ImportViewController {
             this.storedPrefs.setLocalM2FolderPath(temp);
         }
 
-        //Initial SNOMED CT check
-        this.snomedSelectedProperty.set(LookupService.get().getService(DescriptionIndexer.class)
-                .query("theophobia", 0).size() > 0);
-
-        //Initial display to UI if SNOMED CT is present from prior import
-        if(this.snomedSelectedProperty.get() == false){
-            this.textImportMessage.setText(this.snomedCTRequiredText);
-            this.importDataButton.setDisable(true);
-        }else{
-            this.textImportMessage.setText(this.importIsReadyText);
-            this.importDataButton.setDisable(false);
-        }
-
-        //Check to see, after each file is added, if dependencies are being met :)
-        this.filesProperty.addListener((observable, oldValue, newValue) -> {
-            observable.getValue().stream()
-                    .map(File::getName)
-                    .map(String::toLowerCase)
-                    .forEach(name ->{
-                        if(!snomedSelectedProperty.get()
-                                && name.contains("snomedct_internationalrf2_production_20170731t150000z.zip")){
-                            this.snomedSelectedProperty.set(true);
-                        } else if(!loincSelectedProperty.get()
-                                && (name.contains("loinc_") && name.contains("_text.zip")) ){
-                            this.loincSelectedProperty.set(true);
-                        } else if(!collabSelectedProperty.get()
-                                && name.contains("snomedct_loincrf2_production_20170831t120000z.zip")){
-                            this.collabSelectedProperty.set(true);
-                        }
-            });
-
-            if(!this.snomedSelectedProperty.get()){
-                this.textImportMessage.setText(this.snomedCTRequiredText);
-                this.importDataButton.setDisable(true);
-            }else{
-                if(this.loincSelectedProperty.get()){
-                    if(!this.collabSelectedProperty.get()){
-                        this.textImportMessage.setText(this.loincSNOMEDCollabRequiredText);
-                        this.importDataButton.setDisable(true);
-                    }else{
-                        this.textImportMessage.setText(this.importIsReadyText);
-                        this.importDataButton.setDisable(false);
-                    }
-                }else {
-                    this.textImportMessage.setText(this.importIsReadyText);
-                    this.importDataButton.setDisable(false);
-                }
+        //This is the UUID for the SCTID '102928002' attached to the concept 'theophobia' from snomed.
+        final boolean snomedAlreadyLoaded = Get.identifierService().hasUuid(UUID.fromString("0f1bb551-1511-5495-bedb-e50c7f9c1e3c")); 
+        
+        //This binding will be computed every time a checkbox is added to the tree, or a checkbox is selected / unselected....
+        importReady = new UpdateableBooleanBinding() {
+           {
+              setComputeOnInvalidate(true);
+              //This will get bound to the checkboxes in the fileItemMap, as they are added. 
+           }
+         @Override
+         protected boolean computeValue() {
+            if (listeningTo.size() == 0) {
+               setInvalidReason("At least one file must be imported");
+               return false;
             }
-
-        });
+            else {
+               boolean oneSelected = false;
+               for (Observable x : listeningTo) {
+                  //These should all be BooleanProperties, but check for safety...
+                  if (x instanceof BooleanProperty) {
+                     if (((BooleanProperty)x).get()) {
+                        oneSelected = true;
+                        break;
+                     }
+                  }
+               }
+               if (!oneSelected) {
+                  setInvalidReason("At least one file must be selected to be imported");
+                  return false;
+               }
+            }
+            HashSet<String> matchingSelections = selectionsContain(fileTreeTable.getRoot(), new String[] {
+                  ".*snomedct_internationalrf2_production_20170731t150000z.zip",
+                  "rf2-src-data-sct-.*", 
+                  ".*loinc_.*_text.zip", 
+                  ".*snomedct_loincrf2_production_20170831t120000z.zip"});
+            
+            if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) { //Don't require snomed if in beta feature mode...
+               //Require snomed, if show beta features is disabled.
+               
+               //TODO Dan notes, this check is not sufficient to determine if snomed is being loaded as they may have unchecked individual snomed files 
+               //that will break the loader.  This needs enhancement....
+               if (matchingSelections.contains(".*snomedct_internationalrf2_production_20170731t150000z.zip")
+                     || matchingSelections.contains("rf2-src-data-sct-.*") 
+                     || snomedAlreadyLoaded) {
+                  //Have snomed, now look for loinc / snomed collab dependencies
+                  //If loinc is being loaded, require the loinc/snomed collab file....
+                  
+                  if (matchingSelections.contains(".*loinc_.*_text.zip") && 
+                        !matchingSelections.contains(".*snomedct_loincrf2_production_20170831t120000z.zip")) {
+                     setInvalidReason(loincSNOMEDCollabRequiredText);
+                     return false;
+                  }
+                  else {
+                     clearInvalidReason();
+                     importReadyMessage = "✔ Ready to Import (e.g. LOINC, RxNorm, LOINC/SNOMED CT Collaboration, and Deloitte Assemblages)";
+                     return true;
+                  }
+               }
+               else {
+                  //No snomed in the load list, or presently loaded...
+                  setInvalidReason(snomedCTRequiredText);
+                  return false;
+               }
+            }
+            else {
+               //Beta mode... don't enforce the stuff above.
+               clearInvalidReason();
+               importReadyMessage = "Ready to Import";
+               return true;
+            }
+         }
+      };
+      
+      this.textImportMessage.textProperty().bind(Bindings.when(importReady).then(importReadyMessage).otherwise(importReady.getReasonWhyInvalid()));
+      
+      //Disabling this overlay on the import button for now, because this relies on CSS styles from Iconography, and loadin that CSS file causes randome
+      //JavaFX implosions when combined with a treeTable....
+      //ErrorMarkerUtils.setupErrorMarker(importDataButton, importReady, true);
+      this.importDataButton.disableProperty().bind(importReady.not());
+    }
+    
+    /**
+     * @param itemsToLookFor the things to look for recursively in the tree - pass in lower-case regular expressions.
+     * @return the items from the itemsToLookFor list that were found (and selected), or, an empty set, if none found.
+     */
+    private HashSet<String> selectionsContain(TreeItem<ImportItem> treeNode, String[] itemsToLookFor) {
+       HashSet<String> results = new HashSet<>();
+       if (treeNode == null) {
+          return results;
+       }
+       if (treeNode.getValue().importData()) {
+          for (String s : itemsToLookFor) {
+              if (treeNode.getValue().getName().toLowerCase().matches(s)) {
+                 results.add(s);
+              }
+           }
+       }
+       
+       if (results.size() != itemsToLookFor.length) {
+          //haven't found them all yet, recurse
+          for (TreeItem<ImportItem> ti : treeNode.getChildren()) {
+             results.addAll(selectionsContain(ti, itemsToLookFor));
+          }
+        }
+       
+       return results;
     }
 
     private void importTypeChanged(SelectedImportType importType) {

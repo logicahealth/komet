@@ -416,18 +416,20 @@ public class MainApp
     protected void shutdown() {
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
-        Get.executor().execute(() -> {
-            LookupService.syncAll();  //This should be unnecessary....
+        Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
+            //system stops the thread pool, which messes up the shutdown sequence.
+            LookupService.shutdownSystem();
             Platform.runLater(() -> {
                 try {
-                    LookupService.shutdownSystem();
                     Platform.exit();
                     System.exit(0);
                 } catch (Throwable ex) {
                     ex.printStackTrace();
                 }
             });
-        });
+        }, "shutdown-thread");
+        shutdownThread.setDaemon(true);
+        shutdownThread.start();
     }
 
 }

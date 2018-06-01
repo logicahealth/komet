@@ -67,7 +67,7 @@ public class IBDFFile
     * @param classifier the classifier
     */
    public IBDFFile(String groupId, String artifactId, String version, String classifier) {
-      super(groupId, artifactId, version, classifier);
+      super(groupId, artifactId, version, classifier, "ibdf.zip");
    }
 }
 

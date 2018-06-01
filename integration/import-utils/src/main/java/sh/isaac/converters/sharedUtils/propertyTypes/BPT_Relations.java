@@ -58,7 +58,7 @@ public class BPT_Relations extends PropertyType implements BPT_HasAltMetaDataPar
     * @param terminologyName the terminology name
     */
    public BPT_Relations(String terminologyName) {
-      super(terminologyName + " Relation Types", false, null);
+      super(terminologyName + " Relation Types", false, null, null);
    }
    
    public UUID getAltMetaDataParentUUID() {

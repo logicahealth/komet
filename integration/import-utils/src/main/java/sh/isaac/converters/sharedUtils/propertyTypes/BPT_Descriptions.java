@@ -73,7 +73,7 @@ public class BPT_Descriptions extends PropertyType implements BPT_HasAltMetaData
     * @param terminologyName the terminology name
     */
    public BPT_Descriptions(String terminologyName) {
-      super(terminologyName + " Description Types", false, null);
+      super(terminologyName + " Description Types", false, null, null);
    }
    
    public UUID getAltMetaDataParentUUID() {

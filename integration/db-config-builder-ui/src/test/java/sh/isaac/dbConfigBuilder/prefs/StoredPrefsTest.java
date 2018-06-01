@@ -33,7 +33,8 @@ public class StoredPrefsTest
 		
 		sp.setArtifactPassword(new char[] {'z', 'c'});
 		sp.setArtifactReadURL("1");
-		sp.setArtifactDeployURL("11");
+		sp.setArtifactSnapshotDeployURL("11");
+		sp.setArtifactReleaseDeployURL("111");
 		sp.setArtifactUsername("2");
 		sp.setGitPassword(new char[] {});
 		sp.setGitURL("3");
@@ -49,7 +50,8 @@ public class StoredPrefsTest
 		
 		Assert.assertEquals(new String(sp.getArtifactPassword()), new String(read.getArtifactPassword()));
 		Assert.assertEquals(sp.getArtifactReadURL(),  read.getArtifactReadURL());
-		Assert.assertEquals(sp.getArtifactDeployURL(),  read.getArtifactDeployURL());
+		Assert.assertEquals(sp.getArtifactSnapshotDeployURL(),  read.getArtifactSnapshotDeployURL());
+		Assert.assertEquals(sp.getArtifactReleaseDeployURL(),  read.getArtifactReleaseDeployURL());
 		Assert.assertEquals(sp.getArtifactUsername(),  read.getArtifactUsername());
 		Assert.assertEquals(new String(sp.getGitPassword()),  new String(read.getGitPassword()));
 		Assert.assertEquals(sp.getGitURL(),  read.getGitURL());
@@ -65,7 +67,8 @@ public class StoredPrefsTest
 		
 		sp.setArtifactPassword(new char[] {'z', 'c'});
 		sp.setArtifactReadURL("1");
-		sp.setArtifactDeployURL("12");
+		sp.setArtifactSnapshotDeployURL("12");
+		sp.setArtifactReleaseDeployURL("121");
 		sp.setArtifactUsername("2");
 		sp.setGitPassword(new char[] {});
 		sp.setGitURL("3");
@@ -91,7 +94,8 @@ public class StoredPrefsTest
 		
 		Assert.assertEquals("", new String(read.getArtifactPassword()));
 		Assert.assertEquals(sp.getArtifactReadURL(),  read.getArtifactReadURL());
-		Assert.assertEquals(sp.getArtifactDeployURL(),  read.getArtifactDeployURL());
+		Assert.assertEquals(sp.getArtifactSnapshotDeployURL(),  read.getArtifactSnapshotDeployURL());
+		Assert.assertEquals(sp.getArtifactReleaseDeployURL(),  read.getArtifactReleaseDeployURL());
 		Assert.assertEquals(sp.getArtifactUsername(),  read.getArtifactUsername());
 		Assert.assertEquals("",  new String(read.getGitPassword()));
 		Assert.assertEquals(sp.getGitURL(),  read.getGitURL());

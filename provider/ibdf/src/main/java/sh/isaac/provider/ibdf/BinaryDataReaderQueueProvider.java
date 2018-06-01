@@ -39,17 +39,13 @@
 
 package sh.isaac.provider.ibdf;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.nio.file.Path;
-
 import java.util.Spliterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -61,87 +57,75 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.model.datastream.BinaryDatastreamReader;
+import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 
 /**
  * {@link BinaryDataReaderQueueProvider}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @deprecated {@link BinaryDatastreamReader} may be a simpler replacement
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
    
-   /** The objects. */
    int objects = 0;
 
-   /** The not started. */
    int NOTSTARTED = 3;
-
-   /** The running. */
    int RUNNING = 2;
-
-   /** The done reading. */
    int DONEREADING = 1;
-
-   /** The complete. */
    int COMPLETE = 0;
 
-   /** The complete. */
    final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
 
-   /** The complete block. */
    Semaphore completeBlock = new Semaphore(1);
-
-   /** The read data. */
 
    // Only one thread doing the reading from disk, give it lots of buffer space
    private final BlockingQueue<IsaacExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
-   /** The parsed data. */
-
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
    private final BlockingQueue<IsaacExternalizable> parsedData = new ArrayBlockingQueue<>(50);
 
-   /** The data path. */
-   Path dataPath;
-
-   /** The input. */
    DataInputStream input;
 
-   /** The stream bytes. */
    int streamBytes;
    
    private boolean failed = false;
 
-   /** The es. */
    ExecutorService es;
 
-   //~--- constructors --------------------------------------------------------
+   /**
+    * Instantiates a new binary data reader queue provider.
+    *
+    * @param dataStream the data stream
+    */
+   public BinaryDataReaderQueueProvider(InputStream dataStream) {
+      this.input    = new DataInputStream(dataStream);
 
+      try {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+   
    /**
     * Instantiates a new binary data reader queue provider.
     *
     * @param dataPath the data path
     * @throws FileNotFoundException the file not found exception
     * this.input.available(); gives inconsistent results? 
-    * @deprecated inconsistent results? Try BinaryDatastreamReader
+    * @deprecated Try BinaryDatastreamReader
     */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {
-      this.dataPath = dataPath;
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
 
       try {
@@ -152,12 +136,8 @@ public class BinaryDataReaderQueueProvider
       }
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Characteristics.
-    *
-    * @return the int
+    * {@inheritDoc}
     */
    @Override
    public int characteristics() {
@@ -165,9 +145,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Estimate size.
-    *
-    * @return the long
+    * {@inheritDoc}
     */
    @Override
    public long estimateSize() {
@@ -175,7 +153,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Shutdown.
+    * {@inheritDoc}
     */
    @Override
    public void shutdown() {
@@ -211,10 +189,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Try advance.
-    *
-    * @param action the action
-    * @return true, if successful
+    * {@inheritDoc}
     */
    @Override
    public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
@@ -239,9 +214,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Try split.
-    *
-    * @return the spliterator
+    * {@inheritDoc}
     */
    @Override
    public Spliterator<IsaacExternalizableUnparsed> trySplit() {
@@ -249,9 +222,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Call.
-    *
-    * @return the number of objects read.
+    * {@inheritDoc}
     */
    @Override
    protected Integer call() {
@@ -264,12 +235,8 @@ public class BinaryDataReaderQueueProvider
       return this.objects;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Checks if finished.
-    *
-    * @return true, if finished
+    * {@inheritDoc}
     */
    @Override
    public boolean isFinished() {
@@ -281,10 +248,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Gets the queue.
-    *
-    * @return the queue
-    * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
+    * {@inheritDoc}
     */
    @Override
    public BlockingQueue<IsaacExternalizable> getQueue() {
@@ -376,4 +340,3 @@ public class BinaryDataReaderQueueProvider
       return StreamSupport.stream(this, false);
    }
 }
-

@@ -39,22 +39,13 @@
 
 package sh.isaac.api.index;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.chronicle.Chronology;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The contract interface for indexing services that construct or maintain new indexes.
@@ -68,8 +59,7 @@ import sh.isaac.api.chronicle.Chronology;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
-public interface IndexBuilderService
-        extends DatastoreServices, IndexQueryService {
+public interface IndexBuilderService extends DatastoreServices, IndexQueryService {
    /**
     * Call this to begin a batch-reindex.  Underlying indexers shall clear their index, and any statistics, and lock 
     * as necessary so that multiple threads don't try to batch-reindex at the same time.

@@ -365,14 +365,16 @@ public class IBDFCreationUtility
     * B) - you may need to record some changes yourself, using {@link #storeManualUpdate(IsaacExternalizable)}
     * C) - the underlying ConverterUUID instance is not thread safe - only one thread at a time should use the IBDF Creation Utility this way.
     * 
-    *  @param author - which author to use for these changes
-    *  @param module - which module to use while loading
-    *  @param path - which path to use for these changes
-    *  @param debugOutputDirectory - optional - if provided, json debug files will be written here
+    * @param author - which author to use for these changes
+    * @param module - which module to use while loading
+    * @param path - which path to use for these changes
+    * @param debugOutputDirectory - optional - if provided, json debug files will be written here
+    * @param converter - the converter to use, or null, to use the singleton instance 
+    * @throws Exception 
     */
-   public IBDFCreationUtility(UUID author, UUID module, UUID path, File debugOutputDirectory) throws Exception
+   public IBDFCreationUtility(UUID author, UUID module, UUID path, File debugOutputDirectory, ConverterUUID converter) throws Exception
    {
-      this.converterUUID = Get.service(ConverterUUID.class);
+      this.converterUUID = converter == null ? Get.service(ConverterUUID.class) : converter;
       this.converterUUID.clearCache();
       this.authorNid = Get.identifierService().getNidForUuids(author);
       this.terminologyPathNid = Get.identifierService().getNidForUuids(path);
@@ -417,14 +419,16 @@ public class IBDFCreationUtility
     * A) - only use a time of Long.MAX_VALUE.
     * B) - the underlying ConverterUUID instance is not thread safe - only one thread at a time should use the IBDF Creation Utility this way.
     * 
-    *  @param author - which author to use for these changes
-    *  @param module - which module to use while loading
-    *  @param path - which path to use for these changes
-    *  @param writer - the writer to write resulting IBDF into
+    * @param author - which author to use for these changes
+    * @param module - which module to use while loading
+    * @param path - which path to use for these changes
+    * @param writer - the writer to write resulting IBDF into
+    * @param converter - the converter to use, or null, to use the singleton instance 
+    * @throws Exception 
     */
-   public IBDFCreationUtility(UUID author, UUID module, UUID path, DataWriterService writer) throws Exception
+   public IBDFCreationUtility(UUID author, UUID module, UUID path, DataWriterService writer, ConverterUUID converter) throws Exception
    {
-      converterUUID = Get.service(ConverterUUID.class);
+      this.converterUUID = converter == null ? Get.service(ConverterUUID.class) : converter;
       converterUUID.clearCache();
       this.authorNid = Get.identifierService().getNidForUuids(author);
       this.terminologyPathNid = Get.identifierService().getNidForUuids(path);
@@ -522,6 +526,7 @@ public class IBDFCreationUtility
     * @param fsn the fully specified name
     * @param createSynonymFromFSN true, to also create a preferred synonym
     * @param time - set to now if null
+    * @param status 
     * @return the created concept
     */
    public ConceptVersion createConcept(UUID conceptPrimordial, String fsn, boolean createSynonymFromFSN, Long time, Status status)
@@ -639,6 +644,7 @@ public class IBDFCreationUtility
     * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FSN
     * @param concept the concept to add the description to
     * @param fullySpecifiedName the description to add
+    * @return the created object
     */
    public SemanticChronology addFullySpecifiedName(ComponentReference concept, String fullySpecifiedName)
    {
@@ -651,6 +657,7 @@ public class IBDFCreationUtility
     * And then adding other types as specified by the propertySubType value, setting preferred / acceptable according to their ranking. 
     * @param concept the concept to add the description to
     * @param descriptions the description to add
+    * @return the created objects 
     */
    public List<SemanticChronology> addDescriptions(ComponentReference concept, List<? extends ValuePropertyPair> descriptions)
    {
@@ -730,7 +737,7 @@ public class IBDFCreationUtility
     * @param preferred true for preferred
     * @param sourceDescriptionType - this optional value is attached as the extended description type
     * @param status
-    * @return
+    * @return the created object
     */
    public SemanticChronology addDescription(ComponentReference concept, String descriptionValue, DescriptionType wbDescriptionType, 
          boolean preferred, UUID sourceDescriptionType, Status status)
@@ -748,7 +755,7 @@ public class IBDFCreationUtility
     * @param preferred true for preferred
     * @param sourceDescriptionType - this optional value is attached as the extended description type
     * @param status status of the description
-    * @return
+    * @return the created object
     */
    public SemanticChronology addDescription(ComponentReference concept, UUID descriptionPrimordial, String descriptionValue, 
       DescriptionType wbDescriptionType, boolean preferred, UUID sourceDescriptionType, Status status)
@@ -765,14 +772,16 @@ public class IBDFCreationUtility
     * @param descriptionPrimordial - if not supplied, created from the concept UUID and the description value and description type
     * @param descriptionValue - the text value
     * @param wbDescriptionType - the type of the description
-    * @param preferred - true, false, or null to not create any acceptability entry see {@link #addDescriptionacceptability()}
-    * @param dialect - ignored if @param preferred is set to null.  if null, defaults to {@link MetaData#US_ENGLISH_DIALECT}
-    * @param caseSignificant - if null, defaults to {@link MetaData#DESCRIPTION_NOT_CASE_SENSITIVE}
-    * @param languageCode - if null, uses {@link MetaData#ENGLISH_LANGUAGE}
+    * @param preferred - true, false, or null to not create any acceptability entry see 
+    *    {@link #addDescriptionAcceptability(ComponentReference, UUID, UUID, boolean, Status, Long, UUID)}
+    * @param dialect - ignored if @param preferred is set to null.  if null, defaults to {@link MetaData#US_ENGLISH_DIALECT____SOLOR}
+    * @param caseSignificant - if null, defaults to {@link MetaData#DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR}
+    * @param languageCode - if null, uses {@link MetaData#ENGLISH_LANGUAGE____SOLOR}
     * @param module - if null, uses the default from the EConceptUtility instance
     * @param sourceDescriptionType - this optional value is attached as the extended description type
     * @param status active / inactive
     * @param time - defaults to concept time
+    * @return the created object
     */
    public SemanticChronology addDescription(ComponentReference concept, UUID descriptionPrimordial, String descriptionValue, 
          DescriptionType wbDescriptionType, Boolean preferred, UUID dialect, UUID caseSignificant, UUID languageCode, UUID module, 
@@ -854,6 +863,7 @@ public class IBDFCreationUtility
     * @param status - 
     * @param time - if null, uses the description time
     * @param module - optional
+    * @return the created object
     */
    public SemanticChronology addDescriptionAcceptability(ComponentReference description, UUID acceptabilityPrimordial, 
          UUID dialectRefset, boolean preferred, Status status, Long time, UUID module)
@@ -885,7 +895,7 @@ public class IBDFCreationUtility
     * @param annotationValue the value of the annotation
     * @param annotationTypeAssemblage the type of the annotation
     * @param status the state of the new annotation
-    * @return
+    * @return the created object
     */
    public SemanticChronology addStringAnnotation(ComponentReference referencedComponent, String annotationValue, UUID annotationTypeAssemblage, Status status)
    {
@@ -902,7 +912,7 @@ public class IBDFCreationUtility
     * @param annotationValue the value of the annotation
     * @param annotationTypeAssemblage the type of the annotation 
     * @param status the optional status of the newly created assemblage
-    * @return
+    * @return the created object
     */
    public SemanticChronology addStringAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, String annotationValue, 
       UUID annotationTypeAssemblage, Status status)
@@ -924,7 +934,7 @@ public class IBDFCreationUtility
     * @param membershipAssemblageType the assemblage to be listed as a member of
     * @param status the status of the assemblage membership
     * @param time the optional time to use for the newly created assemblage
-    * @return
+    * @return the created object
     */
    public SemanticChronology addAssemblageMembership(ComponentReference referencedComponent, UUID membershipAssemblageType, Status status, Long time)
    {
@@ -939,7 +949,7 @@ public class IBDFCreationUtility
     * @param annotationTypeAssemblage - the uuid of the dynamic semantic type - 
     * @param status -  Status or null (for active)
     * @param time - if null, uses the component time
-    * @return
+    * @return the created object
     */
    public SemanticChronology addAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, DynamicData value, 
          UUID annotationTypeAssemblage, Status status, Long time)
@@ -957,7 +967,7 @@ public class IBDFCreationUtility
     * @param status -  Status or null (for active)
     * @param time - if null, uses the component time
     * @param module - optional
-    * @return
+    * @return the created object
     */
    public SemanticChronology addAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, DynamicData[] values, 
          UUID annotationTypeAssemblage, Status status, Long time, UUID module)
@@ -1159,7 +1169,7 @@ public class IBDFCreationUtility
     * @param annotationValue
     * @param annotationAssemblageType
     * @param status
-    * @return
+    * @return the created object
     */
    public SemanticChronology addStaticStringAnnotation(ComponentReference referencedComponent, String annotationValue, UUID annotationAssemblageType, 
          Status status)
@@ -1174,7 +1184,7 @@ public class IBDFCreationUtility
     * @param annotationValue
     * @param annotationTypeAssemblage
     * @param status
-    * @return
+    * @return the created object
     */
    public SemanticChronology addStaticStringAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, String annotationValue, 
          UUID annotationTypeAssemblage, Status status)
@@ -1211,7 +1221,7 @@ public class IBDFCreationUtility
     * @param object
     * @param value
     * @param annotationTypeAssemblage
-    * @return
+    * @return the created object
     */
    public SemanticChronology addUUIDAnnotation(ComponentReference object, UUID value, UUID annotationTypeAssemblage)
    {
@@ -1228,6 +1238,7 @@ public class IBDFCreationUtility
     * @param status
     * @param time - if null, default is used
     * @param module - optional
+    * @return the created object
     */
    public SemanticChronology addAssociation(ComponentReference concept, UUID associationPrimordialUuid, UUID target, 
          UUID associationTypeAssemblage, Status status, Long time, UUID module)
@@ -1302,7 +1313,7 @@ public class IBDFCreationUtility
     * Can only be called once per concept.
     * @param concept
     * @param parent
-    * @return
+    * @return the created object
     */
    public SemanticChronology addParent(ComponentReference concept, UUID parent)
    {
@@ -1317,7 +1328,7 @@ public class IBDFCreationUtility
     * @param parent
     * @param p the property type, to read the WBType info from to determine if a native relationship annotation needs to be added.
     * @param time
-    * @return
+    * @return the created object
     */
    public SemanticChronology addParent(ComponentReference concept, UUID parent, Property p, Long time)
    {
@@ -1340,6 +1351,7 @@ public class IBDFCreationUtility
     * @param parents
     * @param sourceRelType - optional - native relationship type being mapped to isa
     * @param time - if null, default is used
+    * @return the created object
     */
    public SemanticChronology addParent(ComponentReference concept, UUID relPrimordial, UUID[] parents, UUID sourceRelType, Long time)
    {
@@ -1405,7 +1417,7 @@ public class IBDFCreationUtility
     * @param status
     * @param time
     * @param module
-    * @return
+    * @return the created object
     */
    public SemanticChronology addRelationshipGraph(ComponentReference concept, UUID graphPrimordial, 
          LogicalExpression logicalExpression, boolean status, Long time, UUID module)
@@ -1421,7 +1433,7 @@ public class IBDFCreationUtility
     * @param time
     * @param module
     * @param sourceRelType - optional - native relationship type being mapped to isa
-    * @return
+    * @return the created object
     */
    public SemanticChronology addRelationshipGraph(ComponentReference concept, UUID graphPrimordial, 
          LogicalExpression logicalExpression, boolean stated, Long time, UUID module, UUID sourceRelType)
@@ -1475,7 +1487,7 @@ public class IBDFCreationUtility
     * 
     * @param readTimeFrom
     * @param providedTime
-    * @return
+    * @return the created object
     */
    public Long selectTime(ComponentReference readTimeFrom, Long providedTime)
    {
@@ -1497,6 +1509,7 @@ public class IBDFCreationUtility
     * 
     * @param status - Status or null (for current)
     * @param time - time or null (for default)
+    * @return the created stamp id 
     */
    public int createStamp(Status status, Long time) 
    {
@@ -1540,8 +1553,7 @@ public class IBDFCreationUtility
    }
 
    /**
-    * 
-    * @return
+    * @return the module
     */
    public ComponentReference getModule()
    {
@@ -1549,8 +1561,7 @@ public class IBDFCreationUtility
    }
 
    /**
-    * 
-    * @return
+    * @return the load stats
     */
    public LoadStats getLoadStats()
    {
@@ -1844,7 +1855,7 @@ public class IBDFCreationUtility
     * @param columnNames - Create concepts to represent column names for each item here.  Supports a stupid hack, where if the 
     * first two characters of a string in this array are '[]' - it will create a dynamic semantic array type for strings, rather than a single string.
     * @param columnTypes - optional - if not provided, makes all columns strings.  If provided, must match size of columnNames
-    * @return
+    * @return the created property object
     */
    public Property createMultiColumnDynamicStringSemantic(String semanticName, String[] columnNames, DynamicDataType[] columnTypes)
    {
