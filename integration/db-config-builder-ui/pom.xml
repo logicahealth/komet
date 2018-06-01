@@ -11,7 +11,7 @@
 	<groupId>sh.isaac.integration</groupId>
 	<artifactId>db-config-builder-ui</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC integration: DB config builder UI handles</name>
+	<name>ISAAC integration: DB config builder Fx Gui</name>
 
 	<dependencies>
 		<dependency>
