@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -322,17 +323,17 @@ public abstract class LuceneIndexer
       final List<ConceptSearchResult>             result = new ArrayList<>();
 
       searchResult.forEach((sr) -> {
-         final int conNid = findConcept(sr.getNid());
+         final OptionalInt conNid = findConcept(sr.getNid());
 
-         if (conNid < 0) {
+         if (!conNid.isPresent()) {
             LOG.error("Failed to find a concept that references nid " + sr.getNid());
-         } else if (merged.containsKey(conNid)) {
-            merged.get(conNid)
+         } else if (merged.containsKey(conNid.getAsInt())) {
+            merged.get(conNid.getAsInt())
                     .merge(sr);
          } else {
-            final ConceptSearchResult csr = new ConceptSearchResult(conNid, sr.getNid(), sr.getScore());
+            final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore());
 
-            merged.put(conNid, csr);
+            merged.put(conNid.getAsInt(), csr);
             result.add(csr);
          }
       });
@@ -344,9 +345,9 @@ public abstract class LuceneIndexer
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     *
     * @param nid the nid
-    * @return the nearest concept sequence, or -1, if no concept can be found.
+    * @return the nearest concept nid, or empty, if no concept can be found.
     */
-   public static int findConcept(int nid) {
+   public static OptionalInt findConcept(int nid) {
       final Optional<? extends Chronology> c = Get.identifiedObjectService()
                                                                             .getChronology(nid);
 
@@ -360,7 +361,7 @@ public abstract class LuceneIndexer
                return findConcept(((SemanticChronology) c.get()).getReferencedComponentNid());
 
             case CONCEPT:
-               return ((ConceptChronology) c.get()).getNid();
+               return OptionalInt.of(((ConceptChronology) c.get()).getNid());
 
             default:
                LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
@@ -369,7 +370,7 @@ public abstract class LuceneIndexer
          }
       }
 
-      return -1;
+      return OptionalInt.empty();
    }
 
    /**

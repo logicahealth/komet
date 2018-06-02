@@ -302,6 +302,14 @@ public class QueryProviderTest {
 		Assert.assertTrue(found2);
 	}
 	
+	@Test
+	public void testPrefixWithMergeOnConcepts() {
+		
+		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 53);
+		
+		Assert.assertEquals(di.mergeResultsOnConcept(di.query("whis", true, null, null, 1, 125, null)).size(), 25);
+	}
+	
 	private void printResults(List<SearchResult> result)
 	{
 		for (SearchResult sr : result)
