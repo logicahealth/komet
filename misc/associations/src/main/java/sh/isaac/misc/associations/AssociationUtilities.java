@@ -42,11 +42,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -68,6 +70,7 @@ import sh.isaac.utility.Frills;
 public class AssociationUtilities
 {
    private static int associationNid = Integer.MIN_VALUE;
+   private static Logger log = LogManager.getLogger();
    
    private static int getAssociationNid()
    {
@@ -112,7 +115,14 @@ public class AssociationUtilities
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
                if (latest.isPresent())
                {
-                  results.add(AssociationInstance.read((DynamicVersion<?>)latest.get(), stamp));
+                  if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
+                  {
+                     results.add(AssociationInstance.read((DynamicVersion<?>)latest.get(), stamp));
+                  }
+                  else
+                  {
+                     log.warn("Got back {} when by design, we should only be getting DynamicVersions!", latest.get());
+                  }
                }
                
             });
