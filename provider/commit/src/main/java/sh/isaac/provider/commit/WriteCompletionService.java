@@ -44,7 +44,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
@@ -59,9 +58,13 @@ import org.apache.logging.log4j.Logger;
  * any errors are logged / warned (if the caller didn't bother to call get)
  *
  * Previous versions of this class used the ExecuterCompletionService stuff...
- * but that turns out to be fundamentally broken in combination with JavaFX Task
- * objects - you end up with a Task and a Future, and the Task never gets
- * completion notification.
+ * to handle all of this, but that turns out to be fundamentally broken in 
+ * combination with JavaFX Task objects - you end up with a Task and a Future, 
+ * and the Task never gets completion notification.
+ * 
+ * The powers that be at Oracle have been perfectly happy to call this terrible
+ * behavior a documentation bug.... 
+ * http://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8166449
  *
  * @author kec
  * @author darmbrust
@@ -69,21 +72,12 @@ import org.apache.logging.log4j.Logger;
 public class WriteCompletionService
         implements Runnable {
 
-    /**
-     * The Constant LOG.
-     */
     private static final Logger LOG = LogManager.getLogger();
-
-    //~--- fields --------------------------------------------------------------
-    /**
-     * The run.
-     */
-    private boolean run = false;
 
     /**
      * The write concept completion service thread.
      */
-    private ExecutorService writeConceptCompletionServiceThread;
+    private Thread writeConceptCompletionServiceThread;
 
     /**
      * The conversion service.
@@ -97,7 +91,6 @@ public class WriteCompletionService
     
     private final LinkedBlockingQueue<Future<Void>> completionQueue = new LinkedBlockingQueue<>();
 
-    //~--- methods -------------------------------------------------------------
     /**
      * Run.
      */
@@ -105,12 +98,14 @@ public class WriteCompletionService
     public void run() {
         LOG.info("WriteCompletionService starting");
         
+        //need a local ref, to make sure we don't take a null pointer during shutdown
+        ExecutorService workerPoolCopy = workerPool;
         
-        while (this.run || !completionQueue.isEmpty()) {
+        while (!workerPoolCopy.isTerminated() || !completionQueue.isEmpty()) {
             try {
                 this.conversionService.poll(10, TimeUnit.SECONDS).get();
             } catch (final InterruptedException ex) {
-                if (this.run && !completionQueue.isEmpty()) {
+                if (!workerPoolCopy.isTerminated() && !completionQueue.isEmpty()) {
                     // Only warn if we were not asked to shutdown
                     LOG.warn(ex.getLocalizedMessage(), ex);
                 }
@@ -118,11 +113,8 @@ public class WriteCompletionService
                 LOG.error(ex.getLocalizedMessage(), ex);
             }
         }
-
-        this.conversionService = null;
         this.writeConceptCompletionServiceThread = null;
-        this.workerPool = null;
-        LOG.info("WriteCompletionService closed");
+        LOG.info("Stopped WriteCompletionService writeConceptCompletionServiceThread");
     }
 
     /**
@@ -130,16 +122,13 @@ public class WriteCompletionService
      */
     public void start() {
         LOG.info("Starting WriteCompletionService");
-        this.run = true;
         this.workerPool = Executors.newFixedThreadPool(4,
                 (Runnable r) -> {
                     return new Thread(r, "writeCommitDataPool");
                 });
         this.conversionService = new ExecutorCompletionService<>(this.workerPool, completionQueue);
-        this.writeConceptCompletionServiceThread = Executors.newSingleThreadExecutor((Runnable r) -> {
-            return new Thread(r, "writeCompletionService");
-        });
-        this.writeConceptCompletionServiceThread.submit(this);
+        this.writeConceptCompletionServiceThread = new Thread(this, "writeCompletionService");
+        this.writeConceptCompletionServiceThread.start();
     }
 
     /**
@@ -147,21 +136,20 @@ public class WriteCompletionService
      */
     public void stop() {
         LOG.info("Stopping WriteCompletionService");
-        this.run = false;
-        this.writeConceptCompletionServiceThread.shutdown(); //Disable new tasks from being submitted
-        boolean terminated = this.writeConceptCompletionServiceThread.isTerminated();
+        this.workerPool.shutdown(); //Disable new tasks from being submitted
+        this.writeConceptCompletionServiceThread.interrupt();
+        boolean terminated = this.workerPool.isTerminated();
         while (!terminated) {
             try {
-                this.writeConceptCompletionServiceThread.shutdown();
-                terminated = this.writeConceptCompletionServiceThread.awaitTermination(10, TimeUnit.SECONDS);
-                
+                terminated = this.workerPool.awaitTermination(10, TimeUnit.SECONDS);
             } catch (InterruptedException ex) {
                 // Nothing to do. 
             }
         }
-        LOG.info("Stopped WriteCompletionService writeConceptCompletionServiceThread");
-        this.workerPool.shutdown();
         LOG.info("Stopped WriteCompletionService workerPool");
+        this.workerPool = null;
+        this.conversionService = null;
+        LOG.info("WriteCompletionService closed");
     }
 
     /**
