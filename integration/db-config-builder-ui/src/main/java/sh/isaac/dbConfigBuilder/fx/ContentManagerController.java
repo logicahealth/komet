@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -72,6 +75,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.util.DeployFile;
 import sh.isaac.api.util.RecursiveDelete;
@@ -86,11 +90,13 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
+import sh.isaac.pombuilder.diff.DiffExecutionCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 import sh.komet.gui.util.ErrorMarkerUtils;
 import sh.komet.gui.util.FxUtils;
 import sh.komet.gui.util.UpdateableBooleanBinding;
 import sh.komet.gui.util.ValidBooleanBinding;
+import tornadofx.control.DateTimePicker;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -118,7 +124,11 @@ public class ContentManagerController
 	@FXML
 	private MenuItem optionsMaven;
 	@FXML
+	private MenuItem optionsReadMavenArtifacts;
+	@FXML
 	private Tab tabSrcUpload;
+	@FXML
+	private Tab tabDeltaCreation;
 	@FXML
 	private ChoiceBox<String> sourceUploadOperation;
 	@FXML
@@ -195,6 +205,32 @@ public class ContentManagerController
 	private Button run;
 	@FXML
 	Tooltip sourceUploadVersionTooltip;
+	
+	@FXML
+	private GridPane deltaGridPane;
+	@FXML
+	private TextField deltaInitialState;
+	private IBDFFile deltaInitialStateIBDF;
+	@FXML
+	private Button deltaInitialStateButton;
+	@FXML
+	private ChoiceBox<IBDFFile> deltaEndState;
+	@FXML
+	private ComboBox<UUID> deltaAuthor;
+
+	private DateTimePicker deltaDateTime = new DateTimePicker();
+	@FXML
+	private CheckBox deltaIgnoreTime;
+	@FXML
+	private CheckBox deltaIgnoreSibling;
+	@FXML
+	private CheckBox deltaGenerateRetires;
+	
+	@FXML
+	private ComboBox<String> deltaCalculatorVersion;
+	@FXML
+	private TextField deltaResultVersion;
+
 
 	private ContentManager cm_;
 
@@ -204,6 +240,7 @@ public class ContentManagerController
 	private ArrayList<ValidBooleanBinding> databaseTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
 	private ArrayList<ValidBooleanBinding> sourceConvertTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
 	private ArrayList<ValidBooleanBinding> sourceUploadTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
+	private ArrayList<ValidBooleanBinding> deltaTabValidityCheckers_ = new ArrayList<ValidBooleanBinding>();
 	private UpdateableBooleanBinding allSourceUploadFilesPresent_;
 	private ArrayList<TextField> sourceUploadFiles_ = new ArrayList<>();
 	private HashMap<ConverterOptionParam, String> sourceConversionUserOptions = new HashMap<>();
@@ -256,6 +293,13 @@ public class ContentManagerController
 		assert workingFolderSelect != null : "fx:id=\"workingFolderSelect\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert workingFolderCleanup != null : "fx:id=\"workingFolderCleanup\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert run != null : "fx:id=\"run\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaGridPane != null : "fx:id=\"deltaGridPane\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaInitialState != null : "fx:id=\"deltaInitialState\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaEndState != null : "fx:id=\"deltaEndState\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaAuthor != null : "fx:id=\"deltaAuthor\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaIgnoreTime != null : "fx:id=\"deltaIgnoreTime\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert deltaIgnoreSibling != null : "fx:id=\"deltaIgnoreSibling\" was not injected: check your FXML file 'ContentManager.fxml'.";
+
 
 		tabDatabaseCreation.getTabPane().getSelectionModel().select(tabDatabaseCreation);
 
@@ -943,6 +987,226 @@ public class ContentManagerController
 		ErrorMarkerUtils.setupErrorMarker(sourceConversionOptions, sourceConversionOptionValuesValid, true);
 		sourceConvertTabValidityCheckers_.add(sourceConversionOptionValuesValid);
 		
+		
+		//Delta Creation Tab
+		deltaInitialStateButton.setOnAction(action -> {
+			if (ibdfFiles_.size() == 0)
+			{
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				{
+					ibdfFiles_.clear();
+					ibdfFiles_.addAll(results);
+				}), cm_.getPrimaryStage().getScene().getWindow());
+			}
+
+			ListView<IBDFFile> ibdfPicker = new ListView<>();
+			ibdfPicker.setItems(FXCollections.observableArrayList(ibdfFiles_));
+			ibdfPicker.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			ibdfPicker.setCellFactory(param -> new ListCell<IBDFFile>()
+			{
+				@Override
+				protected void updateItem(IBDFFile item, boolean empty)
+				{
+					super.updateItem(item, empty);
+
+					if (empty || item == null)
+					{
+						setText(null);
+					}
+					else
+					{
+						setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
+					}
+				}
+			});
+
+			Alert ibdfDialog = new Alert(AlertType.CONFIRMATION);
+			ibdfDialog.setTitle("Select Files");
+			ibdfDialog.setHeaderText("Select 1 or 2 IBDF files of the same content type to diff");
+			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
+			ibdfPicker.setPrefWidth(1024);
+
+			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
+			{
+				//The picker should return items in order from lowest version to highest, so put the first one in the initial
+				//box, and the next one (if present and the same type) in the end state box.
+				//Also, populate the end-state dropdown with any other possible choices.
+				deltaEndState.getItems().clear();
+				deltaEndState.getSelectionModel().clearSelection();
+				deltaInitialStateIBDF = null;
+				int count = 0;
+				for (IBDFFile selectedIbdf : ibdfPicker.getSelectionModel().getSelectedItems())
+				{
+					if (count == 0)
+					{
+						deltaInitialState.setText(selectedIbdf.toString());
+						deltaInitialStateIBDF = selectedIbdf;
+						for (IBDFFile allIbdf : ibdfFiles_)
+						{
+							if (allIbdf.getGroupId().equals(deltaInitialStateIBDF.getGroupId()) && allIbdf.getArtifactId().equals(deltaInitialStateIBDF.getArtifactId()))
+							{
+								deltaEndState.getItems().add(allIbdf);
+							}
+						}
+						deltaEndState.getSelectionModel().select(deltaEndState.getItems().size() - 1);
+					}
+					else if (count == 1)
+					{
+						if (deltaEndState.getItems().contains(selectedIbdf)) //JavaFX doesn't seem to work properly, if you tell it to select somethign that isn't in the list
+						{
+							deltaEndState.getSelectionModel().select(selectedIbdf);
+						}
+						break;
+					}
+					count++;
+				}
+			}
+		});
+		
+		ValidBooleanBinding deltaInitialValid = new ValidBooleanBinding()
+		{
+			{
+				bind(deltaInitialState.textProperty());
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				if (StringUtils.isBlank(deltaInitialState.getText()))
+				{
+					setInvalidReason("An initial IBDF file must be selected");
+					return false;
+				}
+				clearInvalidReason();
+				return true;
+			}
+		};
+		deltaTabValidityCheckers_.add(deltaInitialValid);
+		ErrorMarkerUtils.setupErrorMarker(deltaInitialState, deltaInitialValid, true);
+		
+		ValidBooleanBinding deltaEndValid = new ValidBooleanBinding()
+		{
+			{
+				setComputeOnInvalidate(true);
+				bind(deltaEndState.getItems());
+				bind(deltaEndState.valueProperty());
+				bind(deltaInitialState.textProperty());
+				
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				System.out.println("fire!");
+				if (deltaEndState.getChildrenUnmodifiable().size() < 2)
+				{
+					setInvalidReason("The selected initial file does not have any other versions available to use for delta calculation");
+					return false;
+				}
+				else if (deltaEndState.getSelectionModel().getSelectedItem() == null)
+				{
+					setInvalidReason("You must select an end state file");
+					return false;
+				}
+				else if (deltaEndState.getSelectionModel().getSelectedItem().equals(deltaInitialStateIBDF))
+				{
+					setInvalidReason("Cannot select the same file as the initial selection");
+					return false;
+				}
+				clearInvalidReason();
+				return true;
+			}
+		};
+		deltaTabValidityCheckers_.add(deltaEndValid);
+		ErrorMarkerUtils.setupErrorMarker(deltaEndState, deltaEndValid, true);
+		
+		GridPane.setConstraints(deltaDateTime, 1, 3, 2, 1);
+		deltaDateTime.setMaxWidth(Double.MAX_VALUE);
+		deltaDateTime.setDateTimeValue(LocalDateTime.now());
+		deltaGridPane.getChildren().add(deltaDateTime);
+		
+		deltaAuthor.setConverter(new StringConverter<UUID>()
+		{
+			@Override
+			public String toString(UUID object)
+			{
+				if (object == null)
+				{
+					return "";
+				}
+				else if (object.equals(MetaData.USER____SOLOR.getPrimordialUuid()))
+				{
+					return "System Default User";
+				}
+				return object.toString();
+			}
+
+			@Override
+			public UUID fromString(String string)
+			{
+				if (string.equals("System Default User"))
+				{
+					return MetaData.USER____SOLOR.getPrimordialUuid();
+				}
+				else
+				{
+					try
+					{
+						return UUID.fromString(string);
+					}
+					catch (Exception e)
+					{
+						return null;
+					}
+				}
+			}
+		});
+		
+		deltaAuthor.getItems().add(MetaData.USER____SOLOR.getPrimordialUuid());
+		deltaAuthor.getSelectionModel().select(0);
+		
+		ValidBooleanBinding deltaAuthorValid = new ValidBooleanBinding()
+		{
+			{
+				bind(deltaAuthor.valueProperty());
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				if (deltaAuthor.getValue() == null)
+				{
+					setInvalidReason("The entered value isn't a valid UUID");
+					return false;
+				}
+				clearInvalidReason();
+				return true;
+			}
+		};
+		deltaTabValidityCheckers_.add(deltaAuthorValid);
+		ErrorMarkerUtils.setupErrorMarker(deltaAuthor, deltaAuthorValid, true);
+		
+		ValidBooleanBinding deltaOutputVersionValid = new ValidBooleanBinding()
+		{
+			{
+				bind(deltaResultVersion.textProperty());
+			}
+
+			@Override
+			protected boolean computeValue()
+			{
+				if (StringUtils.isBlank(deltaResultVersion.getText()))
+				{
+					setInvalidReason("The result version is required");
+					return false;
+				}
+				clearInvalidReason();
+				return true;
+			}
+		};
+		deltaTabValidityCheckers_.add(deltaOutputVersionValid);
+		ErrorMarkerUtils.setupErrorMarker(deltaResultVersion, deltaOutputVersionValid, true);
 
 		// Shared bottom section
 		allRequiredReady_ = new UpdateableBooleanBinding()
@@ -979,6 +1243,10 @@ public class ContentManagerController
 			else if (tabDatabaseCreation.getTabPane().getSelectionModel().getSelectedItem() == tabSrcUpload)
 			{
 				temp = ContentManagerController.this.sourceUploadTabValidityCheckers_;
+			}
+			else if (tabDatabaseCreation.getTabPane().getSelectionModel().getSelectedItem() == tabDeltaCreation)
+			{
+				temp = ContentManagerController.this.deltaTabValidityCheckers_;
 			}
 			else
 			{
@@ -1029,6 +1297,10 @@ public class ContentManagerController
 			else if (tabSrcUpload.isSelected())
 			{
 				createSourceUpload();
+			}
+			else if (tabDeltaCreation.isSelected())
+			{
+				createDelta();
 			}
 			else
 			{
@@ -1549,6 +1821,49 @@ public class ContentManagerController
 		}, new File(workingFolder.getText() + "/" + DBConfigurationCreator.PARENT_ARTIFIACT_ID));
 	}
 	
+	private void createDelta()
+	{
+		doRun(() -> {
+			
+
+			try
+			{
+				return DiffExecutionCreator.createDiffExecutor(deltaCalculatorVersion.getValue(), deltaInitialStateIBDF, deltaEndState.getValue(), 
+						deltaResultVersion.getText(), deltaAuthor.getValue(), deltaDateTime.getDateTimeValue().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), 
+						deltaIgnoreTime.isSelected(), deltaIgnoreSibling.isSelected(), deltaGenerateRetires.isSelected(), (opTag.isSelected() ? sp_.getGitURL() : null),
+						sp_.getGitUsername(), sp_.getGitPassword(), 
+						new File(workingFolder.getText()), false);
+			}
+			catch (Throwable e)
+			{
+				throw new RuntimeException(e);
+			}
+		}, () -> {
+			try
+			{
+				ArrayList<DeployFile> temp = new ArrayList<>();
+//				String updatedArtifactName = sourceUploadType.getSelectionModel().getSelectedItem().getArtifactId().replace("*",
+//						sourceUploadExtension.getText());
+//				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "pom",
+//						new File(new File(workingFolder.getText()), SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/pom.xml"), 
+//						isSnapshot(sourceUploadVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(),
+//						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+//
+//				temp.add(new DeployFile(SrcUploadCreator.SRC_UPLOAD_GROUP, updatedArtifactName, sourceUploadVersion.getText(), "", "zip",
+//						new File(new File(workingFolder.getText()),
+//								SrcUploadCreator.WORKING_SUB_FOLDER_NAME + "/target/" + updatedArtifactName + "-" + sourceUploadVersion.getText() + ".zip"),
+//						isSnapshot(sourceUploadVersion.getText()) ? sp_.getArtifactSnapshotDeployURL() : sp_.getArtifactReleaseDeployURL(), 
+//						sp_.getArtifactUsername(), new String(sp_.getArtifactPassword())));
+				return temp;
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+
+		}, new File(workingFolder.getText() + "/" + DiffExecutionCreator.WORKING_SUBFOLDER));
+	}
+	
 	private boolean isSnapshot(String versionString)
 	{
 		return versionString.toUpperCase().endsWith("-SNAPSHOT");
@@ -1696,6 +2011,7 @@ public class ContentManagerController
 		optionsGitConfig.setOnAction((action) -> gitConfigDialog());
 		optionsArtifacts.setOnAction((action) -> artifactsConfigDialog());
 		optionsMaven.setOnAction((action) -> mavenConfigDialog());
+		optionsReadMavenArtifacts.setOnAction((action) -> readData(cm_.sp_));
 	}
 
 	private void mavenConfigDialog()
@@ -1856,6 +2172,12 @@ public class ContentManagerController
 				sourceConversionConverterVersion.getItems().clear();
 				results.forEach(version -> sourceConversionConverterVersion.getItems().add(version));
 				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 2));
+				
+				//Its not _quite_ correct to use these versions for the delta calculator version, since it may not be present, 
+				//but its close enough for our use case.
+				deltaCalculatorVersion.getItems().clear();
+				results.forEach(version -> deltaCalculatorVersion.getItems().add(version));
+				deltaCalculatorVersion.getSelectionModel().select(Math.max(0, deltaCalculatorVersion.getItems().size() - 2));
 			});
 		});
 		

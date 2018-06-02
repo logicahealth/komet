@@ -39,6 +39,7 @@
               <MenuItem fx:id="optionsGitConfig" mnemonicParsing="false" text="Git Config" />
                   <MenuItem fx:id="optionsArtifacts" mnemonicParsing="false" text="Artifact Repository Config" />
                   <MenuItem fx:id="optionsMaven" mnemonicParsing="false" text="Maven Local Repo Config" />
+                  <MenuItem fx:id="optionsReadMavenArtifacts" mnemonicParsing="false" text="Read Maven Artifacts" />
             </items>
           </Menu>
         </menus>
@@ -208,6 +209,74 @@
                      </padding>
                   </GridPane>
                </content>
+            </Tab>
+            <Tab fx:id="tabDeltaCreation" text="Delta Creation">
+              <content>
+                  <GridPane fx:id="deltaGridPane" hgap="5.0" vgap="5.0">
+                    <columnConstraints>
+                      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="10.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="10.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                      <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                      <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Button fx:id="deltaInitialStateButton" mnemonicParsing="false" text="..." GridPane.columnIndex="2" />
+                        <Label text="Initial State" />
+                        <Label text="End State" GridPane.rowIndex="1" />
+                        <TextField fx:id="deltaInitialState" editable="false" GridPane.columnIndex="1" />
+                        <ChoiceBox fx:id="deltaEndState" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                        <Label text="Author" GridPane.rowIndex="2" />
+                        <Label text="Time" GridPane.rowIndex="3" />
+                        <HBox spacing="10.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                           <children>
+                              <CheckBox fx:id="deltaIgnoreTime" mnemonicParsing="false" selected="true" text="Ignore Time">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <tooltip>
+                                    <Tooltip text="In certain cases, the source content doesn't provide a time, so the IBDF converter invents a time. In these cases, we don't want to compare on time. This is only allowed when the incoming file only has one version per chronology. Also, metadata is usually generated with the terminology change time, which is usually different on each import, so it can be useful to ignore time in the compares in these cases.." />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="deltaIgnoreSibling" mnemonicParsing="false" selected="true" text="Ignore Sibling Modules">
+                                 <tooltip>
+                                    <Tooltip text="When processing version 8 of something against version 7, typically, the module is specified as a version-specific module - 7 or 8.  But both 7 and 8 will share an unversioned 'parent' module.  If selected, we will ignore  module differences, as long as the parent module of each module is the same.  If unselected, the module must be identical." />
+                                 </tooltip>
+                              </CheckBox>
+                              <CheckBox fx:id="deltaGenerateRetires" mnemonicParsing="false" text="Generate Retires for Missing Metadata">
+                                 <tooltip>
+                                    <Tooltip text="if selected, we treat the version specific module concept as if it were any other concept,  and generate retirements for it, if it isn't present in the new IBDF file (which it usually wouldn't be).  If false, we won't generate retire diffs for any sibling module concepts, or their attached semantics within the metadata tree." />
+                                 </tooltip>
+                              </CheckBox>
+                           </children>
+                           <GridPane.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </GridPane.margin>
+                        </HBox>
+                        <Label text="Options" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="deltaAuthor" editable="true" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                           <tooltip>
+                              <Tooltip text="The author to use for any component retirements.  Select from available, or enter a UUID." />
+                           </tooltip>
+                        </ComboBox>
+                        <Label text="Version for Result" GridPane.rowIndex="6" />
+                        <Label text="Diff CalculatorVersion" GridPane.rowIndex="5" />
+                        <TextField fx:id="deltaResultVersion" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                        <ComboBox fx:id="deltaCalculatorVersion" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </GridPane>
+              </content>
             </Tab>
         </tabs>
          <BorderPane.margin>

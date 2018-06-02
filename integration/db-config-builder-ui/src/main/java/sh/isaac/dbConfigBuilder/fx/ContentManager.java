@@ -52,7 +52,7 @@ public class ContentManager extends Application
 	private ContentManagerController cmc_;
 
 	private File prefsFileStorage_;
-	StoredPrefs sp_;
+	protected StoredPrefs sp_;
 
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{

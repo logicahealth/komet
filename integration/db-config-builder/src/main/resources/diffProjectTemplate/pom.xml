@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>#GROUPID#</groupId>
+	<artifactId>#ARTIFACTID#</artifactId>
+	<version>#VERSION#</version>
+
+	<packaging>pom</packaging>
+
+	<name>#NAME#</name>
+	
+	<description>A project that calculates a Delta IBDF between the two inputs</description>
+	
+	<properties>
+		<loader.version>#LOADER_VERSION#</loader.version>
+	</properties>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>
+				Contributions from 2013-2017 where performed either by US government
+				employees, or under US Veterans Health Administration contracts.
+
+				US Veterans Health Administration contributions by government employees
+				are work of the U.S. Government and are not subject to copyright
+				protection in the United States. Portions contributed by government
+				employees are USGovWork (17USC §105). Not subject to copyright.
+
+				Contribution by contractors to the US Veterans Health Administration
+				during this period are contractually contributed under the
+				Apache License, Version 2.0.
+
+				See: https://www.usa.gov/government-works
+
+				Contributions prior to 2013:
+
+				Copyright © International Health Terminology Standards Development Organisation.
+
+				Content packaged by SOLOR projects are subject to licenses specific to the content packaged.
+			</comments>
+		</license>
+	</licenses>
+	
+	<scm>
+		<url>#SCM_URL#</url>
+		<tag>#SCM_TAG#</tag>
+	</scm>
+
+	<organization>
+		<name>
+			Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+			US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium.
+		</name>
+	</organization>
+	
+	<developers>
+		<developer>
+			<properties>
+				<info>For a listing of developers, clone the project and execute 'git shortlog -sn'</info>
+			</properties>
+		</developer>
+	</developers>
+	
+	<issueManagement>
+		<system>Jira</system>
+		<url>https://issues.osehra.org/projects/ISAAC/summary</url>
+	</issueManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>mojo</artifactId>
+			<version>${loader.version}</version>
+			<scope>compile</scope>
+			<optional>true</optional>  <!-- Not needed at runtime -->
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.terminology.converted</groupId>
+			<artifactId>#START_STATE_IBDF#</artifactId>
+			<version>#START_STATE_IBDF_VERSION#</version>
+			#START_STATE_CLASSIFIER#
+			<type>ibdf.zip</type>
+			<scope>compile</scope>
+			<optional>true</optional>  <!-- Not needed at runtime -->
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.terminology.converted</groupId>
+			<artifactId>#END_STATE_IBDF#</artifactId>
+			<version>#END_STATE_IBDF_VERSION#</version>
+			#END_STATE_CLASSIFIER#
+			<type>ibdf.zip</type>
+			<scope>compile</scope>
+			<optional>true</optional>  <!-- Not needed at runtime -->
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>extract-ibdf-start</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeArtifactIds>#START_STATE_IBDF#</includeArtifactIds>
+							<outputDirectory>${project.build.directory}/data/start</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>extract-ibdf-end</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeArtifactIds>#END_STATE_IBDF#</includeArtifactIds>
+							<outputDirectory>${project.build.directory}/data/end</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>sh.isaac.core</groupId>
+				<artifactId>mojo</artifactId>
+				<executions>
+					<execution>
+						<id>diff-ibdf</id>
+						<goals>
+							<goal>diff-ibdf</goal>
+						</goals>
+						<configuration>
+							<initialStateIBDFFolder>${project.build.directory}/data/start</initialStateIBDFFolder>
+							<endStateIBDFFolder>${project.build.directory}/data/end</endStateIBDFFolder>
+							<author>#AUTHOR#</author>
+							<time>#TIME#</time>
+							<ignoreTimeInCompare>#IGNORE_TIME#</ignoreTimeInCompare>
+							<ignoreSiblingModules>#IGNORE_SIBLING#</ignoreSiblingModules>
+							<generateRetiresForMissingModuleMetadata>#GENERATE_RETIRES_FOR_MISSING_MODULES#</generateRetiresForMissingModuleMetadata>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>sh.isaac.core</groupId>
+						<artifactId>log-config</artifactId>
+						<version>${loader.version}</version>
+						<scope>compile</scope>
+					</dependency>
+					<dependency>
+						<groupId>sh.isaac.misc</groupId>
+						<artifactId>differ</artifactId>
+						<version>${loader.version}</version>
+						<scope>compile</scope>
+					</dependency>
+				</dependencies>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-result</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/diffIbdf.xml</descriptor>
+							</descriptors>
+							<attach>false</attach>
+							<encoding>UTF-8</encoding>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-artifact</id>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<type>ibdf.zip</type>
+									<!-- Note that the assembly plugin doesn't use the same classifier - we hack the classifier it returns to be a mis
+										mash of classifier and part of type.  So there is always a classifier on the produced zip file, even if no classifier
+										was specified by the user.  During artifact attachment, this classifier/type mess is corrected. -->
+									<file>${project.build.directory}/${project.build.finalName}-delta.ibdf.zip</file>
+									<classifier>delta</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
