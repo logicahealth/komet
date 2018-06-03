@@ -18,6 +18,7 @@ package sh.isaac.pombuilder.diff;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +96,7 @@ public class DiffExecutionCreator
 			final HashMap<String, String> pomSwaps = new HashMap<>();
 			
 			pomSwaps.put("#GROUP_ID#", IBDF_OUTPUT_GROUP);
-			pomSwaps.put("#ARTIFACTID#", initialFile.getArtifactId() + "-" + initialFile.getVersion() + "--" +  endFile.getVersion() + "-delta");
+			pomSwaps.put("#ARTIFACT_ID#", initialFile.getArtifactId() + "-" + initialFile.getVersion() + "--" +  endFile.getVersion() + "-delta");
 			pomSwaps.put("#VERSION#", outputVersion);
 			pomSwaps.put("#NAME#", "Delta calculator for " + initialFile.getVersion() + " and " + endFile.getVersion() + " of " + initialFile.getArtifactId());
 			pomSwaps.put("#LOADER_VERSION#", calculatorVersion);
@@ -112,13 +113,13 @@ public class DiffExecutionCreator
 					: "");
 			
 			pomSwaps.put("#AUTHOR#", author.toString());
-			pomSwaps.put("#TIME#", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(Instant.ofEpochMilli(time)));
+			pomSwaps.put("#TIME#", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(time)));
 			pomSwaps.put("#IGNORE_TIME#", ignoreTimeInCompare + "");
 			pomSwaps.put("#IGNORE_SIBLING#", ignoreSiblingModules + "");
 			pomSwaps.put("#GENERATE_RETIRES_FOR_MISSING_MODULES#", generateRetiresForMissingModuleMetadata + "");
 			
 			
-			final String tagWithoutRevNumber = IBDF_OUTPUT_GROUP + "/" + pomSwaps.get("#ARTIFACTID#") + "/" + pomSwaps.get("#VERSION#");
+			final String tagWithoutRevNumber = IBDF_OUTPUT_GROUP + "/" + pomSwaps.get("#ARTIFACT_ID#") + "/" + pomSwaps.get("#VERSION#");
 
 			LOG.debug("Generated tag (without rev number): '{}'", tagWithoutRevNumber);
 

@@ -20,6 +20,7 @@ logging config -->
 		<Logger name="sh.isaac.provider.logic" level="info" />
 		<Logger name="sh.isaac.provider.datastore" level="info"/>
 		<Logger name="sh.isaac.model.tree" level="info"/>
+		<Logger name="jetbrains.exodus" level="warn"/>
 
 		<Root level="debug">
 			<AppenderRef ref="STDOUT" />

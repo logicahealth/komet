@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>#GROUPID#</groupId>
-	<artifactId>#ARTIFACTID#</artifactId>
+	<groupId>#GROUP_ID#</groupId>
+	<artifactId>#ARTIFACT_ID#</artifactId>
 	<version>#VERSION#</version>
 
 	<packaging>pom</packaging>
@@ -79,24 +79,6 @@
 			<scope>compile</scope>
 			<optional>true</optional>  <!-- Not needed at runtime -->
 		</dependency>
-		<dependency>
-			<groupId>sh.isaac.terminology.converted</groupId>
-			<artifactId>#START_STATE_IBDF#</artifactId>
-			<version>#START_STATE_IBDF_VERSION#</version>
-			#START_STATE_CLASSIFIER#
-			<type>ibdf.zip</type>
-			<scope>compile</scope>
-			<optional>true</optional>  <!-- Not needed at runtime -->
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.terminology.converted</groupId>
-			<artifactId>#END_STATE_IBDF#</artifactId>
-			<version>#END_STATE_IBDF_VERSION#</version>
-			#END_STATE_CLASSIFIER#
-			<type>ibdf.zip</type>
-			<scope>compile</scope>
-			<optional>true</optional>  <!-- Not needed at runtime -->
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -104,15 +86,24 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
 				<executions>
 					<execution>
 						<id>extract-ibdf-start</id>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>unpack-dependencies</goal>
+							<goal>unpack</goal>
 						</goals>
 						<configuration>
-							<includeArtifactIds>#START_STATE_IBDF#</includeArtifactIds>
+							<artifactItems>
+								<artifactItem>
+									<groupId>sh.isaac.terminology.converted</groupId>
+									<artifactId>#START_STATE_IBDF#</artifactId>
+									<version>#START_STATE_IBDF_VERSION#</version>
+									#START_STATE_CLASSIFIER#
+									<type>ibdf.zip</type>
+								</artifactItem>
+							</artifactItems>
 							<outputDirectory>${project.build.directory}/data/start</outputDirectory>
 						</configuration>
 					</execution>
@@ -120,10 +111,18 @@
 						<id>extract-ibdf-end</id>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>unpack-dependencies</goal>
+							<goal>unpack</goal>
 						</goals>
 						<configuration>
-							<includeArtifactIds>#END_STATE_IBDF#</includeArtifactIds>
+							<artifactItems>
+								<artifactItem>
+									<groupId>sh.isaac.terminology.converted</groupId>
+									<artifactId>#END_STATE_IBDF#</artifactId>
+									<version>#END_STATE_IBDF_VERSION#</version>
+									#END_STATE_CLASSIFIER#
+									<type>ibdf.zip</type>
+								</artifactItem>
+							</artifactItems>
 							<outputDirectory>${project.build.directory}/data/end</outputDirectory>
 						</configuration>
 					</execution>
@@ -133,6 +132,7 @@
 			<plugin>
 				<groupId>sh.isaac.core</groupId>
 				<artifactId>mojo</artifactId>
+				<version>${loader.version}</version>
 				<executions>
 					<execution>
 						<id>diff-ibdf</id>

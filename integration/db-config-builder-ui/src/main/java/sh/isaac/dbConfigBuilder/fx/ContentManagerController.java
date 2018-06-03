@@ -1187,6 +1187,7 @@ public class ContentManagerController
 		deltaTabValidityCheckers_.add(deltaAuthorValid);
 		ErrorMarkerUtils.setupErrorMarker(deltaAuthor, deltaAuthorValid, true);
 		
+		Tooltip.install(deltaResultVersion, new Tooltip("The version number to assign to the resulting IBDF file"));
 		ValidBooleanBinding deltaOutputVersionValid = new ValidBooleanBinding()
 		{
 			{
@@ -2170,13 +2171,15 @@ public class ContentManagerController
 			Platform.runLater(() ->
 			{
 				sourceConversionConverterVersion.getItems().clear();
-				results.forEach(version -> sourceConversionConverterVersion.getItems().add(version));
-				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 2));
-				
-				//Its not _quite_ correct to use these versions for the delta calculator version, since it may not be present, 
-				//but its close enough for our use case.
 				deltaCalculatorVersion.getItems().clear();
-				results.forEach(version -> deltaCalculatorVersion.getItems().add(version));
+				results.forEach(version -> 
+				{
+					sourceConversionConverterVersion.getItems().add(version);
+					//Its not _quite_ correct to use these versions for the delta calculator version, since it may not be present, 
+					//but its close enough for our use case.
+					deltaCalculatorVersion.getItems().add(version);
+				});
+				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 2));
 				deltaCalculatorVersion.getSelectionModel().select(Math.max(0, deltaCalculatorVersion.getItems().size() - 2));
 			});
 		});

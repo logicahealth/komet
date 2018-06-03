@@ -268,9 +268,17 @@
                            </tooltip>
                         </ComboBox>
                         <Label text="Version for Result" GridPane.rowIndex="6" />
-                        <Label text="Diff CalculatorVersion" GridPane.rowIndex="5" />
-                        <TextField fx:id="deltaResultVersion" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                        <ComboBox fx:id="deltaCalculatorVersion" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                        <Label text="Diff Calculator Version" GridPane.rowIndex="5" />
+                        <TextField fx:id="deltaResultVersion" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6">
+                           <tooltip>
+                              <Tooltip text="The version number to assign the IBDF delta artifact produced from this execution" />
+                           </tooltip>
+                        </TextField>
+                        <ComboBox fx:id="deltaCalculatorVersion" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                           <tooltip>
+                              <Tooltip text="The version of the delta calculation software to use for this execution" />
+                           </tooltip>
+                        </ComboBox>
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

@@ -17,6 +17,7 @@ package sh.isaac.mojo;
 
 import java.io.File;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import org.apache.maven.plugin.AbstractMojo;
@@ -41,7 +42,7 @@ public class IBDFDiffMojo extends AbstractMojo
 	 * Location to write the output file.
 	 */
 	@Parameter(required = true, defaultValue = "${project.build.directory}")
-	protected File outputDirectory;
+	private File outputDirectory;
 
 	/**
 	 * See {@link IBDFDiffTool#init(File, File, File, UUID, long, boolean, boolean, boolean)}
@@ -94,7 +95,7 @@ public class IBDFDiffMojo extends AbstractMojo
 		try
 		{
 			UUID authorUUID = UUID.fromString(author);
-			long timeLong = Instant.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").parse(time)).toEpochMilli();
+			long timeLong = Instant.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault()).parse(time)).toEpochMilli();
 			IBDFDiffTool idt = IBDFDiffTool.getInstance(outputDirectory, findIbdf(initialStateIBDFFolder), findIbdf(endStateIBDFFolder), authorUUID, timeLong, 
 					ignoreTimeInCompare, ignoreSiblingModules, generateRetiresForMissingModuleMetadata);
 			
@@ -111,6 +112,10 @@ public class IBDFDiffMojo extends AbstractMojo
 	
 	private File findIbdf(File inputFolder) throws Exception
 	{
+		if (!inputFolder.isDirectory())
+		{
+			throw new Exception("The path " + inputFolder.getAbsolutePath() + " is not a folder");
+		}
 		for (File f : inputFolder.listFiles())
 		{
 			if (f.isFile() && f.getName().toLowerCase().endsWith(".ibdf"))
