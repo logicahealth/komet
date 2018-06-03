@@ -100,10 +100,11 @@ public class WriteCompletionService
         
         //need a local ref, to make sure we don't take a null pointer during shutdown
         ExecutorService workerPoolCopy = workerPool;
+        ExecutorCompletionService<Void> conversionServiceCopy = conversionService;
         
         while (!workerPoolCopy.isTerminated() || !completionQueue.isEmpty()) {
             try {
-                this.conversionService.poll(10, TimeUnit.SECONDS).get();
+               conversionServiceCopy.poll(10, TimeUnit.SECONDS).get();
             } catch (final InterruptedException ex) {
                 if (!workerPoolCopy.isTerminated() && !completionQueue.isEmpty()) {
                     // Only warn if we were not asked to shutdown
@@ -146,6 +147,7 @@ public class WriteCompletionService
                 // Nothing to do. 
             }
         }
+        this.writeConceptCompletionServiceThread.interrupt();
         LOG.info("Stopped WriteCompletionService workerPool");
         this.workerPool = null;
         this.conversionService = null;
