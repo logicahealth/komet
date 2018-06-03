@@ -104,7 +104,10 @@ public class WriteCompletionService
         
         while (!workerPoolCopy.isTerminated() || !completionQueue.isEmpty()) {
             try {
-               conversionServiceCopy.poll(10, TimeUnit.SECONDS).get();
+               Future<Void> f = conversionServiceCopy.poll(10, TimeUnit.SECONDS);
+               if (f != null) {
+                  f.get();
+               }
             } catch (final InterruptedException ex) {
                 if (!workerPoolCopy.isTerminated() && !completionQueue.isEmpty()) {
                     // Only warn if we were not asked to shutdown
