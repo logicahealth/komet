@@ -150,7 +150,10 @@ public class WriteCompletionService
                 // Nothing to do. 
             }
         }
-        this.writeConceptCompletionServiceThread.interrupt();
+        Thread t = this.writeConceptCompletionServiceThread;
+        if (t != null) {
+           t.interrupt();
+        }
         LOG.info("Stopped WriteCompletionService workerPool");
         this.workerPool = null;
         this.conversionService = null;
