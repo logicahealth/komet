@@ -121,6 +121,7 @@ public interface LanguageCoordinate extends Coordinate {
     */
    int[] getDialectAssemblagePreferenceList();
 
+   // int[] getModulePreferenceList();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *

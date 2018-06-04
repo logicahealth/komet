@@ -701,6 +701,7 @@ public class FileSystemDataStore
                     addToTotalWork(1);
                     updateMessage("Bypass writes on shutdown due to DB Build mode");
                     completedUnitOfWork();
+                    FileSystemDataStore.LOG.info("Skipping write secondary to BuildMode.IBDF");
                 } else {
                     addToTotalWork(9);
                     updateMessage("Writing sequence generator map...");
@@ -728,7 +729,7 @@ public class FileSystemDataStore
                                 if (spinedMap.write(directory)) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
                                     FileSystemDataStore.LOG.debug("Syncronized chronologies: " + assemblageNid
-                                            + " " + assemblageDescription);
+                                            + " " + assemblageDescription + " to " + directory.getAbsolutePath());
                                 }
                             });
                     completedUnitOfWork();  // 4
