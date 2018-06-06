@@ -6,7 +6,6 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,49 +21,42 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
     private final ExportFormatType exportFormatType;
     private final File exportDirectory;
-    private final Map<ReaderSpecification, List<String>>  linesToZipMap;
+    private final Map<ReaderSpecification, List<byte[]>> bytesToZip;
 
 
-    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map linesToZipMap) {
+    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<byte[]>> bytesToZip) {
         this.exportFormatType = exportFormatType;
         this.exportDirectory = exportDirectory;
-        this.linesToZipMap = linesToZipMap;
+        this.bytesToZip = bytesToZip;
     }
 
     @Override
     protected Void call() throws Exception {
 
-        final String rootDirName = "SnomedCT_SnapshotRF2_PRODUCTION_"
+        final String rootDirName = "SnomedCT_SolorRF2_PRODUCTION_"
                 + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(LocalDateTime.now());
 
         ZipOutputStream zipOut = new ZipOutputStream(
                 new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
                 StandardCharsets.UTF_8);
 
-        for(Map.Entry<ReaderSpecification, List<String>> entry : this.linesToZipMap.entrySet()){
+        for(Map.Entry<ReaderSpecification, List<byte[]>> entry : this.bytesToZip.entrySet()){
+
             ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
-            zipOut.putNextEntry(zipEntry);
+            try {
+                zipOut.putNextEntry(zipEntry);
 
-            entry.getValue().stream()
-                    .map(s -> {
-
-                        byte[] bytes = new byte[1024];
-
-                        try {
-                            bytes = s.getBytes("UTF-8");
-                        }catch (UnsupportedEncodingException uEE){
-                            uEE.printStackTrace();
-                        }
-                        return bytes;
-                    })
-                    .forEach(bytes -> {
-
-                        try {
-                            zipOut.write(bytes, 0, bytes.length);
-                        }catch (IOException ioE){
-                            ioE.printStackTrace();
-                        }
-                    });
+                entry.getValue().stream()
+                        .forEach(bytes -> {
+                            try {
+                                zipOut.write(bytes, 0, bytes.length);
+                            }catch (IOException ioE){
+                                ioE.printStackTrace();
+                            }
+                        });
+            }catch (IOException ioE){
+                ioE.printStackTrace();
+            }
         }
 
         zipOut.close();

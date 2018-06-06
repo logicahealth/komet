@@ -16,7 +16,7 @@ public class ExportLookUpCache {
     private List<Integer> rxnormNids;
     private List<Integer> loincNids;
 
-    public void generateCache(){
+    public ExportLookUpCache(){
         sctidNids = Get.assemblageService()
                 .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)
                 .boxed()
