@@ -44,14 +44,18 @@ package sh.isaac.api.component.concept;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -186,6 +190,45 @@ public interface ConceptSnapshot
        return textList;
    }
    
+   /**
+    * 
+    * @param <V> The type of versions to be returned
+    * @param assemblageConceptNid The assemblage from which to retrieve semantic versions
+    * @return A list of the latest semantic versions that reference this concept in the identified assemblage. 
+    * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
+    */
+   default <V extends SemanticVersion> List<LatestVersion<V>> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid) {
+       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
+       for (int semanticNid: semanticNids.asArray()) {
+           SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           if (latestVersion.isPresent()) {
+               semanticList.add(latestVersion);
+           }
+       }
+       return semanticList;
+   }
+   
+   /**
+    * 
+    * @param <V> The type of versions to be returned
+    * @param assemblageConceptNid The assemblage from which to retrieve semantic versions
+    * @return A (no guarantee of any particular ordering from which the first is chosen) 
+    * latest semantic version that reference this concept in the identified assemblage. 
+    * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
+    */
+   default <V extends SemanticVersion> LatestVersion<V> getFirstSemanticVersionFromAssemblage(int assemblageConceptNid) {
+       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       for (int semanticNid: semanticNids.asArray()) {
+           SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           if (latestVersion.isPresent()) {
+               return latestVersion;
+           }
+       }
+       return LatestVersion.empty();
+   }
    
 }
 
