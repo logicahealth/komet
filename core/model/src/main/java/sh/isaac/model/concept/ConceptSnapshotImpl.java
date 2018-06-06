@@ -41,6 +41,7 @@ package sh.isaac.model.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -371,7 +372,24 @@ public class ConceptSnapshotImpl
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return this.manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
-    
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinition() {
+        return this.manifoldCoordinate.getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), manifoldCoordinate);
+    }
+
+    @Override
+    public List<DescriptionVersion> getAllDescriptions() {
+        List<SemanticChronology> descriptionChronologies = this.conceptChronology.getConceptDescriptionList();
+        List<DescriptionVersion> versions = new ArrayList<>();
+        for (SemanticChronology descriptionChronology: descriptionChronologies) {
+           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(manifoldCoordinate);
+           latestVersion.ifPresent((dv) -> {
+               versions.add(dv);
+           });
+        }
+        return versions;
+    }    
     
 }
 

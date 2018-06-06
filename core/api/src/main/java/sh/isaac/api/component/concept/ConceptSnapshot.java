@@ -41,6 +41,8 @@ package sh.isaac.api.component.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -98,18 +100,92 @@ public interface ConceptSnapshot
     * Gets the fully specified description.
     *
     * @return The fully specified description for this concept. Optional in case
-    * there is not description that satisfies the {@code StampCoordinate} and the
+    * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription();
+   
+   /**
+    * Gets the fully specified description text.
+    *
+    * @return The fully specified description text for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getFullySpecifiedDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getFullySpecifiedDescription();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
 
    /**
     * Gets the preferred description.
     *
     * @return The preferred description for this concept. Optional in case
-    * there is not description that satisfies the {@code StampCoordinate} and the
+    * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
    LatestVersion<DescriptionVersion> getPreferredDescription();
+   
+   /**
+    * Gets the preferred description text.
+    *
+    * @return The preferred description text for this concept. Optional in case
+    * there is no preferred description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getPreferredDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getPreferredDescription();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
+
+   /**
+    * Gets the textual definition for this concept. 
+    * @return The textual definition for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   LatestVersion<DescriptionVersion> getDefinition();
+
+   /**
+    * Gets the text of the textual definition for this concept. 
+    * @return The text of the textual definition for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getDefinitionText() {
+       LatestVersion<DescriptionVersion> latest = getDefinition();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
+
+   /**
+    * Get all descriptions
+    * @return a list of all descriptions that are present according to the snapshot specification.
+    */
+   List<DescriptionVersion> getAllDescriptions(); 
+   
+   
+   /**
+    * Get text of all descriptions
+    * @return a list of the text of all descriptions that are present according to the snapshot specification.
+    */
+   default List<String> getTextOfAllDescriptions() {
+       List<DescriptionVersion> descriptions = getAllDescriptions();
+       ArrayList<String> textList = new ArrayList<>(descriptions.size());
+       for (DescriptionVersion version: descriptions) {
+           textList.add(version.getText());
+       }
+       return textList;
+   }
+   
+   
 }
 
