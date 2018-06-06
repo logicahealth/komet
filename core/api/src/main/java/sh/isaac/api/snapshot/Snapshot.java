@@ -108,13 +108,13 @@ public class Snapshot {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe snapshot service.
+    * Gets the semantic snapshot service.
     *
     * @param <V> the value type
     * @param type the type
-    * @return the sememe snapshot service
+    * @return the semantic snapshot service
     */
-   public <V extends SemanticVersion> SemanticSnapshotService<V> getSememeSnapshotService(Class<V> type) {
+   public <V extends SemanticVersion> SemanticSnapshotService<V> getSemanticSnapshotService(Class<V> type) {
       return Get.assemblageService()
                 .getSnapshot(type, this.stampCoordinate);
    }

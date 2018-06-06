@@ -208,6 +208,11 @@ public abstract class SubstitutionNode
       return new AbstractLogicNode[0];
    }
 
+    @Override
+    public final void removeChild(short childId) {
+        // nothing to do. 
+    }
+
    /**
     * Gets the substitution field specification.
     *

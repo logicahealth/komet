@@ -471,12 +471,15 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
       final int limit = 20;
 
       stream().limit(limit).forEach((element) -> {
-                          sb.append(function.apply(element));
-                          sb.append("<");
-                          sb.append(element);
-                          sb.append(">");
-                          sb.append(", ");
-                       });
+         String temp = function.apply(element);
+         sb.append(element); // only append the function output if it is different from just printing the int...
+         if (!temp.equals(element + "")) {
+            sb.append("<");
+            sb.append(temp);
+            sb.append(">");
+         }
+         sb.append(", ");
+      });
 
       if (size() > limit) {
          sb.append("...");

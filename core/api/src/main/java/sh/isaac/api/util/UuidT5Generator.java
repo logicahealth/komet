@@ -42,6 +42,7 @@ package sh.isaac.api.util;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 
 import java.nio.ByteBuffer;
 
@@ -49,6 +50,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
@@ -59,8 +61,8 @@ import sh.isaac.api.bootstrap.TermAux;
  * @author kec
  */
 public class UuidT5Generator {
-   /** The Constant encoding. */
-   public static final String encoding = "8859_1";
+   /** The Constant ENCODING. */
+   public final static String ENCODING = "UTF-8";
 
    /** The Constant PATH_ID_FROM_FS_DESC. */
    public static final UUID PATH_ID_FROM_FS_DESC = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
@@ -83,24 +85,6 @@ public class UuidT5Generator {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the desc uuid.
-    *
-    * @param text the text
-    * @param langPrimUuid the lang prim uuid
-    * @param conceptPrimUuid the concept prim uuid
-    * @return the desc uuid
-    * @throws NoSuchAlgorithmException the no such algorithm exception
-    * @throws UnsupportedEncodingException the unsupported encoding exception
-    */
-   public static UUID getDescUuid(String text,
-                                  UUID langPrimUuid,
-                                  UUID conceptPrimUuid)
-            throws NoSuchAlgorithmException,
-                   UnsupportedEncodingException {
-      return get(langPrimUuid, text + conceptPrimUuid.toString());
-   }
-
-   /**
     * Gets the.
     *
     * @param name the name
@@ -112,6 +96,11 @@ public class UuidT5Generator {
 
    public static UUID loincConceptUuid(String name) {
        return get(TermAux.LOINC_CONCEPT_ASSEMBLAGE.getPrimordialUuid(),
+               name);
+   }
+   
+   public static UUID rxNormConceptUuid(String name) {
+       return get(TermAux.RXNORM_CUI.getPrimordialUuid(),
                name);
    }
    /**
@@ -132,7 +121,7 @@ public class UuidT5Generator {
             sha1Algorithm.update(getRawBytes(namespace));
          }
 
-         sha1Algorithm.update(name.getBytes(encoding));
+         sha1Algorithm.update(name.getBytes(ENCODING));
 
          final byte[] sha1digest = sha1Algorithm.digest();
 
@@ -157,6 +146,23 @@ public class UuidT5Generator {
          throw new RuntimeException(ex);
       }
    }
+   
+    
+    /**
+     * Same as {@link #get(UUID, String)} but with an optional consumer, which will get a call with the fed in name and resulting UUID.
+     * 
+     * @param namespace
+     * @param name
+     * @param consumer optional callback for debug / UUID generation tracking.
+     * @return
+     */
+    public static UUID get(UUID namespace, String name, BiConsumer<String, UUID> consumer) {
+        UUID temp = get(namespace, name);
+        if (consumer != null) {
+            consumer.accept(name,  temp);
+        }
+        return temp;
+    }
 
    /**
     * This routine adapted from org.safehaus.uuid.UUID,
@@ -216,5 +222,66 @@ public class UuidT5Generator {
 
       return new UUID(raw.getLong(raw.position()), raw.getLong(raw.position() + 8));
    }
+   
+   public static String makeSolorIdFromRxNormId(String rxNormId)  {
+       String compressedLoincCodeWithPartition = rxNormId +  "97";
+       return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
+   }
+   
+   
+   public static String makeSolorIdFromLoincId(String loincId)  {
+       if (loincId.charAt(loincId.length() - 2) != '-') {
+           throw new IllegalStateException("Improperly formed loinc id: " + loincId);
+       }
+       String compressedLoincCode = loincId.substring(0, loincId.length() - 2);
+       String compressedLoincCodeWithPartition = compressedLoincCode + loincId.charAt(loincId.length() - 1) + "98";
+       return compressedLoincCodeWithPartition + SctId.verhoeffComputeStr(compressedLoincCodeWithPartition);
+   }
+   
+   public static String makeSolorIdFromUuid(UUID uuid)  {
+       // 18,446,744,073,709,551,615 max unsigned long
+       // Remove the partition and check digits
+       // ~18,000,000,000,000,000 = ~18 quadrillion possibilities
+       try {
+           final MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
+           
+           // Generate the digest.
+           sha1Algorithm.reset();
+           sha1Algorithm.update(getRawBytes(uuid));
+           
+           sha1Algorithm.update("sh.isaac.longid".getBytes(ENCODING));
+           
+           final byte[] sha1digest = sha1Algorithm.digest();
+           
+           byte[] longBytes = new byte[8];
+           
+           for (int i = 0; i < longBytes.length; i++) {
+               longBytes[i] = sha1digest[i];
+           }
+           
+           BigInteger bigResult = new BigInteger(1, longBytes);
+           String resultAsString = bigResult.toString();
+           String lastDigits = resultAsString.substring(resultAsString.length() - 3);
+           String resultZeroForCheckDigit = bigResult.subtract(new BigInteger(lastDigits)).add(new BigInteger("990")).toString();
+           String resultNoCheckDigit = resultZeroForCheckDigit.substring(0, resultZeroForCheckDigit.length()-1);
+           return resultNoCheckDigit + SctId.verhoeffComputeStr(resultNoCheckDigit);
+       } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+           throw new RuntimeException(ex.getLocalizedMessage(), ex);
+       }
+       
+   }
+   
+   
+   public static void main(String[] args) {
+        System.out.println(makeSolorIdFromRxNormId("1234"));
+        System.out.println(makeSolorIdFromRxNormId("12345"));
+        System.out.println(makeSolorIdFromLoincId("8867-4"));
+        System.out.println(makeSolorIdFromLoincId("67129-7"));
+        for (int i = 0; i < 10; i++) {
+           System.out.println(makeSolorIdFromUuid(UUID.randomUUID()));
+        }
+       
+   }
+   
 }
 

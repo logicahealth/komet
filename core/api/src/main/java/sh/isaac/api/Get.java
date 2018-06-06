@@ -39,41 +39,25 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jvnet.hk2.annotations.Service;
-
 import com.lmax.disruptor.dsl.Disruptor;
-import java.io.InputStream;
-import java.util.concurrent.ConcurrentSkipListSet;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.IntSet;
@@ -91,7 +75,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
@@ -99,14 +82,14 @@ import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.index.IndexDescriptionQueryService;
+import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -127,10 +110,10 @@ import sh.isaac.api.util.WorkExecutors;
 @Service
 @Singleton
 public class Get
-         implements OchreCache {
+         implements StaticIsaacCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
-   private static final Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
+   private static final Disruptor<AlertEvent> ALERT_DISRUPTOR = new Disruptor<>(
                                                              AlertEvent::new,
                                                                    512,
                                                                    new NamedThreadFactory("alert-disruptor", true));
@@ -173,9 +156,6 @@ public class Get
    /** The logic service. */
    private static LogicService logicService;
 
-   /** The binary data differ service. */
-   private static BinaryDataDifferService binaryDataDifferService;
-
    /** The path service. */
    private static VersionManagmentPathService versionManagementPathService;
 
@@ -208,7 +188,10 @@ public class Get
    private static ObservableChronologyService observableChronologyService;
    private static SerializationService        serializationService;
    
-   private static PreferencesService preferencesService;
+   private static IndexDescriptionQueryService descriptionIndexer;
+   private static IndexSemanticQueryService semanticIndexer;
+   
+   
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -266,19 +249,6 @@ public class Get
       }
 
       return assemblageService != null;
-   }
-
-   /**
-    * Binary data differ service.
-    *
-    * @return the binary data differ service
-    */
-   public static BinaryDataDifferService binaryDataDifferService() {
-      if (binaryDataDifferService == null) {
-         binaryDataDifferService = getService(BinaryDataDifferService.class);
-      }
-
-      return binaryDataDifferService;
    }
 
    /**
@@ -488,9 +458,7 @@ public class Get
       if (nid >= 0) {
          throw new IllegalStateException("Nids must be < 0: " + nid);
       }
-      ConceptProxy proxy = new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
-      proxy.setNid(nid);
-      return proxy;
+      return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
    }
 
    /**
@@ -530,7 +498,7 @@ public class Get
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(
              ConceptService.class).getSnapshot(Get.configurationService()
-                   .getDefaultManifoldCoordinate());
+                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate());
       }
 
       return conceptSnapshot;
@@ -541,7 +509,7 @@ public class Get
     * @return the default manifold coordinate from the configuration service.
     */
    public static ManifoldCoordinate defaultCoordinate() {
-      return configurationService().getDefaultManifoldCoordinate();
+      return configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate();
    }
 
    public static ThreadPoolExecutor executor() {
@@ -587,7 +555,8 @@ public class Get
       }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           nid,
-          configurationService().getDefaultLogicCoordinate()
+          configurationService().getGlobalDatastoreConfiguration()
+                                .getDefaultLogicCoordinate()
                                 .getInferredAssemblageNid())
                                 .findAny();
    }
@@ -655,6 +624,23 @@ public class Get
    public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
       return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
    }
+   
+
+   public static IndexDescriptionQueryService indexDescriptionService() {
+      if (descriptionIndexer == null) {
+         descriptionIndexer = getService(IndexDescriptionQueryService.class);
+      }
+
+      return descriptionIndexer;
+   }
+   
+   public static IndexSemanticQueryService indexSemanticService() {
+      if (semanticIndexer == null) {
+         semanticIndexer = getService(IndexSemanticQueryService.class);
+      }
+
+      return semanticIndexer;
+   }
 
    /**
     * IsaacExternalizable stream.
@@ -715,17 +701,18 @@ public class Get
       languageCoordinateService       = null;
       logicalExpressionBuilderService = null;
       logicService                    = null;
-      versionManagementPathService                     = null;
+      versionManagementPathService    = null;
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;
       workExecutors                   = null;
       stampService                    = null;
-      binaryDataDifferService         = null;
       postCommitService               = null;
       changeSetWriterService          = null;
       observableChronologyService     = null;
       serializationService            = null;
+      descriptionIndexer              = null;
+      semanticIndexer                 = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
@@ -781,19 +768,19 @@ public class Get
    /**
     * Perform indexing according to all installed indexers.
     *
-    * Cause all index generators implementing the {@link IndexService} to first
+    * Cause all index generators implementing the {@link IndexBuilderService} to first
     * <code>clearIndex()</code> then iterate over all semanticChronologies in the database
-    * and pass those chronicles to {@link IndexService#index(sh.isaac.api.chronicle.ObjectChronology)}
+    * and pass those chronicles to {@link IndexBuilderService#index(sh.isaac.api.chronicle.Chronology)}
     * and when complete, to call <code>commitWriter()</code>.
-    * {@link IndexService} services will be discovered using the HK2 dependency injection framework.
+    * {@link IndexBuilderService} services will be discovered using the HK2 dependency injection framework.
     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
-    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexService} which match the specified
-    * class list.  Classes passed in should be an extension of {@link IndexService}
+    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexBuilderService} which match the specified
+    * class list.  Classes passed in should be an extension of {@link IndexBuilderService}
     *
-    * @return Task that indicates progress.
+    * @return Task that indicates progress.  The task will already be started, when it is returned.
     */
    public static Task<Void> startIndexTask(
-         @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {
+         @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
@@ -815,7 +802,8 @@ public class Get
       }
       return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           nid,
-          configurationService().getDefaultLogicCoordinate()
+          configurationService().getGlobalDatastoreConfiguration()
+                                .getDefaultLogicCoordinate()
                                 .getStatedAssemblageNid())
                                 .findAny();
    }
@@ -832,26 +820,6 @@ public class Get
 
       return taxonomyService;
    }
-   
-   private static PreferencesService preferenceService() {
-      if (preferencesService == null) {
-         preferencesService = getService(PreferencesService.class);
-      }
-      return preferencesService;
-   }
-
-   public static IsaacPreferences applicationPreferences() {
-      return preferenceService().getApplicationPreferences();
-   }
-   
-   public static IsaacPreferences userPreferences() {
-      return preferenceService().getUserPreferences();
-   }
-   
-   public static IsaacPreferences systemPreferences() {
-      return preferenceService().getSystemPreferences();
-   }
-   
    /**
     * Work executors.
     *
@@ -868,7 +836,7 @@ public class Get
    //~--- get methods ---------------------------------------------------------
 
    public static Disruptor<AlertEvent> alertDisruptor() {
-      return alertDisruptor;
+      return ALERT_DISRUPTOR;
    }
 
    /**

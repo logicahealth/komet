@@ -16,16 +16,33 @@
  */
 package sh.isaac.model;
 
+import javax.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
+
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 
 /**
  * Provides services that are not part of the base API to the model, which makes particular
  * assumptions about implementation. 
  * @author kec
  */
-public class ModelGet {
+//Even though this class is static, needs to be a service, so that the reset() gets fired at appropriate times.
+@Service
+@Singleton
+public class ModelGet implements StaticIsaacCache {
+   private static final Logger LOG = LogManager.getLogger();
+   
    static ContainerSequenceService containerSequenceService;
    static TaxonomyDebugService taxonomyDebugService;
+   
+   private ModelGet() {
+      //For HK2
+   }
+   
    public static ContainerSequenceService identifierService() {
       if (containerSequenceService == null) {
          containerSequenceService = Get.service(ContainerSequenceService.class);
@@ -37,5 +54,12 @@ public class ModelGet {
          taxonomyDebugService = Get.service(TaxonomyDebugService.class);
       }
       return taxonomyDebugService;
+   }
+   
+   @Override
+   public void reset() {
+      LOG.debug("ModelGet Cache clear");
+      containerSequenceService = null;
+      taxonomyDebugService = null;
    }
 }

@@ -138,8 +138,9 @@ public final class ObservableLanguageCoordinateImpl
                     FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
 
             this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
-                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(this.languageCoordinate.getDescriptionTypePreferenceList()));
+                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(new int[t1.size()]));
             });
+            this.descriptionTypePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
 
         return this.descriptionTypePreferenceListProperty;
@@ -159,6 +160,7 @@ public final class ObservableLanguageCoordinateImpl
 
             addListenerReference(this.languageCoordinate.setDialectAssemblagePreferenceListProperty(
                     this.dialectAssemblagePreferenceListProperty));
+            this.dialectAssemblagePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
 
         return this.dialectAssemblagePreferenceListProperty;
@@ -175,6 +177,7 @@ public final class ObservableLanguageCoordinateImpl
             this.nextProrityLanguageCoordinateProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.NEXT_PRIORITY_LANGUAGE_COORDINATE.toExternalString(),
                     nextPriorityLanguageCoordinate);
+            this.nextProrityLanguageCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
 
             addListenerReference(this.languageCoordinate
                     .setNextProrityLanguageCoordinateProperty(nextProrityLanguageCoordinateProperty));
@@ -186,11 +189,6 @@ public final class ObservableLanguageCoordinateImpl
 
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -207,6 +205,7 @@ public final class ObservableLanguageCoordinateImpl
                     getLanguageConceptNid());
             addListenerReference(this.languageCoordinate.setLanguageConceptNidProperty(
                     this.languageConceptSequenceProperty));
+            this.languageConceptSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
         }
         return this.languageConceptSequenceProperty;
     }
@@ -245,19 +244,10 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDescriptionTypePreferenceList() {
         if (this.descriptionTypePreferenceListProperty != null) {
             return this.descriptionTypePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDescriptionTypePreferenceList());
+                    .toArray(new int[] {this.descriptionTypePreferenceListProperty.get().size()});
         }
 
         return this.languageCoordinate.getDescriptionTypePreferenceList();
-    }
-
-    @Override
-    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-        if (this.descriptionTypePreferenceListProperty != null) {
-            this.descriptionTypePreferenceListProperty.get().setAll(descriptionTypePreferenceList);
-        } else {
-            this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-        }
     }
 
     /**
@@ -269,7 +259,7 @@ public final class ObservableLanguageCoordinateImpl
     public int[] getDialectAssemblagePreferenceList() {
         if (this.dialectAssemblagePreferenceListProperty != null) {
             return this.dialectAssemblagePreferenceListProperty.get()
-                    .toArray(this.languageCoordinate.getDialectAssemblagePreferenceList());
+                    .toArray(new int[dialectAssemblagePreferenceListProperty.get().size()]);
         }
 
         return this.languageCoordinate.getDialectAssemblagePreferenceList();
@@ -325,4 +315,11 @@ public final class ObservableLanguageCoordinateImpl
     public LanguageCoordinateImpl unwrap() {
         return languageCoordinate;
     }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 }

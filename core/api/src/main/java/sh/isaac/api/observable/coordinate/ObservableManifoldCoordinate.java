@@ -58,7 +58,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * @author kec
  */
 public interface ObservableManifoldCoordinate
-        extends ManifoldCoordinate {
+        extends ManifoldCoordinate, ObservableCoordinate {
    /**
     * Language coordinate property.
     *
@@ -118,8 +118,5 @@ public interface ObservableManifoldCoordinate
    
    @Override
    public ObservableManifoldCoordinate deepClone();
-   
-
-   
 }
 

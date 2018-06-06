@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+    <!--Set the preferred designation type-->
+	<Types>
+    <Type>
+      <Kind>PropertyType</Kind>
+      <Name>A0_Hello</Name> <!-- new property type name here -->
+    </Type>
+
+    <Type>
+      <Kind>RelationshipType</Kind>
+      <Name>A0_Garshk</Name> <!-- new relationship type name here -->
+    </Type>
+ 
+	</Types>
+
+	<Subsets>
+		<Subset>
+			<Action>add</Action>
+			<Name>A0 Super Subset</Name> <!-- new subset name here -->
+                        <VUID>600015</VUID>
+			<Active>1</Active>
+		</Subset>
+	</Subsets>
+
+    <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+			<Append>true</Append>
+            <Name>Authoring Version</Name>
+
+
+
+
+<CodedConcepts>
+<CodedConcept>
+  <Action>add</Action>
+  <Code>700000</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>700000</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>700001</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>700001</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>COW GOES MOO</ValueNew>
+    <Active>1</Active>
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>600015</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>A0_Hello</TypeName>
+	    <ValueNew>Hi Yourself</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>A0_Garshk</TypeName>
+      <NewTargetCode>4711495</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

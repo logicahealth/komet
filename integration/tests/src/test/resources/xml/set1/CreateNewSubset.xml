@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+	
+  <!-- Create a new subset - this section comes before codesystem -->
+  <Subsets>
+		<Subset>
+			<Action>add</Action>
+			<Name>AAA SQA New Imm Procedures</Name> <!-- new subset name here -->
+			<VUID>-601</VUID>
+      <Active>true</Active>
+     </Subset>
+    <Subset>
+      <Action>add</Action>
+      <Name>AAA SQA Laboratory Tests</Name>
+      <VUID>-602</VUID>
+      <Active>true</Active>
+    </Subset>
+	</Subsets>
+    
+  <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+	  		   <Append>true</Append>
+           <Name>Authoring Version</Name>
+        </Version>
+    </CodeSystem>
+</Terminology>

@@ -87,8 +87,7 @@ public abstract class TypedNodeWithUuids
    public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
       super(internalForm);
       this.typeConceptUuid = Get.identifierService()
-                                .getUuidPrimordialForNid(internalForm.getTypeConceptNid())
-                                .get();
+                                .getUuidPrimordialForNid(internalForm.getTypeConceptNid());
    }
 
    /**
@@ -101,6 +100,7 @@ public abstract class TypedNodeWithUuids
                              ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.typeConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      Get.identifierService().assignNid(this.typeConceptUuid);
    }
 
    /**
@@ -179,7 +179,8 @@ public abstract class TypedNodeWithUuids
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString() + " <" +
+              this.typeConceptUuid + ">";
    }
 
    @Override

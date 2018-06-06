@@ -54,7 +54,7 @@ import sh.isaac.api.coordinate.StampPosition;
  * @author kec
  */
 public interface ObservableStampPosition
-        extends StampPosition {
+        extends StampPosition, ObservableCoordinate {
    /**
     * Stamp path sequence property.
     *

@@ -51,19 +51,16 @@ import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
 
-import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -123,7 +120,6 @@ final public class MultiParentTreeCell
 
    @Override
    protected void updateItem(ConceptChronology concept, boolean empty) {
-      boolean addProgressIndicator = false;
       // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
 
       //profiling showed set context menu very slow. Maybe only set on right click...
@@ -141,18 +137,10 @@ final public class MultiParentTreeCell
             conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
-               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
+                    Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
                                                : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
-                  if (addProgressIndicator) {
-                     StackPane progressStack = new StackPane();
 
-                     progressStack.getChildren()
-                                        .add(iv);
-                     addProgressIndicator(treeItem, progressStack);
-                     setDisclosureNode(progressStack);
-                  } else {
-                     setDisclosureNode(iv);
-                  }
+                    setDisclosureNode(iv);
                }
 
                ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().getManifold().getConceptSnapshotService();
@@ -165,16 +153,7 @@ final public class MultiParentTreeCell
                }
 
                setText(conceptDescriptionText);
-
-               if (getGraphic() == null) {
-                  graphicTilePane = new TilePane();
-
-                  // Set to the number of icons for display. Will need to make dynamic if more than one is possible.
-                  graphicTilePane.setPrefColumns(1);
-                  graphicTilePane.getChildren()
-                                 .addAll(treeItem.computeGraphic());
-                  setGraphic(graphicTilePane);
-               }
+               setGraphic(treeItem.computeGraphic());
             }
          }
       } catch (Exception e) {
@@ -182,27 +161,6 @@ final public class MultiParentTreeCell
          setText("Internal error!");
          setGraphic(null);
       }
-   }
-
-   private void addProgressIndicator(final MultiParentTreeItemImpl treeItem, StackPane progressStack) {
-      ProgressIndicator pi = new ProgressIndicator();
-
-      pi.setPrefSize(16, 16);
-      pi.setMaxSize(16, 16);
-      pi.progressProperty()
-        .bind(treeItem.getChildLoadPercentComplete());
-      pi.visibleProperty()
-        .bind(
-            treeItem.getChildLoadPercentComplete()
-                    .lessThan(1.0)
-                    .and(treeItem.getChildLoadPercentComplete()
-                                 .greaterThanOrEqualTo(-1.0)));
-      pi.setMouseTransparent(true);
-      progressStack.getChildren()
-                         .add(pi);
-      StackPane.setAlignment(pi, Pos.CENTER);
-
-      // StackPane.setMargin(pi, new Insets(0, 10, 0, 0));
    }
 
    private ContextMenu buildContextMenu(ConceptChronology concept) {

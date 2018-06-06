@@ -1,5 +1,6 @@
 package sh.komet.gui.control;
 
+import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;

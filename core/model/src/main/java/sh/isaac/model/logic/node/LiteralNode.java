@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -137,5 +136,11 @@ public abstract class LiteralNode
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+
+    @Override
+    public final void removeChild(short childId) {
+        // nothing to do...
+    }
+   
 }
 

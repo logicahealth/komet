@@ -65,6 +65,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -203,7 +204,6 @@ public class LanguageCoordinateImpl
       return this.descriptionTypePreferenceList;
    }
 
-   @Override
    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
    }
@@ -235,7 +235,7 @@ public class LanguageCoordinateImpl
                                                                     boolean sizeChanged,
                                                                     int from,
                                                                     int to) -> {
-               this.dialectAssemblagePreferenceList = observableArray.toArray(this.dialectAssemblagePreferenceList);
+               this.dialectAssemblagePreferenceList = observableArray.toArray(new int[observableArray.size()]);
             };
 
       dialectAssemblagePreferenceListProperty.getValue()
@@ -327,6 +327,24 @@ public class LanguageCoordinateImpl
    }
 
    @Override
+   public LatestVersion<DescriptionVersion> getDefinitionDescription(
+           List<SemanticChronology> descriptionList,
+           StampCoordinate stampCoordinate) {
+
+       LatestVersion<DescriptionVersion> definition = Get.languageCoordinateService()
+                .getSpecifiedDescription(stampCoordinate,
+                                         descriptionList,
+                                         TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
+                                         this);
+       
+        if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            return definition;
+        }
+        
+       return new LatestVersion();
+   }
+
+   @Override
    public LanguageCoordinate deepClone() {
       LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
                                  dialectAssemblagePreferenceList.clone(),
@@ -342,7 +360,6 @@ public class LanguageCoordinateImpl
         return Optional.ofNullable(this.nextProrityLanguageCoordinate);
     }
 
-    @Override
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }

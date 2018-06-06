@@ -58,6 +58,8 @@ public class AssemblageDetailController {
    private URL location;
    @FXML  // fx:id="assemblageExtensionTreeTable"
    private TreeTableView<ObservableCategorizedVersion> assemblageExtensionTreeTable;
+   @FXML
+   private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> rowExpanderColumn;
    @FXML  // fx:id="assemblageWhatColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> assemblageWhatColumn;
    @FXML  // fx:id="assemblageGeneralColumn"
@@ -104,13 +106,15 @@ public class AssemblageDetailController {
               "fx:id=\"assemblageExtensionModule\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       assert assemblagePathColumn != null :
               "fx:id=\"assemblageExtensionPath\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
+      assert rowExpanderColumn != null : "fx:id=\"rowExpanderColumn\" was not injected: check your FXML file 'AssemblageDetail.fxml'.";
+
       assemblageAuthorTimeColumn.setText("author\ntime");
       assemblageModulePathColumn.setText("module\npath");
       assemblageExtensionTreeTable.setTableMenuButtonVisible(true);
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-           ObservableList<ObservableSemanticChronology> children, boolean addSememes) {
+           ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
@@ -138,8 +142,8 @@ public class AssemblageDetailController {
                parentToAddTo.getChildren()
                        .add(historicTreeItem);
             }
-            if (addSememes) {
-               addChildren(childTreeItem, child.getObservableSemanticList(), addSememes);
+            if (addSemantics) {
+               addChildren(childTreeItem, child.getObservableSemanticList(), addSemantics);
             }
          }
       }

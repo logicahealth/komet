@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -69,7 +70,7 @@ import sh.isaac.api.externalizable.IsaacObjectType;
  */
 @Contract
 public interface AssemblageService
-        extends DatabaseServices {
+        extends DatastoreServices {
 
    /**
     * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will
@@ -166,10 +167,20 @@ public interface AssemblageService
     * Gets the SemanticChronology nids for component from assemblage.
     *
     * @param componentNid the component nid
+    * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the SemanticChronology nids for component from assemblage
+    */
+   NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
+   
+   /**
+    * Gets the SemanticChronology nids for component from assemblage.
+    *
+    * @param componentNid the component nid
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids for component from assemblage
     */
    NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
+
 
    /**
     * Gets the SemanticChronology nids from assemblage.
@@ -188,6 +199,17 @@ public interface AssemblageService
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
+   /**
+    * Gets the SemanticChronology for component from assemblage.
+    *
+    * @param <C>
+    * @param componentNid the component nid
+    * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the SemanticChronologies for component from assemblage
+    */
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
+         Set<Integer> assemblageConceptNids);
+   
    /**
     * Gets the SemanticChronology for component from assemblage.
     *
@@ -249,6 +271,14 @@ public interface AssemblageService
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
+
+   /**
+    * Use in circumstances when not all semantics may have been loaded to find out if a semantic is present,
+    * without incurring the overhead of reading back the object. 
+    * @param semanticId nid or semantic instance
+    * @return true if present, false otherwise
+    */
+   boolean hasSemantic(int semanticId);
 
    /**
     * 

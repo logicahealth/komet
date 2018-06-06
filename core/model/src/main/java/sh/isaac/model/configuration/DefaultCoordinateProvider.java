@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.collections.ObservableIntegerArray;
-
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -124,8 +124,6 @@ public class DefaultCoordinateProvider {
       }
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the default classifier.
     *
@@ -182,8 +180,6 @@ public class DefaultCoordinateProvider {
       dialectAssemblageIntegerArray.addAll(dialectAssemblagePreferenceList);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default edit coordinate.
     *
@@ -193,8 +189,6 @@ public class DefaultCoordinateProvider {
       setupDefaults();
       return this.observableEditCoordinate;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Sets the default inferred assemblage.
@@ -218,8 +212,6 @@ public class DefaultCoordinateProvider {
                                        .set(conceptId);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default language coordinate.
     *
@@ -239,8 +231,6 @@ public class DefaultCoordinateProvider {
       setupDefaults();
       return this.observableLogicCoordinate;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Sets the default module.
@@ -266,8 +256,6 @@ public class DefaultCoordinateProvider {
                                    .set(conceptId);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default stamp coordinate.
     *
@@ -277,8 +265,6 @@ public class DefaultCoordinateProvider {
       setupDefaults();
       return this.observableStampCoordinate;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Sets the default stated assemblage.
@@ -291,8 +277,6 @@ public class DefaultCoordinateProvider {
                                     .set(conceptId);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default taxonomy coordinate.
     *
@@ -303,8 +287,6 @@ public class DefaultCoordinateProvider {
       return this.observableManifoldCoordinate;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the default time.
     *
@@ -314,6 +296,16 @@ public class DefaultCoordinateProvider {
       setupDefaults();
       this.observableStampPosition.timeProperty()
                                   .set(timeInMs);
+   }
+   
+   /**
+    * Sets the default premise type.
+    *
+    * @param premiseType the new default premise type
+    */
+   public void setDefaultPremiseType(PremiseType premiseType) {
+      setupDefaults();
+      this.observableManifoldCoordinate.taxonomyPremiseTypeProperty().set(premiseType);
    }
 
    /**

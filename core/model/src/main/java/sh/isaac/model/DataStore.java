@@ -45,13 +45,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jvnet.hk2.annotations.Contract;
+
+import sh.isaac.api.DatastoreServices;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
@@ -66,7 +69,7 @@ import sh.isaac.model.collections.SpinedNidNidSetMap;
  */
 @Contract
 public interface DataStore
-        extends DatabaseServices {
+        extends DatastoreServices {
    void putChronologyData(ChronologyImpl chronology);
 
    //~--- get methods ---------------------------------------------------------
@@ -94,5 +97,29 @@ public interface DataStore
    int getAssemblageMemoryInUse(int assemblageNid);
 
    int getAssemblageSizeOnDisk(int assemblageNid);
+   
+   /**
+    * return true if the store has data for this nid, of the expected type, false otherwise.  
+    * This operation will be quicker than {@link #getChronologyData(int)} if you are just testing for existence, 
+    * as it saves some data copying time.  If you need the data, however, you should use the get with the optional return.
+    * @param nid
+    * @param ofType The expected type of the nid 
+    * @return true if it has data of the matching type
+    */
+   boolean hasChronologyData(int nid, IsaacObjectType ofType);
+   
+   /**
+    * Allow the addition of a dataWriteListener, that will get a copy of all data written via the 
+    * {@link #putChronologyData(ChronologyImpl)} method.  The listener will be notified of the write after the 
+    * {@link DataStore} implementations finishes writing the data.
+    * @param dataWriteListener the listener to notify
+    */
+   void registerDataWriteListener(DataWriteListener dataWriteListener);
+   
+   /**
+    * Remove a listener previously registered via {@link #registerDataWriteListener(DataWriteListener)}
+    * @param dataWriteListener the listener to stop sending write events to
+    */
+   void unregisterDataWriteListener(DataWriteListener dataWriteListener);
 }
 

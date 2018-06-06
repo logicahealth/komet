@@ -47,6 +47,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -55,7 +56,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
  *
  * @author Daniel Armbrust
  *
- * Associations get loaded using the new add-on association API (internally represented as sememes)
+ * Associations get loaded using the new add-on association API (internally represented as semantics)
  *
  * These get ignored by the classifier, for example.
  */
@@ -68,9 +69,19 @@ public class BPT_Associations
 
    /**
     * Instantiates a new BP T associations.
+    * @param terminologyName 
+    * @param converterUUID optional
     */
-   public BPT_Associations() {
-      super("Association Types", false, null);
+   public BPT_Associations(String terminologyName, ConverterUUID converterUUID) {
+      super(terminologyName + " Association Types", false, null, converterUUID);
+   }
+   
+   /**
+    * Instantiates a new BP T associations.
+    * @param terminologyName 
+    */
+   public BPT_Associations(String terminologyName) {
+      this(terminologyName, null);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -103,18 +114,6 @@ public class BPT_Associations
    // Override all of these as unsupported, as, we require only PropertyAssociation object here.
    @Override
    public Property addProperty(String propertyNameFQN) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
-    * Adds the property.
-    *
-    * @param propertyNameFQN the property name FQN
-    * @param propertySubType the property sub type
-    * @return the property
-    */
-   @Override
-   public Property addProperty(String propertyNameFQN, int propertySubType) {
       throw new UnsupportedOperationException();
    }
 

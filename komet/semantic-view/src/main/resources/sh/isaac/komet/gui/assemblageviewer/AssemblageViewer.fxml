@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="rootPane" fx:id="rootPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.gui.assemblageviewer.AssemblageViewerController">
+	<children>
+		<SplitPane dividerPositions="0.4" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<items>
+				<BorderPane prefHeight="200.0" prefWidth="200.0">
+					<center>
+						<StackPane maxWidth="1.7976931348623157E308">
+							<children>
+								<ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefViewportHeight="339.0" prefViewportWidth="395.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+									<content>
+										<ListView fx:id="semanticList" />
+									</content>
+								</ScrollPane>
+								<ProgressIndicator fx:id="readingSemanticProgress" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="100.0" prefWidth="100.0" visible="false" />
+							</children>
+						</StackPane>
+					</center>
+					<top>
+						<VBox>
+							<children>
+								<Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Dynamic Semantic Definitions" BorderPane.alignment="CENTER">
+									<font>
+										<Font name="System Bold" size="18.0" />
+									</font>
+									<VBox.margin>
+										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+									</VBox.margin>
+								</Label>
+								<Accordion>
+									<panes>
+										<TitledPane animated="false" text="Filter Options">
+											<content>
+												<GridPane hgap="5.0" vgap="5.0">
+													<columnConstraints>
+														<ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="50.0" />
+														<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+													</columnConstraints>
+													<rowConstraints>
+														<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+														<RowConstraints minHeight="10.0" prefHeight="30.0" />
+													</rowConstraints>
+													<children>
+														<TextField fx:id="descriptionMatchesFilter" promptText=" - Show All -" GridPane.columnIndex="1" />
+														<Label text="Description" />
+														<Label text="Concept" GridPane.rowIndex="1" />
+														<VBox fx:id="conceptNodeFilterPlaceholder" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+													</children>
+												</GridPane>
+											</content>
+										</TitledPane>
+									</panes>
+								</Accordion>
+							</children>
+						</VBox>
+					</top>
+					<bottom>
+						<ToolBar prefWidth="200.0" BorderPane.alignment="CENTER">
+							<items>
+								<Label fx:id="statusLabel" text="Showing X of Y Semantics" />
+								<Region maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+								<Button fx:id="clearFilterButton" mnemonicParsing="false" text="Clear Filter" />
+							</items>
+						</ToolBar>
+					</bottom>
+				</BorderPane>
+				<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
+					<bottom>
+						<ToolBar fx:id="executeOperationsToolbar" prefWidth="200.0" BorderPane.alignment="CENTER">
+							<items>
+								<Region prefHeight="1.0" prefWidth="1.0" HBox.hgrow="ALWAYS" />
+								<Button fx:id="viewUsage" mnemonicParsing="false" text="View Usage" />
+							</items>
+						</ToolBar>
+					</bottom>
+					<center>
+						<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+							<children>
+								<Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Selected Semantic Details" BorderPane.alignment="CENTER">
+									<font>
+										<Font name="System Bold" size="18.0" />
+									</font>
+									<BorderPane.margin>
+										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+									</BorderPane.margin>
+									<VBox.margin>
+										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+									</VBox.margin>
+								</Label>
+								<GridPane hgap="5.0" vgap="5.0">
+									<columnConstraints>
+										<ColumnConstraints fillWidth="false" hgrow="NEVER" />
+										<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+									</columnConstraints>
+									<rowConstraints>
+										<RowConstraints fillHeight="false" vgrow="NEVER" />
+										<RowConstraints fillHeight="false" vgrow="SOMETIMES" />
+										<RowConstraints fillHeight="false" vgrow="NEVER" />
+										<RowConstraints fillHeight="false" vgrow="NEVER" />
+										<RowConstraints fillHeight="false" vgrow="NEVER" />
+										<RowConstraints fillHeight="false" vgrow="NEVER" />
+										<RowConstraints />
+									</rowConstraints>
+									<children>
+										<Label text="Name" GridPane.rowIndex="1">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+											<padding>
+												<Insets right="15.0" />
+											</padding>
+										</Label>
+										<Label text="Description" GridPane.rowIndex="2">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+											<padding>
+												<Insets right="15.0" />
+											</padding>
+										</Label>
+										<Label fx:id="selectedSemanticNameLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+										<Label fx:id="selectedSemanticDescriptionLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+										<Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Extension Fields" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" StackPane.alignment="CENTER_LEFT">
+											<StackPane.margin>
+												<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+											</StackPane.margin>
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+										</Label>
+										<Separator maxWidth="1.7976931348623157E308" prefWidth="5000.0" GridPane.columnSpan="2" />
+										<Label text="Component Type Restriction" GridPane.rowIndex="4">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+											<padding>
+												<Insets right="15.0" />
+											</padding>
+										</Label>
+										<Label fx:id="referencedComponentTypeLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+										<Label text="Component Type Sub Restriction" GridPane.rowIndex="5">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+											<padding>
+												<Insets right="15.0" />
+											</padding>
+										</Label>
+										<Label fx:id="referencedComponentSubTypeLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+									</children>
+									<VBox.margin>
+										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+									</VBox.margin>
+								</GridPane>
+								<StackPane maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+									<children>
+										<ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefViewportHeight="400.0" prefViewportWidth="395.0" VBox.vgrow="ALWAYS">
+											<content>
+												<ListView fx:id="extensionFields" VBox.vgrow="ALWAYS" />
+											</content>
+										</ScrollPane>
+										<ProgressIndicator fx:id="selectedSemanticProgressIndicator" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="100.0" prefWidth="100.0" visible="false" />
+									</children>
+								</StackPane>
+							</children>
+						</VBox>
+					</center>
+				</BorderPane>
+			</items>
+		</SplitPane>
+	</children>
+</AnchorPane>

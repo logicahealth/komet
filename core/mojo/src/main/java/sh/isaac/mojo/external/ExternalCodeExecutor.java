@@ -57,7 +57,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.LookupService;
-import sh.isaac.api.util.FortifyFun;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -171,7 +170,7 @@ public class ExternalCodeExecutor
                                                    " : " + value);
                }
 
-               FortifyFun.fixAccessible(myField);  // myField.setAccessible(true);
+               myField.setAccessible(true);
 
                if (myField.getType()
                           .equals(String.class)) {

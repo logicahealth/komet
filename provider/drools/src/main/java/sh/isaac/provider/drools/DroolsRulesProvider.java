@@ -24,13 +24,18 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.action.Action;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
 import sh.isaac.api.BusinessRulesService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.control.PropertySheetMenuItem;
@@ -41,7 +46,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L2)
 public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKometService {
 
    /**
@@ -69,10 +74,26 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    @PreDestroy
    protected void stopMe() {
       LOG.info("Stopping Drools Rules Provider.");
+      this.kieServices = null;
+      this.kContainer = null;
+      this.kSession = null;
    }
 
+    @Override
+    public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
+            LogicNode nodeToEdit, 
+            LogicalExpression expressionContiningNode,
+            Consumer<LogicalExpression> expressionUpdater) {
+        AddEditLogicalExpressionNodeMenuItems executionItem 
+                = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit, 
+                        expressionContiningNode, expressionUpdater);
+      this.kSession.execute(executionItem);
+      executionItem.sortActionItems();
+      return executionItem.getActionItems();        
+    }
+
    @Override
-   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+   public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
             Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
@@ -80,17 +101,25 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    }
 
    @Override
-   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+   public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
       this.kSession.execute(executionItem);
-      return executionItem.menuItems;
+      executionItem.sortMenuItems();
+      return executionItem.getMenuItems();
    }
 
    @Override
    public void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem) {
       this.kSession.execute(propertySheetMenuItem);
    }
+   
+
+    @Override
+    public void populateWrappedProperties(List<PropertySheet.Item> items) {
+        this.kSession.execute(items);
+    }
+   
 
    /*
 A fluent API was created to allow programatic creation of rules as an alternative to the previously suggested method of template creation.

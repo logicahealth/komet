@@ -45,8 +45,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -58,7 +58,6 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
@@ -71,17 +70,19 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import sh.komet.gui.util.FxGet;
+import sh.komet.gui.contract.GuiSearcher;
 
 /**
  * @author kec
  */
-public class SimpleSearchController implements ExplorationNode {
+public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     private static final Logger              LOG               = LogManager.getLogger();
     private final SimpleStringProperty       titleProperty     =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
     private final SimpleStringProperty       titleNodeProperty =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
+    private final SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
     private final SimpleObjectProperty<Node> iconProperty      =
         new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
@@ -101,13 +102,25 @@ public class SimpleSearchController implements ExplorationNode {
     private ProgressBar                                       searchProgressBar;
     @FXML
     private FlowPane searchTagFlowPane;
+    @FXML
+    private Label searchTextFieldLabel;
 
+
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.SIMPLE_SEARCH.getIconographic();
+   }
+
+    @Override
+    public void executeSearch(String searchString) {
+        setSearchText(searchString);
+        executeSearch();
+    }
 
 
     @FXML
     public void executeSearch() {
         this.resultTable.getItems().clear();
-
         switch (this.searchService.getState()){
             case READY:
                 this.searchService.start();
@@ -122,6 +135,13 @@ public class SimpleSearchController implements ExplorationNode {
             case SUCCEEDED:
                 this.searchService.restart();
                 break;
+         case CANCELLED:
+            break;
+         case FAILED:
+            break;
+         default:
+            LOG.error("These cases were forgotten.... {}", this.searchService.getState());
+            break;
         }
     }
 
@@ -137,6 +157,8 @@ public class SimpleSearchController implements ExplorationNode {
                 "fx:id=\"resultColumn\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
         assert searchTagFlowPane != null :
                 "fx:id=\"searchTagFlowPane\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
+        assert searchTextFieldLabel != null :
+                "fx:id=\"searchTextFieldLabel\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
         this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         this.resultTable.setOnDragDone(new DragDoneEventHandler());
@@ -152,12 +174,28 @@ public class SimpleSearchController implements ExplorationNode {
                         Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
             }
         });
+
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            searchTextField.setText("+tetra* +fallot");
+        }
+        FxGet.searchers().add(this);
     }
 
     private void initializeControls() {
+        initializeSearchTextField();
         initializeProgressBar();
         initializeSearchService();
         initializeSearchTagFlowPlane();
+    }
+
+    private void initializeSearchTextField(){
+        this.searchTextFieldLabel.setOnMouseEntered(mouseEnteredEvent
+                -> this.searchTextFieldLabel.setCursor(Cursor.HAND));
+        this.searchTextFieldLabel.setOnMouseClicked(mouseClickedEvent -> executeSearch());
+        //Tool Tip for text field
+        Tooltip searchTextFieldToolTip = new Tooltip();
+        searchTextFieldToolTip.setText("Enter Keyword(s) to use for Simple Search.");
+        this.searchTextField.setTooltip(searchTextFieldToolTip);
     }
 
     private void initializeSearchTagFlowPlane(){
@@ -167,22 +205,15 @@ public class SimpleSearchController implements ExplorationNode {
         allLabel.setText("All");
         allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
         + "-fx-font-weight:bold;");
-        allLabel.setUserData(new ConceptSpecification() {
-            @Override
-            public String getFullySpecifiedConceptDescriptionText() {
-                return "ALL";
-            }
 
-            @Override
-            public Optional<String> getPreferedConceptDescriptionText() {
-                return Optional.of("ALL");
-            }
+        //Tool Tip for All Filter
+        Tooltip allFilterToolTip = new Tooltip();
+        allFilterToolTip.setText("Allow all Simple Search results.");
+        allLabel.setTooltip(allFilterToolTip);
+        //Tool Tip for Drag and Drop Filters
+        Tooltip dragAndDropToolTip = new Tooltip();
+        dragAndDropToolTip.setText("Additional restriction on Simple Search results.");
 
-            @Override
-            public List<UUID> getUuidList() {
-                return null;
-            }
-        });
         this.searchTagFlowPane.getChildren().add(allLabel);
 
         this.searchTagFlowPane.setOnDragOver(event -> {
@@ -194,7 +225,7 @@ public class SimpleSearchController implements ExplorationNode {
 
             ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
             labelFromDrop.setGraphic(Iconography.SEARCH_MINUS.getIconographic());
-            labelFromDrop.setText(droppedChronology.getFullySpecifiedConceptDescriptionText());
+            labelFromDrop.setText(droppedChronology.getFullyQualifiedName());
             labelFromDrop.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
                     + "-fx-font-weight:bold;");
             labelFromDrop.setUserData(droppedChronology);
@@ -206,13 +237,15 @@ public class SimpleSearchController implements ExplorationNode {
                         .remove((Object)((ConceptChronology)labelFromDrop.getUserData()).getNid());
             });
 
+            labelFromDrop.setTooltip(dragAndDropToolTip);
+            labelFromDrop.setOnMouseEntered(mouseEnteredEvent
+                    -> labelFromDrop.setCursor(Cursor.HAND));
+
             this.searchTagFlowPane.getChildren().add(labelFromDrop);
             this.draggedTaxonomyConceptsForFilteringListProperty.get().add(droppedChronology.getNid());
+
         });
-
     }
-
-
 
     private void initializeProgressBar(){
         this.searchService.progressProperty().addListener((observable, oldValue, newValue) -> {
@@ -261,7 +294,11 @@ public class SimpleSearchController implements ExplorationNode {
     }
 
 
-
+    public void setSearchText(String searchText) {
+        searchTextField.setText(searchText);
+    }
+    
+    
     @Override
     public Manifold getManifold() {
         return manifold;

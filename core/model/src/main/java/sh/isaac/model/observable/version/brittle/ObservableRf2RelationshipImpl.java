@@ -41,19 +41,28 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -63,7 +72,7 @@ import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
  * @author kec
  */
 public class ObservableRf2RelationshipImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements ObservableRf2Relationship {
    IntegerProperty typeNidProperty;
    IntegerProperty destinationNidProperty;
@@ -77,10 +86,35 @@ public class ObservableRf2RelationshipImpl
       super(stampedVersion, chronology);
    }
 
+   public ObservableRf2RelationshipImpl(ObservableRf2RelationshipImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setTypeNid(versionToClone.getTypeNid());
+      setDestinationNid(versionToClone.getDestinationNid());
+      setRelationshipGroup(versionToClone.getRelationshipGroup());
+      setCharacteristicNid(versionToClone.getCharacteristicNid());
+      setModifierNid(versionToClone.getModifierNid());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableRf2RelationshipImpl analog = new ObservableRf2RelationshipImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty characteristicNidProperty() {
+      if (this.stampedVersionProperty == null  && this.characteristicNidProperty == null) {
+         this.characteristicNidProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.CHARACTERISTIC_NID_FOR_RF2_REL.toExternalString(),
+             0);
+      }
       if (this.characteristicNidProperty == null) {
          this.characteristicNidProperty = new CommitAwareIntegerProperty(
              this,
@@ -97,6 +131,12 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    public IntegerProperty destinationNidProperty() {
+      if (this.stampedVersionProperty == null  && this.destinationNidProperty == null) {
+         this.destinationNidProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.DESTINATION_NID_FOR_RF2_REL.toExternalString(),
+             0);
+      }
       if (this.destinationNidProperty == null) {
          this.destinationNidProperty = new CommitAwareIntegerProperty(
              this,
@@ -113,6 +153,12 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    public IntegerProperty modifierNidProperty() {
+      if (this.stampedVersionProperty == null  && this.modifierNidProperty == null) {
+         this.modifierNidProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.MODIFIER_NID_FOR_RF2_REL.toExternalString(),
+             0);
+      }
       if (this.modifierNidProperty == null) {
          this.modifierNidProperty = new CommitAwareIntegerProperty(
              this,
@@ -129,6 +175,12 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    public IntegerProperty relationshipGroupProperty() {
+      if (this.stampedVersionProperty == null  && this.relationshipGroupProperty == null) {
+         this.relationshipGroupProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.REL_GROUP_FOR_RF2_REL.toExternalString(),
+             0);
+      }
       if (this.relationshipGroupProperty == null) {
          this.relationshipGroupProperty = new CommitAwareIntegerProperty(
              this,
@@ -145,6 +197,12 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    public IntegerProperty typeNidProperty() {
+      if (this.stampedVersionProperty == null  && this.typeNidProperty == null) {
+         this.typeNidProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.TYPE_NID_FOR_RF2_REL.toExternalString(),
+             0);
+      }
       if (this.typeNidProperty == null) {
          this.typeNidProperty = new CommitAwareIntegerProperty(
              this,
@@ -161,7 +219,6 @@ public class ObservableRf2RelationshipImpl
 
    @Override
    protected void updateVersion() {
-      super.updateVersion();
 
       if ((this.typeNidProperty != null) && (this.typeNidProperty.get() != getRf2RelationshipImpl().getTypeNid())) {
          this.typeNidProperty.set(getRf2RelationshipImpl().getTypeNid());
@@ -202,12 +259,17 @@ public class ObservableRf2RelationshipImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setCharacteristicNid(int nid) {
+   public final void setCharacteristicNid(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.characteristicNidProperty();
+       }
       if (this.characteristicNidProperty != null) {
          this.characteristicNidProperty.set(nid);
       }
 
-      getRf2RelationshipImpl().setCharacteristicNid(nid);
+      if (this.stampedVersionProperty != null) {
+        getRf2RelationshipImpl().setCharacteristicNid(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -224,12 +286,17 @@ public class ObservableRf2RelationshipImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setDestinationNid(int nid) {
+   public final void setDestinationNid(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.destinationNidProperty();
+       }
       if (this.destinationNidProperty != null) {
          this.destinationNidProperty.set(nid);
       }
 
-      getRf2RelationshipImpl().setDestinationNid(nid);
+      if (this.stampedVersionProperty != null) {
+        getRf2RelationshipImpl().setDestinationNid(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -246,12 +313,17 @@ public class ObservableRf2RelationshipImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setModifierNid(int nid) {
+   public final void setModifierNid(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.modifierNidProperty();
+       }
       if (this.modifierNidProperty != null) {
          this.modifierNidProperty.set(nid);
       }
 
-      getRf2RelationshipImpl().setModifierNid(nid);
+      if (this.stampedVersionProperty != null) {
+        getRf2RelationshipImpl().setModifierNid(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -268,6 +340,17 @@ public class ObservableRf2RelationshipImpl
       return properties;
    }
 
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(typeNidProperty());
+      properties.add(destinationNidProperty());
+      properties.add(relationshipGroupProperty());
+      properties.add(characteristicNidProperty());
+      properties.add(modifierNidProperty());
+      return properties;
+    }
+
    @Override
    public int getRelationshipGroup() {
       if (this.relationshipGroupProperty != null) {
@@ -280,12 +363,17 @@ public class ObservableRf2RelationshipImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setRelationshipGroup(int group) {
+   public final void setRelationshipGroup(int group) {
+       if (this.stampedVersionProperty == null) {
+           this.relationshipGroupProperty();
+       }
       if (this.relationshipGroupProperty != null) {
          this.relationshipGroupProperty.set(group);
       }
 
-      getRf2RelationshipImpl().setRelationshipGroup(group);
+      if (this.stampedVersionProperty != null) {
+        getRf2RelationshipImpl().setRelationshipGroup(group);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -306,12 +394,56 @@ public class ObservableRf2RelationshipImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setTypeNid(int nid) {
+   public final void setTypeNid(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.typeNidProperty();
+       }
       if (this.typeNidProperty != null) {
          this.typeNidProperty.set(nid);
       }
 
-      getRf2RelationshipImpl().setTypeNid(nid);
+      if (this.stampedVersionProperty != null) {
+        getRf2RelationshipImpl().setTypeNid(nid);
+      }
    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof ObservableRf2RelationshipImpl) {
+            ObservableRf2RelationshipImpl observableAnalog = (ObservableRf2RelationshipImpl) analog;
+            observableAnalog.setCharacteristicNid(this.getCharacteristicNid());
+            observableAnalog.setDestinationNid(this.getDestinationNid());
+            observableAnalog.setModifierNid(this.getModifierNid());
+            observableAnalog.setRelationshipGroup(this.getRelationshipGroup());
+            observableAnalog.setTypeNid(this.getTypeNid());
+        } else if (analog instanceof Rf2RelationshipImpl) {
+            Rf2RelationshipImpl simpleAnalog = (Rf2RelationshipImpl) analog;
+            simpleAnalog.setCharacteristicNid(this.getCharacteristicNid());
+            simpleAnalog.setDestinationNid(this.getDestinationNid());
+            simpleAnalog.setModifierNid(this.getModifierNid());
+            simpleAnalog.setRelationshipGroup(this.getRelationshipGroup());
+            simpleAnalog.setTypeNid(this.getTypeNid());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        Rf2RelationshipImpl newVersion = new Rf2RelationshipImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      ObservableRf2RelationshipImpl newObservableVersion = 
+              new ObservableRf2RelationshipImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+    }
 }
 

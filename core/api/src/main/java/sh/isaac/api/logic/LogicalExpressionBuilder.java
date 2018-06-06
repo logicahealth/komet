@@ -61,18 +61,18 @@ import sh.isaac.api.logic.assertions.connectors.Connector;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
 import sh.isaac.api.logic.assertions.connectors.Or;
 import sh.isaac.api.logic.assertions.literal.BooleanLiteral;
-import sh.isaac.api.logic.assertions.literal.FloatLiteral;
 import sh.isaac.api.logic.assertions.literal.InstantLiteral;
 import sh.isaac.api.logic.assertions.literal.IntegerLiteral;
 import sh.isaac.api.logic.assertions.literal.LiteralAssertion;
 import sh.isaac.api.logic.assertions.literal.StringLiteral;
 import sh.isaac.api.logic.assertions.substitution.BooleanSubstitution;
 import sh.isaac.api.logic.assertions.substitution.ConceptSubstitution;
-import sh.isaac.api.logic.assertions.substitution.FloatSubstitution;
 import sh.isaac.api.logic.assertions.substitution.InstantSubstitution;
 import sh.isaac.api.logic.assertions.substitution.IntegerSubstitution;
 import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
+import sh.isaac.api.logic.assertions.literal.DoubleLiteral;
+import sh.isaac.api.logic.assertions.substitution.DoubleSubstitution;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -249,8 +249,8 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the float literal
     */
-   static FloatLiteral FloatLiteral(float literal, LogicalExpressionBuilder builder) {
-      return builder.floatLiteral(literal);
+   static DoubleLiteral FloatLiteral(float literal, LogicalExpressionBuilder builder) {
+      return builder.doubleLiteral(literal);
    }
 
    /**
@@ -260,9 +260,9 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the float substitution
     */
-   static FloatSubstitution FloatSubstitution(SubstitutionFieldSpecification fieldSpecification,
+   static DoubleSubstitution FloatSubstitution(SubstitutionFieldSpecification fieldSpecification,
          LogicalExpressionBuilder builder) {
-      return builder.floatSubstitution(fieldSpecification);
+      return builder.doubleSubstitution(fieldSpecification);
    }
 
    /**
@@ -568,10 +568,10 @@ public interface LogicalExpressionBuilder {
    /**
     * Float literal.
     *
-    * @param floatLiteral the float literal
+    * @param doubleLiteral the float literal
     * @return the float literal
     */
-   FloatLiteral floatLiteral(float floatLiteral);
+   DoubleLiteral doubleLiteral(double doubleLiteral);
 
    /**
     * Float substitution.
@@ -579,7 +579,7 @@ public interface LogicalExpressionBuilder {
     * @param fieldSpecification the field specification
     * @return the float substitution
     */
-   FloatSubstitution floatSubstitution(SubstitutionFieldSpecification fieldSpecification);
+   DoubleSubstitution doubleSubstitution(SubstitutionFieldSpecification fieldSpecification);
 
    /**
     * Instant literal.

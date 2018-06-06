@@ -114,5 +114,26 @@ public class ComponentSearchResult
    public void setScore(float score) {
       this.score = score;
    }
+
+   @Override
+   public int hashCode() {
+      return Integer.hashCode(getNid());
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj != null && obj instanceof ComponentSearchResult) {
+         return new Integer(getNid()).equals(((ComponentSearchResult)obj).getNid());
+      }
+      return false;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public String toString() {
+      return "Nid: " + getNid() + " Score: " + getScore();
+   }
 }
 

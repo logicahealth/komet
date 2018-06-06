@@ -43,17 +43,18 @@ package sh.isaac.model.tree;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.list.IntArrayList;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -62,6 +63,7 @@ import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -253,7 +255,7 @@ public class HashTreeWithIntArraySets
       while (!bfsQueue.isEmpty()) {
          final int   currentNid      = bfsQueue.remove();
          final int   currentDistance = nodeVisitData.getDistance(currentNid);
-         final int[] childNids       = getChildNids(currentNid);
+         final int[] childNids       = getChildNoFilter(currentNid);
 
          if (childNids.length == 0) {
             nodeVisitData.setLeafNode(currentNid);
@@ -389,7 +391,7 @@ public class HashTreeWithIntArraySets
       // Change to NodeStatus.PROCESSING
       nodeVisitData.startNodeVisit(nid, depth);
 
-      final int[] childNids = getChildNids(nid);
+      final int[] childNids = getChildNoFilter(nid);
 
       if (childNids.length == 0) {
          nodeVisitData.setLeafNode(nid);
@@ -406,7 +408,10 @@ public class HashTreeWithIntArraySets
             OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             // add previous predecessor to node.
-            userNodeSet.add(nodeVisitData.getPredecessorNid(nid));
+            OptionalInt previousPred = nodeVisitData.getPredecessorNid(nid); 
+            if (previousPred.isPresent()) {
+                userNodeSet.add(previousPred.getAsInt());
+            }
 
             // add to extra parent set of the child...
             boolean addParent = true;
@@ -449,7 +454,7 @@ public class HashTreeWithIntArraySets
    }
 
    private int[] findCycle(int childSequence, int[] encounterOrder) {
-      int[] parentSequences = getParentNids(childSequence);
+      int[] parentSequences = getParentNidsNoFilter(childSequence);
 
       for (int sequenceToTest: parentSequences) {
          int[] encounterWithNewSequence = Arrays.copyOf(encounterOrder, encounterOrder.length + 1);
@@ -490,11 +495,26 @@ public class HashTreeWithIntArraySets
     * @param parentNid the parentIndex sequence
     * @return the children sequences
     */
+   public final int[] getChildNoFilter(int parentNid) {
+      int[] returnValue = this.parentNid_ChildNidSetArray_Map.get(parentNid);
+      if (returnValue != null) {
+         return returnValue;
+      }
+      return new int[0];
+   }
    @Override
    public final int[] getChildNids(int parentNid) {
       int[] returnValue = this.parentNid_ChildNidSetArray_Map.get(parentNid);
       if (returnValue != null) {
-         return returnValue;
+          OpenIntHashSet childrenSet = new OpenIntHashSet();
+          for (int childNid: returnValue) {
+              if (Arrays.binarySearch(getParentNids(childNid), parentNid) >= 0) {
+                  childrenSet.add(childNid);
+              }
+          }
+          IntArrayList childrenList = childrenSet.keys();
+          childrenList.sort();
+         return childrenList.elements();
       }
       return new int[0];
    }
@@ -525,14 +545,37 @@ public class HashTreeWithIntArraySets
 
    @Override
    public final boolean isDescendentOf(int childNid, int parentNid) {
-      int[] parentNids = getParentNids(childNid);
+      int[] parentNids = getParentNidsNoFilter(childNid);
 
       if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
          return true;
       }
-
+      NidSet recursionFix = new NidSet();
       for (int nidToTest: parentNids) {
-         if (isDescendentOf(nidToTest, parentNid)) {
+         if (isDescendentOf(nidToTest, parentNid, recursionFix)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+   
+   private boolean isDescendentOf(int childNid, int parentNid, NidSet visitedNids) {
+      if (visitedNids.contains(childNid)) {
+         return false;
+      }
+      else {
+        visitedNids.add(childNid);
+      }
+
+      int[] parentNids = getParentNidsNoFilter(childNid);
+
+      if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
+         return true;
+      }
+      
+      for (int nidToTest: parentNids) {
+         if (isDescendentOf(nidToTest, parentNid, visitedNids)) {
             return true;
          }
       }
@@ -549,17 +592,20 @@ public class HashTreeWithIntArraySets
          int depth,
          int originalChildNid,
          TreeNodeVisitData nodeVisitData) {
-      int[] parentSequences = getParentNids(childNid);
+      int[] parentNids = getParentNidsNoFilter(childNid);
 
-      if (Arrays.binarySearch(parentSequences, parentNidToFind) >= 0) {
+      if (Arrays.binarySearch(parentNids, parentNidToFind) >= 0) {
          return true;
       }
 
-      for (int sequenceToTest: parentSequences) {
-         if (depth < 100) {
-            if (sequenceToTest != childNid) {
+      for (int nidToTest: parentNids) {
+         if (nodeVisitData.nidInCycle(nidToTest)) {
+           return false;
+         }
+         else if (depth < 100) {
+            if (nidToTest != childNid) {
                if (isDescendentOfWithDepth(
-                     sequenceToTest,
+                     nidToTest,
                      parentNidToFind,
                      depth + 1,
                      originalChildNid,
@@ -567,7 +613,7 @@ public class HashTreeWithIntArraySets
                   return true;
                }
             } else {
-               System.out.println("Self reference for: " + childNid + " " + Get.conceptDescriptionText(childNid));
+               LOG.warn("Self reference for: " + childNid + " " + Get.conceptDescriptionText(childNid));
             }
          } else {
             int[] cycleArray = findCycle(originalChildNid, new int[] { originalChildNid });
@@ -600,9 +646,9 @@ public class HashTreeWithIntArraySets
                          .append(" ")
                          .append(Get.conceptDescriptionText(originalChildNid));
                   builder.append("\n     ")
-                         .append(sequenceToTest)
+                         .append(nidToTest)
                          .append(" ")
-                         .append(Get.conceptDescriptionText(sequenceToTest));
+                         .append(Get.conceptDescriptionText(nidToTest));
                } else {
                   builder.append("Cycle found: \n");
 
@@ -619,7 +665,7 @@ public class HashTreeWithIntArraySets
                }
 
                builder.append("\n");
-               System.out.println(builder.toString());
+               LOG.info(builder.toString());
             }
          }
       }
@@ -658,13 +704,50 @@ public class HashTreeWithIntArraySets
     * @param childNid the childIndex sequence
     * @return the parentIndex sequences
     */
-   @Override
-   public final int[] getParentNids(int childNid) {
+   public final int[] getParentNidsNoFilter(int childNid) {
       if (this.childNid_ParentNidSetArray_Map.containsKey(childNid)) {
          return this.childNid_ParentNidSetArray_Map.get(childNid);
       }
-
       return new int[0];
+   }
+
+   @Override
+   public final int[] getParentNids(int childNid) {
+      return getParentNidsNoFilter(childNid);
+       
+//      if (this.childNid_ParentNidSetArray_Map.containsKey(childNid)) {
+//         int[] parents = this.childNid_ParentNidSetArray_Map.get(childNid);
+//         if (parents.length > 1 && manifoldCoordinate.getTaxonomyPremiseType() == PremiseType.INFERRED) {
+//             OpenIntHashSet redundantParents = new OpenIntHashSet();
+//             for (int i = 0; i < parents.length -1; i++) {
+//                 for (int j = 1; j < parents.length; j++) {
+//                     if (isDescendentOf(parents[i], parents[j])) {
+//                         // redundant parent j
+//                         redundantParents.add(parents[j]);
+//                     } else if (isDescendentOf(parents[j], parents[i])) {
+//                         // redundant parent i
+//                         redundantParents.add(parents[i]);
+//                     }
+//                 }
+//             }
+//             OpenIntHashSet closestParentSet = new OpenIntHashSet();
+//             for (int parent: parents) {
+//                 if (!redundantParents.contains(parent)) {
+//                     closestParentSet.add(parent);
+//                 }
+//             }
+//             IntArrayList closestParentList = closestParentSet.keys();
+//             closestParentList.sort();
+//             int removed = parents.length - closestParentList.elements().length;
+//             if (removed > 0) {
+//                LOG.debug("Removed {} redundant parents", removed);
+//             }
+//             return closestParentList.elements();
+//         }
+//         return parents;
+//      }
+//
+//      return new int[0];
    }
 
    /**
@@ -682,11 +765,10 @@ public class HashTreeWithIntArraySets
              return true;
           });
 
-      int[] roots         = new int[rootSet.size()];
       int[] rootSequences = rootSet.keys()
                                    .elements();
 
-      for (int i = 0; i < roots.length; i++) {
+      for (int i = 0; i < rootSet.size(); i++) {
          rootSequences[i] = ModelGet.identifierService()
                                     .getNidForElementSequence(rootSequences[i], assemblageNid);
       }
@@ -702,9 +784,8 @@ public class HashTreeWithIntArraySets
     * @param child the child
     */
    public void add(int parent, int child) {
-      boolean testing = true;
-      if (testing && (parent == TermAux.SOLOR_ROOT.getNid())) {
-         System.out.println("SOLOR root nid added to tree: " + TermAux.SOLOR_ROOT.getNid());
+      if (Get.configurationService().isVerboseDebugEnabled() && (parent == TermAux.SOLOR_ROOT.getNid())) {
+         LOG.debug("SOLOR root nid added to tree: " + TermAux.SOLOR_ROOT.getNid());
       }
       conceptNids.add(parent);
       conceptNids.add(child);
@@ -750,6 +831,9 @@ public class HashTreeWithIntArraySets
    }
 
    protected void printWatch(int conceptNid, String prefix) {
+      if (!Get.configurationService().isVerboseDebugEnabled()) {
+         return;
+      }
       int nid = conceptNid;
 
       if (nid >= 0) {
@@ -765,9 +849,9 @@ public class HashTreeWithIntArraySets
       int[] record   = taxonomyMap.get(nid);
       int   finalNid = nid;
 
-      System.out.println("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
-      System.out.println("\nTaxonomy record: " + Arrays.toString(record));
-      System.out.println("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
+      LOG.debug("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
+      LOG.debug("\nTaxonomy record: " + Arrays.toString(record));
+      LOG.debug("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
       childNid_ParentNidSetArray_Map.forEach(
           (int sequence,
            int[] parentArray) -> {
@@ -804,9 +888,9 @@ public class HashTreeWithIntArraySets
                             sequenceNid));
              }
           });
-      System.out.println(Get.concept(nid)
+      LOG.debug(Get.concept(nid)
                             .toString());
-      System.out.println();
+      LOG.debug("");
    }
 }
 

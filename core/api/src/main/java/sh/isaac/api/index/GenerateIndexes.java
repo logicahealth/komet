@@ -41,167 +41,164 @@
  */
 package sh.isaac.api.index;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.progress.Stoppable;
+import sh.isaac.api.task.TimedTask;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class GenerateIndexes.
  *
  * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class GenerateIndexes
-        extends TimedTask<Void> implements PersistTaskResult {
+public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResult, Stoppable {
 
-   /**
-    * The Constant LOG.
-    */
    private static final Logger LOG = LogManager.getLogger();
 
-   //~--- fields --------------------------------------------------------------
-   /**
-    * The processed.
-    */
-   AtomicLong processed = new AtomicLong(0);
+   //The number of items processed so far
+   private AtomicLong processed = new AtomicLong(0);
+
+   //Which indexers are being used for this reindex request
+   private List<IndexBuilderService> indexers = new ArrayList<>();
+
+   //The number of items that must be indexed, in total.
+   private long componentCount;
+   
+   private boolean stopNow = false;
 
    /**
-    * The indexers.
-    */
-   List<IndexService> indexers;
-
-   /**
-    * The component count.
-    */
-   long componentCount;
-
-   //~--- constructors --------------------------------------------------------
-   /**
-    * Instantiates a new generate indexes.
+    * Instantiates a new generate indexes, which will not yet be executing.
     *
-    * @param indexersToReindex the indexers to reindex
+    * @param indexersToReindex - optional - the indexers to reindex - if not provided, all indexers are reindexed
     */
    public GenerateIndexes(Class<?>... indexersToReindex) {
+      register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
       updateTitle("Index generation");
-      updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
+      updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
       if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
-         this.indexers = LookupService.get()
-                 .getAllServices(IndexService.class);
+         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       } else {
-         this.indexers = new ArrayList<>();
 
          for (final Class<?> clazz : indexersToReindex) {
-            if (!IndexService.class.isAssignableFrom(clazz)) {
-               throw new RuntimeException(
-                       "Invalid Class passed in to the index generator.  Classes must implement IndexService ");
+            if (!IndexBuilderService.class.isAssignableFrom(clazz)) {
+               throw new RuntimeException("Invalid Class passed in to the index generator.  Classes must implement IndexBuilderService ");
             }
 
-            final IndexService temp = (IndexService) LookupService.get()
-                    .getService(clazz);
+            final IndexBuilderService temp = (IndexBuilderService) LookupService.get().getService(clazz);
 
             if (temp != null) {
                this.indexers.add(temp);
             }
          }
       }
+   }
+   
+    /**
+     * Used to avoid circular dependencies during a re-index upon startup
+     * @param indexersToReindex
+     */
+   public GenerateIndexes(IndexBuilderService... indexersToReindex) {
+      register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
+      updateTitle("Index generation");
+      updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
-      final List<IndexStatusListener> islList = LookupService.get()
-              .getAllServices(IndexStatusListener.class);
-
-      for (final IndexService i : this.indexers) {
-         if (islList != null) {
-            for (final IndexStatusListener isl : islList) {
-               isl.reindexBegan(i);
-            }
+      if (indexersToReindex != null) {
+         for (IndexBuilderService i : indexersToReindex) {
+            indexers.add(i);
          }
-
-         LOG.info("Clearing index for: " + i.getIndexerName());
-         i.clearIndex();
-         i.clearIndexedStatistics();
       }
    }
 
-   //~--- methods -------------------------------------------------------------
    /**
-    * Call.
+    * Called by a threaded executor to begin the reindex.
     *
     * @return the void
     * @throws Exception the exception
     */
    @Override
-   protected Void call()
-           throws Exception {
-      Get.activeTasks()
-              .add(this);
+   protected Void call() throws Exception {
+      Get.activeTasks().add(this);
 
       try {
-         // We only need to indexe semantics now
+
+         final List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
+
+         for (final IndexBuilderService i : this.indexers) {
+            if (islList != null) {
+               for (final IndexStatusListener isl : islList) {
+                  isl.reindexBegan(i);
+               }
+            }
+
+            LOG.info("Clearing index for: " + i.getIndexerName());
+            i.startBatchReindex();
+         }
+
+         // We only need to index semantics now
          // In the future, there may be a need for indexing Concepts from the concept service - for instance, if we wanted to index the concepts
-         // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
-         // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
+         // by user, or by some other attribute that is attached to the concept. But there simply isn't much on the concept at present, and I have
+         // no use case for indexing the concepts. The IndexBuilderService APIs would need enhancement if we allowed indexing things other than semantics.
          final long semanticCount = (int) Get.assemblageService().getSemanticCount();
 
          LOG.info("Semantic elements to index: " + semanticCount);
          this.componentCount = semanticCount;
 
-         Get.assemblageService()
-                 .getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
-                    for (final IndexService i : this.indexers) {
-                       try {
-                          if (semantic == null) {
-                             // noop - this error is already logged elsewhere.  Just skip.
-                          } else {
-                             i.index(semantic)
-                                     .get();
-                          }
-                       } catch (final InterruptedException | ExecutionException e) {
-                          throw new RuntimeException(e);
-                       }
-                    }
+         Get.assemblageService().getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
+            for (final IndexBuilderService i : this.indexers) {
+               if (stopNow) {
+                  throw new RuntimeException("Stop requested!");
+               }
+               try {
+                  if (semantic == null) {
+                     // noop - this error is already logged elsewhere. Just skip.
+                  } else {
+                     i.index(semantic).get();
+                  }
+               } catch (final InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+               }
+            }
 
-                    updateProcessedCount();
-                 });
+            updateProcessedCount();
+         });
 
-         final List<IndexStatusListener> islList = LookupService.get()
-                 .getAllServices(IndexStatusListener.class);
-
-         for (final IndexService i : this.indexers) {
+         for (final IndexBuilderService i : this.indexers) {
             if (islList != null) {
                for (final IndexStatusListener isl : islList) {
                   isl.reindexCompleted(i);
                }
             }
 
-            i.commitWriter();
-            i.forceMerge();
-            LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
-
-            for (final Map.Entry<String, Integer> entry : i.reportIndexedItems()
-                    .entrySet()) {
-               LOG.info(entry.getKey() + ": " + entry.getValue());
+            if (stopNow) {
+               LOG.warn("A reindex was aborted midway!  Index is likely corrupt - a full reindex is recommended");
             }
-
-            i.clearIndexedStatistics();
+            else {
+               i.sync().get();
+               i.forceMerge();
+               LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
+               for (final Map.Entry<String, Integer> entry : i.reportIndexedItems().entrySet()) {
+                  LOG.info(entry.getKey() + ": " + entry.getValue());
+               }
+            }
          }
 
          return null;
       } finally {
-         Get.activeTasks()
-                 .remove(this);
+         Get.activeTasks().remove(this);
+         for (final IndexBuilderService i : this.indexers) {
+            i.finishBatchReindex();
+         }
       }
    }
 
@@ -217,10 +214,17 @@ public class GenerateIndexes
 
          // We were committing too often every 1000 components, it was bad for performance.
          if (processedCount % 100000 == 0) {
-            for (final IndexService i : this.indexers) {
-               i.commitWriter();
+            for (final IndexBuilderService i : this.indexers) {
+               i.sync();
             }
+            LOG.info("Indexed " + processedCount + " semantics");
          }
       }
+   }
+
+   @Override
+   public void stopJob() {
+      LOG.info("Stop requested");
+      stopNow = true;
    }
 }

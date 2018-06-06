@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.47</version>
+        <version>4.48</version>
     </parent>
     <artifactId>misc</artifactId>
     <packaging>pom</packaging>
@@ -12,6 +12,11 @@
     <description>Aggregator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>
+       <module>importers</module>
+       <module>associations</module>
        <module>util</module>
+       <module>vhat-constants</module>
+       <module>vhat-util</module>
+       <module>security</module>
     </modules>
 </project>

@@ -87,7 +87,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service(name = "Change Set Writer Handler")
-@RunLevel(value = 4)
+@RunLevel(value = LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL)
 public class ChangeSetWriterHandler
          implements ChangeSetWriterService, ChangeSetListener {
    /** The Constant LOG. */
@@ -118,11 +118,8 @@ public class ChangeSetWriterHandler
    /** The write enabled. */
    private boolean writeEnabled;
 
-   /** The db build mode. */
-   private Boolean dbBuildMode;
-
    /** The change set folder. */
-   private final Path changeSetFolder;
+   private Path changeSetFolder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -133,23 +130,7 @@ public class ChangeSetWriterHandler
     */
    public ChangeSetWriterHandler()
             throws Exception {
-      final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
-                                                       .getDataStoreFolderPath();
 
-      this.changeSetFolder = databasePath.get()
-                                         .resolve(CHANGESETS);
-      Files.createDirectories(this.changeSetFolder);
-
-      if (!this.changeSetFolder.toFile()
-                               .isDirectory()) {
-         throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
-                                    this.changeSetFolder.toAbsolutePath());
-      }
-
-      this.writer = new MultipleDataWriterService(this.changeSetFolder,
-            "ChangeSet-",
-            Optional.of(JSON_FILE_SUFFIX),
-            Optional.of(IBDF_FILE_SUFFIX));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -180,12 +161,8 @@ public class ChangeSetWriterHandler
       LOG.info("handle Post Commit");
       writePermits.acquireUninterruptibly();
       try {
-      if (this.dbBuildMode == null) {
-         this.dbBuildMode = Get.configurationService()
-                               .inDBBuildMode();
-      }
 
-      if (this.writeEnabled &&!this.dbBuildMode) {
+      if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();
          final Runnable r = () -> {
@@ -215,7 +192,7 @@ public class ChangeSetWriterHandler
 
          this.changeSetWriteExecutor.execute(r);
       } else {
-         if (this.dbBuildMode) {
+         if (Get.configurationService().isInDBBuildMode()) {
             LOG.info("ChangeSetWriter ignoring commit because in db build mode. ");
          }
          if (!this.writeEnabled) {
@@ -269,8 +246,8 @@ public class ChangeSetWriterHandler
 
                                     try {
                                        writeToFile(concept);
-                                    } catch (final IOException e) {
-                                       throw new RuntimeException(e);
+                                    } catch (final Exception e) {
+                                       throw new RuntimeException("Error writing concept " + conceptSequence , e);
                                     }
                                  });
    }
@@ -278,21 +255,21 @@ public class ChangeSetWriterHandler
    /**
     * Sequence set change.
     *
-    * @param sememeSequenceSet the sememe sequence set
+    * @param semanticSequenceSet the semantic sequence set
     */
 
    /*
     */
-   private void semanticNidSetChange(NidSet sememeSequenceSet) {
-      sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SemanticChronology sememe = Get.assemblageService()
+   private void semanticNidSetChange(NidSet semanticSequenceSet) {
+      semanticSequenceSet.stream().forEach((semanticSequence) -> {
+                                   final SemanticChronology semantic = Get.assemblageService()
                                                                                                   .getSemanticChronology(
-                                                                                                     sememeSequence);
+                                                                                                     semanticSequence);
 
                                    try {
-                                      writeToFile(sememe);
-                                   } catch (final IOException e) {
-                                      throw new RuntimeException(e);
+                                      writeToFile(semantic);
+                                   } catch (final Exception e) {
+                                      throw new RuntimeException("Error writing semantic " + semanticSequence, e);
                                    }
                                 });
    }
@@ -304,6 +281,17 @@ public class ChangeSetWriterHandler
    private void startMe() {
       try {
          LOG.info("Starting ChangeSetWriterHandler post-construct");
+         final Path databasePath = LookupService.getService(ConfigurationService.class).getDataStoreFolderPath();
+
+         this.changeSetFolder = databasePath.resolve(CHANGESETS);
+         Files.createDirectories(this.changeSetFolder);
+         
+         if (!this.changeSetFolder.toFile().isDirectory()) {
+            throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
+            this.changeSetFolder.toAbsolutePath());
+         }
+         
+         this.writer = new MultipleDataWriterService(this.changeSetFolder, "ChangeSet-", Optional.of(JSON_FILE_SUFFIX), Optional.of(IBDF_FILE_SUFFIX));
          enable();
          this.changeSetWriteExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("ISAAC-changeset-write",
                false));

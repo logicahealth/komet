@@ -65,7 +65,7 @@ import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 public final class ConceptNodeWithNids
         extends AbstractLogicNode {
    /** The concept sequence. */
-   final int conceptNid;
+   int conceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -257,9 +257,14 @@ public final class ConceptNodeWithNids
     * @return the children
     */
    @Override
-   public AbstractLogicNode[] getChildren() {
+   public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+    @Override
+    public final void removeChild(short childId) {
+        // nothing to do
+    }
+
 
    /**
     * Gets the concept sequence.
@@ -268,6 +273,10 @@ public final class ConceptNodeWithNids
     */
    public int getConceptNid() {
       return this.conceptNid;
+   }
+
+   public void setConceptNid(int conceptNid) {
+      this.conceptNid = conceptNid;
    }
 
    /**

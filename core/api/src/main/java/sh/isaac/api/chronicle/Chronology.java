@@ -231,13 +231,7 @@ public interface Chronology
                               .collect(Collectors.toList());
    }
    
-   default VersionType getVersionType() {
-      List<? extends Version> versions = getVersionList();
-      if (versions.isEmpty()) {
-         return VersionType.UNKNOWN;
-      }
-      return versions.get(0).getSemanticType();
-   }
+   VersionType getVersionType();
    
    NidSet getRecursiveSemanticNids();
 

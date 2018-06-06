@@ -160,8 +160,8 @@ public class ProcessClassificationResults
         final HashSet<IntArrayList> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
-            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+            if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
             }
             int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
             final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
@@ -207,16 +207,16 @@ public class ProcessClassificationResults
     /**
      * Test for proper set size.
      *
-     * @param inferredSemanticSequences the inferred sememe sequences
-     * @param conceptSequence the concept sequence
-     * @param statedSemanticSequences the stated sememe sequences
-     * @param sememeService the sememe service
+     * @param inferredSemanticSequences the inferred semantic sequences
+     * @param conceptNid the concept sequence
+     * @param statedSemanticSequences the stated semantic sequences
+     * @param semanticService the semantic service
      * @throws IllegalStateException the illegal state exception
      */
     private void testForProperSetSize(NidSet inferredSemanticSequences,
             int conceptSequence,
             NidSet statedSemanticSequences,
-            AssemblageService sememeService)
+            AssemblageService semanticService)
             throws IllegalStateException {
         if (inferredSemanticSequences.size() > 1) {
             classificationDuplicateCount++;
@@ -245,9 +245,9 @@ public class ProcessClassificationResults
                                 .getConceptChronology(conceptSequence)
                                 .toUserString())
                         .append("\n");
-                statedSemanticSequences.stream().forEach((sememeSequence) -> {
+                statedSemanticSequences.stream().forEach((semanticSequence) -> {
                     builder.append("Found stated definition: ")
-                            .append(sememeService.getSemanticChronology(sememeSequence))
+                            .append(semanticService.getSemanticChronology(semanticSequence))
                             .append("\n");
                 });
             }
@@ -267,7 +267,7 @@ public class ProcessClassificationResults
         final IdentifierService idService = Get.identifierService();
         final AtomicInteger sufficientSets = new AtomicInteger();
         final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
-        final SemanticBuilderService sememeBuilderService = Get.semanticBuilderService();
+        final SemanticBuilderService semanticBuilderService = Get.semanticBuilderService();
         final CommitService commitService = Get.commitService();
 
         // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
@@ -276,8 +276,8 @@ public class ProcessClassificationResults
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
                 int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
-                if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                    LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
 
                 final NidSet inferredSemanticNids
@@ -294,7 +294,7 @@ public class ProcessClassificationResults
                         statedSemanticNids,
                         assemblageService);
 
-                // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) 
+                // SemanticChronology<LogicGraphSemantic> statedChronology = (SemanticChronology<LogicGraphSemantic>) 
                 // assemblageService.getSemanticChronology(statedSemanticNids.stream().findFirst().getAsInt());
                 OptionalInt statedSemanticNidOptional = statedSemanticNids.findFirst();
                 if (statedSemanticNidOptional.isPresent()) {
@@ -353,13 +353,21 @@ public class ProcessClassificationResults
 
                             if (inferredSemanticNids.isEmpty()) {
                                 final SemanticBuilder builder
-                                        = sememeBuilderService.getLogicalExpressionBuilder(inferredExpression,
+                                        = semanticBuilderService.getLogicalExpressionBuilder(inferredExpression,
                                                 conceptNid,
                                                 this.logicCoordinate.getInferredAssemblageNid());
 
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+                    TestConcept.WATCH_NID_SET.add(builder.getNid());
+                }
                                 // get classifier edit coordinate...
                                 builder.build(EditCoordinates.getClassifierSolorOverlay(),
                                         ChangeCheckerMode.INACTIVE);
+                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+                    TestConcept.WATCH_NID_SET.add(builder.getNid());
+                }
                             } else {
                                 final SemanticChronology inferredChronology
                                         = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
@@ -402,7 +410,7 @@ public class ProcessClassificationResults
         });
 
         final Task<Optional<CommitRecord>> commitTask = commitService.commit(
-                Get.configurationService().getDefaultEditCoordinate(), "classifier run");
+                EditCoordinates.getClassifierSolorOverlay(), "classifier run");
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

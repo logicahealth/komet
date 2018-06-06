@@ -62,6 +62,10 @@ public class Interval {
    public Interval(String parseFrom)
             throws NumberFormatException {
       final String s = parseFrom.trim();
+      
+      if (s.length() == 0) {
+         throw new NumberFormatException("No input");
+      }
 
       if (s.charAt(0) == '[') {
          this.leftInclusive = true;
@@ -105,6 +109,16 @@ public class Interval {
          if (NumericUtils.compare(this.left, this.right) > 0) {
             throw new NumberFormatException("Invalid INTERVAL definition the left value should be <= the right value");
          }
+      }
+   }
+   
+   public static boolean isInterval(String value) {
+      try {
+         new Interval(value);
+         return true;
+      }
+      catch (NumberFormatException e) {
+         return false;
       }
    }
 

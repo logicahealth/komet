@@ -64,7 +64,7 @@ import org.jvnet.hk2.annotations.Service;
 
 
 import sh.isaac.api.Get;
-import sh.isaac.api.OchreCache;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -85,14 +85,11 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 @Service
 @Singleton  // Singleton from the perspective of HK2 managed instances
-public class RelativePositionCalculator
-         implements OchreCache {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+public class RelativePositionCalculator implements StaticIsaacCache {
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant CALCULATOR_CACHE. */
-   private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> CALCULATOR_CACHE =
-      new ConcurrentHashMap<>();
+   private static RelativePositionCalculator lastCalculator = null;
 
    //~--- fields --------------------------------------------------------------
 
@@ -103,8 +100,8 @@ public class RelativePositionCalculator
    /** The coordinate. */
    private StampCoordinate coordinate;
    private EnumSet<Status>  allowedStates;
-   private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap();
-   private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap();
+   private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap<>();
 
    /**
     * Mapping from pathNid to each segment for that pathNid. There is one entry
@@ -118,7 +115,7 @@ public class RelativePositionCalculator
    /**
     * Instantiates a new relative position calculator.
     */
-   public RelativePositionCalculator() {
+   private RelativePositionCalculator() {
       // No arg constructor for HK2 managed instance
    }
 
@@ -127,7 +124,8 @@ public class RelativePositionCalculator
     *
     * @param coordinate the coordinate
     */
-   public RelativePositionCalculator(StampCoordinate coordinate) {
+   private RelativePositionCalculator(StampCoordinate coordinate) {
+      //For the internal callback to populate the cache
       this.coordinate             = coordinate;
       this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
       this.allowedStates          = coordinate.getAllowedStates();
@@ -372,15 +370,6 @@ public class RelativePositionCalculator
    }
 
    /**
-    * Reset.
-    */
-   @Override
-   public void reset() {
-      log.info("Resetting RelativePositionCalculator.");
-      CALCULATOR_CACHE.clear();
-   }
-
-   /**
     * To string.
     *
     * @return the string
@@ -406,13 +395,13 @@ public class RelativePositionCalculator
          ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
-                                  destination.getStampPathSequence(),
+                                  destination.getStampPathNid(),
                                   destination.getTime(),
                                   precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getStampPathSequence(), segment);
+      pathNidSegmentMap.put(destination.getStampPathNid(), segment);
       destination.getStampPath()
                  .getPathOrigins()
                  .stream()
@@ -468,7 +457,7 @@ public class RelativePositionCalculator
             this.errorCount++;
 
             if (this.errorCount < 5) {
-               log.warn(
+               LOG.warn(
                    "{} should never happen. " + "Data is malformed. stampSequence: {} Part:\n{} \n  Part to test: \n{}",
                    new Object[] { RelativePosition.EQUAL, part.getStampSequence(), part, prevPartToTest });
             }
@@ -512,8 +501,7 @@ public class RelativePositionCalculator
       // items to the stampsForPosition.
       final OpenIntHashSet stampsToCompare = (OpenIntHashSet) stampsForPosition.clone();
 
-      stampsToCompare.forEachKey(
-          (prevStamp) -> {
+      stampsToCompare.forEachKey((prevStamp) -> {
              switch (fastRelativePosition(stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
              case AFTER:
                 stampsForPosition.remove(prevStamp);
@@ -541,7 +529,7 @@ public class RelativePositionCalculator
                 this.errorCount++;
 
                 if (this.errorCount < 20) {
-                   log.warn(
+                   LOG.warn(
                        "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
                        new Object[] { RelativePosition.EQUAL, 
                            Get.stampService().describeStampSequence(stampSequence), 
@@ -579,7 +567,7 @@ public class RelativePositionCalculator
 
       // the sequence of the preceding segments is set in the recursive
       // call.
-      final ConcurrentSkipListSet<Integer> precedingSegments = new ConcurrentSkipListSet();
+      final ConcurrentSkipListSet<Integer> precedingSegments = new ConcurrentSkipListSet<>();
 
       // call to recursive method...
       addOriginsToPathSequenceSegmentMap(
@@ -605,7 +593,7 @@ public class RelativePositionCalculator
       stampIsAllowedState.put(stampSequence, allowed);
       return allowed;
    }
-
+   
    /**
     * Gets the calculator.
     *
@@ -613,21 +601,38 @@ public class RelativePositionCalculator
     * @return the calculator
     */
    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
-      RelativePositionCalculator calculator = CALCULATOR_CACHE.get(coordinate);
+       RelativePositionCalculator calcToTry = lastCalculator;
+       if (calcToTry != null) {
+           if (calcToTry.coordinate == coordinate) {
+               return calcToTry;
+           }
+       }
 
-      if (calculator != null) {
-         return calculator;
-      }
+      calcToTry = new RelativePositionCalculator(coordinate);
+      lastCalculator = calcToTry;
 
-      calculator = new RelativePositionCalculator(coordinate);
+      return calcToTry;
+   }
 
-      final RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, calculator);
+   /**
+    * Gets the calculator.
+    *
+    * @param coordinate the coordinate
+    * @return the calculator
+    */
+   public RelativePositionCalculator getCalculatorInstance(StampCoordinate coordinate) {
+       
+       RelativePositionCalculator calcToTry = lastCalculator;
+       if (calcToTry != null) {
+           if (calcToTry.coordinate == coordinate) {
+               return calcToTry;
+           }
+       }
 
-      if (existing != null) {
-         calculator = existing;
-      }
+      calcToTry = new RelativePositionCalculator(coordinate);
+      lastCalculator = calcToTry;
 
-      return calculator;
+      return calcToTry;
    }
 
    /**
@@ -684,7 +689,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {
@@ -775,7 +780,7 @@ public class RelativePositionCalculator
 
          latestVersionSet.stream()
                          .forEach((version) -> {
-                                if (version.getState() != Status.ACTIVE) {
+                                if (version.getStatus() != Status.ACTIVE) {
                                    inactiveVersions.add(version);
                                 }
                              });
@@ -785,7 +790,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {
@@ -821,7 +826,7 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return new LatestVersion();
+         return new LatestVersion<>();
       }
 
       if (latestVersionList.size() == 1) {
@@ -908,6 +913,14 @@ public class RelativePositionCalculator
 
          return false;
       }
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      lastCalculator = null;
    }
 }
 

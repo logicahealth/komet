@@ -69,6 +69,8 @@ public class ValuePropertyPairWithAttributes
 
    /** The uuid attributes. */
    protected HashMap<UUID, ArrayList<UUID>> uuidAttributes = new HashMap<>();
+   
+   protected HashMap<UUID, ArrayList<String>> identifierAttributes = new HashMap<>();
 
    /** The refset membership. */
    protected ArrayList<UUID> refsetMembership = new ArrayList<>();
@@ -94,6 +96,18 @@ public class ValuePropertyPairWithAttributes
     */
    public void addRefsetMembership(UUID refsetConcept) {
       this.refsetMembership.add(refsetConcept);
+   }
+   
+   
+   public void addIdentifierAttribute(UUID type, String value)
+   {
+      ArrayList<String> values = identifierAttributes.get(type);
+      if (values == null)
+      {
+         values = new ArrayList<>();
+         identifierAttributes.put(type, values);
+      }
+      values.add(value);
    }
 
    /**
@@ -161,11 +175,20 @@ public class ValuePropertyPairWithAttributes
          }
 
          for (final UUID refsetConcept: descriptionSource.get(i).refsetMembership) {
-            ibdfCreationUtility.addRefsetMembership(ComponentReference.fromChronology(descriptions.get(i)),
+            ibdfCreationUtility.addAssemblageMembership(ComponentReference.fromChronology(descriptions.get(i)),
                   refsetConcept,
                   Status.ACTIVE,
                   null);
          }
+         
+       for (Entry<UUID, ArrayList<String>> identifierAttributes : descriptionSource.get(i).identifierAttributes
+            .entrySet()) {
+         for (String value : identifierAttributes.getValue()) {
+            // TODO [DAN 3] confirm parameters appropriate
+            ibdfCreationUtility.addStaticStringAnnotation(ComponentReference.fromChronology(descriptions.get(i)), value, identifierAttributes.getKey(), Status.ACTIVE);
+             
+         }
+       }
       }
    }
 
@@ -179,6 +202,11 @@ public class ValuePropertyPairWithAttributes
     */
    public ArrayList<String> getStringAttribute(UUID type) {
       return this.stringAttributes.get(type);
+   }
+   
+   public ArrayList<String> getIdentifierAttribute(UUID type)
+   {
+      return identifierAttributes.get(type);
    }
 }
 

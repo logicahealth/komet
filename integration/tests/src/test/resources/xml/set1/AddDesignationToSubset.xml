@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+    <!--Set the preferred designation type-->
+    <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+            <Append>true</Append>
+            <Name>Authoring Version</Name>
+            
+          <CodedConcepts>
+             <CodedConcept>
+                 <Action>none</Action>
+                 <Code>-505</Code> <!-- concept VUID here -->
+                 <VUID>-505</VUID>
+                 <Active>true</Active>
+             
+               <Designations>
+                     <Designation>
+                         <Action>none</Action>
+                         <Code>-506</Code> <!-- designation VUID here -->
+                         <TypeName>Preferred Name</TypeName> <!-- designation type here -->
+                         <VUID>-506</VUID>
+                         <Active>true</Active>
+               
+                <SubsetMemberships>
+								   <SubsetMembership>
+									    <Action>add</Action>
+									    <VUID>-601</VUID> <!-- Subset VUID here -->
+                      <Active>true</Active>
+								    </SubsetMembership>
+
+                  <SubsetMembership>
+                    <Action>add</Action>
+                    <VUID>-602</VUID>  <!-- Subset VUID here -->
+                    <Active>true</Active>
+                  </SubsetMembership>                 
+                 </SubsetMemberships>
+                 
+                   </Designation>
+                </Designations>
+               </CodedConcept>
+            </CodedConcepts>
+        </Version>
+    </CodeSystem>
+</Terminology>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 (http://www.altova.com) by Brent Jacox (Department of Veterans Affairs) -->
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by David (Department of Veteran Affairs) -->
+<!-- edited by Dan Armbrust to add support for TreeVUID and CPDP - which help link subsets to a concept in the tree, and 
+  inform about what properties are intended to be attached to what type (description or concept)-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="Active" type="xs:boolean"/>
+	<xs:element name="AllowEmpty" type="xs:boolean"/>
+	<xs:element name="Inverse" type="xs:boolean"/>
+	<xs:element name="IsList" type="xs:boolean"/>
+	<xs:element name="Name" type="xs:string"/>
+	<xs:element name="TreeVUID" type="xs:long" />  <!-- The VUID of the concept in the tree that organizes the subset and/or domain members.  -->
+	<!-- Informs as to whether a property type is applicable to a concept or a description -->
+	<xs:simpleType name="CPDP" final="restriction">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CP" />
+			<xs:enumeration value="DP" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="Properties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Property" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Property">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:sequence>
+					<xs:element name="CPDP" type="CPDP" />
+				</xs:sequence>
+				<xs:element ref="AllowEmpty"/>
+				<xs:element ref="IsList"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PropertyType" type="xs:string"/>
+	<xs:element name="PropertyValue" type="xs:string"/>
+	<xs:element name="Relationship">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="AllowEmpty"/>
+				<xs:element ref="IsList"/>
+				<xs:sequence minOccurs="0">
+					<xs:element ref="Inverse"/>
+					<xs:sequence minOccurs="0">
+						<xs:element ref="PropertyType"/>
+						<xs:element ref="PropertyValue"/>
+					</xs:sequence>
+				</xs:sequence>
+				<xs:element ref="IncludeWithChange" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Relationships">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Relationship" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Designation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="AllowEmpty"/>
+				<xs:element ref="IsList"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MapSet">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="VUID"/>
+				<xs:element name="GemContent" type="xs:boolean" minOccurs="0"/>
+				<xs:element name="WebServiceAccessible" type="xs:boolean" minOccurs="0"/>
+				<xs:element name="SourceType" minOccurs="0">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ConceptCode"/>
+							<xs:enumeration value="DesignationCode"/>
+							<xs:enumeration value="DesignationName"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="TargetType" minOccurs="0">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ConceptCode"/>
+							<xs:enumeration value="DesignationCode"/>
+							<xs:enumeration value="DesignationName"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Designations">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Designation" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Dependencies">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="DependentSubset" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DependentSubset">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="SubsetName"/>
+				<xs:element ref="RelationshipName"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SubsetName" type="xs:string"/>
+	<xs:element name="RelationshipName" type="xs:string"/>
+	<xs:element name="Subset">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="TreeVUID" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="Active"/>
+				<xs:element ref="Dependencies" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Properties"/>
+				<xs:element ref="Relationships"/>
+				<xs:element ref="Designations" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="IncludeWithChange" type="xs:string"/>
+	<xs:element name="Domains">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Domain" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Domain">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="TreeVUID" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="Subset" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CodeSystem" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MapSets">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="MapSet" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CodeSystem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="VUID"/>
+				<xs:element ref="Properties"/>
+				<xs:element ref="Relationships" minOccurs="0"/>
+				<xs:element ref="Designations" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Terminology">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Domains"/>
+				<xs:element ref="States"/>
+				<xs:element ref="MapSets" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="States">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="State" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="State">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Name"/>
+				<xs:element ref="Type"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="VUID" type="xs:long"/>
+	<xs:element name="Type" type="xs:string"/>
+</xs:schema>

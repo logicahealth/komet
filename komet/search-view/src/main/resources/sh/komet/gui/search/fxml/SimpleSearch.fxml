@@ -21,23 +21,13 @@
                           <items>
                               <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
                                   <left>
-                                      <Label styleClass="searchTextFieldLabel">
+                                      <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
                                           <graphic>
                                               <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
                                           </graphic>
                                       </Label>
                                   </left>
                               </CustomTextField>
-                              <!--<Button fx:id="addSearchTagButton" mnemonicParsing="false" onAction="#addSearchTag" prefHeight="27.0" prefWidth="22.0" styleClass="addSearchTag">-->
-                                  <!--<graphic>-->
-                                      <!--<FontAwesomeIconView styleClass="addTagIcon" />-->
-                                  <!--</graphic>-->
-                              <!--</Button>-->
-                              <!--<Button fx:id="removeSearchTagButton" mnemonicParsing="false" onAction="#removeSearchTag" prefHeight="27.0" prefWidth="22.0" styleClass="removeSearchTag">-->
-                                 <!--<graphic>-->
-                                    <!--<FontAwesomeIconView styleClass="removeTagIcon" />-->
-                                 <!--</graphic>-->
-                              <!--</Button>-->
                           </items>
                         </ToolBar>
                         <FlowPane fx:id="searchTagFlowPane" prefHeight="184.0" prefWidth="339.0" >

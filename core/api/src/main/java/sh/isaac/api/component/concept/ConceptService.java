@@ -80,7 +80,8 @@ public interface ConceptService
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept.
+    * Gets the concept.  Note, this method can only be used for getting concepts that you know exist, if you 
+    * ask for a concept that doesn't yet exist, you will get a runtime exception.
     *
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
@@ -106,7 +107,8 @@ public interface ConceptService
    ConceptChronology getConceptChronology(UUID... conceptUuids);
 
    /**
-    * Gets the concept.
+    * Gets the concept.   Note, this method can only be used for getting concepts that you know exist, if you 
+    * ask for a concept that doesn't yet exist, you will get a runtime exception.
     *
     * @param conceptSpecification a specification of a concept.
     * @return the concept chronology associated with the identifier.
@@ -116,7 +118,7 @@ public interface ConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
@@ -201,5 +203,19 @@ public interface ConceptService
     * @return the ConceptSnapshotService
     */
    ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
+   
+   /**
+    * Return the UUID that was generated for this datastore when the concept store was first created.  
+    * @return
+    */
+   public Optional<UUID> getDataStoreId();
+   
+   /**
+    * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
+    * without incurring the overhead of reading back the object. 
+    * @param conceptId the nid of the concept
+    * @return true if present, false otherwise
+    */
+   boolean hasConcept(int conceptId);
 }
 

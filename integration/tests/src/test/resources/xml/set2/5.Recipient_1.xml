@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+
+<CodedConcept>
+  <Action>add</Action>
+  <Code>600200</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>600200</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>600201</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>600201</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 AAA RECIPIENT</ValueNew>
+    <Active>1</Active>
+  </Designation></Designations>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>400000</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

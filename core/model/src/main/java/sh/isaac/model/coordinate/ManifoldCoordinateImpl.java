@@ -41,6 +41,7 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,10 +52,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -72,8 +79,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ManifoldCoordinateImpl
          implements ManifoldCoordinate {
-   /** The isa concept nid. */
-   transient int isaConceptNid = TermAux.IS_A.getNid();
 
    /** The taxonomy type. */
    PremiseType taxonomyPremiseType;
@@ -91,7 +96,7 @@ public class ManifoldCoordinateImpl
    LogicCoordinate logicCoordinate;
 
    /** The uuid. */
-   UUID uuid;
+   UUID uuid = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -118,7 +123,21 @@ public class ManifoldCoordinateImpl
       this.stampCoordinate    = stampCoordinate;
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
-      this.uuid               = UUID.randomUUID();
+      //this.uuid               //lazy load
+   }
+   
+   /**
+    * Instantiates a new taxonomy coordinate impl.  Calls {@link #ManifoldCoordinateImpl(PremiseType, StampCoordinate, LanguageCoordinate, LogicCoordinate)}
+    * with a {@link PremiseType#STATED} and the default Logic Coordinate from {@link ConfigurationService}
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate - optional - uses default if not provided.  the language coordinate
+    */
+   public ManifoldCoordinateImpl(StampCoordinate stampCoordinate,
+                                 LanguageCoordinate languageCoordinate) {
+      this(PremiseType.STATED, stampCoordinate, 
+          languageCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : languageCoordinate,
+          Get.configurationService().getUserConfiguration(Optional.empty()).getLogicCoordinate());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -221,20 +240,10 @@ public class ManifoldCoordinateImpl
    @Override
    public String toString() {
       return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" +
-             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + this.uuid + '}';
+             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the isa concept sequence.
-    *
-    * @return the isa concept sequence
-    */
-   @Override
-   public int getIsaConceptNid() {
-      return this.isaConceptNid;
-   }
 
    /**
     * Gets the language coordinate.
@@ -285,6 +294,9 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public UUID getCoordinateUuid() {
+      if (this.uuid == null) {
+         uuid = UUID.randomUUID();
+      }
       return this.uuid;
    }
 
@@ -317,11 +329,6 @@ public class ManifoldCoordinateImpl
          return v;
       }
    }
-
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.languageCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
    
    @Override
    public ManifoldCoordinateImpl deepClone() {
@@ -338,8 +345,8 @@ public class ManifoldCoordinateImpl
     }
 
     @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        languageCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
 }
 

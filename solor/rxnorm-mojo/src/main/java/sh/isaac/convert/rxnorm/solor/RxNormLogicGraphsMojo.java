@@ -85,11 +85,11 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.rxnorm.rrf.RXNCONSO;
+//import sh.isaac.rxnorm.rrf.RXNCONSO;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
@@ -97,7 +97,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -223,19 +223,19 @@ public class RxNormLogicGraphsMojo
 //                 //Need to gather per concept, as some concepts have multiple instances of this assemblage
 //                 
 //                 HashMap<Integer, ArrayList<String>> entries = new HashMap<Integer, ArrayList<String>>();  //con nid to values
-//                 Get.sememeService().getSememesFromAssemblage(findAssemblageNid("RXN_AVAILABLE_STRENGTH")).forEach(sememe ->
+//                 Get.semanticService().getSemanticsFromAssemblage(findAssemblageNid("RXN_AVAILABLE_STRENGTH")).forEach(semantic ->
 //                 {
 //                         availStrengthCount++;
 //                         try
 //                         {
 //                                 @SuppressWarnings({ "rawtypes", "unchecked" })
-//                                 Optional<LatestVersion<DynamicSememe>> ds = ((SemanticChronology)sememe).getLatestVersion(DynamicVersion.class, Get.configurationService().getDefaultStampCoordinate());
+//                                 Optional<LatestVersion<DynamicSemantic>> ds = ((SemanticChronology)semantic).getLatestVersion(DynamicVersion.class, Get.configurationService().getDefaultStampCoordinate());
 //                                 if (ds.isPresent())
 //                                 {
 //                                         @SuppressWarnings("rawtypes")
 //                                         DynamicVersion dsv = ds.get().value();
-//                                         int descriptionSememe = dsv.getReferencedComponentNid();
-//                                         int conceptNid = Get.sememeService().getSememe(descriptionSememe).getReferencedComponentNid();
+//                                         int descriptionSemantic = dsv.getReferencedComponentNid();
+//                                         int conceptNid = Get.semanticService().getSemantic(descriptionSemantic).getReferencedComponentNid();
 //                                         String value = dsv.getData()[0].getDataObject().toString();
 //                                         String[] multipart = value.split(" / ");
 //                                         
@@ -254,7 +254,7 @@ public class RxNormLogicGraphsMojo
 //                         catch (Exception e)
 //                         {
 //                                 errors++;
-//                                 getLog().error("Failed reading " + sememe, e);
+//                                 getLog().error("Failed reading " + semantic, e);
 //                         }
 //                         
 //                 });
@@ -304,7 +304,7 @@ public class RxNormLogicGraphsMojo
 //                                                                                 FeatureNodeWithNids feature = new FeatureNodeWithNids(
 //                                                                                                 (LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.HAS_STRENGTH.getConceptSequence(), 
-//                                                                                                 new LiteralNodeFloat((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
+//                                                                                                 new LiteralNodeDouble((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
 //                                                                                 
 //                                                                                 RoleNodeSomeWithNids unitRole = new RoleNodeSomeWithNids((LogicalExpressionImpl)existing, 
 //                                                                                                 unitConcept.getConceptSequence(), 
@@ -334,11 +334,11 @@ public class RxNormLogicGraphsMojo
 //                                 if (existing != null)
 //                                 {
 //                                         //I should find one and only 1, as we read it above, from the logic expression service, and it validates.
-//                                         SemanticChronology<?> sc = Get.sememeService().getSememesForComponentFromAssemblage(item.getKey(), 
+//                                         SemanticChronology<?> sc = Get.semanticService().getSemanticsForComponentFromAssemblage(item.getKey(), 
 //                                                         LogicCoordinates.getStandardElProfile().getStatedAssemblageSequence()).findFirst().get();
 //                                         
 //                                         @SuppressWarnings("unchecked")
-//                                         MutableLogicGraphVersion mls = ((SemanticChronology<LogicGraphSememe>)sc).createMutableVersion(MutableLogicGraphVersion.class, 
+//                                         MutableLogicGraphVersion mls = ((SemanticChronology<LogicGraphSemantic>)sc).createMutableVersion(MutableLogicGraphVersion.class, 
 //                                                         sh.isaac.api.State.ACTIVE, 
 //                                                         ec); 
 //                                         
@@ -351,7 +351,7 @@ public class RxNormLogicGraphsMojo
 //                                 {
 //                                         NecessarySet(And(assertions.toArray(new Assertion[0])));
 //                                         LogicalExpression le = leb.build();
-//                                         Get.sememeBuilderService().getLogicalExpressionSememeBuilder(le, item.getKey(), 
+//                                         Get.semanticBuilderService().getLogicalExpressionSemanticBuilder(le, item.getKey(), 
 //                                                         LogicCoordinates.getStandardElProfile().getStatedAssemblageSequence()).build(ec, ChangeCheckerMode.ACTIVE);
 //                                         newLogicGraphs++;
 //                                 }
@@ -614,14 +614,14 @@ public class RxNormLogicGraphsMojo
 //                                 null, 5, Long.MIN_VALUE);
 //                 if (result.size() > 0)
 //                 {
-//                         return Get.sememeService().getSememe(result.get(0).getNid()).getReferencedComponentNid();
+//                         return Get.semanticService().getSemantic(result.get(0).getNid()).getReferencedComponentNid();
 //                 }
 //         }
 //         throw new RuntimeException("Can't find assemblage nid with the name " + uniqueName);
 // }
-   @Override
-   protected ConverterUUID.NAMESPACE getNamespace() {
-      return ConverterUUID.NAMESPACE.RXNORM;
-   }
+//   @Override
+//   protected ConverterUUID.NAMESPACE getNamespace() {
+//      return ConverterUUID.NAMESPACE.RXNORM;
+//   }
 }
 

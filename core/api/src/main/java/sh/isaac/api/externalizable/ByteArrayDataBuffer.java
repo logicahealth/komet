@@ -46,7 +46,6 @@ import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 
@@ -167,6 +166,7 @@ public class ByteArrayDataBuffer {
       ensureSpace(this.position + length);
       System.arraycopy(db.data, position, this.data, this.position, length);
       this.position += length;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -241,6 +241,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += length;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -279,6 +280,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 1;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -347,6 +349,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 4;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -373,6 +376,7 @@ public class ByteArrayDataBuffer {
             this.sl.unlockRead(lockStamp);
          }
       }
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -412,6 +416,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 8;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -421,16 +426,9 @@ public class ByteArrayDataBuffer {
     */
    public void putNid(int nid) {
       if (this.externalData) {
-         final Optional<UUID> optionalUuid = this.identifierService.getUuidPrimordialForNid(nid);
-
-         if (optionalUuid.isPresent()) {
-            final UUID uuid = optionalUuid.get();
-
+         final UUID uuid = this.identifierService.getUuidPrimordialForNid(nid);
             putLong(uuid.getMostSignificantBits());
             putLong(uuid.getLeastSignificantBits());
-         } else {
-            throw new RuntimeException("Can't find uuid for nid: " + nid);
-         }
       } else {
          putInt(nid);
       }
@@ -461,6 +459,7 @@ public class ByteArrayDataBuffer {
       }
 
       this.position += 2;
+      this.used = Math.max(used, this.position);
    }
 
    /**
@@ -542,6 +541,10 @@ public class ByteArrayDataBuffer {
       putLong(uuid.getLeastSignificantBits());
    }
 
+   public int getUsed() {
+       return this.used;
+   }
+   
    /**
     * Read UTF.
     *
@@ -757,6 +760,7 @@ public class ByteArrayDataBuffer {
          this.data[this.position + 3] = (byte) (anInt);
          this.position                += 4;
       }
+      this.used = Math.max(used, this.position);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -1138,7 +1142,13 @@ public class ByteArrayDataBuffer {
     */
    public int getNid() {
       if (this.externalData) {
-         return this.identifierService.getNidForUuids(new UUID(getLong(), getLong()));
+         UUID uuid = new UUID(getLong(), getLong());
+         if (this.identifierService.hasUuid(uuid)) {
+            return this.identifierService.getNidForUuids(uuid);
+         }
+         else {
+            return this.identifierService.assignNid(uuid);
+         }
       }
 
       return getInt();

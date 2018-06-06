@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+	<Subsets>
+		<Subset>
+			<Action>update</Action>
+			<Name>AAA SQA New Imm Procedures</Name> <!-- subset name here -->
+			<VUID>-601</VUID> <!-- subset VUID here -->
+			<Active>true</Active>
+		</Subset>
+	</Subsets>
+    
+  <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+			<Append>true</Append>
+            <Name>Authoring Version</Name>
+            <CodedConcepts/>
+        </Version>
+    </CodeSystem>
+</Terminology>

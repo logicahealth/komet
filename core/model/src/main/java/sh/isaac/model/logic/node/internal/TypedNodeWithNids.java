@@ -245,5 +245,8 @@ public abstract class TypedNodeWithNids
    public int getTypeConceptNid() {
       return this.typeConceptNid;
    }
+   public void setTypeConceptNid(int typeConceptNid) {
+      this.typeConceptNid = typeConceptNid;
+   }
 }
 

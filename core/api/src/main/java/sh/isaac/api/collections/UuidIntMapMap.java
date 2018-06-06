@@ -42,7 +42,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -53,8 +53,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.DiskSemaphore;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryManagedReference;
@@ -81,15 +85,14 @@ public class UuidIntMapMap
     /**
      * The Constant NUMBER_OF_MAPS.
      */
-    public static final int NUMBER_OF_MAPS = 256;
+    private static final int NUMBER_OF_MAPS = 256;
 
     /**
-     * The nid to uuid cache size.
+     * The nid to uuid cache enabler
+     * Loader utility enables this when doing IBDF file creation to to get from nid back to UUID  - this prevents it from doing table scans.
      */
-    public static int NID_TO_UUID_CACHE_SIZE = 0;  // defaults to disabled / not normally used.
+    public static boolean NID_TO_UUID_CACHE_ENABLED = false;  // not typically needed at runtime with a complete DB.
 
-    // Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
-    // when the data isn't being written to the DB.
     /**
      * The Constant DEFAULT_MAP_SIZE.
      */
@@ -108,7 +111,7 @@ public class UuidIntMapMap
     /**
      * The Constant NEXT_NID_PROVIDER.
      */
-    private static final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
+    private final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
 
     /**
      * The Constant SERIALIZER.
@@ -129,7 +132,7 @@ public class UuidIntMapMap
     /**
      * The nid to primoridial cache.
      */
-    private LruCache<Integer, UUID[]> nidToPrimoridialCache = null;
+    private Cache<Integer, UUID[]> nidToPrimoridialCache = null;
 
     /**
      * The lock.
@@ -156,9 +159,20 @@ public class UuidIntMapMap
             WriteToDiskCache.addToCache(this.maps[i]);
         }
 
-        if (NID_TO_UUID_CACHE_SIZE > 0) {
-            this.nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
+        if (NID_TO_UUID_CACHE_ENABLED) {
+            this.nidToPrimoridialCache = Caffeine.newBuilder()
+                   .build();
         }
+        
+        File params = new File(folder, "map.params");
+        try {
+         if (params.isFile()) {
+              ByteArrayDataBuffer badb = new ByteArrayDataBuffer(Files.readAllBytes(params.toPath()));
+              NEXT_NID_PROVIDER.set(badb.getInt());
+           }
+      } catch (IOException e) {
+         throw new RuntimeException(e);
+      }
 
         LOG.debug("Created UuidIntMapMap: " + this);
     }
@@ -167,14 +181,14 @@ public class UuidIntMapMap
     /**
      * This method is an optimization for loader patterns, where it can be
      * faster to read the nid to UUID from this cache, but only if the cache
-     * actually as the value.
+     * actually has the value.
      *
      * @param nid the nid
      * @return true, if successful
      */
     public boolean cacheContainsNid(int nid) {
         if (this.nidToPrimoridialCache != null) {
-            return this.nidToPrimoridialCache.containsKey(nid);
+            return this.nidToPrimoridialCache.getIfPresent(nid) != null;
         }
 
         return false;
@@ -217,12 +231,11 @@ public class UuidIntMapMap
      *
      * @param uuidKey the uuid key
      * @param value the value
-     * @return true, if successful
+     * @return {@code true} if the receiver did not already contain such a key; {@code false} if the
+     * receiver did already contain such a key - the new value has now replaced the formerly associated value.
      */
     @Override
     public boolean put(UUID uuidKey, int value) {
-        updateCache(value, uuidKey);
-
         final int mapIndex = getMapIndex(uuidKey);
         final long[] keyAsArray = UUIDUtil.convert(uuidKey);
         final ConcurrentUuidToIntHashMap map = getMap(mapIndex);
@@ -233,6 +246,9 @@ public class UuidIntMapMap
             final boolean returnValue = map.put(keyAsArray, value, stamp);
 
             this.maps[mapIndex].elementUpdated();
+            if (returnValue) {
+               updateCache(value, uuidKey);
+            }
             return returnValue;
         } finally {
             map.getStampedLock()
@@ -280,6 +296,11 @@ public class UuidIntMapMap
                 this.maps[i].write();
             }
         }
+        
+        ByteArrayDataBuffer badb = new ByteArrayDataBuffer();
+        badb.putInt(NEXT_NID_PROVIDER.get());
+
+        Files.write(new File(folder, "map.params").toPath(), badb.getData());
     }
 
     public int getMemoryInUse() {
@@ -355,17 +376,19 @@ public class UuidIntMapMap
      */
     private void updateCache(int nid, UUID uuidKey) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] temp = this.nidToPrimoridialCache.get(nid);
-            UUID[] temp1;
-
-            if (temp == null) {
-                temp1 = new UUID[]{uuidKey};
-            } else {
-                temp1 = Arrays.copyOf(temp, temp.length + 1);
-                temp1[temp.length] = uuidKey;
+            synchronized (nidToPrimoridialCache) {
+                final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
+                UUID[] temp1;
+    
+                if (temp == null) {
+                    temp1 = new UUID[]{uuidKey};
+                } else {
+                    temp1 = Arrays.copyOf(temp, temp.length + 1);
+                    temp1[temp.length] = uuidKey;
+                }
+    
+                this.nidToPrimoridialCache.put(nid, temp1);
             }
-
-            this.nidToPrimoridialCache.put(nid, temp1);
         }
     }
 
@@ -384,12 +407,12 @@ public class UuidIntMapMap
     /**
      * Gets the keys for value.
      *
-     * @param value the value
+     * @param nid the value
      * @return the keys for value
      */
-    public UUID[] getKeysForValue(int value) {
+    public UUID[] getKeysForValue(int nid) {
         if (this.nidToPrimoridialCache != null) {
-            final UUID[] cacheHit = this.nidToPrimoridialCache.get(value);
+            final UUID[] cacheHit = this.nidToPrimoridialCache.getIfPresent(nid);
 
             if ((cacheHit != null) && (cacheHit.length > 0)) {
                 return cacheHit;
@@ -399,7 +422,7 @@ public class UuidIntMapMap
         final ArrayList<UUID> uuids = new ArrayList<>();
 
         for (int index = 0; index < this.maps.length; index++) {
-            getMap(index).keysOf(value)
+            getMap(index).keysOf(nid)
                     .stream()
                     .forEach(uuid -> {
                         uuids.add(uuid);
@@ -409,7 +432,7 @@ public class UuidIntMapMap
         final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
 
         if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
-            this.nidToPrimoridialCache.put(value, temp);
+            this.nidToPrimoridialCache.put(nid, temp);
         }
 
         return temp;
@@ -465,15 +488,11 @@ public class UuidIntMapMap
     private int getMapIndex(UUID key) {
         return (((byte) key.hashCode())) - Byte.MIN_VALUE;
     }
-
-    /**
-     * Gets the next nid provider.
-     *
-     * @return the next nid provider
-     */
-    public static AtomicInteger getNextNidProvider() {
-        return NEXT_NID_PROVIDER;
+    
+    public int getMaxNid() {
+      return NEXT_NID_PROVIDER.get();
     }
+    
 
     /**
      * Checks if shutdown.

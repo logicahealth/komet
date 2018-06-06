@@ -40,6 +40,7 @@ package sh.isaac.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +50,7 @@ import javax.xml.bind.annotation.XmlTransient;
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UUIDUtil;
 
@@ -59,19 +61,24 @@ import sh.isaac.api.util.UUIDUtil;
 public class ConceptProxy
         implements ConceptSpecification { 
 
+   public static final String METADATA_SEMANTIC_TAG = "SOLOR";
+   
    /**
     * Universal identifiers for the concept proxied by the is object.
     */
-   protected UUID[] uuids;
-   
-   private transient int nid = Integer.MAX_VALUE;
+   private UUID[] uuids;
 
    /**
-    * A fullySpecifiedDescriptionText of the concept proxied by this object.
+    * The fully qualified name for this object.
     */
-   protected String fullySpecifiedDescriptionText;
+   private String fullyQualfiedName;
 
-   protected String preferredDescriptionText;
+   /**
+    * The regular name for this object.
+    */
+   private Optional<String> regularName = null;  //leave null, so we know if we have done a lookup or not
+   
+   private int cachedNid = 0;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -91,17 +98,8 @@ public class ConceptProxy
 
       this.uuids = cc.getUuidList()
               .toArray(new UUID[0]);
-      this.fullySpecifiedDescriptionText = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
-      this.preferredDescriptionText = Get.defaultCoordinate().getPreferredDescriptionText(conceptSequenceOrNid);
-   }
-   
-   public void setNid(int nid) {
-      if (this.nid == Integer.MAX_VALUE) {
-          this.nid = nid;
-      } else if (this.nid != nid) {
-          throw new IllegalStateException("Attempting to set nid to a different value. From: " +
-                  this.nid + " to: " + nid);
-      }
+      this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
+      this.regularName = Get.defaultCoordinate().getRegularName(conceptSequenceOrNid);
    }
 
    /**
@@ -115,10 +113,10 @@ public class ConceptProxy
 
       int partIndex = 0;
 
-      this.fullySpecifiedDescriptionText = parts[partIndex++];
+      this.fullyQualfiedName = parts[partIndex++];
 
       if (UUIDUtil.isUUID(parts[partIndex])) {
-         this.preferredDescriptionText = parts[partIndex++];
+         this.regularName = Optional.of(parts[partIndex++]);
       }
 
       final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
@@ -135,30 +133,32 @@ public class ConceptProxy
    }
 
    /**
-    * Instantiates a new concept proxy.
+    * Instantiates a new concept proxy.  Semantic tags and the regular name are set 
+    * via the rules of {@link #setFullyQualfiedName(String)}
     *
     * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
     * @param uuids the uuids
     */
    public ConceptProxy(String fullySpecifiedDescriptionText, UUID... uuids) {
       this.uuids = uuids;
-      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
+      setFullyQualfiedName(fullySpecifiedDescriptionText);
    }
 
    /**
-    * Instantiates a new concept proxy.
+    * Instantiates a new concept proxy.  fullyQualifiedName and regularName are treated per the rules 
+    * of their setters, when it comes to semantic tags (adding or removing tags as necessary)
     *
-    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
-    * @param preferredDescriptionText
+    * @param fullyQualifiedName the regularName
+    * @param regularName
     * @param uuids the uuids
     */
-   public ConceptProxy(String fullySpecifiedDescriptionText, String preferredDescriptionText, UUID... uuids) {
+   public ConceptProxy(String fullyQualifiedName, String regularName, UUID... uuids) {
       this.uuids = uuids;
-      if (UUIDUtil.isUUID(preferredDescriptionText)) {
-         throw new IllegalStateException("perferredDescription cannot be a uuid for: " + fullySpecifiedDescriptionText);
+      if (UUIDUtil.isUUID(regularName)) {
+         throw new IllegalStateException("perferredDescription cannot be a uuid for: " + regularName);
       }
-      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
-      this.preferredDescriptionText = preferredDescriptionText;
+      setFullyQualfiedName(fullyQualifiedName);
+      setRegularName(regularName);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -170,6 +170,9 @@ public class ConceptProxy
     */
    @Override
    public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
       if (obj == null) {
          return false;
       }
@@ -204,7 +207,7 @@ public class ConceptProxy
       int hash = 5;
 
       hash = 79 * hash + Arrays.deepHashCode(this.uuids);
-      hash = 79 * hash + Objects.hashCode(this.fullySpecifiedDescriptionText);
+      hash = 79 * hash + Objects.hashCode(this.fullyQualfiedName);
       return hash;
    }
 
@@ -216,10 +219,10 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.uuids != null) {
-         return "ConceptProxy{" + this.fullySpecifiedDescriptionText + "; " + Arrays.asList(this.uuids) + "}";
+         return "ConceptProxy{" + this.fullyQualfiedName + "; " + Arrays.asList(this.uuids) + "}";
       }
 
-      return "ConceptProxy{" + this.fullySpecifiedDescriptionText + "; null UUIDs}";
+      return "ConceptProxy{" + this.fullyQualfiedName + "; null UUIDs}";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -229,18 +232,8 @@ public class ConceptProxy
     * @return the concept fullySpecifiedDescriptionText text
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return this.fullySpecifiedDescriptionText;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Set a fullySpecifiedDescriptionText of the concept proxied by this object.
-    *
-    * @param fullySpecifiedDescriptionText the new a fullySpecifiedDescriptionText of the concept proxied by this object
-    */
-   public void setFullySpecifiedDescriptionText(String fullySpecifiedDescriptionText) {
-      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
+   public String getFullyQualifiedName() {
+      return this.fullyQualfiedName;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -250,11 +243,26 @@ public class ConceptProxy
     * @return the nid
     */
    @Override
-   public int getNid() {
-       if (nid == Integer.MAX_VALUE) {
-           nid = Get.identifierService().getCachedNidForProxy(this);
-       }
-      return nid;
+   public int getNid() throws NoSuchElementException {
+      if (cachedNid == 0) {
+         try {
+          cachedNid = Get.identifierService().getNidForUuids(getPrimordialUuid());
+         }
+         catch (NoSuchElementException e) {
+            //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
+            cachedNid = Get.identifierService().assignNid(getUuids());
+         }
+      }
+      return cachedNid;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void clearCache() {
+      cachedNid = 0;
+      ConceptSpecification.super.clearCache();
    }
 
    /**
@@ -338,16 +346,37 @@ public class ConceptProxy
          this.uuids[i++] = UUID.fromString(uuid);
       }
    }
-
-   @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      if (this.preferredDescriptionText == null) {
-         this.preferredDescriptionText = Get.defaultCoordinate().getPreferredDescriptionText(this);
+   
+   /**
+    * Set the fully qualified name, adding the {@link #METADATA_SEMANTIC_TAG} if no semantic tag is present.
+    * If {@link #setRegularName(String)} has not yet been set (via this call, or the constructor) then the regular
+    * name will be set to the fully qualified name, minus the semantic tag.
+    * @param fullyQualfiedName the fullyQualfiedName to set
+    */
+   public void setFullyQualfiedName(String fullyQualfiedName) {
+      this.fullyQualfiedName = SemanticTags.addSemanticTagIfAbsent(fullyQualfiedName, METADATA_SEMANTIC_TAG);
+      if (this.regularName == null) {
+         this.regularName = Optional.of(SemanticTags.stripSemanticTagIfPresent(this.fullyQualfiedName));
       }
-      return Optional.ofNullable(this.preferredDescriptionText);
    }
 
-   public Optional<String> getPreferedConceptDescriptionTextNoLookup() {
-      return Optional.ofNullable(this.preferredDescriptionText);
+   /**
+    * @param regularName the regularName to set
+    * If the passed regular name contains a semantic tag, it will be stripped.
+    */
+   public void setRegularName(String regularName) {
+      this.regularName = Optional.ofNullable(SemanticTags.stripSemanticTagIfPresent(regularName));
+   }
+
+   @Override
+   public Optional<String> getRegularName() {
+      if (this.regularName == null) {
+         this.regularName = Get.defaultCoordinate().getRegularName(this);
+      }
+      return this.regularName;
+   }
+
+   public Optional<String> getRegularNameNoLookup() {
+      return this.regularName == null ? Optional.empty() : this.regularName;
    }
 }

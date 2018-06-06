@@ -34,22 +34,30 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javafx.beans.property.Property;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableConceptVersionImpl.
  *
@@ -57,44 +65,100 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
  */
 public class ObservableConceptVersionImpl
         extends ObservableVersionImpl
-         implements ObservableConceptVersion {
-   /**
-    * Instantiates a new observable concept version impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
-    */
-   public ObservableConceptVersionImpl(ConceptVersion stampedVersion,
-         ObservableConceptChronology chronology) {
-      super(stampedVersion, 
-              chronology);
-   }
+        implements ObservableConceptVersion {
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableConceptVersionImpl newObservableVersion = 
-              new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+    public ObservableConceptVersionImpl(UUID primordialUuid, int assemblageNid) {
+        super(VersionType.CONCEPT, primordialUuid, assemblageNid);
+        this.setAuthorNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+        this.setModuleNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+        this.setPathNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+        this.setStatus(Status.ACTIVE);
+    }
 
-   @Override
-   protected void updateVersion() {
-      // nothing to update. 
-   }
+    /**
+     * Instantiates a new observable concept version impl.
+     *
+     * @param stampedVersion the stamped version
+     * @param chronology the chronology
+     */
+    public ObservableConceptVersionImpl(ConceptVersion stampedVersion,
+            ObservableConceptChronology chronology) {
+        super(stampedVersion,
+                chronology);
+    }
 
+    public ObservableConceptVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+        super(chronology);
+        this.setStatus(versionToClone.getStatus());
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
 
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public ObservableConceptChronology getChronology() {
-      return (ObservableConceptChronology) this.chronology;
-   }   
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableConceptVersionImpl newObservableVersion
+                = new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    @Override
+    protected void updateVersion() {
+
+        // nothing to update. 
+    }
+
+    @Override
+    protected List<Property<?>> getEditableProperties2() {
+        return new ArrayList<>();
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the chronology.
+     *
+     * @return the chronology
+     */
+    @Override
+    public ObservableConceptChronology getChronology() {
+        return (ObservableConceptChronology) this.chronology;
+    }
+
+    @Override
+    public Chronology createIndependentChronicle() {
+        ConceptChronologyImpl independentChronology
+                = new ConceptChronologyImpl(this.getPrimordialUuid(), this.getAssemblageNid());
+        boolean added = false;
+        if (this.getChronology() != null) {
+            for (Version v : this.getChronology().getVersionList()) {
+                if (v == this) {
+                    added = true;
+                }
+                independentChronology.addVersion(v);
+            }
+        }
+
+        if (!added) {
+            independentChronology.addVersion(this);
+        }
+        return independentChronology;
+    }
+
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        ConceptChronologyImpl independentChronology
+                = new ConceptChronologyImpl(this.getPrimordialUuid(), this.getAssemblageNid());
+        ConceptVersionImpl newVersion = new ConceptVersionImpl(independentChronology, stampSequence);
+        independentChronology.addVersion(newVersion);
+        return independentChronology;
+    }
+
 }
-

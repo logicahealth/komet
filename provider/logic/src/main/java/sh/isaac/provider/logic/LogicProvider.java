@@ -78,7 +78,7 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
  * @author kec
  */
 @Service(name = "logic provider")
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class LogicProvider
         implements LogicService {
 
@@ -92,8 +92,8 @@ public class LogicProvider
     */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
-  private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
-  //~--- constructors --------------------------------------------------------
+   private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
+   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new logic provider.
     */
@@ -112,7 +112,9 @@ public class LogicProvider
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting LogicProvider at runlevel: " + LookupService.getCurrentRunLevel());
+      LOG.info("Starting LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+      classifierServiceMap.clear();
+      pendingLogicTasks.clear();
    }
 
    /**
@@ -120,8 +122,8 @@ public class LogicProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping LogicProvider at runlevel: " + LookupService.getCurrentRunLevel());
-    for (Task<?> updateTask : pendingLogicTasks) {
+      LOG.info("Stopping LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+      for (Task<?> updateTask : pendingLogicTasks) {
                 try {
                     LOG.info("Waiting for completion of: " + updateTask.getTitle());
                     updateTask.get();
@@ -130,6 +132,8 @@ public class LogicProvider
                     LOG.error(ex);
                 }
             }
+      classifierServiceMap.clear();
+      pendingLogicTasks.clear();
    }
 
    //~--- get methods ---------------------------------------------------------

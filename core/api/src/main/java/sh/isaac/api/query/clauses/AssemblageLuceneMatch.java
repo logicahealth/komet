@@ -59,7 +59,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-//import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
+//import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -117,11 +117,11 @@ public class AssemblageLuceneMatch
 
       final NidSet        nids = new NidSet();
       throw new UnsupportedOperationException();
-//      final SememeIndexer si   = LookupService.get()
-//                                              .getService(SememeIndexer.class);
+//      final SemanticIndexer si   = LookupService.get()
+//                                              .getService(SemanticIndexer.class);
 //
 //      if (si == null) {
-//         throw new IllegalStateException("sememeIndexer is null");
+//         throw new IllegalStateException("semanticIndexer is null");
 //      }
 //
 ////    List<SearchResult> queryResults = si.query(Long.parseLong(luceneMatch), 1000);

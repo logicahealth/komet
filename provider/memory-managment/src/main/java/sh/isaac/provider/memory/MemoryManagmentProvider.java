@@ -23,6 +23,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.memory.SpineReference;
 import sh.isaac.api.memory.WriteToDiskCache;
@@ -33,7 +34,7 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = 0)
+@RunLevel(value = LookupService.SL_L1)
 public class MemoryManagmentProvider implements MemoryManagementService {
 
     private final ConcurrentHashMap<ApplicationStates, AtomicInteger> applicationStateMap

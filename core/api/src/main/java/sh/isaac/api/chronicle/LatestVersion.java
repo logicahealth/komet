@@ -49,6 +49,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,10 +68,11 @@ import sh.isaac.api.identity.StampedVersion;
  *
  * @author kec
  * @param <V> the value type
- * TODO search for all get() methods to make sure test for isPresent() is completed. 
+ * TODO [KEC] search for all get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
    
+    private static final LatestVersion<?> EMPTY = new LatestVersion<>();
    /** The value. */
    V value;
 
@@ -334,6 +338,19 @@ public final class LatestVersion<V> {
          return false;
       }
       return !this.contradictions.isEmpty();
+   }
+   public static <T> LatestVersion<T> of(T value) {
+        return new LatestVersion<>(value);
+   }
+   
+   public static <T> LatestVersion<T> ofNullable(T value) {
+        return value == null ? empty() : of(value);
+   }
+
+   public static<T> LatestVersion<T> empty() {
+        @SuppressWarnings("unchecked")
+        LatestVersion<T> t = (LatestVersion<T>) EMPTY;
+        return t;
    }
 }
 

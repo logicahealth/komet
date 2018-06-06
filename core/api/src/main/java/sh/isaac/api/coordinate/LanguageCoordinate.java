@@ -40,14 +40,19 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.OptionalInt;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -57,20 +62,16 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public interface LanguageCoordinate extends Coordinate {
 
-    /**
-     * If the current language coordinate fails to return a requested description, 
-     * then the next priority language coordinate will be tried until a description is found, 
-     * or until there are no next priority language coordinates left. 
-     * 
-     * @return 
-     */
-    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
+   final static Logger LOG = LogManager.getLogger();
+   /**
+    * If the current language coordinate fails to return a requested description, 
+    * then the next priority language coordinate will be tried until a description is found, 
+    * or until there are no next priority language coordinates left. 
+    * 
+    * @return 
+    */
+   Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
     
-    /**
-     * 
-     * @param languageCoordinate the next in priority language coordinate. 
-     */
-    void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate);
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *
@@ -92,6 +93,19 @@ public interface LanguageCoordinate extends Coordinate {
    default LatestVersion<DescriptionVersion> getDescription(int conceptNid, StampCoordinate stampCoordinate) {
       return getDescription(Get.conceptService().getConceptDescriptions(conceptNid), stampCoordinate);
    }
+   
+   default OptionalInt getAcceptabilityNid(int descriptionNid, int dialectAssemblageNid, StampCoordinate stampCoordinate) {
+       NidSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
+       
+       for (int acceptabilityChronologyNid: acceptabilityChronologyNids.asArray()) {
+           SemanticChronology acceptabilityChronology = Get.assemblageService().getSemanticChronology(acceptabilityChronologyNid);
+               LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(stampCoordinate);
+               if (latestAcceptability.isPresent()) {
+                   return OptionalInt.of(latestAcceptability.get().getComponentNid());
+               }
+       }
+       return OptionalInt.empty();
+   }
 
    /**
     * Gets the latestDescription type preference list.
@@ -101,19 +115,13 @@ public interface LanguageCoordinate extends Coordinate {
    int[] getDescriptionTypePreferenceList();
 
    /**
-    * Gets the latestDescription type preference list.
-    *
-    * @param descriptionTypePreferenceList
-    */
-   void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
-
-   /**
     * Gets the dialect assemblage preference list.
     *
     * @return the dialect assemblage preference list
     */
    int[] getDialectAssemblagePreferenceList();
 
+   // int[] getModulePreferenceList();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *
@@ -194,6 +202,10 @@ public interface LanguageCoordinate extends Coordinate {
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
+   LatestVersion<DescriptionVersion> getDefinitionDescription(
+           List<SemanticChronology> descriptionList,
+           StampCoordinate stampCoordinate);
+
    /**
     * Gets the preferred description.
     *
@@ -206,6 +218,22 @@ public interface LanguageCoordinate extends Coordinate {
            StampCoordinate stampCoordinate) {
       return getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
    }
+   
+   /**
+    * Gets the preferred description text.  Note, that this method always returns some text, which may simply be "No description for {conceptId}"
+    * if it can't find a description for the item.  It is impossible to know if you get a valid description from this method.
+    * 
+    * For a method without this behavior, see {@link #getRegularName(int, StampCoordinate)}
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+   default String getPreferredDescriptionText(int conceptId,
+         StampCoordinate stampCoordinate) {
+      Optional<String> temp = getRegularName(conceptId, stampCoordinate);
+      return temp.orElse("No description for " + conceptId);
+   }
 
    /**
     * Gets the preferred description text.
@@ -214,7 +242,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-   default String getPreferredDescriptionText(
+   default Optional<String> getRegularName(
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
@@ -223,26 +251,25 @@ public interface LanguageCoordinate extends Coordinate {
                // returned below
                break;
             case SEMANTIC:
-               return Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString();
+               return Optional.of(Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString());
             case UNKNOWN:
-               return "unknown for nid: " + conceptId;
+               return Optional.empty();
             default:
-               return "unknown type for nid: " + conceptId;
+               return Optional.empty();
          }
       }
-       try {
-           LatestVersion<DescriptionVersion> latestDescription
-                   = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
-           if (latestDescription.isPresent()) {
-               return latestDescription.get().getText();
-           } else {
-               return "No description for: " + conceptId;
-           }
-       } catch (NoSuchElementException e) {
-//           List<UUID> uuids = Get.identifierService().getUuidsForNid(conceptId);
-//           return "No concept for: " + conceptId + " " + uuids;
-             return "No concept for: " + conceptId;
-       }
+      try {
+         LatestVersion<DescriptionVersion> latestDescription
+                 = getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+         if (latestDescription.isPresent()) {
+            return Optional.of(latestDescription.get().getText());
+         } else {
+            return Optional.empty();
+         }
+      } catch (NoSuchElementException e) {
+         LOG.warn("Error getting regular name for: {}",  Get.identifierService().getUuidsForNid(conceptId));
+         return Optional.empty();
+      }
    }
 
    @Override

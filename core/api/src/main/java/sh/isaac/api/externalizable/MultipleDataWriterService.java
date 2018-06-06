@@ -293,17 +293,17 @@ public class MultipleDataWriterService
    /**
     * Put.
     *
-    * @param ochreObject the ochre object
+    * @param isaacObject the isaac object
     * @throws RuntimeException the runtime exception
-    * @see sh.isaac.api.externalizable.DataWriterService#put(sh.isaac.api.externalizable.OchreExternalizable)
+    * @see sh.isaac.api.externalizable.DataWriterService#put(sh.isaac.api.externalizable.IsaacExternalizable)
     */
    @Override
-   public void put(IsaacExternalizable ochreObject)
+   public void put(IsaacExternalizable isaacObject)
             throws RuntimeException {
       try {
          handleMulti((writer) -> {
                         try {
-                           writer.put(ochreObject);
+                           writer.put(isaacObject);
                            return null;
                         } catch (final RuntimeException e) {
                            return new IOException(e);

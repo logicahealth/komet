@@ -39,27 +39,29 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
-        SemanticVersion sememeVersion = cellValue.unwrap();
-        switch (sememeVersion.getChronology().getVersionType()) {
+        SemanticVersion semanticVersion = cellValue.unwrap();
+        switch (semanticVersion.getChronology().getVersionType()) {
            case DESCRIPTION:
               DescriptionVersion description = cellValue.unwrap();
               int descriptionType = description.getDescriptionTypeConceptNid();
               if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("FQN");
               } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                 setText("SYN");
+                 setText("NĀM");
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
+              } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+                 setText("ABR");
               } else {
                  setText(manifold.getPreferredDescriptionText(descriptionType));
               } 
               
               break;
            default: 
-              if (sememeVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
+              if (semanticVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
                  setText("PATH");
               } else {
-                 setText(sememeVersion.getChronology().getVersionType().getWhatName());
+                 setText(semanticVersion.getChronology().getVersionType().getWhatName());
               }
            
         }

@@ -39,17 +39,13 @@
 
 package sh.isaac.provider.ibdf;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.nio.file.Path;
-
 import java.util.Spliterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -61,81 +57,75 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.model.datastream.BinaryDatastreamReader;
+import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 
 /**
  * {@link BinaryDataReaderQueueProvider}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @deprecated {@link BinaryDatastreamReader} may be a simpler replacement
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
-   /** The objects. */
+   
    int objects = 0;
 
-   /** The not started. */
    int NOTSTARTED = 3;
-
-   /** The running. */
    int RUNNING = 2;
-
-   /** The done reading. */
    int DONEREADING = 1;
-
-   /** The complete. */
    int COMPLETE = 0;
 
-   /** The complete. */
    final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
 
-   /** The complete block. */
    Semaphore completeBlock = new Semaphore(1);
-
-   /** The read data. */
 
    // Only one thread doing the reading from disk, give it lots of buffer space
    private final BlockingQueue<IsaacExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
-   /** The parsed data. */
-
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
    private final BlockingQueue<IsaacExternalizable> parsedData = new ArrayBlockingQueue<>(50);
 
-   /** The data path. */
-   Path dataPath;
-
-   /** The input. */
    DataInputStream input;
 
-   /** The stream bytes. */
    int streamBytes;
+   
+   private boolean failed = false;
 
-   /** The es. */
    ExecutorService es;
 
-   //~--- constructors --------------------------------------------------------
+   /**
+    * Instantiates a new binary data reader queue provider.
+    *
+    * @param dataStream the data stream
+    */
+   public BinaryDataReaderQueueProvider(InputStream dataStream) {
+      this.input    = new DataInputStream(dataStream);
 
+      try {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+   
    /**
     * Instantiates a new binary data reader queue provider.
     *
     * @param dataPath the data path
     * @throws FileNotFoundException the file not found exception
     * this.input.available(); gives inconsistent results? 
-    * @deprecated inconsistent results? Try BinaryDatastreamReader
+    * @deprecated Try BinaryDatastreamReader
     */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {
-      this.dataPath = dataPath;
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
 
       try {
@@ -146,12 +136,8 @@ public class BinaryDataReaderQueueProvider
       }
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Characteristics.
-    *
-    * @return the int
+    * {@inheritDoc}
     */
    @Override
    public int characteristics() {
@@ -159,9 +145,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Estimate size.
-    *
-    * @return the long
+    * {@inheritDoc}
     */
    @Override
    public long estimateSize() {
@@ -169,11 +153,12 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Shutdown.
+    * {@inheritDoc}
     */
    @Override
    public void shutdown() {
       try {
+         LOG.info("Shutdown called on BinaryDataReaderQueueProvider, read {} object byte arrays", this.objects);
          this.input.close();
 
          if (this.complete.getCount() == this.RUNNING) {
@@ -182,12 +167,16 @@ public class BinaryDataReaderQueueProvider
 
          this.es.shutdown();
 
+         //Wait for the executor service to drain the queue
          while (!this.readData.isEmpty()) {
-            Thread.sleep(10);
+             Thread.sleep(50);
          }
 
+         //Wake up the sleeping threads in the es
          this.es.shutdownNow();
-         this.es.awaitTermination(50, TimeUnit.MINUTES);
+         //wait for the last running threads to process their work
+         this.es.awaitTermination(5, TimeUnit.MINUTES);
+         LOG.info("All objects parsed");
 
          if (this.complete.getCount() == this.DONEREADING) {
             this.complete.countDown();
@@ -200,15 +189,11 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Try advance.
-    *
-    * @param action the action
-    * @return true, if successful
+    * {@inheritDoc}
     */
    @Override
    public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
       try {
-         final int                           startBytesAvailable        = this.input.available();
          final int                           recordSizeInBytes        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSizeInBytes];
 
@@ -219,10 +204,9 @@ public class BinaryDataReaderQueueProvider
          buffer.setExternalData(true);
          action.accept(new IsaacExternalizableUnparsed(buffer));
          this.objects++;
-         completedUnitsOfWork(startBytesAvailable - this.input.available());
+         completedUnitsOfWork(objectData.length + 4);
          return true;
       } catch (final EOFException ex) {
-         shutdown();
          return false;
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
@@ -230,9 +214,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Try split.
-    *
-    * @return the spliterator
+    * {@inheritDoc}
     */
    @Override
    public Spliterator<IsaacExternalizableUnparsed> trySplit() {
@@ -240,9 +222,7 @@ public class BinaryDataReaderQueueProvider
    }
 
    /**
-    * Call.
-    *
-    * @return the number of objects read.
+    * {@inheritDoc}
     */
    @Override
    protected Integer call() {
@@ -255,23 +235,20 @@ public class BinaryDataReaderQueueProvider
       return this.objects;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Checks if finished.
-    *
-    * @return true, if finished
+    * {@inheritDoc}
     */
    @Override
    public boolean isFinished() {
+      if (failed)
+      {
+         throw new RuntimeException("Error in reading threads!");
+      }
       return this.complete.getCount() == this.COMPLETE;
    }
 
    /**
-    * Gets the queue.
-    *
-    * @return the queue
-    * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
+    * {@inheritDoc}
     */
    @Override
    public BlockingQueue<IsaacExternalizable> getQueue() {
@@ -293,41 +270,57 @@ public class BinaryDataReaderQueueProvider
 
                for (int i = 0; i < threadCount; i++) {
                   this.es.execute(() -> {
-                                      while ((this.complete.getCount() > this.COMPLETE) ||!this.readData.isEmpty()) {
-                                         boolean accepted;
+                     while (!((this.complete.getCount() <= this.DONEREADING) && this.readData.isEmpty())) {
+                        Boolean accepted = null;
 
-                                         try {
-                                            accepted = this.parsedData.offer(this.readData.take()
-                                                  .parse(),
-                                                  5,
-                                                  TimeUnit.MINUTES);
-                                         } catch (final InterruptedException e) {
-                                            break;
-                                         }
-
-                                         if (!accepted) {
-                                            throw new RuntimeException("unexpeced queue issues");
-                                         }
-                                      }
-                                   });
+                        try {
+                           IsaacExternalizable taken = this.readData.take().parse();
+                           while (accepted == null)
+                           {
+                              try {
+                                 accepted = this.parsedData.offer(taken, 5, TimeUnit.MINUTES);
+                              } catch (InterruptedException e) {
+                                 // we ignore interrupts when offering, we don't want to lose this.
+                              }
+                           }
+                           if (!accepted) {
+                              throw new RuntimeException("unexpeced queue issues");
+                           }
+                        } catch (final InterruptedException e) {
+                           LOG.debug("es interrupted");
+                        }
+                        catch (Exception e) {
+                           LOG.error("Parsing error", e);
+                           failed = true;
+                           throw e;  //this kills the thread....
+                        }
+                     }
+                     LOG.debug("Thread ends");
+                  });
                }
 
                Get.workExecutors().getExecutor().execute(() -> {
-                              try {
-                                 getStreamInternal().forEach((unparsed) -> {
-                              try {
-                                 this.readData.offer(unparsed, 5, TimeUnit.MINUTES);
-                              } catch (final Exception e) {
-                                 throw new RuntimeException(e);
-                              }
-                           });
-                              } catch (final Exception e) {
-                                 Get.workExecutors().getExecutor().execute(() -> {
-                                                shutdown();
-                                             });
-                                 throw e;
-                              }
-                           });
+                  LOG.debug("Thread to read from disk begins");
+                  try {
+                     getStreamInternal().forEach((unparsed) -> {
+                        try {
+                           this.readData.offer(unparsed, 5, TimeUnit.MINUTES);
+                        } catch (final Exception e) {
+                           LOG.warn("exception in offer?", e);
+                           throw new RuntimeException(e);
+                        }
+                     });
+                  } catch (final Exception e) {
+                     LOG.error("exception in read?", e);
+                     failed = true;
+                     Get.workExecutors().getExecutor().execute(() -> {
+                        shutdown();
+                     });
+                     throw e;
+                  }
+                  LOG.debug("Thread to read from disk completes - doing shutdown");
+                  shutdown();
+               });
             }
          } finally {
             this.completeBlock.release();
@@ -347,4 +340,3 @@ public class BinaryDataReaderQueueProvider
       return StreamSupport.stream(this, false);
    }
 }
-

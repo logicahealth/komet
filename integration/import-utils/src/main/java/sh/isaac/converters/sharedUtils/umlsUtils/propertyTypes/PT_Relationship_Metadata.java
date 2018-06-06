@@ -55,9 +55,10 @@ public class PT_Relationship_Metadata
         extends PropertyType {
    /**
     * Instantiates a new p T relationship metadata.
+    * @param termName 
     */
-   public PT_Relationship_Metadata() {
-      super("Relationship Metadata", true, DynamicDataType.UUID);
+   public PT_Relationship_Metadata(String termName) {
+      super(termName + " Relationship Metadata", true, DynamicDataType.UUID, null);
       indexByAltNames();
       addProperty("General Rel Type");
       addProperty("Inverse General Rel Type");

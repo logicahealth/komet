@@ -101,10 +101,7 @@ public class DynamicDoubleImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data double.
-    *
-    * @return the data double
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDouble()
+    * {@inheritDoc}
     */
    @Override
    public double getDataDouble() {
@@ -113,10 +110,7 @@ public class DynamicDoubleImpl
    }
 
    /**
-    * Gets the data double property.
-    *
-    * @return the data double property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
@@ -128,10 +122,7 @@ public class DynamicDoubleImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -139,10 +130,7 @@ public class DynamicDoubleImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

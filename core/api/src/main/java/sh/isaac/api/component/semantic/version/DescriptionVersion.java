@@ -39,6 +39,9 @@
 
 package sh.isaac.api.component.semantic.version;
 
+import org.apache.logging.log4j.LogManager;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 
 /**
@@ -63,6 +66,35 @@ public interface DescriptionVersion
     * @return the description type concept sequence
     */
    int getDescriptionTypeConceptNid();
+   
+   /**
+    * A convenience method to get a end-user reasonble label for the description type.
+    * 
+    * Calls {@link #getDescriptionType()} and returns one of "Fully Qualified Name", "Regular Name" or "Definition",
+    * as it matches the type.  If there is an error, and the nid doesn't align to one of these, it falls through to 
+    * {@link Get#conceptDescriptionText(int)} 
+    * 
+    * @return a description type string suitable for an end-user display.
+    */
+   default String getDescriptionType() {
+      int nid = getDescriptionTypeConceptNid();
+      //Because the names of these concepts keep arbitrarily changing, provide labels that can be used in a GUI
+      //the way users actually want to see them.... nobody wants to see 
+      //"Regular name description type (SOLOR)" in a GUI dropdown of description types
+      if (nid == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+         return "Fully Qualified Name";
+      }
+      else if (nid == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+          return "Regular Name";
+      }
+      else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+          return "Definition";
+      }
+      else {
+         LogManager.getLogger().warn("Unexpected description type {}!", nid);
+         return Get.conceptDescriptionText(nid);
+      }
+   }
 
    /**
     * Gets the language concept sequence.
@@ -82,6 +114,5 @@ public interface DescriptionVersion
    default VersionType getSemanticType() {
       return VersionType.DESCRIPTION;
    }
-   
 }
 

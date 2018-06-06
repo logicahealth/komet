@@ -316,7 +316,11 @@ public class H2DatabaseHandle {
     */
    public void shutdown()
             throws SQLException {
-      this.connection.close();
+      if (this.connection != null)
+      {
+         this.connection.close();
+         this.connection = null;
+      }
    }
 
    //~--- get methods ---------------------------------------------------------

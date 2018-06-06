@@ -61,6 +61,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
@@ -76,7 +77,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author Nuno Marques
  */
 @Service(name = "Post Commit Provider")
-@RunLevel(value = 1)
+@RunLevel(value = LookupService.SL_L2)
 public class PostCommitProvider
          implements PostCommitService, ChronologyChangeListener {
    /** The Constant LOG. */
@@ -178,6 +179,8 @@ public class PostCommitProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping PostCommitProvider pre-destroy. ");
+      Get.commitService().removeChangeListener(this);
+      changeSetListeners.clear();
    }
 
    //~--- get methods ---------------------------------------------------------

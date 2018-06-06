@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>integration</artifactId>
-      <version>4.47</version>
+      <version>4.48</version>
    </parent>
 
    <groupId>sh.isaac.integration</groupId>
@@ -25,10 +25,15 @@
       <dependency>
          <groupId>com.fasterxml.jackson.core</groupId>
          <artifactId>jackson-databind</artifactId>
-         <version>2.7.4</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>test</scope>
       </dependency>
    </dependencies>
-	
+   
    <build>
       <plugins>
          <plugin>
@@ -43,8 +48,8 @@
                      <schemaIncludes>
                         <!-- This is a tweaked version of the maven pom to make it easier to deal with the xs:any inside 
                         of <xs:element name="configuration" -->
-                        <include>maven-4.0.0-tweaked.xsd.hidden</include>
-                        <include>assembly-1.1.2.xsd.hidden</include>
+                        <include>maven-4.0.0-tweaked.xsd</include>
+                        <include>assembly-1.1.2.xsd</include>
                      </schemaIncludes>
                   </configuration>
                </execution>

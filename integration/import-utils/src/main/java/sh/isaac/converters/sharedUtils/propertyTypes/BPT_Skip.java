@@ -58,7 +58,7 @@ public abstract class BPT_Skip
     * @param description the description
     */
    public BPT_Skip(String description) {
-      super(description, false, null);
+      super(description, false, null, null);
    }
 
    //~--- methods -------------------------------------------------------------

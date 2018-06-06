@@ -102,6 +102,8 @@ public class StampCoordinateImpl
    /** The allowed states. */
    @XmlJavaTypeAdapter(EnumSetAdapter.class)
    EnumSet<Status> allowedStates;
+   
+   private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -155,38 +157,49 @@ public class StampCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Equals.
-    *
-    * @param obj the obj
-    * @return true, if successful
-    */
    @Override
-   public boolean equals(Object obj) {
-      if (obj == null) {
-         return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final StampCoordinateImpl other = (StampCoordinateImpl) obj;
-
-      if (this.stampPrecedence != other.stampPrecedence) {
-         return false;
-      }
-
-      if (!Objects.equals(this.stampPosition, other.stampPosition)) {
-         return false;
-      }
-
-      if (!this.allowedStates.equals(other.allowedStates)) {
-         return false;
-      }
-
-      return this.moduleSequences.equals(other.moduleSequences);
+   public StampCoordinate getImmutableAllStateAnalog() {
+       StampCoordinateImmutableWrapper coordinate = this.stampCoordinateImmutable;
+       if (coordinate != null) {
+           return coordinate;
+       }
+       coordinate = new StampCoordinateImmutableWrapper(this);
+       this.stampCoordinateImmutable = coordinate;
+       return coordinate;
    }
+
+    /**
+     * Equals.
+     *
+     * @param obj the obj
+     * @return true, if successful
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        final StampCoordinateImpl other = (StampCoordinateImpl) obj;
+        
+        if (this.stampPrecedence != other.stampPrecedence) {
+            return false;
+        }
+        
+        if (!Objects.equals(this.stampPosition, other.stampPosition)) {
+            return false;
+        }
+        
+        if (!this.allowedStates.equals(other.allowedStates)) {
+            return false;
+        }
+        
+        return this.moduleSequences.equals(other.moduleSequences);
+    }
 
    /**
     * Hash code.
@@ -213,7 +226,7 @@ public class StampCoordinateImpl
    @Override
    public StampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
       final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
-                                                                       this.stampPosition.getStampPathSequence());
+                                                                       this.stampPosition.getStampPathNid());
 
       return new StampCoordinateImpl(this.stampPrecedence,
                                      anotherStampPosition,
@@ -233,6 +246,11 @@ public class StampCoordinateImpl
 
       newAllowedStates.addAll(Arrays.asList(states));
       return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
+   }
+   
+   @Override
+   public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, states);
    }
 
    /**

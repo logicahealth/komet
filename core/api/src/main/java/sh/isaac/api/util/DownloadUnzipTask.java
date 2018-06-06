@@ -80,11 +80,10 @@ public class DownloadUnzipTask
 
    //~--- fields --------------------------------------------------------------
 
-   /** The cancel. */
    private boolean cancel = false;
 
-   /** The psswrd. */
-   String username, psswrd;
+   String username;
+   char[] password;
 
    /** The url. */
    URL url;
@@ -104,7 +103,7 @@ public class DownloadUnzipTask
     * Instantiates a new download unzip task.
     *
     * @param username (optional) used if provided
-    * @param psswrd (optional) used if provided
+    * @param password (optional) used if provided
     * @param url The URL to download from
     * @param unzip - Treat the file as a zip file, and unzip it after the download
     * @param failOnBadChecksum - If a checksum file is found on the repository - fail if the downloaded file doesn't match the expected value.
@@ -114,14 +113,14 @@ public class DownloadUnzipTask
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public DownloadUnzipTask(String username,
-                            String psswrd,
+                            char[] password,
                             URL url,
                             boolean unzip,
                             boolean failOnBadChecksum,
                             File targetFolder)
             throws IOException {
       this.username         = username;
-      this.psswrd           = psswrd;
+      this.password         = password;
       this.url              = url;
       this.unzip            = unzip;
       this.targetFolder     = targetFolder;
@@ -231,7 +230,7 @@ public class DownloadUnzipTask
                              zipFile.getProgressMonitor().getPercentDone() + "%");
 
                try {
-                  // TODO see if there is an API where I don't have to poll for completion
+                  // TODO [DAN 3] see if there is an API where I don't have to poll for completion
                   Thread.sleep(25);
                } catch (final InterruptedException e) {
                   // noop
@@ -266,9 +265,9 @@ public class DownloadUnzipTask
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 
-      if (StringUtils.isNotBlank(this.username) || StringUtils.isNotBlank(this.psswrd)) {
+      if (StringUtils.isNotBlank(this.username) || this.password != null) {
          final String encoded = Base64.getEncoder()
-                                      .encodeToString((this.username + ":" + this.psswrd).getBytes());
+                                      .encodeToString((this.username + ":" + new String(this.password)).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }

@@ -38,7 +38,6 @@ package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.UUID;
-import javafx.application.Platform;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -46,31 +45,31 @@ import javax.annotation.PreDestroy;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
 
+import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyWeakRefImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -79,7 +78,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 @Service
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class ObservableChronologyProvider
         implements ObservableChronologyService, ChronologyChangeListener {
 
@@ -102,9 +101,9 @@ public class ObservableChronologyProvider
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
    /**
-    * The observable sememe map.
+    * The observable semantic map.
     */
-   ConcurrentReferenceHashMap<Integer, ObservableSemanticChronology> observableSememeMap
+   ConcurrentReferenceHashMap<Integer, ObservableSemanticChronology> observableSemanticMap
            = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
@@ -145,7 +144,7 @@ public class ObservableChronologyProvider
    @Override
    public void handleChange(final SemanticChronology sc) {
       Platform.runLater(() -> {
-         final ObservableSemanticChronology osc = this.observableSememeMap.get(sc.getNid());
+         final ObservableSemanticChronology osc = this.observableSemanticMap.get(sc.getNid());
 
          if (osc != null) {
             osc.handleChange(sc);
@@ -158,9 +157,8 @@ public class ObservableChronologyProvider
          }
 
          // handle referenced component
-         // Concept, description, or sememe
-         final ObjectChronologyType oct = Get.identifierService()
-                 .getOldChronologyTypeForNid(sc.getReferencedComponentNid());
+         // Concept, description, or semantic
+         final IsaacObjectType oct = Get.identifierService().getObjectTypeForComponent(sc.getReferencedComponentNid());
          ChronologyChangeListener referencedComponent = null;
 
          switch (oct) {
@@ -169,7 +167,7 @@ public class ObservableChronologyProvider
                break;
 
             case SEMANTIC:
-               referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
+               referencedComponent = this.observableSemanticMap.get(sc.getReferencedComponentNid());
                break;
 
             default:
@@ -197,7 +195,7 @@ public class ObservableChronologyProvider
          }
       });
       commitRecord.getSemanticNidsInCommit().stream().forEach((semanticNid) -> {
-         if (this.observableSememeMap.containsKey(semanticNid)) {
+         if (this.observableSemanticMap.containsKey(semanticNid)) {
             handleChange(Get.assemblageService().getSemanticChronology(semanticNid));
          }
       });
@@ -211,6 +209,8 @@ public class ObservableChronologyProvider
    private void startMe() {
       LOG.info("Starting ObservableChronologyProvider post-construct");
       Get.commitService().addChangeListener(this);
+      observableConceptMap.clear();
+      observableSemanticMap.clear();
    }
 
    /**
@@ -220,6 +220,8 @@ public class ObservableChronologyProvider
    private void stopMe() {
       LOG.info("Stopping ObservableChronologyProvider");
       Get.commitService().removeChangeListener(this);
+      observableConceptMap.clear();
+      observableSemanticMap.clear();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -241,7 +243,7 @@ public class ObservableChronologyProvider
     */
    @Override
    public ObservableConceptChronology getObservableConceptChronology(int id) {
-      //TODO consider implementing weak reference for concepts like done for observable sememe...
+      //TODO consider implementing weak reference for concepts like done for observable semantic...
 
       ObservableConceptChronology observableConceptChronology = this.observableConceptMap.get(id);
 
@@ -256,10 +258,10 @@ public class ObservableChronologyProvider
    }
 
    /**
-    * Gets the observable sememe chronology.
+    * Gets the observable semantic chronology.
     *
     * @param id the id
-    * @return the observable sememe chronology
+    * @return the observable semantic chronology
     */
    @Override
    public ObservableSemanticChronology getObservableSemanticChronology(int id) {
@@ -278,7 +280,7 @@ public class ObservableChronologyProvider
 
       public ObservableSnapshotServiceProvider(ManifoldCoordinate manifoldCoordinate) {
          this.manifoldCoordinate = manifoldCoordinate;
-         this.relativePositionCalculator = new RelativePositionCalculator(manifoldCoordinate);
+         this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.manifoldCoordinate);
       }
 
       @Override
@@ -314,7 +316,7 @@ public class ObservableChronologyProvider
       @Override
       public ObservableSemanticChronology getObservableSemanticChronology(int id) {
  
-         ObservableSemanticChronology observableSemanticChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
+         ObservableSemanticChronology observableSemanticChronology = ObservableChronologyProvider.this.observableSemanticMap.get(id);
 
          if (observableSemanticChronology != null) {
             return observableSemanticChronology;
@@ -322,7 +324,7 @@ public class ObservableChronologyProvider
 
          SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(id);
          observableSemanticChronology = new ObservableSemanticChronologyImpl(semanticChronology);
-         return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSemanticChronology);
+         return observableSemanticMap.putIfAbsentReturnCurrentValue(id, observableSemanticChronology);
       }
 
       @Override

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts>
+				<CodedConcept>
+					<Action>none</Action>
+					<Code>900553</Code> <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+					<VUID>900553</VUID> <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+					<Active>1</Active>
+					<Designations>
+						<Designation>
+							<Action>update</Action>
+							<Code>900551</Code> <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+							<TypeName>Preferred Name</TypeName>
+							<VUID>900551</VUID> <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+							<ValueNew>A1 DONOR</ValueNew> <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+							<Active>1</Active>
+							<MoveFromConceptCode>900550</MoveFromConceptCode>
+						</Designation>
+					</Designations>
+				</CodedConcept>
+			</CodedConcepts>
+		</Version>
+	</CodeSystem>
+</Terminology>

@@ -54,16 +54,16 @@ import sh.isaac.api.logic.assertions.connectors.And;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
 import sh.isaac.api.logic.assertions.connectors.Or;
 import sh.isaac.api.logic.assertions.literal.BooleanLiteral;
-import sh.isaac.api.logic.assertions.literal.FloatLiteral;
 import sh.isaac.api.logic.assertions.literal.InstantLiteral;
 import sh.isaac.api.logic.assertions.literal.IntegerLiteral;
 import sh.isaac.api.logic.assertions.literal.StringLiteral;
 import sh.isaac.api.logic.assertions.substitution.BooleanSubstitution;
 import sh.isaac.api.logic.assertions.substitution.ConceptSubstitution;
-import sh.isaac.api.logic.assertions.substitution.FloatSubstitution;
 import sh.isaac.api.logic.assertions.substitution.InstantSubstitution;
 import sh.isaac.api.logic.assertions.substitution.IntegerSubstitution;
 import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
+import sh.isaac.api.logic.assertions.literal.DoubleLiteral;
+import sh.isaac.api.logic.assertions.substitution.DoubleSubstitution;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,8 +74,8 @@ import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
  */
 public class GenericAxiom
          implements NecessarySet, SufficientSet, And, DisjointWith, ConceptAssertion, AllRole, Feature, SomeRole,
-                    Template, Or, BooleanLiteral, FloatLiteral, InstantLiteral, IntegerLiteral, StringLiteral,
-                    BooleanSubstitution, ConceptSubstitution, FloatSubstitution, InstantSubstitution,
+                    Template, Or, BooleanLiteral, DoubleLiteral, InstantLiteral, IntegerLiteral, StringLiteral,
+                    BooleanSubstitution, ConceptSubstitution, DoubleSubstitution, InstantSubstitution,
                     IntegerSubstitution, StringSubstitution {
    /** The builder. */
    private final LogicalExpressionBuilder builder;
@@ -94,7 +94,7 @@ public class GenericAxiom
     * @param semantic the semantic
     * @param builder the builder
     */
-   public GenericAxiom(NodeSemantic semantic, LogicalExpressionBuilderOchreImpl builder) {
+   public GenericAxiom(NodeSemantic semantic, LogicalExpressionBuilderImpl builder) {
       this.builder  = builder;
       this.index    = builder.getNextAxiomIndex();
       this.semantic = semantic;

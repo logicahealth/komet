@@ -35,51 +35,58 @@
  *
  */
 
-
-
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Optional;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-
 import org.jvnet.hk2.annotations.Contract;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.constants.SystemPropertyConstants;
 
-import sh.isaac.api.constants.Constants;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
- * An interface used for system configuration. Services started by the
- * {@link LookupService} will utilize an implementation of this service in order
- * to configure themselves.
- * TODO consider how to manage a separation with the preferences service. 
+ * An interface used for system configuration.
+ * 
+ * The core interface here, only contains getters and setters for boot strapping the system - 
+ * in general, things that must be set prior to launching the datastore (like the path to the datastore)
+ * 
+ * Items in this core API are not persisted across runs.  
+ * 
+ * More specific configuration, which is persisted through the lifecycle, can be found in {@link #getGlobalDatastoreConfiguration()}
+ *  
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
 public interface ConfigurationService {
+
+   public enum BuildMode{DB, IBDF}
+   
+   /**
+    * @return the nid of the current user of the system.  This is ONLY returned if the system is in 
+    * single user mode.
+    * See {@link #setSingleUserMode(boolean)}
+    */
+   public Optional<UUID> getCurrentUserId();
+
+   /**
+    * @param singleUserMode - if true, put the system in single user mode - read a user name from the hosting OS, find (or create) a concept as necessary 
+    * to represent that user in the DB, and from this point forward, return the nid of this concept for {@link #getCurrentUserId()} 
+    * if false, remove the system from single user mode, and from this point forward, return an {@link Optional#empty()} for {@link #getCurrentUserId()} 
+    */
+   public void setSingleUserMode(boolean singleUserMode);
+   
    /**
     * Enable verbose debug.
     *
     * @return true if verbose debug has been enabled.  This default implementation allows the
-    * feature to be enabled by setting the system property {@link Constants#ISAAC_DEBUG} to 'true'
+    * feature to be enabled by setting the system property {@link SystemPropertyConstants#ISAAC_DEBUG} to 'true'
     */
-   public default boolean enableVerboseDebug() {
-      final String value = System.getProperty(Constants.ISAAC_DEBUG);
+   public default boolean isVerboseDebugEnabled() {
+      final String value = System.getProperty(SystemPropertyConstants.ISAAC_DEBUG);
 
       if (StringUtils.isNotBlank(value)) {
          return value.trim()
@@ -90,337 +97,148 @@ public interface ConfigurationService {
    }
 
    /**
-    * There are some cases where validators and such cannot be properly executed if we are in bootstrap mode - building
-    * the system for the first time.  The default implementation of this returns false.
+    * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * @return true, if successful
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
+    * 
+    * 
+    * The default implementation of this returns false.
+    *
+    * @return true, if in ANY db build mode.  See also {@link #isInDBBuildMode(BuildMode)}
     */
-   public default boolean inBootstrapMode() {
+   public default boolean isInDBBuildMode() {
       return false;
    }
-
+   
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
+    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * without a complete system shutdown / restart.
+    * 
+    * 
+    * The default implementation of this returns false.
+    * @param buildMode the build mode to query about.  If null is passed, behaves the same as {@link #isInDBBuildMode()}  
     *
-    * @return true, if successful
+    * @return true, if in the specified db build mode.  See also {@link #isInDBBuildMode()}
     */
-   public default boolean inDBBuildMode() {
+   public default boolean isInDBBuildMode(BuildMode buildMode) {
       return false;
    }
-
-   //~--- set methods ---------------------------------------------------------
+   
+   /**
+    * An observable wrapper for dbBuildMode.  See also {@link #isInDBBuildMode(BuildMode)}
+    * @return the object property that will notify if build mode is started
+    */
+   public default ReadOnlyObjectProperty<BuildMode> getDBBuildMode() {
+      return new SimpleObjectProperty<BuildMode>(null);
+   }
 
    /**
-    * See {@link #inBootstrapMode()}.
+    * See {@link #isInDBBuildMode()}.
+    * @param buildMode the build mode to enable.
     */
-   public default void setBootstrapMode() {
+   public default void setDBBuildMode(BuildMode buildMode) {
       throw new UnsupportedOperationException();
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the chronicle folder path.
-    *
-    * @return The root folder of the database - one would expect to find a
-    * data-store specific folder such as "cradle" inside this folder. The
-    * default implementation returns the result of
-    * {@link #getDataStoreFolderPath()} + {@link Constants#DEFAULT_CHRONICLE_FOLDER}
-    *
-    * The returned path MAY NOT exists on disk at the time that this method returns.
-    * It is the caller's responsibility to create the path if necessary. 
-    */
-   public default Path getChronicleFolderPath() {
-      Path                 result;
-      final Optional<Path> rootPath = getDataStoreFolderPath();
-
-      if (!rootPath.isPresent()) {
-         throw new IllegalStateException(
-             "The ConfigurationService implementation has not been configured by a call to setDataStoreFolderPath()," +
-             " and the system property " + Constants.DATA_STORE_ROOT_LOCATION_PROPERTY +
-             " has not been set.  Cannot construct the chronicle folder path.");
-      } else {
-         result = rootPath.get()
-                          .resolve(Constants.DEFAULT_CHRONICLE_FOLDER);
-      }
-      return result;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * See {@link #inDBBuildMode()}.
-    */
-   public default void setDBBuildMode() {
-      throw new UnsupportedOperationException();
-   }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the data store folder path.
     *
-    * @return The root folder of the database - the returned path should contain
-    * subfolders of
-    * {@link Constants#DEFAULT_CHRONICLE_FOLDER} and
-    * {@link Constants#DEFAULT_SEARCH_FOLDER}.
-    *
+    * @return The root folder of the datastore.
     *
     * This method will return (in the following order):
     *
-    * - The value specified by a call to {@link #setDataStoreFolderPath(Path)}
-    * - a path constructed from the value of
-    * {@link Constants#DATA_STORE_ROOT_LOCATION_PROPERTY} if
-    * {@link #setDataStoreFolderPath(Path)} was never called
-    * - Nothing if
-    * {@link Constants#DATA_STORE_ROOT_LOCATION_PROPERTY} has not been set.
-    *
-    * If a value is returned, the returned path still MAY NOT Exist on disk at the time
-    * that this method returns. The caller is responsible to create the path if necessary. 
+    * 1) a path constructed from the value of {@link SystemPropertyConstants#DATA_STORE_ROOT_LOCATION_PROPERTY}, if that system property has been set 
+    * 
+    * 2) The value specified by a call to {@link #setDataStoreFolderPath(Path)}, if that method has been called.
+    * 
+    * 3) if the 'target' folder exists in the JVM launch location, check for the pattern target/data/*.data with a sub-file named dataStoreId.txt.
+    *    If found, returns the found 'target/data/*.data' path.  Otherwise, returns 'target/data/isaac.data'.
+    *   
+    * 4) check for the pattern 'data/*.data' with a sub-file named dataStoreId.txt.relative to the JVM launch location.  If found, returns the 'data/*.data'
+    *    path.  Otherwise, returns 'data/isaac.data'. relative to the JVM launch location. 
+    * 
+    * The returned path may or may NOT Exist on disk at the time that this method returns. The caller is responsible to create the path if necessary. 
     */
-   public Optional<Path> getDataStoreFolderPath();
-
-   //~--- set methods ---------------------------------------------------------
-
+   public Path getDataStoreFolderPath();
+   
    /**
-    * Specify the root folder of the database. The specified folder should
-    * contain subfolders of {@link Constants#DEFAULT_CHRONICLE_FOLDER} and
-    * {@link Constants#DEFAULT_SEARCH_FOLDER}.
+    * Specify the root folder of the database. 
     *
     * This method can only be utilized prior to the first call to
-    * {@link LookupService#startupIsaac()}
-    *
+    * {@link LookupService#startupIsaac()}  Calling this method specifies the value that will be returned by {@link #getDataStoreFolderPath()}
+   *
     * @param dataStoreFolderPath the new data store folder path
-    * @throws IllegalStateException if this is called after the system has
-    * already started.
-    * @throws IllegalArgumentException if the provided dbFolderPath is an
-    * existing file, rather than a folder.
+    * @throws IllegalStateException if this is called after the system has already started.
+    * @throws IllegalArgumentException if the provided dbFolderPath is an existing file, rather than a folder.
     */
    public void setDataStoreFolderPath(Path dataStoreFolderPath)
             throws IllegalStateException, IllegalArgumentException;
 
    /**
-    * Sets the default classifier. When changed, other default objects that
-    * reference this object will be updated accordingly. Default: The value to
-    * use if another value is not provided.
-    *
-    * @param conceptId the new default classifier
+    * @return The folder that imports should execute from.
+    * This method will return (in the following order):
+    * 1) a path constructed from the value of {@link SystemPropertyConstants#IMPORT_FOLDER_LOCATION}, if that system property has been set 
+    * 
+    * 2) The value specified by a call to {@link #setIBDFImportPathFolderPath(Path)}, if that method has been called.
+    * 
+    * 3) returns 'data/to-import' relative to the JVM launch location.
     */
-   void setDefaultClassifier(int conceptId);
-
+   public Path getIBDFImportPath();
+   
+   
    /**
-    * Sets the default description-logic profile. When changed, other default
-    * objects that reference this object will be updated accordingly. Default:
-    * The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
+    * Specify the location of the folder containing ibdf files to import.  This method can only be utilized prior to the first call to 
+    * {@link #getIBDFImportPath()}.  
+    * @param ibdfImportFolder
+    * @throws IllegalStateException if this is called after the system has already started.
+    * @throws IllegalArgumentException if the provided dbFolderPath is an existing file, rather than a folder.
     */
-   void setDefaultDescriptionLogicProfile(int conceptId);
-
+   public void setIBDFImportPathFolderPath(Path ibdfImportFolder) throws IllegalStateException, IllegalArgumentException;
+   
    /**
-    * Sets the default description type preference list for description
-    * retrieval. When changed, other default objects that reference this object
-    * will be updated accordingly. Default: The value to use if another value
-    * is not provided.
-    *
-    * @param descriptionTypePreferenceList prioritized preference list of
-    * description type sequences
+    * @return The configuration properties that accompany the datastore, and are persisted along with the datastore, 
+    * and impact all users
     */
-   void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
-
-   /**
-    * Sets the default dialect preference list for description retrieval. When
-    * changed, other default objects that reference this object will be updated
-    * accordingly. Default: The value to use if another value is not provided.
-    *
-    * @param dialectAssemblagePreferenceList prioritized preference list of
-    * dialect assemblage sequences
-    */
-   void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the default edit coordinate.
-    *
-    * @return an {@code ObservableEditCoordinate} based on the configuration
-    * defaults.
-    */
-   ObservableEditCoordinate getDefaultEditCoordinate();
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the default inferred definition assemblage. When changed, other
-    * default objects that reference this object will be updated accordingly.
-    * Default: The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultInferredAssemblage(int conceptId);
-
-   /**
-    * Sets the default language for description retrieval. When changed, other
-    * default objects that reference this object will be updated accordingly.
-    * Default: The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultLanguage(int conceptId);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the default language coordinate.
-    *
-    * @return an {@code ObservableLanguageCoordinate} based on the
-    * configuration defaults.
-    */
-   ObservableLanguageCoordinate getDefaultLanguageCoordinate();
-
-   /**
-    * Gets the default logic coordinate.
-    *
-    * @return an {@code ObservableLogicCoordinate} based on the configuration
-    * defaults.
-    */
-   ObservableLogicCoordinate getDefaultLogicCoordinate();
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the default module for editing operations. When changed, other
-    * default objects that reference this object will be updated accordingly.
-    * Default: The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultModule(int conceptId);
-
-   /**
-    * Sets the default path for editing operations. When changed, other default
-    * objects that reference this object will be updated accordingly. Default:
-    * The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultPath(int conceptId);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the default stamp coordinate.
-    *
-    * @return an {@code ObservableStampCoordinate} based on the configuration
-    * defaults.
-    */
-   ObservableStampCoordinate getDefaultStampCoordinate();
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the default stated definition assemblage. When changed, other
-    * default objects that reference this object will be updated accordingly.
-    * Default: The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultStatedAssemblage(int conceptId);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the default taxonomy coordinate.
-    *
-    * @return an {@code ObservableManifoldCoordinate} based on the
-    * configuration defaults.
-    */
-   ObservableManifoldCoordinate getDefaultManifoldCoordinate();
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the default time for viewing versions of components When changed,
-    * other default objects that reference this object will be updated
-    * accordingly. Default: The value to use if another value is not provided.
-    *
-    * @param timeInMs Time in milliseconds since unix epoch. Long.MAX_VALUE is
-    * used to represent the latest versions.
-    */
-   void setDefaultTime(long timeInMs);
-
-   /**
-    * Sets the default user for editing and role-based access control. When
-    * changed, other default objects that reference this object will be updated
-    * accordingly. Default: The value to use if another value is not provided.
-    *
-    * @param conceptId either a nid or conceptSequence
-    */
-   void setDefaultUser(int conceptId);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Return the known (if any) details to utilize to make a GIT server connection.
-    * The returned URL should point to the root of the git server - not to a particular repository.
-    *
-    * @return the git configuration
-    */
-   public default Optional<RemoteServiceInfo> getGitConfiguration() {
-      return Optional.empty();
+   public default GlobalDatastoreConfiguration getGlobalDatastoreConfiguration() {
+      return Get.service(GlobalDatastoreConfiguration.class);
    }
-
-   //~--- set methods ---------------------------------------------------------
-
+   
    /**
-    * Specify the details to be returned by {@link #getGitConfiguration()}.  This method is optional, and may not be supported
-    * (in which case, it throws an {@link UnsupportedOperationException})
-    *
-    * @param rsi the new git configuration
+    * Fetch the configuration specific to a particular user.  
+    * 
+    * Note that this default implementation doesn't cache the UserConfiguration objects, overriding implementations should 
+    * 
+    * @param userId - the nid of the concept that represents a user to fetch the configuration options for.
+    * If no uuid is passed, the uuid from {@link #getCurrentUserId()} will be used (which only works, if we are in single user mode)
+    * If we are not in single user mode, then this will return all of the same options as if you had called 
+    * {@link #getGlobalDatastoreConfiguration()}
+    * @return the user-specific configuration options, if a userNid is available, otherwise, the global default options.
     */
-   public default void setGitConfiguration(RemoteServiceInfo rsi) {
-      throw new UnsupportedOperationException();
+   public default UserConfiguration getUserConfiguration(Optional<UUID> userId) {
+      UserConfiguration ucp = Get.service(UserConfiguration.class);
+      ucp.finishInit((userId == null || !userId.isPresent()) ? getCurrentUserId() : userId);
+      return ucp;
    }
-
-   //~--- get methods ---------------------------------------------------------
-
+   
    /**
-    * Gets the search folder path.
-    *
-    * @return The root folder of the search data store - one would expect to
-    * find a data-store specific folder such as "lucene" inside this folder.
-    * The default implementation returns either:
-    *
-    * A path as specified exactly via
-    * {@link Constants#SEARCH_ROOT_LOCATION_PROPERTY} (if the property is set)
-    * or the result of
-    * {@link #getDataStoreFolderPath()} + {@link Constants#DEFAULT_SEARCH_FOLDER}
-    *
-    * The returned path exists on disk at the time that this method returns.
+    * @return The DatabaseInitialization instruction, when creating a new datastore.
+    * 
+    * This defaults to {@link DatabaseInitialization#NO_DATA_LOAD}.
+    * 
+    * Note that this value can be overridden by specifying a system property of 
+    * {@link SystemPropertyConstants#DATA_STORE_INIT} with a value from 
+    * {@link DatabaseInitialization}
+    * 
+    * If the system property is specified, it takes priority over any set or default value.
     */
-   public default Path getSearchFolderPath() {
-      Path                 result;
-      final Optional<Path> rootPath = getDataStoreFolderPath();
-
-      if (!rootPath.isPresent()) {
-         throw new IllegalStateException(
-             "The ConfigurationService implementation has not been configured by a call to setDataStoreFolderPath()," +
-             " and the system property " + Constants.DATA_STORE_ROOT_LOCATION_PROPERTY +
-             " has not been set.  Cannot construct the search folder path.");
-      } else {
-         result = rootPath.get()
-                          .resolve(Constants.DEFAULT_SEARCH_FOLDER);
-      }
-
-      try {
-         Files.createDirectories(result);
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
-
-      return result;
-   }
+   public DatabaseInitialization getDatabaseInitializationMode();
+   
+   /**
+    * Set the database init mode.  This must be set prior to starting ISAAC.
+    * @param initMode the new mode
+    */
+   public void setDatabaseInitializationMode(DatabaseInitialization initMode);
 }
-

@@ -44,6 +44,7 @@ package sh.komet.gui.manifold;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -68,11 +69,13 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -102,21 +105,30 @@ public class Manifold
          implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy,
                     ChangeListener<ConceptSpecification> {
    private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
-   public static final String                                      UNLINKED_GROUP_NAME       = "unlinked";
-   public static final String                                      SIMPLE_SEARCH_GROUP_NAME  = "search";
-   public static final String                                      TAXONOMY_GROUP_NAME       = "taxonomy";
-   public static final String                                      FLWOR_SEARCH_GROUP_NAME   = "flwor";
-   private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap();
-   private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap();
+
+   private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap<>();
+   private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap<>();
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
+   public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement");
+      private String groupName;
+      private ManifoldGroup(String name) {
+         this.groupName = name;
+      }
+      
+      public String getGroupName() {
+         return groupName;
+      }
+      
+   }
+   
    //~--- static initializers -------------------------------------------------
 
    static {
-      ICONOGRAPHIC_SUPPLIER.put(UNLINKED_GROUP_NAME, () -> new Label());
-      ICONOGRAPHIC_SUPPLIER.put(SIMPLE_SEARCH_GROUP_NAME, () -> Iconography.SIMPLE_SEARCH.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(TAXONOMY_GROUP_NAME, () -> Iconography.TAXONOMY_ICON.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(FLWOR_SEARCH_GROUP_NAME, () -> Iconography.FLWOR_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
    }
 
    //~--- fields --------------------------------------------------------------
@@ -167,13 +179,13 @@ public class Manifold
                                                   newValue.getNid(),
                                                         manifold.getFullySpecifiedDescriptionText(newValue));
                 ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                                                             UNLINKED_GROUP_NAME,
+                                                            ManifoldGroup.UNLINKED.getGroupName(),
                                                                    k -> new ArrayDeque<>());
 
                 addHistory(historyRecord, groupHistory);
 
                 if ((manifold != this) &&
-                    !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
+                    !manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName()) &&
                     manifold.getGroupName().equals(this.getGroupName())) {
                    manifold.focusedConceptProperty()
                            .set(newValue);
@@ -202,9 +214,20 @@ public class Manifold
    public SimpleStringProperty groupNameProperty() {
       return groupNameProperty;
    }
+   
+   /**
+    * Get a manifold for local use within a control group that is not linked to the selection of other concept
+    * presentations.
+    *
+    * @param group
+    * @return a new manifold on each call.
+    */
+   public static final Manifold make(ManifoldGroup group) {
+      return make(group.getGroupName());
+   }
 
    /**
-    * Get a manifold for local use within a control group that *is not linked to the selection of other concept
+    * Get a manifold for local use within a control group that is not linked to the selection of other concept
     * presentations.
     *
     * @param groupName
@@ -215,11 +238,12 @@ public class Manifold
           groupName,
           UUID.randomUUID(),
           Get.configurationService()
-             .getDefaultManifoldCoordinate(),
+             .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
           Get.configurationService()
-             .getDefaultEditCoordinate());
+             .getUserConfiguration(Optional.empty()).getEditCoordinate());
    }
 
+   
    public static Manifold newManifold(String name,
                                       UUID manifoldUuid,
                                       ObservableManifoldCoordinate observableManifoldCoordinate,
@@ -234,13 +258,9 @@ public class Manifold
                                       ConceptChronology focusedObject) {
       return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
    }
-   
-   public LatestVersion<DescriptionVersion> getDescription(int conceptNid) {
-      return getLanguageCoordinate().getDescription(conceptNid, this);
-   }
 
    public LatestVersion<String> getDescriptionText(int conceptNid) {
-      LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid);
+      LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid, this);
       if (latestVersion.isPresent()) {
          LatestVersion<String> latestText = new LatestVersion<>(latestVersion.get().getText());
          for (DescriptionVersion contradition: latestVersion.contradictions()) {
@@ -271,7 +291,7 @@ public class Manifold
 
    //~--- get methods ---------------------------------------------------------
 
-   public ConceptSpecification getConceptForGroup(String groupName) {
+   public Optional<ConceptSpecification> getConceptForGroup(String groupName) {
       Optional<Manifold> optionalManifold = MANIFOLD_CHANGE_LISTENERS.keySet()
                                                                      .stream()
                                                                      .filter(
@@ -284,7 +304,7 @@ public class Manifold
                                 .getFocusedConcept();
       }
 
-      return null;
+      return Optional.empty();
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
@@ -299,8 +319,8 @@ public class Manifold
       return observableEditCoordinate;
    }
 
-   public ConceptSpecification getFocusedConcept() {
-      return this.focusedConceptSpecificationProperty.get();
+   public Optional<ConceptSpecification> getFocusedConcept() {
+      return Optional.ofNullable(this.focusedConceptSpecificationProperty.get());
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -372,18 +392,9 @@ public class Manifold
       return manifoldUuidProperty.get();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    public void setManifoldUuid(UUID manifoldUuid) {
       this.manifoldUuidProperty.set(manifoldUuid);
    }
-
-   @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.observableManifoldCoordinate.setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
-   
-   //~--- get methods ---------------------------------------------------------
 
    public SimpleObjectProperty<UUID> getManifoldUuidProperty() {
       return manifoldUuidProperty;
@@ -407,10 +418,15 @@ public class Manifold
     }
 
     @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        this.observableManifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.observableManifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
-   
-   
+
+    @Override
+    public StampCoordinate getImmutableAllStateAnalog() {
+        return getStampCoordinate().getImmutableAllStateAnalog();
+    }
+    
+    
 }
 

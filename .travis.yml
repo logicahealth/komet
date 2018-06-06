@@ -1,0 +1,15 @@
+language: java
+jdk: oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
+install: /bin/true
+script: mvn -B -e clean verify
+notifications:
+  webhooks:
+    urls:
+      - secure: "qCVzLHmJwkJ7Wf13SDGFwzprYqbdMzizSSbAWcTiOP92oRbgBS5NudpSRWvsxyeqewUxfb63L5zVnkVYFiSd0Ln4PQVJoHzIJZLaFUPkHIAUk/tWrxbd96fWl84KiG7s2DqVZiiOYewdSsDyXRQW6k1JqueghMMMw1hQpMaShMeMoPSY3pg5CpQCFQ1JNqenpDxSVO8WdRUVGR8ibxEDGofAbMaRQehs7aNpV+t5LxyeMngCPfotcaG07QmoShs8z/+RTRVZE5wlH9GOJG+apY3UeSaf94B8mVMvX0UrucjJ1fUNcS6PXYoHu2j1MLGVJTQ5dZOb6hr9lM16CCOoqUuLOoE5169WNKV7QCOpE9dOKldlrroULU7M7w7y7Pu4QYRJOp5O0QBIv6ITXa+tTYyZysDcWgjLN3a5Q0B8zjhdZ7yonwwP0rsrOdBgb0NuFUZsynS6IzZcPGDMzvAhqHuf7qFk1GVrt6YyDXGwuiYBNLpL3vKoM4w582m4e//u3jn9g7Vytx46D1b/T8Xsad+K6P6VmX+vt55njiIuuCuIEXQL4pA9gjXedkbpD32Mn+bxIqcH5JN4kmhRbxtNn3qs21J99/L/PetWQ1MFI20m3+gNvc+LYp7+xbMSprzWNm0j0cD3f1B8ZX3ictVFYzYmkkqweNKi9fREDDR5WQM="
+    on_success: change # default: always
+    on_failure: always # default: always
+    on_start: never   # default: never
+    on_cancel: never

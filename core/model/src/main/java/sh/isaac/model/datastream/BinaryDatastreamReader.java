@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -34,22 +35,42 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 public class BinaryDatastreamReader
         extends TimedTaskWithProgressTracker<Integer> {
 
-    private final Consumer<? super IsaacExternalizable> action;
+    private final BiConsumer<? super IsaacExternalizable, byte[]> action;
     private final Path path;
-    private final int permits = Runtime.getRuntime()
-            .availableProcessors() * 2;
-
-    private final Semaphore processingSemaphore = new Semaphore(permits);
+    private final int permits;
+    private final Semaphore processingSemaphore;
     private final long bytesToProcess;
     private final AtomicReference<Throwable> exception = new AtomicReference<>();
-
-    public BinaryDatastreamReader(Consumer<? super IsaacExternalizable> action, Path path) {
+    
+    /**
+     * Read an IBDF file, parse each object, and call the provided consumer with each parsed object.
+     * @param action where to send the parsed objects from the file
+     * @param path - the file to read
+     * @param processInOrder - if true, this runs single threaded, so the ibdf file will be parsed in order.  If false, 
+     * the parsing runs in parallel threads, and may happen out-of-order.
+     */
+    public BinaryDatastreamReader(BiConsumer<? super IsaacExternalizable, byte[]> action, Path path, boolean processInOrder) {
         this.action = action;
         this.path = path;
         this.bytesToProcess = path.toFile().length();
+        permits = processInOrder ? 1 : Runtime.getRuntime().availableProcessors() * 2;
+        processingSemaphore = new Semaphore(permits);
         addToTotalWork(this.bytesToProcess);
         updateTitle("Importing from " + path.toFile().getName());
         Get.activeTasks().add(this);
+    }
+    
+    /**
+     * Calls {@link #BinaryDatastreamReader(BiConsumer, Path, boolean)} with processInOrder set to false.
+     * @param action where to send the parsed objects from the file
+     * @param path - the file to read
+     */
+    public BinaryDatastreamReader(BiConsumer<? super IsaacExternalizable, byte[]> action, Path path) {
+        this(action, path, false);
+    }
+
+    public BinaryDatastreamReader(Consumer<? super IsaacExternalizable> action, Path path) {
+        this((externalizable, data) -> {action.accept(externalizable);}, path);
     }
 
     @Override
@@ -103,7 +124,7 @@ public class BinaryDatastreamReader
         public void run() {
             try {
                 IsaacExternalizable isaacObject = unparsedObject.parse();
-                action.accept(isaacObject);
+                action.accept(isaacObject, unparsedObject.getBytes());
             } catch (Throwable t) {
                 exception.set(t);
             } finally {

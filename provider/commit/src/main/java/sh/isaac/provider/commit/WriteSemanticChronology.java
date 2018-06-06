@@ -48,6 +48,7 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.chronicle.Chronology;
@@ -84,14 +85,14 @@ public class WriteSemanticChronology
 
     //~--- constructors --------------------------------------------------------
     /**
-     * Instantiates a new write sememe chronicle.
+     * Instantiates a new write semantic chronicle.
      *
      * @param sc the sc
      * @param writeSemaphore the write semaphore
      * @param changeListeners the change listeners
      * @param uncommittedTracking A handle to call back to the caller to notify
-     * it that the sememe has been written to the AssemblageService. Parameter 1
-     * is the Sememe, Parameter two is true to indicate that the change checker
+     * it that the semantic has been written to the AssemblageService. Parameter 1
+     * is the Semantic, Parameter two is true to indicate that the change checker
      * is active for this implementation.
      */
     public WriteSemanticChronology(SemanticChronology sc,
@@ -119,7 +120,12 @@ public class WriteSemanticChronology
         try {
             Get.assemblageService()
                     .writeSemanticChronology(this.sc);
-            this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
+//            this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
+//                if (TestConcept.WATCH_NID_SET.contains(this.sc.getNid())) {
+//                    System.out.println("Writing INFERRED watch semantic for: " + TestConcept.HOMOCYSTINE_MV_URINE);
+//                }
+
+
             this.uncommittedTracking.accept(this.sc, false);
             updateMessage("notifying: " + this.sc.getAssemblageNid());
             this.changeListeners.forEach((listenerRef) -> {

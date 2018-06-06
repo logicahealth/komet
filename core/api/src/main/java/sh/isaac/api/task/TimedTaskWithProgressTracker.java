@@ -51,7 +51,6 @@ import static java.lang.invoke.MethodHandles.publicLookup;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.ProgressTracker;
-import sh.isaac.api.util.FortifyFun;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -84,17 +83,17 @@ public abstract class TimedTaskWithProgressTracker<T>
         try {
             final Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
 
-            FortifyFun.fixAccessible(setTotalWork);  // setTotalWork.setAccessible(true);
+            setTotalWork.setAccessible(true);
             MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
 
             final Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
 
-            FortifyFun.fixAccessible(setProgress);   // setProgress.setAccessible(true);
+            setProgress.setAccessible(true);
             MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
 
             final Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
 
-            FortifyFun.fixAccessible(setWorkDone);   // setWorkDone.setAccessible(true);
+            setWorkDone.setAccessible(true);
             MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
         } catch (IllegalAccessException | NoSuchMethodException | SecurityException ex) {
             throw new RuntimeException(ex);
@@ -112,10 +111,6 @@ public abstract class TimedTaskWithProgressTracker<T>
      */
     AtomicLong totalWork = new AtomicLong();
 
-    /**
-     * The last total work.
-     */
-    AtomicLong lastTotalWork = new AtomicLong();
     //~--- methods -------------------------------------------------------------
 
     /**

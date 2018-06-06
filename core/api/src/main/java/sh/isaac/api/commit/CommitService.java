@@ -52,7 +52,7 @@ import javafx.concurrent.Task;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
@@ -60,6 +60,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -70,7 +71,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 @Contract
 public interface CommitService
-        extends DatabaseServices {
+        extends DatastoreServices {
    /**
     * Adds the alias.
     *
@@ -161,11 +162,11 @@ public interface CommitService
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
-   Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
+   CommitTask commit(EditCoordinate editCoordinate, String commitComment);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
-    * chose to block on the returned task if synchronous operation is desired.
+    * choose to block on the returned task if synchronous operation is desired.
     *
     * @param chronicle the chronicle
     * @param editCoordinate the edit coordinate to determine which changes to
@@ -173,9 +174,16 @@ public interface CommitService
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
-   Task<Optional<CommitRecord>> commit(Chronology chronicle,
+   @Deprecated
+   CommitTask commit(Chronology chronicle,
          EditCoordinate editCoordinate,
          String commitComment);
+
+   
+   CommitTask commit(
+         EditCoordinate editCoordinate,
+         String commitComment, 
+         ObservableVersion... versionsToCommit);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.

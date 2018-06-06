@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.47</version>
+        <version>4.48</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>gui-contracts</artifactId>
@@ -22,7 +22,11 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-        </dependency>       
+        </dependency>
+        <dependency>
+            <groupId>no.tornado</groupId>
+            <artifactId>tornadofx-controls</artifactId>
+        </dependency>
         <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>api</artifactId>
@@ -36,10 +40,48 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>countries-flags</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>metadata</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
+      <dependency>
+         <groupId>sh.isaac.solor</groupId>
+         <artifactId>direct-import</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>compile</scope>
+      </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>util</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>query</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.integration</groupId>
+            <artifactId>db-config-builder</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>open-jdk-fixes</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>mojo</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
     </dependencies>
 </project>

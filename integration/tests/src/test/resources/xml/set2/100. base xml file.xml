@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+
+<CodedConcept>
+  <Action>add</Action>
+  <Code>600702</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>600702</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>600703</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>600703</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 ARGH</ValueNew>
+    <Active>1</Active>
+
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_LOINC_Code</TypeName>
+        <ValueNew>1234-5</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Scale_Type</TypeName>
+	    <ValueNew>Qn</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245614</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

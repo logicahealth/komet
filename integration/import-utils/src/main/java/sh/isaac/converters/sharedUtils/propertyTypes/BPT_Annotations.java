@@ -42,6 +42,7 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -52,20 +53,24 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
  */
 public class BPT_Annotations
         extends PropertyType {
-   /**
-    * Instantiates a new BP T annotations.
-    */
-   public BPT_Annotations() {
-      super("Attribute Types", true, DynamicDataType.STRING);
-   }
+   
+      /**
+       * Instantiates a new BP T annotations.
+       *
+       * @param fqnPrefix the fqn prefix
+       */
+      public BPT_Annotations(String fqnPrefix) {
+         this(fqnPrefix, null);
+      }
 
    /**
     * Instantiates a new BP T annotations.
     *
     * @param fqnPrefix the fqn prefix
+    * @param converterUUID optional converter to use
     */
-   public BPT_Annotations(String fqnPrefix) {
-      super(fqnPrefix + " Attribute Types", true, DynamicDataType.STRING);
+   public BPT_Annotations(String fqnPrefix, ConverterUUID converterUUID) {
+      super(fqnPrefix + " Attribute Types", true, DynamicDataType.STRING, converterUUID);
    }
 }
 

@@ -47,6 +47,8 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.LookupService;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 
 //~--- classes ----------------------------------------------------------------
@@ -61,7 +63,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
  */
 public class DynamicColumnInfo
          implements Comparable<DynamicColumnInfo> {
-   /** The column description concept UUI D. */
+   /** The column description concept UUID. */
    private UUID columnDescriptionConceptUUID;
 
    /** The column name. */
@@ -72,10 +74,9 @@ public class DynamicColumnInfo
 
    /** The index column. */
    private transient Boolean indexColumn;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
+   // than run-time lookup of the index configuration.
 
    /** The column order. */
-
-   // than run-time lookup of the index configuration.
    private int columnOrder;
 
    /** The assemblage concept. */
@@ -104,10 +105,10 @@ public class DynamicColumnInfo
    public DynamicColumnInfo() {}
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicDataBI, Boolean, DynamicValidatorType[], DynamicDataBI[])
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept, null validator info.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
@@ -124,10 +125,10 @@ public class DynamicColumnInfo
    }
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicDataBI, Boolean, DynamicValidatorType[], DynamicDataBI[])
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept, and a single array item for the validator info.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
@@ -158,10 +159,10 @@ public class DynamicColumnInfo
    }
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicDataBI, Boolean, DynamicValidatorType, DynamicDataBI)
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
     * with a null assemblage concept.
     *
-    * @param columnOrder the column order
+    * @param columnOrder the (0 indexed) column order
     * @param columnDescriptionConcept the column description concept
     * @param columnDataType the column data type
     * @param defaultData the default data
@@ -193,7 +194,7 @@ public class DynamicColumnInfo
     * Create this object by reading the columnName and columnDescription from the provided columnDescriptionConcept.
     *
     * If a suitable concept to use for the column Name/Description does not yet exist, see
-    * {@link DynamicColumnInfo#createNewDynamicColumnInfoConcept(String, String)}
+    * {@link Frills#createNewDynamicSemanticColumnInfoConcept(String, String)}
     *
     * and pass the result in here.
     *
@@ -393,7 +394,7 @@ public class DynamicColumnInfo
     * Gets the column order.
     *
     * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned
-    * with the {@link DynamicData} columns in the {@link DynamicVersionBI#getData(int)}.
+    * with the {@link DynamicData} columns in the {@link DynamicVersion#getData(int)}.
     *
     * Note, this value is 0 indexed (It doesn't start at 1)
     */

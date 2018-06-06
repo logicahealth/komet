@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts/>
+			<MapSets>
+				<MapSet>
+					<Action>add</Action>
+					<Code>4600</Code>
+					<Name>MapSet</Name>
+					<VUID>4600</VUID>
+					<Active>true</Active>
+					<SourceCodeSystem>VHAT</SourceCodeSystem>
+					<SourceVersionName>5</SourceVersionName>
+					<TargetCodeSystem>HL7 Administrative Gender</TargetCodeSystem>
+					<TargetVersionName>V3NE08</TargetVersionName>
+				</MapSet>
+				<MapSet>
+					<Action>add</Action>
+					<Code>4600</Code>
+					<Name>MapSet</Name>
+					<VUID>4600</VUID>
+					<Active>true</Active>
+					<SourceCodeSystem>VHAT</SourceCodeSystem>
+					<SourceVersionName>5</SourceVersionName>
+					<TargetCodeSystem>HL7 Administrative Gender</TargetCodeSystem>
+					<TargetVersionName>V3NE08</TargetVersionName>
+				</MapSet>
+			</MapSets>
+		</Version>
+	</CodeSystem>
+</Terminology>

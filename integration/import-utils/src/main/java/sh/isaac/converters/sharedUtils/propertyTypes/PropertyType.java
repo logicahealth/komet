@@ -45,13 +45,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
@@ -68,6 +72,9 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author Daniel Armbrust
  */
 public abstract class PropertyType {
+	
+	private static final Logger LOG = LogManager.getLogger();
+	
    /** The src version. */
    protected static int srcVersion = 1;
 
@@ -98,6 +105,8 @@ public abstract class PropertyType {
 
    /** The properties. */
    private final Map<String, Property> properties;
+   
+   private ConverterUUID converterUUID;
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,15 +117,17 @@ public abstract class PropertyType {
     * "Attribute Types" or "Association Types".  This text is also used to construct the UUID for this property type grouping.
     * @param createAsDynamicRefex - true to mark as a dynamic refex, false otherwise.
     * @param defaultDynamicRefexColumnType - If the property is specified without further column instructions, and createAsDynamicRefex is true,
-    * //use this information to configure the (single) data column.
+    * use this information to configure the (single) data column.
     */
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
-                          DynamicDataType defaultDynamicRefexColumnType) {
+                          DynamicDataType defaultDynamicRefexColumnType, 
+                          ConverterUUID converterUUID) {
       this.properties              = new HashMap<>();
       this.propertyTypeDescription = propertyTypeDescription;
       this.createAsDynamicRefex    = createAsDynamicRefex;
       this.defaultDataColumn       = defaultDynamicRefexColumnType;
+      this.converterUUID = converterUUID == null ? Get.service(ConverterUUID.class) : converterUUID;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -130,8 +141,7 @@ public abstract class PropertyType {
    public Property addProperty(Property property) {
       if (this.skipList != null) {
          for (final String s: this.skipList) {
-            if (property.getSourcePropertyNameFQN()
-                        .equals(s)) {
+            if (property.getSourcePropertyNameFQN().equals(s) || property.getSourcePropertyAltName().equals(s)) {
                ConsoleUtil.println("Skipping property '" + s + "' because of skip list configuration");
                return property;
             }
@@ -157,6 +167,18 @@ public abstract class PropertyType {
 
       return property;
    }
+   
+   /**
+    * Add an additional alt name that can be used to look up a particular property.  Property needs to have already been added.
+    * @param property
+    * @param altName
+    */
+   public void addPropertyAltName(Property property, String altName) {
+      final String s = this.altNamePropertyMap.put(altName, property.getSourcePropertyNameFQN());
+      if (s != null) {
+         throw new RuntimeException("Alt Indexing Error - duplicate!");
+      }
+   }
 
    /**
     * Adds the property.
@@ -165,7 +187,35 @@ public abstract class PropertyType {
     * @return the property
     */
    public Property addProperty(String propertyNameFQN) {
-      return addProperty(propertyNameFQN, -1);
+      return addProperty(propertyNameFQN, -1, false);
+   }
+   
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFQN the property name FQN
+    * @param isIdentifier true if this should be treated as an identifier type
+    * @return the property
+    */
+   public Property addProperty(String propertyNameFQN, boolean isIdentifier) {
+      return addProperty(propertyNameFQN, -1, isIdentifier);
+   }
+   
+   public Property addProperty(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
+     return addProperty(new Property(owner, cs, isIdentifier, converterUUID));
+     }
+   
+   public Property addProperty(ConceptSpecification cs, boolean isIdentifier) {
+      return addProperty(new Property((PropertyType)null, cs, isIdentifier, converterUUID));
+   }
+   
+   /**
+    * @param propertyNameFQN
+    * @param propertySubType
+    * @return the property
+    */
+   public Property addProperty(String propertyNameFQN, int propertySubType) {
+      return addProperty(propertyNameFQN, propertySubType, false);
    }
 
    /**
@@ -173,10 +223,11 @@ public abstract class PropertyType {
     *
     * @param propertyNameFQN the property name FQN
     * @param propertySubType the property sub type
+    * @param isIdentifier true if this should be treated as an identifier type
     * @return the property
     */
-   public Property addProperty(String propertyNameFQN, int propertySubType) {
-      return addProperty(propertyNameFQN, null, null, false, propertySubType, null);
+   public Property addProperty(String propertyNameFQN, int propertySubType, boolean isIdentifier) {
+      return addProperty(propertyNameFQN, null, null, false, isIdentifier, propertySubType, null);
    }
 
    /**
@@ -237,11 +288,38 @@ public abstract class PropertyType {
                                boolean disabled,
                                int propertySubType,
                                DynamicColumnInfo[] dataColumnForDynamicRefex) {
+      return addProperty(sourcePropertyNameFQN, sourcePropertyAltName, sourcePropertyDefinition, disabled, false, propertySubType, dataColumnForDynamicRefex);
+   }
+   
+   public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyAltName, String sourcePropertyDefinition, boolean isIdentifier) {
+      return addProperty(new Property(this, sourcePropertyNameFSN, sourcePropertyAltName, sourcePropertyDefinition, isIdentifier));
+   }
+   
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFQN the source property name FQN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param isIdentifier true if this should be treated as an identifier type
+    * @param propertySubType the property sub type
+    * @param dataColumnForDynamicRefex the data column for dynamic refex
+    * @return the property
+    */
+   public Property addProperty(String sourcePropertyNameFQN,
+                               String sourcePropertyAltName,
+                               String sourcePropertyDefinition,
+                               boolean disabled,
+                               boolean isIdentifier,
+                               int propertySubType,
+                               DynamicColumnInfo[] dataColumnForDynamicRefex) {
       return addProperty(new Property(this,
                                       sourcePropertyNameFQN,
                                       sourcePropertyAltName,
                                       sourcePropertyDefinition,
                                       disabled,
+                                      isIdentifier,
                                       propertySubType,
                                       dataColumnForDynamicRefex));
    }
@@ -331,13 +409,28 @@ public abstract class PropertyType {
       return this.properties.values();
    }
 
+	/**
+	 * Gets the property.
+	 *
+	 * @param propertyName the property name
+	 * @return the property
+	 */
+	public Property getProperty(String propertyName) {
+		Optional<Property> p = getPropertyOptional(propertyName);
+		if (!p.isPresent()) {
+			LOG.warn("Failed to find property for {} in {}", propertyName, this.getPropertyTypeDescription());
+		}
+		return p.orElse(null);
+	}
+   
+   
    /**
     * Gets the property.
     *
     * @param propertyName the property name
     * @return the property
     */
-   public Property getProperty(String propertyName) {
+   public Optional<Property> getPropertyOptional(String propertyName) {
       Property p = this.properties.get(propertyName);
 
       if ((p == null) && (this.altNamePropertyMap != null)) {
@@ -347,8 +440,7 @@ public abstract class PropertyType {
             p = this.properties.get(altKey);
          }
       }
-
-      return p;
+      return Optional.ofNullable(p);
    }
 
    /**
@@ -376,9 +468,9 @@ public abstract class PropertyType {
     */
    public UUID getPropertyTypeUUID() {
       if (this.propertyTypeUUID == null) {
-         this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
+         this.propertyTypeUUID = converterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
+         Get.identifierService().assignNid(this.propertyTypeUUID);
       }
-
       return this.propertyTypeUUID;
    }
 
@@ -389,7 +481,7 @@ public abstract class PropertyType {
     * @return the property UUID
     */
    protected UUID getPropertyUUID(String propertyName) {
-      return ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
+      return converterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -46,7 +46,6 @@ package sh.isaac.model.observable;
 
 import java.util.List;
 import java.util.Optional;
-import javafx.beans.property.IntegerProperty;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -276,21 +275,29 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return getConceptChronology().getFullySpecifiedConceptDescriptionText();
+   public String getFullyQualifiedName() {
+      return getConceptChronology().getFullyQualifiedName();
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return getConceptChronology().getPreferedConceptDescriptionText();
+   public Optional<String> getRegularName() {
+      return getConceptChronology().getRegularName();
    }
 
    @Override
    public String toString() {
       return "ObservableConceptChronologyImpl{" + getConceptChronology().toString() + '}';
    }
+
+    @Override
+    public ObservableConceptVersionImpl createAutonomousMutableVersion(EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public String toLongString() {
+        return getConceptChronology().toLongString();
+    }
    
    
 }
-//~--- JDK imports ------------------------------------------------------------
-//~--- JDK imports ------------------------------------------------------------

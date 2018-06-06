@@ -35,14 +35,11 @@
  *
  */
 
-
-
 package sh.isaac.api.component.semantic.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -50,51 +47,54 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  *
  * @author kec
  */
-public interface Rf2Relationship
-        extends SemanticVersion {
+public interface Rf2Relationship extends BrittleVersion {
    int getCharacteristicNid();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setCharacteristicNid(int nid);
 
-   //~--- get methods ---------------------------------------------------------
-
    int getDestinationNid();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setDestinationNid(int nid);
 
-   //~--- get methods ---------------------------------------------------------
-
    int getModifierNid();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setModifierNid(int nid);
 
-   //~--- get methods ---------------------------------------------------------
-
    int getRelationshipGroup();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setRelationshipGroup(int nid);
 
-   //~--- get methods ---------------------------------------------------------
-
    int getTypeNid();
 
-   //~--- set methods ---------------------------------------------------------
-
    void setTypeNid(int nid);
+   
+   @Override
+   default BrittleDataTypes[] getFieldTypes() {
+      return new BrittleDataTypes[] {
+            BrittleDataTypes.NID, 
+            BrittleDataTypes.NID, 
+            BrittleDataTypes.NID, 
+            BrittleDataTypes.INTEGER, 
+            BrittleDataTypes.NID};
+   }
 
-   //~--- get methods ---------------------------------------------------------
+   @Override
+   default Object[] getDataFields() {
+      Object[] temp = {
+            getCharacteristicNid(),
+            getDestinationNid(),
+            getModifierNid(),
+            getRelationshipGroup(),
+            getTypeNid()};
+      
+      if (getFieldTypes().length != temp.length) {
+         throw new RuntimeException("Mispecified brittle!");
+      }
+      return temp;
+   }
 
    @Override
    default VersionType getSemanticType() {
       return VersionType.RF2_RELATIONSHIP;
    }
 }
-

@@ -98,12 +98,12 @@ limitations under the License.
    -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE"; 
    -fx-rotate: 45;
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 .taxonomy-defined-multiparent-closed-icon {
    -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 .taxonomy-primitive-multiparent-open-icon {
    -glyph-name: "ARROW_UP_BOLD_HEXAGON_OUTLINE";
@@ -124,7 +124,7 @@ limitations under the License.
 .taxonomy-defined-singleparent-icon {
    -glyph-name: "CHECKBOX_BLANK_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
-   -icons-color: #7DDE3A;
+   -icons-color: #5ec200;
 }
 
 .taxonomy-closed-icon {
@@ -249,6 +249,29 @@ limitations under the License.
    -glyph-name: "MAGNIFY";
    -glyph-size: 16pt;
    -icons-color: #4CB709;
+}
+
+.target {
+   -glyph-name: "TARGET";
+   -glyph-size: 16pt;
+   -icons-color: #000000;
+}
+.alert-circle-outline {
+   -glyph-name: "ALERT_CIRCLE_OUTLINE";
+   -glyph-size: 16pt;
+   -icons-color: #D50000;
+}
+
+.information-outline {
+   -glyph-name: "INFORMATION_OUTLINE";
+   -glyph-size: 16pt;
+   -icons-color: #1E88E5;
+}
+
+.content-copy {
+   -glyph-name: "CONTENT_COPY";
+   -glyph-size: 16pt;
+   -icons-color: #000000;
 }
 .settings-gear {
    -glyph-name: "GEAR";
@@ -791,5 +814,99 @@ limitations under the License.
    -glyph-name: "DASHBOARD";
    -glyph-size: 18;
    
+}
+
+.code {
+   -glyph-name: "CODE";
+   -glyph-size: 18;
+   
+}
+
+.lambda {
+   -glyph-name: "LAMBDA";
+   -glyph-size: 20;
+    
+}
+
+.role-group {
+   -glyph-name: "FORMAT_LIST_BULLETED_TYPE";
+   -glyph-size: 20;
+    
+}
+
+.inferred-form {
+   -glyph-name: "GEARS";
+   -glyph-size: 18;
+    
+}
+
+.stated-form {
+   -glyph-name: "CHAT";
+   -glyph-size: 18;
+}
+
+.link-external {
+   -glyph-name: "LINK_EXTERNAL";
+   -glyph-size: 12;   
+   -icons-color: #52646d;
+}
+
+.new-concept {
+   -glyph-name: "SHAPE_CIRCLE_PLUS";
+   -glyph-size: 18;
+}
+
+.cancel {
+   -glyph-name: "CIRCLEDELETE";
+   -glyph-size: 12;
+}
+
+.duplicate {
+   -glyph-name: "QUEUE";
+   -glyph-size: 14;
+}
+
+.add {
+   -glyph-name: "ADD_BOX";
+   -glyph-size: 18;
+}
+
+.open {
+   -glyph-name: "MENU_DOWN";
+   -glyph-size: 18;
+}
+
+.close {
+   -glyph-name: "MENU_RIGHT";
+   -glyph-size: 18;
+}
+
+.feature-function {
+   -glyph-name: "FUNCTION";
+   -glyph-size: 18;
+    
+}
+
+.feature-info {
+   -glyph-name: "INFO";
+   -glyph-size: 18;
+    
+}
+
+.feature-ruler {
+   -glyph-name: "RULER";
+   -glyph-size: 18;
+    
+}
+
+.literal-string {
+   -glyph-name: "FORMAT_QUOTE";
+   -glyph-size: 18; 
+}
+
+
+.literal-numeric {
+   -glyph-name: "HASHTAG";
+   -glyph-size: 12; 
 }
 

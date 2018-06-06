@@ -86,7 +86,7 @@ public class MavenConceptProxy
     * @return the concept description text
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return this.description;
    }
 
@@ -101,7 +101,7 @@ public class MavenConceptProxy
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
+   public Optional<String> getRegularName() {
       return Optional.empty();
    }
 }

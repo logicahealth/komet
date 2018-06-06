@@ -64,7 +64,7 @@ public class LongVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new long sememe impl.
+    * Instantiates a new long semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -74,7 +74,7 @@ public class LongVersionImpl
    }
 
    /**
-    * Instantiates a new long sememe impl.
+    * Instantiates a new long semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -96,7 +96,7 @@ public class LongVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
@@ -168,9 +168,9 @@ public class LongVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public final VersionType getSemanticType() {

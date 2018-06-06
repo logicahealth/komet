@@ -63,13 +63,13 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
@@ -109,11 +109,9 @@ public class ObservableSemanticChronologyImpl
         implements ObservableSemanticChronology {
 
    private static final Logger LOG = LogManager.getLogger();
-
-   /**
-    * The assemblage nid property.
-    */
-   private IntegerProperty assemblageNidProperty;
+    /**
+     * The assemblage nid property.
+     */
 
    /**
     * The referenced component nid property.
@@ -122,7 +120,7 @@ public class ObservableSemanticChronologyImpl
 
    //~--- constructors --------------------------------------------------------
    /**
-    * Instantiates a new observable sememe chronology impl.
+    * Instantiates a new observable semantic chronology impl.
     *
     * @param chronicledObjectLocal the chronicled object local
     */
@@ -133,23 +131,11 @@ public class ObservableSemanticChronologyImpl
    protected SemanticChronology getSemanticChronology() {
       return (SemanticChronology) this.chronicledObjectLocal;
    }
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Assemblage sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty assemblageNidProperty() {
-      if (this.assemblageNidProperty == null) {
-         this.assemblageNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
-                 getAssemblageNid());
-      }
-
-      return this.assemblageNidProperty;
-   }
+    /**
+     * Assemblage sequence property.
+     *
+     * @return the integer property
+     */   //~--- methods -------------------------------------------------------------
 
    /**
     * Creates the mutable version.
@@ -183,7 +169,7 @@ public class ObservableSemanticChronologyImpl
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
+                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                  getReferencedComponentNid());
       }
 
@@ -252,21 +238,12 @@ public class ObservableSemanticChronologyImpl
       }
 
    }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the assemblage nid.
-    *
-    * @return the assemblage nid
-    */
-   @Override
-   public int getAssemblageNid() {
-      if (this.assemblageNidProperty != null) {
-         return this.assemblageNidProperty.get();
-      }
-
-      return getSemanticChronology().getAssemblageNid();
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the assemblage nid.
+     *
+     * @return the assemblage nid
+     */
 
    /**
     * Gets the observable version list.
@@ -280,8 +257,8 @@ public class ObservableSemanticChronologyImpl
       }
       final ObservableList<ObservableVersion> observableList = FXCollections.observableArrayList();
 
-      this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
-         observableList.add(wrapInObservable((SemanticVersion) sememeVersion));
+      this.chronicledObjectLocal.getVersionList().stream().forEach((semanticVersion) -> {
+         observableList.add(wrapInObservable((SemanticVersion) semanticVersion));
       });
       return observableList;
    }
@@ -301,9 +278,9 @@ public class ObservableSemanticChronologyImpl
    }
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getVersionType() {
@@ -351,4 +328,9 @@ public class ObservableSemanticChronologyImpl
    public String toString() {
       return "ObservableSemanticChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
+
+    @Override
+    public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

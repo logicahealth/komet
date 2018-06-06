@@ -39,63 +39,63 @@
 
 package sh.isaac.model.semantic;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-
+import org.jvnet.hk2.annotations.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.collections.LruCache;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
-import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.model.configuration.StampCoordinates;
 
 /**
  * See {@link DynamicUsageDescription}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
+//Even though this class is static, needs to be a service, so that the reset() gets fired at appropriate times.
+@Service
+@Singleton
 public class DynamicUsageDescriptionImpl
-         implements DynamicUsageDescription {
-   /** The Constant logger. */
+         implements DynamicUsageDescription, StaticIsaacCache {
+
    protected static final Logger logger = Logger.getLogger(DynamicUsageDescription.class.getName());
 
-   /** The cache. */
-   private static LruCache<Integer, DynamicUsageDescriptionImpl> cache =
-      new LruCache<Integer, DynamicUsageDescriptionImpl>(25);
+   private static Cache<Integer, DynamicUsageDescriptionImpl> cache =
+         Caffeine.newBuilder().maximumSize(25).build();
 
    //~--- fields --------------------------------------------------------------
 
    /** The refex usage descriptor sequence. */
    int refexUsageDescriptorNid;
 
-   /** The sememe usage description. */
-   String sememeUsageDescription;
+   /** The semantic usage description. */
+   String semanticUsageDescription;
 
    /** The name. */
    String name;
@@ -104,7 +104,7 @@ public class DynamicUsageDescriptionImpl
    DynamicColumnInfo[] refexColumnInfo;
 
    /** The referenced component type restriction. */
-   ObjectChronologyType referencedComponentTypeRestriction;
+   IsaacObjectType referencedComponentTypeRestriction;
 
    /** The referenced component type sub restriction. */
    VersionType referencedComponentTypeSubRestriction;
@@ -135,27 +135,24 @@ public class DynamicUsageDescriptionImpl
 
       final TreeMap<Integer, DynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
 
-      for (final SemanticChronology descriptionSememe:
+      for (final SemanticChronology descriptionSemantic:
             assemblageConcept.getConceptDescriptionList()) {
          @SuppressWarnings("rawtypes")
          final LatestVersion descriptionVersion =
-            ((SemanticChronology) descriptionSememe).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+            ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
 
          if (descriptionVersion.isPresent()) {
-            @SuppressWarnings("rawtypes")
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
 
             if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
-               final Optional<SemanticChronology> nestesdSememe = Get.assemblageService()
+               final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService()
                                                                                                .getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(),
                                                                                                         DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                                                                                               .getNid())
                                                                                                .findAny();
-
-               if (nestesdSememe.isPresent()) {
-                  this.sememeUsageDescription = ds.getText();
+               if (nestesdSemantic.isPresent()) {
+                  this.semanticUsageDescription = ds.getText();
                }
-               ;
             }
 
             if (ds.getDescriptionTypeConceptNid() ==
@@ -163,41 +160,41 @@ public class DynamicUsageDescriptionImpl
                this.name = ds.getText();
             }
 
-            if ((this.sememeUsageDescription != null) && (this.name != null)) {
+            if ((this.semanticUsageDescription != null) && (this.name != null)) {
                break;
             }
          }
       }
 
-      if (StringUtils.isEmpty(this.sememeUsageDescription)) {
+      if (StringUtils.isEmpty(this.semanticUsageDescription)) {
          throw new RuntimeException(
              "The Assemblage concept: " + assemblageConcept +
              " is not correctly assembled for use as an Assemblage for " +
-             "a DynamicSememeData Refex Type.  It must contain a description of type Definition with an annotation of type " +
-             "DynamicSememe.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION");
+             "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
+             "DynamicSemantic.DYNAMIC_SEMANTIC_DEFINITION_DESCRIPTION");
       }
 
       Get.assemblageService()
          .getSemanticChronologyStreamForComponent(assemblageConcept.getNid())
-         .forEach(sememe -> {
-                     if (sememe.getVersionType() == VersionType.DYNAMIC) {
+         .forEach(semantic -> {
+                     if (semantic.getVersionType() == VersionType.DYNAMIC) {
                         @SuppressWarnings("rawtypes")
-                        final LatestVersion<? extends DynamicVersion> sememeVersion =
-                           ((SemanticChronology) sememe).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+                        final LatestVersion<? extends DynamicVersion> semanticVersion =
+                           ((SemanticChronology) semantic).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
 
-                        if (sememeVersion.isPresent()) {
+                        if (semanticVersion.isPresent()) {
                            @SuppressWarnings("rawtypes")
-                           final DynamicVersion       ds                  = sememeVersion.get();
+                           final DynamicVersion       ds                  = semanticVersion.get();
                            final DynamicData[] refexDefinitionData = ds.getData();
 
-                           if (sememe.getAssemblageNid()==
+                           if (semantic.getAssemblageNid()==
                                DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid()) {
                               if ((refexDefinitionData == null) ||
                                   (refexDefinitionData.length < 3) ||
                                   (refexDefinitionData.length > 7)) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
-                                 "a DynamicSememeData Refex Type.  It must contain at least 3 columns in the DynamicSememeDataBI attachment, and no more than 7.");
+                                 "a DynamicSemanticData Refex Type.  It must contain at least 3 columns in the DynamicSemanticDataBI attachment, and no more than 7.");
                               }
 
                               // col 0 is the column number,
@@ -224,7 +221,7 @@ public class DynamicUsageDescriptionImpl
                                      refexDefinitionData[3].getDynamicDataType().getDynamicMemberClass())) {
                                     throw new IOException("The Assemblage concept: " + assemblageConcept +
                                     " is not correctly assembled for use as an Assemblage for " +
-                                       "a DynamicSememeData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");
+                                       "a DynamicSemanticData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");
                                  }
 
                                  Boolean columnRequired = null;
@@ -291,28 +288,28 @@ public class DynamicUsageDescriptionImpl
                               } catch (final Exception e) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
-                                 "a DynamicSememeData Refex Type.  The first column must have a data type of integer, and the third column must be a string " +
-                                 "that is parseable as a DynamicSememeDataType");
+                                 "a DynamicSemanticData Refex Type.  The first column must have a data type of integer, and the third column must be a string " +
+                                 "that is parseable as a DynamicSemanticDataType");
                               }
-                           } else if (sememe.getAssemblageNid() ==
-                           DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
+                           } else if (semantic.getAssemblageNid() ==
+                           DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
                               if ((refexDefinitionData == null) || (refexDefinitionData.length < 1)) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
-                                 "a DynamicSememeData Refex Type.  If it contains a " +
-                                 DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getPrimaryName() +
+                                 "a DynamicSemanticData Refex Type.  If it contains a " +
+                                 DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getFullyQualifiedName() +
                                  " then it must contain a single column of data, of type string, parseable as a " +
-                                 ObjectChronologyType.class.getName());
+                                 IsaacObjectType.class.getName());
                               }
 
                               // col 0 is Referenced component restriction information - as a string.
                               try {
-                                 final ObjectChronologyType type =
-                                    ObjectChronologyType.parse(refexDefinitionData[0].getDataObject()
+                                 final IsaacObjectType type =
+                                       IsaacObjectType.parse(refexDefinitionData[0].getDataObject()
                                                                                      .toString(),
                                                                false);
 
-                                 if (type == ObjectChronologyType.UNKNOWN_NID) {
+                                 if (type == IsaacObjectType.UNKNOWN) {
                                     // just ignore - it shouldn't have been saved that way anyway.
                                  } else {
                                     this.referencedComponentTypeRestriction = type;
@@ -320,7 +317,7 @@ public class DynamicUsageDescriptionImpl
                               } catch (final Exception e) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
-                                 "a DynamicSememeData Refex Type.  The component type restriction annotation has an invalid value");
+                                 "a DynamicSemanticData Refex Type.  The component type restriction annotation has an invalid value");
                               }
 
                               // col 1 is an optional Referenced component sub-restriction information - as a string.
@@ -338,7 +335,7 @@ public class DynamicUsageDescriptionImpl
                                  } catch (final Exception e) {
                                     throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                     " is not correctly assembled for use as an Assemblage for " +
-                                    "a DynamicSememeData Refex Type.  The component type restriction annotation has an invalid value");
+                                    "a DynamicSemanticData Refex Type.  The component type restriction annotation has an invalid value");
                                  }
                               } else {
                                  this.referencedComponentTypeSubRestriction = null;
@@ -356,7 +353,7 @@ public class DynamicUsageDescriptionImpl
             throw new RuntimeException(
                 "The Assemblage concept: " + assemblageConcept +
                 " is not correctly assembled for use as an Assemblage for " +
-                "a DynamicSememeData Refex Type.  It must contain sequential column numbers, with no gaps, which start at 0.");
+                "a DynamicSemanticData Refex Type.  It must contain sequential column numbers, with no gaps, which start at 0.");
          }
 
          this.refexColumnInfo[i++] = allowedColumnInfo.get(key);
@@ -411,27 +408,26 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Invent DynamicUsageDescription info for other sememe types (that
- aren't dynamic), otherwise, calls {@link #read(int)} if it is a dynamic
-    * sememe.
+    * Invent DynamicUsageDescription info for other semantic types (that aren't dynamic), otherwise, calls {@link #read(int)} 
+    * if it is a dynamic semantic.
     *
-    * @param sememe the sememe in question
+    * @param semantic the semantic in question
     * @return the dynamic element usage description
     */
-   public static DynamicUsageDescription mockOrRead(SemanticChronology sememe) {
+   public static DynamicUsageDescription mockOrRead(SemanticChronology semantic) {
       final DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
 
-      dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageNid());
+      dsud.name                                  = Get.conceptDescriptionText(semantic.getAssemblageNid());
       dsud.referencedComponentTypeRestriction    = null;
       dsud.referencedComponentTypeSubRestriction = null;
-      dsud.refexUsageDescriptorNid          = sememe.getAssemblageNid();
-      dsud.sememeUsageDescription                = "-";
+      dsud.refexUsageDescriptorNid          = semantic.getAssemblageNid();
+      dsud.semanticUsageDescription                = "-";
 
-      switch (sememe.getVersionType()) {
+      switch (semantic.getVersionType()) {
       case COMPONENT_NID:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
                 DynamicDataType.NID,
@@ -445,7 +441,7 @@ public class DynamicUsageDescriptionImpl
       case LONG:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_LONG.getPrimordialUuid(),
                 DynamicDataType.LONG,
@@ -457,11 +453,53 @@ public class DynamicUsageDescriptionImpl
          break;
 
       case DESCRIPTION:
+          dsud.refexColumnInfo = new DynamicColumnInfo[] {
+                  new DynamicColumnInfo(
+                      Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
+                      0,
+                      DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(),
+                      DynamicDataType.STRING,
+                      null,
+                      true,
+                      null,
+                      null,
+                      false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
+                          1,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
+                          2,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false),
+                  new DynamicColumnInfo(
+                          Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
+                          3,
+                          DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+                          DynamicDataType.NID,
+                          null,
+                          true,
+                          null,
+                          null,
+                          false)};
+               break;
       case STRING:
       case LOGIC_GRAPH:
          dsud.refexColumnInfo = new DynamicColumnInfo[] {
             new DynamicColumnInfo(
-                Get.identifierService().getUuidPrimordialForNid(sememe.getAssemblageNid()).get(),
+                Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                 0,
                 DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(),
                 DynamicDataType.STRING,
@@ -477,9 +515,70 @@ public class DynamicUsageDescriptionImpl
          break;
 
       case DYNAMIC:
-         return read(sememe.getAssemblageNid());
+         return read(semantic.getAssemblageNid());
 
-      case UNKNOWN:
+      case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+      case LOINC_RECORD:
+      case MEASURE_CONSTRAINTS:
+      case Nid1_Int2:
+      case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+      case Nid1_Nid2:
+      case Nid1_Nid2_Int3:
+      case Nid1_Nid2_Str3:
+      case Nid1_Str2:
+      case RF2_RELATIONSHIP:
+      case Str1_Nid2_Nid3_Nid4:
+      case Str1_Str2:
+      case Str1_Str2_Nid3_Nid4:
+      case Str1_Str2_Nid3_Nid4_Nid5:
+      case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+         LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            if (version.isPresent())
+            {
+               ArrayList<DynamicColumnInfo> dci = new ArrayList<>();
+               int col = 0;
+
+               for (BrittleDataTypes dt : version.get().getFieldTypes())
+               {
+                  switch (dt) {
+                     case BOOLEAN:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_BOOLEAN.getPrimordialUuid(), 
+                              DynamicDataType.BOOLEAN, 
+                              null, true, null, null, false));
+                        break;
+                     case FLOAT:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_FLOAT.getPrimordialUuid(), 
+                              DynamicDataType.FLOAT, 
+                              null, true, null, null, false));
+                        break;
+                     case INTEGER:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_INTEGER.getPrimordialUuid(), 
+                              DynamicDataType.INTEGER, 
+                              null, true, null, null, false));
+                        break;
+                     case NID:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(), 
+                              DynamicDataType.NID, 
+                              null, true, null, null, false));
+                        break;
+                     case STRING:
+                        dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
+                              DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), 
+                              DynamicDataType.STRING, 
+                              null, true, null, null, false));
+                        break;
+                     default :
+                        throw new RuntimeException("Use case not yet supported");
+                  }
+               }
+            }
+         break;
+         case UNKNOWN:
+         case CONCEPT:
       default:
          throw new RuntimeException("Use case not yet supported");
       }
@@ -497,10 +596,10 @@ public class DynamicUsageDescriptionImpl
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
       // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic element.  Perhaps
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
-      DynamicUsageDescriptionImpl temp     = cache.get(assemblageNid);
+      DynamicUsageDescriptionImpl temp     = cache.getIfPresent(assemblageNid);
 
       if (temp == null) {
-         logger.log(Level.FINEST, "Cache miss on DynamicSememeUsageDescription Cache");
+         logger.log(Level.FINEST, "Cache miss on DynamicSemanticUsageDescription Cache");
          temp = new DynamicUsageDescriptionImpl(assemblageNid);
          cache.put(assemblageNid, temp);
       }
@@ -517,7 +616,7 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getColumnInfo()
+    *     @see sh.isaac.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getColumnInfo()
     */
    @Override
    public DynamicColumnInfo[] getColumnInfo() {
@@ -529,12 +628,12 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Test if dyn sememe.
+    * Test if dyn semantic.
     *
     * @param assemblageNid the assemblage nid 
     * @return true, if dynamic element
     */
-   public static boolean isDynamicSememe(int assemblageNid) {
+   public static boolean isDynamicSemantic(int assemblageNid) {
          try {
             read(assemblageNid);
             return true;
@@ -550,7 +649,7 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getDyanmicSememeName()
+    *     @see sh.isaac.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getDyanmicSemanticName()
     */
    @Override
    public String getDynamicName() {
@@ -564,11 +663,11 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see DynamicUsageDescription#getDynamicSememeUsageDescription()
+    *     @see gov.vha.isaac.ochre.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getDynamicUsageDescription()
     */
    @Override
    public String getDynamicUsageDescription() {
-      return this.sememeUsageDescription;
+      return this.semanticUsageDescription;
    }
 
    /**
@@ -578,10 +677,10 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see DynamicUsageDescription#getDynamicSememeUsageDescriptorSequence()
+    *     @see gov.vha.isaac.ochre.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getDynamicUsageDescriptorSequence()
     */
    @Override
-   public int getDynamicUsageDescriptorSequence() {
+   public int getDynamicUsageDescriptorNid() {
       return this.refexUsageDescriptorNid;
    }
 
@@ -592,10 +691,10 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getReferencedComponentTypeRestriction()
+    *     @see sh.isaac.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getReferencedComponentTypeRestriction()
     */
    @Override
-   public ObjectChronologyType getReferencedComponentTypeRestriction() {
+   public IsaacObjectType getReferencedComponentTypeRestriction() {
       return this.referencedComponentTypeRestriction;
    }
 
@@ -606,11 +705,35 @@ public class DynamicUsageDescriptionImpl
     */
 
    /*
-    *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicUsageDescription#getReferencedComponentTypeSubRestriction()
+    *     @see sh.isaac.api.component.semantic.version.dynamicSemantic.DynamicUsageDescription#getReferencedComponentTypeSubRestriction()
     */
    @Override
    public VersionType getReferencedComponentTypeSubRestriction() {
       return this.referencedComponentTypeSubRestriction;
+   }
+   
+   /**
+    * Invent DynamicSemanticUsageDescription info for static semantics that are marked as type {@link TermAux#IDENTIFIER_SOURCE}
+    */
+   public static DynamicUsageDescription mockIdentifierType(int identifierAssemblageConceptId) {
+       DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
+       dsud.name = Get.conceptDescriptionText(identifierAssemblageConceptId);
+       dsud.referencedComponentTypeRestriction = null;
+       dsud.referencedComponentTypeSubRestriction = null;
+       dsud.refexUsageDescriptorNid = identifierAssemblageConceptId;
+       dsud.semanticUsageDescription = "-";
+       dsud.refexColumnInfo = new DynamicColumnInfo[]{new DynamicColumnInfo(
+           Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId),
+           0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null, false)};
+        return dsud;
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      cache.invalidateAll();
    }
 }
 

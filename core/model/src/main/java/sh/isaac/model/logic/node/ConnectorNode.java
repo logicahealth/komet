@@ -41,8 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -78,6 +76,18 @@ public abstract class ConnectorNode
          this.childIndices.add(child.getNodeIndex());
       }
    }
+
+    @Override
+    public void removeChild(short childId) {
+        for (int i = 0; i < childIndices.size(); i++) {
+            if (childIndices.get(i) == childId) {
+                childIndices.remove(i);
+                return;
+            }
+        }
+    }
+   
+   
 
    /**
     * Instantiates a new connector node.
@@ -243,7 +253,6 @@ public abstract class ConnectorNode
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
    protected void writeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {

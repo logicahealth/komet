@@ -52,14 +52,14 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeVersionImpl.
+ * The Class SemanticVersionImpl.
  *
  * @author kec
  */
 public class SemanticVersionImpl
         extends AbstractVersionImpl {
    /**
-    * Instantiates a new sememe version impl.
+    * Instantiates a new semantic version impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -77,7 +77,7 @@ public class SemanticVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
@@ -114,9 +114,9 @@ public class SemanticVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public final VersionType getSemanticType() {

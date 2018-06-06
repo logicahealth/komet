@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<!-- TODO this needs to be configured properly for the komet application runtime, I'd expect, we want to log all debug info to a log file... -->
+	<Appenders>
+		<!-- Console logging -->
+		<!-- Pattern info: date priority{5 chars} thread logger{abbreviated} (file:line) - message -->
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern = "%d %-5p [%t] (%F:%L) - %m%n" />
+			<Filters>
+				<ThresholdFilter level="INFO"/>
+			</Filters>
+		</Console>
+		
+		<!-- Only prints INFO and worse -->
+		<File name="FILE-NORMAL" fileName="komet.log">
+			<PatternLayout pattern = "%d %-5p [%t] %logger (%F:%L) - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="INFO"/>
+			</Filters>
+		</File>
+		
+		<!-- Prints everything -->
+		<File name="FILE-DEBUG" fileName="komet-debug.log">
+			<PatternLayout pattern = "%d %-5p [%t] %logger (%F:%L) - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="ALL"/>
+			</Filters>
+		</File>
+		
+		<!-- Prints errors and warnings only -->
+		<File name="FILE-ERROR" fileName="komet-error.log">
+			<PatternLayout pattern = "%d %-5p [%t] %logger (%F:%L) - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="WARN"/>
+			</Filters>
+		</File>
+		
+	</Appenders>
+	<Loggers>
+		<!-- To quiet down individual loggers, add entries like this -->
+		<Logger name="sh.isaac.api.LookupService" level="error" />
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE-NORMAL" />
+			<AppenderRef ref="FILE-DEBUG" />
+			<AppenderRef ref="FILE-ERROR" />
+		</Root>
+	</Loggers>
+</Configuration>

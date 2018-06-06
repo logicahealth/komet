@@ -31,7 +31,7 @@ public class AlertObject {
    final AlertType alertType;
    final AlertCategory alertCategory;
    final Callable<Boolean> resolutionTester;
-   private final List<Resolver> resolvers = new ArrayList();
+   private final List<Resolver> resolvers = new ArrayList<>();
 
    public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory, Callable<Boolean> resolutionTester) {
       this.alertTitle = alertTitle;
@@ -73,6 +73,6 @@ public class AlertObject {
    @Override
    public String toString() {
       return this.getClass().getSimpleName() + " alertTitle=" + alertTitle + ", alertType=" + alertType + 
-              ", resolvers=" + resolvers + ", resolutionTester=" + resolutionTester;
+             ", alertDescription=" + alertDescription + ", resolvers=" + resolvers + ", resolutionTester=" + resolutionTester;
    }
 }

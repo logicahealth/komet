@@ -83,7 +83,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    StampCoordinate stampCoordinate;
 
    /**
-    * The sememe provider.
+    * The semantic provider.
     */
    AssemblageService semanticProvider;
 
@@ -94,18 +94,18 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
 
    //~--- constructors --------------------------------------------------------
    /**
-    * Instantiates a new sememe snapshot provider.
+    * Instantiates a new semantic snapshot provider.
     *
     * @param versionType the version type
     * @param stampCoordinate the stamp coordinate
-    * @param sememeProvider the sememe provider
+    * @param semanticProvider the semantic provider
     */
    public AssemblageSnapshotProvider(Class<V> versionType,
            StampCoordinate stampCoordinate,
-           AssemblageService sememeProvider) {
+           AssemblageService semanticProvider) {
       this.versionType = versionType;
       this.stampCoordinate = stampCoordinate;
-      this.semanticProvider = sememeProvider;
+      this.semanticProvider = semanticProvider;
       this.calculator = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
@@ -129,7 +129,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe version.
+    * Gets the latest semantic version.
     *
     * @param semanticNid the semantic nid
     * @return the latest semantic version
@@ -158,11 +158,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe versions.
+    * Gets the latest semantic versions.
     *
-    * @param semanticSequenceStream the sememe sequence stream
+    * @param semanticSequenceStream the semantic sequence stream
     * @param progressTrackers the progress trackers
-    * @return the latest sememe versions
+    * @return the latest semantic versions
     */
    private VersionStream<V> getLatestSemanticVersionStream(IntStream semanticSequenceStream,
            ProgressTracker... progressTrackers) {
@@ -184,11 +184,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe versions.
+    * Gets the latest semantic versions.
     *
-    * @param semanticNidSet the sememe sequence set
+    * @param semanticNidSet the semantic sequence set
     * @param progressTrackers the progress trackers
-    * @return the latest sememe versions
+    * @return the latest semantic versions
     */
    private List<LatestVersion<V>> getLatestSemanticVersions(NidSet semanticNidSet,
            ProgressTracker... progressTrackers) {
@@ -200,10 +200,10 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe versions for component.
+    * Gets the latest semantic versions for component.
     *
     * @param componentNid the component nid
-    * @return the latest sememe versions for component
+    * @return the latest semantic versions for component
     */
    @Override
    public List<LatestVersion<V>> getLatestSemanticVersionsForComponent(int componentNid) {
@@ -211,11 +211,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe versions for component from assemblage.
+    * Gets the latest semantic versions for component from assemblage.
     *
     * @param componentNid the component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the latest sememe versions for component from assemblage
+    * @return the latest semantic versions for component from assemblage
     */
    @Override
    public List<LatestVersion<V>> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
@@ -224,11 +224,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    }
 
    /**
-    * Gets the latest sememe versions from assemblage.
+    * Gets the latest semantic versions from assemblage.
     *
     * @param assemblageConceptNid the assemblage concept sequence
     * @param progressTrackers the progress trackers
-    * @return the latest sememe versions from assemblage
+    * @return the latest semantic versions from assemblage
     */
    @Override
    public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,

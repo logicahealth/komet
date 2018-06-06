@@ -73,19 +73,25 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    /** The primordial uuid. */
    private UUID primordialUuid = null;
+   
+   protected final int assemblageId;
 
-   /** The sememe builders. */
-   protected final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
+   /** The semantic builders. */
+   private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
    protected Status state = Status.ACTIVE;
+   
+   public ComponentBuilder(int assemblageId) {
+      this.assemblageId = assemblageId;
+   }
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Adds the sememe.
+    * Adds the semantic.
     *
-    * @param semanticBuilder the sememe builder
+    * @param semanticBuilder the semantic builder
     * @return the component builder
     */
    @Override
@@ -152,8 +158,12 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     */
    @Override
    public int getNid() {
-      return Get.identifierService()
-                .getNidForUuids(getUuids());
+      if (!Get.identifierService().hasUuid(getUuids())) {
+         return Get.identifierService().assignNid(getUuids());
+      }
+      else {
+         return Get.identifierService().getNidForUuids(getUuids()); 
+      }
    }
 
    /**
@@ -173,13 +183,14 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * If not set, a randomly generated UUID will be automatically used.
-    *
     * @param uuid the uuid
     * @return the builder for chaining of operations in a fluent pattern.
     */
    @Override
    public IdentifiedComponentBuilder<T> setPrimordialUuid(UUID uuid) {
+      if (isPrimordialUuidSet()) {
+         throw new RuntimeException("Attempting to set primordial UUID which has already been set.");
+      }
       this.primordialUuid = uuid;
       return this;
    }
@@ -191,7 +202,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the identified component builder
     */
    @Override
-   public IdentifiedComponentBuilder<T> setState(Status state) {
+   public IdentifiedComponentBuilder<T> setStatus(Status state) {
       this.state = state;
       return this;
    }
@@ -204,7 +215,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the uuid list
     */
    @Override
-   public List<UUID> getUuidList() { // TODO use list instead of stream
+   public List<UUID> getUuidList() {
       return Arrays.asList(getUuids());
    }
 
@@ -226,5 +237,15 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       }
       return uuids;
    }
+   
+    @Override
+    public List<SemanticBuilder<?>> getSemanticBuilders() {
+        return semanticBuilders;
+    }
+    
+    @Override
+    public boolean isPrimordialUuidSet() {
+        return this.primordialUuid != null;
+    }
 }
 

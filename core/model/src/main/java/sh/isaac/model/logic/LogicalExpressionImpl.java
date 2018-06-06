@@ -44,17 +44,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
@@ -68,7 +71,7 @@ import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.DisjointWithNode;
 import sh.isaac.model.logic.node.LiteralNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeFloat;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
@@ -141,18 +144,21 @@ public class LogicalExpressionImpl
    /**
     * The logic nodes.
     */
-   ArrayList<LogicNode> logicNodes = new ArrayList<>();
+   ArrayList<AbstractLogicNode> logicNodes = new ArrayList<>();
 
    /**
     * The root node index.
     */
    int rootNodeIndex = -1;
 
+   transient SimpleObjectProperty<CommitStates> commitStateProperty = new SimpleObjectProperty<>(CommitStates.COMMITTED);
+
    //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new logical expression ochre impl.
     */
    public LogicalExpressionImpl() {
+       commitStateProperty.set(CommitStates.UNCOMMITTED);
    }
 
    /**
@@ -162,6 +168,7 @@ public class LogicalExpressionImpl
     * @param dataSource the data source
     */
    public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource) {
+       commitStateProperty.set(CommitStates.COMMITTED);
       if (nodeDataArray == null) {
          this.logicNodes = new ArrayList<>(0);
       } else {
@@ -333,7 +340,6 @@ public class LogicalExpressionImpl
 
       
    }
-
    /**
     * Called to generate an isomorphicExpression and a mergedExpression.
     *
@@ -345,19 +351,21 @@ public class LogicalExpressionImpl
    public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution) {
       addNodesWithMap(another, solution, new int[another.getNodeCount()], another.rootNodeIndex);
       this.logicNodes.trimToSize();
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
    }
 
    /**
-    * Instantiates a new logical expression ochre impl.
+    * Instantiates a new logical expression impl.
     *
     * @param nodeDataArray the node data array
     * @param dataSource the data source
-    * @param conceptId Either a nid or sequence of a concept is acceptable.
+    * @param conceptId The concept that this expression defines.
     */
    public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
       this(nodeDataArray, dataSource);
 
       this.conceptNid = conceptId;
+      commitStateProperty.set(CommitStates.COMMITTED);
    }
 
    /**
@@ -372,10 +380,26 @@ public class LogicalExpressionImpl
    public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution, int[] anotherToThisNodeIdMap) {
       addNodesWithMap(another, solution, anotherToThisNodeIdMap, another.rootNodeIndex);
       this.logicNodes.trimToSize();
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
    }
 
    //~--- methods -------------------------------------------------------------
-   /**
+ 
+    @Override
+    public CommitStates getCommitState() {
+        return commitStateProperty.get();
+    }
+
+    public void setCommitState(CommitStates commitState) {
+        commitStateProperty.set(commitState);
+    }
+
+    public SimpleObjectProperty<CommitStates> commitStateProperty() {
+        return commitStateProperty;
+    }
+
+   
+  /**
     * All role.
     *
     * @param dataInputStream the data input stream
@@ -393,7 +417,8 @@ public class LogicalExpressionImpl
     * @return the role node all with sequences
     */
    public RoleNodeAllWithNids AllRole(int typeNid, AbstractLogicNode restriction) {
-      return new RoleNodeAllWithNids(this, typeNid, restriction);
+     commitStateProperty.set(CommitStates.UNCOMMITTED);
+     return new RoleNodeAllWithNids(this, typeNid, restriction);
    }
 
    /**
@@ -413,6 +438,7 @@ public class LogicalExpressionImpl
     * @return the and node
     */
    public final AndNode And(AbstractLogicNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new AndNode(this, children);
    }
 
@@ -433,6 +459,7 @@ public class LogicalExpressionImpl
     * @return the literal node boolean
     */
    public LiteralNodeBoolean BooleanLiteral(boolean literalValue) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new LiteralNodeBoolean(this, literalValue);
    }
 
@@ -463,6 +490,7 @@ public class LogicalExpressionImpl
     * @return the substitution node boolean
     */
    public SubstitutionNodeBoolean BooleanSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeBoolean(this, substitutionFieldSpecification);
    }
 
@@ -479,11 +507,12 @@ public class LogicalExpressionImpl
    /**
     * Concept.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @return the concept node with sequences
     */
-   public final ConceptNodeWithNids Concept(int conceptSequence) {
-      return new ConceptNodeWithNids(this, conceptSequence);
+   public final ConceptNodeWithNids Concept(int conceptNid) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
+      return new ConceptNodeWithNids(this, conceptNid);
    }
 
    /**
@@ -493,6 +522,7 @@ public class LogicalExpressionImpl
     * @return the substitution node concept
     */
    public final SubstitutionNodeConcept ConceptSubstitution(ByteArrayDataBuffer dataInputStream) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeConcept(this, dataInputStream);
    }
 
@@ -503,6 +533,7 @@ public class LogicalExpressionImpl
     * @return the substitution node concept
     */
    public SubstitutionNodeConcept ConceptSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeConcept(this, substitutionFieldSpecification);
    }
 
@@ -523,6 +554,7 @@ public class LogicalExpressionImpl
     * @return the disjoint with node
     */
    public DisjointWithNode DisjointWith(AbstractLogicNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new DisjointWithNode(this, children);
    }
 
@@ -550,13 +582,16 @@ public class LogicalExpressionImpl
     * Feature.
     *
     * @param typeNid the type nid
+     * @param measureSemanticNid
+     * @param operator
     * @param literal the literal
     * @return the feature node with sequences
     */
-   public FeatureNodeWithNids Feature(int typeNid, AbstractLogicNode literal) {
+   public FeatureNodeWithNids Feature(int typeNid, int measureSemanticNid, ConcreteDomainOperators operator, AbstractLogicNode literal) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       // check for LiteralNode or SubstitutionNodeLiteral
       if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
-         return new FeatureNodeWithNids(this, typeNid, literal);
+         return new FeatureNodeWithNids(this, typeNid, measureSemanticNid, operator, literal);
       }
 
       throw new IllegalStateException("LogicNode must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
@@ -579,8 +614,8 @@ public class LogicalExpressionImpl
     * @param dataInputStream the data input stream
     * @return the literal node float
     */
-   public final LiteralNodeFloat FloatLiteral(ByteArrayDataBuffer dataInputStream) {
-      return new LiteralNodeFloat(this, dataInputStream);
+   public final LiteralNodeDouble FloatLiteral(ByteArrayDataBuffer dataInputStream) {
+      return new LiteralNodeDouble(this, dataInputStream);
    }
 
    /**
@@ -589,8 +624,9 @@ public class LogicalExpressionImpl
     * @param literalValue the literal value
     * @return the literal node float
     */
-   public LiteralNodeFloat FloatLiteral(float literalValue) {
-      return new LiteralNodeFloat(this, literalValue);
+   public LiteralNodeDouble FloatLiteral(double literalValue) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
+      return new LiteralNodeDouble(this, literalValue);
    }
 
    /**
@@ -610,6 +646,7 @@ public class LogicalExpressionImpl
     * @return the substitution node float
     */
    public SubstitutionNodeFloat FloatSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeFloat(this, substitutionFieldSpecification);
    }
 
@@ -630,6 +667,7 @@ public class LogicalExpressionImpl
     * @return the literal node instant
     */
    public LiteralNodeInstant InstantLiteral(Instant literalValue) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new LiteralNodeInstant(this, literalValue);
    }
 
@@ -650,6 +688,7 @@ public class LogicalExpressionImpl
     * @return the substitution node instant
     */
    public SubstitutionNodeInstant InstantSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeInstant(this, substitutionFieldSpecification);
    }
 
@@ -670,6 +709,7 @@ public class LogicalExpressionImpl
     * @return the literal node integer
     */
    public LiteralNodeInteger IntegerLiteral(int literalValue) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new LiteralNodeInteger(this, literalValue);
    }
 
@@ -690,6 +730,7 @@ public class LogicalExpressionImpl
     * @return the substitution node integer
     */
    public SubstitutionNodeInteger IntegerSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeInteger(this, substitutionFieldSpecification);
    }
 
@@ -700,6 +741,7 @@ public class LogicalExpressionImpl
     * @return the necessary set node
     */
    public final NecessarySetNode NecessarySet(AbstractLogicNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new NecessarySetNode(this, children);
    }
 
@@ -720,6 +762,7 @@ public class LogicalExpressionImpl
     * @return the or node
     */
    public OrNode Or(AbstractLogicNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new OrNode(this, children);
    }
 
@@ -740,6 +783,7 @@ public class LogicalExpressionImpl
     * @return the root node
     */
    public RootNode Root(ConnectorNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       final RootNode rootNode = new RootNode(this, children);
 
       this.rootNodeIndex = rootNode.getNodeIndex();
@@ -777,6 +821,7 @@ public class LogicalExpressionImpl
     * @return the role node some with sequences
     */
    public final RoleNodeSomeWithNids SomeRole(int typeNid, AbstractLogicNode restriction) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new RoleNodeSomeWithNids(this, typeNid, restriction);
    }
 
@@ -807,6 +852,7 @@ public class LogicalExpressionImpl
     * @return the literal node string
     */
    public LiteralNodeString StringLiteral(String literalValue) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new LiteralNodeString(this, literalValue);
    }
 
@@ -827,6 +873,7 @@ public class LogicalExpressionImpl
     * @return the substitution node string
     */
    public SubstitutionNodeString StringSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SubstitutionNodeString(this, substitutionFieldSpecification);
    }
 
@@ -837,6 +884,7 @@ public class LogicalExpressionImpl
     * @return the sufficient set node
     */
    public final SufficientSetNode SufficientSet(AbstractLogicNode... children) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new SufficientSetNode(this, children);
    }
 
@@ -868,6 +916,7 @@ public class LogicalExpressionImpl
     * @return the template node with sequences
     */
    public TemplateNodeWithNids Template(int templateConceptId, int assemblageConceptId) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return new TemplateNodeWithNids(this, templateConceptId, assemblageConceptId);
    }
 
@@ -882,14 +931,59 @@ public class LogicalExpressionImpl
    }
 
    /**
-    * Adds the node.
+    * Adds the node at the end of list, with no links to the node.
     *
     * @param logicNode the logic node
     */
    public void addNode(LogicNode logicNode) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       logicNode.setNodeIndex((short) this.logicNodes.size());
-      this.logicNodes.add(logicNode);
+      this.logicNodes.add((AbstractLogicNode) logicNode);
    }
+
+    @Override
+    public LogicalExpressionImpl removeNode(int nodeIndex) {
+       commitStateProperty.set(CommitStates.UNCOMMITTED);
+       processDepthFirst((LogicNode node, TreeNodeVisitData visitData) -> {
+            LogicNode[] children = node.getChildren();
+            for (LogicNode childNode: children) {
+                if (childNode.getNodeIndex() == nodeIndex) {
+                    AbstractLogicNode parentNode = (AbstractLogicNode) node;
+                    parentNode.removeChild((short) nodeIndex);
+                }
+            }
+        });
+        AbstractLogicNode nodeToRemove = this.logicNodes.get(nodeIndex);
+        for (LogicNode childToRemove: nodeToRemove.getChildren()) {
+            removeAdditionalNodes(childToRemove.getNodeIndex());
+        }
+        logicNodes.set(nodeIndex, null);
+        commitStateProperty.set(CommitStates.UNCOMMITTED);
+        int[] solution = new int[this.logicNodes.size()];
+        int [] anotherToThisNodeIdMap = new int[solution.length];
+        int newNodeId = 0;
+        for (int i = 0; i < solution.length; i++) {
+            AbstractLogicNode node = this.logicNodes.get(i);
+            if (node == null) {
+                solution[i] = -1;
+                anotherToThisNodeIdMap[i] = -1;
+            } else {
+                solution[i] = node.getNodeIndex();
+                anotherToThisNodeIdMap[i] = newNodeId++;
+            }
+        }
+        
+        return new LogicalExpressionImpl(this, solution, anotherToThisNodeIdMap);
+    }
+   
+    public void removeAdditionalNodes(int nodeIndex) {
+        AbstractLogicNode nodeToRemove = this.logicNodes.get(nodeIndex);
+        for (LogicNode childToRemove: nodeToRemove.getChildren()) {
+            removeAdditionalNodes(childToRemove.getNodeIndex());
+        }
+        logicNodes.set(nodeIndex, null);        
+    }
+   
 
    /**
     * Adds the nodes.
@@ -906,6 +1000,7 @@ public class LogicalExpressionImpl
     * traversing the children of these returned LogicNode elements.
     */
    public final LogicNode[] addNodes(LogicalExpressionImpl another, int[] solution, int... oldIds) {
+      commitStateProperty.set(CommitStates.UNCOMMITTED);
       return this.addNodesWithMap(another, solution, null, oldIds);
    }
 
@@ -917,8 +1012,12 @@ public class LogicalExpressionImpl
     */
    @Override
    public boolean contains(NodeSemantic semantic) {
-      return this.logicNodes.stream()
-              .anyMatch((node) -> (node.getNodeSemantic() == semantic));
+      for (LogicNode node: this.logicNodes) {
+          if (node != null && node.getNodeSemantic() == semantic) {
+              return true;
+          }
+      }
+      return false;
    }
 
    /**
@@ -1096,10 +1195,10 @@ public class LogicalExpressionImpl
 
       logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      int predecessorSequence = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
-      if (predecessorSequence >= 0) {
+      OptionalInt predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
+      if (predecessorNid.isPresent()) {
          
-         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorSequence).forEachKey((node) -> {
+         graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEachKey((node) -> {
             conceptsReferencedByNode.add(node);
             return true;
          });
@@ -1165,6 +1264,9 @@ public class LogicalExpressionImpl
            int[] solution,
            int[] anotherToThisNodeIdMap,
            int... oldIds) {
+       this.conceptNid = another.conceptNid;
+       commitStateProperty.set(CommitStates.UNCOMMITTED);
+      
       final AbstractLogicNode[] results = new AbstractLogicNode[oldIds.length];
 
       for (int i = 0; i < oldIds.length; i++) {
@@ -1266,8 +1368,10 @@ public class LogicalExpressionImpl
                                        .toArray())[0]);
                break;
 
-            case FEATURE:
-               results[i] = Feature(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),
+            case FEATURE: {
+               FeatureNodeWithNids featureNode = (FeatureNodeWithNids) oldLogicNode;
+               results[i] = Feature(featureNode.getTypeConceptNid(), featureNode.getMeasureSemanticNid(),
+                       featureNode.getOperator(),
                        (AbstractLogicNode) addNodesWithMap(another,
                                solution,
                                anotherToThisNodeIdMap,
@@ -1276,13 +1380,14 @@ public class LogicalExpressionImpl
                                        .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
                                        .toArray())[0]);
                break;
+            }
 
             case LITERAL_BOOLEAN:
                results[i] = BooleanLiteral(((LiteralNodeBoolean) oldLogicNode).getLiteralValue());
                break;
 
             case LITERAL_FLOAT:
-               results[i] = FloatLiteral(((LiteralNodeFloat) oldLogicNode).getLiteralValue());
+               results[i] = FloatLiteral(((LiteralNodeDouble) oldLogicNode).getLiteralValue());
                break;
 
             case LITERAL_INSTANT:
@@ -1427,7 +1532,7 @@ public class LogicalExpressionImpl
     * @return the concept sequence
     */
    @Override
-   public int getConceptSequence() {
+   public int getConceptNid() {
       return this.conceptNid;
    }
 
@@ -1490,9 +1595,14 @@ public class LogicalExpressionImpl
     * @return the nodes of type
     */
    @Override
-   public Stream<LogicNode> getNodesOfType(NodeSemantic semantic) {
-      return this.logicNodes.stream()
-              .filter((node) -> (node.getNodeSemantic() == semantic));
+   public List<LogicNode> getNodesOfType(NodeSemantic semantic) {
+       List<LogicNode> results = new ArrayList<>();
+      for (LogicNode node: this.logicNodes) {
+          if (node.getNodeSemantic() == semantic) {
+              results.add(node);
+          }
+      }
+      return results;
    }
 
    /**

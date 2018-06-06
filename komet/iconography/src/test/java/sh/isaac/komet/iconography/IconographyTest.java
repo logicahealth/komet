@@ -18,11 +18,13 @@ package sh.isaac.komet.iconography;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import java.awt.Font;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import org.apache.batik.svggen.SVGFont;
 
 /**
  *
@@ -155,7 +157,28 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.ALERT_WARN2.getIconographic());    
       iconsPane.getChildren().add(Iconography.CHECKERED_FLAG.getIconographic());    
       iconsPane.getChildren().add(Iconography.DASHBOARD.getIconographic());    
+      iconsPane.getChildren().add(Iconography.JAVASCRIPT.getIconographic());  
+      iconsPane.getChildren().add(Iconography.LAMBDA.getIconographic());
+      iconsPane.getChildren().add(Iconography.ROLE_GROUP.getIconographic());
+      iconsPane.getChildren().add(Iconography.INFERRED.getIconographic());
+      iconsPane.getChildren().add(Iconography.STATED.getIconographic());
+      iconsPane.getChildren().add(Iconography.LINK_EXTERNAL.getIconographic());
+      iconsPane.getChildren().add(Iconography.NEW_CONCEPT.getIconographic());
+      iconsPane.getChildren().add(Iconography.CANCEL.getIconographic());
+      iconsPane.getChildren().add(Iconography.DUPLICATE.getIconographic());
       
+      iconsPane.getChildren().add(Iconography.OPEN.getIconographic());
+      iconsPane.getChildren().add(Iconography.CLOSE.getIconographic());
+      
+      iconsPane.getChildren().add(Iconography.FEATURE_FUNCTION.getIconographic());
+      iconsPane.getChildren().add(Iconography.FEATURE_INFO.getIconographic());
+      iconsPane.getChildren().add(Iconography.FEATURE_RULER.getIconographic());
+      iconsPane.getChildren().add(Iconography.LITERAL_STRING.getIconographic());
+      iconsPane.getChildren().add(Iconography.LITERAL_NUMERIC.getIconographic());
+      iconsPane.getChildren().add(Iconography.COPY.getIconographic());
+      iconsPane.getChildren().add(Iconography.TARGET.getIconographic());
+      iconsPane.getChildren().add(Iconography.EXCLAMATION.getIconographic());
+      iconsPane.getChildren().add(Iconography.INFORMATION.getIconographic());
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);
 
@@ -165,6 +188,9 @@ public class IconographyTest extends Application {
    }
 
    public static void main(String[] args) {
+//      Font font = new Font("FontAwesome", Font.PLAIN, 12);
+//      String svg = SVGFont.familyToSVG(font);
+//      System.out.println(svg);
       launch(args);
    }
 

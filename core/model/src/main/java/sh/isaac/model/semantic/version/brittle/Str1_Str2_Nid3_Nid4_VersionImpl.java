@@ -99,7 +99,7 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),

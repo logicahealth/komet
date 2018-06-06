@@ -35,14 +35,11 @@
  *
  */
 
-
-
 package sh.isaac.api.component.semantic.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -50,89 +47,84 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  *
  * @author kec
  */
-public interface LoincVersion
-        extends SemanticVersion {
+public interface LoincVersion extends BrittleVersion {
    String getComponent();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setComponent(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getLoincNum();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setLoincNum(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getLongCommonName();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setLongCommonName(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getMethodType();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setMethodType(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getProperty();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setProperty(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getScaleType();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setScaleType(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getShortName();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setShortName(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getLoincStatus();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setLoincStatus(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getSystem();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setSystem(String value);
 
-   //~--- get methods ---------------------------------------------------------
-
    String getTimeAspect();
-
-   //~--- set methods ---------------------------------------------------------
 
    void setTimeAspect(String value);
    
+   @Override
+   default BrittleDataTypes[] getFieldTypes() {
+      return new BrittleDataTypes[] {
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING, 
+            BrittleDataTypes.STRING,
+            BrittleDataTypes.STRING,
+            BrittleDataTypes.STRING,
+            BrittleDataTypes.STRING};
+   }
+
+   @Override
+   default Object[] getDataFields() {
+      Object[] temp = {
+            getComponent(),
+            getLoincNum(),
+            getLoincStatus(),
+            getLongCommonName(),
+            getMethodType(),
+            getProperty(),
+            getScaleType(),
+            getShortName(),
+            getSystem(),
+            getTimeAspect()};
+      
+      if (getFieldTypes().length != temp.length) {
+         throw new RuntimeException("Mispecified brittle!");
+      }
+      return temp;
+   }
+
    @Override
    default VersionType getSemanticType() {
       return VersionType.LOINC_RECORD;
    }
 }
-

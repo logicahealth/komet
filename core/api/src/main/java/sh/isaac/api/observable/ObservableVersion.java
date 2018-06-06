@@ -48,14 +48,17 @@ import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -131,6 +134,8 @@ public interface ObservableVersion
     */
    List<ReadOnlyProperty<?>> getProperties();
    
+   List<Property<?>> getEditableProperties();
+
    default Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
       Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = new HashMap<>();
       getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
@@ -159,5 +164,17 @@ public interface ObservableVersion
     * @return 
     */
    <T extends Object> Optional<T> removeUserObject(String objectKey);
+   
+   <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec);
+   
+   /**
+    * 
+    * @return an independent chronicle that has this 
+    * version as a member of it's version list.
+    */
+   Chronology createIndependentChronicle();
+
+   Chronology createChronologyForCommit(int stampSequence);
+
 }
 

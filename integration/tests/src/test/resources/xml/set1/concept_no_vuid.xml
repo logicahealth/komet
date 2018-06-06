@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- Creates a basic concept with 1 designation. Removed the VUID and code tags -->
+<CodedConcept>
+  <Action>add</Action>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <TypeName>Preferred Name</TypeName>
+    <ValueNew>Concept without VUID</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+  </Designation></Designations>	
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>4712075</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

@@ -134,5 +134,18 @@ public class StampComment
    public int getStampSequence() {
       return this.stampSequence;
    }
+   
+   @Override
+   public boolean equals(Object obj) {
+       if (obj == null) {
+           return false;
+       }
+       if (getClass() != obj.getClass()) {
+           return false;
+       }
+
+       final StampComment other = (StampComment) obj;
+       return this.getComment().equals(other.getComment()) && this.getStampSequence() == other.getStampSequence();
+   }
 }
 

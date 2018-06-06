@@ -59,20 +59,20 @@ public interface IndexStatusListener {
     * Called when an index configuration change happens that listeners might be interested in.
     * @param indexConfigurationThatChanged - the indexer that had a change
     */
-   public void indexConfigurationChanged(IndexService indexConfigurationThatChanged);
+   public void indexConfigurationChanged(IndexQueryService indexConfigurationThatChanged);
 
    /**
     * Called when a reindex sequence begins.
     *
     * @param index - the index being recreated
     */
-   public void reindexBegan(IndexService index);
+   public void reindexBegan(IndexQueryService index);
 
    /**
     * Called when a reindex sequence completes.
     *
     * @param index - the index that was recreated
     */
-   public void reindexCompleted(IndexService index);
+   public void reindexCompleted(IndexQueryService index);
 }
 

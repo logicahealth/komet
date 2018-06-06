@@ -41,6 +41,7 @@ package sh.isaac.model.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,6 +55,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -163,13 +165,11 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * {@inheritDoc}
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
-      return getDescription().getText();
+   public String getFullyQualifiedName() {
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(getNid(), getStampCoordinate());
    }
 
    /**
@@ -183,9 +183,7 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the description.
-    *
-    * @return the description
+    * {@inheritDoc}
     */
    @Override
    public DescriptionVersion getDescription() {
@@ -297,9 +295,9 @@ public class ConceptSnapshotImpl
     * @return the state
     */
    @Override
-   public Status getState() {
+   public Status getStatus() {
       return this.snapshotVersion.get()
-                                 .getState();
+                                 .getStatus();
    }
 
    /**
@@ -326,18 +324,13 @@ public class ConceptSnapshotImpl
    
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getNid()));
+   public Optional<String> getRegularName() {
+     return getLanguageCoordinate().getRegularName(getNid(), getStampCoordinate());
    }
 
    @Override
    public ManifoldCoordinate makeCoordinateAnalog(PremiseType taxonomyType) {
       return this.manifoldCoordinate.makeCoordinateAnalog(taxonomyType);
-   }
-
-   @Override
-   public int getIsaConceptNid() {
-      return this.manifoldCoordinate.getIsaConceptNid();
    }
 
    @Override
@@ -366,11 +359,6 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-     getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypePreferenceList);
-   }
-
-   @Override
    public ConceptSnapshotImpl deepClone() {
       throw new UnsupportedOperationException();
    }
@@ -381,9 +369,27 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
-        this.manifoldCoordinate.setNextProrityLanguageCoordinate(languageCoordinate);
+    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return this.manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
-   
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDefinition() {
+        return this.manifoldCoordinate.getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), manifoldCoordinate);
+    }
+
+    @Override
+    public List<DescriptionVersion> getAllDescriptions() {
+        List<SemanticChronology> descriptionChronologies = this.conceptChronology.getConceptDescriptionList();
+        List<DescriptionVersion> versions = new ArrayList<>();
+        for (SemanticChronology descriptionChronology: descriptionChronologies) {
+           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(manifoldCoordinate);
+           latestVersion.ifPresent((dv) -> {
+               versions.add(dv);
+           });
+        }
+        return versions;
+    }    
+    
 }
 

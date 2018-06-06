@@ -36,11 +36,11 @@ public class ConceptActionGroup extends ActionGroup {
 
    private void setupProxy(ConceptSpecification actionGroupConcept) {
       this.actionGroupConcept = actionGroupConcept;
-      Optional<String> optionalDescription = actionGroupConcept.getPreferedConceptDescriptionText();
+      Optional<String> optionalDescription = actionGroupConcept.getRegularName();
       if (optionalDescription.isPresent()) {
          this.setText(optionalDescription.get());
       } else {
-         this.setText(actionGroupConcept.getFullySpecifiedConceptDescriptionText());
+         this.setText(actionGroupConcept.getFullyQualifiedName());
       }
    }
 

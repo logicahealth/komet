@@ -42,7 +42,6 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
-
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,21 +50,23 @@ import java.util.regex.Pattern;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronologyType;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.util.Interval;
-import sh.isaac.api.util.NumericUtils;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.util.Interval;
+import sh.isaac.api.util.NumericUtils;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  * {@link DynamicValidatorType#LESS_THAN_OR_EQUAL}
  * {@link DynamicValidatorType#GREATER_THAN_OR_EQUAL}
  *
- * are one of ( {@link DynamicSememeInteger}, {@link DynamicSememeLong}, {@link DynamicSememeFloat}, {@link DynamicSememeDouble})
+ * are one of ( {@link DynamicInteger}, {@link DynamicLong}, {@link DynamicFloat}, {@link DynamicDouble})
  *
  * {@link DynamicValidatorType#INTERVAL} - Should be a {@link DynamicString} with valid interval notation - such as "[4,6)"
  *
@@ -88,20 +89,20 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  * And for the following two:
  * {@link DynamicValidatorType#IS_CHILD_OF}
  * {@link DynamicValidatorType#IS_KIND_OF}
- * The validatorDefinitionData should be either an {@link DynamicNid} or {@link DynamicSequence} or a {@link DynamicUUID}.
+ * The validatorDefinitionData should be either an {@link DynamicNid} or a {@link DynamicUUID}.
  *
- * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSememeString>}
- * where position 0 is a string constant parseable by {@link ObjectChronologyType#parse(String)}.  Postion 1 is optional, and is only applicable when
- * position 0 is {@link ObjectChronologyType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String)}
+ * For {@link DynamicValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicArray <DynamicSemanticString>}
+ * where position 0 is a string constant parseable by {@link IsaacObjectType#parse(String, boolean)}.  Postion 1 is optional, and is only applicable when
+ * position 0 is {@link IsaacObjectType#SEMANTIC} - in which case - the value should be parsable by {@link VersionType#parse(String, boolean)}
  *
- * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSememeString>}
+ * For {@link DynamicValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicArray <DynamicSemanticString>}
  * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicExternalValidator}
  * the name that you provide should be the value of the '@Name' annotation within the class which implements the ExternalValidatorBI class.
  * This code will request that implementation (by name) and pass the validation call to it.
  *
  * Optionally, the validatorDefinitionData more that one {@link DynamicString} in the array - only the first position of the array
  * will be considered as the '@Name' to be used for the HK2 lookup.  All following data is ignored, and may be used by the external validator
- * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicArray <DynamicSememeString>}
+ * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicArray <DynamicSemanticString>}
  * contains an array of strings such as new String[]{"mySuperRefexValidator", "somespecialmappingdata", "some other mapping data"}
  * then the following HK2 call will be made to locate the validator implementation (and validate):
  * <pre>
@@ -209,7 +210,7 @@ public enum DynamicValidatorType {
          return DynamicValidatorType.values()[i];
       } catch (final NumberFormatException e) {
          for (final DynamicValidatorType x: DynamicValidatorType.values()) {
-            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase(Locale.ENGLISH).equals(clean)) {
                return x;
             }
          }
@@ -217,7 +218,7 @@ public enum DynamicValidatorType {
 
       if (exceptionOnParseFail) {
          throw new InvalidParameterException("The value " + nameOrEnumId +
-               " could not be parsed as a DynamicSememeValidatorType");
+               " could not be parsed as a DynamicSemanticValidatorType");
       } else {
          return UNKNOWN;
       }
@@ -251,18 +252,15 @@ public enum DynamicValidatorType {
     *
     * @param userData the user data
     * @param validatorDefinitionData the validator definition data
-    * @param sc The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    *   {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
-    * @param tc The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    *    {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
+    * @param stampSequence - the stamp where this data will live.  For tests that don't require a stamp to be executed, 
+    * pass -1 - but you will get an exception, if you the validator requires a stamp sequence to be evaluated.
     * @return true, if successful
     * @throws IllegalArgumentException the illegal argument exception
     */
    @SuppressWarnings("unchecked")
    public boolean passesValidator(DynamicData userData,
                                   DynamicData validatorDefinitionData,
-                                  StampCoordinate sc,
-                                  ManifoldCoordinate tc)
+                                  int stampSequence)
             throws IllegalArgumentException {
       if (validatorDefinitionData == null) {
          throw new RuntimeException("The validator definition data is required");
@@ -271,7 +269,7 @@ public enum DynamicValidatorType {
       if (userData instanceof DynamicArray) {
          // If the user data is an array, unwrap, and validate each.
          for (final DynamicData userDataItem: ((DynamicArray<?>) userData).getDataArray()) {
-            if (!passesValidator(userDataItem, validatorDefinitionData, sc, tc)) {
+            if (!passesValidator(userDataItem, validatorDefinitionData, stampSequence)) {
                return false;
             }
          }
@@ -297,16 +295,16 @@ public enum DynamicValidatorType {
                                      .getService(DynamicExternalValidator.class, valName);
          } else {
             logger.severe(
-                "An external validator type was specified, but no DynamicSememeExternalValidatorBI 'name' was provided.  API misuse!");
+                "An external validator type was specified, but no DynamicSemanticExternalValidatorBI 'name' was provided.  API misuse!");
          }
 
          if (validator == null) {
             throw new RuntimeException(
-                "Could not locate an implementation of DynamicSememeExternalValidatorBI with the requested name of '" +
+                "Could not locate an implementation of DynamicSemanticExternalValidatorBI with the requested name of '" +
                 valName + "'");
          }
 
-         return validator.validate(userData, stringValidatorDefData, sc, tc);
+         return validator.validate(userData, stringValidatorDefData, stampSequence);
       } else if (this == DynamicValidatorType.REGEXP) {
          try {
             if (userData == null) {
@@ -330,8 +328,6 @@ public enum DynamicValidatorType {
                             .getNidForUuids(((DynamicUUID) userData).getDataUUID());
             } else if (userData instanceof DynamicNid) {
                childId = ((DynamicNid) userData).getDataNid();
-            } else if (userData instanceof DynamicSequence) {
-               childId = ((DynamicSequence) userData).getDataSequence();
             } else {
                throw new RuntimeException("Userdata is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
             }
@@ -341,26 +337,27 @@ public enum DynamicValidatorType {
                              .getNidForUuids(((DynamicUUID) validatorDefinitionData).getDataUUID());
             } else if (validatorDefinitionData instanceof DynamicNid) {
                parentId = ((DynamicNid) validatorDefinitionData).getDataNid();
-            } else if (userData instanceof DynamicSequence) {
-               parentId = ((DynamicSequence) validatorDefinitionData).getDataSequence();
             } else {
                throw new RuntimeException(
                    "Validator DefinitionData is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
             }
 
             if (this == DynamicValidatorType.IS_CHILD_OF) {
-               if (tc == null) {
-                  throw new IllegalArgumentException("A taxonomy coordinate must be provided to evaluate IS_CHILD_OF");
+               if (stampSequence == -1) {
+                  throw new IllegalArgumentException("A valid stamp sequence must be provided to evaluate IS_CHILD_OF");
                }
-
-               return Get.taxonomyService().getSnapshot(tc).isChildOf(childId, parentId);
-            } else {
-               if (tc == null) {
-                  return Get.taxonomyService()
-                            .wasEverKindOf(childId, parentId);
-               } else {
-                  return Get.taxonomyService().getSnapshot(tc).isKindOf(childId, parentId);
-               }
+               
+               return Get.taxonomyService().getStatedLatestSnapshot(
+                     Get.stampService().getPathNidForStamp(stampSequence), 
+                     NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                     //but often, the is_child_of check is about a different concept entirely, likely in a different module.
+                     Status.ACTIVE_ONLY_SET).isChildOf(childId, parentId);
+            } else {  //IS_KIND_OF
+               return Get.taxonomyService().getStatedLatestSnapshot(
+                      Get.stampService().getPathNidForStamp(stampSequence), 
+                      NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                      //but often, the is_child_of check is about a different concept entirely, likely in a different module.
+                      Status.ACTIVE_ONLY_SET).isKindOf(childId, parentId);
             }
          } catch (final IllegalArgumentException e) {
             throw e;
@@ -389,14 +386,13 @@ public enum DynamicValidatorType {
                throw new RuntimeException("Userdata is invalid for a COMPONENT_TYPE comparison");
             }
 
-            // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) VersionType of the assemblage restriction
+            // Position 0 tells us the IsaacObjectType.  When the type is Semantic, position 2 tells us the (optional) VersionType of the assemblage restriction
             final DynamicString[] valData =
                ((DynamicArray<DynamicString>) validatorDefinitionData).getDataArray();
-            final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
-            final ObjectChronologyType component  = Get.identifierService()
-                                                       .getOldChronologyTypeForNid(nid);
+            final IsaacObjectType expectedCT = IsaacObjectType.parse(valData[0].getDataString(), false);
+            final IsaacObjectType component  = Get.identifierService().getObjectTypeForComponent(nid);
 
-            if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
+            if (expectedCT == IsaacObjectType.UNKNOWN) {
                throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
             }
 
@@ -405,7 +401,7 @@ public enum DynamicValidatorType {
                                           ", not " + component);
             }
 
-            if ((expectedCT == ObjectChronologyType.SEMANTIC) && (valData.length == 2)) {
+            if ((expectedCT == IsaacObjectType.SEMANTIC) && (valData.length == 2)) {
                // they specified a specific type.  Verify.
                final VersionType st = VersionType.parse(valData[1].getDataString(), false);
                final SemanticChronology semanticChronology = Get.assemblageService()
@@ -477,7 +473,7 @@ public enum DynamicValidatorType {
    }
 
    /**
-    * A convenience wrapper of {@link #passesValidator(DynamicSememeDataBI, DynamicSememeDataBI, ViewCoordinate)} that just returns a string - never
+    * A convenience wrapper of {@link #passesValidator(DynamicData, DynamicData, int)} that just returns a string - never
     * throws an error
     *
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
@@ -485,16 +481,14 @@ public enum DynamicValidatorType {
     *
     * @param userData the user data
     * @param validatorDefinitionData the validator definition data
-    * @param sc - The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
-    * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+    * @param stampSequence - The stamp sequence
     * @return - empty string if valid, an error message otherwise.
     */
    public String passesValidatorStringReturn(DynamicData userData,
          DynamicData validatorDefinitionData,
-         StampCoordinate sc,
-         ManifoldCoordinate tc) {
+         int stampSequence) {
       try {
-         if (passesValidator(userData, validatorDefinitionData, sc, tc)) {
+         if (passesValidator(userData, validatorDefinitionData, stampSequence)) {
             return "";
          } else {
             return "The value does not pass the validator";
@@ -542,15 +536,6 @@ public enum DynamicValidatorType {
       case NID:
       case UUID: {
          if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP) || (this == COMPONENT_TYPE)) {
-            return true;
-         } else {
-            return false;
-         }
-      }
-
-      case SEQUENCE:  // can't support component type with sequence, because we don't know how to look it up
-      {
-         if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP)) {
             return true;
          } else {
             return false;

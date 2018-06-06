@@ -17,6 +17,7 @@
 package sh.isaac.api.bootstrap;
 
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import sh.isaac.api.ConceptProxy;
 
 /**
@@ -24,7 +25,13 @@ import sh.isaac.api.ConceptProxy;
  * @author kec
  */
 public class TestConcept {
+    
+    public static final ConcurrentSkipListSet<Integer> WATCH_NID_SET = new ConcurrentSkipListSet();
     public static final ConceptProxy HOMOCYSTINE_MV_URINE = 
             new ConceptProxy("Homocystine [Mass/volume] in Urine", 
                     UUID.fromString("ada7be10-0c94-5ed9-9fdd-cf537b829db4"));
+    
+    public static final ConceptProxy CARBOHYDRATE_OBSERVATION = new ConceptProxy("Carbohydrate observation (OP)", 
+                    UUID.fromString("fd2a1ea2-31d8-5c55-a384-885aed6e1fd8"));
+    
 }

@@ -85,19 +85,18 @@ public class ConceptChronologyImpl
    /**
     * Instantiates a new concept chronology impl.
     */
-   private ConceptChronologyImpl() {}
+   private ConceptChronologyImpl() {
+       this.versionType = VersionType.CONCEPT;
+   }
 
    /**
     * Instantiates a new concept chronology impl.
     *
     * @param primordialUuid the primordial uuid
-    * @param nid the nid
     * @param assemblageNid the container sequence
     */
-   public ConceptChronologyImpl(UUID primordialUuid, int nid, int assemblageNid) {
-      super(primordialUuid, nid, assemblageNid);
-      ModelGet.identifierService().setupNid(nid, assemblageNid, 
-              IsaacObjectType.CONCEPT, VersionType.CONCEPT);
+   public ConceptChronologyImpl(UUID primordialUuid, int assemblageNid) {
+      super(primordialUuid, assemblageNid, VersionType.CONCEPT);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -182,6 +181,10 @@ public class ConceptChronologyImpl
     * @return the concept chronology impl
     */
    public static ConceptChronologyImpl make(ByteArrayDataBuffer data) {
+      if (data.getUsed() == 0) {
+          throw new IllegalStateException();
+      }
+       
       if (IsaacObjectType.CONCEPT.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
          throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
       }
@@ -204,11 +207,23 @@ public class ConceptChronologyImpl
       builder.append(" <");
       builder.append(getNid());
       builder.append("> \n");
+      return builder.toString();
+   }
+   
+   @Override
+   public String toLongString() {
+      final StringBuilder builder = new StringBuilder();
+
+      builder.append("ConceptChronologyImpl{");
+      builder.append(toUserString());
+      builder.append(" <");
+      builder.append(getNid());
+      builder.append("> \n");
+      
       
       builder.append("\nTaxonomy record: \n");
       builder.append(ModelGet.taxonomyDebugService().describeTaxonomyRecord(this.getNid()));
       builder.append("\n\n");
-
       toString(builder, true);
       return builder.toString();
    }
@@ -250,8 +265,6 @@ public class ConceptChronologyImpl
     */
    @Override
    protected ConceptVersionImpl makeVersion(int stampSequence, ByteArrayDataBuffer bb) {
-      // discard old short value for version sequence
-      bb.getShort();
       return new ConceptVersionImpl(this, stampSequence);
    }
 
@@ -305,12 +318,12 @@ public class ConceptChronologyImpl
    }
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * {@inheritDoc}
+    * Note, that despite the doc for this method, this may return a preferred term, if no FQN is found, or a description 
+    * that specifies "unknown..." if nothing at all is found.
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return Get.conceptDescriptionText(getNid());
    }
 
@@ -388,7 +401,7 @@ public class ConceptChronologyImpl
          final List<LogicGraphVersionImpl> versions =
             definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
 
-//       Collection<LogicGraphSememeImpl> versionsList = new ArrayList<>();
+//       Collection<LogicGraphSemanticImpl> versionsList = new ArrayList<>();
 //       for (LogicGraphVersionImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
 //           
 //       }
@@ -445,9 +458,9 @@ public class ConceptChronologyImpl
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.ofNullable(Get.defaultCoordinate()
-                                    .getPreferredDescriptionText(this.getNid()));
+   public Optional<String> getRegularName() {
+      return Get.defaultCoordinate()
+                                    .getRegularName(this.getNid());
    }
 
    /**

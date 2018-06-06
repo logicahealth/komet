@@ -89,11 +89,9 @@ public class TemplateNodeWithUuids
    public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
       super(internalForm);
       this.templateConceptUuid = Get.identifierService()
-                                    .getUuidPrimordialForNid(internalForm.getTemplateConceptNid())
-                                    .get();
+                                    .getUuidPrimordialForNid(internalForm.getTemplateConceptNid());
       this.assemblageConceptUuid = Get.identifierService()
-                                      .getUuidPrimordialForNid(internalForm.getAssemblageConceptNid())
-                                      .get();
+                                      .getUuidPrimordialForNid(internalForm.getAssemblageConceptNid());
    }
 
    /**
@@ -107,6 +105,8 @@ public class TemplateNodeWithUuids
       super(logicGraphVersion, dataInputStream);
       this.templateConceptUuid   = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
       this.assemblageConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      Get.identifierService().assignNid(this.templateConceptUuid);
+      Get.identifierService().assignNid(this.assemblageConceptUuid);
    }
 
    /**
@@ -198,8 +198,10 @@ public class TemplateNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] " + "assemblage: " +
-             Get.conceptService().getConceptChronology(this.assemblageConceptUuid).toUserString() + ", template: " +
-             Get.conceptService().getConceptChronology(this.templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
+             Get.conceptService().getConceptChronology(this.assemblageConceptUuid).toUserString()  + " <" +
+                     this.assemblageConceptUuid + ">" + ", template: " +
+             Get.conceptService().getConceptChronology(this.templateConceptUuid).toUserString()  + " <" +
+                     this.templateConceptUuid + ">" + super.toString(nodeIdSuffix);
    }
    @Override
    public String toSimpleString() {
@@ -282,6 +284,11 @@ public class TemplateNodeWithUuids
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
+    @Override
+    public void removeChild(short childId) {
+        // nothing to do
+    }
+
 
    /**
     * Gets the node semantic.

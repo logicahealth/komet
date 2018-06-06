@@ -57,10 +57,11 @@ public class PT_SAB_Metadata
         extends PropertyType {
    /**
     * Instantiates a new p T SA B metadata.
+    * @param termName 
     */
-   public PT_SAB_Metadata() {
+   public PT_SAB_Metadata(String termName) {
       // from http://www.nlm.nih.gov/research/umls/rxnorm/docs/2013/rxnorm_doco_full_2013-2.html#s12_8
-      super("Source Vocabulary Metadata", true, DynamicDataType.STRING);
+      super(termName + " Source Vocabulary Metadata", true, DynamicDataType.STRING, null);
       indexByAltNames();
       addProperty("Versioned CUI", "VCUI", "CUI of the versioned SRC concept for a source");
       addProperty("Root CUI", "RCUI", "CUI of the root SRC concept for a source");
@@ -92,7 +93,7 @@ public class PT_SAB_Metadata
                   -1,
                   new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
                         DynamicDataType.UUID,
                         null,
                         true,
@@ -112,7 +113,7 @@ public class PT_SAB_Metadata
                   -1,
                   new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
                         DynamicDataType.UUID,
                         null,
                         true,

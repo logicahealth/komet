@@ -114,13 +114,13 @@ public class DashboardView
                     .compareTo(o2.getAssemblageName());
         });
 
-        assemblageTableView = new TableView(assemblageTableData);
+        assemblageTableView = new TableView<>(assemblageTableData);
 
-        TableColumn<AssemblageDashboardRow, String> nameColumn = new TableColumn("Assemblage");
-        nameColumn.setCellValueFactory(new PropertyValueFactory("assemblageName"));
+        TableColumn<AssemblageDashboardRow, String> nameColumn = new TableColumn<>("Assemblage");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("assemblageName"));
 
-        TableColumn<AssemblageDashboardRow, Integer> countColumn = new TableColumn("Count");
-        countColumn.setCellValueFactory(new PropertyValueFactory("semanticCount"));
+        TableColumn<AssemblageDashboardRow, Integer> countColumn = new TableColumn<>("Count");
+        countColumn.setCellValueFactory(new PropertyValueFactory<>("semanticCount"));
 
         countColumn.setCellFactory((param) -> {
             return new TableCell<AssemblageDashboardRow, Integer>() {
@@ -136,8 +136,8 @@ public class DashboardView
             };
         });
 
-        TableColumn<AssemblageDashboardRow, Integer> memoryUsedColumn = new TableColumn("Memory Use");
-        memoryUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageMemoryUsage"));
+        TableColumn<AssemblageDashboardRow, Integer> memoryUsedColumn = new TableColumn<>("Memory Use");
+        memoryUsedColumn.setCellValueFactory(new PropertyValueFactory<>("assemblageMemoryUsage"));
 
         memoryUsedColumn.setCellFactory((param) -> {
             return new TableCell<AssemblageDashboardRow, Integer>() {
@@ -152,8 +152,8 @@ public class DashboardView
             };
         });
 
-        TableColumn<AssemblageDashboardRow, Integer> diskSpaceUsedColumn = new TableColumn("Disk Space");
-        diskSpaceUsedColumn.setCellValueFactory(new PropertyValueFactory("assemblageDiskSpaceUsage"));
+        TableColumn<AssemblageDashboardRow, Integer> diskSpaceUsedColumn = new TableColumn<>("Disk Space");
+        diskSpaceUsedColumn.setCellValueFactory(new PropertyValueFactory<>("assemblageDiskSpaceUsage"));
         diskSpaceUsedColumn.setCellFactory((param) -> {
             return new TableCell<AssemblageDashboardRow, Integer>() {
                 @Override
@@ -175,7 +175,13 @@ public class DashboardView
         updateSystemTiles();
     }
 
-    private void setCellAlignment(Cell cell) {
+
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.DASHBOARD.getIconographic();
+    }
+
+    private void setCellAlignment(Cell<Integer> cell) {
         cell.setContentDisplay(ContentDisplay.TEXT_ONLY);
         cell.setTextAlignment(TextAlignment.RIGHT);
         cell.setAlignment(Pos.BOTTOM_RIGHT);
@@ -196,9 +202,10 @@ public class DashboardView
         memoryAxis.setAnimated(true);
         memoryAxis.setAutoRanging(true);
 
-        StackedAreaChart memoryChart
-                = new StackedAreaChart(timeAxis, memoryAxis, StackedMemoryChartData.getMemoryChartData());
+        StackedAreaChart<Number, Number> memoryChart
+                = new StackedAreaChart<Number, Number>(timeAxis, memoryAxis, StackedMemoryChartData.getMemoryChartData());
 
+        memoryChart.prefWidthProperty().bind(this.widthProperty().subtract(20));
         tiles.add(memoryChart);
 
         //setupMemoryDonutChart(tiles);

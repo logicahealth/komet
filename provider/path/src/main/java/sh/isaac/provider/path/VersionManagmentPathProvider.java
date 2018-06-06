@@ -49,6 +49,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
@@ -59,6 +62,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
@@ -77,7 +81,7 @@ import sh.isaac.api.VersionManagmentPathService;
  * @author kec
  */
 @Service(name = "Path Provider")
-@RunLevel(value = 2)
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VersionManagmentPathProvider
          implements VersionManagmentPathService {
    /** The Constant LOG. */
@@ -96,7 +100,9 @@ public class VersionManagmentPathProvider
    /**
     * Instantiates a new path provider.
     */
-   protected VersionManagmentPathProvider() {}
+   private VersionManagmentPathProvider() {
+      //For HK2 only
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -108,7 +114,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public boolean exists(int pathConceptId) {
-      setupPathMap();
 
       if (this.pathMap.containsKey(pathConceptId)) {
          return true;
@@ -123,22 +128,25 @@ public class VersionManagmentPathProvider
     * Setup path map.
     */
    private void setupPathMap() {
-      if (this.pathMap == null) {
-         LOCK.lock();
+      LOCK.lock();
+      
+      LOG.info("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
+      try {
+         ConcurrentHashMap<Integer, StampPath> newMap = new ConcurrentHashMap<>();
+         
+         Get.assemblageService()
+            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
+            .forEach((pathSemantic) -> {
+                        final int pathNid = pathSemantic.getReferencedComponentNid();
 
-         try {
-            this.pathMap = new ConcurrentHashMap<>();
-            Get.assemblageService()
-               .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
-               .forEach((pathSememe) -> {
-                           final int pathNid = pathSememe.getReferencedComponentNid();
-
-                           this.pathMap.put(pathNid, new StampPathImpl(pathNid));
-                        });
-         } finally {
-            LOCK.unlock();
-         }
+                        newMap.put(pathNid, new StampPathImpl(pathNid));
+                     });
+         
+         this.pathMap = newMap;
+      } finally {
+         LOCK.unlock();
       }
+      LOG.info("Finished rebuilding the path map.  New map size: {}", this.pathMap.size());
    }
 
    /**
@@ -150,7 +158,7 @@ public class VersionManagmentPathProvider
     */
    private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
       for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getStampPathSequence() == v1.getPathNid()) {
+         if (origin.getStampPathNid() == v1.getPathNid()) {
             if (v1.getTime() <= origin.getTime()) {
                return RelativePosition.BEFORE;
             }
@@ -169,8 +177,8 @@ public class VersionManagmentPathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
-                        int pathId = sememeChronicle.getReferencedComponentNid();
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+                        int pathId = semanticChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
 
@@ -189,8 +197,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public Collection<? extends StampPosition> getOrigins(int stampPathNid) {
-      setupPathMap();
-
       return getPathOriginsFromDb(stampPathNid);
    }
 
@@ -219,8 +225,8 @@ public class VersionManagmentPathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((sememeChronicle) -> {
-                        int pathId = sememeChronicle.getReferencedComponentNid();
+      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+                        int pathId = semanticChronicle.getReferencedComponentNid();
                        final StampPath stampPath = new StampPathImpl(pathId);
 
                         return stampPath;
@@ -276,8 +282,6 @@ public class VersionManagmentPathProvider
     */
    @Override
    public StampPath getStampPath(int stampPathNid) {
-      setupPathMap();
-
       if (exists(stampPathNid)) {
          return this.pathMap.get(stampPathNid);
       }
@@ -290,6 +294,29 @@ public class VersionManagmentPathProvider
 
       throw new IllegalStateException("No path for: " + stampPathNid + " " +
                                       Get.conceptService().getConceptChronology(stampPathNid).toString());
+   }
+   
+   @Override
+   public void rebuildPathMap() {
+      setupPathMap();
+   }
+   
+   /**
+    * Start me.
+    */
+   @PostConstruct
+   private void startMe() {
+      LOG.info("VersionManagementPathProvider starts");
+      setupPathMap();
+   }
+
+   /**
+    * Stop me.
+    */
+   @PreDestroy
+   private void stopMe() {
+      LOG.info("VersionManagementPathProvider stops");
+      this.pathMap = null;
    }
 }
 

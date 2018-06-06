@@ -39,11 +39,17 @@
 
 package sh.isaac.api.externalizable;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
- * The Class StampAlias.
+ * The StampAlias is used to support 
+ * "cheap copying and branching (path creation)" AKA "lazy copying and branching (path creation)". 
+ * Use of StampAlias
+ * for moving a set of changes from one branch or module to another is a constant
+ * time operation, that does not require all of the content to be physically copied 
+ * for each promotion of content from one branch to another. So the StampAlias saves 
+ * computational time, storage space, change set space, and thus reduces synchronization time. 
+ * Cheap copies and branches are a feature of Subversion ( http://svnbook.red-bean.com/en/1.1/ch04s02.html),
+ * 
+ * See also: https://lostechies.com/derickbailey/2010/02/24/branching-strategies-the-cost-of-branching-and-merging/
  *
  * @author kec
  */

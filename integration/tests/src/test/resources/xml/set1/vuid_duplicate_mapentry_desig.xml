@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<CodedConcepts/>
+			<MapSets>
+				<MapSet>
+					<Action>add</Action>
+					<Code>6600</Code>
+					<Name>MapSet</Name>
+					<VUID>6600</VUID>
+					<Active>true</Active>
+					<SourceCodeSystem>VHAT</SourceCodeSystem>
+					<SourceVersionName>5</SourceVersionName>
+					<TargetCodeSystem>HL7 Administrative Gender</TargetCodeSystem>
+					<TargetVersionName>V3NE08</TargetVersionName>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>6603</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>6603</VUID>
+							<ValueNew>NHIN Gender</ValueNew>
+							<Active>true</Active>
+						</Designation>
+						<Designation>
+							<Action>add</Action>
+							<Code>6603</Code>
+							<TypeName>Fully Specified Name</TypeName>
+							<VUID>6603</VUID>
+							<ValueNew>VHAT 5 to HL7 Administrative Gender V3NE08 02-May-2011 04:19:59</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+					<Properties>
+						<Property>
+							<Action>add</Action>
+							<TypeName>Description</TypeName>
+							<ValueNew>Data Exchange with NHIN</ValueNew>
+							<Active>true</Active>
+						</Property>
+					</Properties>
+					<MapEntries>
+						<MapEntry>
+							<Action>add</Action>
+							<VUID>6601</VUID>
+							<SourceCode>4712532</SourceCode>
+							<TargetCode>M</TargetCode>
+							<Sequence>1</Sequence>
+							<Active>true</Active>
+						</MapEntry>
+						<MapEntry>
+							<Action>add</Action>
+							<VUID>6602</VUID>
+							<SourceCode>4712531</SourceCode>
+							<TargetCode>F</TargetCode>
+							<Sequence>1</Sequence>
+							<Active>true</Active>
+						</MapEntry>
+					</MapEntries>
+				</MapSet>
+			</MapSets>
+		</Version>
+	</CodeSystem>
+</Terminology>

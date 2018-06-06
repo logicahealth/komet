@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- concept and designations all use the same VUID -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>702</Code>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <VUID>702</VUID>   <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+  <Active>1</Active>
+
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>703</Code>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>703</VUID>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <ValueNew>VUID USED TWICE</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+  </Designation>	
+
+  <Designation>
+    <Action>add</Action>
+    <Code>703</Code>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>703</VUID>  <!-- THIS HAS TO BE CHANGED WITH EACH IMPORT -->
+    <ValueNew>VUID USED TWIEC</ValueNew>  <!-- THIS SHOULD BE CHANGED WITH EACH IMPORT -->
+    <Active>1</Active>
+  </Designation></Designations>
+
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>4712075</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

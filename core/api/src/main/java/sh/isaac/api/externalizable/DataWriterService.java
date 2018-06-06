@@ -39,17 +39,9 @@
 
 package sh.isaac.api.externalizable;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.nio.file.Path;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface DataWriterService.
@@ -60,7 +52,7 @@ import org.jvnet.hk2.annotations.Contract;
 public interface DataWriterService
         extends AutoCloseable {
    /**
-    * Close.
+    * Close.  Once closed, this writer cannot be reopened.  Perhaps you want {@link #pause()}
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
@@ -89,7 +81,7 @@ public interface DataWriterService
             throws IOException;
 
    /**
-    * flush any unwritten data, close the file writer, and block any {@link DataWriterService#put(OchreExternalizable)} calls until
+    * flush any unwritten data, close the file writer, and block any {@link DataWriterService#put(IsaacExternalizable)} calls until
     * resume is called.  This feature is useful when you want to ensure the file on disk doesn't change while another thread picks
     * up the file and pushes it to git, for example.
     *
@@ -111,15 +103,13 @@ public interface DataWriterService
             throws RuntimeException;
 
    /**
-    * open the file writer (closed by a {@link #pause()}) and unblock any blocked  {@link DataWriterService#put(OchreExternalizable)} calls.
+    * open the file writer (closed by a {@link #pause()}) and unblock any blocked  {@link DataWriterService#put(IsaacExternalizable)} calls.
     * Ensure that if pause() is called, that resume is called from the same thread.
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public void resume()
             throws IOException;
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Return the path the writer is currently configured to.

@@ -22,7 +22,10 @@ import de.jensd.fx.glyphs.icons525.Icons525View;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
@@ -64,116 +67,146 @@ public enum Iconography {
    FLWOR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
    SEARCH_MINUS(FONT_AWSOME, "search-minus"),
    SEARCH_FILTER(FONT_AWSOME, "search-filter"),
-    SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
+   SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
+   TARGET(MATERIAL_DESIGNS_WEBFONT, "target"),
+   EXCLAMATION(MATERIAL_DESIGNS_WEBFONT, "alert-circle-outline"),
+   INFORMATION(MATERIAL_DESIGNS_WEBFONT, "information-outline"),
+   COPY(MATERIAL_DESIGNS_WEBFONT, "content-copy"),
    SETTINGS_GEAR(EMOJI_ONE, "settings-gear"),
    
-  TREE_ASPECT_RATIO_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "tree-aspect-ratio-layout"),
-  CLASSIC_TREE_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "classic-tree-layout"),
-  HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "hierarchical-layout"),
-  
-  PIN(OCT_ICON, "pin-slider-open"),
-  PINNED_CLOSE(MATERIAL_DESIGNS_ICON, "close_slider"),
+   TREE_ASPECT_RATIO_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "tree-aspect-ratio-layout"),
+   CLASSIC_TREE_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "classic-tree-layout"),
+   HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "hierarchical-layout"),
+   
+   PIN(OCT_ICON, "pin-slider-open"),
+   PINNED_CLOSE(MATERIAL_DESIGNS_ICON, "close_slider"),
 
-  
-  
-  EDIT_PENCIL(MATERIAL_DESIGNS_WEBFONT, "edit-pencil"),
-  LOOK_EYE(ICONS_525, "look-eye"),
-  LOOK_EYE2(FONT_AWSOME, "look-eye-2"),
-  
-  DRAG_DROP_ICON(FONT_AWSOME, "drag-drop"),
-  
-  MAGNIFY(MATERIAL_DESIGNS_WEBFONT, "magnify"),
-  MAGNIFY_PLUS(MATERIAL_DESIGNS_WEBFONT, "magnify-plus"),
-  MAGNIFY_MINUS(MATERIAL_DESIGNS_WEBFONT, "magnify-minus"),
-  ONE_TO_ONE(MATERIAL_DESIGNS_ICON, "one-to-one"),
-  ZOOM_TO_FIT(MATERIAL_DESIGNS_ICON, "zoom-to-fit"),
-  
-  CIRCLE_A(EMOJI_ONE, "circle-a"),
-  CIRCLE_B(EMOJI_ONE, "circle-b"),
-  CIRCLE_C(EMOJI_ONE, "circle-c"),
-  CIRCLE_D(EMOJI_ONE, "circle-d"),
-  CIRCLE_E(EMOJI_ONE, "circle-e"),
-  CIRCLE_F(EMOJI_ONE, "circle-f"),
-  CIRCLE_G(EMOJI_ONE, "circle-g"),
-  CIRCLE_H(EMOJI_ONE, "circle-h"),
-  CIRCLE_I(EMOJI_ONE, "circle-i"),
-  CIRCLE_J(EMOJI_ONE, "circle-j"),
-  CIRCLE_K(EMOJI_ONE, "circle-k"),
-  CIRCLE_L(EMOJI_ONE, "circle-l"),
-  CIRCLE_M(EMOJI_ONE, "circle-m"),
-  CIRCLE_N(EMOJI_ONE, "circle-n"),
-  CIRCLE_O(EMOJI_ONE, "circle-o"),
-  CIRCLE_P(EMOJI_ONE, "circle-p"),
-  CIRCLE_Q(EMOJI_ONE, "circle-q"),
-  CIRCLE_R(EMOJI_ONE, "circle-r"),
-  CIRCLE_S(EMOJI_ONE, "circle-s"),
-  CIRCLE_T(EMOJI_ONE, "circle-t"),
-  CIRCLE_U(EMOJI_ONE, "circle-u"),
-  CIRCLE_V(EMOJI_ONE, "circle-v"),
-  CIRCLE_W(EMOJI_ONE, "circle-w"),
-  CIRCLE_X(EMOJI_ONE, "circle-x"),
-  CIRCLE_Y(EMOJI_ONE, "circle-y"),
-  CIRCLE_Z(EMOJI_ONE, "circle-z"),
-  
-  CASE_SENSITIVE(SVG, "case-sensitive"),
-  ICON_CLOSE(SVG, "icon-close"),
-  ICON_EDIT(SVG, "icon-edit"),
-  ICON_EXPAND(SVG, "icon-expand"),
-  ICON_EXPORT(SVG, "icon-export"),
-  ICON_GO_TO_LINK(SVG, "icon-goto-link"),
-  CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
-  ICON_RELOAD(SVG, "icon-reload"),
-  ICON_BATCH_EDIT(SVG, "icon-batch-edit"),
-  ICON_CHECK_MARK(SVG, "icon-check-mark"),
-  ICON_CLASSIFIER1(SVG, "icon-classifier-1"),
-  ICON_CLASSIFIER2(SVG, "icon-classifier-2"),
-  ICON_CLASSIFIER3(SVG, "icon-classifier-3"),
-  ICON_CLASSIFIER4(SVG, "icon-classifier-4"),
-  ICON_LINK_TO_SEARCH(SVG, "icon-link-to-search"),
-  ICON_LINK_TO_TAXONOMY(SVG, "icon-link-to-taxonomy"),
-  ICON_NOT_LINKED(SVG, "icon-not-linked"),
-  ICON_SETTINGS1(SVG, "icon-settings-1"),
-  ICON_SETTINGS2(SVG, "icon-settings-2"),
-  ICON_SETTINGS3(SVG, "icon-settings-3"),
-  ICON_SEARCH(SVG, "icon-search"),
-  ICON_TAXONOMY(SVG, "icon-taxonomy"),
-  ICON_DEFINED_ARROW(SVG, "icon-defined-arrow"),
-  ICON_DEFINED(SVG, "icon-defined"),
-  ICON_PRIMITIVE(SVG, "icon-primitive"),
-  ICON_PRIMITIVE_ARROW(SVG, "icon-primitive-arrow"),
-  PAPERCLIP(FONT_AWSOME, "paperclip"),
-  SOURCE_BRANCH(OCT_ICON, "branch"),
-  SOURCE_BRANCH_1(MATERIAL_DESIGNS_WEBFONT, "branch-1"),
-  PLUS(OCT_ICON, "plus"),
-  CONCEPT_DETAILS(MATERIAL_DESIGNS_ICON, "concept-details"),
-  CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "concept-table"),
-  KOMET(EMOJI_ONE, "komet"),
-  SPINNER(ICONS_525, "spinner"),
-  SPINNER0(ICONS_525, "spinner"),
-  SPINNER1(ICONS_525, "spinner-1"),
-  SPINNER2(ICONS_525, "spinner-2"),
-  SPINNER3(ICONS_525, "spinner-3"),
-  SPINNER4(ICONS_525, "spinner-4"),
-  SPINNER5(ICONS_525, "spinner-5"),
-  SPINNER6(ICONS_525, "spinner-6"),
-  SPINNER7(ICONS_525, "spinner-7"),
-  STOP_CIRCLE(FONT_AWSOME, "stop-circle"),
-  STOP_STOP(ICONS_525, "stop-sign"),
-  STOP_SQUARE(MATERIAL_DESIGNS_ICON, "stop-square"),
-  ALERT_CONFIRM(SVG, "alert-confirm"),
-  ALERT_INFORM(SVG, "alert-info"),
-  ALERT_ERROR(SVG, "alert-error"),
-  ALERT_WARN(SVG, "alert-warn"),
-  ALERT_CONFIRM2(FONT_AWSOME, "alert-confirm-2"),
-  ALERT_INFORM2(ICONS_525, "alert-info-2"),
-  ALERT_ERROR2(MATERIAL_DESIGNS_WEBFONT, "alert-error-2"),
-  ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
-  TEMPORARY_FIX(MATERIAL_DESIGNS_ICON, "temporary-fix"),
-  CHECK(FONT_AWSOME, "check"),
-  CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
-  // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
-  DASHBOARD(OCT_ICON, "dashboard"),
-
+   
+   
+   EDIT_PENCIL(MATERIAL_DESIGNS_WEBFONT, "edit-pencil"),
+   LOOK_EYE(ICONS_525, "look-eye"),
+   LOOK_EYE2(FONT_AWSOME, "look-eye-2"),
+   
+   DRAG_DROP_ICON(FONT_AWSOME, "drag-drop"),
+   
+   MAGNIFY(MATERIAL_DESIGNS_WEBFONT, "magnify"),
+   MAGNIFY_PLUS(MATERIAL_DESIGNS_WEBFONT, "magnify-plus"),
+   MAGNIFY_MINUS(MATERIAL_DESIGNS_WEBFONT, "magnify-minus"),
+   ONE_TO_ONE(MATERIAL_DESIGNS_ICON, "one-to-one"),
+   ZOOM_TO_FIT(MATERIAL_DESIGNS_ICON, "zoom-to-fit"),
+   
+   CIRCLE_A(EMOJI_ONE, "circle-a"),
+   CIRCLE_B(EMOJI_ONE, "circle-b"),
+   CIRCLE_C(EMOJI_ONE, "circle-c"),
+   CIRCLE_D(EMOJI_ONE, "circle-d"),
+   CIRCLE_E(EMOJI_ONE, "circle-e"),
+   CIRCLE_F(EMOJI_ONE, "circle-f"),
+   CIRCLE_G(EMOJI_ONE, "circle-g"),
+   CIRCLE_H(EMOJI_ONE, "circle-h"),
+   CIRCLE_I(EMOJI_ONE, "circle-i"),
+   CIRCLE_J(EMOJI_ONE, "circle-j"),
+   CIRCLE_K(EMOJI_ONE, "circle-k"),
+   CIRCLE_L(EMOJI_ONE, "circle-l"),
+   CIRCLE_M(EMOJI_ONE, "circle-m"),
+   CIRCLE_N(EMOJI_ONE, "circle-n"),
+   CIRCLE_O(EMOJI_ONE, "circle-o"),
+   CIRCLE_P(EMOJI_ONE, "circle-p"),
+   CIRCLE_Q(EMOJI_ONE, "circle-q"),
+   CIRCLE_R(EMOJI_ONE, "circle-r"),
+   CIRCLE_S(EMOJI_ONE, "circle-s"),
+   CIRCLE_T(EMOJI_ONE, "circle-t"),
+   CIRCLE_U(EMOJI_ONE, "circle-u"),
+   CIRCLE_V(EMOJI_ONE, "circle-v"),
+   CIRCLE_W(EMOJI_ONE, "circle-w"),
+   CIRCLE_X(EMOJI_ONE, "circle-x"),
+   CIRCLE_Y(EMOJI_ONE, "circle-y"),
+   CIRCLE_Z(EMOJI_ONE, "circle-z"),
+   
+   CASE_SENSITIVE(SVG, "case-sensitive"),
+   ICON_CLOSE(SVG, "icon-close"),
+   ICON_EDIT(SVG, "icon-edit"),
+   ICON_EXPAND(SVG, "icon-expand"),
+   ICON_EXPORT(SVG, "icon-export"),
+   ICON_GO_TO_LINK(SVG, "icon-goto-link"),
+   CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
+   ICON_RELOAD(SVG, "icon-reload"),
+   ICON_BATCH_EDIT(SVG, "icon-batch-edit"),
+   ICON_CHECK_MARK(SVG, "icon-check-mark"),
+   ICON_CLASSIFIER1(SVG, "icon-classifier-1"),
+   ICON_CLASSIFIER2(SVG, "icon-classifier-2"),
+   ICON_CLASSIFIER3(SVG, "icon-classifier-3"),
+   ICON_CLASSIFIER4(SVG, "icon-classifier-4"),
+   ICON_LINK_TO_SEARCH(SVG, "icon-link-to-search"),
+   ICON_LINK_TO_TAXONOMY(SVG, "icon-link-to-taxonomy"),
+   ICON_NOT_LINKED(SVG, "icon-not-linked"),
+   ICON_SETTINGS1(SVG, "icon-settings-1"),
+   ICON_SETTINGS2(SVG, "icon-settings-2"),
+   ICON_SETTINGS3(SVG, "icon-settings-3"),
+   ICON_SEARCH(SVG, "icon-search"),
+   ICON_TAXONOMY(SVG, "icon-taxonomy"),
+   ICON_DEFINED_ARROW(SVG, "icon-defined-arrow"),
+   ICON_DEFINED(SVG, "icon-defined"),
+   ICON_PRIMITIVE(SVG, "icon-primitive"),
+   ICON_PRIMITIVE_ARROW(SVG, "icon-primitive-arrow"),
+   PAPERCLIP(FONT_AWSOME, "paperclip"),
+   SOURCE_BRANCH(OCT_ICON, "branch"),
+   SOURCE_BRANCH_1(MATERIAL_DESIGNS_WEBFONT, "branch-1"),
+   PLUS(OCT_ICON, "plus"),
+   CONCEPT_DETAILS(MATERIAL_DESIGNS_ICON, "concept-details"),
+   CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "concept-table"),
+   KOMET(EMOJI_ONE, "komet"),
+   SPINNER(ICONS_525, "spinner"),
+   SPINNER0(ICONS_525, "spinner"),
+   SPINNER1(ICONS_525, "spinner-1"),
+   SPINNER2(ICONS_525, "spinner-2"),
+   SPINNER3(ICONS_525, "spinner-3"),
+   SPINNER4(ICONS_525, "spinner-4"),
+   SPINNER5(ICONS_525, "spinner-5"),
+   SPINNER6(ICONS_525, "spinner-6"),
+   SPINNER7(ICONS_525, "spinner-7"),
+   STOP_CIRCLE(FONT_AWSOME, "stop-circle"),
+   STOP_STOP(ICONS_525, "stop-sign"),
+   STOP_SQUARE(MATERIAL_DESIGNS_ICON, "stop-square"),
+   ALERT_CONFIRM(SVG, "alert-confirm"),
+   ALERT_INFORM(SVG, "alert-info"),
+   ALERT_ERROR(SVG, "alert-error"),
+   ALERT_WARN(SVG, "alert-warn"),
+   ALERT_CONFIRM2(FONT_AWSOME, "alert-confirm-2"),
+   ALERT_INFORM2(ICONS_525, "alert-info-2"),
+   ALERT_ERROR2(MATERIAL_DESIGNS_WEBFONT, "alert-error-2"),
+   ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
+   TEMPORARY_FIX(MATERIAL_DESIGNS_ICON, "temporary-fix"),
+   CHECK(FONT_AWSOME, "check"),
+   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
+   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
+   DASHBOARD(OCT_ICON, "dashboard"),
+   
+   JAVASCRIPT(FONT_AWSOME, "code"),
+   
+   LAMBDA(MATERIAL_DESIGNS_WEBFONT, "lambda"),
+   
+   ROLE_GROUP(MATERIAL_DESIGNS_WEBFONT, "role-group"),
+   INFERRED(FONT_AWSOME, "inferred-form"),
+   STATED(ICONS_525, "stated-form"),
+   LINK_EXTERNAL(OCT_ICON, "link-external"),
+   NEW_CONCEPT(MATERIAL_DESIGNS_WEBFONT, "new-concept"),
+   CANCEL(ICONS_525, "cancel"),
+   DUPLICATE(MATERIAL_DESIGNS_ICON, "duplicate"),
+   ADD(MATERIAL_DESIGNS_ICON, "add"),
+   // Icons525.CIRCLEDELETE
+   // MaterialIcon.QUEUE
+   OPEN(MATERIAL_DESIGNS_WEBFONT, "open"),
+   CLOSE(MATERIAL_DESIGNS_WEBFONT, "close"),
+   FEATURE_FUNCTION(MATERIAL_DESIGNS_WEBFONT, "feature-function"),
+   FEATURE_INFO(ICONS_525, "feature-info"),
+   FEATURE_RULER(MATERIAL_DESIGNS_WEBFONT, "feature-ruler"),
+   LITERAL_STRING(MATERIAL_DESIGNS_ICON, "literal-string"),
+   LITERAL_NUMERIC(FONT_AWSOME, "literal-numeric"),
+   
+   // MaterialDesignIcon.MENU_DOWN
+   // MaterialDesignIcon.MENU_RIGHT
+   // MaterialDesignIcon.PLAY_CIRCLE_OUTLINE
+   // MaterialDesignIcon.TOGGLE_SWITCH
    ;
 
    String cssClass;
@@ -184,6 +217,15 @@ public enum Iconography {
       this.cssClass = cssClass;
    }
 
+   public ImageView getImageView() {
+       Node node = getIconographic();
+       node.applyCss();
+       SnapshotParameters snapshotParameters = new SnapshotParameters();
+       snapshotParameters.setViewport(new Rectangle2D(0, 0, node.getLayoutBounds().getWidth(), node.getLayoutBounds().getHeight()));
+       Image image = node.snapshot(snapshotParameters, null);
+       return new ImageView(image);
+   }
+   
    public Node getIconographic() {
       switch (source) {
          case MATERIAL_DESIGNS_WEBFONT:

@@ -52,6 +52,10 @@ public class AddAttachmentMenuItems {
       this.categorizedVersion = categorizedVersion;
       this.newAttachmentConsumer = newAttachmentConsumer;
    }
+   
+   public void sortMenuItems() {
+       // TODO
+   }
 
    public List<MenuItem> getMenuItems() {
       return menuItems;

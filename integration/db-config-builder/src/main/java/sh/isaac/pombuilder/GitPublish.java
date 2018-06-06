@@ -35,103 +35,41 @@
  *
  */
 
-
-
 package sh.isaac.pombuilder;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.file.Files;
-
 import java.util.ArrayList;
-import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
- * {@link GitPublish}.
+ * {@link GitPublish} - various utility methods
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitPublish {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
-
-   //~--- methods -------------------------------------------------------------
-
+   
    /**
-    * Take in a URL such as https://git.isaac.sh/git/ or https://git.isaac.sh/git and turn it into
-    * https://git.isaac.sh/git/r/contentConfigurations.git
-    *
-    * If a full repo URL is passed in, such as https://git.isaac.sh/git/r/contentConfigurations.git, this does no processing
-    * and returns the passed in value.
-    *
-    * @param gitblitBaseURL a URL like https://git.isaac.sh/git
-    * @return the full git URL to a contentConfigurations repository.
-    * @throws IOException Signals that an I/O exception has occurred.
+    * Support locking our threads across multiple operations (such as read tags, push a new tag) to ensure that two threads running in parallel 
+    * don't end up in a state where they can't push, due to a non-fastforward.
     */
-   public static String constructChangesetRepositoryURL(String gitblitBaseURL)
-            throws IOException {
-      if (gitblitBaseURL.matches("(?i)https?:\\/\\/[a-zA-Z0-9\\.\\-_]+:?\\d*\\/[a-zA-Z0-9\\-_]+\\/?$")) {
-         return gitblitBaseURL + (gitblitBaseURL.endsWith("/") ? ""
-               : "/") + "r/contentConfigurations.git";
-      } else if (
-            gitblitBaseURL.matches(
-                "(?i)https?:\\/\\/[a-zA-Z0-9\\.\\-_]+:?\\d*\\/[a-zA-Z0-9\\-_]+\\/r\\/[a-zA-Z0-9\\-_]+\\.git$")) {
-         return gitblitBaseURL;
-      } else {
-         LOG.info("Failing constructChangesetRepositoryURL {}", gitblitBaseURL);
-         throw new IOException("Unexpected gitblit server pattern");
-      }
-   }
-
-   /**
-    * Creates the repository if necessary.
-    *
-    * @param gitRepository the git repository
-    * @param gitUserName the git user name
-    * @param gitPassword the git password
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   public static void createRepositoryIfNecessary(String gitRepository,
-         String gitUserName,
-         char[] gitPassword)
-            throws IOException {
-      final String      baseUrl  = GitBlitUtils.parseBaseRemoteAddress(gitRepository);
-      final Set<String> repos    = GitBlitUtils.readRepositories(baseUrl, gitUserName, gitPassword);
-      final String      repoName = gitRepository.substring(gitRepository.lastIndexOf("/") + 1);
-
-      if (!repos.contains(repoName)) {
-         LOG.info("Requested repository '" + gitRepository + "' does not exist - creating");
-         GitBlitUtils.createRepository(baseUrl,
-                                       repoName,
-                                       "Configuration Storage Repository",
-                                       gitUserName,
-                                       gitPassword,
-                                       true);
-      } else {
-         LOG.info("Requested repository '" + gitRepository + "' exists");
-      }
-   }
+   private static final HashMap<String, ReentrantLock> repoLock = new HashMap<>();
 
    /**
     * This routine will check out the project from the repository (which should have an empty master branch) - then locally
     * commit the changes to master, then tag it - then push the tag (but not the changes to master) so the upstream repo only
     * receives the tag.
     *
-    * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary
+    * Calls {@link GitBlitUtils#constructChangesetRepositoryURL(String)} to adjust the URL as necessary
     *
     * @param folderWithProject the folder with project
     * @param gitRepository the git repository
@@ -151,9 +89,9 @@ public class GitPublish {
                 gitRepository,
                 tagToCreate);
 
-      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = GitBlitUtils.constructChangesetRepositoryURL(gitRepository);
 
-      createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
+      GitBlitUtils.createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
       final SyncServiceGIT svc = new SyncServiceGIT();
 
@@ -218,7 +156,7 @@ public class GitPublish {
    }
 
    /**
-    * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary.
+    * Calls {@link GitBlitUtils#constructChangesetRepositoryURL(String)} to adjust the URL as necessary.
     *
     * @param gitRepository the git repository
     * @param gitUserName the git user name
@@ -230,9 +168,9 @@ public class GitPublish {
          String gitUserName,
          char[] gitPassword)
             throws Exception {
-      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = GitBlitUtils.constructChangesetRepositoryURL(gitRepository);
 
-      createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
+      GitBlitUtils.createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
       final SyncServiceGIT svc        = new SyncServiceGIT();
       final File           tempFolder = Files.createTempDirectory("tagRead")
@@ -250,6 +188,48 @@ public class GitPublish {
       }
 
       return temp;
+   }
+   
+   public static void lock(String gitRepository) throws IOException
+   {
+      String correctedURL = GitBlitUtils.constructChangesetRepositoryURL(gitRepository);
+      ReentrantLock lock;
+      
+      synchronized (repoLock)
+      {
+         lock = repoLock.get(correctedURL);
+         if (lock == null)
+         {
+            lock = new ReentrantLock();
+            repoLock.put(correctedURL, lock);
+         }
+      }
+      
+      LOG.debug("Locking {}", correctedURL);
+      lock.lock();
+   }
+   
+   public static void unlock(String gitRepository) throws IOException
+   {
+      String correctedURL = GitBlitUtils.constructChangesetRepositoryURL(gitRepository);
+      ReentrantLock lock = repoLock.get(correctedURL);
+      if (lock == null)
+      {
+         LOG.error("Unlock called, but no lock was present!");
+      }
+      else
+      {
+         if (lock.isHeldByCurrentThread())
+         {
+            LOG.debug("Unlocking {}", correctedURL);
+            lock.unlock();
+         }
+         else
+         {
+            //To support rapid unlock, but also allow an unlock in a finally block, make it ok to unlock when not locked
+            LOG.debug("Unlock called, but the lock wasn't held by this thread for {}", correctedURL);
+         }
+      }
    }
 }
 

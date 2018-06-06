@@ -48,6 +48,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -71,6 +72,7 @@ public final class FeatureNodeWithNids
 
    /** The operator. */
    ConcreteDomainOperators operator;
+   int measureSemanticNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -82,8 +84,7 @@ public final class FeatureNodeWithNids
    public FeatureNodeWithNids(FeatureNodeWithUuids externalForm) {
       super(externalForm);
       this.operator = externalForm.getOperator();
-
-//    unitsConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getUnitsConceptUuid());
+      this.measureSemanticNid = Get.identifierService().getNidForUuids(externalForm.getMeasureSemanticUuid());
    }
 
    /**
@@ -93,42 +94,47 @@ public final class FeatureNodeWithNids
     * @param dataInputStream the data input stream
     */
 
-// int unitsConceptSequence;
    public FeatureNodeWithNids(LogicalExpressionImpl logicGraphVersion,
                                    ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
       this.operator = concreteDomainOperators[dataInputStream.getByte()];
-
-//    unitsConceptSequence = dataInputStream.readInt();
+      this.measureSemanticNid = dataInputStream.getInt();
    }
 
    /**
     * Instantiates a new feature node with sequences.
     *
     * @param logicGraphVersion the logic graph version
-    * @param typeConceptId the type concept id
+    * @param typeConceptNid the type concept id
+     * @param measureSemanticNid
     * @param child the child
+     * @param operator
     */
    public FeatureNodeWithNids(LogicalExpressionImpl logicGraphVersion,
-                                   int typeConceptId,
+                                   int typeConceptNid,
+                                   int measureSemanticNid, 
+                                   ConcreteDomainOperators operator,
                                    AbstractLogicNode child) {
-      super(logicGraphVersion, typeConceptId, child);
-      this.operator = ConcreteDomainOperators.EQUALS;  // TODO - Keith, Dan hardcoded it, it broke when not set.
+      super(logicGraphVersion, typeConceptNid, child);
+      this.operator = operator;  
+      this.measureSemanticNid = measureSemanticNid;
    }
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Adds the concepts referenced by node.
-    *
-    * @param conceptSequenceSet the concept sequence set
-    */
-   @Override
-   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
-      super.addConceptsReferencedByNode(conceptSequenceSet);
-
-//    conceptSequenceSet.add(unitsConceptSequence);
+   public int getMeasureSemanticNid() {
+        return measureSemanticNid;
    }
+    /**
+     * Adds the concepts referenced by node.
+     *
+     * @param conceptNidSet the concept sequence set
+     */
+    @Override
+    public void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet) {
+        super.addConceptsReferencedByNode(conceptNidSet);
+        conceptNidSet.add(measureSemanticNid);
+    }
 
    /**
     * Equals.
@@ -152,9 +158,9 @@ public final class FeatureNodeWithNids
 
       final FeatureNodeWithNids that = (FeatureNodeWithNids) o;
 
-//    if (unitsConceptSequence != that.unitsConceptSequence) {
-//        return false;
-//    }
+    if (measureSemanticNid != that.measureSemanticNid) {
+        return false;
+    }
       return this.operator == that.operator;
    }
 
@@ -169,7 +175,7 @@ public final class FeatureNodeWithNids
 
       result = 31 * result + this.operator.hashCode();
 
-//    result = 31 * result + unitsConceptSequence;
+      result = 31 * result + measureSemanticNid;
       return result;
    }
 
@@ -192,7 +198,7 @@ public final class FeatureNodeWithNids
    @Override
    public String toString(String nodeIdSuffix) {
       return "Feature[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator +
-             ", units:"  // + Get.conceptDescriptionText(unitsConceptSequence)
+             ", units:"  + Get.conceptDescriptionText(measureSemanticNid)
             + super.toString(nodeIdSuffix);
    }
 
@@ -220,17 +226,13 @@ public final class FeatureNodeWithNids
       case INTERNAL:
          super.writeNodeData(dataOutput, dataTarget);
          dataOutput.putByte((byte) this.operator.ordinal());
-
-//       dataOutput.writeInt(unitsConceptSequence);
+         dataOutput.putInt(measureSemanticNid);
          break;
 
       default:
          throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
       }
    }
-
-// public int getUnitsConceptSequence() {
-//     return unitsConceptSequence;
 
    /**
     * Compare typed node fields.
@@ -244,9 +246,9 @@ public final class FeatureNodeWithNids
       // node semantic already determined equals.
       final FeatureNodeWithNids other = (FeatureNodeWithNids) o;
 
-//    if (unitsConceptSequence != other.unitsConceptSequence) {
-//        return Integer.compare(unitsConceptSequence, other.unitsConceptSequence);
-//    }
+      if (measureSemanticNid != other.measureSemanticNid) {
+         return Integer.compare(measureSemanticNid, other.measureSemanticNid);
+      }
       if (this.operator != other.operator) {
          return this.operator.compareTo(other.operator);
       }

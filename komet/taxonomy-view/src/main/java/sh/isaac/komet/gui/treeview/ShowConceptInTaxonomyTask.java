@@ -23,6 +23,7 @@ import java.util.UUID;
 import javafx.application.Platform;
 import org.apache.mahout.math.Arrays;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.util.FxGet;
@@ -50,7 +51,9 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
             throws Exception {
         try {
             // await() init() completion.
-            LOG.debug("Looking for concept {} in tree", conceptUUID);
+            LOG.debug("Looking for concept {} in tree", Get.conceptDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
+            FxGet.statusMessageService().reportStatus("Expanding taxonomy to: " + 
+                            multiParentTreeView.getManifold().getPreferredDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
 
             final ArrayList<UUID> pathToRoot = new ArrayList<>();
 
@@ -66,7 +69,8 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
                 if (!conceptOptional.isPresent()) {
                     // Must be a "pending concept".
                     // Not handled yet.
-                    FxGet.statusMessageService().reportStatus("Concept is not yet committed: " + conceptUUID);
+                    FxGet.statusMessageService().reportStatus("Concept is not yet committed: " + 
+                            Get.conceptDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
                     return null;
                 }
 
@@ -77,8 +81,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
 
                 for (int parent : multiParentTreeView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
                     current = Get.identifierService()
-                            .getUuidPrimordialForNid(parent)
-                            .get();
+                            .getUuidPrimordialForNid(parent);
                     pathToRoot.add(current);
                     found = true;
                     break;
@@ -86,8 +89,10 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
 
                 // No parent IS_A relationship found, stop looking.
                 if (!found) {
-                    FxGet.statusMessageService().reportStatus("No parents for concept: " + conceptUUID);
-                    
+                    if (concept.getNid() != TermAux.SOLOR_ROOT.getNid()) {
+                        FxGet.statusMessageService().reportStatus("No parents for concept: " + 
+                            multiParentTreeView.getManifold().getPreferredDescriptionText(concept));
+                    }
                     break;
                 }
             }

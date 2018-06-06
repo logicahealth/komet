@@ -39,6 +39,8 @@
 
 package sh.isaac.provider.logic.csiro.classify;
 
+import java.util.Optional;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
@@ -47,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.concurrent.Task;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
@@ -57,6 +58,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -65,7 +67,6 @@ import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -93,6 +94,7 @@ public class GetConceptNidForExpressionTask
 
    //~--- constructors --------------------------------------------------------
 
+   //TODO should this take in an assemblageID?
    /**
     * Instantiates a new gets the concept nid for expression task.
     *
@@ -149,13 +151,13 @@ public class GetConceptNidForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SemanticSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+         final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
                                                                                            this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSemanticVersionsFromAssemblage(
+         final LatestVersion<LogicGraphVersionImpl> match = semanticSnapshot.getLatestSemanticVersionsFromAssemblage(
                                                                this.logicCoordinate.getStatedAssemblageNid())
                                                                          .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
                   final LogicGraphVersionImpl lgs = t.get();
@@ -184,7 +186,8 @@ public class GetConceptNidForExpressionTask
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(
                                             uuidForNewConcept.toString(),
                                             "expression",
-                                            this.expression);
+                                            this.expression,
+                                            MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
          final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
                                                   .get();
 
@@ -192,7 +195,7 @@ public class GetConceptNidForExpressionTask
 
          try {
             Get.commitService()
-               .commit(Get.configurationService().getDefaultEditCoordinate(), "Expression commit.")
+               .commit(Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate(), "Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()

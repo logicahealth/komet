@@ -44,6 +44,9 @@ package sh.isaac.model.tree;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.list.IntArrayList;
@@ -58,8 +61,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.collections.MergeIntArray;
 
-import static sh.isaac.model.tree.HashTreeWithIntArraySets.MULTI_PARENT_SETS;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -73,6 +74,8 @@ public class HashTreeBuilder
     * The Constant builderCount.
     */
    private static final AtomicInteger builderCount = new AtomicInteger();
+   
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -164,12 +167,11 @@ public class HashTreeBuilder
     * @return the simple directed graph graph
     */
    public HashTreeWithIntArraySets getSimpleDirectedGraph(ProgressTracker tracker) {
-      boolean testing = true;
 
-      if (testing) {
-         System.out.println("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
-         System.out.println("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
-         System.out.println(
+      if (Get.configurationService().isVerboseDebugEnabled()) {
+         LOG.debug("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
+         LOG.debug("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
+         LOG.debug(
              "SOLOR root in concepts with parents: " + conceptNidsWithParents.contains(TermAux.SOLOR_ROOT.getNid()));
       }
 
@@ -204,12 +206,12 @@ public class HashTreeBuilder
              new TreeCycleError(cycle, visitData, this, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
       }
 
-      System.out.println("Nodes visited: " + visitData.getNodesVisited());
+      LOG.debug("Nodes visited: " + visitData.getNodesVisited());
 
       for (int nid: watchNids.toList()) {
          OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
-         System.out.println(Get.conceptDescriptionText(nid) + " multiParentSet: " + multiParents);
+         LOG.debug(Get.conceptDescriptionText(nid) + " multiParentSet: " + multiParents);
       }
 
       return this;

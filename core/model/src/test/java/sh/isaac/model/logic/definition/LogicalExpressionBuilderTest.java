@@ -52,7 +52,7 @@ import org.testng.annotations.Test;
  */
 public class LogicalExpressionBuilderTest {
    /** The builder provider. */
-   LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
+   LogicalExpressionBuilderProvider builderProvider = new LogicalExpressionBuilderProvider();
 
    //~--- methods -------------------------------------------------------------
 

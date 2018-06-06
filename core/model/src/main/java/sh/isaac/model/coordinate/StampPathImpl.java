@@ -59,7 +59,7 @@ import sh.isaac.api.coordinate.StampPosition;
 public class StampPathImpl
          implements StampPath {
    /** The path concept sequence. */
-   private final int pathConceptSequence;
+   private final int pathConceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -69,11 +69,7 @@ public class StampPathImpl
     * @param pathConceptNid the path concept nid
     */
    public StampPathImpl(int pathConceptNid) {
-      if (pathConceptNid < 0) {
-         pathConceptNid = pathConceptNid;
-      }
-
-      this.pathConceptSequence = pathConceptNid;
+      this.pathConceptNid = pathConceptNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -86,7 +82,7 @@ public class StampPathImpl
     */
    @Override
    public int compareTo(StampPath o) {
-      return Integer.compare(this.pathConceptSequence, o.getPathConceptSequence());
+      return Integer.compare(this.pathConceptNid, o.getPathConceptNid());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -97,8 +93,8 @@ public class StampPathImpl
     * @return the path concept sequence
     */
    @Override
-   public int getPathConceptSequence() {
-      return this.pathConceptSequence;
+   public int getPathConceptNid() {
+      return this.pathConceptNid;
    }
 
    /**
@@ -109,7 +105,7 @@ public class StampPathImpl
    @Override
    public Collection<? extends StampPosition> getPathOrigins() {
       return Get.versionManagmentPathService()
-                .getOrigins(this.pathConceptSequence);
+                .getOrigins(this.pathConceptNid);
    }
 }
 

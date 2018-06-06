@@ -39,12 +39,14 @@
 
 package sh.isaac.model.semantic.types;
 
+import java.util.UUID;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
+import sh.isaac.api.Get;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 
 //~--- classes ----------------------------------------------------------------
@@ -80,6 +82,16 @@ public class DynamicNidImpl
       super();
       this.data = DynamicIntegerImpl.intToByteArray(nid);
    }
+   
+   /**
+    * Instantiates a new dynamic nid impl.
+    *
+    * @param uuid the uuid to convert to a nid
+    */
+   public DynamicNidImpl(UUID uuid) {
+      super();
+      this.data = DynamicIntegerImpl.intToByteArray(Get.identifierService().getNidForUuids(uuid));
+   }
 
    /**
     * Instantiates a new dynamic nid impl.
@@ -95,10 +107,7 @@ public class DynamicNidImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data nid.
-    *
-    * @return the data nid
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNid()
+    * {@inheritDoc}
     */
    @Override
    public int getDataNid() {
@@ -106,10 +115,7 @@ public class DynamicNidImpl
    }
 
    /**
-    * Gets the data nid property.
-    *
-    * @return the data nid property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataNidProperty() {
@@ -121,10 +127,7 @@ public class DynamicNidImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -132,10 +135,7 @@ public class DynamicNidImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

@@ -49,7 +49,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface ObservableSememeVersion.
+ * The Interface ObservableSemanticVersion.
  *
  * @author kec
  */

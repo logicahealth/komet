@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.47</version>
+        <version>4.48</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
@@ -15,22 +15,21 @@
          <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
-         </dependency>        
-      <dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>log-config</artifactId>
-         <version>${project.parent.version}</version>
+         </dependency>
+        <dependency>
+           <groupId>sh.isaac.core</groupId>
+           <artifactId>log-config</artifactId>
+           <version>${project.parent.version}</version>
+           <scope>test</scope>
       </dependency>
         <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-collections</artifactId>
-            <version>1.0</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
-            <version>1.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.hk2</groupId>
@@ -44,12 +43,10 @@
         <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
-            <version>0.6.51</version>
         </dependency>
         <dependency>
-            <groupId>gov.va.oia</groupId>
+            <groupId>net.sagebits</groupId>
             <artifactId>HK2Utilities</artifactId>
-            <version>1.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -58,6 +55,10 @@
         <dependency>
             <groupId>com.cedarsoftware</groupId>
             <artifactId>json-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
     </dependencies>
     <build>

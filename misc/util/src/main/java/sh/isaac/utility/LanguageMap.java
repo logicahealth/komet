@@ -66,6 +66,8 @@ public class LanguageMap {
     */
    public static ConceptSpecification getConceptForLanguageCode(LanguageCode lc) {
       switch (lc) {
+      case CS:
+         return MetaData.CZECH_LANGUAGE____SOLOR;
       case EN:
       case EN_AU:
       case EN_BZ:
@@ -112,7 +114,10 @@ public class LanguageMap {
       case FR_LU:
       case FR_MC:
          return MetaData.FRENCH_LANGUAGE____SOLOR;
-
+      case GA:
+         return MetaData.IRISH_LANGUAGE____SOLOR;
+      case KO:
+         return MetaData.KOREAN_LANGUAGE____SOLOR;
       case LT:
       case LT_LT:
          return MetaData.LITHUANIAN_LANGUAGE____SOLOR;
@@ -122,6 +127,9 @@ public class LanguageMap {
 
       case PL:
          return MetaData.POLISH_LANGUAGE____SOLOR;
+         
+      case RU:
+         return MetaData.RUSSIAN_LANGUAGE____SOLOR;
 
       case SV:
       case SV_FI:
@@ -143,6 +151,92 @@ public class LanguageMap {
          throw new RuntimeException("Unmapped Language Code " + lc);
       }
    }
+   
+   /**
+    * Gets the concept dialect for language code.
+    * Note, this method is really incomplete.
+    * TODO get rid of all of this mapping, and just properly load an iso table as part of the metadata...
+    *
+    * @param lc the lc
+    * @return the concept for dialect language code
+    */
+   public static ConceptSpecification getConceptDialectForLanguageCode(LanguageCode lc) {
+      switch (lc) {
+      case CS:
+          return MetaData.CZECH_DIALECT____SOLOR;
+      case EN_GB:
+          return MetaData.GB_ENGLISH_DIALECT____SOLOR;
+      case EN_US:
+    	  return MetaData.US_ENGLISH_DIALECT____SOLOR;
+      case EN:
+      case EN_AU:
+      case EN_BZ:
+      case EN_CA:
+      case EN_IE:
+      case EN_JM:
+      case EN_NZ:
+      case EN_TT:
+      case EN_ZA:
+         return MetaData.ENGLISH_DIALECT_ASSEMBLAGE____SOLOR;
+      case ES:
+      case ES_AR:
+      case ES_BO:
+      case ES_CL:
+      case ES_CO:
+      case ES_CR:
+      case ES_DO:
+      case ES_EC:
+      case ES_ES:
+      case ES_GT:
+      case ES_HN:
+      case ES_NI:
+      case ES_MX:
+      case ES_PA:
+      case ES_PE:
+      case ES_PY:
+      case ES_SV:
+      case ES_UY:
+      case ES_VE:
+         return MetaData.SPANISH_DIALECT_ASSEMBLAGE____SOLOR;
+      case GA:
+          return MetaData.IRISH_DIALECT____SOLOR;
+      case KO:
+          return MetaData.KOREAN_DIALECT____SOLOR;
+      case FR:
+      case FR_BE:
+      case FR_CA:
+      case FR_CH:
+      case FR_FR:
+      case FR_LU:
+      case FR_MC:
+         return MetaData.FRENCH_DIALECT____SOLOR;
+      case RU:
+          return MetaData.RUSSIAN_DIALECT____SOLOR;
+      case PL:
+         return MetaData.POLISH_DIALECT____SOLOR;
+      case DA:
+      case DA_DK:
+      case LT:
+      case LT_LT:
+      case NL:
+      case SV:
+      case SV_FI:
+      case SV_SE:
+      case ZH:
+      case ZH_CHS:
+      case ZH_CHT:
+      case ZH_CN:
+      case ZH_HK:
+      case ZH_MO:
+      case ZH_SG:
+      case ZH_TW:
+      case ZZ:
+      default:
+         throw new RuntimeException("Unmapped Language Dialect " + lc);
+      }
+   }
+   
+   
 
    /**
     * Gets the language code for UUID.

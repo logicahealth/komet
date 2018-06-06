@@ -41,14 +41,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Singleton;
+
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.bootstrap.TestConcept;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -57,44 +64,54 @@ import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.logic.assertions.NecessarySet;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.provider.datastore.identifier.IdentifierProvider;
-import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
+import sh.isaac.provider.datastore.identifier.IdentifierProvider;
+import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 
 //~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  */
-public class ChronologyUpdate {
+@Service
+@Singleton
+public class ChronologyUpdate implements StaticIsaacCache {
 
     private static final Logger LOG = LogManager.getLogger();
-    private static final int INFERRED_ASSEMBLAGE_NID;
-    private static final int ISA_NID;
-    private static final int CHILD_OF_NID;
-    private static final int ROLE_GROUP_NID;
-    private static final IdentifierProvider IDENTIFIER_SERVICE;
-    private static final TaxonomyProvider TAXONOMY_SERVICE;
+    private static int INFERRED_ASSEMBLAGE_NID;
+    private static int ISA_NID;
+    private static int CHILD_OF_NID;
+    private static int ROLE_GROUP_NID;
+    private static IdentifierProvider IDENTIFIER_SERVICE;
+    private static TaxonomyProvider TAXONOMY_SERVICE;
 
-    //~--- static initializers -------------------------------------------------
-    static {
-        INFERRED_ASSEMBLAGE_NID = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
-        CHILD_OF_NID = TermAux.CHILD_OF.getNid();
-        ISA_NID = TermAux.IS_A.getNid();
-        ROLE_GROUP_NID = TermAux.ROLE_GROUP.getNid();
-        IDENTIFIER_SERVICE = Get.service(IdentifierProvider.class);
-        TAXONOMY_SERVICE = Get.service(TaxonomyProvider.class);
+    private ChronologyUpdate() {
+        //For HK2 only
+    }
+
+    private static void initCheck() {
+        if (TAXONOMY_SERVICE == null) {
+            INFERRED_ASSEMBLAGE_NID = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
+            CHILD_OF_NID = TermAux.CHILD_OF.getNid();
+            ISA_NID = TermAux.IS_A.getNid();
+            ROLE_GROUP_NID = TermAux.ROLE_GROUP.getNid();
+            IDENTIFIER_SERVICE = Get.service(IdentifierProvider.class);
+            TAXONOMY_SERVICE = Get.service(TaxonomyProvider.class);
+        }
     }
 
     //~--- methods -------------------------------------------------------------
     public static void handleStatusUpdate(ConceptChronology conceptChronology) {
+        initCheck();
         TaxonomyRecord taxonomyRecord = new TaxonomyRecord();
 
         for (int stampSequence : conceptChronology.getVersionStampSequences()) {
@@ -115,12 +132,16 @@ public class ChronologyUpdate {
     }
 
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
+        initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNidForNid(referencedComponentNid);
+        if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == referencedComponentNid) {
+            LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+        }
+        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid).getAsInt();
 
-//    System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
-//            referencedComponentNid + " index: " + 
-//            ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
+//   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
+//         referencedComponentNid + " index: " + 
+//         ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
         TaxonomyFlag taxonomyFlags;
 
         if (logicGraphChronology.getAssemblageNid() == INFERRED_ASSEMBLAGE_NID) {
@@ -151,15 +172,15 @@ public class ChronologyUpdate {
         if (start.length > result.length) {
             TaxonomyRecord taxonomyRecordResult = new TaxonomyRecord(result);
             LOG.error("Accumulate shrank");
-//            origin_DestinationTaxonomyRecord_Map.put(logicGraphChronology.getReferencedComponentNid(), begin);
-//            int[] result2 = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
-//                    logicGraphChronology.getReferencedComponentNid(),
-//                    start, ChronologyUpdate::merge);
-//            if (Arrays.equals(result, result2)) {
-//                LOG.error("Results are equal. ");
-//            } else {
-//                LOG.error("Results are not equal. ");
-//            }
+//         origin_DestinationTaxonomyRecord_Map.put(logicGraphChronology.getReferencedComponentNid(), begin);
+//         int[] result2 = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
+//               logicGraphChronology.getReferencedComponentNid(),
+//               start, ChronologyUpdate::merge);
+//         if (Arrays.equals(result, result2)) {
+//            LOG.error("Results are equal. ");
+//         } else {
+//            LOG.error("Results are not equal. ");
+//         }
 
         } else if (result.length == start.length) {
             LOG.error("Did not grow");
@@ -167,6 +188,9 @@ public class ChronologyUpdate {
     }
 
     private static int[] merge(int[] existing, int[] update) {
+        if (update == null || update.length == 0) {
+            return existing;
+        }
         if (existing == null) {
             existing = new int[0];
         }
@@ -296,16 +320,28 @@ public class ChronologyUpdate {
             TaxonomyFlag taxonomyFlags) {
         if (firstVersion.getCommitState() == CommitStates.COMMITTED) {
             final LogicalExpression expression = firstVersion.getLogicalExpression();
-
-            for (LogicNode necessaryOrSufficientSet : expression.getRoot().getChildren()) {
-                for (LogicNode andOrOrLogicNode : necessaryOrSufficientSet.getChildren()) {
-                    for (LogicNode aLogicNode : andOrOrLogicNode.getChildren()) {
-                        processRelationshipRoot(firstVersion.getReferencedComponentNid(),
-                                aLogicNode,
-                                parentTaxonomyRecord,
-                                taxonomyFlags,
-                                firstVersion.getStampSequence(),
-                                expression);
+            LogicNode[] children = expression.getRoot().getChildren();
+            boolean necessaryOnly = false;
+            if (children.length > 1) {
+                for (LogicNode child: children) {
+                    if (child.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                        necessaryOnly = true;
+                    }
+                }
+            }
+            
+            for (LogicNode necessaryOrSufficientSet : children) {
+                // if there is more than one set, only process necessary set...
+                if (!necessaryOnly|| necessaryOrSufficientSet.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                    for (LogicNode andOrOrLogicNode : necessaryOrSufficientSet.getChildren()) {
+                        for (LogicNode aLogicNode : andOrOrLogicNode.getChildren()) {
+                            processRelationshipRoot(firstVersion.getReferencedComponentNid(),
+                                    aLogicNode,
+                                    parentTaxonomyRecord,
+                                    taxonomyFlags,
+                                    firstVersion.getStampSequence(),
+                                    expression);
+                        }
                     }
                 }
             }
@@ -349,18 +385,12 @@ public class ChronologyUpdate {
         }
     }
 
-    /**
-     * Process version node.
-     *
-     * @param node the node
-     * @param taxonomyRecordForConcept the parent taxonomy record
-     * @param taxonomyFlags the taxonomy flags
-     */
     private static void processVersionNode(int conceptNid, Node<? extends LogicGraphVersion> node,
             TaxonomyRecord taxonomyRecordForConcept,
             TaxonomyFlag taxonomyFlags) {
+        LogicGraphVersion logicGraphVersion = node.getData();
         if (node.getParent() == null) {
-            processNewLogicGraph(node.getData(), taxonomyRecordForConcept, taxonomyFlags);
+            processNewLogicGraph(logicGraphVersion, taxonomyRecordForConcept, taxonomyFlags);
         } else {
             final LogicalExpression comparisonExpression = node.getParent()
                     .getData()
@@ -371,36 +401,73 @@ public class ChronologyUpdate {
                     referenceExpression,
                     comparisonExpression);
 
-            for (LogicNode relationshipRoot : isomorphicResults.getAddedRelationshipRoots()) {
-                final int stampSequence = node.getData()
-                        .getStampSequence();
-
-                processRelationshipRoot(conceptNid,
-                        relationshipRoot,
-                        taxonomyRecordForConcept,
-                        taxonomyFlags,
-                        stampSequence,
-                        comparisonExpression);
+            OpenIntHashSet necessaryNodeIds = new OpenIntHashSet();
+            if (referenceExpression.getRoot().getChildren().length > 1) {
+                for (LogicNode rootChild: referenceExpression.getRoot().getChildren()) {
+                    if (rootChild.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                        addNecessaryNodeIndexes(rootChild, necessaryNodeIds);
+                    }
+                }
             }
-
-            for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
-                final int activeStampSequence = node.getData()
-                        .getStampSequence();
-                final int stampSequence = Get.stampService()
-                        .getRetiredStampSequence(activeStampSequence);
-
-                processRelationshipRoot(conceptNid,
-                        relationshipRoot,
+            processLogicalExpression(conceptNid, node,
                         taxonomyRecordForConcept,
-                        taxonomyFlags,
-                        stampSequence,
-                        comparisonExpression);
-            }
+                        taxonomyFlags, necessaryNodeIds, comparisonExpression, isomorphicResults);
+
         }
-
         for (Node<? extends LogicGraphVersion> childNode : node.getChildren()) {
             processVersionNode(conceptNid, childNode, taxonomyRecordForConcept, taxonomyFlags);
         }
+    }
+
+    private static void addNecessaryNodeIndexes(LogicNode node, OpenIntHashSet necessaryNodeIds) {
+        necessaryNodeIds.add(node.getNodeIndex());
+        for (LogicNode child: node.getChildren()) {
+            addNecessaryNodeIndexes(child, necessaryNodeIds);
+        }
+        
+    }
+    /**
+     * Process version node.
+     *
+     * @param node the node
+     * @param taxonomyRecordForConcept the parent taxonomy record
+     * @param taxonomyFlags the taxonomy flags
+     */
+    private static void processLogicalExpression(int conceptNid, Node<? extends LogicGraphVersion> node,
+            TaxonomyRecord taxonomyRecordForConcept,
+            TaxonomyFlag taxonomyFlags, OpenIntHashSet necessaryNodeIds,
+            LogicalExpression comparisonExpression, IsomorphicResultsBottomUp isomorphicResults) {
+
+        for (LogicNode relationshipRoot : isomorphicResults.getAddedRelationshipRoots()) {
+            final int stampSequence = node.getData()
+                    .getStampSequence();
+
+            if (necessaryNodeIds.isEmpty() || necessaryNodeIds.contains(relationshipRoot.getNodeIndex())) {
+                processRelationshipRoot(conceptNid,
+                        relationshipRoot,
+                        taxonomyRecordForConcept,
+                        taxonomyFlags,
+                        stampSequence,
+                        comparisonExpression);
+            }
+        }
+
+        for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
+            final int activeStampSequence = node.getData()
+                    .getStampSequence();
+            final int stampSequence = Get.stampService()
+                    .getRetiredStampSequence(activeStampSequence);
+
+            if (necessaryNodeIds.isEmpty() || necessaryNodeIds.contains(relationshipRoot.getNodeIndex())) {
+                processRelationshipRoot(conceptNid,
+                        relationshipRoot,
+                        taxonomyRecordForConcept,
+                        taxonomyFlags,
+                        stampSequence,
+                        comparisonExpression);
+            }
+        }
+
     }
 
     /**
@@ -422,7 +489,7 @@ public class ChronologyUpdate {
         TaxonomyRecord destinationTaxonomyRecord = new TaxonomyRecord();
         destinationTaxonomyRecord.addStampRecord(originNid, CHILD_OF_NID, stampSequence, taxonomyFlags.bits);
 
-        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNidForNid(originNid);
+        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(originNid).getAsInt();
         SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getOrigin_DestinationTaxonomyRecord_Map(conceptAssemblageNid);
         int[] record = destinationTaxonomyRecord.pack();
         //TaxonomyRecord.validate(record);
@@ -458,7 +525,7 @@ public class ChronologyUpdate {
                                             taxonomyFlags,
                                             stampSequence);
                                 } else {
-                                    // TODO Dan put this here to stop a pile of errors....
+                                    // TODO [KEC] Dan put this here to stop a pile of errors....
                                     // one of the types coming back was a FeatureNodeWithSequences - not sure what to do with it.
                                 }
                             });
@@ -472,8 +539,19 @@ public class ChronologyUpdate {
                         stampSequence,
                         taxonomyFlags.bits);
             } else {
-                // TODO dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
+                // TODO [KEC] dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
             }
         }
+    }
+
+    @Override
+    public void reset() {
+        LOG.info("Clearing ChronologyUpdate cache");
+        INFERRED_ASSEMBLAGE_NID = 0;
+        CHILD_OF_NID = 0;
+        ISA_NID = 0;
+        ROLE_GROUP_NID = 0;
+        IDENTIFIER_SERVICE = null;
+        TAXONOMY_SERVICE = null;
     }
 }

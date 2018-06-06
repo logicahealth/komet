@@ -44,17 +44,22 @@
  */
 package sh.isaac.api.commit;
 
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+
 //~--- JDK imports ------------------------------------------------------------
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ChangeChecker.
+ * This must be comparable, because it gets used in ConcurrentSkipListSet in the CommitProvider, which assumes things are comparable
+
  *
  * @author kec
  */
@@ -65,19 +70,31 @@ public interface ChangeChecker
     *
     * @param cc the cc
     * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
+    * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
+    * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
     */
-   CheckResult check(ConceptChronology cc, 
+   AlertObject check(Chronology cc, 
               CheckPhase checkPhase);
-
+   
    /**
-    * Check.
-    *
-    * @param sc the sc
-    * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
+    * The description of the change checker (which should describe what it is checking for)
+    * @return
     */
-   CheckResult check(SemanticChronology sc,
-              CheckPhase checkPhase);
+   public String getDescription();
+    
+    /**
+     * @return the desired ordering of your change checker, lower numbers execute first.  Used in the implementation of comparable.
+     */
+    default int getRank() {
+        return 1;
+    }
+
+    /**
+     * Sorts based on {@link #getRank()}
+     */
+    @Override
+    default int compareTo(ChangeChecker o) {
+        return Integer.compare(getRank(), o.getRank());
+    }
 }
 

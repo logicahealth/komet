@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>sh.isaac</groupId>
+      <artifactId>misc</artifactId>
+      <version>4.48</version>
+   </parent>
+   <groupId>sh.isaac.misc</groupId>
+   <artifactId>vhat-constants</artifactId>
+   <packaging>jar</packaging>
+   <name>ISAAC misc: VHAT Constants</name>
+
+   <description>
+        Code built on top of the low-level ISAAC APIs that is useful for those using the VHAT module
+    </description>
+
+   <dependencies>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>api</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.jvnet.jaxb2.maven2</groupId>
+            <artifactId>maven-jaxb2-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>generate-Terminology-Config.xsd</id>
+                  <goals>
+                     <goal>generate</goal>
+                  </goals>
+                  <configuration>
+                     <schemaDirectory>${project.basedir}/src/main/resources/</schemaDirectory>
+                     <schemaIncludes>
+                        <include>TerminologyConfig.xsd</include>
+                     </schemaIncludes>
+                     <generatePackage>sh.isaac.misc.constants.terminology.config</generatePackage>
+                     <generateDirectory>${project.build.directory}/generated-sources/xjc1</generateDirectory>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>generate-Terminology-Data.xsd</id>
+                  <goals>
+                     <goal>generate</goal>
+                  </goals>
+                  <configuration>
+                     <schemaDirectory>${project.basedir}/src/main/resources/</schemaDirectory>
+                     <schemaIncludes>
+                        <include>TerminologyData.xsd</include>
+                     </schemaIncludes>
+                     <generatePackage>sh.isaac.misc.constants.terminology.data</generatePackage>
+                     <generateDirectory>${project.build.directory}/generated-sources/xjc2</generateDirectory>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+</project>

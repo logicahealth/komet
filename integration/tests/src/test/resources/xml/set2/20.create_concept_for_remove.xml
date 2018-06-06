@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- MORE COMPLICATED CONCEPT. CREATES CONCEPT WITH ONE DESIGNATION, ONE DESIGNATION PROPERTY, ONE CONCEPT PROPERTY, ASSOCIATES DESIGANTION TO SUBSET AND LINKS CONCEPT TO REACTANTS RELATIONSHIP -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>800000</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>800000</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>800001</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>800001</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 RAD1</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad Procs Subset -->
+      <Active>1</Active>
+    </SubsetMembership>
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+  <Designation>
+    <Action>add</Action>
+    <Code>800002</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>800002</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 RAD2</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Scale_Type</TypeName>
+	    <ValueNew>OH</ValueNew>
+	    <Active>1</Active>
+    </Property>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Time_Aspect</TypeName>
+	    <ValueNew>Any Time</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245614</NewTargetCode>  <!-- Rad Procs Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>  <!-- Lab Test Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+<CodedConcept>
+  <Action>add</Action>
+  <Code>800003</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>800003</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>800004</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>800004</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A2 RAD1</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad Procs Subset -->
+      <Active>1</Active>
+    </SubsetMembership>
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+  <Designation>
+    <Action>add</Action>
+    <Code>800005</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>800005</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A2 RAD2</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Scale_Type</TypeName>
+	    <ValueNew>OH</ValueNew>
+	    <Active>1</Active>
+    </Property>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Time_Aspect</TypeName>
+	    <ValueNew>Any Time</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245614</NewTargetCode>  <!-- Rad Procs Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>  <!-- Lab Test Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+<CodedConcept>
+  <Action>add</Action>
+  <Code>800006</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>800006</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>800007</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>800007</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A3 RAD1</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad Procs Subset -->
+      <Active>1</Active>
+    </SubsetMembership>
+    <SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+  <Designation>
+    <Action>add</Action>
+    <Code>800008</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>800008</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A3 RAD2</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242851</VUID>   <!-- Rad subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Scale_Type</TypeName>
+	    <ValueNew>OH</ValueNew>
+	    <Active>1</Active>
+    </Property>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Time_Aspect</TypeName>
+	    <ValueNew>Any Time</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245614</NewTargetCode>  <!-- Rad Procs Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>  <!-- Lab Test Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

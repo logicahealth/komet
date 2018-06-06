@@ -39,17 +39,12 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.UUID;
-
 import javax.naming.InvalidNameException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -67,8 +62,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * {@link DynamicImpl}.
  *
@@ -77,16 +70,9 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 public class DynamicImpl
         extends AbstractVersionImpl
          implements MutableDynamicVersion<DynamicImpl> {
-   /** The bootstrap mode. */
-   private static boolean bootstrapMode = Get.configurationService()
-                                             .inBootstrapMode();
 
-   //~--- fields --------------------------------------------------------------
-
-   /** The dynamicData. */
    private DynamicData[] data = null;
-
-   //~--- constructors --------------------------------------------------------
+   private VersionType referencedComponentVersionType = null;
 
    /**
     * Instantiates a new dynamic element impl.
@@ -129,8 +115,9 @@ public class DynamicImpl
                                                                                        0,
                                                                                        0)).getDataUUID();
 
+               int nid = Get.identifierService().hasUuid(temp) ? Get.identifierService().getNidForUuids(temp) : Get.identifierService().assignNid(temp);
                this.data[i] = DynamicTypeToClassUtility.typeToClass(dt,
-                     new DynamicNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
+                     new DynamicNidImpl(nid).getData(),
                      getAssemblageNid(),
                      i);
             } else {
@@ -142,17 +129,29 @@ public class DynamicImpl
          }
       }
    }
+   
    private DynamicImpl(DynamicImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
       this.data = new DynamicData[other.data.length];
       System.arraycopy(other.data, 0, this.data, 0, this.data.length);
    }
+   
+   /**
+    * Support a builder pattern where this can't yet be looked up during validation
+    * @param versionType
+    */
+   public void setReferencedComponentVersionType(VersionType versionType) {
+      this.referencedComponentVersionType = versionType;
+   }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
@@ -164,13 +163,8 @@ public class DynamicImpl
       return (V) newVersion;   
    }
 
-
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Data to string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String dataToString() {
@@ -178,15 +172,13 @@ public class DynamicImpl
    }
 
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("{DynamicSememeData≤");
+      sb.append("{DynamicSemanticData≤");
 
       final DynamicData[] dynamicData = getData();
 
@@ -204,9 +196,7 @@ public class DynamicImpl
    }
 
    /**
-    * Write version dynamicData.
-    *
-    * @param data the dynamicData
+    * {@inheritDoc}
     */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
@@ -226,7 +216,7 @@ public class DynamicImpl
 
                if (data.isExternalData() && (column.getDynamicDataType() == DynamicDataType.NID)) {
                   final DynamicUUIDImpl temp = new DynamicUUIDImpl(
-                                                        Get.identifierService().getUuidPrimordialForNid(((DynamicNidImpl) column).getDataNid()).get());
+                                                        Get.identifierService().getUuidPrimordialForNid(((DynamicNidImpl) column).getDataNid()));
 
                   data.putByteArrayField(temp.getData());
                } else {
@@ -239,13 +229,8 @@ public class DynamicImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the dynamicData.
-    *
-    * @return the dynamicData
-    * @see sh.isaac.api.component.sememe.version.DynamicSememe#getData()
+    * {@inheritDoc}
     */
    @Override
    public DynamicData[] getData() {
@@ -254,24 +239,21 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the dynamicData.
-    *
-    * @param columnNumber the column number
-    * @return the dynamicData
-    * @throws IndexOutOfBoundsException the index out of bounds exception
+    * {@inheritDoc}
     */
    @Override
    public DynamicData getData(int columnNumber)
             throws IndexOutOfBoundsException {
-      return getData()[columnNumber];
+      DynamicData[] dd = getData();
+      //We don't require trailing, blank columns in the cases where the end columns are optional
+      if (dd.length <= columnNumber) {
+         return null;
+      }
+      return dd[columnNumber];
    }
 
    /**
-    * Gets the dynamicData.
-    *
-    * @param columnName the column name
-    * @return the dynamicData
-    * @throws InvalidNameException the invalid name exception
+    * {@inheritDoc}
     */
    @Override
    public DynamicData getData(String columnName)
@@ -286,12 +268,8 @@ public class DynamicImpl
       throw new InvalidNameException("Could not find a column with name '" + columnName + "'");
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the dynamicData.
-    *
-    * @param data the new dynamicData
+    * {@inheritDoc}
     */
    @Override
    public void setData(DynamicData[] data) {
@@ -299,26 +277,20 @@ public class DynamicImpl
          checkUncommitted();
       }
 
-      // TODO while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
-      // The column-specific validators will have to be fired during commit.
-      if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
+      if (!Get.configurationService().isInDBBuildMode(BuildMode.IBDF)) {  // We can't run the validators when we are building the initial system.
          final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
 
          LookupService.get()
                       .getService(DynamicUtility.class)
-                      .validate(dsud, data, getReferencedComponentNid(), null, null);
+                      .validate(dsud, data, getReferencedComponentNid(), referencedComponentVersionType, getStampSequence());
       }
 
       this.data = (data == null) ? new DynamicData[] {}
                                   : data;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the dynamic element usage description.
-    *
-    * @return the dynamic element usage description
+    * {@inheritDoc}
     */
    @Override
    public DynamicUsageDescription getDynamicUsageDescription() {
@@ -326,17 +298,15 @@ public class DynamicImpl
    }
 
    /**
-    * Gets the sememe type.
-    *
-    * @return the sememe type
+    * {@inheritDoc}
     */
-   @Override
    public VersionType getSemanticType() {
       return VersionType.DYNAMIC;
    }
-   
-   
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       DynamicImpl otherImpl = (DynamicImpl) other;
@@ -346,6 +316,9 @@ public class DynamicImpl
       return editDistance;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof DynamicImpl)) {
@@ -354,6 +327,5 @@ public class DynamicImpl
       DynamicImpl otherImpl = (DynamicImpl) other;
       return Arrays.equals(this.data, otherImpl.data);
    }
-   
 }
 

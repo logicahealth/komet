@@ -38,49 +38,43 @@
 package sh.isaac.api.alert;
 
 /**
- * 
- * FILTERs: Accept, Deny, Neutral
- * 
- * Context wide filters, 
- * Logger filters,
- * Appender filters,
- * Appender reference filters
- * 
- * ThreadContext Map -> For example,
-if the user's loginId is being captured in the ThreadContext Map then it is possible to enable debug
-logging for only that user
-* 
-* MapFilter
-The MapFilter allows filtering against data elements that are in a MapMessage.
- * 
- * 
- * MarkerFilter
-The MarkerFilter compares the configured Marker value against the Marker that is included in the
-LogEvent. A match occurs when the Marker name matches either the Log Event's Marker or one of its
-parents.
-* 
-* LogEvent
  * A subset of javafx.scene.control.Alert.AlertType
  * @author kec
  */
 public enum AlertType {
    /** An information alert. */
-   INFORMATION,
+   INFORMATION(false),
 
    /** A warning alert. */
-   WARNING,
+   WARNING(false),
 
    /** An error alert. */
-   ERROR,
+   ERROR(true),
 
    /** A confirmation alert. Not sure about this one...
     confirmation alerts would need some type of time out perhaps...
     */
-   CONFIRMATION, 
+   CONFIRMATION(false), 
    
    /**
     * Indicate success of an activity such as a commit or another automated process. 
     */
-   SUCCESS;
+   SUCCESS(false);
+	
+	private boolean alertPreventsCommit;
+	
+	private AlertType(boolean alertPreventsCommit)
+	{
+		this.alertPreventsCommit = alertPreventsCommit;
+	}
+	
+	/**
+	 * For integration of alerts into the Commit API, we need to know if an alert is fatal to a commit or not.
+	 * @return
+	 */
+	public boolean preventsCheckerPass()
+	{
+		return this.alertPreventsCommit;
+	}
 }
 

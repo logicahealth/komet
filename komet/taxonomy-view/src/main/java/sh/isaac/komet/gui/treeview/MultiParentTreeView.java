@@ -93,6 +93,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.alert.AlertPanel;
@@ -237,6 +238,11 @@ public class MultiParentTreeView
         LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
     }
 
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.TAXONOMY_ICON.getIconographic();
+    }
+
     private void dragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
         boolean success = false;
@@ -254,22 +260,18 @@ public class MultiParentTreeView
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
             SemanticChronology semanticChronology = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
-            Optional<UUID> optionalPrimordial = Get.identifierService()
+            UUID primordial = Get.identifierService()
                     .getUuidPrimordialForNid(semanticChronology.getReferencedComponentNid());
-            if (optionalPrimordial.isPresent()) {
-                showConcept(optionalPrimordial.get());
-                success = true;
-            }
+            showConcept(primordial);
+            success = true;
 
         } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
             DescriptionVersion descriptionVersion = Get.serializer()
                     .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
-            Optional<UUID> optionalPrimordial = Get.identifierService()
+            UUID primordial = Get.identifierService()
                     .getUuidPrimordialForNid(descriptionVersion.getReferencedComponentNid());
-            if (optionalPrimordial.isPresent()) {
-                showConcept(optionalPrimordial.get());
-                success = true;
-            }
+            showConcept(primordial);
+            success = true;
         }
         /* let the source know if the droped item was successfully 
                  * transferred and used */
@@ -501,26 +503,45 @@ public class MultiParentTreeView
     public void expandAndSelect(ArrayList<UUID> expansionPath) {
         MultiParentTreeItemImpl currentItem = rootTreeItem;
         if (currentItem.getConceptUuid().equals(expansionPath.get(0))) {
+            currentItem.addChildrenNow();
             currentItem.setExpanded(true);
-            for (int i = 1; i < expansionPath.size(); i++) {
-                UUID childUuidToMatch = expansionPath.get(i);
-                currentItem.addChildrenNow();
+            Platform.runLater(new ExpandTask(currentItem, expansionPath, 1));
+        } else {
+            FxGet.statusMessageService().reportStatus("Expansion path for concept does not end at root. ");
+        }
+    }
+
+    private class ExpandTask extends TimedTaskWithProgressTracker<Void> {
+
+        final ArrayList<UUID> expansionPath;
+        final int pathIndex;
+        final MultiParentTreeItemImpl currentItem;
+
+        public ExpandTask(MultiParentTreeItemImpl currentItem, ArrayList<UUID> expansionPath, int pathIndex) {
+            this.currentItem = currentItem;
+            this.expansionPath = expansionPath;
+            this.pathIndex = pathIndex;
+        }
+
+        @Override
+        protected Void call() throws Exception {
+            treeView.scrollTo(treeView.getRow(currentItem));
+            treeView.getSelectionModel().select(currentItem);
+            if (pathIndex < expansionPath.size()) {
+                UUID childUuidToMatch = expansionPath.get(pathIndex);
                 for (TreeItem child : currentItem.getChildren()) {
                     MultiParentTreeItemImpl childItem = (MultiParentTreeItemImpl) child;
                     if (childItem.getConceptUuid().equals(childUuidToMatch)) {
-                        currentItem = childItem;
+                        childItem.addChildrenNow();
                         currentItem.setExpanded(true);
+                        Platform.runLater(new ExpandTask(childItem, expansionPath, pathIndex + 1));
                         break;
                     }
                 }
-            }
-            treeView.scrollTo(treeView.getRow(currentItem));
-            treeView.getSelectionModel()
-                    .select(currentItem);
-        } else {
-            FxGet.statusMessageService().reportStatus("Expansion path for concept does not end at root. ");
-            
+            } 
+            return null;
         }
+
     }
 
     private void saveExpanded() {
@@ -603,7 +624,7 @@ public class MultiParentTreeView
                 descriptionTypes[descriptionIndex++] = spec.getNid();
             }
         }
-        this.manifold.setDescriptionTypePreferenceList(descriptionTypes);
+        this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().setAll(descriptionTypes);
         this.rootTreeItem.invalidate();
         this.treeView.refresh();
     }
@@ -622,7 +643,8 @@ public class MultiParentTreeView
                 .set(newPremiseType);
         taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
         this.rootTreeItem.clearChildren();
-        this.rootTreeItem.resetChildrenCalculators();
+        Get.workExecutors().getExecutor().execute(() -> this.rootTreeItem.addChildren());
+        this.rootTreeItem.invalidate();
         this.alertList.clear();
         restoreExpanded();
     }

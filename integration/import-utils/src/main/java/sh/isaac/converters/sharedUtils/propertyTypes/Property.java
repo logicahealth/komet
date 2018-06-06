@@ -42,6 +42,8 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -87,16 +89,28 @@ public class Property {
    private final String sourcePropertyNameFQN;
 
    /** The source property alt name. */
-   private final String sourcePropertyAltName;
+   private String sourcePropertyAltName;
 
    /** The source property definition. */
    private final String sourcePropertyDefinition;
+   
+   private boolean isIdentifier;
+   
+   private UUID secondParent = null;
 
-   /** The owner. */
    private PropertyType owner;
-
-   //~--- constructors --------------------------------------------------------
-
+   
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    * @param converterUUID 
+    */
+   public Property(PropertyType owner, ConceptSpecification cs, ConverterUUID converterUUID) {
+      this(owner, cs, false, converterUUID);
+   }
+   
    /**
     * Instantiates a new property.
     *
@@ -104,10 +118,37 @@ public class Property {
     * @param cs the cs
     */
    public Property(PropertyType owner, ConceptSpecification cs) {
-      this(owner, cs.getFullySpecifiedConceptDescriptionText(), null, null, false, Integer.MAX_VALUE, null);
+      this(owner, cs, null);
+   }
+   
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    * @param isIdentifier set to true, if this type should be handled as an identifier.
+    */
+   public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier) {
+      this(owner, cs, isIdentifier, null);
+   }
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    * @param isIdentifier set to true, if this type should be handled as an identifier.
+    * @param converterUUID 
+    */
+   public Property(PropertyType owner, ConceptSpecification cs, boolean isIdentifier, ConverterUUID converterUUID) {
+      this(owner, cs.getFullyQualifiedName(), cs.getRegularName().get(), null, false, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
-      ConverterUUID.addMapping(cs.getFullySpecifiedConceptDescriptionText(), cs.getPrimordialUuid());
+      (converterUUID == null ? Get.service(ConverterUUID.class) : converterUUID).addMapping(cs.getFullyQualifiedName(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
+      this.isIdentifier = isIdentifier;
+      if (this.isIdentifier)
+      {
+         this.secondParent = MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid();
+      }
    }
 
    /**
@@ -117,7 +158,19 @@ public class Property {
     * @param sourcePropertyNameFQN the source property name FQN
     */
    public Property(PropertyType owner, String sourcePropertyNameFQN) {
-      this(owner, sourcePropertyNameFQN, null, null, false, Integer.MAX_VALUE, null);
+      this(owner, sourcePropertyNameFQN, null, null, false, false, Integer.MAX_VALUE, null);
+   }
+
+   public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyAltName,
+       String sourcePropertyDefinition, boolean isIdentifier) {
+     this(owner, sourcePropertyNameFSN, sourcePropertyAltName, sourcePropertyDefinition, false, isIdentifier,
+         Integer.MAX_VALUE, null);
+   }
+
+   public Property(String sourcePropertyNameFSN, String sourcePropertyAltName, String sourcePropertyDefinition,
+       boolean isIdentifier) {
+     this(null, sourcePropertyNameFSN, sourcePropertyAltName, sourcePropertyDefinition, false, isIdentifier,
+         Integer.MAX_VALUE, null);
    }
 
    /**
@@ -141,6 +194,19 @@ public class Property {
            null);
       setWBPropertyType(wbRelType);
    }
+   
+   public Property(String sourcePropertyNameFSN, boolean disabled, int propertySubType, DynamicColumnInfo[] columnInforForDynamicRefex)
+   {
+      this(null, sourcePropertyNameFSN, null, null, disabled, false, propertySubType, columnInforForDynamicRefex);
+   }
+   
+   public Property(ConceptSpecification cs, boolean isIdentifier, ConverterUUID converterUUID) {
+      this((PropertyType)null, cs, isIdentifier, converterUUID);
+   }
+   
+   public Property(ConceptSpecification cs, boolean isIdentifier) {
+         this(cs, isIdentifier, null);
+   }
 
    /**
     * Instantiates a new property.
@@ -160,21 +226,51 @@ public class Property {
                    boolean disabled,
                    int propertySubType,
                    DynamicColumnInfo[] columnInforForDynamicRefex) {
+      
+      this(owner, sourcePropertyNameFQN, sourcePropertyAltName, sourcePropertyDefinition, disabled, false, propertySubType, columnInforForDynamicRefex);
+   }
+   
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param sourcePropertyNameFQN the source property name FQN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param isIdentifier true if this should be treated as an identifier type
+    * @param propertySubType the property sub type
+    * @param columnInforForDynamicRefex the column infor for dynamic refex
+    */
+   public Property(PropertyType owner,
+                   String sourcePropertyNameFQN,
+                   String sourcePropertyAltName,
+                   String sourcePropertyDefinition,
+                   boolean disabled,
+                   boolean isIdentifier,
+                   int propertySubType,
+                   DynamicColumnInfo[] columnInforForDynamicRefex) {
       this.owner                    = owner;
       this.sourcePropertyNameFQN    = sourcePropertyNameFQN;
       this.sourcePropertyAltName    = sourcePropertyAltName;
       this.sourcePropertyDefinition = sourcePropertyDefinition;
       this.isDisabled               = disabled;
+      this.isIdentifier             = isIdentifier;
       this.propertySubType          = propertySubType;
+      
+      if (this.isIdentifier)
+      {
+         this.secondParent = MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid();
+      }
 
       // if owner is null, have to delay this until the setOwner call
       // leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
       // at the time this code runs.  We make sure it is set down below, in the getter.
-      if ((columnInforForDynamicRefex == null) && (owner != null) && (this.owner.getDefaultColumnInfo() != null)) {
+      if ((columnInforForDynamicRefex == null) && (this.owner != null) && (this.owner.getDefaultColumnInfo() != null)) {
          // Create a single required column, with the column name just set to 'value'
          this.dataColumnsForDynamicRefex = new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                0,
-               DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+               DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
                this.owner.getDefaultColumnInfo(),
                null,
                true,
@@ -187,6 +283,11 @@ public class Property {
 
       if ((this.dataColumnsForDynamicRefex != null) && (this.owner != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
+      }
+      if (owner != null)
+      {
+         //Need to assign these early now, due to usage patterns.
+         Get.identifierService().assignNid(this.getUUID());
       }
    }
 
@@ -215,6 +316,11 @@ public class Property {
    public boolean isDisabled() {
       return this.isDisabled;
    }
+   
+   public boolean isIdentifier()
+   {
+     return isIdentifier;
+   }
 
    /**
     * Checks if from concept spec.
@@ -235,7 +341,7 @@ public class Property {
    protected void setOwner(PropertyType owner) {
       this.owner = owner;
 
-      if ((this.dataColumnsForDynamicRefex == null) && (this.owner.getDefaultColumnInfo() != null)) {
+      if ((this.dataColumnsForDynamicRefex == null) && (this.owner != null && this.owner.getDefaultColumnInfo() != null)) {
          // Create a single required column, with the column name concept tied back to the assemblage concept itself.
          // leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
          // at the time this code runs.  We make sure it is set down below, in the getter.
@@ -253,6 +359,9 @@ public class Property {
       if ((this.dataColumnsForDynamicRefex != null) &&!this.owner.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic element data where it isn't allowed.");
       }
+      
+      //Need to assign these early now, due to usage patterns.
+      Get.identifierService().assignNid(this.getUUID());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -266,6 +375,21 @@ public class Property {
       return this.propertySubType;
    }
 
+   
+   public UUID getSecondParent()
+   {
+      return secondParent;
+   }
+   
+   public void setSecondParent(UUID secondParent)
+   {
+      this.secondParent = secondParent;
+   }
+   
+   public void setSourcePropertyAltName(String altName) {
+      this.sourcePropertyAltName = altName;
+   }
+   
    //~--- set methods ---------------------------------------------------------
 
    /**
@@ -339,6 +463,18 @@ public class Property {
     */
    public void setWBPropertyType(UUID wbRelType) {
       this.useWBPropertyTypeInstead = wbRelType;
+   }
+   
+   public void setIsIdentifier(boolean isIdentifier) {
+      this.isIdentifier = isIdentifier;
+   }
+   
+   /* (non-Javadoc)
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString() {
+      return "Property [FSN=" + sourcePropertyNameFQN + ", isIdentifier=" + isIdentifier + "]";
    }
 
    //~--- get methods ---------------------------------------------------------

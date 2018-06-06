@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+  <CodeSystem>
+    <Action>none</Action>
+    <Name>VHAT</Name>
+    <Version>
+      <Append>true</Append>
+      <Name>Authoring Version</Name>
+      
+      <CodedConcepts>
+        <CodedConcept>
+          <Action>none</Action> <!-- nothing is changing about the concept  -->
+          <Code>-505</Code>  <!-- should match the VUID of the concept we just added  -->
+          <VUID>-505</VUID>
+          <Active>true</Active>
+                 
+          <!--  add Concept Properties -->
+          <Properties>
+            <Property>
+              <Action>add</Action>
+              <TypeName>VistA_Combination_Immunization</TypeName>
+              <ValueNew>N</ValueNew>
+              <Active>true</Active>
+            </Property>
+            <Property>
+              <Action>add</Action>
+              <TypeName>VistA_Immunization_Group</TypeName>
+              <ValueNew>ZOSTER</ValueNew>
+              <Active>true</Active>
+            </Property>
+          </Properties>
+        </CodedConcept>   
+      </CodedConcepts>
+    </Version>
+  </CodeSystem>
+</Terminology>

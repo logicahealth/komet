@@ -110,10 +110,7 @@ public class DynamicUUIDImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -121,10 +118,7 @@ public class DynamicUUIDImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -132,10 +126,7 @@ public class DynamicUUIDImpl
    }
 
    /**
-    * Gets the data UUID.
-    *
-    * @return the data UUID
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUID()
+    * {@inheritDoc}
     */
    @Override
    public UUID getDataUUID() {
@@ -147,10 +138,7 @@ public class DynamicUUIDImpl
    }
 
    /**
-    * Gets the data UUID property.
-    *
-    * @return the data UUID property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUIDProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {

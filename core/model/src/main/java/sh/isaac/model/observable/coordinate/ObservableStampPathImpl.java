@@ -43,6 +43,7 @@ package sh.isaac.model.observable.coordinate;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.beans.InvalidationListener;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -112,7 +113,8 @@ public class ObservableStampPathImpl
       if (this.pathConceptSequenceProperty == null) {
          this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
-               getPathConceptSequence());
+               getPathConceptNid());
+         this.pathConceptSequenceProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.pathConceptSequenceProperty;
@@ -129,6 +131,7 @@ public class ObservableStampPathImpl
          this.pathOriginsProperty = new ReadOnlyListWrapper<>(this,
                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
                FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
+         this.pathOriginsProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
       }
 
       return this.pathOriginsProperty;
@@ -152,12 +155,12 @@ public class ObservableStampPathImpl
     * @return the path concept sequence
     */
    @Override
-   public int getPathConceptSequence() {
+   public int getPathConceptNid() {
       if (this.pathConceptSequenceProperty != null) {
          return this.pathConceptSequenceProperty.get();
       }
 
-      return this.stampPath.getPathConceptSequence();
+      return this.stampPath.getPathConceptNid();
    }
 
    /**

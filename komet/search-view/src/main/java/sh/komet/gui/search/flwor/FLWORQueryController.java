@@ -173,7 +173,7 @@ public class FLWORQueryController
    @FXML
    private RadioButton allDescriptions;
    @FXML
-   private RadioButton allSememes;
+   private RadioButton allSemantics;
    @FXML
    private AnchorPane letAnchorPane;
    private TreeItem<QueryClause> root;
@@ -181,6 +181,12 @@ public class FLWORQueryController
    private LetPropertySheet letPropertySheet;
 
    //~--- methods -------------------------------------------------------------
+
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.FLWOR_SEARCH.getIconographic();
+   }
+
    void displayResults(NidSet resultNids) {
       ObservableList<ObservableDescriptionVersion> tableItems = resultTable.getItems();
 
@@ -193,7 +199,7 @@ public class FLWORQueryController
          switch (Get.identifierService().getObjectTypeForComponent(nid)) {
             case CONCEPT: {
                // convert to a description. 
-               LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid);
+               LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid, manifold.getManifoldCoordinate());
                if (latestDescriptionForConcept.isPresent()) {
                   LatestVersion<ObservableDescriptionVersion> latestDescription
                           = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
@@ -244,7 +250,7 @@ public class FLWORQueryController
          queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
-      if (allSememes.isSelected()) {
+      if (allSemantics.isSelected()) {
          queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
@@ -275,7 +281,7 @@ public class FLWORQueryController
       assert forGroup != null : "fx:id=\"forGroup\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert allConcepts != null : "fx:id=\"allConcepts\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert allDescriptions != null : "fx:id=\"allDescriptions\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-      assert allSememes != null : "fx:id=\"allSememes\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert allSemantics != null : "fx:id=\"allSemantics\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
@@ -470,7 +476,7 @@ public class FLWORQueryController
 
    private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {
       // Firstly, create a list of Actions
-      ArrayList<Action> actionList = new ArrayList();
+      ArrayList<Action> actionList = new ArrayList<>();
       final TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
       if (treeItem != null) {

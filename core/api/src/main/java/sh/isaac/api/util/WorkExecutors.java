@@ -97,7 +97,7 @@ import sh.isaac.api.LookupService;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
-@RunLevel(value = -1)
+@RunLevel(value = LookupService.SL_NEG_1_WORKERS_STARTED_RUNLEVEL)
 public class WorkExecutors {
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
@@ -134,71 +134,11 @@ public class WorkExecutors {
    //~--- methods -------------------------------------------------------------
 
    /**
-    * The main method.
-    *
-    * @param args the arguments
-    * @throws InterruptedException the interrupted exception
-    */
-   public static void main(String[] args)
-            throws InterruptedException {
-      final WorkExecutors we = new WorkExecutors();
-
-      we.startMe();
-
-      final AtomicInteger counter = new AtomicInteger();
-
-      for (int i = 0; i < 24; i++) {
-         System.out.println("submit " + i);
-         we.getPotentiallyBlockingExecutor().submit(() -> {
-                      final int id = counter.getAndIncrement();
-
-                      System.out.println(id + " started");
-
-                      try {
-                         Thread.sleep(5000);
-                      } catch (final InterruptedException e) {
-                         e.printStackTrace();
-                      }
-
-                      System.out.println(id + " finished");
-                   });
-      }
-
-      Thread.sleep(7000);
-      System.out.println("Blocking test over");
-
-      for (int i = 24; i < 48; i++) {
-         System.out.println("submit " + i);
-         we.getExecutor().submit(() -> {
-                      final int id = counter.getAndIncrement();
-
-                      System.out.println(id + " started");
-
-                      try {
-                         Thread.sleep(5000);
-                      } catch (final InterruptedException e) {
-                         e.printStackTrace();
-                      }
-
-                      System.out.println(id + " finished");
-                   });
-      }
-
-      while (we.getExecutor()
-               .getQueue()
-               .size() > 0) {
-         Thread.sleep(1000);
-      }
-
-      Thread.sleep(7000);
-   }
-
-   /**
     * Start me.
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting the WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
+      log.info("Starting the WorkExecutors thread pools for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
       if (nonHK2Instance != null) {
          throw new RuntimeException(
@@ -219,7 +159,7 @@ public class WorkExecutors {
       final TimeUnit timeUnit        = TimeUnit.SECONDS;
 
       // The blocking executor
-      this.blockingThreadPoolExecutor = new ThreadPoolExecutor(corePoolSize,
+      this.blockingThreadPoolExecutor = new ThreadPoolExecutorFixed(corePoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
@@ -236,7 +176,7 @@ public class WorkExecutors {
 
       // The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.threadPoolExecutor = new ThreadPoolExecutor(maximumPoolSize,
+      this.threadPoolExecutor = new ThreadPoolExecutorFixed(maximumPoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
@@ -246,8 +186,8 @@ public class WorkExecutors {
 
       // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.ioThreadPoolExecutor = new ThreadPoolExecutor(4,
-            4,
+      this.ioThreadPoolExecutor = new ThreadPoolExecutorFixed(6,
+            6,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<>(),
@@ -268,7 +208,7 @@ public class WorkExecutors {
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping WorkExecutors thread pools at runlevel: " + LookupService.getCurrentRunLevel());
+      log.info("Stopping WorkExecutors thread pools for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
       if (this.forkJoinExecutor != null) {
          this.forkJoinExecutor.shutdownNow();
@@ -342,8 +282,7 @@ public class WorkExecutors {
    public static WorkExecutors get() {
       log.debug("In WorkExectors.get()");
 
-      if (LookupService.isInitialized() &&
-            (LookupService.getCurrentRunLevel() >= LookupService.WORKERS_STARTED_RUNLEVEL)) {
+      if (LookupService.isInitialized() && LookupService.getCurrentRunLevel() >= LookupService.SL_NEG_1_WORKERS_STARTED_RUNLEVEL) {
          log.debug("Handing back the HK2 managed instance");
          return Get.workExecutors();
       } else {

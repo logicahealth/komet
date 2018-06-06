@@ -117,7 +117,7 @@ public abstract class DynamicDataImpl
 
                   if (ls == null) {
                      throw new RuntimeException(
-                         "An implementation of DynamicSememeUtility is not available on the classpath");
+                         "An implementation of DynamicSemanticUtility is not available on the classpath");
                   } else {
                      this.nameCache = ls.readDynamicUsageDescription(assemblageSequence)
                                          .getColumnInfo()[columnNumber]
@@ -145,7 +145,6 @@ public abstract class DynamicDataImpl
       case INTEGER:
       case LONG:
       case NID:
-      case SEQUENCE:
       case STRING:
       case UUID:
          return getDataObject().toString();
@@ -230,10 +229,7 @@ public abstract class DynamicDataImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data.
-    *
-    * @return the data
-    * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getData()
+    * {@inheritDoc}
     */
    @Override
    public byte[] getData() {
@@ -241,10 +237,7 @@ public abstract class DynamicDataImpl
    }
 
    /**
-    * Gets the dynamic data type.
-    *
-    * @return the dynamic data type
-    * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getDynamicSememeDataType()
+    * {@inheritDoc}
     */
    @Override
    public DynamicDataType getDynamicDataType() {
@@ -257,8 +250,13 @@ public abstract class DynamicDataImpl
     * @return the name
     */
    protected String getName() {
-      return ((this.nameProvider == null) ? "???"
-            : this.nameProvider.get());
+      try {
+         return ((this.nameProvider == null) ? "???"
+               : this.nameProvider.get());
+      }
+      catch (Exception e) {
+         return "???";
+      }
    }
 }
 

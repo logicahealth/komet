@@ -30,7 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.FxTimer;
 import sh.isaac.api.util.number.NumberUtil;
 
@@ -55,20 +55,20 @@ public class StackedMemoryChartData {
     
 
     
-    private static final StackedAreaChart.Series ASSEMBLAGE_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> ASSEMBLAGE_MEMORY_SERIES = 
             new StackedAreaChart.Series("Assemblage memory",ASSEMBLAGE_MEMORY_USED_DATA);
-    private static final StackedAreaChart.Series IDENTIFIER_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> IDENTIFIER_MEMORY_SERIES = 
             new StackedAreaChart.Series("Identifier memory",IDENTIFIER_MEMORY_USED_DATA);
-    private static final StackedAreaChart.Series LUCENE_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> LUCENE_MEMORY_SERIES = 
             new StackedAreaChart.Series("Lucene memory",LUCENE_MEMORY_USED_DATA);
-    private static final StackedAreaChart.Series USED_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> USED_MEMORY_SERIES = 
             new StackedAreaChart.Series("Used memory",USED_MEMORY_DATA);
-    private static final StackedAreaChart.Series COMMITTED_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> COMMITTED_MEMORY_SERIES = 
             new StackedAreaChart.Series("Committed memory",COMMITTED_MEMORY_DATA);
-    private static final StackedAreaChart.Series AVAILABLE_MEMORY_SERIES = 
+    private static final StackedAreaChart.Series<Number, Number> AVAILABLE_MEMORY_SERIES = 
             new StackedAreaChart.Series("Available memory",AVAILABLE_MEMORY_DATA);
     
-    private static final ObservableList<StackedAreaChart.Series> MEMORY_CHART_DATA = 
+    private static final ObservableList<StackedAreaChart.Series<Number, Number>> MEMORY_CHART_DATA = 
             FXCollections.observableArrayList(ASSEMBLAGE_MEMORY_SERIES, IDENTIFIER_MEMORY_SERIES, 
                     LUCENE_MEMORY_SERIES, USED_MEMORY_SERIES, COMMITTED_MEMORY_SERIES, 
                     AVAILABLE_MEMORY_SERIES);
@@ -88,7 +88,7 @@ public class StackedMemoryChartData {
         }
         long identifierMemoryUsed = Get.identifierService().getMemoryInUse();
         long luceneMemoryUsed = 0;
-        for (IndexService indexService: Get.services(IndexService.class)) {
+        for (IndexBuilderService indexService: Get.services(IndexBuilderService.class)) {
             luceneMemoryUsed += indexService.getIndexMemoryInUse();
         }
         MemoryUsage memoryUsage =  MEMORY_BEAN.getHeapMemoryUsage();
@@ -96,7 +96,7 @@ public class StackedMemoryChartData {
         IDENTIFIER_MEMORY_USED_DATA.add(new XYChart.Data<>(timeTick, identifierMemoryUsed/ONE_MILLION));
         LUCENE_MEMORY_USED_DATA.add(new XYChart.Data<>(timeTick, luceneMemoryUsed/ONE_MILLION));
         USED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getUsed() - assemblageMemoryUsed - identifierMemoryUsed - luceneMemoryUsed)/ONE_MILLION));
-        USED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getCommitted() - memoryUsage.getUsed())/ONE_MILLION));
+        COMMITTED_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getCommitted() - memoryUsage.getUsed())/ONE_MILLION));
         AVAILABLE_MEMORY_DATA.add(new XYChart.Data<>(timeTick, (memoryUsage.getMax() - memoryUsage.getCommitted())/ONE_MILLION));
         
         while (ASSEMBLAGE_MEMORY_USED_DATA.size() > MaxDataListSize) {
@@ -122,7 +122,7 @@ public class StackedMemoryChartData {
 
     }
        
-    public static ObservableList<StackedAreaChart.Series> getMemoryChartData() {
+    public static ObservableList<StackedAreaChart.Series<Number, Number>> getMemoryChartData() {
         return MEMORY_CHART_DATA;
     }
     

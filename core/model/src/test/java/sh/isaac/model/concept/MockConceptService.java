@@ -117,7 +117,7 @@ public class MockConceptService
          return this.conceptsMap.get(conceptNid);
       }
 
-      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, 0);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], 0);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
@@ -130,7 +130,7 @@ public class MockConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
@@ -179,8 +179,8 @@ public class MockConceptService
     * @return the data store id
     */
    @Override
-   public UUID getDataStoreId() {
-      return this.dbId;
+   public Optional<UUID> getDataStoreId() {
+      return Optional.of(this.dbId);
    }
 
    /**
@@ -189,7 +189,7 @@ public class MockConceptService
     * @return the database folder
     */
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return null;
    }
 
@@ -199,8 +199,8 @@ public class MockConceptService
     * @return the database validity status
     */
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
-      return null;
+   public DataStoreStartState getDataStoreStartState() {
+      return DataStoreStartState.NO_DATASTORE;
    }
 
    /**
@@ -264,6 +264,11 @@ public class MockConceptService
    @Override
    public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public boolean hasConcept(int conceptId) {
+     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
 }

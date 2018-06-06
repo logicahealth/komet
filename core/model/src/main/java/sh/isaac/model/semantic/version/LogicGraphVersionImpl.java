@@ -79,7 +79,7 @@ public class LogicGraphVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new logic graph sememe impl.
+    * Instantiates a new logic graph semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -90,7 +90,7 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Instantiates a new logic graph sememe impl.
+    * Instantiates a new logic graph semantic impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -129,7 +129,7 @@ public class LogicGraphVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
@@ -254,9 +254,9 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {

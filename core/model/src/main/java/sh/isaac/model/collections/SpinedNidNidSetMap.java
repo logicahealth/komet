@@ -50,7 +50,7 @@ public class SpinedNidNidSetMap {
     private static final int DEFAULT_SPINE_SIZE = 1024;
     protected final int spineSize;
     protected final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
-    private Function<int[], String> elementStringConverter;
+//    private Function<int[], String> elementStringConverter;
 
     private final Semaphore diskSemaphore = new Semaphore(1);
     protected final AtomicInteger spineCount = new AtomicInteger();
@@ -58,6 +58,15 @@ public class SpinedNidNidSetMap {
 
     public SpinedNidNidSetMap() {
         this.spineSize = DEFAULT_SPINE_SIZE;
+    }
+    
+    /**
+     * Clear this map.  Does nothing to the directory it was read from.
+     */
+    public void clear() {
+      spines.clear();
+      spineCount.set(0);
+      changedSpineIndexes.clear();
     }
 
     public int sizeInBytes() {
@@ -180,7 +189,7 @@ public class SpinedNidNidSetMap {
     }
 
     protected AtomicReferenceArray<int[]> newSpine(Integer spineKey) {
-        AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(spineSize);
+        AtomicReferenceArray<int[]> spine = new AtomicReferenceArray<>(spineSize);
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
     }

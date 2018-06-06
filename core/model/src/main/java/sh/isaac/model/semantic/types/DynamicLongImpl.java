@@ -101,10 +101,7 @@ public class DynamicLongImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data long.
-    *
-    * @return the data long
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLong()
+    * {@inheritDoc}
     */
    @Override
    public long getDataLong() {
@@ -113,10 +110,7 @@ public class DynamicLongImpl
    }
 
    /**
-    * Gets the data long property.
-    *
-    * @return the data long property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Long> getDataLongProperty() {
@@ -128,10 +122,7 @@ public class DynamicLongImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -139,10 +130,7 @@ public class DynamicLongImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

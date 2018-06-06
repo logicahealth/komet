@@ -42,11 +42,16 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.logic.LogicalExpression;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -68,12 +73,6 @@ public interface ManifoldCoordinate
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Convenience method, buffers concept sequence in a cache-sensitive manner.
-    * @return the concept sequence that defines the is-a relationship type.
-    */
-   int getIsaConceptNid();
-
-   /**
     * Gets the taxonomy type.
     *
     * @return PremiseType.STATED if taxonomy operations should be based on stated definitions, or
@@ -87,6 +86,22 @@ public interface ManifoldCoordinate
     * @return a UUID that uniquely identifies this manifold coordinate.
     */
    UUID getCoordinateUuid();
+   
+   
+   /**
+    * Return the best description text according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    *
+    * @param conceptId the concept id. 
+    * @return an optional String best matching the {@link LanguageCoordinate} constraints within this ManifoldCoordinate, or empty
+    * if none available that match the {@link ManifoldCoordinate}.
+    */
+   default Optional<String> getDescription(int conceptId) {
+      LatestVersion<DescriptionVersion> temp = getDescription(conceptId, this.getStampCoordinate());
+      if (temp.isPresent()) {
+         return Optional.of(temp.get().getText());
+      }
+      return Optional.empty();
+   }
    
    /**
     * Return the description according to the type and dialect preferences
@@ -128,7 +143,10 @@ public interface ManifoldCoordinate
    /**
     * Get the preferred description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
-    * @return preferred description text. 
+    * @return preferred description text.
+    * 
+    *  Note that this method gives no indication when the preferred text isn't available, instead returning 
+    *  and "unknown..." type of string.  See {@link #getRegularName(int)} for a method without this behavior.
     */
    default String getPreferredDescriptionText(int conceptId) {
       return getLanguageCoordinate().getPreferredDescriptionText(conceptId, 
@@ -136,12 +154,37 @@ public interface ManifoldCoordinate
    }
    
    /**
+    * Get the regularName text associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description text. 
+    */
+   default Optional<String> getRegularName(int conceptId) {
+      return getLanguageCoordinate().getRegularName(conceptId, 
+              getStampCoordinate());
+   }
+   
+   /**
     * Get the preferred description text associated with the {@code ConceptSpecification}.
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
     * @return preferred description text. 
+    * 
+    * Note that this method does not give any indication of text being unavailable, rather, 
+    * returning an arbitrary "unknown" string when there is no text avaiable on the coordinate.
+    * 
+    * See {@link #getRegularName(ConceptSpecification)} for a method without this behavior.
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
       return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
+              getStampCoordinate());
+   }
+   
+   /**
+    * Get the regular name (Preferred description ) text associated with the {@code ConceptSpecification}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description text. 
+    */
+   default Optional<String> getRegularName(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getRegularName(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    
@@ -194,6 +237,48 @@ public interface ManifoldCoordinate
       return getLogicCoordinate().getConceptAssemblageNid();
    }
    
+   default Optional<LogicalExpression> getStatedLogicalExpression(ConceptSpecification spec) {
+       return getStatedLogicalExpression(spec.getNid());
+   }
 
+   default Optional<LogicalExpression> getStatedLogicalExpression(int conceptNid) {
+       return getLogicalExpression(conceptNid, PremiseType.STATED);
+   }
+   default Optional<LogicalExpression> getInferredLogicalExpression(ConceptSpecification spec) {
+       return getInferredLogicalExpression(spec.getNid());
+   }
+
+   default Optional<LogicalExpression> getInferredLogicalExpression(int conceptNid) {
+       return getLogicalExpression(conceptNid, PremiseType.INFERRED);
+   }
+   
+   default Optional<LogicalExpression> getLogicalExpression(int conceptNid, PremiseType premiseType) {
+       ConceptChronology concept = Get.concept(conceptNid);
+       LatestVersion<LogicGraphVersion> logicalDef = concept.getLogicalDefinition(this, premiseType, this);
+       if (logicalDef.isPresent()) {
+           return Optional.of(logicalDef.get().getLogicalExpression());
+       }
+       return Optional.empty();
+   }
+   default LatestVersion<LogicGraphVersion> getStatedLogicGraphVersion(int conceptNid) {
+       return getLogicGraphVersion(conceptNid, PremiseType.STATED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getInferredLogicGraphVersion(ConceptSpecification conceptSpecification) {
+       return getLogicGraphVersion(conceptSpecification.getNid(), PremiseType.INFERRED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getStatedLogicGraphVersion(ConceptSpecification conceptSpecification) {
+       return getLogicGraphVersion(conceptSpecification.getNid(), PremiseType.STATED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getInferredLogicGraphVersion(int conceptNid) {
+       return getLogicGraphVersion(conceptNid, PremiseType.INFERRED);
+   }
+
+   default LatestVersion<LogicGraphVersion> getLogicGraphVersion(int conceptNid, PremiseType premiseType) {
+       ConceptChronology concept = Get.concept(conceptNid);
+       return concept.getLogicalDefinition(this, premiseType, this);
+   }
 }
 

@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.47</version>
+      <version>4.48</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -16,7 +16,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
-      <solor.db.version>1.13-SNAPSHOT</solor.db.version>
+      <solor.db.version>1.14-SNAPSHOT</solor.db.version>
    </properties>
 
    <organization>
@@ -45,10 +45,15 @@
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
       </dependency>
+      <!-- route logging into log4j for app -->
       <dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>log-config</artifactId>
-         <version>${project.parent.version}</version>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+      </dependency>
+      <!-- route logging into log4j for app -->
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-jul</artifactId>
       </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>
@@ -58,6 +63,10 @@
       <dependency>
          <groupId>org.glassfish.hk2</groupId>
          <artifactId>hk2-testng</artifactId>
+      </dependency>
+      <dependency>
+           <groupId>de.codecentric.centerdevice</groupId>
+           <artifactId>centerdevice-nsmenufx</artifactId>
       </dependency>
       <dependency>
          <groupId>org.testng</groupId>
@@ -95,7 +104,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.solor</groupId>
-         <artifactId>rf2-direct-import</artifactId>
+         <artifactId>direct-import</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
@@ -153,6 +162,30 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.komet</groupId>
+         <artifactId>komet-preferences</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>semantic-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>export-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>statement-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
          <artifactId>taxonomy-view</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
@@ -166,6 +199,12 @@
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>search-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>scripting</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
@@ -187,18 +226,23 @@
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
-      <dependency>
+      <!--dependency>
          <groupId>javafx-packager</groupId>
          <artifactId>javafx-packager</artifactId>
          <version>1.8.0_20</version>
          <scope>system</scope>
          <systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
-      </dependency>
+      </dependency-->
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>progress-view</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>metacontent</artifactId>
+         <version>${project.parent.version}</version>
       </dependency>
    </dependencies>
    <build>
@@ -227,7 +271,6 @@
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>1.2.1</version>
             <executions>
                <execution>
                   <id>default-cli</id>
@@ -244,7 +287,6 @@
          <plugin>
             <groupId>com.zenjava</groupId>
             <artifactId>javafx-maven-plugin</artifactId>
-            <version>8.8.3</version>
             <configuration>
                <mainClass>${mainClass}</mainClass>
                <verbose>false</verbose>
@@ -324,7 +366,24 @@
             </plugins>
          </build>
       </profile>
-      
+       <profile>
+         <id>special-load</id>
+         <activation>
+            <property>
+               <name>plugins</name>
+               <value>true</value>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>com.informatics</groupId>
+               <artifactId>special-load</artifactId>
+               <version>${project.parent.version}</version>
+               <type>jar</type>
+            </dependency>
+         </dependencies>
+      </profile>
+    
       <profile>
          <id>external-plugins</id>
          <activation>
@@ -340,78 +399,30 @@
                <version>1.0-SNAPSHOT</version>
                <type>jar</type>
             </dependency>
+            <dependency>
+               <groupId>com.informatics</groupId>
+               <artifactId>special-load</artifactId>
+               <version>${project.parent.version}</version>
+               <type>jar</type>
+            </dependency>
          </dependencies>
       </profile>
-        <profile>
-            <id>test-yfiles</id>
-            <activation>
-                <property>
-                    <name>test.yfiles</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>yfiles</groupId>
-                    <artifactId>yfiles-for-javafx</artifactId>
-                    <version>3.0</version>
-                </dependency>
-            </dependencies>
-        </profile>
       <profile>
-         <id>meta-database</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <dependencies>
-            <dependency>
-               <groupId>sh.isaac.integration</groupId>
-               <artifactId>meta-db</artifactId>
-               <version>${project.parent.version}</version>
-               <type>cradle.zip</type>
-            </dependency>
-            <dependency>
-               <groupId>sh.isaac.integration</groupId>
-               <artifactId>meta-db</artifactId>
-               <version>${project.parent.version}</version>
-               <type>lucene.zip</type>
-            </dependency>
-         </dependencies>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-dependency-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>extract-metadb-dependencies</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                           <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                           <artifactItems>
-                              <artifact>
-                                 <groupId>sh.isaac.integration</groupId>
-                                 <artifactId>meta-db</artifactId>
-                                 <version>${project.parent.version}</version>
-                                 <type>cradle.zip</type>
-                              </artifact>
-                              <artifact>
-                                 <groupId>sh.isaac.integration</groupId>
-                                 <artifactId>meta-db</artifactId>
-                                 <version>${project.parent.version}</version>
-                                 <type>lucene.zip</type>
-                              </artifact>
-                           </artifactItems>
-                           <outputDirectory>${project.build.directory}/data</outputDirectory>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>      
+          <id>test-yfiles</id>
+          <activation>
+              <property>
+                  <name>test.yfiles</name>
+                  <value>true</value>
+              </property>
+          </activation>
+          <dependencies>
+              <dependency>
+                  <groupId>yfiles</groupId>
+                  <artifactId>yfiles-for-javafx</artifactId>
+                  <version>3.0</version>
+              </dependency>
+          </dependencies>
+      </profile>
       <profile>
          <id>solor-database</id>
          <activation>

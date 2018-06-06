@@ -43,6 +43,9 @@ package sh.isaac.api.commit;
 
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -77,6 +80,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public interface ChronologyChangeListener {
+
+   final static Logger log = LogManager.getLogger(ChronologyChangeListener.class);
    /**
     * Don't do work on or block the calling thread.
     * @param cc a ConceptChronology that has changed, but has not been committed.
@@ -103,5 +108,19 @@ public interface ChronologyChangeListener {
     * @return a unique UUID for this listener.
     */
    UUID getListenerUuid();
+   
+   /**
+    * Disable the listener
+    */
+   default void disable() {
+       log.warn("disable() method not implemented by {}", this.getClass().getSimpleName());
+   }
+
+   /**
+    * Enable the listener
+    */
+   default void enable() {
+       log.warn("enable() method not implemented by {}", this.getClass().getSimpleName());
+   }
 }
 

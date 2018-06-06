@@ -39,17 +39,9 @@
 
 package sh.isaac.api.metacontent;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.concurrent.ConcurrentMap;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * {@link MetaContentService}
@@ -90,37 +82,15 @@ public interface MetaContentService {
    public <K, V> ConcurrentMap<K, V> openStore(String storeName);
 
    /**
-    * Put user prefs.
-    *
-    * @param userId - the nid or sequence of the concept that identifies the user
-    * @param userPrefs - user preference data to store
-    * @return the old value, or null, if no old value
-    */
-   public byte[] putUserPrefs(int userId, StorableUserPreferences userPrefs);
-
-   /**
     * Erase the named store.
     *
     * @param storeName the store name
     */
    public void removeStore(String storeName);
-
+   
    /**
-    * Erase any stored user prefs.
-    *
-    * @param userId the user id
+    * @return The store that carries filename -> true mappings for changeset files that have already been processed into this datastore
     */
-   public void removeUserPrefs(int userId);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the user prefs.
-    *
-    * @param userId - the nid or sequence of the concept that identifies the user
-    * @return the byte[] that stores the user preferences, which was obtained by calling {@link StorableUserPreferences#serialize()}
-    * This value should be able to be passed into the concrete implementation constructor of a class that implements {@link StorableUserPreferences}
-    */
-   public byte[] getUserPrefs(int userId);
+   public ConcurrentMap<String, Boolean> getChangesetStore();
 }
 

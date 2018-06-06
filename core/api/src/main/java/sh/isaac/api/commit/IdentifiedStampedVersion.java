@@ -51,5 +51,8 @@ import sh.isaac.api.identity.StampedVersion;
  * @author kec
  */
 public interface IdentifiedStampedVersion
-        extends CommittableComponent, StampedVersion {}
+        extends CommittableComponent, StampedVersion {
+
+    
+}
 

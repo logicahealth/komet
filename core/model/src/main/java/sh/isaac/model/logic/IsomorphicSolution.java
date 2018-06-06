@@ -42,6 +42,7 @@ package sh.isaac.model.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
+import java.util.OptionalInt;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -206,9 +207,9 @@ public class IsomorphicSolution
                usedNodeIds.add(this.solution[i]);
             }
 
-            final int      referenceParentNodeId = referenceTreeVisitData.getPredecessorNid(i);
-            final int      siblingGroup          = referenceTreeVisitData.getSiblingGroupForNid(i);
-            OpenIntHashSet nodesInSiblingGroup   = siblingGroupToNodeSequenceMap.get(siblingGroup);
+            final OptionalInt referenceParentNodeId = referenceTreeVisitData.getPredecessorNid(i);
+            final int      siblingGroup             = referenceTreeVisitData.getSiblingGroupForNid(i);
+            OpenIntHashSet nodesInSiblingGroup      = siblingGroupToNodeSequenceMap.get(siblingGroup);
 
             if (nodesInSiblingGroup == null) {
                nodesInSiblingGroup = new OpenIntHashSet();
@@ -217,11 +218,11 @@ public class IsomorphicSolution
 
             nodesInSiblingGroup.add(i);
 
-            if (referenceParentNodeId >= 0) {
-               if (parentNodeIds.contains(referenceParentNodeId)) {
+            if (referenceParentNodeId.isPresent()) {
+               if (parentNodeIds.contains(referenceParentNodeId.getAsInt())) {
                   bonus++;
                } else {
-                  parentNodeIds.add(referenceParentNodeId);
+                  parentNodeIds.add(referenceParentNodeId.getAsInt());
                }
             }
          }

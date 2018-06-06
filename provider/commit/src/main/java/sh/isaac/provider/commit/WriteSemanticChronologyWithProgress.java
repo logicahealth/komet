@@ -58,14 +58,14 @@ public class WriteSemanticChronologyWithProgress
 
     //~--- constructors --------------------------------------------------------
     /**
-     * Instantiates a new write sememe chronicle.
+     * Instantiates a new write semantic chronicle.
      *
      * @param sc the sc
      * @param writeSemaphore the write semaphore
      * @param changeListeners the change listeners
      * @param uncommittedTracking A handle to call back to the caller to notify
-     * it that the sememe has been written to the AssemblageService. Parameter 1
-     * is the Sememe, Parameter two is true to indicate that the change checker
+     * it that the semantic has been written to the AssemblageService. Parameter 1
+     * is the Semantic, Parameter two is true to indicate that the change checker
      * is active for this implementation.
      */
     public WriteSemanticChronologyWithProgress(SemanticChronology sc,

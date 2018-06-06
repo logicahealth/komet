@@ -39,6 +39,8 @@ package sh.isaac.provider.datastore.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
@@ -47,11 +49,10 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 
 //~--- classes ----------------------------------------------------------------
@@ -480,18 +481,19 @@ public class TreeNodeVisitDataBdbImpl
    }
 
    /**
-    * Gets the predecessor sequence or -1 if no predecessor.
-    *
-    * @param nodeNid the node nid
-    * @return the predecessor nid
+    * {@inheritDoc}
     */
    @Override
-   public int getPredecessorNid(int nodeNid) {
+   public OptionalInt getPredecessorNid(int nodeNid) {
       int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
       if (nodeSequence == Integer.MAX_VALUE) {
          throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
       }
-      return this.predecessorNidList.getQuick(nodeSequence);
+      int toReturn = this.predecessorNidList.getQuick(nodeSequence);
+      if (toReturn == -1 ) {
+         return OptionalInt.empty();
+      }
+      return OptionalInt.of(toReturn);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -577,7 +579,7 @@ public class TreeNodeVisitDataBdbImpl
    @Override
    public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeNid) {
       if (nodeNid < 0) {
-         int assemblageNid = ModelGet.identifierService().getAssemblageNidForNid(nodeNid);
+         int assemblageNid = ModelGet.identifierService().getAssemblageNid(nodeNid).getAsInt();
          if (assemblageNid < 0) {
             int nodeSequence = ModelGet.identifierService().getElementSequenceForNid(nodeNid);
             // lazy creation to save memory since not all tree traversals want to

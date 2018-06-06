@@ -57,23 +57,19 @@ import sh.isaac.api.util.UuidT5Generator;
  */
 public class UuidFromName {
    /**
-    * This is how to get a UUID that the WB expects from a string in a pom....
-    *
     * @param args the arguments
     * @throws NoSuchAlgorithmException the no such algorithm exception
-    * @throws UnsupportedEncodingException the unsupported encoding exception
+    * @throws UnsupportedEncodingException the unsupported ENCODING exception
     */
    public static void main(String[] args)
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
+      
       System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
-            "VA JIF Terminology Workbench development path"));
+            "Normal member"));
+      
       System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
-            "VA JIF Terminology Workbench development origin"));
-      System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
-            "VA JIF Terminology Workbench release candidate path"));
-      System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets"));
-      System.out.println(UuidT3Generator.fromSNOMED(900000000000003001l));
-      System.out.println(UuidT3Generator.fromSNOMED(900000000000013009l));
+            "Marked parent"));
+
       System.out.println(UuidT3Generator.fromSNOMED(900000000000550004l));
    }
 }

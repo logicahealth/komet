@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>190</Code>  
+  <VUID>190</VUID>   
+  <Active>1</Active>
+
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>244</Code>  
+    <TypeName>Synonym</TypeName>
+    <VUID>244</VUID>  
+    <ValueNew>HELP ME</ValueNew>  
+    <ValueOld>  VUID TEST</ValueOld> 
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>update</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueOld>  ABC</ValueOld> 
+        <ValueNew>YES YES YES</ValueNew>
+        <Active>1</Active>
+      </Property>
+
+      <Property>
+        <Action>update</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueOld>XYZ  </ValueOld> 
+        <ValueNew>OH NO</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+  </Designation></Designations>	
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

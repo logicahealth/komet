@@ -90,7 +90,7 @@ public interface ObservableDescriptionVersion
     *
     * @param caseSignificanceConceptSequence the new case significance concept sequence
     */
-   void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
+   void setCaseSignificanceConceptNid(int caseSignificanceConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -101,7 +101,7 @@ public interface ObservableDescriptionVersion
     *
     * @param descriptionTypeConceptSequence the new description type concept sequence
     */
-   void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
+   void setDescriptionTypeConceptNid(int descriptionTypeConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
    //~--- set methods ---------------------------------------------------------

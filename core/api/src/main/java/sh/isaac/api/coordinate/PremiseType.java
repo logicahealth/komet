@@ -51,12 +51,12 @@ public enum PremiseType {
    /**
     * Compute the taxonomy from stated axioms.
     */
-   STATED("Stated taxonomy"),
+   STATED("Stated"),
 
    /**
     * Compute the taxonomy from inferred axioms.
     */
-   INFERRED("Inferred taxonomy");
+   INFERRED("Inferred");
    
    String displayName;
 

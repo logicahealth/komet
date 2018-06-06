@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>isaac</artifactId>
-      <version>4.47</version>
+      <version>4.48</version>
    </parent>
    <artifactId>integration</artifactId>
    <name>ISAAC integration: (MMP)</name>
@@ -13,19 +13,8 @@
    <modules>
       <module>db-builder</module>
       <module>db-config-builder</module>
+      <module>db-config-builder-ui</module>
       <module>import-utils</module>
       <module>tests</module>
-      <module>meta-db</module>
    </modules>
-   <profiles>
-      <profile>
-         <id>ibdf-differ</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>ibdf-differ</module>
-         </modules>
-      </profile>
-   </profiles>
 </project>

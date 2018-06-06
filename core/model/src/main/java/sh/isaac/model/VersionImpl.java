@@ -80,6 +80,13 @@ public abstract class VersionImpl
    }
 
    //~--- methods -------------------------------------------------------------
+
+   @Override
+   public void addAdditionalUuids(UUID... uuids)
+   {
+      chronicle.addAdditionalUuids(uuids);
+   }
+   
    /**
     * Cancel.
     */
@@ -89,7 +96,6 @@ public abstract class VersionImpl
       }
       int oldStampSequence = this.stampSequence;
       this.stampSequence = -1;
-      this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
    }
 
    /**
@@ -140,10 +146,16 @@ public abstract class VersionImpl
       if (this.stampSequence != otherVersion.stampSequence) {
          return false;
       }
-      return deepEquals2(otherVersion);
+      return dataEquals(otherVersion);
    }
 
-   protected abstract boolean deepEquals2(VersionImpl other);
+   /**
+    * Returns true if the data of this version is equal to the data of another version.
+    * Implementations should ignore STAMP attributes, and just compare the data.
+    * @param other
+    * @return true if equal
+    */
+   public abstract boolean dataEquals(VersionImpl other);
 
    /**
     * A representation of how different two versions are from each other. The author field is weighted such that a
@@ -154,7 +166,7 @@ public abstract class VersionImpl
     */
    public int editDistance(VersionImpl other) {
       int editDistance = 0;
-      if (this.getState() != other.getState()) {
+      if (this.getStatus() != other.getStatus()) {
          editDistance++;
       }
       if (this.getTime() != other.getTime()) {
@@ -242,8 +254,6 @@ public abstract class VersionImpl
     */
    protected void writeVersionData(ByteArrayDataBuffer data) {
       data.putStampSequence(this.stampSequence);
-      // legacy version sequence...
-      data.putShort((short) 0);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -270,12 +280,11 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          authorSequence,
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -317,12 +326,11 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          getAuthorNid(),
                          moduleSequence,
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -342,7 +350,6 @@ public abstract class VersionImpl
                          getAuthorNid(),
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -380,12 +387,11 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          getTime(),
                          getAuthorNid(),
                          getModuleNid(),
                          pathSequence);
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -411,12 +417,12 @@ public abstract class VersionImpl
    }
 
    /**
-    * Gets the state.
+    * Gets the status.
     *
-    * @return the state
+    * @return the status
     */
    @Override
-   public Status getState() {
+   public Status getStatus() {
       return Get.stampService()
               .getStatusForStamp(this.stampSequence);
    }
@@ -444,12 +450,11 @@ public abstract class VersionImpl
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getState(),
+                 .getStampSequence(getStatus(),
                          time,
                          getAuthorNid(),
                          getModuleNid(),
                          getPathNid());
-         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 

@@ -75,7 +75,7 @@ public class DescriptionVersionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new description sememe impl.
+    * Instantiates a new description semantic impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
@@ -86,7 +86,7 @@ public class DescriptionVersionImpl
    }
 
    /**
-    * Instantiates a new description sememe impl.
+    * Instantiates a new description semantic impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
@@ -113,7 +113,7 @@ public class DescriptionVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
-                                       this.getState(),
+                                       this.getStatus(),
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
@@ -248,9 +248,9 @@ public class DescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the sememe type.
+    * Gets the semantic type.
     *
-    * @return the sememe type
+    * @return the semantic type
     */
    @Override
    public VersionType getSemanticType() {
@@ -298,7 +298,7 @@ public class DescriptionVersionImpl
 
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
-      if (!(other instanceof LogicGraphVersionImpl)) {
+      if (!(other instanceof DescriptionVersionImpl)) {
          return false;
       }
       DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;

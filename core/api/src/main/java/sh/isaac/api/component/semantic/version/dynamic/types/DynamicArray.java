@@ -51,7 +51,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
  * {@link DynamicArray}
  *
  * A storage class that allows the creation of a refex column which holds an array of a specific type of {@link DynamicData}
- * items, such as an array of {@link DynamicSememeString}.
+ * items, such as an array of {@link DynamicSemanticString}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @param <T> the generic type

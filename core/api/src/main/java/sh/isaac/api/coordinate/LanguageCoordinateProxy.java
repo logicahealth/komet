@@ -17,6 +17,7 @@
 package sh.isaac.api.coordinate;
 
 import java.util.List;
+import java.util.Optional;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -64,5 +65,8 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, stampCoordinate);
    }
 
-   
+   @Override
+   public default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+      return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+   }
 }

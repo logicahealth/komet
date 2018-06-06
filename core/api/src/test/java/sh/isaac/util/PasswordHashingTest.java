@@ -39,11 +39,12 @@
 
 package sh.isaac.util;
 
+import java.util.Arrays;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import sh.isaac.api.util.PasswordHasher;
 
 //~--- classes ----------------------------------------------------------------
@@ -62,15 +63,14 @@ public class PasswordHashingTest {
    @Test
    public void encryptTestFour()
             throws Exception {
-      final String password  = "";
+      final char[] password  = "".toCharArray();
       final String data      = "some data";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString(password, "wrong encrypted string");
+         final String decrypted = new String(PasswordHasher.decrypt("wrongPassword".toCharArray(), encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -87,15 +87,14 @@ public class PasswordHashingTest {
    @Test
    public void encryptTestOne()
             throws Exception {
-      final String password  = "$sentences_make_better_passwords....";
+      final char[] password  = "$sentences_make_better_passwords....".toCharArray();
       final String data      = "There was a man with a plan";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("wrongPassword", encrypted);
+          String decrypted = new String(PasswordHasher.decrypt("wrongPassword".toCharArray(), encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -112,16 +111,15 @@ public class PasswordHashingTest {
    @Test
    public void encryptTestThree()
             throws Exception {
-      final String password =
-         "µJû5¥¨J«eÜäÅT5¼, BìRß¸jAf½çx.îüöìÍj(Çõïkêpùnðö7¾&Äÿ÷)ÆJgn,GÂá÷+¦òxÂÍ«`¯JXÁ%Ò*ÖtÝ]Ú%U~ÂÅ¿=Ü*º'X·íY(Ù0";
+      final char[] password =
+         "µJû5¥¨J«eÜäÅT5¼, BìRß¸jAf½çx.îüöìÍj(Çõïkêpùnðö7¾&Äÿ÷)ÆJgn,GÂá÷+¦òxÂÍ«`¯JXÁ%Ò*ÖtÝ]Ú%U~ÂÅ¿=Ü*º'X·íY(Ù0".toCharArray();
       final String data      = "";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("wrongPassword", encrypted);
+          String decrypted = new String(PasswordHasher.decrypt("wrongPassword".toCharArray(), encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
@@ -138,20 +136,46 @@ public class PasswordHashingTest {
    @Test
    public void encryptTestTwo()
             throws Exception {
-      final String password  = "simple";
+      final char[] password  = "simple".toCharArray();
       final String data      = "There was a man with a plan that wasn't very good";
       final String encrypted = PasswordHasher.encrypt(password, data);
 
-      Assert.assertTrue(PasswordHasher.decryptToString(password, encrypted)
-                                      .equals(data));
+      Assert.assertTrue(Arrays.equals(PasswordHasher.decrypt(password, encrypted), data.getBytes()));
 
       try {
-         final String decrypted = PasswordHasher.decryptToString("", encrypted);
+          String decrypted =  new String(PasswordHasher.decrypt("".toCharArray(), encrypted));
 
          Assert.assertFalse(decrypted.equals(data));
          Assert.fail("Expected an exception, but instead got decrypted data: '" + decrypted + "'");
       } catch (final Exception e) {
          // expected
+      }
+   }
+   
+   @Test
+   public void encryptTestFive()
+            throws Exception {
+      final char[] password  = "simple".toCharArray();
+      final String data      = "There was a man with a plan that wasn't very good";
+      final String encrypted = PasswordHasher.encrypt(password, data);
+
+      Assert.assertEquals(PasswordHasher.decryptToString(password, encrypted), data);
+
+   }
+   
+   @Test
+   public void encryptTestSix()
+            throws Exception {
+      final char[] password  = "simple".toCharArray();
+      final char[] data      = "There was a man with a plan that wasn't very good".toCharArray();
+      final String encrypted = PasswordHasher.encrypt(password, data);
+
+      char[] decrypted = PasswordHasher.decryptToChars(password, encrypted);
+      
+      Assert.assertEquals(decrypted.length, data.length);
+      for (int i = 0; i < data.length; i++)
+      {
+         Assert.assertEquals(decrypted[i], data[i]);
       }
    }
 
@@ -163,11 +187,11 @@ public class PasswordHashingTest {
    @Test
    public void hashTestFour()
             throws Exception {
-      final String password     = "$sentences_make_better_$$$passwords....";
+      final char[] password     = "$sentences_make_better_---passwords....".toCharArray();
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
       Assert.assertTrue(PasswordHasher.check(password, passwordHash));
-      Assert.assertFalse(PasswordHasher.check("$", passwordHash));
+      Assert.assertFalse(PasswordHasher.check("-".toCharArray(), passwordHash));
    }
 
    /**
@@ -178,11 +202,11 @@ public class PasswordHashingTest {
    @Test
    public void hashTestOne()
             throws Exception {
-      final String password     = "My password is really good!";
+      final char[] password     = "My password is really good!".toCharArray();
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
-      Assert.assertTrue(PasswordHasher.check(password, passwordHash));
-      Assert.assertFalse(PasswordHasher.check("not my password", passwordHash));
+      Assert.assertTrue("had hash '" + passwordHash + "', second calc:" + PasswordHasher.getSaltedHash(password), PasswordHasher.check(password, passwordHash));
+      Assert.assertFalse(PasswordHasher.check("not my password".toCharArray(), passwordHash));
    }
 
    /**
@@ -193,12 +217,12 @@ public class PasswordHashingTest {
    @Test
    public void hashTestThree()
             throws Exception {
-      final String password =
-         "µJû5¥¨J«eÜäÅT5¼, BìRß¸jAf½çx.îüöìÍj(Çõïkêpùnðö7¾&Äÿ÷)ÆJgn,GÂá÷+¦òxÂÍ«`¯JXÁ%Ò*ÖtÝ]Ú%U~ÂÅ¿=Ü*º'X·íY(Ù0";
+      final char[] password =
+         "µJû5¥¨J«eÜäÅT5¼, BìRß¸jAf½çx.îüöìÍj(Çõïkêpùnðö7¾&Äÿ÷)ÆJgn,GÂá÷+¦òxÂÍ«`¯JXÁ%Ò*ÖtÝ]Ú%U~ÂÅ¿=Ü*º'X·íY(Ù0".toCharArray();
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
       Assert.assertTrue(PasswordHasher.check(password, passwordHash));
-      Assert.assertFalse(PasswordHasher.check("", passwordHash));
+      Assert.assertFalse(PasswordHasher.check("".toCharArray(), passwordHash));
    }
 
    /**
@@ -209,11 +233,11 @@ public class PasswordHashingTest {
    @Test
    public void hashTestTwo()
             throws Exception {
-      final String password     = "password";
+      final char[] password     = "password".toCharArray();
       final String passwordHash = PasswordHasher.getSaltedHash(password);
 
       Assert.assertTrue(PasswordHasher.check(password, passwordHash));
-      Assert.assertFalse(PasswordHasher.check("fred", passwordHash));
+      Assert.assertFalse(PasswordHasher.check("fred".toCharArray(), passwordHash));
    }
 }
 

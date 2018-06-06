@@ -39,37 +39,34 @@
 
 package sh.isaac.api.externalizable.json;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 import java.io.Writer;
-
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.cedarsoftware.util.io.JsonWriter;
-
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link Writers}
  *
- * An experimental class that doesn't work yet due to upstream bugs.
+ * Some custom json writers for concepts and semantics
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -99,10 +96,6 @@ public class Writers {
          output.write(cc.getNid() + "");
          output.write("\",");
          mainWriter.newLine();
-         output.write("\"conceptSequence\":\"");
-         output.write(cc.getNid() + "");
-         output.write("\",");
-         mainWriter.newLine();
          output.write("\"uuidList\":[");
          mainWriter.tabIn();
 
@@ -121,8 +114,47 @@ public class Writers {
 
          output.write(temp.toString());
          mainWriter.tabOut();
+         output.write("],");
+         
+         mainWriter.newLine();
+         output.write("\"versions\":[");
+         mainWriter.tabIn();
+         
+         boolean first = true;
+         
+         for (final Version sv: cc.getVersionList()) {
+             if (first) {
+                first = false;
+                output.write("{");
+             } else {
+                output.write(",");
+                mainWriter.newLine();
+                output.write("{");
+             }
+
+             mainWriter.tabIn();
+
+             if (showType) {
+                output.write("\"@type\":\"");
+                output.write(sv.getClass()
+                               .getName());
+                output.write("\",");
+                mainWriter.newLine();
+             }
+             
+             output.write("\"status\":\"");
+             output.write(sv.getStatus().toString() + "");
+             output.write("\",");
+             mainWriter.newLine();
+             output.write("\"time\":\"");
+             output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
+             output.write("\"");
+             mainWriter.tabOut();
+             output.write("}");
+         }
+         mainWriter.tabOut();
          output.write("]");
-      }
+       }
    }
 
 
@@ -144,19 +176,16 @@ public class Writers {
       @Override
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
-         @SuppressWarnings("unchecked")
          final SemanticChronology sc         = (SemanticChronology) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
-         output.write("\"sememeType\":\"");
+         output.write("\"semanticType\":\"");
          output.write(sc.getVersionType()
                         .name());
          output.write("\",");
          mainWriter.newLine();
          output.write("\"nid\":\"");
          output.write(sc.getNid() + "");
-         output.write("\",");
-         mainWriter.newLine();
          output.write("\",");
          mainWriter.newLine();
          output.write("\"uuidList\":[");
@@ -214,6 +243,15 @@ public class Writers {
                output.write("\",");
                mainWriter.newLine();
             }
+            
+            output.write("\"status\":\"");
+            output.write(sv.getStatus().toString() + "");
+            output.write("\",");
+            mainWriter.newLine();
+            output.write("\"time\":\"");
+            output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
+            output.write("\",");
+            mainWriter.newLine();
 
             if (sv instanceof DescriptionVersion) {
                final DescriptionVersion ds = (DescriptionVersion) sv;
@@ -230,9 +268,8 @@ public class Writers {
                output.write(ds.getDescriptionTypeConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
-               output.write("\"text\":\"");
-               output.write(ds.getText() + "");
-               output.write("\"");
+               output.write("\"text\":");
+               mainWriter.write(ds.getText());
             } else if (sv instanceof ComponentNidVersion) {
                final ComponentNidVersion cns = (ComponentNidVersion) sv;
 
@@ -253,6 +290,7 @@ public class Writers {
                final LogicalExpression   le   = lgs.getLogicalExpression();
                final LogicNode           root = le.getRoot();
 
+               ArrayList<String> parents = new ArrayList<>();
                for (final LogicNode necessaryOrSufficient: root.getChildren()) {
                   for (final LogicNode connector: necessaryOrSufficient.getChildren()) {
                      for (final LogicNode target: connector.getChildren()) {
@@ -260,12 +298,9 @@ public class Writers {
                            // Hack ALERT!
                            // This should look like this: Concept[1] ISAAC metadata (ISAAC) <14>
                            final String conceptString = target.toString();
-
                            if (conceptString.contains("<") && conceptString.contains(">")) {
-                              output.write("\"parentConceptSequence\":\"");
-                              output.write(conceptString.substring(conceptString.lastIndexOf('<') + 1,
+                              parents.add(conceptString.substring(conceptString.lastIndexOf('<') + 1,
                                     conceptString.lastIndexOf('>')));
-                              output.write("\"");
                            } else {
                               output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
                            }
@@ -274,6 +309,22 @@ public class Writers {
                         }
                      }
                   }
+               }
+               
+               if (parents.size() > 0)
+               {
+                  output.write("\"parentConceptSequence\":[");
+                  mainWriter.tabIn();
+                  for (int i = 0; i < parents.size(); i++)
+                  {
+                     output.write("\"" + parents.get(i) + "\"");
+                     if (i < parents.size() - 1) {
+                        output.write(",");
+                        mainWriter.newLine();
+                     }
+                  }
+                  mainWriter.tabOut();
+                  output.write("]");
                }
             } else if (sv instanceof LongVersion) {
                final LongVersion ls = (LongVersion) sv;
@@ -288,7 +339,7 @@ public class Writers {
                output.write(ss.getString());
                output.write("\"");
             } else {
-               // Sememe Version - no extra fields
+               // Semantic Version - no extra fields
             }
 
             mainWriter.tabOut();

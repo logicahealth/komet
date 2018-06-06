@@ -42,6 +42,7 @@ package sh.isaac.api.identity;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -72,7 +73,7 @@ public interface IdentifiedObject {
     *
     * @return the nid
     */
-   default int getNid() {
+   default int getNid() throws NoSuchElementException{
       return Get.identifierService()
                 .getNidForUuids(getUuidList());
    }
@@ -87,16 +88,19 @@ public interface IdentifiedObject {
 
 
    /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
+    * If not yet set via a call to {@link IdentifiedComponentBuilder#setPrimordialUuid(UUID)},  or {@link IdentifiedComponentBuilder#setT5Uuid()}
+    * a randomly generated UUID will be created and returned.
+    * 
+    * Otherwise, return already set value.
+    * @param uuid
+    * @return the builder for chaining of operations in a fluent pattern.
     */
    default UUID getPrimordialUuid() {
       return getUuidList().get(0);
    }
 
    /**
-    * Gets the uuid list.
+    * Gets a COPY of the uuid list.  Edits to the returned list are not stored.
     *
     * @return the uuid list
     */

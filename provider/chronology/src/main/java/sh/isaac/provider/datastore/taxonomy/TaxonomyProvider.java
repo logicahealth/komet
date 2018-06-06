@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 
@@ -92,6 +93,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
@@ -99,6 +101,9 @@ import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.coordinate.StampCoordinateImpl;
+import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.model.DataStore;
 import sh.isaac.provider.datastore.identifier.IdentifierProvider;
@@ -109,7 +114,7 @@ import sh.isaac.provider.datastore.identifier.IdentifierProvider;
  * @author kec
  */
 @Service
-@RunLevel(value = 5)
+@RunLevel(value = LookupService.SL_L4)
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 
@@ -188,6 +193,13 @@ public class TaxonomyProvider
         this.updatePermits.acquireUninterruptibly();
         UpdateTaxonomyAfterCommitTask updateTask
                 = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
+        try {
+            //wait for completion
+            updateTask.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Unexpected error waiting for taxonomy update after commit", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -229,37 +241,38 @@ public class TaxonomyProvider
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
+        LOG.debug("Updating taxonomy for commit to {}", () -> logicGraphChronology.toString());
         try {
-            if (TermAux.SOLOR_METADATA.getNid() == logicGraphChronology.getReferencedComponentNid()) {
-                LOG.info("Found watch");
-            }
             ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
         } catch (Throwable e) {
-            LOG.error(e);
+            LOG.error("error processing taxonomy update", e);
             throw e;
         }
     }
 
-    @Override
-    public boolean wasEverKindOf(int childId, int parentId) {
-        throw new UnsupportedOperationException(
-                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-    }
-
+//    @Override
+//    public boolean wasEverKindOf(int childId, int parentId) {
+//        throw new UnsupportedOperationException(
+//                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+//    }
     /**
      * Start me.
      */
     @PostConstruct
     private void startMe() {
         try {
-            LOG.info("Starting BdbTaxonomyProvider post-construct");
+            LOG.info("Starting TaxonomyProvider post-construct");
             this.store = Get.service(DataStore.class);
             Get.commitService()
                     .addChangeListener(this);
             this.identifierService = Get.service(IdentifierProvider.class);
+            this.semanticNidsForUnhandledChanges.clear();
+            this.pendingUpdateTasks.clear();
+            this.snapshotCache.clear();
+            this.refreshListeners.clear();
         } catch (final Exception e) {
             LookupService.getService(SystemStatusService.class)
-                    .notifyServiceConfigurationFailure("Bdb Taxonomy Provider", e);
+                    .notifyServiceConfigurationFailure("Taxonomy Provider", e);
             throw new RuntimeException(e);
         }
     }
@@ -269,11 +282,22 @@ public class TaxonomyProvider
      */
     @PreDestroy
     private void stopMe() {
-        LOG.info("Stopping BdbTaxonomyProvider");
+        LOG.info("Stopping TaxonomyProvider");
         try {
+            // ensure all pending operations have completed. 
+            for (Task<?> updateTask : this.pendingUpdateTasks) {
+                updateTask.get();
+            }
             this.sync().get();
+            this.semanticNidsForUnhandledChanges.clear();
+            this.pendingUpdateTasks.clear();
+            this.snapshotCache.clear();
+            this.refreshListeners.clear();
+            this.identifierService = null;
+            this.store = null;
+            Get.commitService().removeChangeListener(this);
         } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
+            LOG.error("Exception during service stop. ", ex);
         }
         // make sure updates are done prior to allowing other services to stop.
         this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
@@ -289,7 +313,7 @@ public class TaxonomyProvider
 
     @Override
     public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
         int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
@@ -304,7 +328,7 @@ public class TaxonomyProvider
 
     @Override
     public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
-        int assemblageNid = identifierService.getAssemblageNidForNid(conceptNid);
+        int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(assemblageNid);
         int[] taxonomyData = origin_DestinationTaxonomyRecord_Map.get(conceptNid);
 
@@ -318,18 +342,18 @@ public class TaxonomyProvider
     }
 
     @Override
-    public UUID getDataStoreId() {
+    public Optional<UUID> getDataStoreId() {
         return this.store.getDataStoreId();
     }
 
     @Override
-    public Path getDatabaseFolder() {
-        return this.store.getDatabaseFolder();
+    public Path getDataStorePath() {
+        return this.store.getDataStorePath();
     }
 
     @Override
-    public DatabaseValidity getDatabaseValidityStatus() {
-        return this.store.getDatabaseValidityStatus();
+    public DataStoreStartState getDataStoreStartState() {
+        return this.store.getDataStoreStartState();
     }
 
     @Override
@@ -342,6 +366,14 @@ public class TaxonomyProvider
     }
 
     @Override
+    public TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
+        return getSnapshot(new ManifoldCoordinateImpl(
+                new StampCoordinateImpl(StampPrecedence.TIME,
+                        new StampPositionImpl(Long.MAX_VALUE, pathNid),
+                        modules, allowedStates), null));
+    }
+
+    @Override
     public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
         Task<Tree> treeTask = getTaxonomyTree(tc);
 
@@ -350,7 +382,7 @@ public class TaxonomyProvider
 
     private TaxonomyRecordPrimitive getTaxonomyRecord(int nid) {
         int conceptAssemblageNid = ModelGet.identifierService()
-                .getAssemblageNidForNid(nid);
+                .getAssemblageNid(nid).getAsInt();
         SpinedIntIntArrayMap map = getTaxonomyRecordMap(conceptAssemblageNid);
         int[] record = map.get(nid);
 
@@ -363,6 +395,7 @@ public class TaxonomyProvider
     }
 
     private class SnapshotCacheKey {
+
         PremiseType taxPremiseType;
         StampCoordinate stampCoordinate;
 
@@ -398,8 +431,9 @@ public class TaxonomyProvider
             }
             return true;
         }
-        
+
     }
+
     public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
         SnapshotCacheKey snapshotCacheKey = new SnapshotCacheKey(tc);
         final Task<Tree> treeTask = this.snapshotCache.get(snapshotCacheKey);
@@ -408,10 +442,12 @@ public class TaxonomyProvider
             return treeTask;
         }
 
+        LOG.debug("Building tree for {}", tc);
         SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = store.getTaxonomyMap(
                 tc.getLogicCoordinate()
                         .getConceptAssemblageNid());
         TreeBuilderTask treeBuilderTask = new TreeBuilderTask(origin_DestinationTaxonomyRecord_Map, tc);
+
         Task<Tree> previousTask = this.snapshotCache.putIfAbsent(snapshotCacheKey, treeBuilderTask);
 
         if (previousTask != null) {
@@ -419,8 +455,8 @@ public class TaxonomyProvider
             return previousTask;
         }
 
-        Get.executor()
-                .execute(treeBuilderTask);
+        Get.executor().execute(treeBuilderTask);
+
         return treeBuilderTask;
     }
 
@@ -466,34 +502,36 @@ public class TaxonomyProvider
             this.tc = tc;
             this.treeTask = treeTask;
 
-            if (Platform.isFxApplicationThread()) {
-                this.treeTask.stateProperty()
-                        .addListener(this::succeeded);
-            } else {
-                Platform.runLater(
-                        () -> {
-                            Task<Tree> theTask = treeTask;
+            if (!treeTask.isDone()) {
+                if (Platform.isFxApplicationThread()) {
+                    this.treeTask.stateProperty()
+                            .addListener(this::succeeded);
+                } else {
+                    Platform.runLater(
+                            () -> {
+                                Task<Tree> theTask = treeTask;
 
-                            if (theTask != null) {
-                                if (!theTask.isDone()) {
-                                    theTask.stateProperty()
-                                            .addListener(this::succeeded);
-                                } else {
-                                    try {
-                                        this.treeSnapshot = treeTask.get();
-                                    } catch (InterruptedException | ExecutionException ex) {
-                                        LOG.error(ex);
+                                if (theTask != null) {
+                                    if (!theTask.isDone()) {
+                                        theTask.stateProperty()
+                                                .addListener(this::succeeded);
+                                    } else {
+                                        try {
+                                            this.treeSnapshot = treeTask.get();
+                                        } catch (InterruptedException | ExecutionException ex) {
+                                            LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                }
             }
 
             if (treeTask.isDone()) {
                 try {
                     this.treeSnapshot = treeTask.get();
                 } catch (InterruptedException | ExecutionException ex) {
-                    LOG.error(ex);
+                    LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                     throw new RuntimeException(ex);
                 }
             }
@@ -508,7 +546,7 @@ public class TaxonomyProvider
                     }
                 }
             } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
+                LOG.error("Unexpected error in succeeded call", ex);
                 throw new RuntimeException(ex);
             }
         }
@@ -659,7 +697,7 @@ public class TaxonomyProvider
 
                 return treeTask.get();
             } catch (InterruptedException | ExecutionException ex) {
-                LOG.error(ex);
+                LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                 throw new RuntimeException(ex);
             }
         }

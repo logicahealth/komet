@@ -139,6 +139,9 @@ public class LanguageCoordinates {
     * @return the int
     */
    public static int iso639toConceptNid(String iso639text) {
+     //TODO we should really get rid of all of this hard-coded stuff and replace it with putting proper language codes 
+     //directly into the metadata concept definitions, where they should be, so this can just be a query.... 
+     //SeeAlso LanguageMap, for yet another implementation of all of this stuff...
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
          return Get.identifierService()
@@ -195,46 +198,46 @@ public class LanguageCoordinates {
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.ENGLISH_LANGUAGE.getUuids());
 
       case "es":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.SPANISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.SPANISH_LANGUAGE.getUuids());
 
       case "fr":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.FRENCH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.FRENCH_LANGUAGE.getUuids());
 
       case "da":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.DANISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.DANISH_LANGUAGE.getUuids());
 
       case "pl":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.POLISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.POLISH_LANGUAGE.getUuids());
 
       case "nl":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.DUTCH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.DUTCH_LANGUAGE.getUuids());
 
       case "lt":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.LITHUANIAN_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.LITHUANIAN_LANGUAGE.getUuids());
 
       case "zh":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.CHINESE_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.CHINESE_LANGUAGE.getUuids());
 
       case "ja":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.JAPANESE_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.JAPANESE_LANGUAGE.getUuids());
 
       case "sv":
          return Get.identifierService()
-                   .getNidForUuids(TermAux.SWEDISH_DESCRIPTION_ASSEMBLAGE.getUuids());
+                   .getNidForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
 
       default:
-         throw new UnsupportedOperationException("sx Can't handle: " + iso639text);
+         throw new UnsupportedOperationException("Can't handle: " + iso639text);
       }
    }
 

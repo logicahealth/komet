@@ -76,7 +76,7 @@ public interface DescriptionBuilderService {
     * Gets the description builder.
     *
     * @param descriptionText the description text
-    * @param conceptSequence the concept sequence
+    * @param conceptNid the concept sequence
     * @param descriptionType the description type
     * @param languageForDescription the language for description
     * @return the description builder

@@ -35,18 +35,14 @@
  *
  */
 
-
-
 package sh.isaac.provider.commit;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
@@ -59,9 +55,7 @@ import javax.annotation.PreDestroy;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.ChangeSetLoadService;
@@ -69,9 +63,15 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
+import sh.isaac.model.configuration.StampCoordinates;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,13 +88,12 @@ import sh.isaac.api.util.metainf.MetaInfReader;
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service
-@RunLevel(value = 5)
+@RunLevel(value = LookupService.SL_L4)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant CHANGESETS. */
    private static final String CHANGESETS = "changesets";
 
    /** The Constant CHANGESETS_ID. */
@@ -102,9 +101,6 @@ public class ChangeSetLoadProvider
 
    /** The Constant MAVEN_ARTIFACT_IDENTITY. */
    private static final String MAVEN_ARTIFACT_IDENTITY = "dbMavenArtifactIdentity.txt";
-
-   /** The database path. */
-   private static Optional<Path> databasePath;
 
    //~--- fields --------------------------------------------------------------
 
@@ -188,10 +184,9 @@ public class ChangeSetLoadProvider
    private void startMe() {
       try {
          LOG.info("Loading change set files.");
-         databasePath       = LookupService.getService(ConfigurationService.class)
+         Path databasePath       = LookupService.getService(ConfigurationService.class)
                                            .getDataStoreFolderPath();
-         this.changesetPath = databasePath.get()
-                                          .resolve(CHANGESETS);
+         this.changesetPath = databasePath.resolve(CHANGESETS);
          Files.createDirectories(this.changesetPath);
 
          if (!this.changesetPath.toFile()
@@ -201,7 +196,7 @@ public class ChangeSetLoadProvider
          }
 
          final UUID chronicleDbId = Get.conceptService()
-                                       .getDataStoreId();
+                                       .getDataStoreId().orElse(null);
 
          if (chronicleDbId == null) {
             throw new RuntimeException("Chronicle store did not return a dbId!");
@@ -232,21 +227,48 @@ public class ChangeSetLoadProvider
          } catch (final IOException e) {
             LOG.error("Error writing maven artifact identity file", e);
          }
+         
+         UUID semanticDbId = readSemanticDbId();
 
+         if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
+            msg.append(" SemanticDbId: ").append(semanticDbId);
+            msg.append(" Changsets DbId: ").append(changesetsDbId);
+            throw new RuntimeException(msg.toString());
+         }
 
-         // if the semanticDbId is null, lets wait and see if it appears after processing the changesets.
+         if (changesetsDbId == null) {
+            changesetsDbId = chronicleDbId;
+            Files.write(changesetsIdPath, changesetsDbId.toString().getBytes());
+         }
+
          // We store the list of files that we have already read / processed in the metacontent store, so we don't have to process them again.
          // files that "appear" in this folder via the git integration, for example, we will need to process - but files that we create
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
          // files as it writes them.
-         final MetaContentService mcs = LookupService.get()
-                                                     .getService(MetaContentService.class);
+         final MetaContentService mcs = LookupService.get().getService(MetaContentService.class);
+         if (mcs == null) {
+            LOG.warn("No implemantation of a MetaContentService is available, this will lead to reprocessing of all changeset files on each startup");
+         }
+         this.processedChangesets = (mcs == null) ? null : mcs.getChangesetStore();
 
-         this.processedChangesets = (mcs == null) ? null
-               : mcs.<String, Boolean>openStore("processedChangesets");
+         readChangesetFiles();
 
-         final int loaded = readChangesetFiles();
+         if (semanticDbId == null) {
+            semanticDbId = readSemanticDbId();
+            
+            if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
+               StringBuilder msg = new StringBuilder();
+               msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
+               msg.append(" SemanticDbId: ").append(semanticDbId);
+               msg.append(" Changsets DbId: ").append(changesetsDbId);
+               throw new RuntimeException(msg.toString());
+            }
+         }
 
+         //Its possible that during initial startup, there will won't be a semantic ID at this point.  The lookupservice startup sequence 
+         //will resolve this later.
 
       } catch (final IOException | RuntimeException e) {
          LOG.error("Error ", e);
@@ -255,6 +277,22 @@ public class ChangeSetLoadProvider
          throw new RuntimeException(e);
       }
    }
+   
+   private UUID readSemanticDbId() {
+      Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+            .findFirst();
+      if (sdic.isPresent()) {
+         LatestVersion<Version> sdi = sdic.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         if (sdi.isPresent()) {
+            try {
+               return UUID.fromString(((StringVersion) sdi.get()).getString());
+            } catch (Exception e) {
+               LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+            }
+         }
+      }
+      return null;
+   }
 
    /**
     * Stop me.
@@ -262,6 +300,7 @@ public class ChangeSetLoadProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Finished ChangeSet Load Provider pre-destory.");
+      this.processedChangesets = null;
    }
 }
 

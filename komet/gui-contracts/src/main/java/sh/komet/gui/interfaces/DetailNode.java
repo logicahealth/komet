@@ -16,50 +16,24 @@
  */
 package sh.komet.gui.interfaces;
 
-import java.util.Optional;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.scene.Node;
-import sh.komet.gui.manifold.Manifold;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
-public interface DetailNode {
-   /**
-    * A title as might be used to provide a title in a tab for a DetailNode. 
-    * @return the read-only property for the title.  
-    */
-   ReadOnlyProperty<String> getTitle(); 
-   
-   /**
-    * An optional node to use in addition the title. If the DetailNode wishes to 
-    * support drag and drop within a tab or other titled control, use this option. 
-    * The optional node may include the text of the current focused concept. If duplicate 
-    * display of the concept text may result, make the title property display an empty
-    * string if the titleNode has been constructed. 
-    * @return a Node to represent the title of this DetailNode. 
-    */
-   Optional<Node> getTitleNode();
-   
-   /**
-    * Tool tip text to explain this node in more detail that a title would. 
-    * @return the read-only property for the tool-tip text.
-    */
-   ReadOnlyProperty<String> getToolTip(); 
-   
+@Contract
+public interface DetailNode extends ExplorationNode
+{
+
    /**
     * 
     * @return true if the detail node should become the selected (frontmost)
-    * tab within a TabPane or similar construct when the focused 
-    * concept changes. 
+    *         tab within a TabPane or similar construct when the focused
+    *         concept changes.
+    * 
+    *         TODO [KEC] How can this possible work? The nodes can't declare which one should be selected, as soon as you have more than one,
+    *         which one do you select?
     */
    boolean selectInTabOnChange();
-   
-   /**
-    * 
-    * @return the Manifold associated with this DetailNode. 
-    */
-   Manifold getManifold();
-   
 }

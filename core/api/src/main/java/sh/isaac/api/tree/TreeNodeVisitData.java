@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.tree;
 
+import java.util.OptionalInt;
 import java.util.Set;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -34,6 +35,17 @@ public interface TreeNodeVisitData {
    void endNodeVisit(int nodeId);
 
    Set<int[]> getCycleSet();
+   
+   default boolean nidInCycle(int nid) {
+      for (int[] nids : getCycleSet()) {
+         for (int cycleNid : nids) {
+            if (cycleNid == nid) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
 
    //~--- get methods ---------------------------------------------------------
    /**
@@ -110,12 +122,12 @@ public interface TreeNodeVisitData {
    int getNodesVisited();
 
    /**
-    * Gets the predecessor nid or -1 if no predecessor.
+    * Gets the predecessor nid or empty if no predecessor.
     *
     * @param nodeId the node id
     * @return the predecessor nid
     */
-   int getPredecessorNid(int nodeId);
+   OptionalInt getPredecessorNid(int nodeId);
 
    //~--- get methods ---------------------------------------------------------
    /**

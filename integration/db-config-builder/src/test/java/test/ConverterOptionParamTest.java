@@ -42,14 +42,11 @@ package test;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.pombuilder.GitPublish;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 
@@ -62,63 +59,23 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
  */
 public class ConverterOptionParamTest {
    /**
-    * Test changeset URL rewrite.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   @Test
-   public void testChangesetURLRewrite()
-            throws IOException {
-      Assert.assertEquals("https://git.isaac.sh/git/r/contentConfigurations.git",
-                          GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh/git/"));
-      Assert.assertEquals("https://git.isaac.sh/git/r/contentConfigurations.git",
-                          GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh/git"));
-      Assert.assertEquals("http://git.isaac.sh/git/r/contentConfigurations.git",
-                          GitPublish.constructChangesetRepositoryURL("http://git.isaac.sh/git/"));
-      Assert.assertEquals("https://git.isaac.sh/git/r/contentConfigurations.git",
-                          GitPublish.constructChangesetRepositoryURL(
-                              "https://git.isaac.sh/git/r/contentConfigurations.git"));
-      Assert.assertEquals("https://git.isaac.sh/git/r/foo.git",
-                          GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh/git/r/foo.git"));
-   }
-
-   /**
     * Test json.
     *
     * @throws Exception the exception
     */
    @Test
-   public void testJson()
-            throws Exception {
-      final ConverterOptionParam foo = new ConverterOptionParam("cc",
-                                                                "a",
-                                                                "b",
-                                                                true,
-                                                                true,
-                                                                new ConverterOptionParamSuggestedValue("e", "e1"),
-                                                                new ConverterOptionParamSuggestedValue("f"));
-
-      Assert.assertEquals("e", foo.getSuggestedPickListValues()[0]
-                                  .getValue());
-      Assert.assertEquals("e1", foo.getSuggestedPickListValues()[0]
-                                   .getDescription());
-      Assert.assertEquals("f", foo.getSuggestedPickListValues()[1]
-                                  .getValue());
-      Assert.assertEquals("f", foo.getSuggestedPickListValues()[1]
-                                  .getDescription());
-
-      final ConverterOptionParam foo2 = new ConverterOptionParam("33",
-                                                                 "1",
-                                                                 "2",
-                                                                 true,
-                                                                 false,
-                                                                 new ConverterOptionParamSuggestedValue("3", "31"),
-                                                                 new ConverterOptionParamSuggestedValue("4", "41"));
-
+   public void testJson() throws Exception {
+      ConverterOptionParam foo = new ConverterOptionParam("cc", "a", "b", true, true, new ConverterOptionParamSuggestedValue("e", "e1"),
+            new ConverterOptionParamSuggestedValue("f"));
+      Assert.assertEquals("e", foo.getSuggestedPickListValues()[0].getValue());
+      Assert.assertEquals("e1", foo.getSuggestedPickListValues()[0].getDescription());
+      Assert.assertEquals("f", foo.getSuggestedPickListValues()[1].getValue());
+      Assert.assertEquals("f", foo.getSuggestedPickListValues()[1].getDescription());
+      ConverterOptionParam foo2 = new ConverterOptionParam("33", "1", "2", true, false, new ConverterOptionParamSuggestedValue("3", "31"),
+            new ConverterOptionParamSuggestedValue("4", "41"));
       ConverterOptionParam.serialize(new ConverterOptionParam[] { foo, foo2 }, new File("foo.json"));
 
-      final ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
-
+      ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
       Assert.assertEquals(foo3[0], foo);
       Assert.assertEquals(foo3[1], foo2);
       new File("foo.json").delete();

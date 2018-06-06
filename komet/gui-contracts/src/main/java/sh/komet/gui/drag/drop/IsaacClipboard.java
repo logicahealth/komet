@@ -81,7 +81,7 @@ public class IsaacClipboard
    public static final Set<DataFormat> CONCEPT_TYPES = new HashSet<>(Arrays.asList(ISAAC_CONCEPT, ISAAC_CONCEPT_VERSION));
    public static final Set<DataFormat> DESCRIPTION_TYPES = new HashSet<>(Arrays.asList(ISAAC_DESCRIPTION, ISAAC_DESCRIPTION_VERSION));
    public static final Set<DataFormat> GRAPH_TYPES = new HashSet<>(Arrays.asList(ISAAC_GRAPH, ISAAC_GRAPH_VERSION));
-   public static final Set<DataFormat> SEMEME_TYPES = new HashSet<>(Arrays.asList(ISAAC_SEMANTIC, ISAAC_SEMANTIC_VERSION, 
+   public static final Set<DataFormat> SEMANTIC_TYPES = new HashSet<>(Arrays.asList(ISAAC_SEMANTIC, ISAAC_SEMANTIC_VERSION, 
            ISAAC_GRAPH, ISAAC_GRAPH_VERSION, ISAAC_DESCRIPTION, ISAAC_DESCRIPTION_VERSION));
    
    public static boolean containsAny(Collection<?> c1,
@@ -121,7 +121,7 @@ public class IsaacClipboard
             SemanticChronology semanticChronology = (SemanticChronology) identifiedObject;
 
             if (null == semanticChronology.getVersionType()) {
-               throw new IllegalStateException("SememeType cannot be null");
+               throw new IllegalStateException("SemanticType cannot be null");
             } else {
                switch (semanticChronology.getVersionType()) {
                   case DESCRIPTION:
@@ -165,9 +165,9 @@ public class IsaacClipboard
 //            conceptVersion.getChronology().putExternal(dataBuffer);
 //            this.put(ISAAC_CONCEPT_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
 //         } else if (version instanceof SemanticVersion) {
-//            SemanticVersion sememeVersion = (SemanticVersion) version;
-//            sememeVersion.getChronology().putExternal(dataBuffer);
-//            switch (sememeVersion.getChronology().getVersionType()) {
+//            SemanticVersion semanticVersion = (SemanticVersion) version;
+//            semanticVersion.getChronology().putExternal(dataBuffer);
+//            switch (semanticVersion.getChronology().getVersionType()) {
 //               case DESCRIPTION:
 //                  this.put(ISAAC_DESCRIPTION_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
 //                  break;
@@ -175,7 +175,7 @@ public class IsaacClipboard
 //                  this.put(ISAAC_GRAPH_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
 //                  break;
 //               default:
-//                  this.put(ISAAC_SEMEME_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
+//                  this.put(ISAAC_SEMANTIC_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
 //                  break;
 //                     
 //            }

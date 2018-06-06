@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+    <!--Set the preferred designation type-->
+	<Types>
+    <Type>
+      <Kind>DesignationType</Kind>
+      <Name>Mike Name</Name> <!-- new property type name here -->
+    </Type>
+ 
+	</Types>
+    <CodeSystem>
+        <Action>none</Action>
+        <Name>VHAT</Name>
+        <Version>
+			<Append>true</Append>
+            <Name>Authoring Version</Name>
+            <CodedConcepts/>
+        </Version>
+    </CodeSystem>
+</Terminology>

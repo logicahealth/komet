@@ -42,7 +42,7 @@ package sh.isaac.api.component.semantic.version.dynamic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
-
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -50,8 +50,11 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
-
-import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicByteArray;
@@ -61,9 +64,11 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.util.UuidT3Generator;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -71,14 +76,14 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  *
  * {@link DynamicDataType}
  *
- * Most types are fairly straight forward.  NIDs, SEQUQENCES and INTEGERS are identical internally.
+ * Most types are fairly straight forward.  NIDs, SEQUENCES and INTEGERS are identical internally.
  * Polymorphic is used when the data type for a dynamic isn't known at dynamic creation time.  In this case, a user of the API
  * will have to examine type types of the actual {@link DynamicData} objects returned, to look at the type.
  *
  * For all other types, the data type reported within the Refex Definition should exactly match the data type returned with
  * a {@link DynamicData}.
  *
- * {@link DynamicData} will never return a {@link POLYMORPHIC} type.
+ * {@link DynamicData} will never return a {@link DynamicDataType#POLYMORPHIC} type.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -116,9 +121,6 @@ public enum DynamicDataType {
 
    /** The array. */
    ARRAY(111, DynamicArray.class, "Array"),
-
-   /** The sequence. */
-   SEQUENCE(112, DynamicSequence.class, "Component Sequence"),
 
    /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
@@ -202,10 +204,6 @@ public enum DynamicDataType {
          return ARRAY;
       }
 
-      if (DynamicSequence.class.isAssignableFrom(c)) {
-         return SEQUENCE;
-      }
-
       LogManager.getLogger()
                 .warn("Couldn't map class {} to type!", c);
       return UNKNOWN;
@@ -248,7 +246,7 @@ public enum DynamicDataType {
       }
 
       if (exceptionOnParseFail) {
-         throw new InvalidParameterException("Could not determine DynamicSememeDataType from " + nameOrTokenOrEnumId);
+         throw new InvalidParameterException("Could not determine DynamicSemanticDataType from " + nameOrTokenOrEnumId);
       } else {
          return UNKNOWN;
       }
@@ -264,62 +262,57 @@ public enum DynamicDataType {
    public UUID getDataTypeConcept() {
       /*
        * Implementation note - these used to be defined in the constructor, and stored in a local variable - but
-       * that lead to a circular loop between the references of static elements in this class and DynamicSememe,
+       * that lead to a circular loop between the references of static elements in this class and DynamicSemantic,
        * specifically in the constructors - which would throw maven / surefire for a loop - resulting in a
        * class not found exception... which was a PITA to track down.  So, don't do that....
        */
       switch (this) {
       case BOOLEAN:
          return DynamicConstants.get().DYNAMIC_DT_BOOLEAN
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case BYTEARRAY:
          return DynamicConstants.get().DYNAMIC_DT_BYTE_ARRAY
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case DOUBLE:
          return DynamicConstants.get().DYNAMIC_DT_DOUBLE
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case FLOAT:
          return DynamicConstants.get().DYNAMIC_DT_FLOAT
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case INTEGER:
          return DynamicConstants.get().DYNAMIC_DT_INTEGER
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case LONG:
          return DynamicConstants.get().DYNAMIC_DT_LONG
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case NID:
          return DynamicConstants.get().DYNAMIC_DT_NID
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case POLYMORPHIC:
          return DynamicConstants.get().DYNAMIC_DT_POLYMORPHIC
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case STRING:
          return DynamicConstants.get().DYNAMIC_DT_STRING
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case UNKNOWN:
          return DynamicConstants.get().UNKNOWN_CONCEPT;
 
       case UUID:
          return DynamicConstants.get().DYNAMIC_DT_UUID
-                                      .getUUID();
+                                      .getPrimordialUuid();
 
       case ARRAY:
          return DynamicConstants.get().DYNAMIC_DT_ARRAY
-                                      .getUUID();
-
-      case SEQUENCE:
-         return DynamicConstants.get().DYNAMIC_DT_SEQUENCE
-                                      .getUUID();
-
+                                      .getPrimordialUuid();
       default:
          throw new RuntimeException("Implementation error");
       }
@@ -386,9 +379,6 @@ public enum DynamicDataType {
       case 111:
          return ARRAY;
 
-      case 112:
-         return SEQUENCE;
-
       default:
          return UNKNOWN;
       }
@@ -402,5 +392,82 @@ public enum DynamicDataType {
    public int getTypeToken() {
       return this.externalizedToken;
    }
-}
+   
+   /**
+    * A method to map SCT refset specification types into the corresponding brittle data types that column of data
+    * should be stored as.  See code that uses this in Rf2DirectImport for more details on the usage.
+    * @param sctidString
+    * @return the corresponding BrittleDataType
+    */
+   public static DynamicDataType translateSCTIDMetadata(String sctidString) {
+      long sctid = Long.parseLong(sctidString.trim());
+      if (sctid == 900000000000461009l //Concept type component (foundation metadata concept) 78f69fb6-410c-3b5a-9120-53954592a80d
+            || sctid == 900000000000460005l) {  //Component type (foundation metadata concept) a3d732bb-030d-3fba-b914-aeaaebc628c9
+         return NID;
+      }
+      else if (sctid == 900000000000465000l) {  //String (SOLOR) a46aaf11-b37a-32d6-abdc-707f084ec8f5
+         return STRING;
+      }
+      else if (sctid == 900000000000476001l   //Integer (foundation metadata concept) 42d9f81e-27e9-3b73-9c19-9de4e2346b44
+            || sctid == 900000000000477005l //Signed integer (SOLOR) 1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c
+            || sctid == 900000000000478000l) { //Unsigned integer (foundation metadata concept) //TODO get UUID
+         return INTEGER;
+      }
+      
+      int typeConceptNid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(sctid));
 
+      //Component type (foundation metadata concept) a3d732bb-030d-3fba-b914-aeaaebc628c9
+      if (isChildOf(typeConceptNid, Get.identifierService().getNidForUuids(java.util.UUID.fromString("a3d732bb-030d-3fba-b914-aeaaebc628c9")))) {
+         return NID;
+      }
+      //String (SOLOR) a46aaf11-b37a-32d6-abdc-707f084ec8f5
+      else if (isChildOf(typeConceptNid, Get.identifierService().getNidForUuids(java.util.UUID.fromString("a46aaf11-b37a-32d6-abdc-707f084ec8f5")))) {
+         //This isn't as accurate as it probably should be, as other subtypes of string in snomed land are "time" and UUID".  If we ever encounter
+         //those, we likely need to pick them out, and modify the loader to handle them more properly.
+         return STRING;
+      }
+      
+      throw new RuntimeException("Unmapped type " + sctidString + "!");
+   }
+   
+   /**
+    * Due to an oddity in how Keith set up the RF2 direct loader, the relationships that are loaded are useless in isaac at the time when we 
+    * actually want to read them, because they haven't yet been processed into the taxonomy (even though they just as well could have been)
+    * To avoid refactoring all of the code necessary to change the load order, just recursively dig through this refset to figure it out manually....
+    * @param childConceptNid
+    * @param parentConceptNid
+    * @return
+    */
+   private static boolean isChildOf(int childConceptNid, int parentConceptNid)
+   {
+      StampCoordinate stamp = Get.defaultCoordinate().getStampCoordinate();
+      
+      ArrayList<SemanticChronology> chronologies = new ArrayList<>();
+      
+      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(childConceptNid, 
+            TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid()).forEach(chronology -> chronologies.add(chronology));
+      
+      ArrayList<Integer> destiniationNids = new ArrayList<>(chronologies.size());
+      
+      //check all of this level before recursing
+      for (SemanticChronology sc : chronologies) {
+         LatestVersion<Rf2Relationship> version = sc.getLatestVersion(stamp);
+          if (version.isPresent()) {
+             if (version.get().getDestinationNid() == parentConceptNid) {
+                return true;
+             }
+             else {
+                destiniationNids.add(version.get().getDestinationNid());
+             }
+          }
+      }
+      //recurse
+      for (int nid : destiniationNids) {
+         if (isChildOf(nid, parentConceptNid)) {
+            return true;
+         }
+      }
+      
+      return false;
+   }
+}

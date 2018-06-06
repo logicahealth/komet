@@ -38,10 +38,10 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.ConceptLabel;
-import sh.komet.gui.control.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 
 /**
@@ -56,16 +56,15 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    private final Manifold manifold;
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("listing of assemblage members");
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty assemblage view");
-   private ConceptLabel titleLabel = null;
    private final ConceptLabelToolbar conceptLabelToolbar;
 
    public AssemblageViewProvider(Manifold manifold) {
       try {
          this.manifold = manifold;
          this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-         this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this);
+         this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this, Optional.empty());
          this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
-         manifold.setGroupName(Manifold.UNLINKED_GROUP_NAME);
+         manifold.setGroupName(ManifoldGroup.UNLINKED.getGroupName());
 
          FXMLLoader loader = new FXMLLoader(
                  getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
@@ -83,15 +82,19 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
            ConceptSpecification oldValue,
            ConceptSpecification newValue) {
-      if (titleLabel == null) {
-         titleProperty.set(manifold.getPreferredDescriptionText(newValue));
-      } else {
-         titleLabel.setText("Members of: " + manifold.getPreferredDescriptionText(newValue));
+      if (newValue == null) {
+         LOG.warn("Not sure on intent.... but hey, I didn't break the GUI...");
+         return;
       }
+      titleProperty.set(manifold.getPreferredDescriptionText(newValue));
       toolTipProperty.set("View of all " + manifold.getPreferredDescriptionText(newValue) + " assemblage members");
       int count = Get.assemblageService().getSemanticCount(newValue.getNid());
       this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " semantics");
 
+   }
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.PAPERCLIP.getIconographic();
    }
    
    @Override
@@ -116,12 +119,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
 
    @Override
    public Optional<Node> getTitleNode() {
-      if (titleLabel == null) {
-         this.titleLabel = new ConceptLabel(manifold, ConceptLabel::setPreferredText, this);
-         this.titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
-         this.titleProperty.set("");
-      }
-      return Optional.of(titleLabel);
+      return Optional.empty();
    }
     @Override
     public List<MenuItem> get() {
@@ -146,14 +144,14 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
             MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
             menu.setOnAction((event) -> {
-                this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
+                manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
             });
             assemblagesMenu.getItems().add(menu);
             String preferredDescText = manifold.getPreferredDescriptionText(assemblageNid);
             LOG.info("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
             MenuItem menu2 = new MenuItem(preferredDescText);
             menu2.setOnAction((event) -> {
-                this.titleLabel.setConceptChronology(Get.concept(assemblageNid));
+                manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
             });
             VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
             versionTypeMenuMap.get(versionType).getItems().add(menu2);

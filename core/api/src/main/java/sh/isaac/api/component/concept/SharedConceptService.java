@@ -16,13 +16,13 @@
  */
 package sh.isaac.api.component.concept;
 
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 
 /**
  *
  * @author kec
  */
 public interface SharedConceptService 
-        extends DatabaseServices {
+        extends DatastoreServices {
    
 }

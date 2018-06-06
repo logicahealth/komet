@@ -42,13 +42,11 @@ package sh.isaac.provider.query.lucene.indexers;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Future;
-
+import java.util.Set;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -71,22 +69,20 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicNidImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.provider.query.lucene.LuceneIndexer;
-import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import org.glassfish.hk2.runlevel.RunLevel;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
+import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
@@ -96,53 +92,55 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNumeric;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.IndexSemanticQueryService;
+import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.index.SemanticIndexerConfiguration;
+import sh.isaac.model.semantic.types.DynamicBooleanImpl;
+import sh.isaac.model.semantic.types.DynamicFloatImpl;
+import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
+import sh.isaac.model.semantic.types.DynamicNidImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.provider.query.lucene.LuceneIndexer;
+import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * This class provides indexing for all String, Nid, Long and Logic Graph sememe types.
+ * This class provides indexing for all String, Nid, Long and Logic Graph semantic types.
  *
- * Additionally, this class provides flexible indexing of all DynamicVersion data types.
+ * Additionally, this class provides flexible indexing of all DynamicVersion data types, 
+ * including all columns within each type..
+ * 
+ * This indexer does NOT index descriptions, as those are better handled by the {@link DescriptionIndexer}
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- * 
- * TODO much of this functionality has been replaced by the single assemblage indexer. 
- * Need to see what aspects of the Dynamic data types need to be migrated. 
  */
-//@Service(name = "sememe indexer")
-//@RunLevel(value = 2)
+@Service(name = "semantic index")
+@RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class SemanticIndexer
-        extends LuceneIndexer {
-   /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+        extends LuceneIndexer implements IndexSemanticQueryService {
 
    /** The Constant INDEX_NAME. */
-   public static final String INDEX_NAME = "semantics";
+   public static final String INDEX_NAME = "semantics-index";
 
-   /** The Constant COLUMN_FIELD_DATA. */
-   private static final String COLUMN_FIELD_DATA = "colData";
+   /** The Constant COLUMN_STRING_FIELD_DATA. */
+   private static final String COLUMN_STRING_FIELD_DATA = "sColData";
+   private static final String COLUMN_INT_FIELD_DATA = "iColData";
+   private static final String COLUMN_LONG_FIELD_DATA = "lColData";
+   private static final String COLUMN_FLOAT_FIELD_DATA = "fColData";
+   private static final String COLUMN_DOUBLE_FIELD_DATA = "dColData";
 
-   //~--- fields --------------------------------------------------------------
-   // TODO persist dataStoreId.
-   private final UUID dataStoreId = UUID.randomUUID();
-
-   @Override
-   public UUID getDataStoreId() {
-      return dataStoreId;
-   }
-
-
-   /** The lric. */
    @Inject
    private SemanticIndexerConfiguration lric;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new semantic indexer.
@@ -155,185 +153,20 @@ public class SemanticIndexer
       super(INDEX_NAME);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Search for matches to the specified nid. Note that in the current implementation, you will only find matches to sememes
-    * of type {@link VersionType#COMPONENT_NID} or {@link VersionType#LOGIC_GRAPH}.
-    *
-    * This only supports nids, not sequences.
-    *
-    * If searching a component nid sememe, this will only match on the attached component nid value.  It will not match
-    * on the assemblage concept, nor the referenced component nid.  Those can be found directly via standard sememe APIs.
-    * If searching a logic graph sememe, it will find a match in any concept that is involved in the graph, except for the
-    * root concept.
-    *
-    * @param nid the id reference to search for
-    * @param assemblageConceptNids the assemblages to include in the search
-    * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
- ONE and only one assemblageConceptNids is provided.  May not be provided if 0 or more than 1 assemblageConceptNids values are provided.
-    * @param sizeLimit The maximum size of the result list.
-    * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
-    * to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in-progress
-    * indexing operations are completed - and then use the latest index.
-    * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that
-    * match relative to other matches. Note that scores are pointless for exact id matches - they will all be the same.
-    */
-   public List<SearchResult> query(int nid,
-                                   int[] assemblageConceptNids,
-                                   Integer[] searchColumns,
-                                   int sizeLimit,
-                                   Long targetGeneration) {
-      final Query q = new QueryWrapperForColumnHandling() {
-         @Override
-         Query buildQuery(String columnName) {
-            return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
-         }
-      }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
-
-      return search(restrictToSemantic(q, assemblageConceptNids), sizeLimit, targetGeneration, null);
-   }
-
-   /**
-    * A convenience method.
-    *
-    * Search DynamicData columns, treating them as text - and handling the search in the same mechanism as if this were a
- call to the method {@link LuceneIndexer#query(String, boolean, Integer, int, long)}
-    *
-    * Calls the method {@link #query(DynamicSememeDataBI, Integer, boolean, Integer[], int, long) with a null parameter for
-    * the searchColumns, and wraps the queryString into a DynamicSememeString.
-    *
-    * @param queryString the query string
-    * @param prefixSearch the prefix search
-    * @param assemblageConceptNids the assemblages to include in the search. Null is a wildcard. 
-    * @param sizeLimit the size limit
-    * @param targetGeneration the target generation
-    * @return the list
+    * {@inheritDoc}
     */
    @Override
-   public final List<SearchResult> query(String queryString,
-         boolean prefixSearch,
-         int[] assemblageConceptNids,
-         int sizeLimit,
-         Long targetGeneration) {
-      return query(new DynamicStringImpl(queryString),
-                   prefixSearch,
-                   assemblageConceptNids,
-                   null,
-                   sizeLimit,
-                   targetGeneration);
-   }
-
-   /**
-    * Query.
-    *
-    * @param queryData - The query data object (string, int, etc)
-    * @param prefixSearch see {@link LuceneIndexer#query(String, boolean, ComponentProperty, int, Long)} for a description.  Only applicable
-    * when the queryData type is string.  Ignored for all other data types.
-    * @param assemblageConceptNids (optional) limit the search to the specified assemblage
-    * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
- ONE and only one assemblageConceptNids is provided.  May not be provided if 0 or more than 1 assemblageConceptNids values are provided.
-    * @param sizeLimit the size limit
-    * @param targetGeneration (optional) wait for an index to build, or null to not wait
-    * @return the list
-    */
-
-   // TODO fix this limitation on the column restriction...
-   public final List<SearchResult> query(final DynamicData queryData,
-         final boolean prefixSearch,
-         int[] assemblageConceptNids,
-         Integer[] searchColumns,
-         int sizeLimit,
-         Long targetGeneration) {
-      Query q = null;
-
-      if (queryData instanceof DynamicString) {
-         q = new QueryWrapperForColumnHandling() {
-            @Override
-            Query buildQuery(String columnName) {
-               // This is the only query type that needs tokenizing, etc.
-               String queryString = ((DynamicString) queryData).getDataString();
-
-               // '-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
-               // and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
-               // (lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
-               if (queryString.startsWith("-")) {
-                  queryString = "\\" + queryString;
-               }
-
-               queryString = queryString.replaceAll("\\s-", " \\\\-");
-               LOG.debug("Modified search string is: ''{}''", queryString);
-               return buildTokenizedStringQuery(queryString, columnName, prefixSearch);
-            }
-         }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
-      } else {
-         if ((queryData instanceof DynamicBoolean) ||
-               (queryData instanceof DynamicNid) ||
-               (queryData instanceof DynamicUUID)) {
-            q = new QueryWrapperForColumnHandling() {
-               @Override
-               Query buildQuery(String columnName) {
-                  return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                                queryData.getDataObject().toString()));
-               }
-            }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
-         } else if ((queryData instanceof DynamicDouble) ||
-                    (queryData instanceof DynamicFloat) ||
-                    (queryData instanceof DynamicInteger) ||
-                    (queryData instanceof DynamicLong) ||
-                    (queryData instanceof DynamicSequence)) {
-            q = new QueryWrapperForColumnHandling() {
-               @Override
-               Query buildQuery(String columnName) {
-                  Query temp = buildNumericQuery(queryData, queryData, columnName);
-
-                  if (((queryData instanceof DynamicLong) && ((DynamicLong) queryData).getDataLong() < 0) ||
-                        ((queryData instanceof DynamicInteger) &&
-                         ((DynamicInteger) queryData).getDataInteger() < 0)) {
-                     // Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
-                     final BooleanQuery.Builder wrapper = new BooleanQuery.Builder();
-
-                     wrapper.add(new TermQuery(new Term(columnName, queryData.getDataObject().toString())),
-                                 Occur.SHOULD);
-                     wrapper.add(temp, Occur.SHOULD);
-                     temp = wrapper.build();
-                  }
-
-                  return temp;
-               }
-            }.buildColumnHandlingQuery(assemblageConceptNids, searchColumns);
-         } else if (queryData instanceof DynamicByteArray) {
-            throw new RuntimeException("DynamicSememeByteArray isn't indexed");
-         } else if (queryData instanceof DynamicPolymorphic) {
-            throw new RuntimeException("This should have been impossible (polymorphic?)");
-         } else if (queryData instanceof DynamicArray) {
-            throw new RuntimeException("DynamicSememeArray isn't a searchable type");
-         } else {
-            LOG.error("This should have been impossible (no match on col type)");
-            throw new RuntimeException("unexpected error, see logs");
-         }
-      }
-
-      return search(restrictToSemantic(q, assemblageConceptNids), sizeLimit, targetGeneration, null);
-   }
-
-   /**
-    * Adds the fields.
-    *
-    * @param chronicle the chronicle
-    * @param doc the doc
-    */
-   @Override
-   protected void addFields(Chronology chronicle, Document doc) {
+   protected void addFields(Chronology chronicle, Document doc, Set<Integer> pathNids) {
       final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
 
-      doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_SEQUENCE,
+      doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_NID,
                             semanticChronology.getAssemblageNid() + "",
                             Field.Store.NO));
 
-      for (final Object sv: semanticChronology.getVersionList()) {
+      for (final Version sv: semanticChronology.getVersionList()) {
          if (sv instanceof DynamicVersion) {
-            final DynamicVersion dsv     = (DynamicVersion) sv;
+            final DynamicVersion<?> dsv     = (DynamicVersion<?>) sv;
             final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageNid());
 
             if (columns != null) {
@@ -343,30 +176,30 @@ public class SemanticIndexer
                   final DynamicData dataCol = (col >= dataColCount) ? null
                         : dsv.getData(col);
 
-                  // Only pass in a column number if we were asked to index more than one column for this sememe
+                  // Only pass in a column number if we were asked to index more than one column for this semantic
                   handleType(doc, dataCol, (columns.length > 1) ? col
                         : -1);
                }
             }
          }
 
-         // TODO enhance the index configuration to allow us to configure Static sememes as indexed, or not indexed
-         // static sememe types are never more than 1 column, always pass -1
+         // TODO [DAN 3] enhance the index configuration to allow us to configure Static semantics as indexed, or not indexed
+         // static semantic types are never more than 1 column, always pass -1
          else if (sv instanceof StringVersion) {
             final StringVersion ssv = (StringVersion) sv;
 
             handleType(doc, new DynamicStringImpl(ssv.getString()), -1);
-            incrementIndexedItemCount("Sememe String");
+            incrementIndexedItemCount("Semantic String");
          } else if (sv instanceof LongVersion) {
             final LongVersion lsv = (LongVersion) sv;
 
             handleType(doc, new DynamicLongImpl(lsv.getLongValue()), -1);
-            incrementIndexedItemCount("Sememe Long");
+            incrementIndexedItemCount("Semantic Long");
          } else if (sv instanceof ComponentNidVersion) {
             final ComponentNidVersion csv = (ComponentNidVersion) sv;
 
             handleType(doc, new DynamicNidImpl(csv.getComponentNid()), -1);
-            incrementIndexedItemCount("Sememe Component Nid");
+            incrementIndexedItemCount("Semantic Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
             final OpenIntHashSet  css  = new OpenIntHashSet();
@@ -378,8 +211,44 @@ public class SemanticIndexer
                            handleType(doc, new DynamicNidImpl(sequence), -1);
                            return true;
                         });
-         } else {
-            LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + semanticChronology.toString());
+         } 
+         else if (sv instanceof BrittleVersion) {
+            BrittleVersion bv = (BrittleVersion)sv;
+            
+            BrittleDataTypes[] types = bv.getFieldTypes();
+            Object[] fieldData = bv.getDataFields();
+            for (int i = 0; i < fieldData.length; i++) {
+               if (fieldData[i] == null) {
+                  continue;
+               }
+               if (null == types[i]) {
+                   LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
+               }
+               else switch (types[i]) {
+                    case STRING:
+                        handleType(doc, new DynamicStringImpl((String)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case NID:
+                        handleType(doc, new DynamicNidImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case INTEGER:
+                        handleType(doc, new DynamicIntegerImpl((Integer)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case FLOAT:
+                        handleType(doc, new DynamicFloatImpl((Float)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    case BOOLEAN:
+                        handleType(doc, new DynamicBooleanImpl((Boolean)fieldData[i]), types.length > 1 ? i : -1);
+                        break;
+                    default:
+                        LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + types[i]);
+                        break;
+                }
+            }
+            incrementIndexedItemCount(sv.getSemanticType().name());
+         }
+         else {
+            LOG.error("Unexpected type handed to addFields in Semantic Indexer: " + semanticChronology.toString());
          }
       }
 
@@ -401,10 +270,7 @@ public class SemanticIndexer
    }
 
    /**
-    * Index chronicle.
-    *
-    * @param chronicle the chronicle
-    * @return true, if successful
+    * {@inheritDoc}
     */
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
@@ -416,6 +282,9 @@ public class SemanticIndexer
                (semanticChronology.getVersionType() == VersionType.LONG) ||
                (semanticChronology.getVersionType() == VersionType.COMPONENT_NID) ||
                (semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)) {
+            return true;
+         }
+         else if (semanticChronology instanceof BrittleVersion) {
             return true;
          }
       }
@@ -430,12 +299,14 @@ public class SemanticIndexer
     * @param queryDataLowerInclusive the query data lower inclusive
     * @param queryDataUpper the query data upper
     * @param queryDataUpperInclusive the query data upper inclusive
-    * @param columnName the column name
+    * @param columnNamePostFixIfAny the column position idenifier, if any.
     * @return the query
     */
-   private Query buildNumericQuery(DynamicData queryDataLower,
-                                   DynamicData queryDataUpper,
-                                   String columnName) {
+   private Query buildNumericQuery(Number queryDataLower,
+                                    boolean queryDataLowerInclusive,
+                                   Number queryDataUpper,
+                                   boolean queryDataUpperInclusive,
+                                   String columnNamePostFixIfAny) {
       // Convert both to the same type (if they differ) - go largest data type to smallest, so we don't lose precision
       // Also - if they pass in longs that would fit in an int, also generate an int query.
       // likewise, with Double - if they pass in a double, that would fit in a float, also generate a float query.
@@ -444,89 +315,58 @@ public class SemanticIndexer
          boolean            fitsInFloat = false;
          boolean            fitsInInt   = false;
 
-         if ((queryDataLower instanceof DynamicDouble) || (queryDataUpper instanceof DynamicDouble)) {
-            final Double upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicDouble)
-                     ? ((DynamicDouble) queryDataUpper).getDataDouble()
-                     : ((Number) queryDataUpper.getDataObject()).doubleValue()));
-            final Double lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicDouble)
-                     ? ((DynamicDouble) queryDataLower).getDataDouble()
-                     : ((Number) queryDataLower.getDataObject()).doubleValue()));
+         if ((queryDataLower instanceof Double) || (queryDataUpper instanceof Double)) {
+            final double upperVal = ((queryDataUpper == null) ? Double.POSITIVE_INFINITY
+                  : queryDataUpperInclusive ? queryDataUpper.doubleValue() : DoublePoint.nextDown(queryDataUpper.doubleValue()));
+            final double lowerVal = ((queryDataLower == null) ? Double.NEGATIVE_INFINITY
+                  : queryDataLowerInclusive ? queryDataLower.doubleValue() : DoublePoint.nextUp(queryDataLower.doubleValue()));
 
-            bqBuilder.add(DoublePoint.newRangeQuery(columnName, lowerVal, upperVal),
-                   Occur.SHOULD);
+            bqBuilder.add(DoublePoint.newRangeQuery(COLUMN_DOUBLE_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
 
-            if (((upperVal != null) && (upperVal <= Float.MAX_VALUE) && (upperVal >= Float.MIN_VALUE)) ||
-                  ((lowerVal != null) && (lowerVal <= Float.MAX_VALUE) && (lowerVal >= Float.MIN_VALUE))) {
+            if (((queryDataUpper != null) && (queryDataUpper.floatValue() <= Float.MAX_VALUE) && (queryDataUpper.floatValue() >= Float.MIN_VALUE))
+                  || ((queryDataLower != null) && (queryDataLower.doubleValue() <= Float.MAX_VALUE) && (queryDataLower.doubleValue() >= Float.MIN_VALUE))) {
                fitsInFloat = true;
             }
          }
 
-         if (fitsInFloat ||
-               (queryDataLower instanceof DynamicFloat) ||
-               (queryDataUpper instanceof DynamicFloat)) {
-            final Float upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper == null) ? null
-                                              : ((queryDataUpper instanceof DynamicFloat)
-                                                 ? ((DynamicFloat) queryDataUpper).getDataFloat()
-                  : ((fitsInFloat &&
-                      ((Number) queryDataUpper.getDataObject()).doubleValue() > Float.MAX_VALUE) ? Float.MAX_VALUE
-                  : ((Number) queryDataUpper.getDataObject()).floatValue()))));
-            final Float lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicFloat)
-                     ? ((DynamicFloat) queryDataLower).getDataFloat()
-                     : ((fitsInFloat &&
-                         ((Number) queryDataLower.getDataObject()).doubleValue() < Float.MIN_VALUE) ? Float.MIN_VALUE
-                  : ((Number) queryDataLower.getDataObject()).floatValue())));
+         if (fitsInFloat || (queryDataLower instanceof Float) || (queryDataUpper instanceof Float)) {
+            final float upperVal = (queryDataUpper == null ? Float.POSITIVE_INFINITY
+                  : (queryDataUpper instanceof Float ? queryDataUpperInclusive ? queryDataUpper.floatValue() : FloatPoint.nextDown(queryDataUpper.floatValue())
+                        : ((fitsInFloat && (queryDataUpper.doubleValue() > Float.MAX_VALUE) ? Float.MAX_VALUE : 
+                           queryDataUpperInclusive ? queryDataUpper.floatValue() : FloatPoint.nextDown(queryDataUpper.floatValue())))));
+            final float lowerVal = (queryDataLower == null ? Float.NEGATIVE_INFINITY
+                  : (queryDataLower instanceof Float ? queryDataLowerInclusive ? queryDataLower.floatValue() : FloatPoint.nextUp(queryDataLower.floatValue())
+                        : ((fitsInFloat && (queryDataLower.doubleValue() < Float.MIN_VALUE) ? Float.MIN_VALUE : 
+                           queryDataLowerInclusive ? queryDataLower.floatValue() : FloatPoint.nextUp(queryDataLower.floatValue())))));
 
-            bqBuilder.add(FloatPoint.newRangeQuery(columnName, lowerVal, upperVal),
-                   Occur.SHOULD);
+            bqBuilder.add(FloatPoint.newRangeQuery(COLUMN_FLOAT_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
          }
 
-         if ((queryDataLower instanceof DynamicLong) || (queryDataUpper instanceof DynamicLong)) {
-            final Long upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicLong) ? ((DynamicLong) queryDataUpper).getDataLong()
-                  : ((Number) queryDataUpper.getDataObject()).longValue()));
-            final Long lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicLong) ? ((DynamicLong) queryDataLower).getDataLong()
-                  : ((Number) queryDataLower.getDataObject()).longValue()));
+         if ((queryDataLower instanceof Long) || (queryDataUpper instanceof Long)) {
+            final long upperVal = ((queryDataUpper == null) ? Long.MAX_VALUE
+                  : queryDataUpperInclusive ? queryDataUpper.longValue() : Math.addExact(queryDataUpper.longValue(),  -1));
+            final long lowerVal = ((queryDataLower == null) ? Long.MIN_VALUE
+                  : queryDataLowerInclusive ? queryDataLower.longValue() : Math.addExact(queryDataLower.longValue(),  1));
 
-            bqBuilder.add(LongPoint.newRangeQuery(columnName, lowerVal, upperVal),
-                   Occur.SHOULD);
+            bqBuilder.add(LongPoint.newRangeQuery(COLUMN_LONG_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
 
-            if (((upperVal != null) && (upperVal <= Integer.MAX_VALUE) && (upperVal >= Integer.MIN_VALUE)) ||
-                  ((lowerVal != null) && (lowerVal <= Integer.MAX_VALUE) && (lowerVal >= Integer.MIN_VALUE))) {
+            if (((queryDataUpper != null) && (queryDataUpper.longValue() <= Integer.MAX_VALUE) && (queryDataUpper.longValue() >= Integer.MIN_VALUE))
+                  || ((queryDataLower != null) && (queryDataLower.longValue() <= Integer.MAX_VALUE) && (queryDataLower.longValue() >= Integer.MIN_VALUE))) {
                fitsInInt = true;
             }
          }
 
-         if (fitsInInt ||
-               (queryDataLower instanceof DynamicInteger) ||
-               (queryDataUpper instanceof DynamicInteger) ||
-               (queryDataLower instanceof DynamicSequence) ||
-               (queryDataUpper instanceof DynamicSequence)) {
-            final Integer upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicInteger)
-                     ? ((DynamicInteger) queryDataUpper).getDataInteger()
-                     : ((queryDataUpper instanceof DynamicSequence)
-                        ? ((DynamicSequence) queryDataUpper).getDataSequence()
-                        : ((fitsInInt &&
-                            ((Number) queryDataUpper.getDataObject()).longValue() >
-                            Integer.MAX_VALUE) ? Integer.MAX_VALUE
-                                               : ((Number) queryDataUpper.getDataObject()).intValue()))));
-            final Integer lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicInteger)
-                     ? ((DynamicInteger) queryDataLower).getDataInteger()
-                     : ((queryDataLower instanceof DynamicSequence)
-                        ? ((DynamicSequence) queryDataLower).getDataSequence()
-                        : ((fitsInInt &&
-                            ((Number) queryDataLower.getDataObject()).longValue() <
-                            Integer.MIN_VALUE) ? Integer.MIN_VALUE
-                                               : ((Number) queryDataLower.getDataObject()).intValue()))));
+         if (fitsInInt || (queryDataLower instanceof Integer) || (queryDataUpper instanceof Integer)) {
+            final int upperVal = ((queryDataUpper == null) ? Integer.MAX_VALUE
+                  : ((queryDataUpper instanceof Integer) ? queryDataUpperInclusive ? queryDataUpper.intValue() : Math.addExact(queryDataUpper.intValue(), -1)
+                        : ((fitsInInt && queryDataUpper.longValue() > Integer.MAX_VALUE) ? Integer.MAX_VALUE
+                              : queryDataUpperInclusive ? queryDataUpper.intValue() : Math.addExact(queryDataUpper.intValue(), -1))));
+            final int lowerVal = ((queryDataLower == null) ? Integer.MIN_VALUE
+                  : ((queryDataLower instanceof Integer) ? queryDataLowerInclusive ? queryDataLower.intValue() : Math.addExact(queryDataLower.intValue(), 1)
+                        : ((fitsInInt && queryDataLower.longValue() < Integer.MIN_VALUE) ? Integer.MIN_VALUE
+                              : queryDataLowerInclusive ? queryDataLower.intValue() : Math.addExact(queryDataLower.intValue(), 1))));
 
-            bqBuilder.add(IntPoint.newRangeQuery(columnName, lowerVal, upperVal),
-                   Occur.SHOULD);
+            bqBuilder.add(IntPoint.newRangeQuery(COLUMN_INT_FIELD_DATA + columnNamePostFixIfAny, lowerVal, upperVal), Occur.SHOULD);
          }
          BooleanQuery bq = bqBuilder.build();
          if (bq.clauses().isEmpty()) {
@@ -538,7 +378,7 @@ public class SemanticIndexer
             return must.build();
          }
       } catch (final ClassCastException e) {
-         throw new RuntimeException("One of the values is not a numeric data type - can't perform a range query");
+         throw new RuntimeException("One of the values is not a numeric data type - can't perform a range query", e);
       }
    }
 
@@ -551,85 +391,80 @@ public class SemanticIndexer
     */
    private void handleType(Document doc, DynamicData dataCol, int colNumber) {
       // Not the greatest design for diskspace / performance... but if we want to be able to support searching across
-      // all fields / all sememes - and also support searching per-field within a single sememe, we need to double index
+      // all fields / all semantics - and also support searching per-field within a single semantic, we need to double index
       // all of the data.  Once with a standard field name, and once with a field name that includes the column number.
       // at search time, restricting to certain field matches is only allowed if they are also restricting to an assemblage,
       // so we can compute the correct field number list at search time.
-      // Note, we optimize by only doing the double indexing in cases where the sememe has more than one column to begin with.
+      // Note, we optimize by only doing the double indexing in cases where the semantic has more than one column to begin with.
       // At query time, we construct the query appropriately to handle this optimization.
       // the cheaper option from a disk space perspective (maybe, depending on the data) would be to create a document per
       // column.  The queries would be trivial to write then, but we would be duplicating the component nid and assemblage nid
       // in each document, which is also expensive.  It also doesn't fit the model in OTF, of a document per component.
-      // We also duplicate again, on string fields by indexing with the white space analyzer, in addition to the normal one.
+      // We also duplicate again, on string fields by indexing with the white space analyzer, in addition to the normal one, 
+      // when indexing strings.
+      // And we cannot just put the column numbers in their own field, and adjust the queries, because the queries match on the document.
+      // And with multiple data fields per semantic / per document, we wouldn't be able to properly restrict the search on columns
+      // without column specific indexing.
       if (dataCol == null) {
          // noop
       } else if (dataCol instanceof DynamicBoolean) {
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                     Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic Boolean");
       } else if (dataCol instanceof DynamicByteArray) {
-         LOG.warn("Sememe Indexer configured to index a field that isn''t indexable (byte array)");
+         LOG.warn("Semantic Indexer configured to index a field that isn''t indexable (byte array)");
       } else if (dataCol instanceof DynamicDouble) {
-         doc.add(new DoublePoint(COLUMN_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
+         doc.add(new DoublePoint(COLUMN_DOUBLE_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
 
          if (colNumber >= 0) {
-            doc.add(new DoublePoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new DoublePoint(COLUMN_DOUBLE_FIELD_DATA + "_" + colNumber,
                                     ((DynamicDouble) dataCol).getDataDouble()));
          }
 
          incrementIndexedItemCount("Dynamic Double");
       } else if (dataCol instanceof DynamicFloat) {
-         doc.add(new FloatPoint(COLUMN_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
+         doc.add(new FloatPoint(COLUMN_FLOAT_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
 
          if (colNumber >= 0) {
-            doc.add(new FloatPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new FloatPoint(COLUMN_FLOAT_FIELD_DATA + "_" + colNumber,
                                    ((DynamicFloat) dataCol).getDataFloat()));
          }
 
          incrementIndexedItemCount("Dynamic Float");
       } else if (dataCol instanceof DynamicInteger) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
+         doc.add(new IntPoint(COLUMN_INT_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
 
          if (colNumber >= 0) {
-            doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new IntPoint(COLUMN_INT_FIELD_DATA + "_" + colNumber,
                                  ((DynamicInteger) dataCol).getDataInteger()));
          }
 
          incrementIndexedItemCount("Dynamic Integer");
-      } else if (dataCol instanceof DynamicSequence) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSequence) dataCol).getDataSequence()));
-
-         if (colNumber >= 0) {
-            doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                 ((DynamicSequence) dataCol).getDataSequence()));
-         }
-
-         incrementIndexedItemCount("Dynamic Sequence");
       } else if (dataCol instanceof DynamicLong) {
-         doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
+         doc.add(new LongPoint(COLUMN_LONG_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
 
          if (colNumber >= 0) {
-            doc.add(new LongPoint(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new LongPoint(COLUMN_LONG_FIELD_DATA + "_" + colNumber,
                                   ((DynamicLong) dataCol).getDataLong()));
          }
 
          incrementIndexedItemCount("Dynamic Long");
       } else if (dataCol instanceof DynamicNid) {
          // No need for ranges on a nid, no need for tokenization (so textField, instead of string field).
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicNid) dataCol).getDataNid() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicNid) dataCol).getDataNid() + "",
                                     Store.NO));
          }
@@ -638,21 +473,21 @@ public class SemanticIndexer
       } else if (dataCol instanceof DynamicPolymorphic) {
          LOG.error("This should have been impossible (polymorphic?)");
       } else if (dataCol instanceof DynamicString) {
-         doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
+         doc.add(new TextField(COLUMN_STRING_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber,
+            doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber,
                                   ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
 
          // yes, indexed 4 different times - twice with the standard analyzer, twice with the whitespace analyzer.
-         doc.add(new TextField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new TextField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                ((DynamicString) dataCol).getDataString(),
                                Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                   ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
@@ -660,19 +495,19 @@ public class SemanticIndexer
          incrementIndexedItemCount("Dynamic String");
       } else if (dataCol instanceof DynamicUUID) {
          // Use the whitespace analyzer on UUIDs
-         doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+         doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                  ((DynamicUUID) dataCol).getDataUUID().toString(),
                                  Store.NO));
 
          if (colNumber >= 0) {
-            doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            doc.add(new StringField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                     ((DynamicUUID) dataCol).getDataUUID().toString(),
                                     Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic UUID");
       } else if (dataCol instanceof DynamicArray) {
-         for (final DynamicData nestedData: ((DynamicArray) dataCol).getDataArray()) {
+         for (final DynamicData nestedData: ((DynamicArray<?>) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
          }
       } else {
@@ -689,43 +524,43 @@ public class SemanticIndexer
       /**
        * Builds the query.
        *
-       * @param columnName the column name
+       * @param columnNamePostFixIfAny the column postfix identifier, if necessary
        * @return the query
        */
-      abstract Query buildQuery(String columnName);
+      abstract Query buildQuery(String columnNamePostFixIfAny);
 
       /**
        * Builds the column handling query.
        *
-       * @param assemblageConcepteNids the sememe concept sequence
+       * @param assemblageConceptNid the semantic concept sequence
        * @param searchColumns the search columns
        * @return the query
        */
-      protected Query buildColumnHandlingQuery(int[] assemblageConcepteNids, Integer[] searchColumns) {
-         Integer[] sememeIndexedColumns = null;
+      protected Query buildColumnHandlingQuery(int[] assemblageConceptNid, int[] searchColumns) {
+         Integer[] assemblageIndexedColumns = null;
 
          if ((searchColumns != null) && (searchColumns.length > 0)) {
-            // If they provide a search column - then they MUST provide one and only one assemblageConcepteNids
-            if ((assemblageConcepteNids == null) || (assemblageConcepteNids.length != 1)) {
+            // If they provide a search column - then they MUST provide one and only one assemblageConceptNid
+            if ((assemblageConceptNid == null) || (assemblageConceptNid.length != 1)) {
                throw new RuntimeException(
-                   "If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
+                   "If a list of search columns is provided, then the assemblageConceptNid variable must contain 1 (and only 1) assemblage id");
             } else {
-               sememeIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(assemblageConcepteNids[0]);
+               assemblageIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(assemblageConceptNid[0]);
             }
          }
 
-         // If only 1 column was indexed from a sememe, we don't create field specific columns.
+         // If only 1 column was indexed from a semantic, we don't create field specific columns.
          if ((searchColumns == null) ||
                (searchColumns.length == 0) ||
-               (sememeIndexedColumns == null) ||
-               (sememeIndexedColumns.length < 2)) {
-            return buildQuery(COLUMN_FIELD_DATA);
+               (assemblageIndexedColumns == null) ||
+               (assemblageIndexedColumns.length < 2)) {
+            return buildQuery("");
          } else  // If they passed a specific column to search AND the Dynamic type has more than 1 indexed column, then do a column specific search.
          {
             final BooleanQuery.Builder group = new BooleanQuery.Builder();
 
             for (final int i: searchColumns) {
-               group.add(buildQuery(COLUMN_FIELD_DATA + "_" + i), Occur.SHOULD);
+               group.add(buildQuery("_" + i), Occur.SHOULD);
             }
 
             return group.build();
@@ -733,9 +568,164 @@ public class SemanticIndexer
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
-   public Future<Void> sync() {
-      throw new UnsupportedOperationException();
+   public List<SearchResult> query(String query,
+         boolean prefixSearch,
+         int[] assemblageConcept,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      return queryData(new DynamicStringImpl(query), prefixSearch, assemblageConcept, null, filter, amp, pageNum, sizeLimit, targetGeneration);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> queryNumericRange(Number queryDataLower,
+         boolean queryDataLowerInclusive,
+         Number queryDataUpper,
+         boolean queryDataUpperInclusive,
+         int[] assemblageConcepts,
+         int[] searchColumns,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      
+      Query q = new QueryWrapperForColumnHandling()
+      {
+         @Override
+         Query buildQuery(String columnNamePostFixIfAny)
+         {
+            return buildNumericQuery(queryDataLower, queryDataLowerInclusive, queryDataUpper, queryDataUpperInclusive, columnNamePostFixIfAny);
+         }
+      }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
+      
+      
+      return search(restrictToSemantic(q, assemblageConcepts), filter, amp, pageNum, sizeLimit, targetGeneration);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> queryNidReference(int nid,
+         int[] assemblageConcepts,
+         int[] searchColumns,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      
+      final Query q = new QueryWrapperForColumnHandling() {
+         @Override
+         Query buildQuery(String columnNamePostFixIfAny) {
+            return new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
+         }
+      }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
+
+      return search(restrictToSemantic(q, assemblageConcepts), filter, amp, pageNum, sizeLimit, targetGeneration);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> queryData(DynamicData queryData,
+         boolean prefixSearch,
+         int[] assemblageConcepts,
+         int[] searchColumns,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      Query q = null;
+
+      if (queryData instanceof DynamicString) {
+         q = new QueryWrapperForColumnHandling() {
+            @Override
+            Query buildQuery(String columnNamePostFixIfAny) {
+               // This is the only query type that needs tokenizing, etc.
+               String queryString = ((DynamicString) queryData).getDataString();
+
+               // '-' signs are operators to lucene... but we want to allow nid lookups. So escape any leading hyphens
+               // and any hyphens that are preceeded by spaces. This way, we don't mess up UUID handling.
+               // (lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
+               if (queryString.startsWith("-")) {
+                  queryString = "\\" + queryString;
+               }
+
+               queryString = queryString.replaceAll("\\s-", " \\\\-");
+               LOG.debug("Modified search string is: ''{}''", queryString);
+               return buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, prefixSearch, false);
+            }
+         }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
+      } else {
+         if ((queryData instanceof DynamicBoolean) || (queryData instanceof DynamicNid) || (queryData instanceof DynamicUUID)) {
+            q = new QueryWrapperForColumnHandling() {
+               @Override
+               Query buildQuery(String columnNamePostFixIfAny) {
+                  return new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, queryData.getDataObject().toString()));
+               }
+            }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
+            //By checking for DynamicNumeric, we inadvertently capture nid, but that is already handled in the if above.
+         } else if ((queryData instanceof DynamicNumeric)) {  
+            q = new QueryWrapperForColumnHandling() {
+               @Override
+               Query buildQuery(String columnNamePostFixIfAny) {
+                  Query temp = buildNumericQuery(((DynamicNumeric) queryData).getDataNumeric(), true, ((DynamicNumeric) queryData).getDataNumeric(),
+                        true, columnNamePostFixIfAny);
+
+                  if (((queryData instanceof DynamicLong) && ((DynamicLong) queryData).getDataLong() < 0)
+                        || ((queryData instanceof DynamicInteger) && ((DynamicInteger) queryData).getDataInteger() < 0)) {
+                     // Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
+                     final BooleanQuery.Builder wrapper = new BooleanQuery.Builder();
+
+                     wrapper.add(new TermQuery(new Term(COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, queryData.getDataObject().toString())), Occur.SHOULD);
+                     wrapper.add(temp, Occur.SHOULD);
+                     temp = wrapper.build();
+                  }
+
+                  return temp;
+               }
+            }.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
+         } else if (queryData instanceof DynamicByteArray) {
+            throw new RuntimeException("DynamicSemanticByteArray isn't indexed");
+         } else if (queryData instanceof DynamicPolymorphic) {
+            throw new RuntimeException("This should have been impossible (polymorphic?)");
+         } else if (queryData instanceof DynamicArray) {
+            throw new RuntimeException("DynamicSemanticArray isn't a searchable type");
+         } else {
+            LOG.error("This should have been impossible (no match on col type)");
+            throw new RuntimeException("unexpected error, see logs");
+         }
+      }
+
+      return search(restrictToSemantic(q, assemblageConcepts), filter, amp, pageNum, sizeLimit, targetGeneration);
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<SearchResult> queryData(String queryString,
+         boolean prefixSearch,
+         int[] assemblageConcept,
+         Predicate<Integer> filter,
+         AmpRestriction amp,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+      return queryData(new DynamicStringImpl(queryString), prefixSearch, assemblageConcept, null, filter, amp, pageNum, sizeLimit, targetGeneration);
    }
 }
 

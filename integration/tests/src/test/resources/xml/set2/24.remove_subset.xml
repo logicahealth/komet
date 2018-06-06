@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>800000</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>800000</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>none</Action>
+    <Code>800001</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>800001</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 RAD1</ValueNew>
+    <Active>1</Active>
+    <SubsetMemberships><SubsetMembership>
+      <Action>remove</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

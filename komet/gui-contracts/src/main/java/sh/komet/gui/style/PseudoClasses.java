@@ -44,5 +44,11 @@ public class PseudoClasses {
    public static final PseudoClass ALERT_ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-error");
    public static final PseudoClass ALERT_SUCCESS_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-success");
    
+   public static final PseudoClass STATED_PSEUDO_CLASS = PseudoClass.getPseudoClass("stated");
+   public static final PseudoClass INFERRED_PSEUDO_CLASS = PseudoClass.getPseudoClass("inferred");
+   
+   public static final PseudoClass DROP_POSSIBLE = PseudoClass.getPseudoClass("drop-possible");
+   public static final PseudoClass DROP_READY = PseudoClass.getPseudoClass("drop-ready");
+   
    
 }

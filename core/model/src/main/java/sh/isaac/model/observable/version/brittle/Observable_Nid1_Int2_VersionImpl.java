@@ -41,14 +41,24 @@ package sh.isaac.model.observable.version.brittle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Int2_Version;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,7 +68,7 @@ import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
  * @author kec
  */
 public class Observable_Nid1_Int2_VersionImpl
-        extends ObservableSemanticVersionImpl
+        extends ObservableAbstractSemanticVersionImpl
          implements Observable_Nid1_Int2_Version {
    IntegerProperty nid1Property;
    IntegerProperty int2Property;
@@ -69,10 +79,30 @@ public class Observable_Nid1_Int2_VersionImpl
       super(stampedVersion, chronology);
    }
 
+   public Observable_Nid1_Int2_VersionImpl(Observable_Nid1_Int2_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
+      super(versionToClone, chronology);
+      setNid1(versionToClone.getNid1());
+      setInt2(versionToClone.getInt2());
+   }
+
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        Observable_Nid1_Int2_VersionImpl analog = new Observable_Nid1_Int2_VersionImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
    //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty int2Property() {
+      if (this.stampedVersionProperty == null  && this.int2Property == null) {
+        this.int2Property = new CommitAwareIntegerProperty(this, ObservableFields.INT2.toExternalString(),
+        0);
+      }
       if (this.int2Property == null) {
          this.int2Property = new CommitAwareIntegerProperty(this, ObservableFields.INT2.toExternalString(), getInt2());
          this.int2Property.addListener(
@@ -86,6 +116,10 @@ public class Observable_Nid1_Int2_VersionImpl
 
    @Override
    public IntegerProperty nid1Property() {
+      if (this.stampedVersionProperty == null  && this.nid1Property == null) {
+        this.nid1Property = new CommitAwareIntegerProperty(this, ObservableFields.NID1.toExternalString(),
+        0);
+      }
       if (this.nid1Property == null) {
          this.nid1Property = new CommitAwareIntegerProperty(this, ObservableFields.NID1.toExternalString(), getNid1());
          this.nid1Property.addListener(
@@ -111,12 +145,17 @@ public class Observable_Nid1_Int2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setInt2(int value) {
+   public final void setInt2(int value) {
+       if (this.stampedVersionProperty == null) {
+           this.int2Property();
+       }
       if (this.int2Property != null) {
          this.int2Property.set(value);
       }
 
+      if (this.stampedVersionProperty != null) {
       getNid1_Int2_Version().setInt2(value);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -133,12 +172,17 @@ public class Observable_Nid1_Int2_VersionImpl
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setNid1(int nid) {
+   public final void setNid1(int nid) {
+       if (this.stampedVersionProperty == null) {
+           this.nid1Property();
+       }
       if (this.nid1Property != null) {
          this.nid1Property.set(nid);
       }
 
+      if (this.stampedVersionProperty != null) {
       getNid1_Int2_Version().setNid1(nid);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -146,5 +190,69 @@ public class Observable_Nid1_Int2_VersionImpl
    private Nid1_Int2_VersionImpl getNid1_Int2_Version() {
       return (Nid1_Int2_VersionImpl) this.stampedVersionProperty.get();
    }
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+
+      properties.add(nid1Property());
+      properties.add(int2Property());
+      return properties;
+   }
+
+    @Override
+    protected List<Property<?>> getEditableProperties3() {
+      List<Property<?>> properties = new ArrayList<>();
+      properties.add(nid1Property());
+      properties.add(int2Property());
+      return properties;
+    }
+
+   @Override
+    protected void copyLocalFields(SemanticVersion analog) {
+        if (analog instanceof Observable_Nid1_Int2_VersionImpl) {
+            Observable_Nid1_Int2_VersionImpl observableAnalog = (Observable_Nid1_Int2_VersionImpl) analog;
+            observableAnalog.setNid1(this.getNid1());
+            observableAnalog.setInt2(this.getInt2());
+        } else if (analog instanceof Nid1_Int2_VersionImpl) {
+             Nid1_Int2_VersionImpl simpleAnalog = (Nid1_Int2_VersionImpl) analog;
+            simpleAnalog.setNid1(this.getNid1());
+            simpleAnalog.setInt2(this.getInt2());
+        } else {
+            throw new IllegalStateException("Can't handle class: " + analog.getClass());
+        }
+    }
+   
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), this.getReferencedComponentNid());
+        Nid1_Int2_VersionImpl newVersion = new Nid1_Int2_VersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
+
+     @Override
+    protected void updateVersion() {
+      if (this.nid1Property != null && 
+              this.nid1Property.get() != ((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getNid1()) {
+         this.nid1Property.set(((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getNid1());
+      }
+     if (this.int2Property != null && 
+              this.int2Property.get() != ((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getInt2()) {
+         this.int2Property.set(((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getInt2());
+      }
+    }
+      
+    
+
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      Nid1_Int2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      Observable_Nid1_Int2_VersionImpl newObservableVersion = 
+              new Observable_Nid1_Int2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+    }
 }
 

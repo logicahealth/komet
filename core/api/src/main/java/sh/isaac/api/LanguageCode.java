@@ -45,10 +45,14 @@ package sh.isaac.api;
  * dialect, the dialect is represented by a dash and two characters following
  * the language.
  *
- * @see <a
- * href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes</a>
+ * @see <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes</a>
  */
 public enum LanguageCode {
+	/**
+	 *  Czech
+	 */
+	CS,
+	
    /**
     * English.
     */
@@ -245,6 +249,16 @@ public enum LanguageCode {
     * Danish (Denmark).
     */
    DA_DK,
+   
+   /**
+    * Irish
+    */
+   GA,
+   
+   /**
+    * Korean
+    */
+   KO,
 
    /**
     * Polish.
@@ -280,6 +294,11 @@ public enum LanguageCode {
     * Lithuanian (Lithuania).
     */
    LT_LT,
+   
+   /**
+    * Russian
+    */
+   RU,
 
    /**
     * Chinese.

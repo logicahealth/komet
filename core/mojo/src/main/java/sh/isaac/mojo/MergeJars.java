@@ -61,7 +61,7 @@ public class MergeJars
    @Parameter(required = true)
    private File mergedJar;
 
-   private final HashMap<String, ManifestEntry> entryMap = new HashMap();
+   private final HashMap<String, ManifestEntry> entryMap = new HashMap<>();
    private ManifestEntry currentEntry;
 
    @Override
@@ -119,7 +119,7 @@ public class MergeJars
          }
 
          if (zipEntry.getName().endsWith("MANIFEST.MF")) {
-                 System.out.println("Found a manifest: " + zipEntry.getName());
+                 getLog().info("Found a manifest: " + zipEntry.getName());
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(entryData)));
             int nameCount = 0;
@@ -138,6 +138,7 @@ public class MergeJars
                   }
                }
             }
+            getLog().debug("NameCount: " + nameCount);
          } else {
             zipEntry.setCompressedSize(-1);
             writer.putNextEntry(zipEntry);
@@ -150,12 +151,13 @@ public class MergeJars
    private static class ManifestEntry {
 
       String name;
-      ArrayList<String> entries = new ArrayList();
+      ArrayList<String> entries = new ArrayList<>();
 
       public ManifestEntry(String name) {
          this.name = name;
       }
 
+      @SuppressWarnings("unused")
       public String getName() {
          return name;
       }

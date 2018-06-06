@@ -16,17 +16,14 @@
  */
 package sh.komet.gui.contract;
 
-import java.util.function.Consumer;
-import javafx.scene.Node;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.interfaces.ExplorationNode;
 import org.jvnet.hk2.annotations.Contract;
+import sh.komet.gui.interfaces.ExplorationNode;
 
 /**
  *
  * @author kec
  */
 @Contract
-public interface ExplorationNodeFactory extends NodeFactory {
-   ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer);
+public interface ExplorationNodeFactory extends NodeFactory<ExplorationNode> {
+
 }

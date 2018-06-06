@@ -64,7 +64,8 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.index.IndexService;
+import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
 
@@ -129,43 +130,35 @@ public class DescriptionLuceneMatch
     */
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final NidSet               nids               = new NidSet();
-      final List<IndexService> indexers           = LookupService.get()
-                                                                   .getAllServices(IndexService.class);
-      IndexService             descriptionIndexer = null;
-
-      for (final IndexService li: indexers) {
-         if (li.getIndexerName()
-               .equals("assemblage-index")) {
-            descriptionIndexer = li;
-         }
-      }
+      final NidSet                 nids               = new NidSet();
+      IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
 
       if (descriptionIndexer == null) {
-         throw new IllegalStateException("No description indexer found in: " + indexers);
+         throw new IllegalStateException("No description indexer found on classpath");
       }
 
-      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
+      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, false, null,
+            (nid -> {
+               //The AmpRestriction only does module/path - not active / inactive.  So insert a predicate that does the active bit.
+         final Optional<? extends Chronology> chronology =
+               Get.identifiedObjectService()
+                  .getChronology(nid);
+
+            if (chronology.isPresent()) {
+               //TODO [KEC] pretty sure this is NOT what was intended - this will only return active items, rather than returning items that 
+               //match the provided coordinate
+               if (chronology.get()
+                              .isLatestVersionActive(this.manifoldCoordinate)) {
+                  return true;
+               }
+            } 
+            return false;
+      }), AmpRestriction.restrict(this.manifoldCoordinate), 1, 1000, null);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());
                            });
 
-      // Filter the results, based upon the input ViewCoordinate
-      nids.stream().forEach((nid) -> {
-                      final Optional<? extends Chronology> chronology =
-                         Get.identifiedObjectService()
-                            .getIdentifiedObjectChronology(nid);
-
-                      if (chronology.isPresent()) {
-                         if (!chronology.get()
-                                        .isLatestVersionActive(this.manifoldCoordinate)) {
-                            getResultsCache().remove(nid);
-                         }
-                      } else {
-                         getResultsCache().remove(nid);
-                      }
-                   });
       getResultsCache().or(nids);
       return nids;
    }

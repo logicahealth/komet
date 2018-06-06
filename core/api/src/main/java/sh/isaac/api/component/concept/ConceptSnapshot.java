@@ -41,15 +41,21 @@ package sh.isaac.api.component.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -98,18 +104,131 @@ public interface ConceptSnapshot
     * Gets the fully specified description.
     *
     * @return The fully specified description for this concept. Optional in case
-    * there is not description that satisfies the {@code StampCoordinate} and the
+    * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription();
+   
+   /**
+    * Gets the fully specified description text.
+    *
+    * @return The fully specified description text for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getFullySpecifiedDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getFullySpecifiedDescription();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
 
    /**
     * Gets the preferred description.
     *
     * @return The preferred description for this concept. Optional in case
-    * there is not description that satisfies the {@code StampCoordinate} and the
+    * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
    LatestVersion<DescriptionVersion> getPreferredDescription();
+   
+   /**
+    * Gets the preferred description text.
+    *
+    * @return The preferred description text for this concept. Optional in case
+    * there is no preferred description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getPreferredDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getPreferredDescription();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
+
+   /**
+    * Gets the textual definition for this concept. 
+    * @return The textual definition for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   LatestVersion<DescriptionVersion> getDefinition();
+
+   /**
+    * Gets the text of the textual definition for this concept. 
+    * @return The text of the textual definition for this concept. Optional in case
+    * there is no description that satisfies the {@code StampCoordinate} and the
+    * {@code LanguageCoordinate} of this snapshot.
+    */
+   default LatestVersion<String> getDefinitionText() {
+       LatestVersion<DescriptionVersion> latest = getDefinition();
+       if (latest.isPresent()) {
+           return LatestVersion.of(latest.get().getText());
+       }
+       return LatestVersion.empty();
+   }
+
+   /**
+    * Get all descriptions
+    * @return a list of all descriptions that are present according to the snapshot specification.
+    */
+   List<DescriptionVersion> getAllDescriptions(); 
+   
+   
+   /**
+    * Get text of all descriptions
+    * @return a list of the text of all descriptions that are present according to the snapshot specification.
+    */
+   default List<String> getTextOfAllDescriptions() {
+       List<DescriptionVersion> descriptions = getAllDescriptions();
+       ArrayList<String> textList = new ArrayList<>(descriptions.size());
+       for (DescriptionVersion version: descriptions) {
+           textList.add(version.getText());
+       }
+       return textList;
+   }
+   
+   /**
+    * 
+    * @param <V> The type of versions to be returned
+    * @param assemblageConceptNid The assemblage from which to retrieve semantic versions
+    * @return A list of the latest semantic versions that reference this concept in the identified assemblage. 
+    * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
+    */
+   default <V extends SemanticVersion> List<LatestVersion<V>> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid) {
+       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
+       for (int semanticNid: semanticNids.asArray()) {
+           SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           if (latestVersion.isPresent()) {
+               semanticList.add(latestVersion);
+           }
+       }
+       return semanticList;
+   }
+   
+   /**
+    * 
+    * @param <V> The type of versions to be returned
+    * @param assemblageConceptNid The assemblage from which to retrieve semantic versions
+    * @return A (no guarantee of any particular ordering from which the first is chosen) 
+    * latest semantic version that reference this concept in the identified assemblage. 
+    * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
+    */
+   default <V extends SemanticVersion> LatestVersion<V> getFirstSemanticVersionFromAssemblage(int assemblageConceptNid) {
+       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       for (int semanticNid: semanticNids.asArray()) {
+           SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           if (latestVersion.isPresent()) {
+               return latestVersion;
+           }
+       }
+       return LatestVersion.empty();
+   }
+   
 }
 

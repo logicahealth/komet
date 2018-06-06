@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>provider</artifactId>
-      <version>4.47</version>
+      <version>4.48</version>
    </parent>
    <groupId>sh.isaac.provider</groupId>
    <artifactId>xodus-datastore</artifactId>
@@ -19,17 +19,14 @@
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-openAPI</artifactId>
-         <version>1.0.6</version>
       </dependency>
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-utils</artifactId>
-         <version>1.0.6</version>
       </dependency>
       <dependency>
          <groupId>org.jetbrains.xodus</groupId>
          <artifactId>xodus-environment</artifactId>
-         <version>1.0.6</version>
       </dependency>
    </dependencies>
 </project>

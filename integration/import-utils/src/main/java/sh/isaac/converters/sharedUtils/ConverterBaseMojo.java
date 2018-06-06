@@ -39,23 +39,17 @@
 
 package sh.isaac.converters.sharedUtils;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 
 import java.util.List;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
-
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID.NAMESPACE;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -147,7 +141,7 @@ public abstract class ConverterBaseMojo
       required     = false,
       defaultValue = "${skipUUIDDebug}"
    )
-   private String createDebugUUIDMap;
+   private String skipUUIDDebugMap;
 
    /**
     * An optional list of annotation type names which should be skipped during this transformation.
@@ -194,14 +188,13 @@ public abstract class ConverterBaseMojo
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService()
-         .setBootstrapMode();
-      ConverterUUID.configureNamespace(getNamespace());
-      ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
-                                       (this.createDebugUUIDMap.length() == 0)) ? false
-            : Boolean.parseBoolean(this.createDebugUUIDMap));
+      Get.configurationService().setDBBuildMode(BuildMode.IBDF);
 
-      if (ConverterUUID.disableUUIDMap) {
+      Get.service(ConverterUUID.class).setUUIDMapState(((this.skipUUIDDebugMap == null) ||
+                                       (this.skipUUIDDebugMap.length() == 0)) ? true
+            : !Boolean.parseBoolean(this.skipUUIDDebugMap));
+
+      if (!Get.service(ConverterUUID.class).isUUIDMapEnabled()) {
          ConsoleUtil.println("The UUID Debug map is disabled - this also prevents duplicate ID detection");
       }
 
@@ -297,9 +290,5 @@ public abstract class ConverterBaseMojo
    private boolean notEmpty(List<String> item) {
       return (item != null) && (item.size() > 0);
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   protected abstract NAMESPACE getNamespace();
 }
 

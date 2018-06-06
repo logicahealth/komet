@@ -28,7 +28,7 @@ public class QueryClauseParameter<T> {
         StringBuilder stringBuilder = new StringBuilder();
 
         if(this.parameter instanceof ConceptChronology){
-            stringBuilder.append(((ConceptChronology)this.parameter).getFullySpecifiedConceptDescriptionText());
+            stringBuilder.append(((ConceptChronology)this.parameter).getFullyQualifiedName());
         }else if(this.parameter instanceof HashMap) {
             Set<Map.Entry> entries = ((HashMap)this.parameter).entrySet();
             for(Map.Entry entry : entries){

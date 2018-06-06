@@ -36,34 +36,49 @@
  */
 package sh.isaac.api;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+
 //~--- JDK imports ------------------------------------------------------------
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Writer;
-
 import java.nio.file.Path;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.constants.MetadataConceptConstantGroup;
@@ -73,17 +88,10 @@ import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
-import sh.isaac.api.util.UuidT5Generator;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
+import sh.isaac.api.util.DescriptionToToken;
+import sh.isaac.api.util.SemanticTags;
+import sh.isaac.api.util.StringUtils;
+import sh.isaac.api.util.metainf.VersionFinder;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -138,6 +146,10 @@ public class IsaacTaxonomy {
     * The semantic tag.
     */
    private final String semanticTag;
+   
+   private final String auxiliaryMetadataVersion;
+   private final UUID namespace;
+   private final Logger LOG = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -146,21 +158,26 @@ public class IsaacTaxonomy {
     * @param path the path
     * @param author the author
     * @param module the module
-    * @param isaType the isa type
     * @param semanticTag the semantic tag
+    * @param auxiliaryMetadataVersion
+    * @param namespaceForUUIDGeneration
     */
    public IsaacTaxonomy(ConceptSpecification path,
            ConceptSpecification author,
            ConceptSpecification module,
-           ConceptSpecification isaType,
-           String semanticTag) {
+           String semanticTag, 
+           String auxiliaryMetadataVersion, 
+           UUID namespaceForUUIDGeneration) {
       this.pathSpec = path;
       this.authorSpec = author;
       this.moduleSpec = module;
       this.semanticTag = semanticTag;
+      this.auxiliaryMetadataVersion = auxiliaryMetadataVersion;
+      this.namespace = namespaceForUUIDGeneration;
    }
 
    //~--- methods -------------------------------------------------------------
+   
    /**
     * Creates the concept.
     *
@@ -168,16 +185,27 @@ public class IsaacTaxonomy {
     * @return the concept builder
     * @throws Exception the exception
     */
-   public final ConceptBuilder createConcept(MetadataConceptConstant cc)
+   public ConceptBuilder createConcept(MetadataConceptConstant cc) throws Exception {
+       return createConcept(cc, false);
+   }
+   /**
+    * Creates the concept.
+    *
+    * @param cc the cc
+    * @param isIdentifier
+    * @return the concept builder
+    * @throws Exception the exception
+    */
+   public final ConceptBuilder createConcept(MetadataConceptConstant cc, boolean isIdentifier)
            throws Exception {
       try {
-         final ConceptBuilder cb = createConcept(cc.getPrimaryName(),
+         final ConceptBuilder cb = createConcept(cc.getFullyQualifiedName(),
                  (cc.getParent() != null) ? cc.getParent()
                  .getNid()
                  : null,
-                 null);
+                 cc.getRegularName().orElse(null));
 
-         cb.setPrimordialUuid(cc.getUUID());
+         cb.setPrimordialUuid(cc.getPrimordialUuid());
 
          cc.getDefinitions().forEach((definition) -> {
             addDescription(definition, cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
@@ -198,7 +226,7 @@ public class IsaacTaxonomy {
          }
 
          if (cc instanceof MetadataDynamicConstant) {
-            // See {@link DynamicSememeUsageDescription} class for more details on this format.
+            // See {@link DynamicSemanticUsageDescription} class for more details on this format.
             final MetadataDynamicConstant dsc = (MetadataDynamicConstant) cc;
             final DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> db
                     = addDescription(dsc.getAssemblageDescription(),
@@ -236,7 +264,7 @@ public class IsaacTaxonomy {
             if (data != null) {
                sb = Get.semanticBuilderService()
                        .getDynamicBuilder(cb,
-                               DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+                               DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION
                                        .getNid(),
                                data);
                cb.addSemantic(sb);
@@ -255,10 +283,15 @@ public class IsaacTaxonomy {
                cb.addSemantic(sb);
             }
          }
+         
+         cb.setT5UuidNested(namespace);
+         if (isIdentifier) {
+             addIdentifierAssemblageMembership(cb);
+         }
 
          return cb;
       } catch (final Exception e) {
-         throw new Exception("Problem with '" + cc.getPrimaryName() + "'", e);
+         throw new Exception("Problem with '" + cc.getFullyQualifiedName() + "'", e);
       }
    }
 
@@ -285,11 +318,11 @@ public class IsaacTaxonomy {
       commitService.setComment(stampSequence, "Generated by maven from java sources");
 
       this.conceptBuildersInInsertionOrder.forEach((builder) -> {
-         buildAndWrite(builder, stampSequence, conceptService, assemblageService);
+         buildAndWriteToService(builder, stampSequence, conceptService, assemblageService);
       });
 
       this.semanticBuilders.forEach((builder) -> {
-         buildAndWrite(builder, stampSequence, conceptService, assemblageService);
+         buildAndWriteToService(builder, stampSequence, conceptService, assemblageService);
       });
 
       final int stampAliasForPromotion = Get.stampService()
@@ -321,8 +354,14 @@ public class IsaacTaxonomy {
       out.append("\n\nimport sh.isaac.api.component.concept.ConceptSpecification;\n");
       out.append("import sh.isaac.api.ConceptProxy;\n");
       out.append("import java.util.UUID;\n");
+      
+      out.append("\n//Generated " + new Date().toString() + "\n");
+      out.append("//Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
+      
 
       out.append("\n\npublic class " + className + " {\n");
+
+      out.append("\n\tpublic static final String AUXILIARY_METADATA_VERSION = \"" + auxiliaryMetadataVersion + "\";\n");
       
       ArrayList<String> constantList = new ArrayList<>();
       
@@ -333,29 +372,18 @@ public class IsaacTaxonomy {
       });
 
       for (final ConceptBuilder concept : sortedBuilders) {
-         final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
-         String constantName = preferredName.toUpperCase();
-
-         constantName = constantName.replace(".", "");
-         constantName = constantName.replace(",", "");
-         constantName = constantName.replace("®", "");
-         constantName = constantName.replace("©", "C");
-         constantName = constantName.replace("(", "___");
-         constantName = constantName.replace(")", "");
-         constantName = constantName.replace(" ", "_");
-         constantName = constantName.replace("-", "_");
-         constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND_OR_");
-         out.append("\n\n   /** Java binding for the concept described as <strong><em>" + preferredName
+         final String fqn = concept.getFullyQualifiedName();
+         String constantName = DescriptionToToken.get(fqn.toUpperCase());
+         out.append("\n\n   /** Java binding for the concept described as <strong><em>" + fqn
                  + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/" + concept.getPrimordialUuid()
                  + "\">\n    * " + concept.getPrimordialUuid() + "</a>}.*/");
          constantList.add(constantName);
          out.append("\n   public static final ConceptSpecification " + constantName + " =");
-         out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
+         out.append("\n             new ConceptProxy(\"" + fqn + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
-            out.append(", UUID.fromString(\"" + uuid.toString() + "\")");
+            out.append(", java.util.UUID.fromString(\"" + uuid.toString() + "\")");
          }
 
          out.append(");");
@@ -389,30 +417,64 @@ public class IsaacTaxonomy {
     * @param className the class name
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public void exportYamlBinding(Writer out, String packageName, String className)
+   public void exportYamlBinding(Writer out, String packageName, String className, Map<String, MetadataConceptConstant> additionalConstants)
            throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
-
-      // TODO use common code (when moved somewhere common) to extract the version number from the pom.xml
       out.append("#Generated " + new Date().toString() + "\n");
+      out.append("#Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
+      out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
+      
+      HashSet<String> genConstants = new HashSet<>();
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
-         String constantName = preferredName.toUpperCase();
+         String regularName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
+         
+         if (regularName.contains("↳"))  //This oddball causes problems all over
+         {
+             regularName = SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName());
+         }
+         String constantName = regularName.toUpperCase();
+         
+         if (regularName.indexOf("(") > 0 || regularName.indexOf(")") > 0) {
+             throw new RuntimeException("The metadata concept '" + regularName + "' contains parens, which is illegal.");
+         }
 
-         constantName = constantName.replace("(", "\u01C1");
-         constantName = constantName.replace(")", "\u01C1");
-         constantName = constantName.replace(" ", "_");
-         constantName = constantName.replace("-", "_");
-         constantName = constantName.replace("+", "_PLUS");
-         constantName = constantName.replace("/", "_AND");
+         constantName = DescriptionToToken.get(constantName);
+         if (!genConstants.add(constantName)) {
+            throw new RuntimeException("Duplicate definition of regular name for constant " + constantName + " " + concept.getFullyQualifiedName());
+         }
          out.append("\n" + constantName + ":\n");
-         out.append("    fqn: " + preferredName + "\n");
+         out.append("    fqn: " + concept.getFullyQualifiedName() + "\n");
+         out.append("    regular: " + regularName + "\n");
          out.append("    uuids:\n");
 
          for (final UUID uuid : concept.getUuidList()) {
             out.append("        - " + uuid.toString() + "\n");
          }
+      }
+      
+      if (additionalConstants != null)
+      {
+          for (Entry<String, MetadataConceptConstant> mcc : additionalConstants.entrySet())
+          {
+              String preferredName = mcc.getValue().getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(mcc.getValue().getFullyQualifiedName()));
+              String constantName = mcc.getKey();
+
+              if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
+                  throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+              }
+              constantName = constantName.replace(" ", "_");
+              constantName = constantName.replace("-", "_");
+              constantName = constantName.replace("+", "_PLUS");
+              constantName = constantName.replace("/", "_AND");
+
+              out.append("\n" + constantName + ":\n");
+              out.append("    fqn: " + preferredName + "\n");
+              out.append("    uuids:\n");
+              for (UUID uuid : mcc.getValue().getUuidList()) {
+                  out.append("        - " + uuid.toString() + "\n");
+              }
+          }
       }
 
       out.close();
@@ -427,14 +489,14 @@ public class IsaacTaxonomy {
     */
    protected final void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept, UUID semanticUuid) {
        
-       SemanticBuilder pathMemberBuilder = Get.semanticBuilderService()
+       SemanticBuilder<? extends SemanticChronology> pathMemberBuilder = Get.semanticBuilderService()
               .getMembershipSemanticBuilder(pathConcept.getNid(),
                       pathAssemblageConcept.getNid());
        pathMemberBuilder.setPrimordialUuid(semanticUuid);
        
       this.semanticBuilders.add(pathMemberBuilder);
    }
-
+   
    /**
     * Creates the concept.
     *
@@ -442,36 +504,46 @@ public class IsaacTaxonomy {
     * @return the concept builder
     */
    protected final ConceptBuilder createConcept(ConceptSpecification specification) {
-      //ConceptProxy specification = (ConceptProxy) spec;
-      final ConceptBuilder builder = createConcept(specification.getFullySpecifiedConceptDescriptionText());
+      return createConcept(specification, null);
+   }
+
+   /**
+    * Creates the concept.
+    *
+    * @param specification the concept specification
+    * @param extraParent
+    * @return the concept builder
+    */
+   protected final ConceptBuilder createConcept(ConceptSpecification specification, Integer extraParent) {
+      final ConceptBuilder builder = createConcept(specification.getFullyQualifiedName(), null, extraParent, null);
 
       if (specification.getPrimordialUuid().version() == 4) {
-         throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullySpecifiedConceptDescriptionText());
+         throw new UnsupportedOperationException("ERROR: must not use type 4 uuid for: " + specification.getFullyQualifiedName());
       }
-      builder.setPrimordialUuid(specification.getUuidList()
-              .get(0));
 
-      if (specification.getUuidList()
-              .size() > 1) {
-         builder.addUuids(specification.getUuidList()
-                 .subList(1, specification.getUuidList()
-                         .size())
-                 .toArray(new UUID[0]));
+      builder.setPrimordialUuid(specification.getUuidList().get(0));
+      if (specification.getUuidList().size() > 1) {
+         builder.addUuids(specification.getUuidList().subList(1, specification.getUuidList().size()).toArray(new UUID[0]));
       }
 
       if (specification instanceof ConceptProxy) {
-         Optional<String> preferredDescription = ((ConceptProxy) specification).getPreferedConceptDescriptionTextNoLookup();
+         Optional<String> preferredDescription = ((ConceptProxy) specification).getRegularNameNoLookup();
          if (preferredDescription.isPresent()) {
             builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
          }
       } else {
-         Optional<String> preferredDescription = specification.getPreferedConceptDescriptionText();
+         Optional<String> preferredDescription = specification.getRegularName();
          if (preferredDescription.isPresent()) {
             builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
          }
       }
 
       return builder;
+   }
+   
+   private final static <T extends CommittableComponent> IdentifiedComponentBuilder<T> addIdentifierAssemblageMembership(IdentifiedComponentBuilder<T> builder) {
+      // add static member semantic
+      return builder.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(builder, TermAux.IDENTIFIER_SOURCE.getNid()));
    }
 
    /**
@@ -481,7 +553,7 @@ public class IsaacTaxonomy {
     * @return the concept builder
     */
    protected final ConceptBuilder createConcept(String name) {
-      return createConcept(name, null, null);
+      return createConcept(name, (Integer)null, (String)null);
    }
 
    /**
@@ -492,7 +564,30 @@ public class IsaacTaxonomy {
     * @return the concept builder
     */
    protected final ConceptBuilder createConcept(String name, String nonPreferredSynonym) {
-      return createConcept(name, null, nonPreferredSynonym);
+      return createConcept(name, (Integer)null, nonPreferredSynonym);
+   }
+   
+   protected final ConceptBuilder createConcept(String name, String nonPreferredSynonym, String definition) {
+       ConceptBuilder cb = createConcept(name, (Integer)null, nonPreferredSynonym);
+
+       if (StringUtils.isNotBlank(definition)) {
+           addDescription(definition, cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
+       }
+       return cb;
+   }
+   
+   /**
+    * If parent is provided, it ignores the parent stack, and uses the provided parent instead. If parent is not
+    * provided, it uses the parentStack (if populated), otherwise, it creates the concept without setting a parent.
+    *
+    * @param name the name
+    * @param parentId the parent id - if provided - this is the parent, if not provided, the primary parent comes 
+    *                 from the parentStack
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
+    */
+   protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
+      return createConcept(name, parentId, null, nonPreferredSynonym);
    }
 
    /**
@@ -500,29 +595,37 @@ public class IsaacTaxonomy {
     * provided, it uses the parentStack (if populated), otherwise, it creates the concept without setting a parent.
     *
     * @param name the name
-    * @param parentId the parent id
+    * @param parentId the parent id - if provided - this is the parent, if not provided, the primary parent comes 
+    *                 from the parentStack
+    * @param extraParent - optional additional parent (a second parent to the one in parentId/the stack).  Only used
+    *                      when parentId is provided or the parentStack is not null.
     * @param nonPreferredSynonym the non preferred synonym
     * @return the concept builder
     */
-   protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
+   protected final ConceptBuilder createConcept(String name, Integer parentId, Integer extraParent, String nonPreferredSynonym) {
       checkConceptDescriptionText(name);
 
       if (this.parentStack.isEmpty() && (parentId == null)) {
          this.current = Get.conceptBuilderService()
-                 .getDefaultConceptBuilder(name, this.semanticTag, null);
+                 .getDefaultConceptBuilder(name, this.semanticTag, null, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       } else {
          final LogicalExpressionBuilderService expressionBuilderService
                  = LookupService.getService(LogicalExpressionBuilderService.class);
          final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
 
-         NecessarySet(And(ConceptAssertion((parentId == null) ? this.parentStack.lastElement()
-                 .getNid()
-                 : parentId, defBuilder)));
+         if (extraParent != null) {
+            NecessarySet(And(
+                  ConceptAssertion((parentId == null) ? this.parentStack.lastElement().getNid() : parentId, defBuilder), 
+                  ConceptAssertion(extraParent, defBuilder)));
+         }
+         else {
+            NecessarySet(And(ConceptAssertion((parentId == null) ? this.parentStack.lastElement().getNid() : parentId, defBuilder)));
+         }
 
          final LogicalExpression logicalExpression = defBuilder.build();
 
          this.current = Get.conceptBuilderService()
-                 .getDefaultConceptBuilder(name, this.semanticTag, logicalExpression);
+                 .getDefaultConceptBuilder(name, this.semanticTag, logicalExpression, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
       }
 
       if (org.apache.commons.lang3.StringUtils.isNotBlank(nonPreferredSynonym)) {
@@ -561,7 +664,10 @@ public class IsaacTaxonomy {
     */
    protected final void generateStableUUIDs() {
       this.conceptBuilders.values().forEach((cb) -> {
-         ensureStableUUID(cb);
+         cb.setT5UuidNested(namespace);
+      });
+      this.semanticBuilders.forEach((sb) -> {
+         sb.setT5UuidNested(namespace);
       });
    }
 
@@ -578,7 +684,7 @@ public class IsaacTaxonomy {
     * @param parent the parent
     */
    protected final void pushParent(ConceptBuilder parent) {
-      ensureStableUUID(parent);  // no generated UUIDs from this point on....
+      parent.setT5UuidNested(namespace);  // no generated UUIDs from this point on....
       this.parentStack.push(parent);
    }
 
@@ -622,12 +728,12 @@ public class IsaacTaxonomy {
     * @param assemblageService the assemblage service
     * @throws IllegalStateException the illegal state exception
     */
-   private void buildAndWrite(IdentifiedComponentBuilder builder,
+   private void buildAndWriteToService(IdentifiedComponentBuilder<? extends CommittableComponent> builder,
            int stampCoordinate,
            ConceptService conceptService,
            AssemblageService assemblageService)
            throws IllegalStateException {
-      final List<?> builtObjects = new ArrayList<>();
+      final List<Chronology> builtObjects = new ArrayList<>();
 
       builder.build(stampCoordinate, builtObjects);
       builtObjects.forEach((builtObject) -> {
@@ -636,12 +742,12 @@ public class IsaacTaxonomy {
                     (ConceptChronology) builtObject);
             ConceptChronology restored = conceptService.getConceptChronology(((ConceptChronology) builtObject).getNid());
             if (restored.getAssemblageNid() >= 0) {
-               System.out.println("Bad restore of: " + restored);
+               LOG.error("Bad restore of: " + restored);
             }
          } else if (builtObject instanceof SemanticChronology) {
             assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
          } else {
-            throw new UnsupportedOperationException("b Can't handle: " + builtObject);
+            throw new UnsupportedOperationException("Can't handle: " + builtObject);
          }
       });
    }
@@ -654,19 +760,6 @@ public class IsaacTaxonomy {
    private void checkConceptDescriptionText(String name) {
       if (this.conceptBuilders.containsKey(name)) {
          throw new RuntimeException("Concept is already added: " + name);
-      }
-   }
-
-   /**
-    * Ensure stable UUID.
-    *
-    * @param builder the builder
-    */
-   private void ensureStableUUID(ConceptBuilder builder) {
-      if (builder.getPrimordialUuid()
-              .version() == 4) {
-         builder.setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
-                 builder.getFullySpecifiedConceptDescriptionText()));
       }
    }
 }

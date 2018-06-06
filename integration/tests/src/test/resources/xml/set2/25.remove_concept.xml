@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<CodedConcept>
+  <Action>remove</Action>
+  <Code>800006</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>800006</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

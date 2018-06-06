@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="CVXCodes">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CVXInfo" maxOccurs="unbounded"
+					minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="ShortDescription" />
+							<xs:element type="xs:string" name="FullVaccinename" />
+							<xs:element type="xs:int" name="CVXCode" />
+							<xs:element type="xs:string" name="Notes" />
+							<xs:element type="xs:string" name="Status" />
+							<xs:element type="xs:string" name="LastUpdated" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

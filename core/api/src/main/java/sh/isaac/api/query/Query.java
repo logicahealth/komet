@@ -46,6 +46,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -771,7 +772,7 @@ public abstract class Query {
             } else {
                this.letDeclarations.put(CURRENT_TAXONOMY_RESULT,
                                         Get.configurationService()
-                                           .getDefaultManifoldCoordinate());
+                                           .getUserConfiguration(Optional.empty()).getManifoldCoordinate());
             }
          }
 

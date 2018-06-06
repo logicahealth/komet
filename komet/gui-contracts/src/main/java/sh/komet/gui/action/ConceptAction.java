@@ -27,7 +27,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author kec
  */
 public class ConceptAction extends Action {
-   ConceptSpecification actionConcept;
+    public static final String CONCEPT_PROPERTY = "sh.komet.gui.action.ConceptAction.THECONCEPT";
 
    public ConceptAction(ConceptSpecification actionConcept) {
       super((String) null);
@@ -40,17 +40,17 @@ public class ConceptAction extends Action {
    }
 
    private void setupProxy(ConceptSpecification actionConcept) {
-      this.actionConcept = actionConcept;
-      Optional<String> optionalDescription = actionConcept.getPreferedConceptDescriptionText();
+      this.getProperties().put(CONCEPT_PROPERTY, actionConcept);
+      Optional<String> optionalDescription = actionConcept.getRegularName();
       if (optionalDescription.isPresent()) {
          this.setText(optionalDescription.get());
       } else {
-         this.setText(actionConcept.getFullySpecifiedConceptDescriptionText());
+         this.setText(actionConcept.getFullyQualifiedName());
       }
    }
 
    public ConceptSpecification getActionConcept() {
-      return actionConcept;
+      return (ConceptSpecification) this.getProperties().get(CONCEPT_PROPERTY);
    }
    
 }

@@ -1,31 +1,9 @@
 ISAAC: Informatics Analytic Architecture
 ======================
 
+[![Build Status](https://travis-ci.org/OSEHRA/ISAAC.svg?branch=develop)](https://travis-ci.org/OSEHRA/ISAAC)
+
 A dynamic semantic architecture for the analysis of models, logic, and language.
-
-This software now depends on the Oracle Berkeley JE database. This database is licensed under Apache 2, 
-so the license of the database is not an issues. Unfortunately, Oracle does not choose to distribute this database
-via maven central, so developers may have to manually download and install the Berkeley DB JE artifacts themselves. 
-
-If this is the case, Berkeley DB JE can be downloaded from: 
-
-http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html
-
-Download the Berkeley DB Java Edition 7.5.11, and upload it to your repository using the following coordinate: 
-
-```
-   <groupId>com.sleepycat</groupId>
-   <artifactId>je</artifactId>
-   <version>7.5.11</version>
-
-```
-Help for manual install may be found here: 
-
-https://www.mkyong.com/maven/how-to-include-library-manully-into-maven-local-repository/
-
-If any developer or sponsor wants to take a lead on porting the database to Xodus (also Apache 2, but 
-distributed via maven central), please make yourselves known, and we will help you get started :-)
-
 
 
 ## FAQ
@@ -35,17 +13,7 @@ distributed via maven central), please make yourselves known, and we will help y
 [ERROR] /Users/patrick/s/osehra/ISAAC/core/api/src/main/java/sh/isaac/api/util/HeadlessToolkit.java:[101,33] cannot find symbol
 [ERROR]   symbol:   class HitInfo
 
-or
-
-[ERROR] Failed to execute goal on project iconography: Could not resolve dependencies for project sh.isaac.komet:iconography:jar:4.23-SNAPSHOT: The following artifacts could not be resolved: de.jensd:fontawesomefx-commons:jar:8.15, de.jensd:fontawesomefx-controls:jar:8.15, de.jensd:fontawesomefx-emojione:jar:2.2.7-2, de.jensd:fontawesomefx-fontawesome:jar:4.7.0-5, de.jensd:fontawesomefx-icons525:jar:3.0.0-4, de.jensd:fontawesomefx-materialdesignfont:jar:1.7.22-4, de.jensd:fontawesomefx-materialicons:jar:2.2.0-5, de.jensd:fontawesomefx-materialstackicons:jar:2.1-5, de.jensd:fontawesomefx-octicons:jar:4.3.0-5, de.jensd:fontawesomefx-weathericons:jar:2.0.10-5: Could not find artifact de.jensd:fontawesomefx-commons:jar:8.15 in central (https://repo.maven.apache.org/maven2) -> [Help 1]
-[ERROR]
-
-This may be the fix.
-
-Check that ~/.m2/settings.xml exists.  Use the settings.xml found here:
-https://bitbucket.org/Jerady/fontawesomefx/issues/43/how-to-get-fontawesome-812-from-maven
-
-Next, make sure java is at the latest 1.8.x version.  Also, make sure maven is using the same jdk.  If you are using jenv to have multiple java versions on your machine... be aware jenv does not set the output of /usr/libexec/java correctly.
+Make sure java is at the latest 1.8.x version.  Also, make sure maven is using the same jdk.  If you are using jenv to have multiple java versions on your machine... be aware jenv does not set the output of /usr/libexec/java correctly.
 
 Example:
 
@@ -117,10 +85,32 @@ patterned after these entries:
 
 ```
 
+Or, alternatively, just use the parameter: 
+```
+-DaltDeploymentRepository=central::default::http://artifactory.isaac.sh/artifactory/libs-snapshot-local
+
+```
+Note, in either case, the value 'central' is a variable that needs to align with a 'server' section in your settings.xml file.
+```
+  <server>
+    <id>central</id>
+    <username>your server username</username>
+    <password>your server password</password>
+  </server>
+```
+
 Then you can deploy to the repository of your choice using the following command:  
 
 mvn clean deploy -Psnapshot-deploy
 
+## Bitbucket Pipelines 
+There is a Bitbucket pipelines configuration provided, which builds the source on openjdk8.  It also provides a custom deploy step you can run.
+Before running the custom (snapshot) deploy step in bitbucket, you need to set the following three variables in your bitbucket pipelines configuration:
+```
+DEPLOYMENT_SNAPSHOT_REPO
+REPO_USERNAME
+REPO_PASSWORD
+```
 
 ## Performing a release
 

@@ -43,8 +43,6 @@ package sh.isaac.api.component.semantic.version.dynamic.types;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-
 //~--- interfaces -------------------------------------------------------------
 
 /**
@@ -53,7 +51,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicInteger
-        extends DynamicData {
+        extends DynamicNumeric {
    /**
     * Gets the data integer.
     *

@@ -47,7 +47,7 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.OchreCache;
+import sh.isaac.api.IsaacCache;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -59,7 +59,7 @@ import sh.isaac.api.OchreCache;
 @Service
 @Singleton
 public class NodeSemanticReset
-         implements OchreCache {
+         implements IsaacCache {
    /**
     * Reset.
     */

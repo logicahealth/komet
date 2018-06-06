@@ -45,14 +45,14 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class MetadataDynamicSememeConstant.
+ * The Class MetadataDynamicSemanticConstant.
  */
 public class MetadataDynamicConstant
         extends MetadataConceptConstant {
@@ -63,7 +63,7 @@ public class MetadataDynamicConstant
    private final DynamicColumnInfo[] dynamicColumns;
 
    /** The referenced component restriction. */
-   private final ObjectChronologyType referencedComponentRestriction;
+   private final IsaacObjectType referencedComponentRestriction;
 
    /** The referenced component sub restriction. */
    private final VersionType referencedComponentSubRestriction;
@@ -74,7 +74,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed  (may be empty)
     */
@@ -89,7 +89,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed (may be empty)
     * @param synonyms - optional - extra synonyms
@@ -106,7 +106,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param alternateName - optional - the non-preferred synonym to add to this concept
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
@@ -123,7 +123,7 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the Fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
@@ -146,13 +146,13 @@ public class MetadataDynamicConstant
     * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
-    * @param uuid - optional - the UUID to assign to this sememe
+    * @param uuid - optional - the UUID to assign to this semantic
     * @param description - describe the purpose of the use of this dynamic element
     * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
     * @param definitions - optional - extra definitions
     * @param referencedComponentRestriction - optional - used to limit the type of nid that can be used as the referenced component in an instance
-    * of this sememe.
+    * of this semantic.
     * @param refererenceComponentSubRestriction the reference component sub restriction
     */
    public MetadataDynamicConstant(String fqn,
@@ -161,7 +161,7 @@ public class MetadataDynamicConstant
          DynamicColumnInfo[] columns,
          String[] synonyms,
          String[] definitions,
-         ObjectChronologyType referencedComponentRestriction,
+         IsaacObjectType referencedComponentRestriction,
          VersionType refererenceComponentSubRestriction) {
       super(fqn, uuid);
 
@@ -188,7 +188,7 @@ public class MetadataDynamicConstant
    /**
     * Gets the dynamic columns.
     *
-    * @return the sememeColumns
+    * @return the semanticColumns
     */
    public DynamicColumnInfo[] getDynamicColumns() {
       return this.dynamicColumns;
@@ -206,16 +206,16 @@ public class MetadataDynamicConstant
    /**
     * Gets the referenced component type restriction.
     *
-    * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicDynamic is restricted to.
+    * @return The limit (if any) on which {@link IsaacObjectType} this DynamicDynamic is restricted to.
     */
-   public ObjectChronologyType getReferencedComponentTypeRestriction() {
+   public IsaacObjectType getReferencedComponentTypeRestriction() {
       return this.referencedComponentRestriction;
    }
 
    /**
     * Gets the dynamic assemblage description.
     *
-    * @return the dynamicSememeDescription_
+    * @return the dynamicSemanticDescription_
     */
    public String getAssemblageDescription() {
       return this.dynamicDescription;

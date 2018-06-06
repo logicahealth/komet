@@ -152,7 +152,8 @@ public class ConcurrentUuidToIntHashMap
     * @param key the key
     * @param value the value
     * @param stamp the stamp
-    * @return true, if successful
+    * @return {@code true} if the receiver did not already contain such a key; {@code false} if the
+    * receiver did already contain such a key - the new value has now replaced the formerly associated value.
     */
    public boolean put(long[] key, int value, long stamp) {
       this.sl.validate(stamp);

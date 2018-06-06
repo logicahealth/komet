@@ -42,7 +42,7 @@ package sh.isaac.provider.bdb;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
@@ -92,12 +92,15 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -119,7 +122,10 @@ import sh.isaac.model.taxonomy.TaxonomyRecord;
  * @author kec
  */
 //@Service
-//@RunLevel(value = 0)
+//@RunLevel(value = LookupService.SL_L0)  //TODO [KEC] Service disabled, as it doesn't work at the moment...
+//However, rather than disabling services, we should likely have a HK2 "name" on each DataStore implementation, and 
+//a user preference to select which one we run with.
+//TODO [DAN 3] [KEC] All of the fields set up in the class construction need to be properly cleared / purged on a shutdown/startup cycle.
 public class BdbProvider
          implements DataStore {
    /**
@@ -139,14 +145,14 @@ public class BdbProvider
    private final DatabaseConfig                                     noDupConfig            = new DatabaseConfig();
    private final ConcurrentSkipListSet<Integer>                     assemblageNids = new ConcurrentSkipListSet<>();
    private final SpinedNidNidSetMap                                 componentToSemanticMap = new SpinedNidNidSetMap();
+   private ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
    /**
     * The database validity.
     */
-   private DatabaseServices.DatabaseValidity databaseValidity = DatabaseServices.DatabaseValidity.NOT_SET;
+   private DataStoreStartState databaseStartState = DataStoreStartState.NOT_YET_CHECKED;
 
-   // TODO persist dataStoreId.
-   private final UUID      dataStoreId    = UUID.randomUUID();
+   private Optional<UUID>      dataStoreId    = Optional.empty();
    private Future<?>       lastSyncFuture = null;
    private final Semaphore syncSemaphore  = new Semaphore(1);
    private final Semaphore pendingSync    = new Semaphore(1);
@@ -167,22 +173,22 @@ public class BdbProvider
    }
 
    //~--- methods -------------------------------------------------------------
-
-   private void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
-      AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
-      Database                       database = getNoDupDatabase(MISC_MAP);
-      DatabaseEntry                  key      = new DatabaseEntry();
-
-      IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
-
-      DatabaseEntry value = new DatabaseEntry();
-
-      binding.objectToEntry(map, value);
-
-      OperationStatus result = database.put(null, key, value);
-
-      LOG.info("Put assemblage type map with result of: " + result);
-   }
+// TODO abandoned?
+//   private void putAssemblageTypeMap(ConcurrentHashMap<Integer, IsaacObjectType> map) {
+//      AssemblageObjectTypeMapBinding binding  = new AssemblageObjectTypeMapBinding();
+//      Database                       database = getNoDupDatabase(MISC_MAP);
+//      DatabaseEntry                  key      = new DatabaseEntry();
+//
+//      IntegerBinding.intToEntry(ASSEMBLAGE_TYPE_MAP_KEY, key);
+//
+//      DatabaseEntry value = new DatabaseEntry();
+//
+//      binding.objectToEntry(map, value);
+//
+//      OperationStatus result = database.put(null, key, value);
+//
+//      LOG.info("Put assemblage type map with result of: " + result);
+//   }
 
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
@@ -191,17 +197,14 @@ public class BdbProvider
       assemblageNids.add(assemblageNid);
 
       IsaacObjectType objectType       = chronology.getIsaacObjectType();
-      int             assemblageForNid = ModelGet.identifierService()
-                                                 .getAssemblageNidForNid(chronology.getNid());
-
-      if (assemblageForNid == Integer.MAX_VALUE) {
-         ModelGet.identifierService()
-                 .setupNid(chronology.getNid(), assemblageNid, objectType);
-
-         if (chronology instanceof SemanticChronologyImpl) {
-            SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
-            int                    referencedComponentNid = semanticChronology.getReferencedComponentNid();
-
+      
+      boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid, objectType, chronology.getVersionType());
+      
+      if (chronology instanceof SemanticChronologyImpl) {
+         SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
+         int referencedComponentNid = semanticChronology.getReferencedComponentNid();
+         if (!wasNidSetup || !componentToSemanticMap.containsKey(referencedComponentNid))
+         {
             componentToSemanticMap.add(referencedComponentNid, semanticChronology.getNid());
          }
       }
@@ -210,17 +213,21 @@ public class BdbProvider
 
       IntegerBinding.intToEntry(chronology.getElementSequence(), key);
 
-      List<byte[]> dataList = chronology.getDataList();
+      //TODO [KEC] this probably isn't right, see the changes made in commit 7064a7b50cac9666fd93d252605d2d25ad173d86 to FileSystemDataStore, 
+      //specifically, the getDataList method.
+      byte[] data = chronology.getDataToWrite();
       Database     database = getChronologyDatabase(assemblageNid);
 
-      for (byte[] data: dataList) {
-         DatabaseEntry   value  = new DatabaseEntry(data);
-         OperationStatus status = database.put(null, key, value);
+      DatabaseEntry   value  = new DatabaseEntry(data);
+      OperationStatus status = database.put(null, key, value);
 
-         if (status != OperationStatus.SUCCESS) {
-            throw new RuntimeException("Operation failed: " + status);
-         }
+      if (status != OperationStatus.SUCCESS) {
+         throw new RuntimeException("Operation failed: " + status);
       }
+      
+      for (DataWriteListener dwl : writeListeners) {
+          dwl.writeData(chronology);
+       }
    }
 
    private void putSequenceGeneratorMap(ConcurrentMap<Integer, AtomicInteger> assemblageNid_SequenceGenerator_Map) {
@@ -393,8 +400,8 @@ public class BdbProvider
    @PostConstruct
    private void startMe() {
       try {
-         MemoryConfiguration memoryConfiguration = Get.applicationPreferences()
-                                                      .getEnum(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
+         MemoryConfiguration memoryConfiguration = Get.configurationService().getGlobalDatastoreConfiguration().getMemoryConfiguration()
+               .orElse(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
 
          LOG.info("Starting BDB provider. Memory configuration is: " + memoryConfiguration);
 
@@ -409,7 +416,8 @@ public class BdbProvider
 
          EnvironmentConfig envConfig = new EnvironmentConfig();
          final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                              .getChronicleFolderPath()
+                                              .getDataStoreFolderPath()
+                                              .resolve("object-chronicles")
                                               .resolve("bdb");
 
          envConfig.setAllowCreate(true);
@@ -422,19 +430,36 @@ public class BdbProvider
                                             .getParent()
                                             .toFile();
             File solorDbFolder  = new File(dataFolderFile, "solor-db.data");
-            File metaDbFolder   = new File(dataFolderFile, "meta-db.data");
             File isaacDbFolder  = new File(dataFolderFile, "isaac.data");
 
             if (solorDbFolder.exists()) {
                solorDbFolder.renameTo(isaacDbFolder);
-            } else if (metaDbFolder.exists()) {
-               metaDbFolder.renameTo(isaacDbFolder);
             } else {
-               this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+               this.databaseStartState = DataStoreStartState.NO_DATASTORE;
             }
+         }
+         else
+         {
+             this.databaseStartState = DataStoreStartState.EXISTING_DATASTORE;
          }
 
          dbEnv.mkdirs();
+         
+         //If the DBID is missing, we better be in NO_DATASTORE state.
+         if (!new File(dbEnv, DATASTORE_ID_FILE).isFile())
+         {
+            if (this.databaseStartState != DataStoreStartState.NO_DATASTORE)
+            {
+               //This may happen during transition, for a bit, since old DBs don't have them.  
+               //But after transition, this should always be created as part of the DB.
+               //It also gets written as a semantic on the root concept, so a secondary check will be done 
+               //later to make sure we are in sync.
+               LOG.warn("The datastore id file was missing on startup!");
+            }
+            Files.write(dbEnv.toPath().resolve(DATASTORE_ID_FILE), UUID.randomUUID().toString().getBytes());
+         }
+         dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(dbEnv.toPath().resolve(DATASTORE_ID_FILE)))));
+         
          myDbEnvironment    = new Environment(dbEnv, envConfig);
          propertyDatabase   = myDbEnvironment.openDatabase(null, "property", noDupConfig);
          semanticMapDb      = myDbEnvironment.openDatabase(null, "semantic", noDupConfig);
@@ -495,11 +520,13 @@ public class BdbProvider
                    database.close();
                 });
             LOG.info("property count at close: " + propertyDatabase.count());
-             LOG.info("closing property database. ");
+            LOG.info("closing property database. ");
             propertyDatabase.close();
             LOG.info("closing semantic index database. ");
             semanticMapDb.close();
             myDbEnvironment.close();
+            databaseStartState = DataStoreStartState.NOT_YET_CHECKED;
+            dataStoreId = Optional.empty();
          }
       } catch (Throwable ex) {
          ex.printStackTrace();
@@ -571,7 +598,7 @@ public class BdbProvider
    }
 
    @Override
-   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageTypeMap() {
+   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap() {
       Database      database = getNoDupDatabase(MISC_MAP);
       DatabaseEntry key      = new DatabaseEntry();
 
@@ -634,7 +661,8 @@ public class BdbProvider
 
    File getComponentToSemanticMapDirectory() {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                           .getChronicleFolderPath()
+                                           .getDataStoreFolderPath()
+                                           .resolve("object-chronicles")
                                            .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), "ComponentToSemanticMap");
 
@@ -648,19 +676,19 @@ public class BdbProvider
    }
 
    @Override
-   public UUID getDataStoreId() {
+   public Optional<UUID> getDataStoreId() {
       return dataStoreId;
    }
 
    @Override
-   public Path getDatabaseFolder() {
+   public Path getDataStorePath() {
       return this.myDbEnvironment.getHome()
                                  .toPath();
    }
 
    @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
-      return this.databaseValidity;
+   public DataStoreStartState getDataStoreStartState() {
+      return this.databaseStartState;
    }
 
    private int getNidFromKey(String key) {
@@ -722,7 +750,8 @@ public class BdbProvider
 
    private File getSpinedIntIntArrayMapDirectory(String spinedMapName) {
       final Path folderPath = LookupService.getService(ConfigurationService.class)
-                                           .getChronicleFolderPath()
+                                           .getDataStoreFolderPath()
+                                           .resolve("object-chronicles")
                                            .resolve("bdb");
       File spinedMapDirectory = new File(folderPath.toFile(), spinedMapName);
 
@@ -822,6 +851,37 @@ public class BdbProvider
          LOG.info("Taxonomy count at open for " + database.getDatabaseName() + " is " + database.count());
          return origin_DestinationTaxonomyRecord_Map;
    }
+   
+   @Override
+   public boolean hasChronologyData(int nid, IsaacObjectType expectedType) {
+      int assemblageNid = ModelGet.identifierService().getAssemblageNid(nid).getAsInt();
+//      if (expectedType != assemblageToObjectType_Map.get(assemblageNid)) {
+//          return false;
+//       }
+      //TODO [KEC] this must validate the expectedType, with info that doesn't appear to be here - but maybe related to the "abandoned" method at the top?
+      int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid);
+      Database database = getChronologyDatabase(assemblageNid);
+
+      try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
+         DatabaseEntry key = new DatabaseEntry();
+
+         IntegerBinding.intToEntry(elementSequence, key);
+
+         DatabaseEntry value = new DatabaseEntry();
+         OperationStatus status = cursor.getSearchKey(key, value, LockMode.DEFAULT);
+
+         switch (status) {
+            case KEYEMPTY:
+            case KEYEXIST:
+            case NOTFOUND:
+               return false;
+
+            case SUCCESS:
+               return true;
+         }
+      }
+      return false;
+   }
 
    //~--- inner classes -------------------------------------------------------
 
@@ -875,6 +935,7 @@ public class BdbProvider
             updateMessage("Writing database environment...");
             myDbEnvironment.sync();
             completedUnitOfWork();
+            writeListeners.forEach(listener -> listener.sync());
             updateMessage("Write complete");
             return null;
          } finally {
@@ -883,6 +944,40 @@ public class BdbProvider
                .remove(this);
          }
       }
+   }
+
+   @Override
+   public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
+      // TODO [KEC] Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public int getAssemblageMemoryInUse(int assemblageNid) {
+      // TODO [KEC] Auto-generated method stub
+      return 0;
+   }
+
+   @Override
+   public int getAssemblageSizeOnDisk(int assemblageNid) {
+      // TODO [KEC] Auto-generated method stub
+      return 0;
+   }
+   
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void registerDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.add(dataWriteListener);
+   }
+
+   /** 
+    * {@inheritDoc}
+    */
+   @Override
+   public void unregisterDataWriteListener(DataWriteListener dataWriteListener) {
+      writeListeners.remove(dataWriteListener);
    }
 }
 

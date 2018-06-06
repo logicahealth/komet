@@ -53,21 +53,22 @@ import sh.isaac.api.identity.IdentifiedObject;
  */
 public interface ConceptSpecification
         extends IdentifiedObject {
-   /** The Constant FIELD_SEPARATOR. */
-   public static final char FIELD_SEPARATOR = 0x25FD;
+   /** The Constant FIELD_SEPARATOR.  '◽' */
+   public static final char FIELD_SEPARATOR = 0x25FD;  //This is actually '◽', so if you see that, its intended, and not a UTF-8 display bug...
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * To external string.
     *
-    * @return A string to specify a concept externally, including a description, followed by a FIELD_SEPARATOR, and the Uuids for this concept, each UUID also separated by a FIELD_SEPARATOR.
+    * @return A string to specify a concept externally, including a description, followed by a FIELD_SEPARATOR, 
+    * and the Uuids for this concept, each UUID also separated by a FIELD_SEPARATOR.
     */
    default String toExternalString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(getFullySpecifiedConceptDescriptionText());
-      Optional<String> optionalPreferred = getPreferedConceptDescriptionText();
+      sb.append(getFullyQualifiedName());
+      Optional<String> optionalPreferred = getRegularName();
       if (optionalPreferred.isPresent()) {
          sb.append(FIELD_SEPARATOR).append(optionalPreferred.get());
       }
@@ -81,18 +82,22 @@ public interface ConceptSpecification
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept description text.
+    * Gets the fully qualified name for the concept
     *
     * @return a text description for the specified concept.
     */
-   String getFullySpecifiedConceptDescriptionText();
+   String getFullyQualifiedName();
 
    /**
-    * Gets the preferred concept description text.
+    * Gets the regular name for this concept (if available).
     *
     * @return a text description for the specified concept.
     */
-   Optional<String> getPreferedConceptDescriptionText();   
-   
-}
+   Optional<String> getRegularName();
 
+   /**
+    * If the implementation of conceptSpecification caches any data that may become invalid with a stop/start cycle
+    * (especially with static storage) it should override this method, and clear the caches as appropriate.
+    */
+   default void clearCache() {};
+}

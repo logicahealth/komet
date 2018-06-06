@@ -1,0 +1,19 @@
+==========================================================================
+
+COPYRIGHT NOTICE 
+Copyright held by http://rdfs.co/bevon/latest/html
+
+This work is licensed under a Creative Commons License.
+
+The following section is informational only, please refer to the original license for complete license terms.
+
+This license grants the following rights:
+
+    making multiple copies (http://creativecommons.org/ns#Reproduction)
+    distribution, public display, and publicly performance (http://creativecommons.org/ns#Distribution)
+    distribution of derivative works (http://creativecommons.org/ns#DerivativeWorks) 
+
+This license imposes the following restrictions:
+
+    copyright and license notices be kept intact (http://creativecommons.org/ns#Notice)
+    credit be given to copyright holder and/or author (http://creativecommons.org/ns#Attribution) 

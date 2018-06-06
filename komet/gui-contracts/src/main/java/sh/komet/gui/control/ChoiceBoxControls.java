@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control;
 
+import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ChoiceBox;
@@ -29,7 +30,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ChoiceBoxControls {
    public static ChoiceBox<ConceptSpecification> getDescriptionTypeForDisplay(Manifold manifold) {      
-      return makeChoiceBox(manifold, MetaData.REGULAR_NAME____SOLOR, MetaData.FULLY_QUALIFIED_NAME____SOLOR);
+      return makeChoiceBox(manifold, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    }
 
    public static ChoiceBox<ConceptSpecification> getTaxonomyPremiseTypes(Manifold manifold) {

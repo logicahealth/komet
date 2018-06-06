@@ -53,7 +53,7 @@ import javafx.concurrent.Task;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
@@ -64,7 +64,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  */
 @Contract
 public interface StampService
-        extends DatabaseServices {
+        extends DatastoreServices {
    /**
     * STAMP sequences start at 1, in part to ensure that uninitialized values
     * (a zero by default) are not treated as valid stamp sequences.

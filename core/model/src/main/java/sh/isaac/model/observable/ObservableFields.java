@@ -61,191 +61,267 @@ import sh.isaac.api.util.UuidT5Generator;
 public enum ObservableFields
          implements ConceptSpecification {
    /** The author nid for edit coordinate. */
-   AUTHOR_NID_FOR_EDIT_COORDINATE("author nid for edit coordinate"),
+   AUTHOR_NID_FOR_EDIT_COORDINATE("Author nid for edit coordinate", "Author nid for edit coordinate"),
 
    /** The module nid for edit coordinate. */
-   MODULE_NID_FOR_EDIT_COORDINATE("module nid for edit coordinate"),
+   MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
 
    /** The path nid for edit coordinate. */
-   PATH_NID_FOR_EDIT_CORDINATE("path nid for edit cordinate"),
+   PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path nid for edit cordinate"),
 
    /** The language nid for language coordinate. */
-   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("language nid for language coordinate"),
+   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
 
    /** The dialect assemblage nid preference list for language coordinate. */
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "dialect assemblage nid preference list for language coordinate"),
+      "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
    
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
-      "next priority language coordinate"),
+      "Next priority language coordinate", "Next coordinate"),
 
    /** The description type nid preference list for language coordinate. */
    DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "description type nid preference list for language coordinate"),
+      "Description type nid preference list for language coordinate", "Type preferences"),
 
    /** The stated assemblage nid for logic coordinate. */
-   STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("stated assemblage nid for logic coordinate"),
+   STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),
 
    /** The inferred assemblage nid for logic coordinate. */
-   INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("inferred assemblage nid for logic coordinate"),
+   INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Inferred assemblage nid for logic coordinate", "Inferred assemblage"),
 
    /** The description logic profile nid for logic coordinate. */
-   DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE("description logic profile nid for logic coordinate"),
+   DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE("Description logic profile nid for logic coordinate", "Logic profile"),
 
    /** The classifier nid for logic coordinate. */
-   CLASSIFIER_NID_FOR_LOGIC_COORDINATE("classifier nid for logic coordinate"),
+   CLASSIFIER_NID_FOR_LOGIC_COORDINATE("Classifier nid for logic coordinate", "Classifier"),
 
    /** The stamp precedence for stamp coordinate. */
-   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("stamp precedence for stamp coordinate"),
+   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Stamp precedence for stamp coordinate", "Precedence"),
 
    /** The stamp position for stamp coordinate. */
-   STAMP_POSITION_FOR_STAMP_COORDINATE("stamp position for stamp coordinate"),
+   STAMP_POSITION_FOR_STAMP_COORDINATE("Stamp position for stamp coordinate", "Stamp position"),
 
    /** The module nid array for stamp coordinate. */
-   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("module nid array for stamp coordinate"),
+   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
 
    /** The allowed states for stamp coordinate. */
-   ALLOWED_STATES_FOR_STAMP_COORDINATE("allowed states for stamp coordinate"),
+   ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
    /** The path nid for stamp path. */
-   PATH_NID_FOR_STAMP_PATH("path nid for stamp path"),
+   PATH_NID_FOR_STAMP_PATH("Path nid for stamp path", "Path nid for stamp path"),
 
    /** The path origin list for stamp path. */
-   PATH_ORIGIN_LIST_FOR_STAMP_PATH("path origin list for stamp path"),
+   PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origin list for stamp path", "Path origin"),
 
    /** The time for stamp position. */
-   TIME_FOR_STAMP_POSITION("time for stamp position"),
+   TIME_FOR_STAMP_POSITION("Time for stamp position", "Time for stamp"),
 
    /** The path nid for stamp position. */
-   PATH_NID_FOR_STAMP_POSITION("path nid for stamp position"),
+   PATH_NID_FOR_STAMP_POSITION("Path nid for stamp position", "Path for stamp position"),
 
    /** The premise type for taxonomy coordinate. */
-   PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("premise type for taxonomy coordinate"),
+   PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("Premise type for taxonomy coordinate", "Premise"),
 
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("stamp coordinate for taxonomy coordinate"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
 
    /** The language coordinate for taxonomy coordinate. */
-   LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("language coordinate for taxonomy coordinate"),
+   LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),
 
    /** The logic coordinate for taxonomy coordinate. */
-   LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("logic coordinate for taxonomy coordinate"),
+   LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
    /** The uuid for taxonomy coordinate. */
-   UUID_FOR_TAXONOMY_COORDINATE("uuid for taxonomy coordinate"),
+   UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
 
    /** The status for version. */
-   STATUS_FOR_VERSION("status for version"),
+   STATUS_FOR_VERSION("Status for version", "Status for version"),
 
    /** The time for version. */
-   TIME_FOR_VERSION("time for version"),
+   TIME_FOR_VERSION("Time for version", "Time for version"),
 
    /** The author nid for version. */
-   AUTHOR_NID_FOR_VERSION("author nid for version"),
+   AUTHOR_NID_FOR_VERSION("Author nid for version", "Author nid for version"),
 
    /** The module nid for version. */
-   MODULE_NID_FOR_VERSION("module nid for version"),
+   MODULE_NID_FOR_VERSION("Module nid for version", "Module nid for version"),
 
    /** The path nid for version. */
-   PATH_NID_FOR_VERSION("path nid for version"),
+   PATH_NID_FOR_VERSION("Path nid for version", "Path nid for version"),
 
    /** The committed state for version. */
-   COMMITTED_STATE_FOR_VERSION("committed state for version"),
+   COMMITTED_STATE_FOR_VERSION("Committed state for version", "Committed state for version"),
 
    /** The stamp nid for version. */
-   STAMP_SEQUENCE_FOR_VERSION("stamp sequence for version"),
+   STAMP_SEQUENCE_FOR_VERSION("Stamp sequence for version", "Stamp sequence for version"),
 
    /** The case significance concept nid for description. */
-   CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("case significance concept nid for description"),
+   CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
 
    /** The language concept nid for description. */
-   LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("language concept nid for description"),
+   LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("Language concept nid for description", "Language for description"),
 
    /** The text for description. */
-   TEXT_FOR_DESCRIPTION("text for description"),
+   TEXT_FOR_DESCRIPTION("Text for description", "Text for description"),
 
    /** The description type for description. */
-   DESCRIPTION_TYPE_FOR_DESCRIPTION("description type for description"),
+   DESCRIPTION_TYPE_FOR_DESCRIPTION("Description type for description", "Description type for description"),
 
    /** The version list for chronicle. */
-   VERSION_LIST_FOR_CHRONICLE("version list for chronicle"),
+   VERSION_LIST_FOR_CHRONICLE("Version list for chronicle", "Versions"),
+
+   CONCEPT_VERSION("Concept version", "Concept version"),
 
    /** The native id for chronicle. */
-   NATIVE_ID_FOR_CHRONICLE("native id for chronicle"),
+   NATIVE_ID_FOR_COMPONENT("Native id for component", "Nid for component"),
 
    /** The entry sequence for chronicle. */
-   ENTRY_SEQUENCE_FOR_CHRONICLE("entry sequence for chronicle"),
+   ENTRY_SEQUENCE_FOR_COMPONENT("Entry sequence for component", "Entry ID"),
 
    /** The assemblage nid for chronicle. */
-   ASSEMBLAGE_NID_FOR_CHRONICLE("assemblage nid for chronicle"),
+   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage for component"),
 
    /** The referenced component nid for semantic chronicle. */
-   REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE("referenced component nid for semantic chronicle"),
+   REFERENCED_COMPONENT_NID_FOR_SEMANTIC("Referenced component nid for semantic", "Referenced component id"),
+
+   /** The referenced component nid for semantic chronicle. */
+   REFERENCED_COMPONENT_UUID_FOR_SEMANTIC("Referenced component UUID for semantic", "Referenced component UUID"),
 
    /** The primordial uuid for chronicle. */
-   PRIMORDIAL_UUID_FOR_CHRONICLE("primordial UUID for chronicle"),
+   PRIMORDIAL_UUID_FOR_COMPONENT("Primordial UUID for chronicle", "Primordial UUID"),
 
    /** The uuid list for chronicle. */
-   UUID_LIST_FOR_CHRONICLE("UUID list for chronicle"),
+   UUID_LIST_FOR_COMPONENT("UUID list for component", "UUIDs"),
 
    /** The committed state for chronicle. */
-   COMMITTED_STATE_FOR_CHRONICLE("committed state for chronicle"),
+   COMMITTED_STATE_FOR_CHRONICLE("Committed state for chronicle", "Committed state for chronicle"),
 
    /** The semantic list for chronicle. */
    SEMANTIC_LIST_FOR_CHRONICLE("semantic list for chronicle"),
+   
+   DESCRIPTION_DIALECT("Description dialect pair"),
+   
+   DESCRIPTION_DIALECT_DESCRIPTION("Description for dialect/description pair"),
+   
+   DESCRIPTION_DIALECT_DIALECT("Dialect for dialect/description pair"),
 
    /** The description list for concept. */
    DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),
    
-   STRING_VALUE_FOR_SEMANTIC("string value for semantic"),
+   STRING_VALUE_FOR_SEMANTIC("String value for semantic", "String value for semantic"),
    
-   COMPONENT_NID_FOR_SEMANTIC("component nid for semantic"),
+   COMPONENT_NID_FOR_SEMANTIC("Component nid for semantic", "Component"),
    
-   LOGIC_GRAPH_FOR_SEMANTIC("logic graph for semantic"),
+   LOGIC_GRAPH_FOR_SEMANTIC("logic graph for semantic", "Logic graph"),
    
-   LONG_VALUE_FOR_SEMANTIC("long value for semantic"),
+   LONG_VALUE_FOR_SEMANTIC("long value for semantic", "Long value"),
    
-   TYPE_NID_FOR_RF2_REL("type nid for rf2 relationship"),
+   TYPE_NID_FOR_RF2_REL("Type nid for rf2 relationship", "Rel type"),
    
-   DESTINATION_NID_FOR_RF2_REL("destination nid for rf2 relationship"),
+   DESTINATION_NID_FOR_RF2_REL("Destination nid for rf2 relationship", "Rel destination"),
    
-   REL_GROUP_FOR_RF2_REL("relationship group for rf2 relationship"),
+   REL_GROUP_FOR_RF2_REL("Relationship group for rf2 relationship", "Rel group"),
    
-   CHARACTERISTIC_NID_FOR_RF2_REL("characteristic nid for rf2 relationship"),
+   CHARACTERISTIC_NID_FOR_RF2_REL("Characteristic nid for rf2 relationship", "Rel characteristic"),
    
-   MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship"),
+   MODIFIER_NID_FOR_RF2_REL("modifier nid for rf2 relationship", "Rel modifier"),
    
-   NID1("Refset nid1"),
-   NID2("Refset nid2"),
-   NID3("Refset nid3"),
-   NID4("Refset nid4"),
-   NID5("Refset nid5"),
-   NID6("Refset nid6"),
-   NID7("Refset nid7"),
-   STR1("Refset str1"),
-   STR2("Refset str2"),
-   STR3("Refset str3"),
-   STR4("Refset str4"),
-   STR5("Refset str5"),
-   STR6("Refset str6"),
-   STR7("Refset str7"),
-   INT1("Refset int1"),
-   INT2("Refset int2"),
-   INT3("Refset int3"),
-   INT4("Refset int4"),
-   INT5("Refset int5"),
-   INT6("Refset int6"),
-   INT7("Refset int7")
-           
-         
+   NID1("Component id 1", "Component 1"),
+   NID2("Component id 2", "Component 2"),
+   NID3("Component id 3", "Component 3"),
+   NID4("Component id 4", "Component 4"),
+   NID5("Component id 5", "Component 5"),
+   NID6("Component id 6", "Component 6"),
+   NID7("Component id 7", "Component 7"),
+   STR1("String 1"),
+   STR2("String 2"),
+   STR3("String 3"),
+   STR4("String 4"),
+   STR5("String 5"),
+   STR6("String 6"),
+   STR7("String 7"),
+   INT1("Integer 1"),
+   INT2("Integer 2"),
+   INT3("Integer 3"),
+   INT4("Integer 4"),
+   INT5("Integer 5"),
+   INT6("Integer 6"),
+   INT7("Integer 7"),
+   
+   CIRCUMSTANCE_PURPOSE_LIST("Action purpose"),
+   CIRCUMSTANCE_TIMING("Timing"),
+   
+   STATEMENT_NARRATIVE("Statement narrative", "Narrative"),
+   STATEMENT_TIME("Statement time", "Statement time"),
+   STATEMENT_ID("Statement identifier"),
+   STATEMENT_SOR("Statement subject of record", "Statement subject of record"),
+   STATEMENT_AUTHORS("Statement authors", "Authors"),
+   STATEMENT_SOI("Statement subject of information", "Subject"),
+   STATEMENT_TYPE("Statement type", "Type"),
+   STATEMENT_TOPIC("Statement action topic", "Action topic"),
+   STATEMENT_CIRCUMSTANCE("Statement circumstance", "Circumstance"),
+   STATEMENT_ASSOCIATIONS("Statement associations", "Associations"),
+   
+   INTERVAL_LOWER_BOUND("Lower bound"),
+   INTERVAL_UPPER_BOUND("Upper bound"),
+   INTERVAL_INCLUDE_UPPER_BOUND("Include upper bound"),
+   INTERVAL_INCLUDE_LOWER_BOUND("Include lower bound"),
+   
+   INTERVENTION_RESULT_STATUS("Intervention result status"),
+   
+   MEASURE_NARRATIVE("Measure narritive"),
+   MEASURE_RESOLUTION("Resolution"),
+   MEASURE_SEMANTIC("Measure semantic"),
+   OBSERVATION_RESULT_HEALTH_RISK("Health risk"),
+   MEASURE_NORMAL_RANGE("Normal range"),
+   
+   PARTICIPANT_ID("Participant id"),   
+   PARTICIPANT_ROLE("Participant role"),
+   
+   PERFORMANCE_CIRCUMSTANCE_RESULT("Result"),
+   PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS("Participants"),
+   
+   REPETITION_PERIOD_START("Period start"),
+   REPETITION_PERIOD_DURATION("Period duration"),
+   REPETITION_EVENT_FREQUENCY("Event frequency"),
+   REPETITION_EVENT_SEPARATION("Event separation"),
+   REPETITION_EVENT_DURATION("Event duration"),
+   
+   REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS("Conditional triggers"),
+   REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS("Requested participants"),
+   REQUEST_CIRCUMSTANCE_PRIORITY("Request Priority"),
+   REQUEST_CIRCUMSTANCE_REPETITIONS("Repetitions"),
+   REQUEST_CIRCUMSTANCE_REQUESTED_RESULT("Requested result"),
+   
+   STATEMENT_ASSOCIATION_SEMANTIC("Association semantic"),
+   STATEMENT_ASSOCIATION_ID("Association id"),
+   
+   UNSTRUCTURED_CIRCUMSTANCE_TEXT("Unstructured circumstance text", "Text"),
+   
+   STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
+   
+   STATEMENT_MODE("Statement mode", "Statement mode"),
+   
+   LOINC_NUMBER("LOINC number"),
+   LOINC_COMPONENT("LOINC component"),
+   LOINC_PROPERTY("LOINC property"),
+   LOINC_TIME_ASPECT("LOINC time aspect"),
+   LOINC_SYSTEM("LOINC system"),
+   LOINC_SCALE_TYPE("LOINC scale type"),
+   LOINC_METHOD_TYPE("LOINC method type"),
+   LOINC_STATUS("LOINC status"),
+   LOINC_SHORT_NAME("LOINC short name"),
+   LOINC_LONG_COMMON_NAME("LOINC long common name"),
 ;
+   // this, ObservableFields..toExternalString()
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
    //~--- fields --------------------------------------------------------------
 
    /** The description. */
-   String description;
+   String fullyQualifiedDescription;
+   String regularDescription;
 
    //~--- constructors --------------------------------------------------------
 
@@ -254,8 +330,13 @@ public enum ObservableFields
     *
     * @param description the description
     */
-   ObservableFields(String description) {
-      this.description = description;
+   ObservableFields(String fullyQualifiedDescription) {
+      this.fullyQualifiedDescription = fullyQualifiedDescription;
+      this.regularDescription = null;
+   }
+   ObservableFields(String fullyQualifiedDescription, String regularDescription) {
+      this.fullyQualifiedDescription = fullyQualifiedDescription;
+      this.regularDescription = regularDescription;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -269,7 +350,7 @@ public enum ObservableFields
    public String toExternalString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(this.description);
+      sb.append(this.fullyQualifiedDescription);
       sb.append(FIELD_SEPARATOR)
         .append(getUuid().toString());
       return sb.toString();
@@ -278,12 +359,12 @@ public enum ObservableFields
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
+    * Actually calls {@link #getDescription()}
+    * 
+    * {@inheritDoc}
     */
    @Override
-   public String getFullySpecifiedConceptDescriptionText() {
+   public String getFullyQualifiedName() {
       return getDescription();
    }
 
@@ -293,7 +374,7 @@ public enum ObservableFields
     * @return the description
     */
    public String getDescription() {
-      return this.description;
+      return this.fullyQualifiedDescription;
    }
 
    /**
@@ -316,8 +397,8 @@ public enum ObservableFields
    }
 
    @Override
-   public Optional<String> getPreferedConceptDescriptionText() {
-      return Optional.empty();
+   public Optional<String> getRegularName() {
+      return Optional.ofNullable(regularDescription);
    }
 
 }

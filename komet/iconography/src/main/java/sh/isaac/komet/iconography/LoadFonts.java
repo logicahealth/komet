@@ -66,6 +66,9 @@ public class LoadFonts {
       Font.loadFont(getFontUrl("OpenSans-Regular.ttf"), 10);
       Font.loadFont(getFontUrl("OpenSans-SemiBold.ttf"), 10);
       Font.loadFont(getFontUrl("OpenSans-SemiBoldItalic.ttf"), 10);      
+      Font.loadFont(getFontUrl("OpenSansCondensed-Bold.ttf"), 10);      
+      Font.loadFont(getFontUrl("OpenSansCondensed-Light.ttf"), 10);      
+      Font.loadFont(getFontUrl("OpenSansCondensed-LightItalic.ttf"), 10);      
       return true;
    }
    

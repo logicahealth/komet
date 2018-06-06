@@ -96,9 +96,6 @@ public class DynamicTypeToClassUtility {
       case UUID:
          return new DynamicUUIDImpl(data, assemblageSequence, columnNumber);
 
-      case SEQUENCE:
-         return new DynamicSequenceImpl(data, assemblageSequence, columnNumber);
-
       case POLYMORPHIC:
       case UNKNOWN:
          throw new RuntimeException("No implementation exists for type unknown");
@@ -145,9 +142,6 @@ public class DynamicTypeToClassUtility {
 
       case UUID:
          return DynamicUUIDImpl.class;
-
-      case SEQUENCE:
-         return DynamicSequenceImpl.class;
 
       case UNKNOWN:
       case POLYMORPHIC:
@@ -196,9 +190,6 @@ public class DynamicTypeToClassUtility {
 
       case UUID:
          return new DynamicUUIDImpl(data);
-
-      case SEQUENCE:
-         return new DynamicSequenceImpl(data);
 
       case UNKNOWN:
       case POLYMORPHIC:

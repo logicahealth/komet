@@ -42,24 +42,23 @@ package sh.isaac.provider.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.lang.ref.WeakReference;
-
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.CheckAndWriteTask;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.progress.ActiveTasks;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,7 +68,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public class WriteAndCheckSemanticChronology
-        extends Task<Void> {
+        extends CheckAndWriteTask {
    /** The sc. */
    private SemanticChronology sc;
 
@@ -88,14 +87,14 @@ public class WriteAndCheckSemanticChronology
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new write and check sememe chronicle.
+    * Instantiates a new write and check semantic chronicle.
     *
     * @param sc the sc
     * @param checkers the checkers
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
-    * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
- written to the AssemblageService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
+    * @param uncommittedTracking A handle to call back to the caller to notify it that the semantic has been
+ written to the AssemblageService.  Parameter 1 is the Semantic, Parameter two is true to indicate that the
  change checker is active for this implementation.
     */
    public WriteAndCheckSemanticChronology(SemanticChronology sc,
@@ -108,7 +107,7 @@ public class WriteAndCheckSemanticChronology
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
-      updateTitle("Write, check, and notify for sememe change");
+      updateTitle("Write, check, and notify for semantic change");
       updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
@@ -128,25 +127,44 @@ public class WriteAndCheckSemanticChronology
    public Void call()
             throws Exception {
       try {
-         Get.assemblageService()
-            .writeSemanticChronology(this.sc);
+
+         updateProgress(1, 4);
+         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid() + " against " + checkers.size() + " change checkers");
+         if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
+            AtomicBoolean fail = new AtomicBoolean(false);
+            StringBuilder sb = new StringBuilder();
+            this.checkers.stream().forEach((check) -> {
+               AlertObject ao = check.check(this.sc, CheckPhase.ADD_UNCOMMITTED);
+               if (ao.getAlertType() == AlertType.ERROR || ao.getAlertType() == AlertType.WARNING) {
+                  sb.append(System.lineSeparator());
+                     sb.append(ao.toString());
+                     if (ao.getAlertType().preventsCheckerPass()) {
+                        fail.set(true);
+                     }
+                  }
+            });
+            
+            if (fail.get()) {
+               throw new RuntimeException(sb.toString());
+            }
+            else if (sb.length() > 0) {
+               LOG.warn("Alerts during WriteAndCheck: " + sb.toString());
+            }
+         }
+         
+         updateProgress(2, 4);
+         updateMessage("writing: " + this.sc.getVersionType() + " " + this.sc.getNid());
+         Get.assemblageService().writeSemanticChronology(this.sc);
          this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
          this.uncommittedTracking.accept(this.sc, true);
-         updateProgress(1, 3);
-         updateMessage("checking: " + this.sc.getVersionType() + " " + this.sc.getNid());
+         
 
-         if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
-            this.checkers.stream().forEach((check) -> {
-                                     check.check(this.sc, CheckPhase.ADD_UNCOMMITTED);
-                                  });
-         }
-
-         updateProgress(2, 3);
+         updateProgress(3, 4);
          updateMessage("notifying: " + this.sc.getVersionType() + " " + this.sc.getNid());
          this.changeListeners.forEach((listenerRef) -> {
             try {
                final ChronologyChangeListener listener = listenerRef.get();
-               
+
                if (listener == null) {
                   this.changeListeners.remove(listenerRef);
                } else {
@@ -155,8 +173,8 @@ public class WriteAndCheckSemanticChronology
             } catch (Throwable e) {
                e.printStackTrace();
             }
-                                      });
-         updateProgress(3, 3);
+         });
+         updateProgress(4, 4);
          updateMessage("completed change: " + this.sc.getVersionType() + " " + this.sc.getNid());
          return null;
       } finally {

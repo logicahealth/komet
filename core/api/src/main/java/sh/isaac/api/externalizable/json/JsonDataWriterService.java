@@ -74,8 +74,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-//@Service(name = "jsonWriter")
-//@PerLookup
+@Service(name = "jsonWriter")
+@PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
    /** The logger. */
@@ -92,6 +92,8 @@ public class JsonDataWriterService
 
    /** The data path. */
    private Path dataPath;
+   
+   boolean haveWritten = false;
 
    //~--- constructors --------------------------------------------------------
 
@@ -140,6 +142,11 @@ public class JsonDataWriterService
    public void close()
             throws IOException {
       try {
+         if (pauseBlock.availablePermits() == 1)
+         {
+            //If a permit is available, when close is called, we aren't pausing, so lets close out the json as valid...
+            this.fos.write("]".getBytes());
+         }
          this.json.close();
          this.fos.close();
       } finally {
@@ -163,9 +170,18 @@ public class JsonDataWriterService
 
       final Map<String, Object> args = new HashMap<>();
 
+      boolean fileExists = path.toFile().isFile();
       args.put(JsonWriter.PRETTY_PRINT, true);
       this.dataPath = path;
       this.fos     = new FileOutputStream(path.toFile(), true);
+      if (!fileExists)
+      {
+          fos.write("[".getBytes());  //make our json more valid...
+          haveWritten = false;
+      }
+      else {
+         haveWritten = true;
+      }
       this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
       this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
       this.json.addWriter(SemanticChronology.class, new Writers.SemanticChronologyJsonWriter());
@@ -214,7 +230,16 @@ public class JsonDataWriterService
    public void put(IsaacExternalizable ochreObject) {
       try {
          this.pauseBlock.acquireUninterruptibly();
+         if (haveWritten) {
+            try {
+                 this.fos.write(",".getBytes());
+              }
+              catch (IOException e) {
+                 LOG.error("unexpected",  e);
+              }
+         }
          this.json.write(ochreObject);
+         haveWritten = true;
       } finally {
          this.pauseBlock.release();
       }

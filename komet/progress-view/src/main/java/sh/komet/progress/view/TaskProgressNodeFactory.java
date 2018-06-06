@@ -39,23 +39,17 @@
 
 package sh.komet.progress.view;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.function.Consumer;
+import javax.inject.Singleton;
+import org.jvnet.hk2.annotations.Service;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.scene.Node;
-
-import org.glassfish.hk2.runlevel.RunLevel;
-
-import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.komet.iconography.Iconography;
-
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,17 +58,15 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service(name = "Activity panel factory")
-@RunLevel(value = 1)
+@Singleton
 public class TaskProgressNodeFactory
          implements ExplorationNodeFactory {
    
    public static final String TITLE_BASE = "Activities";
    public static final String TITLE_BASE_SINGULAR = "Activity";
    @Override
-   public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+   public ExplorationNode createNode(Manifold manifold) {
       TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
-
-      nodeConsumer.accept(taskProgressNode.getNode());
       return taskProgressNode;
    }
 
@@ -89,5 +81,26 @@ public class TaskProgressNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
+   
+   @Override
+   public boolean isEnabled() {
+      return true;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PanelPlacement getPanelPlacement() {
+      return PanelPlacement.RIGHT;
+   }
+
+  /** 
+   * {@inheritDoc}
+   */
+  @Override
+  public ManifoldGroup[] getDefaultManifoldGroups() {
+     return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+  }
 }
 

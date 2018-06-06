@@ -39,6 +39,8 @@
 
 package sh.isaac.model.configuration;
 
+import java.util.Optional;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -69,7 +71,7 @@ public class ManifoldCoordinates {
       return new ManifoldCoordinateImpl(PremiseType.INFERRED,
                                         stampCoordinate,
                                         languageCoordinate,
-                                        Get.configurationService().getDefaultLogicCoordinate());
+                                        Get.configurationService().getUserConfiguration(Optional.empty()).getLogicCoordinate());
    }
 
    /**
@@ -98,7 +100,7 @@ public class ManifoldCoordinates {
       return new ManifoldCoordinateImpl(PremiseType.STATED,
                                         stampCoordinate,
                                         languageCoordinate,
-                                        Get.configurationService().getDefaultLogicCoordinate());
+                                        Get.configurationService().getUserConfiguration(Optional.empty()).getLogicCoordinate());
    }
 
    /**

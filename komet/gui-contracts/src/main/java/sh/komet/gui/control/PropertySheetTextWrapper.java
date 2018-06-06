@@ -16,10 +16,15 @@
  */
 package sh.komet.gui.control;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -33,6 +38,12 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
    public PropertySheetTextWrapper(String name, StringProperty textProperty) {
       this.name = name;
       this.textProperty = textProperty;
+   }
+
+   public PropertySheetTextWrapper(Manifold manifold,
+           StringProperty textProperty) {
+      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())), 
+              textProperty);
    }
 
    @Override

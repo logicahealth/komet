@@ -39,72 +39,72 @@
 
 package sh.isaac.mojo;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
 import com.cedarsoftware.util.io.JsonWriter;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
-
+import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
+import sh.isaac.api.externalizable.BinaryDataServiceFactory;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.logic.IsomorphicResults;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.AndNode;
+import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 
-//~--- classes ----------------------------------------------------------------
-
-/*
-* Copyright 2001-2005 The Apache Software Foundation.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
- */
 
 /**
- * Goal which loads a database from eConcept files.
- * I get inconsistent results with this mojo... Sometimes the import fails, and 
- * on an immediate re-run, it succeeds. So a race condition, or some other 
- * issue such as unpredictable behavior of this.input.available(); in the reader
- * implementation class? 
- * @deprecated try LoatTermstoreSemaphore
+ * Goal which loads a database from ibdf files.  try {@link LoadTermstoreSemaphore} for a newer implementation, however
+ * TODO We need to figure out if/how to integrate the merge logic into the LoadTermstoreSemaphore
+ * in the meantime, the bug with missing random entries near the end of the file has been fixed.
  */
 @Mojo(
    name         = "load-termstore",
@@ -112,16 +112,98 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 )
 public class LoadTermstore
         extends AbstractMojo {
+   
+   /**
+    * Constructor for maven
+    */
+   public LoadTermstore() {
+      //for maven
+   }
+   
+   /**
+    * Constructor for runtime usage
+    * @param ibdfFiles the files to import
+    * @param routeLogToLog4j if true, route logging messages into Log4j.  If false, uses the default maven SystemStreamLog.
+    * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
+    * False, to simply load the IBDF as is.
+    */
+   public LoadTermstore(File[] ibdfFiles, boolean routeLogToLog4j, boolean mergeLogicGraphs) {
+      setibdfFiles(ibdfFiles);
+      if (routeLogToLog4j) {
+         setLog(new Log4jAdapter(this.getClass()));
+      }
+      this.mergeLogicGraphs = mergeLogicGraphs;
+   }
+   
+   /**
+    * Constructor for runtime usage
+    * @param ibdfStreams the streams representing IBDF files to import
+    * @param routeLogToLog4j if true, route logging messages into Log4j.  If false, uses the default maven SystemStreamLog.
+    * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
+    * False, to simply load the IBDF as is.
+    */
+   public LoadTermstore(InputStream[] ibdfStreams, boolean routeLogToLog4j, boolean mergeLogicGraphs) {
+      inputIBDFStreams = ibdfStreams;
+      if (routeLogToLog4j) {
+         setLog(new Log4jAdapter(this.getClass()));
+      }
+      this.mergeLogicGraphs = mergeLogicGraphs;
+   }
+   
+   /**
+    * Constructor for runtime usage
+    * @param ibdfContainingFolder the folder containing ibdf files to import
+    * @param routeLogToLog4j if true, route logging messages into Log4j.  If false, uses the default maven SystemStreamLog.
+    * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
+    * False, to simply load the IBDF as is.
+    */
+   public LoadTermstore(File ibdfContainingFolder, boolean routeLogToLog4j, boolean mergeLogicGraphs) {
+      setibdfFilesFolder(ibdfContainingFolder);
+      if (routeLogToLog4j) {
+          setLog(new Log4jAdapter(this.getClass()));
+      }
+      this.mergeLogicGraphs = mergeLogicGraphs;
+   }
+   
+   //Maven available parameters
+   
+   /**
+    * Only load concepts and semantics with a state of active
+    */
+   @Parameter(required = false)
+   private boolean activeOnly = false;
+   
+   /**
+    * Only load concepts and semantics with a state of active
+    * @param activeOnly set the flat
+    */
+   public void setActiveOnly(boolean activeOnly) {
+         this.activeOnly = activeOnly;
+      }
 
    @Parameter(required = false)
    private int duplicatesToPrint = 20;
-
+   
+   public void setDuplicatesToPrint(int duplicatesToPrint) {
+         this.duplicatesToPrint = duplicatesToPrint;
+      }
+   
    /**
     * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
     * folder will be processed.
     */
    @Parameter(required = false)
    private File ibdfFileFolder;
+   
+   /**
+    * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
+    * folder will be processed.
+    * @param folder the folder to look in for ibdf files
+    */
+   public void setibdfFilesFolder(File folder)
+   {
+      ibdfFileFolder = folder;
+   }
 
    /**
     * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
@@ -129,8 +211,31 @@ public class LoadTermstore
    @Parameter(required = false)
    private File[] ibdfFiles;
 
-   /** The item failure. */
-   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
+   /**
+    * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
+    * @param files the individual ibdf files to process 
+    */
+   public void setibdfFiles(File[] files) {
+      this.ibdfFiles = files;
+   }
+   
+   //internal use / non-maven exposed parameters
+
+   private boolean mergeLogicGraphs = true;
+   
+   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
+
+   private final HashSet<Integer> skippedItems = new HashSet<>();
+
+   private boolean skippedAny = false;
+   
+   private boolean setDBBuildMode = true;
+
+   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure, mergeCount;
+   
+   private InputStream[] inputIBDFStreams;
+   
+   final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -139,12 +244,14 @@ public class LoadTermstore
     *
     * @throws MojoExecutionException the mojo execution exception
     */
-   @SuppressWarnings({ "rawtypes", "unchecked" })
+   @SuppressWarnings({"unchecked" })
    @Override
    public void execute()
             throws MojoExecutionException {
-      Get.configurationService()
-         .setDBBuildMode();
+      if (setDBBuildMode) {
+         Get.configurationService()
+         .setDBBuildMode(BuildMode.DB);
+      }
 
       // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
       final AtomicBoolean hasMetadata = new AtomicBoolean(false);
@@ -168,15 +275,11 @@ public class LoadTermstore
                if (!f.isFile()) {
                   getLog().info("The file " + f.getAbsolutePath() + " is not a file - ignoring.");
                } else if (!f.getName()
-                            .toLowerCase()
+                            .toLowerCase(Locale.ENGLISH)
                             .endsWith(".ibdf")) {
                   getLog().info("The file " + f.getAbsolutePath() +
                                 " does not match the expected type of ibdf - ignoring.");
                } else {
-                  if (f.getName()
-                           .equals("IsaacMetadataAuxiliary.ibdf")) {
-                      hasMetadata.set(true);
-                  }
                   mergedFiles.add(f);
                }
             }
@@ -191,9 +294,11 @@ public class LoadTermstore
                   (o1, o2) -> {
                      if (o1.getName()
                            .equals("IsaacMetadataAuxiliary.ibdf")) {
+                        hasMetadata.set(true);
                         return -1;
                      } else if (o2.getName()
                                   .equals("IsaacMetadataAuxiliary.ibdf")) {
+                        hasMetadata.set(true);
                         return 1;
                      } else {
                         return ((o1.length() - o2.length()) > 0 ? 1
@@ -202,134 +307,66 @@ public class LoadTermstore
                      }
                   });
 
+      if (temp.length == 1 && temp[0].getName().equals("IsaacMetadataAuxiliary.ibdf"))
+      {
+         hasMetadata.set(true);
+      }
+      
       if (!hasMetadata.get()) {
-         getLog().warn("No Metadata IBDF file found!  This probably isn't good....");
+         if (setDBBuildMode) {
+            getLog().warn("No Metadata IBDF file found!  This probably isn't good....");
+         }
       }
 
-      if (temp.length == 0) {
+      if (temp.length == 0 && (inputIBDFStreams == null || inputIBDFStreams.length == 0)) {
          throw new MojoExecutionException("Failed to find any ibdf files to load");
       }
 
-      getLog().info("Identified " + temp.length + " ibdf files");
-
-      final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
+      if (temp.length == 0) {
+         getLog().info("Identified " + inputIBDFStreams.length + " input streams");
+      }
+      else {
+         getLog().info("Identified " + temp.length + " ibdf files");
+      }
 
       try {
          for (final File f: temp) {
-            getLog().info("Loading termstore from " + f.getCanonicalPath());
-            
-            int duplicateCount = 0;
-            
-            final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
-            final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
-
-            while (!queue.isEmpty() ||!reader.isFinished()) {
-               final IsaacExternalizable object = queue.poll(1000, TimeUnit.MILLISECONDS);
-
-               if (object != null) {
-                  this.itemCount++;
-
-                  try {
-                     if (null != object.getIsaacObjectType()) {
-                        switch (object.getIsaacObjectType()) {
-                        case CONCEPT:
-                              Get.conceptService()
-                                 .writeConcept(((ConceptChronology) object));
-                              this.conceptCount++;
-                           break;
-
-                        case SEMANTIC:
-                           SemanticChronology sc = (SemanticChronology) object;
-                           if (sc.getPrimordialUuid().equals(TermAux.MASTER_PATH_SEMANTIC_UUID)) {
-                               getLog().info("Loading master path semantic at count: " + this.itemCount);
-                           } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
-                               getLog().info("Loading development path semantic at count: " + this.itemCount);
-                           }
-
-                           Get.assemblageService()
-                                 .writeSemanticChronology(sc);
-                           if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                                 deferredActionNids.add(sc.getNid());
-                           }
-
-                           this.semanticCount++;
-                           break;
-
-                        case STAMP_ALIAS:
-                           Get.commitService()
-                              .addAlias(((StampAlias) object).getStampSequence(),
-                                        ((StampAlias) object).getStampAlias(),
-                                        null);
-                           this.stampAliasCount++;
-                           break;
-
-                        case STAMP_COMMENT:
-                           Get.commitService()
-                              .setComment(((StampComment) object).getStampSequence(),
-                                          ((StampComment) object).getComment());
-                           this.stampCommentCount++;
-                           break;
-
-                        default:
-                           throw new UnsupportedOperationException("Unknown object type: " + object);
-                        }
-                     }
-                  } catch (final UnsupportedOperationException e) {
-                     this.itemFailure++;
-                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
-                                    " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
-                                    " stampComments",
-                                    e);
-
-                     final Map<String, Object> args = new HashMap<>();
-
-                     args.put(JsonWriter.PRETTY_PRINT, true);
-
-                     final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
-                     try (JsonWriter json = new JsonWriter(baos, args)) {
-                        UUID                        primordial = null;
-                        
-                        if (object instanceof Chronology) {
-                           primordial = ((Chronology) object).getPrimordialUuid();
-                        }
-                        
-                        json.write(object);
-                        getLog().error("Failed on " + ((primordial == null) ? ": "
-                                : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
-                     }
-                  }
-
-                  if (this.itemCount % 50000 == 0) {
-                     getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
-                                   " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
-                                   " stampAlias, " + this.stampCommentCount + " stampComment");
-                  }
-               }
-            }
-
-            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
-                          this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
-                    ((duplicateCount > 0) ? " Duplicates " + duplicateCount
-                  : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
-                  : "") + " from file " + f.getName());
-            this.conceptCount      = 0;
-            this.semanticCount       = 0;
-            this.stampAliasCount   = 0;
-            this.stampCommentCount = 0;
+            getLog().info("Loading termstore from " + f.getCanonicalPath() + (this.activeOnly ? " active items only" : ""));
+            process(Get.binaryDataQueueReader(f.toPath()), f.getName());
          }
          
+         if (inputIBDFStreams != null) {
+            for (final InputStream is : inputIBDFStreams) {
+                getLog().info("Loading termstore inputStream " + (this.activeOnly ? " active items only" : ""));
+                process(LookupService.get().getService(BinaryDataServiceFactory.class).getQueueReader(is), is.toString());
+            }
+         }
+         
+         Get.service(VersionManagmentPathService.class).rebuildPathMap();
          
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
-            if (IsaacObjectType.SEMANTIC.equals(Get.identifierService()
-                  .getObjectTypeForComponent(nid))) {
-               final SemanticChronology sc = Get.assemblageService()
-                                              .getSemanticChronology(nid);
+            if (IsaacObjectType.SEMANTIC == Get.identifierService().getObjectTypeForComponent(nid)) {
+               final SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                  Get.taxonomyService()
-                     .updateTaxonomy(sc);
+               try
+               {
+                  Get.taxonomyService().updateTaxonomy(sc);
+               }
+               catch (Exception e)
+               {
+                  Map<String, Object> args = new HashMap<>();
+                  args.put(JsonWriter.PRETTY_PRINT, true);
+                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  JsonWriter json = new JsonWriter(baos, args);
+                  
+                  UUID primordial = sc.getPrimordialUuid();
+                  json.write(sc);
+                  getLog().error("Failed on taxonomy update for object with primoridial UUID " + primordial.toString() + ": " +  baos.toString(), e);
+                  json.close();
+               }
                } else {
                   throw new UnsupportedOperationException("1 Unexpected nid in deferred set: " + nid + " " + sc);
                }
@@ -338,25 +375,334 @@ public class LoadTermstore
             }
          }
 
+         if (this.skippedAny) {
+            // Loading with activeOnly set to true causes a number of gaps in the concept /
+            getLog().warn("Skipped components during import.");
+         }
          getLog().info("Final item count: "  + this.itemCount);
-         Get.startIndexTask().get();
          LookupService.syncAll();
+         Get.startIndexTask().get();
+
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
-                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments");
+                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
+                       ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
+               : ""));
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       } 
    }
+   
+   private void process(BinaryDataReaderQueueService reader, String inputIdentifier) throws InterruptedException
+   {
+       final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
+       int duplicateCount = 0;
+       final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
 
-   /**
-    * Sets the ibdf files.
-    *
-    * @param files the new ibdf files
-    */
-   public void setibdfFiles(File[] files) {
-      this.ibdfFiles = files;
+       while (!queue.isEmpty() || !reader.isFinished()) {
+          final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
+
+          if (object != null) {
+             this.itemCount++;
+
+             try {
+                if (null != object.getIsaacObjectType()) {
+                   switch (object.getIsaacObjectType()) {
+                   case CONCEPT:
+                      if (!this.activeOnly || isActive((Chronology) object)) {
+                         Get.conceptService()
+                            .writeConcept(((ConceptChronology) object));
+                         this.conceptCount++;
+                      } else {
+                         this.skippedItems.add(((Chronology) object).getNid());
+                      }
+
+                      break;
+
+                   case SEMANTIC:
+                      SemanticChronology sc = (SemanticChronology) object;
+                      
+                      if (sc.getPrimordialUuid().equals(TermAux.MASTER_PATH_SEMANTIC_UUID)) {
+                         getLog().info("Loading master path semantic at count: " + this.itemCount);
+                      } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
+                         getLog().info("Loading development path semantic at count: " + this.itemCount);
+                      }
+
+                      if (mergeLogicGraphs) {
+                         if (sc.getAssemblageNid() == statedNid) {
+                            final NidSet sequences = Get.assemblageService()
+                                                                   .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
+                                                                            statedNid);
+
+                            if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
+                               // not a duplicate, just an index for itself. 
+                            } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
+                               duplicateCount++;
+                               final List<LogicalExpression> listToMerge = new ArrayList<>();
+
+                               listToMerge.add(getLatestLogicalExpression(sc));
+                               getLog().debug("\nDuplicate: " + sc);
+                               sequences.stream()
+                                        .forEach(
+                                            (semanticSequence) -> listToMerge.add(
+                                                getLatestLogicalExpression(Get.assemblageService()
+                                                      .getSemanticChronology(semanticSequence))));
+                               getLog().debug("Duplicates: " + listToMerge);
+
+                               if (listToMerge.size() > 2) {
+                                  throw new UnsupportedOperationException("Can't merge list of size: " +
+                                        listToMerge.size() + "\n" + listToMerge);
+                               }
+                               
+                               Set<Integer> mergedParents = new HashSet<>();
+                               for (LogicalExpression le : listToMerge) {
+                                  mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+                               }
+
+                               byte[][] data;
+
+                               if (mergedParents.size() == 0) {
+                                  // The logic graph is too complex for our stupid merger - Use the isomorphic one.
+                                  IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                                  getLog().debug("Isomorphic results: " + isomorphicResults);
+                                  data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
+                               } else {
+                                  // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
+                                  // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
+                                  // Note, this hack won't work at all to merge more complex logic graphs.
+                                  // Probably won't work for RF2 content.
+                                  // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
+                                  Assertion[] assertions = new Assertion[mergedParents.size()];
+                                  LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                                  int i = 0;
+                                  for (Integer parent : mergedParents) {
+                                     assertions[i++] = ConceptAssertion(parent, leb);
+                                  }
+
+                                  NecessarySet(And(assertions));
+                                  data = leb.build().getData(DataTarget.INTERNAL);
+                               }
+                               
+                               mergeCount++;
+
+                               final SemanticChronology existingChronology = Get.assemblageService()
+                                                                              .getSemanticChronology(sequences.findFirst()
+                                                                                    .getAsInt());
+                               int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
+                                  TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+                               MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+                               newVersion.setGraphData(data);
+                               sc = existingChronology;
+                            }
+                         }
+                      }
+
+                      if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
+                            (!this.activeOnly ||
+                             (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
+                         Get.assemblageService()
+                            .writeSemanticChronology(sc);
+                         if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+                            deferredActionNids.add(sc.getNid());
+                         }
+
+                         this.semanticCount++;
+                      } else {
+                         this.skippedItems.add(sc.getNid());
+                      }
+
+                      break;
+
+                   case STAMP_ALIAS:
+                      Get.commitService()
+                         .addAlias(((StampAlias) object).getStampSequence(),
+                                   ((StampAlias) object).getStampAlias(),
+                                   null);
+                      this.stampAliasCount++;
+                      break;
+
+                   case STAMP_COMMENT:
+                      Get.commitService()
+                         .setComment(((StampComment) object).getStampSequence(),
+                                     ((StampComment) object).getComment());
+                      this.stampCommentCount++;
+                      break;
+
+                   default:
+                      throw new UnsupportedOperationException("Unknown object type: " + object);
+                   }
+                }
+             } catch (final UnsupportedOperationException e) {
+                this.itemFailure++;
+                getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
+                               " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
+                               " stampComments",
+                               e);
+
+                final Map<String, Object> args = new HashMap<>();
+
+                args.put(JsonWriter.PRETTY_PRINT, true);
+
+                final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
+                try (JsonWriter json = new JsonWriter(baos, args)) {
+                   UUID                        primordial = null;
+                   
+                   if (object instanceof Chronology) {
+                      primordial = ((Chronology) object).getPrimordialUuid();
+                   }
+                   
+                   json.write(object);
+                   getLog().error("Failed on " + ((primordial == null) ? ": "
+                           : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
+                }
+             }
+
+             if (this.itemCount % 50000 == 0) {
+                getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
+                              " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
+                              " stampAlias, " + this.stampCommentCount + " stampComment");
+             }
+          }
+       }
+       
+       if (this.skippedItems.size() > 0) {
+           this.skippedAny = true;
+        }
+
+        getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount + " stampAlias, " 
+              + stampCommentCount + " stampComments, " + mergeCount + " merged semantics" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
+                      + ((duplicateCount > 0) ? " Duplicates " + duplicateCount : "") 
+                      + ((this.itemFailure > 0) ? " Failures " + this.itemFailure : "") + " from " + inputIdentifier);
+        getLog().info("running item count: "  + this.itemCount);
+        this.conceptCount      = 0;
+        this.semanticCount     = 0;
+        this.stampAliasCount   = 0;
+        this.stampCommentCount = 0;
+        this.skippedItems.clear();
    }
 
-   //~--- get methods ---------------------------------------------------------
-}
+   /**
+    * Skip semantic types.
+    *
+    * @param types the types
+    */
+   public void skipVersionTypes(Collection<VersionType> types) {
+      this.semanticTypesToSkip.addAll(types);
+   }
+   
+   /**
+    * Don't put us into DB Build mode on startup
+    */
+   public void dontSetDBMode() {
+      this.setDBBuildMode = false;
+   }
 
+
+   /**
+    * Checks if active.
+    *
+    * @param object the object
+    * @return true, if active
+    */
+   private boolean isActive(Chronology object) {
+      Boolean foundStatus = null;
+      for (Version v : object.getVersionList())
+      {
+         if (foundStatus == null)
+         {
+             foundStatus = v.getStatus() == Status.ACTIVE;
+         }
+         else if (foundStatus != (v.getStatus() == Status.ACTIVE))
+         {
+             throw new RuntimeException("Simple implementation can't handle version list with differing status values");
+         }
+      }
+      if (foundStatus == null) {
+         throw new RuntimeException("no version found???");
+      } 
+      return foundStatus.booleanValue();
+   }
+
+   /**
+    * Gets the latest logical expression.
+    *
+    * @param sc the sc
+    * @return the latest logical expression
+    */
+   private static LogicalExpression getLatestLogicalExpression(SemanticChronology sc) {
+      final SemanticChronology lgsc          = sc;
+      LogicGraphVersion                                   latestVersion = null;
+
+      for (final StampedVersion version: lgsc.getVersionList()) {
+         if (latestVersion == null) {
+            latestVersion = (LogicGraphVersion) version;
+         } else if (latestVersion.getTime() < version.getTime()) {
+            latestVersion = (LogicGraphVersion) version;
+         }
+      }
+
+      return (latestVersion != null) ? latestVersion.getLogicalExpression()
+                                     : null;
+   }
+   
+   
+   /**
+    * Shamelessly copied from FRILLS, as I can't use it there, due to dependency chain issues.  But then modified a bit, 
+    * so it fails if it encounters things it can't handle.
+    */
+   private Set<Integer> getParentConceptSequencesFromLogicExpression(LogicalExpression logicExpression) {
+      Set<Integer> parentConceptSequences = new HashSet<>();
+      List<LogicNode> necessaryNodes = logicExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
+      int necessaryCount = 0;
+      int allCount = 1;  //start at 1, for root.
+      for (LogicNode necessarySetNode: necessaryNodes) {
+         necessaryCount++;
+         allCount++;
+         for (LogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
+            allCount++;
+            if (null == childOfNecessarySetNode.getNodeSemantic()) {
+                // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+                return new HashSet<>();
+            } else switch (childOfNecessarySetNode.getNodeSemantic()) {
+                 case AND:
+                     AndNode andNode = (AndNode)childOfNecessarySetNode;
+                     for (AbstractLogicNode childOfAndNode : andNode.getChildren()) {
+                         allCount++;
+                         if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                             if (childOfAndNode instanceof ConceptNodeWithNids) {
+                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfAndNode;
+                                 parentConceptSequences.add(conceptNode.getConceptNid());
+                             } else if (childOfAndNode instanceof ConceptNodeWithUuids) {
+                                 ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfAndNode;
+                                 parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                             } else {
+                                 // Should never happen - return an empty set to our call above doesn't use this mechanism
+                                 return new HashSet<>();
+                             }
+                         }
+                     }     break;
+                 case CONCEPT:
+                     if (childOfNecessarySetNode instanceof ConceptNodeWithNids) {
+                         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids)childOfNecessarySetNode;
+                         parentConceptSequences.add(conceptNode.getConceptNid());
+                     } else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids) {
+                         ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids)childOfNecessarySetNode;
+                         parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                     } else {
+                         // Should never happen - return an empty set to our call above doesn't use this mechanism
+                         return new HashSet<>();
+                     }     break;
+                 default:
+                     // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+                     return new HashSet<>();
+             }
+         }
+      }
+      
+      if (logicExpression.getRoot().getChildren().length != necessaryCount || allCount != logicExpression.getNodeCount()) {
+         // we don't understand this log graph.  Return an empty set to our call above doesn't use this mechanism
+         return new HashSet<>();
+      }
+      
+      return parentConceptSequences;
+   }
+}

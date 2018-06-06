@@ -39,9 +39,10 @@
 
 package sh.isaac.model.concept;
 
-//~--- JDK imports ------------------------------------------------------------
+import static sh.isaac.api.bootstrap.TermAux.SOLOR_CONCEPT_ASSEMBLAGE;
+import java.io.File;
 
-import java.nio.file.Paths;
+//~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,22 +52,20 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jvnet.testing.hk2testng.HK2;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import static sh.isaac.api.bootstrap.TermAux.SOLOR_CONCEPT_ASSEMBLAGE;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.HeapUseTicker;
@@ -74,11 +73,6 @@ import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.model.builder.ConceptBuilderImpl;
 import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -153,8 +147,7 @@ public class ConceptSuite {
       final int                   nid               = Get.identifierService()
                                                          .getNidForUuids(primordialUuid);
       final int conceptAssemblageNid = SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, 
-              conceptAssemblageNid);
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, conceptAssemblageNid);
       final int stampSequence = Get.stampService()
                                    .getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
 
@@ -184,7 +177,7 @@ public class ConceptSuite {
     * @return the concept chronology
     */
    private ConceptChronology createConcept(ConceptSpecification spec, long time) {
-      return createConcept(spec.getFullySpecifiedConceptDescriptionText(), spec.getUuids()[0]
+      return createConcept(spec.getFullyQualifiedName(), spec.getUuids()[0]
             .toString(), time);
    }
 
@@ -215,7 +208,8 @@ public class ConceptSuite {
                                                                                      null,
                                                                                      defaultLanguageForDescriptions,
                                                                                      defaultDialectAssemblageForDescriptions,
-                                                                                     defaultLogicCoordinate);
+                                                                                     defaultLogicCoordinate,
+                                                                                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
 
       testConceptBuilder.setPrimordialUuid(uuidString);
 
@@ -270,11 +264,10 @@ public class ConceptSuite {
    public void setUpSuite()
             throws Exception {
       LOG.info("ModelSuiteManagement setup");
-      System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/testdb");
+      LookupService.startupPreferenceProvider();
+      Get.configurationService().setDataStoreFolderPath(new File("target/testdb").toPath());
 
-      final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
-
-      LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
+      LOG.info("termstore folder path exists: " + Get.configurationService().getDataStoreFolderPath().toFile().exists());
       LookupService.startupIsaac();
       ActiveTasksTicker.start(10);
       HeapUseTicker.start(10);

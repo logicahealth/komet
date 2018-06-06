@@ -16,8 +16,18 @@
  */
 package sh.komet.gui.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Singleton;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.PreferencesService;
 import sh.komet.gui.contract.DialogService;
+import sh.komet.gui.contract.GuiConceptBuilder;
+import sh.komet.gui.contract.GuiSearcher;
+import sh.komet.gui.contract.KometPreferences;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.contract.StatusMessageService;
 import sh.komet.gui.provider.StatusMessageProvider;
@@ -26,22 +36,39 @@ import sh.komet.gui.provider.StatusMessageProvider;
  *
  * @author kec
  */
-public class FxGet {
-   public static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
+@Service
+@Singleton
+public class FxGet implements StaticIsaacCache
+{
    private static DialogService DIALOG_SERVICE = null;
    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
-   private static final StatusMessageProvider STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
+   private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
+   private static FxConfiguration FX_CONFIGURATION = null;
+   // TODO make SEARCHER_LIST behave like a normal lookup service. 
+   private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
+   // TODO make SEARCHER_LIST behave like a normal lookup service. 
+   private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
+
+   public static List<GuiSearcher> searchers() {
+       return SEARCHER_LIST;
+   }
+   public static List<GuiConceptBuilder> builders() {
+       return BUILDER_LIST;
+   }
    public static DialogService dialogs() {
       if (DIALOG_SERVICE == null) {
          DIALOG_SERVICE = Get.service(DialogService.class);
       }
       return DIALOG_SERVICE;
    }
-   
+
    public static StatusMessageService statusMessageService() {
+      if (STATUS_MESSAGE_PROVIDER == null) {
+         STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
+      }
       return STATUS_MESSAGE_PROVIDER;
    }
-   
+
    public static RulesDrivenKometService rulesDrivenKometService() {
       if (RULES_DRIVEN_KOMET_SERVICE == null) {
          RULES_DRIVEN_KOMET_SERVICE = Get.service(RulesDrivenKometService.class);
@@ -49,9 +76,42 @@ public class FxGet {
       return RULES_DRIVEN_KOMET_SERVICE;
    }
    
-   public static boolean showBetaFeatures() {
-       
-       return Boolean.getBoolean(SHOW_BETA_PROPERTY);
+   public static FxConfiguration fxConfiguration() {
+         if (FX_CONFIGURATION == null) {
+            FX_CONFIGURATION = new FxConfiguration();
+         }
+         return FX_CONFIGURATION;
+      }
+
+      public static KometPreferences kometPreferences() {
+         return Get.service(KometPreferences.class);
+      }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void reset() {
+      DIALOG_SERVICE = null;
+      RULES_DRIVEN_KOMET_SERVICE = null;
+      STATUS_MESSAGE_PROVIDER = null;
+      FX_CONFIGURATION = null;
    }
-  
+   
+   public static PreferencesService preferenceService() {
+       return Get.service(PreferencesService.class);
+   }
+   
+   public static IsaacPreferences systemNode(Class<?> c) {
+       return preferenceService().getApplicationPreferences().node(c);
+   }
+   
+   public static IsaacPreferences userNode(Class<?> c) {
+       return preferenceService().getUserPreferences().node(c);
+   }
+   
+   public static IsaacPreferences applicationNode(Class<?> c) {
+       return preferenceService().getApplicationPreferences().node(c);
+   }
+   
 }

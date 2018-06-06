@@ -17,7 +17,7 @@
 package sh.isaac.solor.mojo;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.Future;
 import javafx.concurrent.Task;
 import org.apache.maven.plugin.AbstractMojo;
@@ -29,14 +29,15 @@ import org.apache.maven.plugins.annotations.Parameter;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.classifier.ClassifierResults;
-import static sh.isaac.api.constants.Constants.IMPORT_FOLDER_LOCATION;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.util.DBLocator;
-import sh.isaac.solor.rf2.direct.ImportType;
-import sh.isaac.solor.rf2.direct.Rf2DirectImporter;
-import sh.isaac.solor.rf2.direct.Rf2RelationshipTransformer;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.LoincDirectImporter;
+import sh.isaac.solor.direct.DirectImporter;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
  *
@@ -55,15 +56,12 @@ public class SolorMojo extends AbstractMojo {
     private String importFolderLocation;
 
     /**
-     * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
-     * be in the passed in folder location.
-     *
-     * Note that the value passed in here is also passed through {@link DBLocator#findDBFolder(File)}
+     * This value, if present, is passed in to {@link ConfigurationService#setDataStoreFolderPath(Path)}
      *
      * @parameter
-     * @required
+     * @optional
      */
-    @Parameter(required = true)
+    @Parameter(required = false)
     private File dataStoreLocation;
     
     @Parameter(required = true)
@@ -77,29 +75,30 @@ public class SolorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Get.configurationService().setDBBuildMode(BuildMode.DB);
         try {
-            System.setProperty(IMPORT_FOLDER_LOCATION, importFolderLocation);
-            this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);
-
-            if (!this.dataStoreLocation.exists()) {
-                throw new MojoExecutionException("Couldn't find a data store from the input of '"
-                        + this.dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
+            Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
+            
+            if (this.dataStoreLocation != null)
+            {
+               Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
             }
 
-            if (!this.dataStoreLocation.isDirectory()) {
-                throw new IOException("The specified data store: '" + this.dataStoreLocation.getAbsolutePath()
-                        + "' is not a folder");
-            }
-
-            LookupService.getService(ConfigurationService.class)
-                    .setDataStoreFolderPath(this.dataStoreLocation.toPath());
-            getLog().info("  Setup AppContext, data store location = " + this.dataStoreLocation.getCanonicalPath());
+            getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            Rf2DirectImporter importer = new Rf2DirectImporter(ImportType.valueOf(importType));
+            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
+            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
+            //be configured at the assemblage level.
+            LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(false);
+            DirectImporter rf2Importer = new DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
-            importer.run();
+            rf2Importer.run();
             LookupService.syncAll();
-
+            
+            LoincDirectImporter loincImporter = new LoincDirectImporter();
+            getLog().info("  Importing LOINC files.");
+            loincImporter.run();
+            LookupService.syncAll();
             if (transform) {
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
@@ -118,7 +117,7 @@ public class SolorMojo extends AbstractMojo {
                 getLog().info(classifierResults.toString());
             }
 
-            LookupService.syncAll();
+            LookupService.syncAll();  //This should be unnecessary....
             LookupService.shutdownIsaac();
         } catch (Throwable throwable) {
             throw new MojoFailureException("solor-import failed", throwable);

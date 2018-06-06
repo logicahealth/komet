@@ -69,15 +69,13 @@ public interface DynamicExternalValidator {
     * @param validatorDefinitionData - The string used to locate the validator implementation is stored in the first position of the array.
     * see {@link DynamicValidatorType} for details) and any other data that was stored with the validator assignment (any additional items
     * in the array)
-    * @param sc - the stamp coordinate that was passed in to the validate call.
-    * @param tc the tc
+    * @param stampSequence - the stamp sequence where this data will live
     * @return - true if valid, exception otherwise.
     * @throws RuntimeException - if it fails the validator, this exception should contain a user-friendly reason why.
     */
    public boolean validate(DynamicData userData,
                            DynamicArray<DynamicString> validatorDefinitionData,
-                           StampCoordinate sc,
-                           ManifoldCoordinate tc)
+                           int stampSequence)
             throws RuntimeException;
 
    /**

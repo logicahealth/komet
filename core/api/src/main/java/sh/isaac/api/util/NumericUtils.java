@@ -201,6 +201,16 @@ public class NumericUtils {
    public static boolean isLong(String string) {
       return getLong(string).isPresent();
    }
+   
+   public static boolean isNumber(String string) {
+      try {
+         parseUnknown(string);
+         return true;
+      }
+      catch (NumberFormatException e) {
+         return false;
+      }
+   }
 
    /**
     * Same as isInt / getInt - however - only returns a value if the parsed integer is negative.

@@ -66,7 +66,7 @@ public interface ConfigOptionsDescriptor {
    public ConverterOptionParam[] getConfigOptions();
 
    /**
-    * What converter is this converter describing.  Recommend returning the artifactId here of the containing project
+    * What converter is this config option describing.  This should be set to the name of the @Mojo that is is describing.
     *
     * @return the name
     */

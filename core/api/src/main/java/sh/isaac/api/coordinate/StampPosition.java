@@ -66,7 +66,7 @@ public interface StampPosition
          return comparison;
       }
 
-      return Integer.compare(this.getStampPathSequence(), o.getStampPathSequence());
+      return Integer.compare(this.getStampPathNid(), o.getStampPathNid());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -79,11 +79,11 @@ public interface StampPosition
    StampPath getStampPath();
 
    /**
-    * Gets the stamp path sequence.
+    * Gets the stamp path concept nid.
     *
-    * @return the stamp path sequence
+    * @return the stamp path concept nid
     */
-   int getStampPathSequence();
+   int getStampPathNid();
 
    /**
     * Gets the time.

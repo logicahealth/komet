@@ -105,13 +105,13 @@ public class Stamp
       assert this.status != null:
              "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
              this.moduleNid + " p: " + this.pathNid;
-      assert this.pathNid > 0:
+      assert this.pathNid < 0:
              "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
              this.moduleNid + " p: " + this.pathNid;
-      assert this.moduleNid > 0:
+      assert this.moduleNid < 0:
              "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
              this.moduleNid + " p: " + this.pathNid;
-      assert this.authorNid > 0:
+      assert this.authorNid < 0:
              "s: " + this.status + " t: " + this.time + " a: " + this.authorNid + " " + " m: " +
              this.moduleNid + " p: " + this.pathNid;
    }
@@ -302,7 +302,13 @@ public class Stamp
       sb.append("Stamp{s:");
       sb.append(this.status);
       sb.append(", t:");
-      sb.append(getTimeAsInstant());
+      if (this.time == Long.MAX_VALUE) {
+          sb.append(" UNCOMMITTED");
+      } else if (this.time == Long.MIN_VALUE) {
+          sb.append(" CANCELED");
+      } else {
+          sb.append(getTimeAsInstant());
+      }
       sb.append(", a:");
       sb.append(Get.conceptDescriptionText(this.authorNid));
       sb.append(", m:");

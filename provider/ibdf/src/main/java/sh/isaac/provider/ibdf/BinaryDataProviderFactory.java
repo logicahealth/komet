@@ -69,25 +69,26 @@ import sh.isaac.api.externalizable.DataWriterService;
 @Singleton
 public class BinaryDataProviderFactory
          implements BinaryDataServiceFactory {
+
    /**
-    * Gets the queue reader.
-    *
-    * @param dataPath the data path
-    * @return the queue reader
-    * @throws FileNotFoundException the file not found exception
+    * {@inheritDoc}
     */
    @Override
    public BinaryDataReaderQueueService getQueueReader(Path dataPath)
             throws FileNotFoundException {
       return new BinaryDataReaderQueueProvider(dataPath);
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public BinaryDataReaderQueueService getQueueReader(InputStream inputStream) {
+      return new BinaryDataReaderQueueProvider(inputStream);
+   }
 
    /**
-    * Gets the reader.
-    *
-    * @param dataPath the data path
-    * @return the reader
-    * @throws FileNotFoundException the file not found exception
+    * {@inheritDoc}
     */
    @Override
    public BinaryDataReaderService getReader(Path dataPath)
@@ -101,16 +102,12 @@ public class BinaryDataProviderFactory
    }
 
    /**
-    * Gets the writer.
-    *
-    * @param dataPath the data path
-    * @return the writer
-    * @throws IOException Signals that an I/O exception has occurred.
+    * {@inheritDoc}
     */
    @Override
    public DataWriterService getWriter(Path dataPath)
             throws IOException {
-      return new BinaryDataWriterProvider(dataPath);
+      return new BinaryDataWriterProvider(dataPath, false);
    }
 }
 

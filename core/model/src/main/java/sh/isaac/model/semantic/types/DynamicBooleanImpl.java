@@ -96,10 +96,7 @@ public class DynamicBooleanImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data boolean.
-    *
-    * @return the data boolean
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBoolean()
+    * {@inheritDoc}
     */
    @Override
    public boolean getDataBoolean() {
@@ -108,10 +105,7 @@ public class DynamicBooleanImpl
    }
 
    /**
-    * Gets the data boolean property.
-    *
-    * @return the data boolean property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBooleanProperty()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
@@ -123,10 +117,7 @@ public class DynamicBooleanImpl
    }
 
    /**
-    * Gets the data object.
-    *
-    * @return the data object
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public Object getDataObject() {
@@ -134,10 +125,7 @@ public class DynamicBooleanImpl
    }
 
    /**
-    * Gets the data object property.
-    *
-    * @return the data object property
-    * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
+    * {@inheritDoc}
     */
    @Override
    public ReadOnlyObjectProperty<?> getDataObjectProperty() {

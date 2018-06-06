@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- add one new immunization procedure -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>5254430</Code>
+  <VUID>5254430</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>5254431</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5254431</VUID>
+    <ValueNew>INFLUENZA, RECOMBINANT, QUADRIVALENT,INJECTABLE, PRESERVATIVE FREE</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_CVX_Code</TypeName>
+        <ValueNew>185</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Inactive_Flag</TypeName>
+        <ValueNew>0</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_CDC_Full_Vaccine_Name</TypeName>
+        <ValueNew>SEASONAL, QUADRIVALENT, RECOMBINANT, INJECTABLE INFLUENZA VACCINE, PRESERVATIVE FREE</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_CDC_Product_Name</TypeName>
+        <ValueNew>FLUBLOK QUADRIVALENT</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Class</TypeName>
+        <ValueNew>NATIONAL</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Selectable_For_Historic</TypeName>
+        <ValueNew>YES</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5197408</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+      <Action>add</Action>
+		  <TypeName>VistA_Combination_Immunization</TypeName>
+		  <ValueNew>N</ValueNew>
+		  <Active>1</Active>
+    </Property>
+    <Property>
+      <Action>add</Action>
+		  <TypeName>VistA_Immunization_Group</TypeName>
+		  <ValueNew>FLU</ValueNew>
+		  <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>vista_has_vis</TypeName>
+      <NewTargetCode>5236769</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>vista_has_vis</TypeName>
+      <NewTargetCode>5236771</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5197590</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+
+<!-- inactivate 4 existing VIS -->
+<CodedConcept>
+  <Action>none</Action>
+  <Code>5197863</Code>
+  <VUID>5197863</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>5197864</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5197864</VUID>
+    <ValueOld>HUMAN PAPILLOMAVIRUS VACCINE (CERVARIX) VIS 5/3/2011 ENGLISH</ValueOld>
+    <Active>0</Active>
+    <Properties><Property>
+      <Action>update</Action>
+      <TypeName>VistA_VIS_Edition_Status</TypeName>
+      <ValueOld>CURRENT</ValueOld>
+      <ValueNew>HISTORIC</ValueNew>
+    </Property></Properties>
+  </Designation></Designations>
+</CodedConcept>
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>5197865</Code>
+  <VUID>5197865</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>5197866</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5197866</VUID>
+    <ValueOld>HUMAN PAPILLOMAVIRUS VACCINE (CERVARIX) VIS 5/3/2011 SPANISH</ValueOld>
+    <Active>0</Active>
+    <Properties><Property>
+      <Action>update</Action>
+      <TypeName>VistA_VIS_Edition_Status</TypeName>
+      <ValueOld>CURRENT</ValueOld>
+      <ValueNew>HISTORIC</ValueNew>
+    </Property></Properties>
+  </Designation></Designations>
+</CodedConcept>
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>5197871</Code>
+  <VUID>5197871</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>5197872</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5197872</VUID>
+    <ValueOld>HUMAN PAPILLOMAVIRUS VACCINE (GARDASIL) VIS 5/17/2013 ENGLISH</ValueOld>
+    <Active>0</Active>
+    <Properties><Property>
+      <Action>update</Action>
+      <TypeName>VistA_VIS_Edition_Status</TypeName>
+      <ValueOld>CURRENT</ValueOld>
+      <ValueNew>HISTORIC</ValueNew>
+    </Property></Properties>
+  </Designation></Designations>
+</CodedConcept>
+
+<CodedConcept>
+  <Action>none</Action>
+  <Code>5197869</Code>
+  <VUID>5197869</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>update</Action>
+    <Code>5197870</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5197870</VUID>
+    <ValueOld>HUMAN PAPILLOMAVIRUS VACCINE (GARDASIL) VIS 5/17/2013 SPANISH</ValueOld>
+    <Active>0</Active>
+    <Properties><Property>
+      <Action>update</Action>
+      <TypeName>VistA_VIS_Edition_Status</TypeName>
+      <ValueOld>CURRENT</ValueOld>
+      <ValueNew>HISTORIC</ValueNew>
+    </Property></Properties>
+  </Designation></Designations>
+</CodedConcept>
+
+
+<!-- add one new reactant -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>5254432</Code>
+  <VUID>5254432</VUID>
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>5254433</Code>
+    <TypeName>Preferred Name</TypeName>
+    <VUID>5254433</VUID>
+    <ValueNew>CARDAMOM</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>CARDAMON</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>Search_Term</TypeName>
+        <ValueNew>CARDAMUM</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>4707831</VUID>
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation></Designations>
+  <Properties>
+    <Property>
+	    <Action>add</Action>
+	    <TypeName>Allergy_Type</TypeName>
+	    <ValueNew>DRUG, FOOD</ValueNew>
+	    <Active>1</Active>
+    </Property>
+  </Properties>
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>4712075</NewTargetCode>
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+
+</CodedConcepts></Version></CodeSystem></Terminology>

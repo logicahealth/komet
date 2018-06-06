@@ -39,9 +39,7 @@
 
 package test;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.pombuilder.artifacts.IBDFFile;
+import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 //~--- classes ----------------------------------------------------------------
@@ -76,7 +74,9 @@ public class TestDBConfiguration {
             "3.03-SNAPSHOT",
             testURL,
             username,
-            password));
+            password, 
+            null,
+            true));
 
       // VETS
       System.out.println(DBConfigurationCreator.createDBConfiguration("vets-test",
@@ -95,7 +95,9 @@ public class TestDBConfiguration {
             "3.03-SNAPSHOT",
             testURL,
             username,
-            password));
+            password,
+            null,
+            true));
    }
 }
 

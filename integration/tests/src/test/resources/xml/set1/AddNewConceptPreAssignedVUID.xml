@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+  <CodeSystem>
+    <Action>none</Action>
+    <Name>VHAT</Name>
+    <Version>
+      <Append>true</Append>
+      <Name>Authoring Version</Name>
+      
+      <CodedConcepts>
+        <!-- add 1 new Immunization Procedure with 1 designation and has_parent -->
+        <CodedConcept>
+          <Action>add</Action>
+          <Code>-505</Code>
+          <VUID>-505</VUID>
+          <Active>true</Active>
+          
+          <Designations>
+          
+            <!-- add Designation -->
+            <Designation> 
+              <Action>add</Action>
+              <Code>-506</Code>
+              <TypeName>Preferred Name</TypeName>  <!-- valid designation types for VHAT are Preferred Name, Fully Specified Name, Synonym, Abbreviation, and VistA Name - every concept should have one active Preferred Name  -->
+              <VUID>-506</VUID>
+              <ValueNew>AA SQA IMMUN PROCEDURE</ValueNew>
+              <Active>true</Active>
+            </Designation>
+         </Designations>
+       
+          <!-- add has_parent Relationship -->
+          <Relationships>
+            <Relationship>
+              <Action>add</Action>
+              <TypeName>has_parent</TypeName>  
+              <NewTargetCode>5197590</NewTargetCode>  <!-- the VUID for the parent concept Immunization Procedure in the taxonomy tree  -->
+              <Active>true</Active>
+            </Relationship>
+          </Relationships>
+        </CodedConcept>   
+      </CodedConcepts>
+    </Version>
+  </CodeSystem>
+</Terminology>

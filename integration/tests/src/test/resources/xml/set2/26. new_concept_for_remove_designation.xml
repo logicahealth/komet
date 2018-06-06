@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Terminology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\TerminologyData.xsd">
+
+<CodeSystem>
+<Action>none</Action>
+<Name>VHAT</Name>
+<Version>
+<Append>true</Append>
+<Name>Authoring Version</Name>
+<CodedConcepts>
+
+<!-- MORE COMPLICATED CONCEPT. CREATES CONCEPT WITH ONE DESIGNATION, ONE DESIGNATION PROPERTY, ONE CONCEPT PROPERTY, ASSOCIATES DESIGANTION TO SUBSET AND LINKS CONCEPT TO REACTANTS RELATIONSHIP -->
+<CodedConcept>
+  <Action>add</Action>
+  <Code>810000</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <VUID>810000</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+  <Active>1</Active>
+  <Designations><Designation>
+    <Action>add</Action>
+    <Code>810001</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Preferred Name</TypeName>
+    <VUID>810001</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 HAS EVERYTHING</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>810002</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>810002</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 HAS PROPERTIES ONLY</ValueNew>
+    <Active>1</Active>
+    <Properties>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Long_Description</TypeName>
+        <ValueNew>This is a really long description</ValueNew>
+        <Active>1</Active>
+      </Property>
+      <Property>
+        <Action>add</Action>
+        <TypeName>VistA_Short_Description</TypeName>
+        <ValueNew>Short desc</ValueNew>
+        <Active>1</Active>
+      </Property>
+    </Properties> 
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>810003</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>810003</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 HAS SUBSET ONLY</ValueNew>
+    <Active>1</Active>
+    <SubsetMemberships><SubsetMembership>
+      <Action>add</Action>
+      <VUID>5242850</VUID>   <!-- Lab Test Subset -->
+      <Active>1</Active>
+    </SubsetMembership></SubsetMemberships>
+  </Designation>
+
+  <Designation>
+    <Action>add</Action>
+    <Code>810004</Code>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <TypeName>Synonym</TypeName>
+    <VUID>810004</VUID>    <!-- NEED TO CHANGE IF REIMPORTING -->
+    <ValueNew>A1 HAS NOTHING BASIC</ValueNew>
+    <Active>1</Active>
+  </Designation></Designations>
+
+
+  <Relationships>
+    <Relationship>
+      <Action>add</Action>
+      <TypeName>has_parent</TypeName>
+      <NewTargetCode>5245595</NewTargetCode>  <!-- Lab Test Tree VUID -->
+      <Active>1</Active>
+    </Relationship>
+  </Relationships>
+</CodedConcept>
+</CodedConcepts></Version></CodeSystem></Terminology>

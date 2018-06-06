@@ -1,8 +1,9 @@
-/* 
+/*
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- *
- * You may not use this file except in compliance with the License.
- *
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -10,164 +11,72 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
- *
- * US Veterans Health Administration contributions by government employees
- * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
- * Contribution by contractors to the US Veterans Health Administration
- * during this period are contractually contributed under the
- * Apache License, Version 2.0.
- *
- * See: https://www.usa.gov/government-works
- * 
- * Contributions prior to 2013:
- *
- * Copyright (C) International Health Terminology Standards Development Organisation.
- * Licensed under the Apache License, Version 2.0.
- *
  */
-
-
-
 package sh.isaac.model.observable.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import java.util.List;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.SemanticVersionImpl;
 
 /**
- * The Class ObservableSemanticVersionImpl.
  *
  * @author kec
  */
-public class ObservableSemanticVersionImpl
-        extends ObservableVersionImpl
-         implements ObservableSemanticVersion {
+public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVersionImpl {
 
-   /** The assemblage nid property. */
-   ReadOnlyIntegerProperty assemblageNidProperty;
+    public ObservableSemanticVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
+        super(stampedVersion, chronology);
+    }
 
-   /** The referenced component nid property. */
-   ReadOnlyIntegerProperty referencedComponentNidProperty;
+    public ObservableSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
+        super(versionToClone, chronology);
+    }
 
-   /**
-    * Instantiates a new observable sememe version impl.
-    *
-    * @param stampedVersion the stamped version
-    * @param chronology the chronology
-    */
-   public ObservableSemanticVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
-      super(stampedVersion, 
-              chronology);
-   }
+    @Override
+    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+        ObservableSemanticVersionImpl analog = new ObservableSemanticVersionImpl(this, getChronology());
+        copyLocalFields(analog);
+        analog.setModuleNid(ec.getModuleNid());
+        analog.setAuthorNid(ec.getAuthorNid());
+        analog.setPathNid(ec.getPathNid());
+        return (V) analog;
+    }
+
+    @Override
+    protected void updateVersion() {
+        // nothing to update
+    }
+
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableSemanticVersionImpl newObservableVersion = 
+      ObservableAbstractSemanticVersionImpl newObservableVersion = 
               new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 
-
-   /**
-    * assemblage nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final ReadOnlyIntegerProperty assemblageNidProperty() {
-      if (this.assemblageNidProperty == null) {
-         this.assemblageNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_NID_FOR_CHRONICLE.toExternalString(),
-               getAssemblageNid()));
-      }
-
-      return this.assemblageNidProperty;
-   }
-
-   /**
-    * referenced component nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
-      if (this.referencedComponentNidProperty == null) {
-         this.referencedComponentNidProperty = 
-            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC_CHRONICLE.toExternalString(),
-               getReferencedComponentNid()));
-      }
-      return this.referencedComponentNidProperty;
-   }
-   @Override
-   public List<ReadOnlyProperty<?>> getProperties() {
-      List<ReadOnlyProperty<?>> properties = super.getProperties();
-      properties.add(assemblageNidProperty());
-      properties.add(referencedComponentNidProperty());
-      return properties;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the assemblage sequence.
-    *
-    * @return the assemblage sequence
-    */
-   @Override
-   public int getAssemblageNid() {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageNid();
-   }
-
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public ObservableSemanticChronology getChronology() {
-      return (ObservableSemanticChronology) this.chronology;
-   }
-
-   /**
-    * Gets the referenced component nid.
-    *
-    * @return the referenced component nid
-    */
-   @Override
-   public int getReferencedComponentNid() {
-      return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
-   }
+    @Override
+    public Chronology createChronologyForCommit(int stampSequence) {
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), stampSequence);
+        SemanticVersion newVersion = new SemanticVersionImpl(sc, stampSequence);
+        copyLocalFields(newVersion);
+        sc.addVersion(newVersion);
+        return sc;
+    }
 
    @Override
-   protected void updateVersion() {
-      // nothing to update
-      // only read-only values in this subclass. 
-   }
-   
+    protected void copyLocalFields(SemanticVersion analog) {
+        // Nothing to copy. 
+    }    
 }
-

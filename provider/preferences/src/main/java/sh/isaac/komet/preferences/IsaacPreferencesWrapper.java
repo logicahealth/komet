@@ -26,7 +26,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferenceNodeType;
 
 /**
- *
+ * An application preferences wrapper. 
  * @author kec
  */
 public class IsaacPreferencesWrapper implements IsaacPreferences {
@@ -43,9 +43,6 @@ public class IsaacPreferencesWrapper implements IsaacPreferences {
 
    @Override
    public String get(String key, String defaultValue) {
-      if (defaultValue == null) {
-         throw new NullPointerException("Default values cannot be null. Use equivalent Optional method instead.");
-      }
       return delegate.get(key, defaultValue);
    }
 
