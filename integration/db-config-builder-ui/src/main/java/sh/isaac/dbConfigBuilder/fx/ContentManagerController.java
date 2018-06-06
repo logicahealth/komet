@@ -1098,7 +1098,6 @@ public class ContentManagerController
 			@Override
 			protected boolean computeValue()
 			{
-				System.out.println("fire!");
 				if (deltaEndState.getChildrenUnmodifiable().size() < 2)
 				{
 					setInvalidReason("The selected initial file does not have any other versions available to use for delta calculation");
