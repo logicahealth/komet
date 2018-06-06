@@ -28,21 +28,6 @@
          <plugins>
             <plugin>
                <groupId>sh.isaac.solor</groupId>
-               <artifactId>loinc-mojo</artifactId>
-               <version>${project.parent.version}</version>
-            </plugin>
-            <plugin>
-               <groupId>sh.isaac.solor</groupId>
-               <artifactId>rf2-mojo</artifactId>
-               <version>${project.parent.version}</version>
-            </plugin>
-            <plugin>
-               <groupId>sh.isaac.solor</groupId>
-               <artifactId>rxnorm-mojo</artifactId>
-               <version>${project.parent.version}</version>
-            </plugin>
-            <plugin>
-               <groupId>sh.isaac.solor</groupId>
                <artifactId>solor-mojo</artifactId>
                <version>${project.parent.version}</version>
             </plugin>
