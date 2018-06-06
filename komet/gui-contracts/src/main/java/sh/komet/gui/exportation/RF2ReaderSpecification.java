@@ -6,12 +6,11 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.komet.gui.manifold.Manifold;
-
-import java.util.List;
 
 /*
  * aks8m - 5/22/18
@@ -19,7 +18,7 @@ import java.util.List;
 public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
     private final Manifold manifold;
-    private static ObservableSnapshotService snapshot;
+    private static ObservableSnapshotService snapshotService;
     private final ExportLookUpCache exportLookUpCache;
 
     public RF2ReaderSpecification(Manifold manifold, ExportLookUpCache exportLookUpCache) {
@@ -29,16 +28,23 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
     }
 
     private static void createSnapshotInstance(Manifold manifold){
-        snapshot = Get.observableSnapshotService(manifold);
+        snapshotService = Get.observableSnapshotService(manifold);
     }
 
-    public ObservableSnapshotService getSnapshot() {
-        return this.snapshot;
+    public ObservableSnapshotService getSnapshotService() {
+        return this.snapshotService;
     }
 
-    public abstract void addColumnHeaders(List<String> lines);
+    StringBuilder getRF2CommonElements(Chronology chronology){
 
-    StringBuilder getRF2CommonElements(Chronology chronology, int stampNid){
+        int stampNid = 0;
+
+        if(chronology instanceof ConceptChronology)
+            stampNid = getSnapshotService().getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+        else if(chronology instanceof SemanticChronology)
+            stampNid = getSnapshotService().getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+
+
         return new StringBuilder()
                 .append(getIdString(chronology) + "\t")       //id
                 .append(getTimeString(stampNid) + "\t")        //time
@@ -49,12 +55,12 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
     String getIdString(Chronology chronology){
 
         if (this.exportLookUpCache.getSctidNids().contains(chronology.getNid())) {
-            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
+            return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
         } else if (this.exportLookUpCache.getLoincNids().contains(chronology.getNid())) {
-            final String loincId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.CODE____SOLOR.getNid(), chronology);
+            final String loincId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.CODE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromLoincId(loincId);
         } else if (this.exportLookUpCache.getRxnormNids().contains(chronology.getNid())) {
-            final String rxnormId = lookUpIdentifierFromSemantic(this.snapshot, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
+            final String rxnormId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
@@ -72,7 +78,7 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
     String getModuleString(int stampNid){
         ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
         if (this.exportLookUpCache.getSctidNids().contains(moduleConcept.getNid())) {
-            return lookUpIdentifierFromSemantic(this.snapshot, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
+            return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());
         }

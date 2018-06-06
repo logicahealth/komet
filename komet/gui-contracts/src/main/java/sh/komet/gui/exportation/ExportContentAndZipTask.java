@@ -6,12 +6,12 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /*
  * aks8m - 5/15/18
@@ -28,7 +28,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
         this.exportFormatType = exportFormatType;
         updateTitle("Export " + this.exportFormatType.toString());
 
-        addToTotalWork(4);
+        addToTotalWork(6);
         Get.activeTasks().add(this);
     }
 
@@ -36,75 +36,83 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
     protected Void call() throws Exception {
 
         try {
-            Map<ReaderSpecification, List<String>> linesToExportMap = new HashMap<>();
+
+            LocalDateTime totalStart = LocalDateTime.now();
 
             completedUnitOfWork();
 
+            Map<ReaderSpecification, List<byte[]>> exportObjectsToZip = new HashMap<>();
             final ExportLookUpCache exportLookUpCache = new ExportLookUpCache();
-            exportLookUpCache.generateCache();
+
+            ReaderSpecification conceptReaderSpec = new RF2ConceptSpec(this.manifold, exportLookUpCache);
+            ReaderSpecification descriptionReaderSpec = new RF2DescriptionSpec(this.manifold, exportLookUpCache);
+            ReaderSpecification relationshipReaderSpec = new RF2RelationshipSpec(this.manifold, exportLookUpCache);
 
             completedUnitOfWork();
 
-            if (false) { //TODO Remove this when done debugging
-                System.out.println("Start Concept================" + LocalDateTime.now());
-                //Concepts
-                completedUnitOfWork();
+            if (true) { //TODO Remove this when done debugging
+
+                LocalDateTime conceptStart = LocalDateTime.now();
+
                 updateMessage("Reading Concepts...");
 
-                ReaderSpecification conceptReaderSpec = new RF2ConceptSpec(this.manifold, exportLookUpCache);
-                BatchReader conceptBatchReader = new BatchReader(conceptReaderSpec, 102400);
+                exportObjectsToZip.put(conceptReaderSpec,
+                        Get.executor().submit(
+                                new BatchReader(conceptReaderSpec, 102400), new ArrayList<byte[]>()).get());
 
-                Future<List<String>> conceptReadTask = Get.executor().submit(conceptBatchReader, new ArrayList<>());
-                linesToExportMap.put(conceptReaderSpec, conceptReadTask.get());
-                completedUnitOfWork();
-                System.out.println("Finish Concept================" + LocalDateTime.now());
+                System.out.println("~~Total Concept Reading Time: " + Duration.between(conceptStart, LocalDateTime.now()));
             }
 
             completedUnitOfWork();
 
-            if (false) { //TODO Remove this when done debugging
-                System.out.println("Start Descriptions================" + LocalDateTime.now());
-                //Descriptions
-                completedUnitOfWork();
+            if (true) { //TODO Remove this when done debugging
+
+                LocalDateTime descriptionStart = LocalDateTime.now();
+
                 updateMessage("Reading Descriptions...");
 
-                ReaderSpecification descriptionReaderSpec = new RF2DescriptionSpec(this.manifold, exportLookUpCache);
-                BatchReader descriptionBatchReader = new BatchReader(descriptionReaderSpec, 102400);
+                exportObjectsToZip.put(descriptionReaderSpec,
+                        Get.executor().submit(
+                                new BatchReader(descriptionReaderSpec, 102400), new ArrayList<byte[]>()).get());
 
-                Future<List<String>> descriptionReadTask = Get.executor().submit(descriptionBatchReader, new ArrayList<>());
-                linesToExportMap.put(descriptionReaderSpec, descriptionReadTask.get());
-                System.out.println("Finish Descriptions================" + LocalDateTime.now());
+                System.out.println("~~Total Description Reading Time: " + Duration.between(descriptionStart, LocalDateTime.now()));
             }
-
-            if(true){
-                System.out.println("Start Descriptions================" + LocalDateTime.now());
-                //Relationship
-                completedUnitOfWork();
-                updateMessage("Reading Relationships...");
-
-                ReaderSpecification relationshipReaderSpec = new RF2RelationshipSpec(this.manifold, exportLookUpCache);
-                BatchReader relationshipBatchReader = new BatchReader(relationshipReaderSpec, 102400);
-
-                Future<List<String>> relationshipReadTask = Get.executor().submit(relationshipBatchReader, new ArrayList<>());
-                linesToExportMap.put(relationshipReaderSpec, relationshipReadTask.get());
-                System.out.println("Finish Descriptions================" + LocalDateTime.now());
-            }
-
-            if(false){
-                System.out.println("Start ZippingExport================" + LocalDateTime.now());
-                //Zipping
-                completedUnitOfWork();
-                updateMessage("Zipping SOLOR Export...");
-
-                ZipExportFiles zipExportFiles = new ZipExportFiles(this.exportFormatType, this.exportDirectory, linesToExportMap);
-                Future zipExportFilesTask = Get.executor().submit(zipExportFiles);
-                zipExportFilesTask.get();
-                System.out.println("Finish ZippingExport================" + LocalDateTime.now());
-            }
-
-
 
             completedUnitOfWork();
+
+            if(true){ //TODO Remove this when done debugging
+
+                LocalDateTime relationshipStart = LocalDateTime.now();
+
+                updateMessage("Reading Relationships...");
+
+                exportObjectsToZip.put(relationshipReaderSpec,
+                        Get.executor().submit(
+                                new BatchReader(relationshipReaderSpec, 102400), new ArrayList<byte[]>()).get());
+
+                System.out.println("~~Total Relationship Reading Time: " + Duration.between(relationshipStart, LocalDateTime.now()));
+            }
+
+            completedUnitOfWork();
+
+
+            if(true){ //TODO Remove this when done debugging
+
+                LocalDateTime zipStart = LocalDateTime.now();
+
+                updateMessage("Zipping SOLOR Export...");
+
+                ZipExportFiles zipExportFiles =
+                        new ZipExportFiles(this.exportFormatType, this.exportDirectory, exportObjectsToZip);
+                Get.executor().submit(zipExportFiles).get();
+
+                System.out.println("~~Total Zipping Time: " + Duration.between(zipStart, LocalDateTime.now()));
+            }
+
+            completedUnitOfWork();
+
+            System.out.println("~~Total Time: " + Duration.between(totalStart, LocalDateTime.now()));
+
 
         }finally {
             Get.activeTasks().remove(this);

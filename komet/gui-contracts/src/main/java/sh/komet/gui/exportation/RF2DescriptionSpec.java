@@ -5,12 +5,13 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.komet.gui.manifold.Manifold;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,23 +27,31 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
         this.manifold = manifold;
     }
 
+    @Override
+    public void addColumnHeaders(List<byte[]> byteList) throws UnsupportedEncodingException {
+
+        byteList.add(0,
+                "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId\r"
+                        .getBytes("UTF-8"));
+    }
 
     @Override
-    public String createExportString(Chronology chronology) {
-        return getRF2CommonElements(chronology,
-                super.getSnapshot().getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt()) //id, effectiveTime, active, moduleId
+    public List<byte[]> readExportData(Chronology chronology) throws UnsupportedEncodingException {
+
+        List<byte[]> byteList = new ArrayList<>();
+
+        byteList.add(
+                getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
                 .append(getIdString(Get.concept(((SemanticChronology) chronology).getReferencedComponentNid())) + "\t") //conceptId
                 .append(getLanguageCode(chronology) + "\t") //languageCode
                 .append(getTypeId(chronology) + "\t") //typeId
                 .append(getTerm(chronology) + "\t") //term
                 .append(getCaseSignificanceId(chronology)) //caseSignificanceId
                 .append("\r")
-                .toString();
-    }
+                .toString()
+                .getBytes("UTF-8"));
 
-    @Override
-    public void addColumnHeaders(List<String> lines) {
-        lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId\r");
+        return byteList;
     }
 
     @Override
@@ -79,7 +88,7 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
         //Synonym (core metadata concept) 				-	900000000000013009
 
         final int typeNid = ((LatestVersion<ObservableDescriptionVersion>)
-                super.getSnapshot().getObservableSemanticVersion(chronology.getNid())).get().getDescriptionTypeConceptNid();
+                super.getSnapshotService().getObservableSemanticVersion(chronology.getNid())).get().getDescriptionTypeConceptNid();
 
         if(typeNid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
             return "900000000000550004";
@@ -92,7 +101,7 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
     }
 
     private String getTerm(Chronology chronology){
-        return ((LatestVersion<ObservableDescriptionVersion>) super.getSnapshot().getObservableSemanticVersion(chronology.getNid())).get().getText();
+        return ((LatestVersion<ObservableDescriptionVersion>) super.getSnapshotService().getObservableSemanticVersion(chronology.getNid())).get().getText();
     }
 
     private String getCaseSignificanceId(Chronology chronology){
@@ -101,7 +110,7 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
         //Only initial character case insensitive (core metadata concept)	-	900000000000020002
 
         final int caseSigNid = ((LatestVersion<ObservableDescriptionVersion>)
-                super.getSnapshot().getObservableSemanticVersion(chronology.getNid())).get().getCaseSignificanceConceptNid();
+                super.getSnapshotService().getObservableSemanticVersion(chronology.getNid())).get().getCaseSignificanceConceptNid();
 
 
         if( caseSigNid == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getNid())
