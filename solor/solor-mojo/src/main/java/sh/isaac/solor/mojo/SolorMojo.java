@@ -75,7 +75,7 @@ public class SolorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Get.configurationService().setDBBuildMode(BuildMode.IBDF);
+        Get.configurationService().setDBBuildMode(BuildMode.DB);
         try {
             Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
             

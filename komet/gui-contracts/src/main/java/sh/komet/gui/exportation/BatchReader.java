@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 /*
  * aks8m - 5/20/18
  */
-public class BatchReader extends TimedTaskWithProgressTracker<List<String>> implements PersistTaskResult {
+public class BatchReader extends TimedTaskWithProgressTracker<List<byte[]>> implements PersistTaskResult {
 
 
     private final ReaderSpecification readerSpecification;
@@ -28,11 +28,11 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
     }
 
     @Override
-    protected List<String> call() throws Exception {
+    protected List<byte[]> call() throws Exception {
 
-        final List<String> returnList = new ArrayList<>();
         final List<Chronology> chronologyBatches = new ArrayList<>();
-        final List<Future<List<String>>> futures = new ArrayList<>();
+        final List<Future<List<byte[]>>> futures = new ArrayList<>();
+        final List<byte[]> byteList = new ArrayList<>();
 
         try {
 
@@ -53,21 +53,21 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
                 }
 
                 if (i == chronologies.size() - 1) {
+
                     futures.add(Get.executor().submit(
                             new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches)), new ArrayList<>()));
                 }
             }
             completedUnitOfWork();
 
-            for (Future<List<String>> future : futures)
-                returnList.addAll(future.get());
+            for (Future<List<byte[]>> future : futures)
+                byteList.addAll(future.get());
 
             completedUnitOfWork();
         } finally {
             Get.activeTasks().remove(this);
 
         }
-
-        return returnList;
+        return byteList;
     }
 }

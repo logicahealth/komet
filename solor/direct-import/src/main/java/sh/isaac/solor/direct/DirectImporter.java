@@ -251,7 +251,7 @@ public class DirectImporter
         for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
             updateMessage(message);
-            LOG.info("\n\n" + message);
+            LOG.info("\n\n" + message + "\n");
 
             try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {
                 try (BufferedReader br = csp.get()) {

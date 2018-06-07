@@ -132,9 +132,11 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptSpecification UNSPECIFIED_MODULE = new ConceptProxy("Module", // simply labeled 'module' in IsaacMetadataAuxiliary
          UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
 
-   /** ConceptProxy for: "ISAAC module". */
+   /** ConceptProxy for: "SOLOR module". */
    public static ConceptSpecification SOLOR_MODULE = new ConceptProxy("SOLOR module", UUID.fromString("f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
-
+   
+   // 900000000000207008
+   public static ConceptSpecification SCT_CORE_MODULE = new ConceptProxy("SNOMED CT® core modules", "SNOMED CT core", UUID.fromString("1b4f1ba5-b725-390f-8c3b-33ec7096bdca"));
    /** ConceptProxy for: "Synonym description type". SCT ID: 900000000000013009 */
    public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name description type", "Regular name", UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 

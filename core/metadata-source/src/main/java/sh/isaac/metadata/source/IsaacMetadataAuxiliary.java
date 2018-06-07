@@ -190,7 +190,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
-               createConcept("SNOMED CT® core modules", "SNOMED CT core").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
+               createConcept(TermAux.SCT_CORE_MODULE);
                createConcept("US Extension modules", "US Extension");
                createConcept("LOINC® modules", "LOINC").addDescription("Logical Observation Identifiers Names and Codes", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("RxNorm modules", "RxNorm");
