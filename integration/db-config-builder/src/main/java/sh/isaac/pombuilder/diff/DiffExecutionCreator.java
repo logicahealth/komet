@@ -96,7 +96,7 @@ public class DiffExecutionCreator
 			final HashMap<String, String> pomSwaps = new HashMap<>();
 			
 			pomSwaps.put("#GROUP_ID#", IBDF_OUTPUT_GROUP);
-			pomSwaps.put("#ARTIFACT_ID#", initialFile.getArtifactId() + "-" + initialFile.getVersion() + "--" +  endFile.getVersion() + "-delta");
+			pomSwaps.put("#ARTIFACT_ID#", initialFile.getArtifactId() + "-" + initialFile.getVersion() + "--" +  endFile.getVersion());
 			pomSwaps.put("#VERSION#", outputVersion);
 			pomSwaps.put("#NAME#", "Delta calculator for " + initialFile.getVersion() + " and " + endFile.getVersion() + " of " + initialFile.getArtifactId());
 			pomSwaps.put("#LOADER_VERSION#", calculatorVersion);
@@ -165,6 +165,7 @@ public class DiffExecutionCreator
 			
 			FileUtil.writeFile("shared", "NOTICE.txt", baseFolder, new HashMap<>(), "");
 			FileUtil.writeFile("diffProjectTemplate", "pom.xml", baseFolder, pomSwaps, "");
+			FileUtil.writeFile("diffProjectTemplate", "src/assembly/diffIbdf.xml", baseFolder);
 
 			if (StringUtils.isNotBlank(gitRepositoryURL))
 			{

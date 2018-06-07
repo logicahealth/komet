@@ -28,6 +28,12 @@
 			<groupId>sh.isaac.misc</groupId>
 			<artifactId>importers</artifactId>
 			<version>${project.parent.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>sh.isaac.misc</groupId>
+					<artifactId>vhat-util</artifactId>
+			</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.controlsfx</groupId>
