@@ -327,7 +327,7 @@ public class ContentManagerController
 		databaseAdd.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(false, sp_, (results) -> 
 				{
 					ibdfFiles_.clear();
 					ibdfFiles_.addAll(results);
@@ -697,7 +697,7 @@ public class ContentManagerController
 		sourceConversionIBDFSelect.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(false, sp_, (results) -> 
 				{
 					ibdfFiles_.clear();
 					ibdfFiles_.addAll(results);
@@ -992,7 +992,7 @@ public class ContentManagerController
 		deltaInitialStateButton.setOnAction(action -> {
 			if (ibdfFiles_.size() == 0)
 			{
-				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+				FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(false, sp_, (results) -> 
 				{
 					ibdfFiles_.clear();
 					ibdfFiles_.addAll(results);
@@ -2155,7 +2155,7 @@ public class ContentManagerController
 			});
 		});
 		Task<Void> taskTwo = readSourceUploadExistingVersions();
-		Task<Void> taskThree = MavenArtifactUtils.readAvailableIBDFFiles(sp_, (results) -> 
+		Task<Void> taskThree = MavenArtifactUtils.readAvailableIBDFFiles(false, sp_, (results) -> 
 		{
 			ibdfFiles_.clear();
 			ibdfFiles_.addAll(results);

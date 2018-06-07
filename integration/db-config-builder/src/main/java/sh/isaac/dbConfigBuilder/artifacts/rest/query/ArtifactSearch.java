@@ -35,9 +35,10 @@ public interface ArtifactSearch
 	public Set<String> readMetadataVersions();
 	
 	/**
+	 * @param deltaArtifacts - true, if you want to read IBDF files that are deltas of other IBDF files.  False for standard IBDF files only (non-delta)
 	 * @return all available IBDFFiles on the artifact server.
 	 */
-	public Set<IBDFFile> readIBDFFiles();
+	public Set<IBDFFile> readIBDFFiles(boolean deltaArtifacts);
 	
 
 	/**

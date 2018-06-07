@@ -33,6 +33,7 @@ import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
+import sh.isaac.pombuilder.diff.DiffExecutionCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
@@ -45,6 +46,9 @@ public class NexusRead implements ArtifactSearch
 	private Logger log = LogManager.getLogger();
 	StoredPrefs sp_;
 
+	/**
+	 * @param sp
+	 */
 	public NexusRead(StoredPrefs sp)
 	{
 		sp_ = sp;
@@ -188,7 +192,7 @@ public class NexusRead implements ArtifactSearch
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Set<IBDFFile> readIBDFFiles()
+	public Set<IBDFFile> readIBDFFiles(boolean deltaArtifacts)
 	{
 		//TODO need to support paging
 		HashSet<IBDFFile> results = new HashSet<>();
@@ -197,7 +201,8 @@ public class NexusRead implements ArtifactSearch
 			Map<String, Object> args = new HashMap<>();
 			args.put(JsonReader.USE_MAPS, true);
 
-			URLConnection service = new URL(getRestURL() + "beta/search?maven.groupId=" + ContentConverterCreator.IBDF_OUTPUT_GROUP).openConnection();
+			URLConnection service = new URL(getRestURL() + "beta/search?maven.groupId=" + (deltaArtifacts ? DiffExecutionCreator.IBDF_OUTPUT_GROUP :  
+				ContentConverterCreator.IBDF_OUTPUT_GROUP)).openConnection();
 			String userpass = sp_.getArtifactUsername() + ":" + new String(sp_.getArtifactPassword());
 			String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
 			service.setRequestProperty("Authorization", basicAuth);
@@ -210,7 +215,7 @@ public class NexusRead implements ArtifactSearch
 				for (Object item : items)
 				{
 					JsonObject jo = (JsonObject)item;
-					String group = ContentConverterCreator.IBDF_OUTPUT_GROUP;
+					String group = (deltaArtifacts ? DiffExecutionCreator.IBDF_OUTPUT_GROUP : ContentConverterCreator.IBDF_OUTPUT_GROUP);
 					String artifactId = (String)jo.get("name");
 					String version = convertSnapshotVersion((String)jo.get("version"));
 					//To get the classifier, if it has one, we have to look at the assets.
