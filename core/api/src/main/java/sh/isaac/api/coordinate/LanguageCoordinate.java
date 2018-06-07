@@ -120,8 +120,15 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the dialect assemblage preference list
     */
    int[] getDialectAssemblagePreferenceList();
+   
+   /**
+    * Gets the module preference list. Used to adjudicate which component to 
+    * return when more than one component is available. For example, if two modules
+    * have different preferred names for the component, which one do you prefer to return?
+    * @return the module preference list. 
+    */
 
-   // int[] getModulePreferenceList();
+   int[] getModulePreferenceList();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *

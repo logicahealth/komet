@@ -94,6 +94,8 @@ public class LanguageCoordinateImpl
    /** The description type preference list. */
    int[] descriptionTypePreferenceList;
    
+   int[] modulePreferenceList;
+   
    LanguageCoordinateImpl nextProrityLanguageCoordinate;
 
    //~--- constructors --------------------------------------------------------
@@ -111,13 +113,16 @@ public class LanguageCoordinateImpl
     * @param languageConceptId the language concept id
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
+     * @param modulePreferenceList the module preference list
     */
    public LanguageCoordinateImpl(int languageConceptId,
                                  int[] dialectAssemblagePreferenceList,
-                                 int[] descriptionTypePreferenceList) {
+                                 int[] descriptionTypePreferenceList,
+                                 int[] modulePreferenceList) {
       this.languageConceptNid         = languageConceptId;
       this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
+      this.modulePreferenceList = modulePreferenceList;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -348,7 +353,8 @@ public class LanguageCoordinateImpl
    public LanguageCoordinate deepClone() {
       LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
                                  dialectAssemblagePreferenceList.clone(),
-                                 descriptionTypePreferenceList.clone());
+                                 descriptionTypePreferenceList.clone(),
+                                 modulePreferenceList.clone());
       if (this.nextProrityLanguageCoordinate != null) {
           newCoordinate.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) this.nextProrityLanguageCoordinate.deepClone();
       }
@@ -363,5 +369,12 @@ public class LanguageCoordinateImpl
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }
+
+    @Override
+    public int[] getModulePreferenceList() {
+        return modulePreferenceList;
+    }
+    
+    
 }
 

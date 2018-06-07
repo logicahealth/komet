@@ -390,6 +390,11 @@ public class ConceptSnapshotImpl
         }
         return versions;
     }    
+
+    @Override
+    public int[] getModulePreferenceList() {
+        return this.manifoldCoordinate.getModulePreferenceList();
+    }
     
 }
 

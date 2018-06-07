@@ -320,6 +320,11 @@ public final class ObservableLanguageCoordinateImpl
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return this.languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
+
+    @Override
+    public int[] getModulePreferenceList() {
+        return this.languageCoordinate.getModulePreferenceList();
+    }
     
     
 }

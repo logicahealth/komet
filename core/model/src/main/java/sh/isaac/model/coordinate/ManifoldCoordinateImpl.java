@@ -348,5 +348,10 @@ public class ManifoldCoordinateImpl
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
+
+    @Override
+    public int[] getModulePreferenceList() {
+        return languageCoordinate.getModulePreferenceList();
+    }
 }
 

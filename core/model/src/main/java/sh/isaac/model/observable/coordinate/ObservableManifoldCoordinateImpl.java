@@ -343,6 +343,11 @@ public class ObservableManifoldCoordinateImpl
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
+
+    @Override
+    public int[] getModulePreferenceList() {
+        return manifoldCoordinate.getModulePreferenceList();
+    }
     
     
 }
