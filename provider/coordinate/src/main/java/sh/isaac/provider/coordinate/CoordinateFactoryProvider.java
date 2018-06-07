@@ -521,6 +521,24 @@ public class CoordinateFactoryProvider
                         preferredForDialect.addLatest(description);
                     });
         }
+        
+        // add in module preferences if there is more than one. 
+        if (languageCoordinate.getModulePreferenceList().length != 0) {
+            List<DescriptionVersion> versionList = preferredForDialect.versionList();
+            for (int preference: languageCoordinate.getModulePreferenceList()) {
+                for (DescriptionVersion descriptionVersion: versionList) {
+                    if (descriptionVersion.getModuleNid() == preference) {
+                        LatestVersion<DescriptionVersion> preferredForModule = new LatestVersion(descriptionVersion);
+                        for (DescriptionVersion alternateVersion: versionList) {
+                            if (alternateVersion != preferredForModule.get()) {
+                                preferredForModule.addLatest(alternateVersion);
+                            }
+                        }
+                        return preferredForModule;
+                    }
+                }
+            }
+        }
 
         return preferredForDialect;
     }
