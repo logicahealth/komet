@@ -77,8 +77,6 @@ import javafx.util.Pair;
 import javafx.util.StringConverter;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.convert.differ.IBDFDiffTool;
 import sh.isaac.api.util.DeployFile;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
@@ -2014,12 +2012,6 @@ public class ContentManagerController
 		optionsArtifacts.setOnAction((action) -> artifactsConfigDialog());
 		optionsMaven.setOnAction((action) -> mavenConfigDialog());
 		optionsReadMavenArtifacts.setOnAction((action) -> readData(cm_.sp_));
-		
-		if (!LookupService.hasService(IBDFDiffTool.class))
-		{
-			tabDeltaCreation.setDisable(true);
-		}
-		
 	}
 
 	private void mavenConfigDialog()
