@@ -70,5 +70,4 @@
 			<filtered>true</filtered>
 		</file>
 	</files>
-	<includeBaseDirectory>false</includeBaseDirectory>
 </assembly>
