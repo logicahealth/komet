@@ -34,24 +34,17 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.komet.gui.treeview;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.application.Platform;
-
 
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
@@ -68,12 +61,11 @@ import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
  *
- * The {@code MultiParentTreeItemImpl} is not a visual component. The {@code MultiParentTreeCell} provides the rendering for
- * this tree item.
+ * The {@code MultiParentTreeItemImpl} is not a visual component. The
+ * {@code MultiParentTreeCell} provides the rendering for this tree item.
  *
  * @author kec
  * @author ocarlsen
@@ -82,331 +74,323 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class MultiParentTreeItemImpl
         extends TreeItem<ConceptChronology>
-         implements MultiParentTreeItem, Comparable<MultiParentTreeItemImpl> {
-   /**
-    * The Constant LOG.
-    */
-   private static final Logger LOG = LogManager.getLogger();
-   
-   //~--- fields --------------------------------------------------------------
+        implements MultiParentTreeItem, Comparable<MultiParentTreeItemImpl> {
 
-   private final List<MultiParentTreeItemImpl> extraParents        = new ArrayList<>();
-   private CountDownLatch                      childrenLoadedLatch = new CountDownLatch(1);
+    /**
+     * The Constant LOG.
+     */
+    private static final Logger LOG = LogManager.getLogger();
 
-   private volatile boolean     cancelLookup             = false;
-   private boolean              defined                  = false;
-   private boolean              multiParent              = false;
-   private int                  multiParentDepth         = 0;
-   private boolean              secondaryParentOpened    = false;
-   private MultiParentTreeView  treeView;
-   private String               conceptDescriptionText;  // Cached to speed up comparisons with toString method.
-   private final int            nid;
-   private int[] childNids;
+    //~--- fields --------------------------------------------------------------
+    private final List<MultiParentTreeItemImpl> extraParents = new ArrayList<>();
+    private CountDownLatch childrenLoadedLatch = new CountDownLatch(1);
 
-   //~--- constructors --------------------------------------------------------
+    private volatile boolean cancelLookup = false;
+    private boolean defined = false;
+    private boolean multiParent = false;
+    private int multiParentDepth = 0;
+    private boolean secondaryParentOpened = false;
+    private MultiParentTreeView treeView;
+    private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
+    private final int nid;
+    private int[] childNids;
 
-   MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView) {
-      this(Get.conceptService()
-              .getConceptChronology(conceptSequence), treeView, null);
-   }
+    //~--- constructors --------------------------------------------------------
+    MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView) {
+        this(Get.conceptService()
+                .getConceptChronology(conceptSequence), treeView, null);
+    }
 
-   MultiParentTreeItemImpl(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
-      super(conceptChronology, graphic);
-      this.treeView = treeView;
-      this.nid      = conceptChronology.getNid();
-   }
+    MultiParentTreeItemImpl(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
+        super(conceptChronology, graphic);
+        this.treeView = treeView;
+        this.nid = conceptChronology.getNid();
+    }
 
-   //~--- methods -------------------------------------------------------------
-
-   public void blockUntilChildrenReady()
+    //~--- methods -------------------------------------------------------------
+    public void blockUntilChildrenReady()
             throws InterruptedException {
-      childrenLoadedLatch.await();
-   }
+        childrenLoadedLatch.await();
+    }
 
-   
-   /**
-    * clears the display nodes, and the nid lists, and resets the calculators
-    */
-   public void clearChildren() {
-      cancelLookup = true;
-      childrenLoadedLatch.countDown();
-      getChildren().forEach(
-          (child) -> {
-             ((MultiParentTreeItemImpl) child).clearChildren();
-          });
-      getChildren().clear();
-      childNids = null;
-      resetChildrenCalculators();
-      
-   }
+    /**
+     * clears the display nodes, and the nid lists, and resets the calculators
+     */
+    public void clearChildren() {
+        cancelLookup = true;
+        childrenLoadedLatch.countDown();
+        getChildren().forEach(
+                (child) -> {
+                    ((MultiParentTreeItemImpl) child).clearChildren();
+                });
+        getChildren().clear();
+        childNids = null;
+        resetChildrenCalculators();
 
-   @Override
-   public int compareTo(MultiParentTreeItemImpl o) {
-      return NaturalOrder.compareStrings(this.toString(), o.toString());
-   }
+    }
 
-   public Node computeGraphic() {
-      return treeView.getDisplayPolicies()
-                     .computeGraphic(this);
-   }
+    @Override
+    public int compareTo(MultiParentTreeItemImpl o) {
+        return NaturalOrder.compareStrings(this.toString(), o.toString());
+    }
 
-   public void invalidate() {
-      this.conceptDescriptionText = null;
+    public Node computeGraphic() {
+        return treeView.getDisplayPolicies()
+                .computeGraphic(this);
+    }
 
-      for (TreeItem<ConceptChronology> child: getChildren()) {
-         MultiParentTreeItemImpl multiParentTreeItem = (MultiParentTreeItemImpl) child;
+    public void invalidate() {
+        updateDescription();
 
-         multiParentTreeItem.invalidate();
-      }
-   }
+        for (TreeItem<ConceptChronology> child : getChildren()) {
+            MultiParentTreeItemImpl multiParentTreeItem = (MultiParentTreeItemImpl) child;
 
-   /**
-    * Removed the graphical display nodes from the tree, but does not clear the cached nid set of children
-    */
-   public void removeChildren() {
-      this.getChildren()
-          .clear();
-   }
+            multiParentTreeItem.invalidate();
+        }
+    }
 
-   public boolean shouldDisplay() {
-      return treeView.getDisplayPolicies()
-                     .shouldDisplay(this);
-   }
+    /**
+     * Removed the graphical display nodes from the tree, but does not clear the
+     * cached nid set of children
+     */
+    public void removeChildren() {
+        this.getChildren()
+                .clear();
+    }
 
-   /**
-    * @see javafx.scene.control.TreeItem#toString() WARNING: toString is currently used in compareTo()
-    */
-   @Override
-   public String toString() {
-      try {
-         if (this.getValue() != null) {
-            if ((conceptDescriptionText == null) || conceptDescriptionText.startsWith("no description for ")) {
-               LatestVersion<String> latestDescriptionText = treeView.getManifold()
-                                                                     .getDescriptionText(nid);
+    public boolean shouldDisplay() {
+        return treeView.getDisplayPolicies()
+                .shouldDisplay(this);
+    }
 
-               latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
-                                    .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
+    /**
+     * @see javafx.scene.control.TreeItem#toString() WARNING: toString is
+     * currently used in compareTo()
+     */
+    @Override
+    public String toString() {
+        try {
+            if (this.getValue() != null) {
+                if ((conceptDescriptionText == null) || conceptDescriptionText.startsWith("no description for ")) {
+                    updateDescription();
+                }
+                return this.conceptDescriptionText;
             }
 
-            return this.conceptDescriptionText;
-         }
+            return "root";
+        } catch (RuntimeException | Error re) {
+            LOG.error("Caught {} \"{}\"", re.getClass()
+                    .getName(), re.getLocalizedMessage());
+            throw re;
+        }
+    }
 
-         return "root";
-      } catch (RuntimeException | Error re) {
-         LOG.error("Caught {} \"{}\"", re.getClass()
-                                         .getName(), re.getLocalizedMessage());
-         throw re;
-      }
-   }
+    private void updateDescription() {
+        LatestVersion<String> latestDescriptionText = treeView.getManifold()
+                .getDescriptionText(nid);
+        latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
+                .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
 
-   void addChildrenNow() {
-      if (getChildren().isEmpty()) {
-         try {
-            final ConceptChronology conceptChronology = getValue();
+    }
 
-            if (!shouldDisplay()) {
-               // Don't add children to something that shouldn't be displayed
-               LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
-            } else if (conceptChronology == null) {
-               LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
-            } else {  // if (conceptChronology != null)
-               // Gather the children
-               LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
-               ArrayList<MultiParentTreeItemImpl> childrenToAdd    = new ArrayList<>();
-               TaxonomySnapshotService            taxonomySnapshot = treeView.getTaxonomySnapshot();
-               
-               if (childNids == null)
-               {
-                  childNids = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
-               }
+    void addChildrenNow() {
+        if (getChildren().isEmpty()) {
+            try {
+                final ConceptChronology conceptChronology = getValue();
 
-               for (int childNid: childNids) {
-                  ConceptChronology childChronology = Get.concept(childNid);
-                  MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
-                  Manifold manifold = treeView.getManifold();
-                  childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
-                  childItem.toString();
-                  childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
+                if (!shouldDisplay()) {
+                    // Don't add children to something that shouldn't be displayed
+                    LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
+                } else if (conceptChronology == null) {
+                    LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
+                } else {  // if (conceptChronology != null)
+                    // Gather the children
+                    LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
+                    ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
+                    TaxonomySnapshotService taxonomySnapshot = treeView.getTaxonomySnapshot();
 
-                  if (childItem.shouldDisplay()) {
-                     childrenToAdd.add(childItem);
-                  } else {
-                     LOG.debug(
-                         "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of " +
-                         this.getConceptUuid());
-                  }
-               }
+                    if (childNids == null) {
+                        childNids = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
+                    }
 
-               Collections.sort(childrenToAdd);
+                    for (int childNid : childNids) {
+                        ConceptChronology childChronology = Get.concept(childNid);
+                        MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
+                        Manifold manifold = treeView.getManifold();
+                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
+                        childItem.toString();
+                        childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
 
-               if (cancelLookup) {
-                  return;
-               }
-               getChildren().addAll(childrenToAdd);
+                        if (childItem.shouldDisplay()) {
+                            childrenToAdd.add(childItem);
+                        } else {
+                            LOG.debug(
+                                    "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of "
+                                    + this.getConceptUuid());
+                        }
+                    }
+
+                    Collections.sort(childrenToAdd);
+
+                    if (cancelLookup) {
+                        return;
+                    }
+                    getChildren().addAll(childrenToAdd);
+                }
+            } catch (Exception e) {
+                LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
+            } finally {
+                childrenLoadedLatch.countDown();
             }
-         } catch (Exception e) {
-            LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
-         } finally {
+        }
+    }
+
+    void addChildren() {
+        LOG.info("addChildren: conceptChronology={}", this.getValue());
+        if (getChildren().isEmpty()) {
+            if (shouldDisplay()) {
+                FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
+                Get.executor().submit(fetchTask);
+            }
+        }
+    }
+
+    private void resetChildrenCalculators() {
+        CountDownLatch cdl = new CountDownLatch(1);
+        Runnable r = () -> {
+            cancelLookup = false;
             childrenLoadedLatch.countDown();
-         }
-      }
-   }
-   void addChildren() {
-               LOG.info("addChildren: conceptChronology={}", this.getValue());
-      if (getChildren().isEmpty()) {
-          if (shouldDisplay()) {
-              FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
-              Get.executor().submit(fetchTask);
-          }
-      }
-   }
+            childrenLoadedLatch = new CountDownLatch(1);
+            cdl.countDown();
+        };
 
-   private void resetChildrenCalculators() {
-      CountDownLatch cdl = new CountDownLatch(1);
-      Runnable       r   = () -> {
-                              cancelLookup = false;
-                              childrenLoadedLatch.countDown();
-                              childrenLoadedLatch = new CountDownLatch(1);
-                              cdl.countDown();
-                           };
+        if (Platform.isFxApplicationThread()) {
+            r.run();
+        } else {
+            Platform.runLater(r);
+        }
 
-      if (Platform.isFxApplicationThread()) {
-         r.run();
-      } else {
-         Platform.runLater(r);
-      }
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            LOG.error("unexpected interrupt", e);
+        }
+    }
 
-      try {
-         cdl.await();
-      } catch (InterruptedException e) {
-         LOG.error("unexpected interrupt", e);
-      }
-   }
+    //~--- get methods ---------------------------------------------------------
+    protected boolean isCancelRequested() {
+        return cancelLookup;
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    @Override
+    public int getConceptNid() {
+        return (getValue() != null) ? getValue().getNid()
+                : Integer.MIN_VALUE;
+    }
 
-   protected boolean isCancelRequested() {
-      return cancelLookup;
-   }
+    private static int getConceptNid(TreeItem<ConceptChronology> item) {
+        return ((item != null) && (item.getValue() != null)) ? item.getValue()
+                .getNid()
+                : null;
+    }
 
-   @Override
-   public int getConceptNid() {
-      return (getValue() != null) ? getValue().getNid()
-                                  : Integer.MIN_VALUE;
-   }
+    public UUID getConceptUuid() {
+        return (getValue() != null) ? getValue().getPrimordialUuid()
+                : null;
+    }
 
-   private static int getConceptNid(TreeItem<ConceptChronology> item) {
-      return ((item != null) && (item.getValue() != null)) ? item.getValue()
-            .getNid()
-            : null;
-   }
+    @Override
+    public boolean isDefined() {
+        return defined;
+    }
 
-   public UUID getConceptUuid() {
-      return (getValue() != null) ? getValue().getPrimordialUuid()
-                                  : null;
-   }
+    //~--- set methods ---------------------------------------------------------
+    public void setDefined(boolean defined) {
+        this.defined = defined;
+    }
 
-   @Override
-   public boolean isDefined() {
-      return defined;
-   }
+    //~--- get methods ---------------------------------------------------------
+    MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
+        return this.treeView.getDisplayPolicies();
+    }
 
-   //~--- set methods ---------------------------------------------------------
+    public List<MultiParentTreeItemImpl> getExtraParents() {
+        return extraParents;
+    }
 
-   public void setDefined(boolean defined) {
-      this.defined = defined;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
-      return this.treeView.getDisplayPolicies();
-   }
-
-   public List<MultiParentTreeItemImpl> getExtraParents() {
-      return extraParents;
-   }
-
-   @Override
-   public boolean isLeaf() {
-      if (multiParentDepth > 0) {
-         return true;
-      }
-      if (this.childNids == null) {
-          this.childNids = this.treeView.getTaxonomySnapshot().getTaxonomyChildConceptNids(nid);
-      }
-
-      return this.childNids.length == 0;
-   }
-
-   @Override
-   public boolean isMultiParent() {
-      return multiParent;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   public void setMultiParent(boolean multiParent) {
-      this.multiParent = multiParent;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   @Override
-   public int getMultiParentDepth() {
-      return multiParentDepth;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   public void setMultiParentDepth(int multiParentDepth) {
-      this.multiParentDepth = multiParentDepth;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   @Override
-   public boolean isRoot() {
-      if (MetaData.SOLOR_CONCEPT____SOLOR.isIdentifiedBy(this.getConceptUuid())) {
-         return true;
-      } else if (this.getParent() == null) {
-         return true;
-      } else {
-         TreeItem<ConceptChronology> root = getTreeRoot(this);
-
-         if (this == root) {
+    @Override
+    public boolean isLeaf() {
+        if (multiParentDepth > 0) {
             return true;
-         } else {
-            return getConceptNid(root) == getConceptNid();
-         }
-      }
-   }
+        }
+        if (this.childNids == null) {
+            this.childNids = this.treeView.getTaxonomySnapshot().getTaxonomyChildConceptNids(nid);
+        }
 
-   @Override
-   public boolean isSecondaryParentOpened() {
-      return secondaryParentOpened;
-   }
+        return this.childNids.length == 0;
+    }
 
-   //~--- set methods ---------------------------------------------------------
+    @Override
+    public boolean isMultiParent() {
+        return multiParent;
+    }
 
-   public void setSecondaryParentOpened(boolean secondaryParentOpened) {
-      this.secondaryParentOpened = secondaryParentOpened;
-   }
+    //~--- set methods ---------------------------------------------------------
+    public void setMultiParent(boolean multiParent) {
+        this.multiParent = multiParent;
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public int getMultiParentDepth() {
+        return multiParentDepth;
+    }
 
-   private static TreeItem<ConceptChronology> getTreeRoot(TreeItem<ConceptChronology> item) {
-      TreeItem<ConceptChronology> parent = item.getParent();
+    //~--- set methods ---------------------------------------------------------
+    public void setMultiParentDepth(int multiParentDepth) {
+        this.multiParentDepth = multiParentDepth;
+    }
 
-      if (parent == null) {
-         return item;
-      } else {
-         return getTreeRoot(parent);
-      }
-   }
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public boolean isRoot() {
+        if (MetaData.SOLOR_CONCEPT____SOLOR.isIdentifiedBy(this.getConceptUuid())) {
+            return true;
+        } else if (this.getParent() == null) {
+            return true;
+        } else {
+            TreeItem<ConceptChronology> root = getTreeRoot(this);
 
-   public MultiParentTreeView getTreeView() {
-      return treeView;
-   }
+            if (this == root) {
+                return true;
+            } else {
+                return getConceptNid(root) == getConceptNid();
+            }
+        }
+    }
+
+    @Override
+    public boolean isSecondaryParentOpened() {
+        return secondaryParentOpened;
+    }
+
+    //~--- set methods ---------------------------------------------------------
+    public void setSecondaryParentOpened(boolean secondaryParentOpened) {
+        this.secondaryParentOpened = secondaryParentOpened;
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    private static TreeItem<ConceptChronology> getTreeRoot(TreeItem<ConceptChronology> item) {
+        TreeItem<ConceptChronology> parent = item.getParent();
+
+        if (parent == null) {
+            return item;
+        } else {
+            return getTreeRoot(parent);
+        }
+    }
+
+    public MultiParentTreeView getTreeView() {
+        return treeView;
+    }
 }
-

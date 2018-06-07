@@ -45,6 +45,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
@@ -133,19 +134,26 @@ public final class ObservableLanguageCoordinateImpl
     @Override
     public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
         if (this.descriptionTypePreferenceListProperty == null) {
+            ObservableIntegerArray preferenceList = FXCollections.observableIntegerArray(getDescriptionTypePreferenceList());
+            preferenceList.addListener(this::descriptionTypeArrayChanged);
             this.descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
-                    FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
+                    preferenceList);
 
-            this.descriptionTypePreferenceListProperty.addListener((ov, t, t1) -> {
-                this.languageCoordinate.setDescriptionTypePreferenceList(t1.toArray(new int[t1.size()]));
-            });
-            this.descriptionTypePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
+            this.descriptionTypePreferenceListProperty.addListener(this::descriptionTypePreferenceChanged);
         }
 
         return this.descriptionTypePreferenceListProperty;
     }
-
+    
+    private void descriptionTypePreferenceChanged(ObservableValue<? extends ObservableIntegerArray> observable, ObservableIntegerArray oldValue, ObservableIntegerArray newValue) {
+        this.languageCoordinate.setDescriptionTypePreferenceList(newValue.toArray(new int[newValue.size()]));
+        newValue.addListener(this::descriptionTypeArrayChanged);
+    }
+    
+    private void descriptionTypeArrayChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
+        this.languageCoordinate.setDescriptionTypePreferenceList(observableArray.toArray(new int[observableArray.size()]));
+    }
     /**
      * Dialect assemblage preference list property.
      *
@@ -154,17 +162,27 @@ public final class ObservableLanguageCoordinateImpl
     @Override
     public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
         if (this.dialectAssemblagePreferenceListProperty == null) {
+            ObservableIntegerArray preferenceList = FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList());
+            preferenceList.addListener(this::dialectAssemblageArrayChanged);
             this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
-                    FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
-
-            addListenerReference(this.languageCoordinate.setDialectAssemblagePreferenceListProperty(
-                    this.dialectAssemblagePreferenceListProperty));
-            this.dialectAssemblagePreferenceListProperty.addListener((invalidation) -> fireValueChangedEvent());
+                    preferenceList);
+            this.dialectAssemblagePreferenceListProperty.addListener(this::dialectAssemblagePreferenceChanged);
+            
         }
 
         return this.dialectAssemblagePreferenceListProperty;
     }
+    
+    private void dialectAssemblagePreferenceChanged(ObservableValue<? extends ObservableIntegerArray> observable, ObservableIntegerArray oldValue, ObservableIntegerArray newValue) {
+        this.languageCoordinate.setDialectAssemblagePreferenceList(newValue.toArray(new int[newValue.size()]));
+        newValue.addListener(this::dialectAssemblageArrayChanged);
+    }
+    
+    private void dialectAssemblageArrayChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
+        this.languageCoordinate.setDialectAssemblagePreferenceList(observableArray.toArray(new int[observableArray.size()]));
+    }
+    
 
     @Override
     public ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty() {

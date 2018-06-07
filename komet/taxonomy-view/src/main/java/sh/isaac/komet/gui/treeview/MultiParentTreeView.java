@@ -612,6 +612,10 @@ public class MultiParentTreeView
         }
 
     }
+    
+    public int getPreferredDescriptionType() {
+        return this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().get(0);
+    }
 
     public final void handleDescriptionTypeChange(ActionEvent event) {
         ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
